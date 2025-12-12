@@ -2,15 +2,17 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project_7/_meta?user=user_114
+    uri: http://backend:5352/source/project_12/_meta?user=user_142
     body:
       encoding: UTF-8
       string: |
-        <project name="project_7">
-          <title>Tender Is the Night</title>
+        <project name="project_12">
+          <title>The Way of All Flesh</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556071'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -29,13 +31,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '105'
+      - '107'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_7">
-          <title>Tender Is the Night</title>
+        <project name="project_12">
+          <title>The Way of All Flesh</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:16 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:31 GMT
+recorded_with: VCR 6.3.1

@@ -12,6 +12,8 @@ http_interactions:
           <person userid="tux" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556072'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -39,17 +41,19 @@ http_interactions:
           <description></description>
           <person userid="tux" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:22:59 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_project/_staging_workflow?user=tux
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tux" managers="group_2">
+        <workflow project="home:tux" managers="group_11">
           <staging_project name="home:tux:Staging:A"/>
         </workflow>
     headers:
+      X-Frontend-Start:
+      - '1765556072'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -73,13 +77,13 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="3">
-          <srcmd5>050880ead884911764d521f1c464c7e5</srcmd5>
-          <time>1686759779</time>
+          <srcmd5>0d04af2fc3071b71fac5eff8bb5f165b</srcmd5>
+          <time>1765556072</time>
           <user>tux</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:22:59 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux:Staging:A/_meta?user=tux
@@ -89,9 +93,11 @@ http_interactions:
         <project name="home:tux:Staging:A">
           <title/>
           <description/>
-          <group groupid="group_2" role="maintainer"/>
+          <group groupid="group_11" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556072'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -110,27 +116,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '142'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tux:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="group_2" role="maintainer"/>
+          <group groupid="group_11" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:22:59 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_project/_staging_workflow?user=tux
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tux" managers="group_2">
+        <workflow project="home:tux" managers="group_11">
           <staging_project name="home:tux:Staging:A"/>
           <staging_project name="home:tux:Staging:B"/>
         </workflow>
     headers:
+      X-Frontend-Start:
+      - '1765556072'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -154,13 +162,13 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="4">
-          <srcmd5>08b8ce485ffdc9843a950341b8871bab</srcmd5>
-          <time>1686759780</time>
+          <srcmd5>cce3532ab85018e49de6286e2a14416c</srcmd5>
+          <time>1765556072</time>
           <user>tux</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux:Staging:B/_meta?user=tux
@@ -170,9 +178,11 @@ http_interactions:
         <project name="home:tux:Staging:B">
           <title/>
           <description/>
-          <group groupid="group_2" role="maintainer"/>
+          <group groupid="group_11" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556072'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -191,16 +201,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '142'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tux:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="group_2" role="maintainer"/>
+          <group groupid="group_11" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_meta?user=tux
@@ -211,9 +221,11 @@ http_interactions:
           <title/>
           <description/>
           <person userid="tux" role="maintainer"/>
-          <group groupid="group_2" role="reviewer"/>
+          <group groupid="group_11" role="reviewer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556072'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -232,7 +244,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '174'
     body:
       encoding: UTF-8
       string: |
@@ -240,21 +252,23 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="tux" role="maintainer"/>
-          <group groupid="group_2" role="reviewer"/>
+          <group groupid="group_11" role="reviewer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:32 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_11/_meta?user=user_11
+    uri: http://backend:5352/source/home:user_153/_meta?user=user_153
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_11">
+        <project name="home:user_153">
           <title/>
           <description/>
-          <person userid="user_11" role="maintainer"/>
+          <person userid="user_153" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556072'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -273,16 +287,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '136'
+      - '138'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_11">
+        <project name="home:user_153">
           <title></title>
           <description></description>
-          <person userid="user_11" role="maintainer"/>
+          <person userid="user_153" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/target_package/_meta?user=tux
@@ -290,10 +304,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:tux">
-          <title>Taming a Sea Horse</title>
-          <description>Temporibus sed culpa et.</description>
+          <title>Number the Stars</title>
+          <description>Enim laboriosam quam sequi.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556072'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -312,15 +328,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:tux">
-          <title>Taming a Sea Horse</title>
-          <description>Temporibus sed culpa et.</description>
+          <title>Number the Stars</title>
+          <description>Enim laboriosam quam sequi.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=tux
@@ -328,10 +344,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>An Acceptable Time</title>
+          <title>The Way Through the Woods</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556072'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -350,15 +368,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '116'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>An Acceptable Time</title>
+          <title>The Way Through the Woods</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=tux
@@ -366,10 +384,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Far From the Madding Crowd</title>
-          <description>Sint unde dolore porro.</description>
+          <title>For a Breath I Tarry</title>
+          <description>Omnis repellat aut tempore.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556072'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -388,15 +408,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Far From the Madding Crowd</title>
-          <description>Sint unde dolore porro.</description>
+          <title>For a Breath I Tarry</title>
+          <description>Omnis repellat aut tempore.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -404,6 +424,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -428,7 +450,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=home:tux&tarlimit=10000&view=xml&withissues=1
@@ -438,6 +460,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -460,7 +484,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="dcba7472982eeb139db6ace145688653">
+        <sourcediff key="4d40284b78e175ee6f3beb2928395cd3">
           <old project="home:tux" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
@@ -468,7 +492,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -476,6 +500,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -500,7 +526,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -508,6 +534,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -532,45 +560,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tux/target_package/_meta?user=tux
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="home:tux">
-          <title>Taming a Sea Horse</title>
-          <description>Temporibus sed culpa et.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '152'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="home:tux">
-          <title>Taming a Sea Horse</title>
-          <description>Temporibus sed culpa et.</description>
-        </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux/target_package
@@ -578,6 +568,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -602,7 +594,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux/target_package?view=info
@@ -610,6 +602,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -635,7 +629,7 @@ http_interactions:
         <sourceinfo package="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux/target_package
@@ -643,6 +637,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -667,7 +663,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tux/target_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -677,6 +673,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -699,10 +697,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="72c89f1b5c74da9447566aba1999db8c">
+        <sourcediff key="ee9c8c8550a2409658df5225a45f57b5">
           <old project="home:tux" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="home:tux" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Wed, 14 Jun 2023 16:23:00 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
+recorded_with: VCR 6.3.1

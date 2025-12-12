@@ -2,16 +2,18 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_29/_meta?user=user_29
+    uri: http://backend:5352/source/home:user_147/_meta?user=user_147
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_29">
+        <project name="home:user_147">
           <title/>
           <description/>
-          <person userid="user_29" role="maintainer"/>
+          <person userid="user_147" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556071'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -30,14 +32,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '136'
+      - '138'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_29">
+        <project name="home:user_147">
           <title></title>
           <description></description>
-          <person userid="user_29" role="maintainer"/>
+          <person userid="user_147" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:03 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:31 GMT
+recorded_with: VCR 6.3.1

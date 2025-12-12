@@ -2,18 +2,18 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/source_project_123/_meta?user=user_1
+    uri: http://backend:5352/source/source_project_123/_meta?user=user_167
     body:
       encoding: UTF-8
       string: |
         <project name="source_project_123">
-          <title>Terrible Swift Sword</title>
+          <title>A Passage to India</title>
           <description/>
           <person userid="sagan" role="maintainer"/>
         </project>
     headers:
       X-Frontend-Start:
-      - '1763032021'
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -32,29 +32,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project_123">
-          <title>Terrible Swift Sword</title>
+          <title>A Passage to India</title>
           <description></description>
           <person userid="sagan" role="maintainer"/>
         </project>
-  recorded_at: Thu, 13 Nov 2025 11:07:02 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project_123/source_package_123/_meta?user=user_2
+    uri: http://backend:5352/source/source_project_123/source_package_123/_meta?user=user_168
     body:
       encoding: UTF-8
       string: |
         <package name="source_package_123" project="source_project_123">
-          <title>Mother Night</title>
-          <description>Maiores molestiae nihil dolores.</description>
+          <title>Fair Stood the Wind for France</title>
+          <description>Sequi alias facere est.</description>
         </package>
     headers:
       X-Frontend-Start:
-      - '1763032022'
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -73,29 +73,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package_123" project="source_project_123">
-          <title>Mother Night</title>
-          <description>Maiores molestiae nihil dolores.</description>
+          <title>Fair Stood the Wind for France</title>
+          <description>Sequi alias facere est.</description>
         </package>
-  recorded_at: Thu, 13 Nov 2025 11:07:02 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_123/_meta?user=user_3
+    uri: http://backend:5352/source/project_123/_meta?user=user_169
     body:
       encoding: UTF-8
       string: |
         <project name="project_123">
-          <title>A Confederacy of Dunces</title>
+          <title>To Say Nothing of the Dog</title>
           <description/>
           <person userid="sagan" role="maintainer"/>
         </project>
     headers:
       X-Frontend-Start:
-      - '1763032022'
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -114,29 +114,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <project name="project_123">
-          <title>A Confederacy of Dunces</title>
+          <title>To Say Nothing of the Dog</title>
           <description></description>
           <person userid="sagan" role="maintainer"/>
         </project>
-  recorded_at: Thu, 13 Nov 2025 11:07:02 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_123/package_123/_meta?user=user_4
+    uri: http://backend:5352/source/project_123/package_123/_meta?user=user_170
     body:
       encoding: UTF-8
       string: |
         <package name="package_123" project="project_123">
-          <title>Postern of Fate</title>
-          <description>Excepturi corporis aut deleniti.</description>
+          <title>The Little Foxes</title>
+          <description>Eligendi officiis beatae est.</description>
         </package>
     headers:
       X-Frontend-Start:
-      - '1763032022'
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -155,15 +155,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="package_123" project="project_123">
-          <title>Postern of Fate</title>
-          <description>Excepturi corporis aut deleniti.</description>
+          <title>The Little Foxes</title>
+          <description>Eligendi officiis beatae est.</description>
         </package>
-  recorded_at: Thu, 13 Nov 2025 11:07:02 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project_123/source_package_123
@@ -172,7 +172,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1763032022'
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -197,7 +197,7 @@ http_interactions:
       string: |
         <directory name="source_package_123" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Thu, 13 Nov 2025 11:07:02 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project_123/source_package_123?cmd=diff&expand=1&filelimit=10000&opackage=package_123&oproject=project_123&tarlimit=10000&view=xml&withissues=1
@@ -208,7 +208,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Frontend-Start:
-      - '1763032022'
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -222,24 +222,24 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '330'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '330'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="bdeab7b9d2ee6a99b99789e054843430">
-          <old project="project_123" package="package_123" rev="6" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        <sourcediff key="bcb3f04effa308f02fc5748dc39cc43c">
+          <old project="project_123" package="package_123" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project_123" package="source_package_123" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
           </files>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 13 Nov 2025 11:07:02 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project_123/source_package_123?expand=1
@@ -248,7 +248,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1763032022'
+      - '1765556075'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -273,7 +273,7 @@ http_interactions:
       string: |
         <directory name="source_package_123" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Thu, 13 Nov 2025 11:07:02 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project_123/source_package_123?expand=1
@@ -282,7 +282,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1763032023'
+      - '1765556075'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -307,7 +307,7 @@ http_interactions:
       string: |
         <directory name="source_package_123" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Thu, 13 Nov 2025 11:07:03 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:35 GMT
 - request:
     method: post
     uri: http://backend:5352/source/project_123/package_123?cmd=copy&comment=A%20single%20comment&expand=1&keeplink=1&noservice=1&opackage=source_package_123&oproject=source_project_123&requestid=1&user=sagan&withacceptinfo=1
@@ -318,7 +318,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Frontend-Start:
-      - '1763032023'
+      - '1765556075'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -341,16 +341,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
+        <revision rev="2" vrev="2">
           <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
           <version>unknown</version>
-          <time>1763032023</time>
+          <time>1765556075</time>
           <user>sagan</user>
           <comment>A single comment</comment>
           <requestid>1</requestid>
-          <acceptinfo rev="7" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <acceptinfo rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
         </revision>
-  recorded_at: Thu, 13 Nov 2025 11:07:03 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/project_123/package_123
@@ -359,7 +359,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1763032023'
+      - '1765556075'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -382,9 +382,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_123" rev="7" vrev="7" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="package_123" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Thu, 13 Nov 2025 11:07:03 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/project_123/package_123?view=info
@@ -393,7 +393,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1763032023'
+      - '1765556075'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -416,10 +416,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_123" rev="7" vrev="7" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="package_123" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Thu, 13 Nov 2025 11:07:03 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/project_123/package_123
@@ -428,7 +428,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1763032023'
+      - '1765556075'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -451,9 +451,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_123" rev="7" vrev="7" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="package_123" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Thu, 13 Nov 2025 11:07:03 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:35 GMT
 - request:
     method: post
     uri: http://backend:5352/source/project_123/package_123?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -464,7 +464,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Frontend-Start:
-      - '1763032023'
+      - '1765556075'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -487,10 +487,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="81566ecdb2860590e60da20953644b4c">
+        <sourcediff key="2d3a3e1269899f7baf1339cb2beb0283">
           <old project="project_123" package="package_123" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="project_123" package="package_123" rev="7" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="project_123" package="package_123" rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Thu, 13 Nov 2025 11:07:03 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:35 GMT
 recorded_with: VCR 6.3.1

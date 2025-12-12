@@ -2,16 +2,18 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_45/_meta?user=user_45
+    uri: http://backend:5352/source/home:user_47/_meta?user=user_47
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_45">
+        <project name="home:user_47">
           <title/>
           <description/>
-          <person userid="user_45" role="maintainer"/>
+          <person userid="user_47" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556062'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -34,23 +36,25 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_45">
+        <project name="home:user_47">
           <title></title>
           <description></description>
-          <person userid="user_45" role="maintainer"/>
+          <person userid="user_47" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:05 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_1/_meta?user=user_45
+    uri: http://backend:5352/source/project_5/_meta?user=user_47
     body:
       encoding: UTF-8
       string: |
-        <project name="project_1">
-          <title>All Passion Spent</title>
+        <project name="project_5">
+          <title>Specimen Days</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556062'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -69,26 +73,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '103'
+      - '99'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_1">
-          <title>All Passion Spent</title>
+        <project name="project_5">
+          <title>Specimen Days</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:05 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/_meta?user=user_45
+    uri: http://backend:5352/source/project_6/_meta?user=user_47
     body:
       encoding: UTF-8
       string: |
-        <project name="project_2">
-          <title>Taming a Sea Horse</title>
+        <project name="project_6">
+          <title>To a God Unknown</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556062'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -107,13 +113,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '102'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_2">
-          <title>Taming a Sea Horse</title>
+        <project name="project_6">
+          <title>To a God Unknown</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:06 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:22 GMT
+recorded_with: VCR 6.3.1

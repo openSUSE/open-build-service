@@ -2,16 +2,18 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_48/_meta?user=user_48
+    uri: http://backend:5352/source/home:user_44/_meta?user=user_44
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_48">
+        <project name="home:user_44">
           <title/>
           <description/>
-          <person userid="user_48" role="maintainer"/>
+          <person userid="user_44" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556062'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -34,23 +36,25 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_48">
+        <project name="home:user_44">
           <title></title>
           <description></description>
-          <person userid="user_48" role="maintainer"/>
+          <person userid="user_44" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:06 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/_meta?user=user_48
+    uri: http://backend:5352/source/project_3/_meta?user=user_44
     body:
       encoding: UTF-8
       string: |
         <project name="project_3">
-          <title>When the Green Woods Laugh</title>
+          <title>The Road Less Traveled</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556062'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -69,26 +73,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '112'
+      - '108'
     body:
       encoding: UTF-8
       string: |
         <project name="project_3">
-          <title>When the Green Woods Laugh</title>
+          <title>The Road Less Traveled</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:06 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_4/_meta?user=user_48
+    uri: http://backend:5352/source/project_4/_meta?user=user_44
     body:
       encoding: UTF-8
       string: |
         <project name="project_4">
-          <title>Look to Windward</title>
+          <title>All the King's Men</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556062'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -107,13 +113,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '102'
+      - '104'
     body:
       encoding: UTF-8
       string: |
         <project name="project_4">
-          <title>Look to Windward</title>
+          <title>All the King's Men</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:06 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:22 GMT
+recorded_with: VCR 6.3.1
