@@ -61,6 +61,7 @@ class SourcePackageController < SourceController
   def show_file
     project_name = params[:project]
     package_name = params[:package] || '_project'
+    file = params[:filename]
 
     if params.key?(:deleted)
       if package_name == '_project'
@@ -79,9 +80,9 @@ class SourcePackageController < SourceController
       end
     end
 
-    backend_params = params.slice(*%i[rev meta deleted limit expand view]).permit!.to_h
-
-    send_data(Backend::Api::Sources::File.content(project_name, package_name, params[:filename], backend_params))
+    path = Package.source_path(project_name, package_name, file)
+    path += build_query_from_hash(params, %i[rev meta deleted limit expand view])
+    pass_to_backend(path)
   end
 
   # PUT /source/:project/:package/:filename
