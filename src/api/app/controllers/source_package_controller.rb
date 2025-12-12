@@ -20,10 +20,14 @@ class SourcePackageController < SourceController
 
     show_package_issues && return if params[:view] == 'issues'
 
-    backend_params = params.slice(*%i[rev linkrev emptylink deleted expand view extension lastworking withlinked meta product
-                                      parse repository arch]).permit!.to_h
+    path = request.path_info
+    path += build_query_from_hash(params, %i[rev linkrev emptylink
+                                             expand view extension
+                                             lastworking withlinked meta
+                                             deleted parse arch
+                                             repository product nofilename])
 
-    render xml: Backend::Api::Sources::Package.files(@target_project_name, @target_package_name, backend_params)
+    pass_to_backend(path)
   end
 
   # DELETE /source/:project/:package
