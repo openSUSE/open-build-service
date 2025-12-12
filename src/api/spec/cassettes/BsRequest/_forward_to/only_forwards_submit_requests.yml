@@ -2,15 +2,17 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_64
+    uri: http://backend:5352/source/target_project/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>A Glass of Blessings</title>
+          <title>Quo Vadis</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556057'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -29,26 +31,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '100'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>A Glass of Blessings</title>
+          <title>Quo Vadis</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_65
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Mother Night</title>
-          <description>Aut quae aut quia.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Officia eum quo neque.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556057'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -67,26 +71,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Mother Night</title>
-          <description>Aut quae aut quia.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Officia eum quo neque.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_66
+    uri: http://backend:5352/source/source_project/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>The Green Bay Tree</title>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556057'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -105,18 +111,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '140'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>The Green Bay Tree</title>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_66
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_3
     body:
       encoding: UTF-8
       string: |
@@ -124,6 +130,8 @@ http_interactions:
           <attribute name="ApprovedRequestSource" namespace="OBS"/>
         </attributes>
     headers:
+      X-Frontend-Start:
+      - '1765556057'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -142,29 +150,31 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '169'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="14">
-          <srcmd5>bb0aab35e64c3fab23b4e132f3bbab7c</srcmd5>
-          <time>1686759788</time>
-          <user>user_66</user>
+        <revision rev="22">
+          <srcmd5>fbf1cd34828a2199b43039429fd6ed36</srcmd5>
+          <time>1765556057</time>
+          <user>user_3</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_67
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>A Farewell to Arms</title>
-          <description>Dolores dolorem dignissimos est.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Omnis nostrum mollitia quos.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556057'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -183,15 +193,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>A Farewell to Arms</title>
-          <description>Dolores dolorem dignissimos est.</description>
+          <title>Moab Is My Washpot</title>
+          <description>Omnis nostrum mollitia quos.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:17 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -199,6 +209,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556057'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -223,7 +235,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:17 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -233,6 +245,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1765556057'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -255,7 +269,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1d2d66e37ffce337361288aaa1a481e8">
+        <sourcediff key="2fe57ca3fd12f129d580b1580021d5e5">
           <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
@@ -263,7 +277,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_meta?user=tux
@@ -276,6 +290,8 @@ http_interactions:
           <person userid="tux" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556057'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -303,5 +319,5 @@ http_interactions:
           <description></description>
           <person userid="tux" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:17 GMT
+recorded_with: VCR 6.3.1

@@ -2,15 +2,17 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project_12/_meta?user=user_180
+    uri: http://backend:5352/source/project_11/_meta?user=user_70
     body:
       encoding: UTF-8
       string: |
-        <project name="project_12">
-          <title>The Wives of Bath</title>
+        <project name="project_11">
+          <title>In Dubious Battle</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556064'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -33,22 +35,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="project_12">
-          <title>The Wives of Bath</title>
+        <project name="project_11">
+          <title>In Dubious Battle</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:24 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:24 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_181
+    uri: http://backend:5352/source/target_project/_meta?user=user_71
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>This Lime Tree Bower</title>
+          <title>Dulce et Decorum Est</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556064'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -72,21 +76,23 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>This Lime Tree Bower</title>
+          <title>Dulce et Decorum Est</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:24 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_182
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_72
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Consider Phlebas</title>
-          <description>In quidem ad voluptas.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Odio dolores enim officiis.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -105,26 +111,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '179'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Consider Phlebas</title>
-          <description>In quidem ad voluptas.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Odio dolores enim officiis.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:24 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_183
+    uri: http://backend:5352/source/source_project/_meta?user=user_73
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Françoise Sagan</title>
+          <title>After Many a Summer Dies the Swan</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -143,15 +151,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '124'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PHByb2plY3QgbmFtZT0ic291cmNlX3Byb2plY3QiPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+PC9kZXNjcmlwdGlvbj4KPC9wcm9qZWN0Pgo=
-  recorded_at: Wed, 14 Jun 2023 16:23:24 GMT
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_183
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_73
     body:
       encoding: UTF-8
       string: |
@@ -159,6 +170,8 @@ http_interactions:
           <attribute name="ApprovedRequestSource" namespace="OBS"/>
         </attributes>
     headers:
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -177,29 +190,31 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <revision rev="46">
-          <srcmd5>ec4a5c614b55d3659a0232d6685ff6ff</srcmd5>
-          <time>1686759804</time>
-          <user>user_183</user>
+          <srcmd5>8c4bc6c36f137db954afd3b96572e1e7</srcmd5>
+          <time>1765556065</time>
+          <user>user_73</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:23:24 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_184
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_74
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Blithe Spirit</title>
-          <description>Illo qui ipsam repudiandae.</description>
+          <title>The Wind's Twelve Quarters</title>
+          <description>Non deserunt eos est.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -218,15 +233,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Blithe Spirit</title>
-          <description>Illo qui ipsam repudiandae.</description>
+          <title>The Wind's Twelve Quarters</title>
+          <description>Non deserunt eos est.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:24 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -234,6 +249,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -258,7 +275,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:25 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -268,6 +285,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -290,7 +309,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3360c5bc4c9400d7929cfe967dc18e4f">
+        <sourcediff key="cf1ac936c42e533c81c5ab38c299e80d">
           <old project="target_project" package="target_package" rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
@@ -298,7 +317,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Jun 2023 16:23:25 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -306,6 +325,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -330,7 +351,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:25 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -338,6 +359,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -362,7 +385,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:25 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: post
     uri: http://backend:5352/source/target_project/target_package?cmd=copy&comment=Update%20package%20to%20newest%20version&expand=1&keeplink=1&noservice=1&opackage=source_package&oproject=source_project&requestid=1&user=tux&withacceptinfo=1
@@ -372,6 +395,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -397,53 +422,13 @@ http_interactions:
         <revision rev="3" vrev="3">
           <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
           <version>unknown</version>
-          <time>1686759805</time>
+          <time>1765556065</time>
           <user>tux</user>
           <comment>Update package to newest version</comment>
           <requestid>1</requestid>
           <acceptinfo rev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:23:25 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=tux
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Consider Phlebas</title>
-          <description>In quidem ad voluptas.</description>
-          <person userid="tux" role="maintainer"/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '197'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Consider Phlebas</title>
-          <description>In quidem ad voluptas.</description>
-          <person userid="tux" role="maintainer"/>
-        </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:25 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -451,6 +436,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -475,7 +462,7 @@ http_interactions:
       string: |
         <directory name="target_package" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:25 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package?view=info
@@ -483,6 +470,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -508,7 +497,7 @@ http_interactions:
         <sourceinfo package="target_package" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Wed, 14 Jun 2023 16:23:25 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -516,6 +505,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -540,7 +531,7 @@ http_interactions:
       string: |
         <directory name="target_package" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:25 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
 - request:
     method: post
     uri: http://backend:5352/source/target_project/target_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -550,6 +541,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1765556065'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -572,10 +565,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="227d490c998bf9739f64a6d731d2d473">
+        <sourcediff key="c28c76fcf9d6ac1ec26f1b434186fc64">
           <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="target_project" package="target_package" rev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Wed, 14 Jun 2023 16:23:25 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:25 GMT
+recorded_with: VCR 6.3.1

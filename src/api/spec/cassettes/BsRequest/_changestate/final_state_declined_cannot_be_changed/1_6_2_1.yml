@@ -2,15 +2,17 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_1
+    uri: http://backend:5352/source/target_project/_meta?user=user_154
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Have His Carcase</title>
+          <title>The Wives of Bath</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -29,26 +31,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '108'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Have His Carcase</title>
+          <title>The Wives of Bath</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:22:57 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_2
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_155
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>The Daffodil Sky</title>
-          <description>Ut sunt dignissimos asperiores.</description>
+          <title>Blithe Spirit</title>
+          <description>Impedit quidem dolorem quis.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -67,26 +71,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>The Daffodil Sky</title>
-          <description>Ut sunt dignissimos asperiores.</description>
+          <title>Blithe Spirit</title>
+          <description>Impedit quidem dolorem quis.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:22:57 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_3
+    uri: http://backend:5352/source/source_project/_meta?user=user_156
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Time of our Darkness</title>
+          <title>A Handful of Dust</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -105,18 +111,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '108'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Time of our Darkness</title>
+          <title>A Handful of Dust</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:22:57 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_3
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_156
     body:
       encoding: UTF-8
       string: |
@@ -124,6 +130,8 @@ http_interactions:
           <attribute name="ApprovedRequestSource" namespace="OBS"/>
         </attributes>
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -142,29 +150,31 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '171'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2">
-          <srcmd5>f984899a70a2f396552adfe8c024bd1d</srcmd5>
-          <time>1686759777</time>
-          <user>user_3</user>
+        <revision rev="60">
+          <srcmd5>2e2f8fc153bb63ce38f45d1edb2ecf12</srcmd5>
+          <time>1765556073</time>
+          <user>user_156</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:22:57 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_4
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_157
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Golden Bowl</title>
-          <description>Sunt et magni officiis.</description>
+          <title>Carrion Comfort</title>
+          <description>Veritatis omnis laboriosam fugit.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -183,15 +193,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Golden Bowl</title>
-          <description>Sunt et magni officiis.</description>
+          <title>Carrion Comfort</title>
+          <description>Veritatis omnis laboriosam fugit.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:22:57 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -199,6 +209,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -223,7 +235,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:22:58 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -233,6 +245,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -246,24 +260,24 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '328'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '328'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1d2d66e37ffce337361288aaa1a481e8">
-          <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        <sourcediff key="2132d9ab30dbe2c7c971d9f37b93dfc1">
+          <old project="target_project" package="target_package" rev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
           </files>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Jun 2023 16:22:58 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_meta?user=tux
@@ -276,6 +290,8 @@ http_interactions:
           <person userid="tux" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556073'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -303,5 +319,5 @@ http_interactions:
           <description></description>
           <person userid="tux" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:22:58 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:33 GMT
+recorded_with: VCR 6.3.1

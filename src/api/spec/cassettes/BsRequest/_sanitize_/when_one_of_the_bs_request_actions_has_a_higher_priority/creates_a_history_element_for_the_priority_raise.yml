@@ -2,16 +2,18 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_51/_meta?user=user_51
+    uri: http://backend:5352/source/home:user_41/_meta?user=user_41
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_51">
+        <project name="home:user_41">
           <title/>
           <description/>
-          <person userid="user_51" role="maintainer"/>
+          <person userid="user_41" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556062'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -34,23 +36,25 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_51">
+        <project name="home:user_41">
           <title></title>
           <description></description>
-          <person userid="user_51" role="maintainer"/>
+          <person userid="user_41" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:06 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_5/_meta?user=user_51
+    uri: http://backend:5352/source/project_1/_meta?user=user_41
     body:
       encoding: UTF-8
       string: |
-        <project name="project_5">
-          <title>A Passage to India</title>
+        <project name="project_1">
+          <title>Infinite Jest</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556062'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -69,26 +73,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '99'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_5">
-          <title>A Passage to India</title>
+        <project name="project_1">
+          <title>Infinite Jest</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:06 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_6/_meta?user=user_51
+    uri: http://backend:5352/source/project_2/_meta?user=user_41
     body:
       encoding: UTF-8
       string: |
-        <project name="project_6">
-          <title>That Hideous Strength</title>
+        <project name="project_2">
+          <title>The Glory and the Dream</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556062'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -107,13 +113,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '109'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_6">
-          <title>That Hideous Strength</title>
+        <project name="project_2">
+          <title>The Glory and the Dream</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:06 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:22 GMT
+recorded_with: VCR 6.3.1

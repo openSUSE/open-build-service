@@ -2,16 +2,18 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/source_project_123/_meta?user=user_12
+    uri: http://backend:5352/source/source_project_123/_meta?user=user_163
     body:
       encoding: UTF-8
       string: |
         <project name="source_project_123">
-          <title>A Scanner Darkly</title>
+          <title>All Passion Spent</title>
           <description/>
           <person userid="sagan" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -30,27 +32,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project_123">
-          <title>A Scanner Darkly</title>
+          <title>All Passion Spent</title>
           <description></description>
           <person userid="sagan" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project_123/source_package_123/_meta?user=user_13
+    uri: http://backend:5352/source/source_project_123/source_package_123/_meta?user=user_164
     body:
       encoding: UTF-8
       string: |
         <package name="source_package_123" project="source_project_123">
-          <title>Recalled to Life</title>
-          <description>Aut iure quaerat magni.</description>
+          <title>Many Waters</title>
+          <description>Dolor dolorem provident sed.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -74,22 +78,24 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package_123" project="source_project_123">
-          <title>Recalled to Life</title>
-          <description>Aut iure quaerat magni.</description>
+          <title>Many Waters</title>
+          <description>Dolor dolorem provident sed.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_123/_meta?user=user_14
+    uri: http://backend:5352/source/project_123/_meta?user=user_165
     body:
       encoding: UTF-8
       string: |
         <project name="project_123">
-          <title>Edna O'Brien</title>
+          <title>Vile Bodies</title>
           <description/>
           <person userid="sagan" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -108,27 +114,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <project name="project_123">
-          <title>Edna O'Brien</title>
+          <title>Vile Bodies</title>
           <description></description>
           <person userid="sagan" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_123/package_123/_meta?user=user_15
+    uri: http://backend:5352/source/project_123/package_123/_meta?user=user_166
     body:
       encoding: UTF-8
       string: |
         <package name="package_123" project="project_123">
-          <title>Dying of the Light</title>
-          <description>Qui consequatur quae iste.</description>
+          <title>The Doors of Perception</title>
+          <description>Eum ut porro doloribus.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -147,15 +155,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="package_123" project="project_123">
-          <title>Dying of the Light</title>
-          <description>Qui consequatur quae iste.</description>
+          <title>The Doors of Perception</title>
+          <description>Eum ut porro doloribus.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project_123/source_package_123
@@ -163,6 +171,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -187,7 +197,7 @@ http_interactions:
       string: |
         <directory name="source_package_123" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project_123/source_package_123?cmd=diff&expand=1&filelimit=10000&opackage=package_123&oproject=project_123&tarlimit=10000&view=xml&withissues=1
@@ -197,6 +207,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -219,15 +231,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="36426383506e4e97ca7e23b422bc1f4c">
-          <old project="project_123" package="package_123" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        <sourcediff key="bcb3f04effa308f02fc5748dc39cc43c">
+          <old project="project_123" package="package_123" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project_123" package="source_package_123" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
           </files>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_123/package_123/_attribute?meta=1&user=sagan
@@ -238,6 +250,8 @@ http_interactions:
           <attribute name="CreatorCannotAcceptOwnRequests" namespace="OBS"/>
         </attributes>
     headers:
+      X-Frontend-Start:
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -260,14 +274,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2">
-          <srcmd5>e5e7906fe1ea201edd57864c4feecfd2</srcmd5>
-          <time>1686759781</time>
+        <revision rev="4">
+          <srcmd5>fd0be70754c78584722a817e809c876d</srcmd5>
+          <time>1765556074</time>
           <user>sagan</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project_123/source_package_123?expand=1
@@ -275,6 +289,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556074'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -299,5 +315,5 @@ http_interactions:
       string: |
         <directory name="source_package_123" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:01 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:34 GMT
+recorded_with: VCR 6.3.1

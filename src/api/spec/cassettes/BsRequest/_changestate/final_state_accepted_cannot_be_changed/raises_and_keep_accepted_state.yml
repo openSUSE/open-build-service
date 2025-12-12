@@ -2,15 +2,17 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_32
+    uri: http://backend:5352/source/target_project/_meta?user=user_180
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Nine Coaches Waiting</title>
+          <title>An Instant In The Wind</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556076'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -29,26 +31,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '113'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Nine Coaches Waiting</title>
+          <title>An Instant In The Wind</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:04 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_33
+    uri: http://backend:5352/source/source_project/_meta?user=user_181
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Farewell to Arms</title>
+          <title>A Time of Gifts</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556076'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -67,18 +71,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '106'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Farewell to Arms</title>
+          <title>A Time of Gifts</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:04 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_33
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_181
     body:
       encoding: UTF-8
       string: |
@@ -86,6 +90,8 @@ http_interactions:
           <attribute name="ApprovedRequestSource" namespace="OBS"/>
         </attributes>
     headers:
+      X-Frontend-Start:
+      - '1765556076'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -104,29 +110,31 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '171'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6">
-          <srcmd5>224928e8512b5a2d321d6a592a9d79d8</srcmd5>
-          <time>1686759784</time>
-          <user>user_33</user>
+        <revision rev="62">
+          <srcmd5>ba25040d0d48f8aefa226eba5c4c724a</srcmd5>
+          <time>1765556076</time>
+          <user>user_181</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:23:04 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_34
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_182
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Number the Stars</title>
-          <description>Veniam quidem voluptatem error.</description>
+          <title>Where Angels Fear to Tread</title>
+          <description>A assumenda quam unde.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556076'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -145,15 +153,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Number the Stars</title>
-          <description>Veniam quidem voluptatem error.</description>
+          <title>Where Angels Fear to Tread</title>
+          <description>A assumenda quam unde.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:04 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -161,6 +169,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556076'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -185,7 +195,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:04 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -193,6 +203,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765556076'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -217,16 +229,18 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:04 GMT
+  recorded_at: Fri, 12 Dec 2025 16:14:36 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1765556076'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -235,8 +249,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 400
-      message: revision is empty
+      code: 404
+      message: no such revision
     headers:
       Content-Type:
       - text/xml
@@ -245,12 +259,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '69'
+      - '110'
     body:
       encoding: UTF-8
       string: |
-        <status code="400">
-          <summary>revision is empty</summary>
+        <status code="404">
+          <summary>no such revision</summary>
+          <details>404 no such revision</details>
         </status>
-  recorded_at: Wed, 14 Jun 2023 16:23:04 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 12 Dec 2025 16:14:36 GMT
+recorded_with: VCR 6.3.1
