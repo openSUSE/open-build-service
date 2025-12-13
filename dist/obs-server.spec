@@ -175,7 +175,14 @@ BuildRequires:  perl-XML-Structured
 BuildRequires:  %{rubygem hana}
 BuildRequires:  %{rubygem json_refs}
 # Native extensions in the bundled gems need Ruby headers
+# Native extensions in the bundled gems need Ruby headers
 BuildRequires:  ruby3.4-devel
+
+# Needed for native Ruby gems during build
+BuildRequires:  libyaml-devel
+BuildRequires:  gcc-c++
+BuildRequires:  libxml2-devel
+BuildRequires:  mariadb-devel
 # /for the resolve_swagger_yaml.rb script
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
