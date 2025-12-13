@@ -174,6 +174,15 @@ BuildRequires:  perl-XML-Structured
 
 BuildRequires:  %{rubygem hana}
 BuildRequires:  %{rubygem json_refs}
+# Native extensions in the bundled gems need Ruby headers
+# Native extensions in the bundled gems need Ruby headers
+BuildRequires:  ruby3.4-devel
+
+# Needed for native Ruby gems during build
+BuildRequires:  libyaml-devel
+BuildRequires:  gcc-c++
+BuildRequires:  libxml2-devel
+BuildRequires:  mariadb-devel
 # /for the resolve_swagger_yaml.rb script
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
@@ -476,7 +485,8 @@ OBS_RUBY_ABI_VERSION=%{__obs_ruby_abi_version}
 EOF
 
 pushd src/api
-bundle config set path %_libdir/obs-api/
+mkdir -p %{buildroot}%_libdir/obs-api/
+bundle config set path %{buildroot}%_libdir/obs-api/
 
 bundle install --local
 rm -rf vendor/cache/* vendor/cache.next/*

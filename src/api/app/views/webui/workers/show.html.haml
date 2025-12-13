@@ -1,0 +1,59 @@
+- @pagetitle = "Worker #{@worker_label}"
+
+%h2.mb-3
+  Worker Capabilities
+  %small.text-muted.ms-2= @capability['workerid'] || @worker_label
+
+.card.mb-3
+  .card-body
+    %dl.row.mb-0
+      %dt.col-sm-3 Worker ID
+      %dd.col-sm-9= @capability['workerid'] || @worker_label
+
+      %dt.col-sm-3 Architecture
+      %dd.col-sm-9= @capability['hostarch'] || @architecture
+
+      - if @capability['registerserver']
+        %dt.col-sm-3 Register Server
+        %dd.col-sm-9= @capability['registerserver']
+
+      - if @capability['hostlabel']
+        %dt.col-sm-3 Host Label
+        %dd.col-sm-9= @capability['hostlabel']
+
+      - if @capability['sandbox']
+        %dt.col-sm-3 Sandbox
+        %dd.col-sm-9= @capability['sandbox']
+
+- if @linux_info.present?
+  .card.mb-3
+    .card-header
+      %h5.mb-0 Linux
+    .card-body
+      %dl.row.mb-0
+        - if @linux_info['version']
+          %dt.col-sm-3 Version
+          %dd.col-sm-9= @linux_info['version']
+        - if @linux_info['flavor']
+          %dt.col-sm-3 Flavor
+          %dd.col-sm-9= @linux_info['flavor']
+
+- if @hardware_info.present? || @cpu_flags.present?
+  .card
+    .card-header
+      %h5.mb-0 Hardware
+    .card-body
+      %dl.row.mb-0
+        - if @hardware_info['processors']
+          %dt.col-sm-3 Processors
+          %dd.col-sm-9= @hardware_info['processors']
+        - if @hardware_info['jobs']
+          %dt.col-sm-3 Jobs
+          %dd.col-sm-9= @hardware_info['jobs']
+      - if @cpu_flags.present?
+        %hr
+        %h6 CPU Flags
+        %ul
+          - @cpu_flags.each do |flag|
+            %li= flag
+

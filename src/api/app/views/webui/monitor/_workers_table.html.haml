@@ -29,6 +29,9 @@
           - hash.each do |subid, id|
             - if subid != '_arch'
               .monitorpb.position-relative.mt-1{ id: "p#{id}" }
+                .d-flex.justify-content-between.align-items-center.mb-1
+                  %span.text-muted.small Worker #{subid}
+                  = link_to('Capabilities', monitor_worker_path(arch: hash['_arch'], worker_id: "#{name}:#{subid}"), class: 'small')
                 .progress
                   .progress-bar.progress-bar-striped{ 'aria-valuemax' => '100', 'aria-valuemin' => '0',
                                                       'role' => 'progressbar' }
