@@ -47,10 +47,10 @@ module Workflows
 
       # Mapping the placeholder variables to their values from the webhook event payload
       placeholder_variables = SUPPORTED_PLACEHOLDER_VARIABLES.zip([scm_organization_name, scm_repository_name, pr_number, commit_sha, label]).to_h
-      begin
-        format(workflow_configuration, placeholder_variables)
-      rescue ArgumentError => e
-        raise Token::Errors::WorkflowsYamlFormatError, e.message
+      # Explicit substitution via gsub allows safe use of placeholders
+      workflow_configuration.gsub(/%\{([A-Za-z0-9_]+)\}/) do |match|
+        key = Regexp.last_match(1).to_sym
+        placeholder_variables.fetch(key, match)
       end
     end
 
