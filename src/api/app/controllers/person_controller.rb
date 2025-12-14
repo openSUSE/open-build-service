@@ -34,7 +34,7 @@ class PersonController < ApplicationController
             end
   end
 
-  def command 
+  def command
     internal_register
   end
 
