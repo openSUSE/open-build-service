@@ -15,9 +15,10 @@ class PersonController < ApplicationController
 
   def show
     if params.key?(:confirmed)
-      allowed = %w[true false]
+      allowed = %w[true false 1 0]
+      value = params[:confirmed].to_s
 
-      unless allowed.include?(params[:confirmed])
+      unless allowed.include?(value)
         return render_error(
           status: 400,
           errorcode: 'invalid_parameter',
@@ -27,12 +28,12 @@ class PersonController < ApplicationController
     end
     @list = if params[:prefix]
               User.where('login LIKE ?', "#{params[:prefix]}%")
-            elsif params[:confirmed]
+            elsif params[:confirmed].to_s == 'true' || params[:confirmed].to_s == '1'
               User.confirmed
             else
               User.not_deleted
             end
-  end
+  end 
 
   def command
     internal_register
