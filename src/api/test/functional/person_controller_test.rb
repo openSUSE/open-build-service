@@ -26,32 +26,32 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     get '/person?prefix=s'
     assert_response :success
   end
-  
+
   def test_confirmed_param_validation
     login_adrian
-    
-    #valid: true
+
+    # valid: true
     get '/person?confirmed=true'
     assert_response :success
 
-    #valid: false
+    # valid: false
     get '/person?confirmed=false'
     assert_response :success
 
-    #invalid: numeric
+    # invalid: numeric
     get '/person?confirmed=1'
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_parameter' }
 
-    #invalid: random string
+    # invalid: random string
     get '/person?confirmed=abc'
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_parameter' }
 
-    #invalid: empty value
+    # invalid: empty value
     get '/person?confiremed='
     assert_response :bad_request
-    assert_xml_tag tag: 'status', attributes: { code: 'invalid_parameter'}
+    assert_xml_tag tag: 'status', attributes: { code: 'invalid_parameter' }
   end
 
   def test_ichain
