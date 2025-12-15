@@ -12,6 +12,8 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556264'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -39,18 +41,20 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 12 Mar 2025 10:27:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:17:44 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_2
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>If I Forget Thee Jerusalem</title>
-          <description>Voluptas itaque nihil fuga.</description>
+          <title>The Painted Veil</title>
+          <description>Odit asperiores at dolorum.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556264'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -69,13 +73,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>If I Forget Thee Jerusalem</title>
-          <description>Voluptas itaque nihil fuga.</description>
+          <title>The Painted Veil</title>
+          <description>Odit asperiores at dolorum.</description>
         </package>
-  recorded_at: Wed, 12 Mar 2025 10:27:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:17:44 GMT
 recorded_with: VCR 6.3.1
