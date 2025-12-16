@@ -10,6 +10,8 @@ class ReportsController < ApplicationController
     if user.present? && !(user.admin? || user.moderator? || user.staff?)
       @reports = @reports.where(reporter: user)
     end
+
+    filter_reports
   end
 
   # GET /reports/{:id}
@@ -49,6 +51,11 @@ class ReportsController < ApplicationController
   end
 
   private
+
+  def filter_reports
+    @reports = @reports.where(reportable_type: params[:reportable_type]) if params[:reportable_type].present? &&
+                                                                            params[:reportable_type].in?(Report::REPORTABLE_TYPES.map(&:to_s))
+  end
 
   def set_report
     @report = Report.find(params[:id])
