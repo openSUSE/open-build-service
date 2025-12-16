@@ -12,6 +12,8 @@ class ReportsController < ApplicationController
     end
 
     filter_reports
+
+    @reports = @reports.offset(params.fetch(:offset, 0).to_i).limit(params.fetch(:limit, 25).to_i)
   end
 
   # GET /reports/{:id}
