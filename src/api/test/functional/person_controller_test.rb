@@ -38,16 +38,16 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     get '/person?confirmed=false'
     assert_response :success
 
-    # invalid: numeric true
+    # valid: numeric true
     get '/person?confirmed=1'
     assert_response :success
 
-    # invalid: numeric false
+    # valid: numeric false
     get '/person?confirmed=0'
     assert_response :success
 
     # invalid: random string
-    get '/person?confiremed=abc'
+    get '/person?confirmed=abc'
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_parameter' }
 
