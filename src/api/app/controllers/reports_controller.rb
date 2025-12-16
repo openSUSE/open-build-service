@@ -1,4 +1,8 @@
 class ReportsController < ApplicationController
+  validate_action show: { response: :report }
+  validate_action create: { method: :post, request: :report }
+  validate_action update: { method: :put, request: :report }
+
   before_action :set_report, only: %i[show update destroy]
 
   # GET /reports
