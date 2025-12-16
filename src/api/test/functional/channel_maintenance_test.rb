@@ -536,7 +536,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     old_release_date = node['update']['issued']['date']
     assert_equal old_release_date, old_release_date.to_i.to_s
-    assert_xml_tag parent: { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, tag: 'id', content: "UpdateInfoTag-#{Time.now.utc.year}-My_Maintenance_0"
+    assert_xml_tag parent: { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, tag: 'id', content: "UpdateInfoTag-#{Time.now.utc.year}-My_Maintenance_0__patchinfo"
 
     # check published search db
     get "/search/published/binary/id?match=project='" + incident_project + "'"
