@@ -361,6 +361,7 @@ constraints(RoutesHelper::WebuiMatcher) do
   resources :users, controller: 'webui/users', param: :login, constraints: cons do
     collection do
       get 'autocomplete'
+      get 'mentions_autocomplete'
       get 'tokens'
     end
     member do
