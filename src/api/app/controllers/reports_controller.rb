@@ -55,6 +55,14 @@ class ReportsController < ApplicationController
   def filter_reports
     @reports = @reports.where(reportable_type: params[:reportable_type]) if params[:reportable_type].present? &&
                                                                             params[:reportable_type].in?(Report::REPORTABLE_TYPES.map(&:to_s))
+
+    return if params[:decided].blank?
+
+    if %w[false 0].include?(params[:decided])
+      @reports = @reports.where(decision: nil)
+    elsif %w[true 1].include?(params[:decided])
+      @reports = @reports.where.not(decision: nil)
+    end
   end
 
   def set_report
