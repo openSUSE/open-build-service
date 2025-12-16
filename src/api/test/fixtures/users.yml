@@ -6,7 +6,7 @@ Admin:
   login: Admin
   email: root@localhost
   realname: OBS Instance Superuser
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 Iggy:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -16,7 +16,7 @@ Iggy:
   login: Iggy
   email: Iggy@pop.org
   realname: Iggy Pop
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 _nobody_:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -25,7 +25,7 @@ _nobody_:
   login: _nobody_
   email: nobody@localhost
   realname: Anonymous User
-  password_digest: $2a$10$Xi1VnoTy352Zj78Qp9Hix.HzKtpGTz9nXq2/6eDF9tRIr4bTwAtkO
+  encrypted_password: $2a$10$Xi1VnoTy352Zj78Qp9Hix.HzKtpGTz9nXq2/6eDF9tRIr4bTwAtkO
   state: "locked"
 adrian:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -35,7 +35,7 @@ adrian:
   login: adrian
   email: adrian@example.com
   realname: Johnny Thunders
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 adrian_downloader:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -45,7 +45,7 @@ adrian_downloader:
   login: adrian_downloader
   email: adrian@example.com
   realname: user has access to binary files only
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 adrian_nobody:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -55,7 +55,7 @@ adrian_nobody:
   login: adrian_nobody
   email: adrian@example.com
   realname: user exists, but has no permissions
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 adrian_reader:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -65,7 +65,7 @@ adrian_reader:
   login: adrian_reader
   email: adrian@example.com
   realname: user has access to sources (and binaries ?)
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 binary_homer:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -75,7 +75,7 @@ binary_homer:
   login: binary_homer
   email: homer@nospam.net
   realname: user is maintainer in binary protected project (binarydownload)
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 deleted:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -85,7 +85,7 @@ deleted:
   login: deleted
   email: test@example.com
   realname: ''
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "deleted"
 dmayr:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -95,7 +95,7 @@ dmayr:
   login: dmayr
   email: test@example.com
   realname: ''
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 fred:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -105,7 +105,7 @@ fred:
   login: fred
   email: fred@feuerstein.de
   realname: Frederic Feuerstone
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 fredlibs:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -115,7 +115,7 @@ fredlibs:
   login: fredlibs
   email: fred@feuerstein.de
   realname: Frederic Feuerstone
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 hidden_homer:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -125,7 +125,7 @@ hidden_homer:
   login: hidden_homer
   email: homer@nospam.net
   realname: user is maintainer in hidden project
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 king:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -135,7 +135,7 @@ king:
   login: king
   email: king@all-the-kings.org
   realname: The King
-  password_digest: $2a$10$.cJH/mzFxmng1Z32zqR1juRBcIceF94GN5CynZrwrQgSRTXsqYyZe
+  encrypted_password: $2a$10$.cJH/mzFxmng1Z32zqR1juRBcIceF94GN5CynZrwrQgSRTXsqYyZe
   state: "confirmed"
 maintenance_assi:
   created_at: 2014-04-07 06:51:18.000000000 Z
@@ -145,7 +145,7 @@ maintenance_assi:
   login: maintenance_assi
   email: homer@nospam.net
   realname: Maintenance Slave
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 maintenance_coord:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -155,7 +155,7 @@ maintenance_coord:
   login: maintenance_coord
   email: dirkmueller@example.com
   realname: our hero
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 sourceaccess_homer:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -165,7 +165,7 @@ sourceaccess_homer:
   login: sourceaccess_homer
   email: homer@nospam.net
   realname: user is maintainer in sourceaccess protected project (sourceaccess)
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 tom:
   created_at: 2011-07-29 14:00:21.000000000 Z
@@ -175,7 +175,7 @@ tom:
   login: tom
   email: tschmidt@example.com
   realname: Thor
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 user1:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -185,7 +185,7 @@ user1:
   login: user1
   email: user1@example.com
   realname: ''
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 user2:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -195,7 +195,7 @@ user2:
   login: user2
   email: user2@example.com
   realname: ''
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 user3:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -205,7 +205,7 @@ user3:
   login: user3
   email: test@example.com
   realname: ''
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 user4:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -215,7 +215,7 @@ user4:
   login: user4
   email: user4@example.com
   realname: ''
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 user5:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -225,7 +225,7 @@ user5:
   login: user5
   email: user5@example.com
   realname: ''
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "confirmed"
 user6:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -235,7 +235,7 @@ user6:
   login: user6
   email: test@example.com
   realname: ''
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: 2
 unconfirmed_user:
   created_at: 2012-01-16 13:36:00.000000000 Z
@@ -244,5 +244,5 @@ unconfirmed_user:
   login: unconfirmed_user
   email: test@example.com
   realname: ''
-  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  encrypted_password: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: "unconfirmed"

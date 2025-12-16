@@ -402,7 +402,7 @@ RSpec.describe User do
         end
 
         it 'converts the password to bcrypt' do
-          expect(BCrypt::Password.new(user.password_digest)).to be_is_password('buildservice')
+          expect(BCrypt::Password.new(user.encrypted_password)).to be_is_password('buildservice')
         end
 
         it 'resets the hash of the deprecated password' do
