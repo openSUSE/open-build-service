@@ -30,10 +30,6 @@ class BsRequestPolicy < ApplicationPolicy
     author? || record.source_maintainer?(user)
   end
 
-  def report?
-    !author?
-  end
-
   def decline_request?
     return false if BsRequest::FINAL_REQUEST_STATES.include?(record.state)
 
