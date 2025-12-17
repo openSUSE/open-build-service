@@ -7,13 +7,8 @@ class ReportsController < ApplicationController
 
   # GET /reports
   def index
-    @reports = Report.order(:id)
+    @reports = policy_scope(Report).order(:id)
     authorize @reports
-
-    user = User.session
-    if user.present? && !(user.admin? || user.moderator? || user.staff?)
-      @reports = @reports.where(reporter: user)
-    end
 
     filter_reports
 

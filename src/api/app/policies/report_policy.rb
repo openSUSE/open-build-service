@@ -1,4 +1,14 @@
 class ReportPolicy < ApplicationPolicy
+  class Scope < Scope
+    def resolve
+      if user.admin? || user.moderator? || user.staff?
+        scope.all
+      else
+        scope.where(reporter: user)
+      end
+    end
+  end
+
   def index?
     Flipper.enabled?(:content_moderation, user)
   end
