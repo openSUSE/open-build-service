@@ -1,0 +1,19 @@
+#
+# Open Build Service 2.10.30
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+
+Features
+========
+
+Backend:
+ * Switch to GPG version 4 signatures for debian repositories
+
