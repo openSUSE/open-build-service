@@ -25,7 +25,7 @@ class ReportPolicy < ApplicationPolicy
     when 'User'
       !UserPolicy.new(user, record.reportable).update?
     when 'BsRequest'
-      BsRequestPolicy.new(user, record.reportable).report?
+      record.reportable.creator != user.login
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
