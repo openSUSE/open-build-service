@@ -8,7 +8,7 @@ RSpec.describe AppealPolicy do
   let(:admin_user) { create(:admin_user) }
 
   context 'with the content_moderation feature disabled' do
-    let(:appeal) { create(:appeal) }
+    let(:appeal) { build(:appeal) }
 
     permissions :new?, :show?, :create? do
       it { is_expected.not_to permit(anonymous_user, appeal) }
@@ -41,7 +41,7 @@ RSpec.describe AppealPolicy do
       let(:report) { create(:report) }
       let(:reporter) { report.reporter }
       let(:decision) { create(:decision_cleared, reports: [report]) }
-      let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
+      let(:appeal) { build(:appeal, decision: decision, appellant: reporter) }
 
       permissions :create? do
         it { is_expected.not_to permit(anonymous_user, appeal) }
@@ -57,7 +57,7 @@ RSpec.describe AppealPolicy do
       let(:report) { create(:report) }
       let(:reporter) { report.reporter }
       let(:decision) { create(:decision_favored, reports: [report]) }
-      let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
+      let(:appeal) { build(:appeal, decision: decision, appellant: reporter) }
 
       before do
         report.update!(reportable: nil)
@@ -77,7 +77,7 @@ RSpec.describe AppealPolicy do
       let(:report) { create(:report) }
       let(:reporter) { report.reporter }
       let(:decision) { create(:decision_favored, reports: [report]) }
-      let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
+      let(:appeal) { build(:appeal, decision: decision, appellant: reporter) }
 
       permissions :create? do
         it { is_expected.not_to permit(anonymous_user, appeal) }
@@ -92,7 +92,7 @@ RSpec.describe AppealPolicy do
     context 'when the decision cleared a report for something the appellant did' do
       let(:report) { create(:report, reportable: create(:comment_package, user: appellant)) }
       let(:decision) { create(:decision_cleared, reports: [report]) }
-      let(:appeal) { create(:appeal, decision: decision, appellant: appellant) }
+      let(:appeal) { build(:appeal, decision: decision, appellant: appellant) }
 
       permissions :create? do
         it { is_expected.not_to permit(anonymous_user, appeal) }
@@ -110,7 +110,7 @@ RSpec.describe AppealPolicy do
       context "when the #{decision_type.to_s.tr('_', ' ')} for something the appellant did" do
         let(:report) { create(:report, reportable: create(:comment_package, user: appellant)) }
         let(:decision) { create(decision_type, reports: [report]) }
-        let(:appeal) { create(:appeal, decision: decision, appellant: appellant) }
+        let(:appeal) { build(:appeal, decision: decision, appellant: appellant) }
 
         permissions :create? do
           it { is_expected.not_to permit(anonymous_user, appeal) }
@@ -120,6 +120,17 @@ RSpec.describe AppealPolicy do
           it { is_expected.to permit(staff_user, appeal) }
           it { is_expected.to permit(admin_user, appeal) }
         end
+      end
+    end
+
+    context 'when the user already created an appeal for a decision' do
+      let(:report) { create(:report) }
+      let(:reporter) { report.reporter }
+      let(:decision) { create(:decision_cleared, reports: [report]) }
+      let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
+
+      permissions :create? do
+        it { is_expected.not_to permit(reporter, appeal) }
       end
     end
   end
