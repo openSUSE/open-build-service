@@ -8,13 +8,13 @@ RSpec.describe Webui::SitemapsController do
       get :index
     end
 
-    it { expect(paths).to include('/project/sitemap') }
-    it { expect(paths).to include('/package/sitemap/main') }
-    it { expect(paths).to include('/package/sitemap/opensuse') }
+    it { expect(paths).to include('/project/sitemap.xml') }
+    it { expect(paths).to include('/package/sitemap/main.xml') }
+    it { expect(paths).to include('/package/sitemap/opensuse.xml') }
 
     it "includes all packages' home URLs" do
       [*'a'..'z', *'A'..'Z'].each do |letter|
-        expect(paths).to include("/package/sitemap/home:#{letter}")
+        expect(paths).to include("/package/sitemap/home:#{letter}.xml")
       end
     end
   end

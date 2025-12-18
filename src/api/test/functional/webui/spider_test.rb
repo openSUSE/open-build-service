@@ -90,7 +90,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   end
 
   def crawl
-    load_sitemap('/sitemaps')
+    load_sitemap('/sitemaps.xml')
     until @pages_to_visit.empty?
       theone = @pages_to_visit.keys.min
       @pages_visited[theone] = @pages_to_visit[theone]
