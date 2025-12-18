@@ -121,7 +121,7 @@ gem 'rexml'
 gem 'base64', '0.2.0', require: false
 gem 'irb', '1.14.3'
 gem 'stringio', '3.1.2'
-gem 'strscan', '3.1.2'
+gem 'strscan', '3.1.6'
 
 # OpenStruct implementation (no longer a default gem from ruby > 3.4.0)
 gem 'ostruct'
