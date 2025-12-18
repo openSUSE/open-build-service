@@ -27,6 +27,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return true if link.include?('/live_build_log')
     # we do not really serve binary packages in the test environment
     return true if %r{/projects/.*/packages/.*/repositories/.*/binaries/.*/.*}.match?(link)
+    return true if link.end_with?('/delete_me-1.0-1.i586.rpm')
     # apidocs is not configured in test environment
     return true if link.end_with?('/apidocs/index')
 
