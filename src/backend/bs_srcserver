@@ -415,15 +415,16 @@ sub triggerscmsyncrun {
     my $proj = BSRevision::readproj_local($projid, 1);
     next unless $proj;
     if ($packid eq '_project') {
-      die("$projid is a remote project\n") if $proj->{'remoteurl'};
+      next if $proj->{'remoteurl'};
       BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $proj->{'scmsync'}) if $proj->{'scmsync'};
     } else {
       my $pack = BSRevision::readpack_local($projid, $packid, 1);
       next unless $pack;
       my $projectscmsync;
-      # the package url is used for the project scm URL. Do not use it if it is only defined on package level
-      $projectscmsync = $pack->{'url'} if $proj->{'scmsync'};
-      BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}, $projectscmsync) if $pack->{'scmsync'};
+      # we don't trigger a single package of a git project. It needs to be handled via
+      # project url or via single project/package
+      next if $proj->{'scmsync'};
+      BSSrcServer::Service::runservice_obsscm($cgi, $projid, $packid, $pack->{'scmsync'}) if $pack->{'scmsync'};
     }
   }
 }
