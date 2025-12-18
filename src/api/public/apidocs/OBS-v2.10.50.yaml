@@ -21,6 +21,7 @@ tags:
   - name: Person
   - name: Published Binaries
   - name: Requests
+  - name: Reports
   - name: Search
     description: |
       All endpoints besides the owner search listed in the search group use Xpath expressions. The `match` query parameter is used
@@ -267,6 +268,11 @@ paths:
     $ref: 'paths/request_id.yaml'
   /request/{id}?cmd=diff:
     $ref: 'paths/request_id_cmd_diff.yaml'
+
+  /reports:
+    $ref: 'paths/reports.yaml'
+  /reports/{report_id}:
+    $ref: 'paths/reports_report_id.yaml'
 
   /search:
     $ref: 'paths/search.yaml'
