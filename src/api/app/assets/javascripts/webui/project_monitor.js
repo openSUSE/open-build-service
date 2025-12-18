@@ -108,17 +108,19 @@ function setupPersistentPopovers() {
     e.stopPropagation();
   });
 
-  // Close popovers when clicking outside
-  $(document).on('click', function () {
-    $('.popover').each(function () {
-      var trigger = $('[aria-describedby="' + this.id + '"]')[0];
-      if (trigger) {
-        bootstrap.Popover.getInstance(trigger)?.hide();
-      }
+    // Close popovers when clicking outside
+    $(document).on('click', function () {
+      $('.popover').each(function () {
+        var trigger = $('[aria-describedby="' + this.id + '"]')[0];
+        if (trigger) {
+          var instance = bootstrap.Popover.getInstance(trigger);
+          if (instance) {
+            instance.hide();
+          }
+        }
+      });
     });
-  });
-}
-
+  }
 function setupProjectMonitor() {
   initializeMonitorDataTable();
 
