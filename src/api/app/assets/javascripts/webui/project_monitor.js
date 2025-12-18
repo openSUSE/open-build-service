@@ -1,4 +1,4 @@
-/* global initializeDataTable, initializePopovers */
+/* global initializeDataTable */
 /* exported setupProjectMonitor */
 
 function setAllLinks(event) {
@@ -25,7 +25,10 @@ function statusCell(meta, statusHash, tableInfo, projectName, packageName) {
 
     if (status.details !== undefined) {
       if (code === 'scheduled') klass = 'text-warning';
-      output += ' data-bs-content="' + status.details + '" data-bs-placement="right" data-bs-toggle="popover"';
+      output +=
+        ' data-bs-content="' +
+        status.details +
+        '" data-bs-placement="right" data-bs-toggle="popover"';
     }
   }
   output += ' class="' + klass + '">' + code + '</a>';
@@ -49,11 +52,11 @@ function initializeMonitorDataTable() {
     scrollX: true,
     fixedColumns: true,
     pageLength: 50,
-    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
     data: packageNames,
     search: {
       regex: true,
-      smart: false,
+      smart: false
     },
     columnDefs: [
       {
@@ -75,13 +78,44 @@ function initializeMonitorDataTable() {
         render: function (packageName, type, row, meta) {
           var cellContent = statusCell(meta, statusHash, tableInfo, projectName, packageName);
           if (cellContent === null) return null;
-          // Value to display in the cell
           if (type === 'display') return cellContent.display;
-          // Value to sort or filter by
           return cellContent.value;
         }
       }
     ]
+  });
+}
+
+/* 🔹 FIX: Persistent & selectable popovers */
+function setupPersistentPopovers() {
+  $('#project-monitor-table')
+    .off('click.popover')
+    .on('click.popover', '[data-bs-toggle="popover"]', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      var popover = bootstrap.Popover.getOrCreateInstance(this, {
+        trigger: 'manual',
+        html: true,
+        placement: 'right'
+      });
+
+      popover.toggle();
+    });
+
+  // Prevent popover from closing when clicking inside it
+  $(document).on('click', '.popover', function (e) {
+    e.stopPropagation();
+  });
+
+  // Close popovers when clicking outside
+  $(document).on('click', function () {
+    $('.popover').each(function () {
+      var trigger = $('[aria-describedby="' + this.id + '"]')[0];
+      if (trigger) {
+        bootstrap.Popover.getInstance(trigger)?.hide();
+      }
+    });
   });
 }
 
@@ -95,26 +129,29 @@ function setupProjectMonitor() {
     $('#table-spinner').removeClass('d-none');
   });
 
+  // Re-init popovers after DataTable redraw
   $('#project-monitor-table').on('draw.dt', function () {
-    initializePopovers('[data-bs-toggle="popover"]');
+    setupPersistentPopovers();
   });
 
-  initializePopovers('[data-bs-toggle="popover"]');
+  // Init on page load
+  setupPersistentPopovers();
 
   $('.monitor-no-filter-link').on('click', { checked: false }, setAllLinks);
-
   $('.monitor-filter-link').on('click', { checked: true }, setAllLinks);
 
   $('.dropdown-menu.keep-open').on('click', function (e) {
     e.stopPropagation();
   });
+
   $('.monitor-search').on('input', function (e) {
     var labels = $(this).closest('.dropdown-menu').find('.form-check-label');
     Array.from(labels).forEach((label) => {
       var element = label.closest('.dropdown-item');
       element.classList.remove('d-none');
-      if (!label.innerText.includes(e.target.value))
+      if (!label.innerText.includes(e.target.value)) {
         element.classList.add('d-none');
+      }
     });
   });
 }
