@@ -22,7 +22,8 @@ module NotificationService
                         'Event::AddedUserToGroup',
                         'Event::RemovedUserFromGroup',
                         'Event::AssignmentCreate',
-                        'Event::AssignmentDelete'].freeze
+                        'Event::AssignmentDelete',
+                        'Event::TokenDisabled'].freeze
     CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
@@ -33,7 +34,8 @@ module NotificationService
       'Decision' => ::Decision,
       'WorkflowRun' => ::WorkflowRun,
       'Appeal' => ::Appeal,
-      'Group' => ::Group
+      'Group' => ::Group,
+      'Token::Workflow' => ::Token::Workflow
     }.freeze
     ALLOWED_CHANNELS = {
       web: NotificationService::WebChannel,
