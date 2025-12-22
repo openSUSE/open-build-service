@@ -24,20 +24,33 @@ RSpec.describe Person::NotificationsController do
 
   describe 'index' do
     context 'called by authorized user' do
-      let!(:notifications) { create_list(:notification_for_request, 2, :web_notification, :request_state_change, subscriber: user) }
+      let!(:notifications) { create_list(:notification_for_request, 5, :web_notification, :request_state_change, subscriber: user) }
 
       before do
         login user
-        get :index, format: :xml
-
         notifications.each do |notification|
           notification.projects << user.home_project
           notification.save
         end
       end
 
-      it { expect(response).to have_http_status(:success) }
-      it { expect(response.body).to include('<notifications count="2">') }
+      it 'returns all notifications by default' do
+        get :index, format: :xml
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('<notifications count="5">')
+      end
+
+      it 'returns limited notifications when show_maximum is set' do
+        get :index, params: { format: :xml, show_maximum: 3 }
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('<notifications count="3">')
+      end
+
+      it 'caps show_maximum at Notification.max_per_page' do
+        get :index, params: { format: :xml, show_maximum: 999 }
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("<notifications count=\"#{Notification.max_per_page}\">")
+      end
 
       context 'filter by kind' do
         let!(:notifications) { create_list(:notification_for_request, 2, :web_notification, :request_state_change, subscriber: user, delivered: true) }
