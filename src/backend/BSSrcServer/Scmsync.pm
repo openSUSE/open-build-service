@@ -79,6 +79,7 @@ sub putpackage {
   mkdir_p($uploaddir);
   writexml("$uploaddir/$$.2", undef, $pack, $BSXML::pack);
   BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta' ]);
+  BSSrcServer::ScmsyncDB::storescmsync($projid, $packid, $pack->{'scmsync'});
 }
 
 sub putlocallink {

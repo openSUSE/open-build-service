@@ -20,10 +20,14 @@ class SourcePackageController < SourceController
 
     show_package_issues && return if params[:view] == 'issues'
 
-    backend_params = params.slice(*%i[rev linkrev emptylink deleted expand view extension lastworking withlinked meta product
-                                      parse repository arch]).permit!.to_h
+    path = request.path_info
+    path += build_query_from_hash(params, %i[rev linkrev emptylink
+                                             expand view extension
+                                             lastworking withlinked meta
+                                             deleted parse arch
+                                             repository product nofilename])
 
-    render xml: Backend::Api::Sources::Package.files(@target_project_name, @target_package_name, backend_params)
+    pass_to_backend(path)
   end
 
   # DELETE /source/:project/:package
@@ -57,6 +61,7 @@ class SourcePackageController < SourceController
   def show_file
     project_name = params[:project]
     package_name = params[:package] || '_project'
+    file = params[:filename]
 
     if params.key?(:deleted)
       if package_name == '_project'
@@ -75,9 +80,9 @@ class SourcePackageController < SourceController
       end
     end
 
-    backend_params = params.slice(*%i[rev meta deleted limit expand view]).permit!.to_h
-
-    send_data(Backend::Api::Sources::File.content(project_name, package_name, params[:filename], backend_params))
+    path = Package.source_path(project_name, package_name, file)
+    path += build_query_from_hash(params, %i[rev meta deleted limit expand view])
+    pass_to_backend(path)
   end
 
   # PUT /source/:project/:package/:filename

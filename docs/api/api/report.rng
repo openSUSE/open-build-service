@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <start>
+    <ref name="report-element" />
+  </start>
+
+  <define ns="" name="report-element">
+    <element name="report">
+      <optional>
+        <text />
+      </optional>
+      <optional>
+        <attribute name="id">
+          <data type="string" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="reportable_id">
+          <data type="string" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="reportable_type">
+          <choice>
+            <value>Comment</value>
+            <value>Package</value>
+            <value>Project</value>
+            <value>User</value>
+            <value>BsRequest</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="category">
+          <data type="string" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="created_at">
+          <data type="string" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="updated_at">
+          <data type="string" />
+        </attribute>
+      </optional>
+    </element>
+  </define>
+</grammar>

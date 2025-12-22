@@ -676,7 +676,7 @@ sub build {
   $update->{'version'} = $patchinfo->{'version'} || '1';        # bodhi inserts its own version...
   $update->{'id'} = $patchinfo->{'incident'};
   if (!$update->{'id'}) {
-    $update->{'id'} = $projid;
+    $update->{'id'} = "${projid}::$packid";
     $update->{'id'} =~ s/:/_/g;
   }
   if ($target && $target->{'id_template'}) {

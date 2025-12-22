@@ -134,7 +134,7 @@ GEM
       tzinfo
     cocoon (1.2.15)
     coderay (1.1.3)
-    concurrent-ruby (1.3.5)
+    concurrent-ruby (1.3.6)
     connection_pool (2.5.5)
     crack (1.0.1)
       bigdecimal
@@ -150,7 +150,7 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0)
     database_cleaner-core (2.0.1)
-    database_consistency (2.0.8)
+    database_consistency (2.1.1)
       activerecord (>= 3.2)
     date (3.5.1)
     deep_cloneable (3.2.1)
@@ -166,7 +166,7 @@ GEM
     down (5.4.2)
       addressable (~> 2.8)
     drb (2.2.3)
-    erb (6.0.0)
+    erb (6.0.1)
     erubi (1.13.1)
     execjs (2.10.0)
     factory_bot (6.5.6)
@@ -208,7 +208,7 @@ GEM
       terminal-table (>= 1.5.1)
     globalid (1.3.0)
       activesupport (>= 6.1)
-    haml (7.0.2)
+    haml (7.1.0)
       temple (>= 0.8.2)
       thor
       tilt
@@ -217,7 +217,7 @@ GEM
       activesupport (>= 5.1)
       haml (>= 4.0.6)
       railties (>= 5.1)
-    haml_lint (0.67.0)
+    haml_lint (0.68.0)
       haml (>= 5.0)
       parallel (~> 1.10)
       rainbow
@@ -241,7 +241,7 @@ GEM
       influxdb (~> 0.6, >= 0.6.4)
       railties (>= 5.0)
     innertube (1.1.0)
-    io-console (0.8.1)
+    io-console (0.8.2)
     irb (1.14.3)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
@@ -254,7 +254,7 @@ GEM
       thor (>= 0.14, < 2.0)
     jquery-ui-rails (8.0.0)
       railties (>= 3.2.16)
-    json (2.17.1)
+    json (2.18.0)
     kaminari (1.2.2)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.2.2)
@@ -282,7 +282,7 @@ GEM
       activesupport (>= 4)
       railties (>= 4)
       request_store (~> 1.0)
-    loofah (2.24.1)
+    loofah (2.25.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     mail (2.9.0)
@@ -297,7 +297,7 @@ GEM
     middleware (0.1.0)
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.26.2)
+    minitest (5.27.0)
     minitest-ci (3.4.0)
       minitest (>= 5.0.6)
     minitest-fail-fast (0.1.0)
@@ -307,7 +307,7 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mocha (2.8.2)
+    mocha (3.0.0)
       ruby2_keywords (>= 0.0.5)
     multi_xml (0.7.2)
       bigdecimal (~> 3.1)
@@ -315,7 +315,7 @@ GEM
       bigdecimal
     net-http (0.8.0)
       uri (>= 0.11.1)
-    net-imap (0.5.12)
+    net-imap (0.6.0)
       date
       net-protocol
     net-pop (0.1.2)
@@ -452,7 +452,7 @@ GEM
     rspec-support (3.13.6)
     rspec_junit_formatter (0.6.0)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (1.81.7)
+    rubocop (1.82.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -460,7 +460,7 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.47.1, < 2.0)
+      rubocop-ast (>= 1.48.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
     rubocop-ast (1.48.0)
@@ -568,7 +568,7 @@ GEM
       concurrent-ruby (~> 1.0)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
-    unicode-emoji (4.1.0)
+    unicode-emoji (4.2.0)
     uniform_notifier (1.18.0)
     uri (1.1.1)
     useragent (0.16.11)
@@ -597,7 +597,7 @@ GEM
     xpath (3.2.0)
       nokogiri (~> 1.8)
     yajl-ruby (1.4.3)
-    zeitwerk (2.7.3)
+    zeitwerk (2.7.4)
 
 PLATFORMS
   ruby

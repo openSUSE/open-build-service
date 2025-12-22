@@ -30,9 +30,10 @@ class SourcePackageMetaController < SourceController
     end
 
     # Let the backend answer for deleted or remote packages. For specific revisions or the blame view. Or if the meta parameter is used.
-    meta_params = params.slice(:deleted, :meta, :rev, :view).permit!.to_h
-    if meta_params.any? || pack.nil?
-      render xml: Backend::Api::Sources::Package.meta(@project_name, @package_name, meta_params)
+    if params.key?(:deleted) || params.key?(:meta) || params.key?(:rev) || params.key?(:view) || pack.nil?
+      path = request.path_info
+      path += build_query_from_hash(params, %i[deleted meta rev view])
+      pass_to_backend(path)
       return
     end
 
