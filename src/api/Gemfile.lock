@@ -559,7 +559,7 @@ GEM
       riddle (~> 2.3)
     thor (1.4.0)
     tilt (2.6.1)
-    timeout (0.5.0)
+    timeout (0.6.0)
     tsort (0.2.0)
     turbo-rails (2.0.20)
       actionpack (>= 7.1.0)
