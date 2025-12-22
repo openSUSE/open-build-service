@@ -1,0 +1,7 @@
+Your <%= event['scm_vendor']&.capitalize || 'SCM' %> workflow token "<%= event['token_description'] %>" has been disabled due to authorization problems.
+
+Reason: <%= event['summary'] %>
+
+Please check your token configuration and update the authorization settings.
+
+View token details: <%= link_to('Token Settings', user_token_url(event['token_id'], only_path: false, host: @host)) %>
