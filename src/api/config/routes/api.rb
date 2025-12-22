@@ -206,6 +206,10 @@ constraints(RoutesHelper::APIMatcher) do
   end
 
   resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
+
+  ### /reports
+
+  resources :reports, only: %i[index show create update destroy], constraints: cons
 end
 
 # StagingWorkflow API

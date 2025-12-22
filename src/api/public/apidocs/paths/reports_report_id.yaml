@@ -1,0 +1,89 @@
+get:
+  summary: Show a report.
+  description: Show a report.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/report_id.yaml'
+  responses:
+    '200':
+      description: |
+        OK. The request has succeded.
+
+        XML Schema used for response validation: [report.rng](../schema/report.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/report.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'not_found'
+            summary: "Couldn't find Report with 'id'=0"
+  tags:
+    - Reports
+
+put:
+  summary: Update a report.
+  description: Update the data of a report.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/report_id.yaml'
+  requestBody:
+    description: |
+      Report definition.
+
+      XML Schema used for body validation: [report.rng](../schema/report.rng)
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/report.yaml'
+        example: |
+          <report>Behave properly, please!</report>
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'not_found'
+            summary: "Couldn't find Report with 'id'=0"
+  tags:
+    - Reports
+
+delete:
+  summary: Delete a report.
+  description: Delete a report.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/report_id.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'not_found'
+            summary: "Couldn't find Report with 'id'=0"
+  tags:
+    - Reports

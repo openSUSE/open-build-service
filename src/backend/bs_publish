@@ -2581,7 +2581,7 @@ sub publish {
 	  $p = "iso/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)\.iso$/;
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
-        } elsif ($bin =~ /(.*)\.(spdx|cdx)\.json$/ && -e "$r/$1.iso") {
+        } elsif ($bin =~ /(.*)\.(spdx|cdx)\.json$/ && (-e "$r/$1.iso" || -e "$r/$1.install.iso")) {
 	  $p = "iso/$bin";
     	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256(?:\.asc)?)?$/) {

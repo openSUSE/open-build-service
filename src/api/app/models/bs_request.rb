@@ -845,16 +845,16 @@ class BsRequest < ApplicationRecord
   end
 
   def auto_accept
-    # do not run for processed requests. Ignoring review on purpose since this
-    # must also work when people do not react anymore
-    return unless %i[new review].include?(state)
-
-    # use approve mechanic in case you want to wait for reviews
-    return if approver && state == :review
-
-    return unless accept_at || approver
-
     with_lock do
+      # do not run for processed requests. Ignoring review on purpose since this
+      # must also work when people do not react anymore
+      return unless %i[new review].include?(state)
+
+      # use approve mechanic in case you want to wait for reviews
+      return if approver && state == :review
+
+      return unless accept_at || approver
+
       if accept_at
         auto_accept_user = User.find_by!(login: creator)
       elsif approver

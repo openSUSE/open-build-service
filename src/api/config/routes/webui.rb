@@ -458,6 +458,8 @@ constraints(RoutesHelper::WebuiMatcher) do
       post 'preview'
     end
   end
+
+  resources :reports, only: %i[create show], controller: 'webui/reports'
 end
 
 resources :staging_workflows, except: :index, controller: 'webui/staging/workflows', param: :workflow_project, constraints: cons do
@@ -475,7 +477,6 @@ resources :staging_workflows, except: :index, controller: 'webui/staging/workflo
   end
 end
 
-resources :reports, only: %i[create show], controller: 'webui/reports'
 resources :decisions, only: [:create], controller: 'webui/decisions' do
   resources :appeals, only: %i[new create], controller: 'webui/appeals'
 end
