@@ -142,6 +142,10 @@ class Webui::UsersController < Webui::WebuiController
     render json: User.autocomplete_login(params[:term])
   end
 
+  def mentions_autocomplete
+    render json: User.autocomplete_with_details(params[:term])
+  end
+
   def tokens
     render json: User.autocomplete_token(params[:q])
   end

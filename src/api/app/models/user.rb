@@ -173,6 +173,23 @@ class User < ApplicationRecord
         .pluck(:login)
   end
 
+  def self.autocomplete_with_details(prefix = '')
+    User.not_deleted
+        .not_locked
+        .starting_with(prefix)
+        .order(Arel.sql('length(login)'), :login)
+        .limit(4)
+        .pluck(:login, :realname, :email)
+        .map do |login, realname, email|
+          gravatar_url = if ::Configuration.gravatar && email.present?
+                           "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email.downcase)}?s=40&d=robohash"
+                         else
+                           '/assets/default_face.png'
+                         end
+          { login: login, realname: realname, avatarUrl: gravatar_url }
+        end
+  end
+
   # the default state of a user based on the api configuration
   def self.default_user_state
     ::Configuration.registration == 'confirmation' ? 'unconfirmed' : 'confirmed'

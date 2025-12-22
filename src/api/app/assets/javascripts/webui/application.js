@@ -22,6 +22,7 @@
 //= require jquery.flot.stack.js
 //= require jquery-ui/widgets/autocomplete
 //= require tokenfield.js
+//= require tribute
 //= require webui/datatables.js
 //= require webui/flash.js
 //= require webui/tabs.js
