@@ -451,7 +451,8 @@ RSpec.describe 'Requests', :js, :vcr do
       create(:bs_request_with_maintenance_incident_actions, :with_patchinfo, source_project_name: source_project.name,
                                                                              source_package_names: [source_package.name],
                                                                              target_project_name: maintenance_project.name,
-                                                                             target_releaseproject_names: [target_project.name])
+                                                                             target_releaseproject_names: [target_project.name],
+                                                                             creator: submitter)
     end
     let!(:patchinfo) do
       submitter.run_as { create(:patchinfo, project_name: source_project.name, package_name: 'patchinfo') }
