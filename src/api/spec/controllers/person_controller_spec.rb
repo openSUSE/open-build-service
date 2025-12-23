@@ -52,7 +52,7 @@ RSpec.describe PersonController do
   end
 
   describe 'POST #post_userinfo' do
-    let!(:old_password_digest) { user.password_digest }
+    let!(:old_password_digest) { user.encrypted_password }
 
     before do
       login user
@@ -65,7 +65,7 @@ RSpec.describe PersonController do
       end
 
       it 'changes the password' do
-        expect(old_password_digest).not_to eq(user.reload.password_digest)
+        expect(old_password_digest).not_to eq(user.reload.encrypted_password)
       end
     end
   end

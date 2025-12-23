@@ -17,6 +17,7 @@ class Webui::WebuiController < ActionController::Base
 
   protect_from_forgery
 
+  before_action :authenticate_user!
   before_action :setup_view_path
   before_action :check_spider
   before_action :set_influxdb_data
