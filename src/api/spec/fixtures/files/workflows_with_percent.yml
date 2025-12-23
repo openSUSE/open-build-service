@@ -1,0 +1,10 @@
+workflow_percent:
+  steps:
+    - branch_package:
+        source_project: "test-project:percent"
+        source_package: "test-package:54%f"
+        target_project: "test-target-project"
+  filters:
+    branches:
+      only:
+        - 'main'

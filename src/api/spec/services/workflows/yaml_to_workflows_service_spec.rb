@@ -67,8 +67,19 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
       let(:workflows_yml_file) { file_fixture('unparsable_workflows_placeholders.yml') }
       let(:request_payload) { workflow_run_github_payload }
 
-      it 'raises a user-friendly error' do
-        expect { subject }.to raise_error(Token::Errors::WorkflowsYamlNotParsable, 'Unable to parse .obs/workflows.yml: malformed format string - %S')
+      it 'keeps the original string' do
+        expect { subject }.not_to raise_error
+        expect(subject.first.workflow_instructions[:steps].first[:branch_package][:source_package]).to eq('test-package:%u')
+      end
+    end
+
+    context 'with %f in content' do
+      let(:workflows_yml_file) { file_fixture('workflows_with_percent.yml') }
+      let(:request_payload) { workflow_run_github_payload }
+
+      it 'does not crash and preserves the %f' do
+        expect { subject }.not_to raise_error
+        expect(subject.first.workflow_instructions[:steps].first[:branch_package][:source_package]).to eq('test-package:54%f')
       end
     end
   end
