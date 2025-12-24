@@ -1,11 +1,11 @@
 !!! XML
 %sitemapindex{ xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' }
   %sitemap
-    %loc= url_for(controller: :sitemaps, action: :projects, only_path: false)
+    %loc= project_sitemap_url(format: :xml)
   %sitemap
-    %loc= url_for(controller: :sitemaps, action: :packages, project_name: 'main', only_path: false)
+    %loc= package_sitemap_url(project_name: 'main', format: :xml)
   - [*'a'..'z', *'A'..'Z'].each do |letter|
     %sitemap
-      %loc= url_for(controller: :sitemaps, action: :packages, project_name: "home:#{letter}", only_path: false)
+      %loc= package_sitemap_url(project_name: "home:#{letter}", format: :xml)
   %sitemap
-    %loc= url_for(controller: :sitemaps, action: :packages, project_name: 'opensuse', only_path: false)
+    %loc= package_sitemap_url(project_name: "opensuse", format: :xml)

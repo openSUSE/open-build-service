@@ -1,216 +1,213 @@
 cons = RoutesHelper::RoutesConstraints::CONS
 
-constraints(RoutesHelper::APIMatcher) do
-  get '/', to: redirect('/about')
+get '/', to: redirect('/about')
 
-  resources :about, only: :index
+resources :about, only: :index
 
-  resource :configuration, only: %i[show update]
+resource :configuration, only: %i[show update]
 
-  resources :announcements, except: %i[edit new]
+resources :announcements, except: %i[edit new]
 
-  ### /person
-  post 'person' => 'person#command', constraints: ->(req) { req.params[:cmd] == 'register' }
-  get 'person' => 'person#show'
-  get 'person/:login/token' => 'person/token#index', constraints: cons
-  post 'person/:login/token' => 'person/token#create', constraints: cons
-  delete 'person/:login/token/:id' => 'person/token#delete', constraints: cons
-  put 'person/:login/token/:id' => 'person/token#update', constraints: cons
+### /person
+post 'person' => 'person#command', constraints: ->(req) { req.params[:cmd] == 'register' }
+get 'person' => 'person#show'
+get 'person/:login/token' => 'person/token#index', constraints: cons
+post 'person/:login/token' => 'person/token#create', constraints: cons
+delete 'person/:login/token/:id' => 'person/token#delete', constraints: cons
+put 'person/:login/token/:id' => 'person/token#update', constraints: cons
 
-  # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
-  #           remove these for OBS 3.0
-  match 'person/register' => 'person#register', via: %i[post put] # use /person?cmd=register POST instead
-  match 'person/changepasswd' => 'person#change_my_password', via: %i[post put] # use /person/:login?cmd=changepassword POST instead
-  get 'person/:login/group' => 'person#grouplist', constraints: cons # Use /group?person=:login GET instead
+# FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
+#           remove these for OBS 3.0
+match 'person/register' => 'person#register', via: %i[post put] # use /person?cmd=register POST instead
+match 'person/changepasswd' => 'person#change_my_password', via: %i[post put] # use /person/:login?cmd=changepassword POST instead
+get 'person/:login/group' => 'person#grouplist', constraints: cons # Use /group?person=:login GET instead
 
-  ### notifications
-  get '/my/notifications' => 'person/notifications#index'
-  put '/my/notifications/:id' => 'person/notifications#update'
+### notifications
+get '/my/notifications' => 'person/notifications#index'
+put '/my/notifications/:id' => 'person/notifications#update'
 
-  # /FIXME3.0
-  get 'person/:login' => 'person#userinfo', constraints: cons
-  put 'person/:login' => 'person#put_userinfo', constraints: cons
-  post 'person/:login' => 'person#post_userinfo', constraints: cons
-  get 'person/:login/watchlist' => 'person#watchlist', constraints: cons
-  put 'person/:login/watchlist' => 'person#put_watchlist', constraints: cons
+# /FIXME3.0
+get 'person/:login' => 'person#userinfo', constraints: cons
+put 'person/:login' => 'person#put_userinfo', constraints: cons
+post 'person/:login' => 'person#post_userinfo', constraints: cons
+get 'person/:login/watchlist' => 'person#watchlist', constraints: cons
+put 'person/:login/watchlist' => 'person#put_watchlist', constraints: cons
 
-  ### /group
-  controller :group do
-    get 'group' => :index
-    constraints(cons) do
-      get 'group/:title' => :show
-      delete 'group/:title' => :delete
-      put 'group/:title' => :update
-      post 'group/:title' => :command, constraints: ->(req) { %w[add_user remove_user set_email].include?(req.params[:cmd]) }
-    end
+### /group
+controller :group do
+  get 'group' => :index
+  constraints(cons) do
+    get 'group/:title' => :show
+    delete 'group/:title' => :delete
+    put 'group/:title' => :update
+    post 'group/:title' => :command, constraints: ->(req) { %w[add_user remove_user set_email].include?(req.params[:cmd]) }
   end
-
-  ### /service
-  get 'service' => 'service#index'
-
-  ### /source
-  controller :attribute_namespace do
-    get 'attribute' => :index
-    get 'attribute/:namespace' => :index
-    # FIXME3.0: drop the POST and DELETE here
-    get 'attribute/:namespace/_meta' => :show
-    delete 'attribute/:namespace/_meta' => :delete
-    delete 'attribute/:namespace' => :delete
-    match 'attribute/:namespace/_meta' => :update, via: %i[post put]
-  end
-
-  controller :attribute do
-    get 'attribute/:namespace/:name/_meta' => :show
-    delete 'attribute/:namespace/:name/_meta' => :delete
-    delete 'attribute/:namespace/:name' => :delete
-    match 'attribute/:namespace/:name/_meta' => :update, via: %i[post put]
-  end
-
-  ### /architecture
-  resources :architectures, only: %i[index show update] # create,delete currently disabled
-
-  ### /trigger
-  post 'trigger' => 'trigger#create'
-  post 'trigger/webhook' => 'trigger#create'
-  post 'trigger/rebuild' => 'trigger#rebuild'
-  post 'trigger/release' => 'trigger#release'
-  post 'trigger/runservice' => 'trigger#runservice'
-  post 'trigger/workflow' => 'trigger_workflow#create'
-
-  ### /issue_trackers
-  resources :issue_trackers, only: %i[index show create update destroy], param: :name do
-    resources :issues, only: [:show]
-  end
-
-  ### /statistics
-  # Routes for statistics
-  # ---------------------
-  controller :statistics do
-    # Timestamps
-    #
-    get 'statistics/added_timestamp/:project(/:package)' => :added_timestamp, constraints: cons
-    get 'statistics/updated_timestamp/:project(/:package)' => :updated_timestamp, constraints: cons
-
-    # Activity
-    #
-    get 'statistics/activity/:project(/:package)' => :activity, constraints: cons
-
-    get 'statistics' => :index
-    get 'statistics/most_active_projects' => :most_active_projects
-    get 'statistics/most_active_packages' => :most_active_packages
-    get 'statistics/latest_added' => :latest_added
-    get 'statistics/latest_updated' => :latest_updated
-    get 'statistics/global_counters' => :global_counters
-
-    get 'statistics/active_request_creators/:project' => :active_request_creators, constraints: cons
-    get 'statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons,
-        as: 'maintenance_statistics'
-    get 'public/statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons
-  end
-
-  ### /status_message
-  resources :status_messages, only: %i[show index update create destroy], path: 'status/messages'
-
-  resources :status_project, only: [:show], param: :project, path: 'status/project'
-
-  get 'status_message' => 'status_messages#index'
-  get 'status/workerstatus' => 'worker/status#index'
-
-  ### /search
-
-  controller :search do
-    match 'search/published/binary/id' => :pass_to_backend, via: %i[get post]
-    match 'search/published/repoinfo/id' => :pass_to_backend, via: %i[get post]
-    match 'search/published/pattern/id' => :pass_to_backend, via: %i[get post]
-    match 'search/channel/binary/id' => :channel_binary_id, via: %i[get post]
-    match 'search/channel/binary' => :channel_binary, via: %i[get post]
-    match 'search/channel' => :channel, via: %i[get post]
-    match 'search/released/binary/id' => :released_binary_id, via: %i[get post]
-    match 'search/released/binary' => :released_binary, via: %i[get post]
-    match 'search/project/id' => :project_id, via: %i[get post]
-    match 'search/package/id' => :package_id, via: %i[get post]
-    match 'search/project_id' => :project_id_deprecated, via: %i[get post] # FIXME3.0: to be removed
-    match 'search/package_id' => :package_id_deprecated, via: %i[get post] # FIXME3.0: to be removed
-    match 'search/project' => :project, via: %i[get post]
-    match 'search/package' => :package, via: %i[get post]
-    match 'search/person' => :person, via: %i[get post]
-    match 'search/owner' => :owner, via: %i[get post]
-    match 'search/missing_owner' => :missing_owner, via: %i[get post]
-    match 'search/request' => :bs_request, via: %i[get post]
-    match 'search/request/id' => :bs_request_id, via: %i[get post]
-    match 'search' => :pass_to_backend, via: %i[get post]
-
-    match 'search/repository/id' => :repository_id, via: %i[get post]
-    match 'search/issue' => :issue, via: %i[get post]
-  end
-
-  ### /request
-
-  resources :request, only: %i[index show update destroy] do
-    collection do
-      post :create, constraints: ->(req) { req.params[:cmd] == 'create' }
-    end
-  end
-
-  post 'request/:id' => 'request#request_command', constraints: cons
-  controller :request do
-    constraints(cons) do
-      post 'request/:id' => :request_command_diff, constraints: ->(req) { req.params[:cmd] == 'diff' }
-      post 'request/:id' => :request_command, constraints: lambda { |req|
-        %w[addreview approve assignreview cancelapproval changereviewstate changestate setacceptat setincident setpriority].include?(req.params[:cmd])
-      }
-    end
-  end
-
-  ### /lastevents
-
-  get '/lastevents' => 'source#lastevents_public'
-  match 'public/lastevents' => 'source#lastevents_public', via: %i[get post]
-  post '/lastevents' => 'source#lastevents'
-
-  ### /distributions
-
-  resources :distributions, except: %i[new edit] do
-    collection do
-      get 'include_remotes'
-      put 'bulk_replace' => :bulk_replace
-      # This GET routes gives us a poor mans osc interface for bulk replacing...
-      # Like: osc api -e /distributions/bulk_replace
-      get 'bulk_replace' => :index
-      # This PUT route is for backward compatiblity, it was traditionally
-      # used for bulk replacing distributions.
-      put '' => :bulk_replace
-    end
-  end
-
-  ### /public
-  controller :public do
-    get 'public', to: redirect('/public/about')
-    get 'public/about' => 'about#index'
-    get 'public/configuration' => :configuration_show
-    get 'public/configuration.xml' => :configuration_show
-    get 'public/request/:number' => :show_request, constraints: cons
-    get 'public/source/:project' => :project_index, constraints: cons
-    get 'public/source/:project/_meta' => :project_meta, constraints: cons
-    get 'public/source/:project/_config' => :project_file, constraints: cons
-    get 'public/source/:project/_keyinfo' => :project_file, constraints: cons
-    get 'public/source/:project/_pubkey' => :project_file, constraints: cons
-    get 'public/source/:project/:package' => :package_index, constraints: cons
-    get 'public/source/:project/:package/_meta' => :package_meta, constraints: cons
-    get 'public/source/:project/:package/:filename' => :source_file, constraints: cons
-    get 'public/distributions' => :distributions
-    get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
-    get 'public/build/:project(/:repository(/:arch(/:package(/:filename))))' => 'public#build', constraints: cons, as: :public_build
-    get 'public/image_templates' => :image_templates, constraints: cons
-    get 'public/package_templates' => :package_templates, constraints: cons
-  end
-
-  resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
-
-  ### /reports
-
-  resources :reports, only: %i[index show create update destroy], constraints: cons
 end
+
+### /service
+get 'service' => 'service#index'
+
+### /source
+controller :attribute_namespace do
+  get 'attribute' => :index
+  get 'attribute/:namespace' => :index
+  # FIXME3.0: drop the POST and DELETE here
+  get 'attribute/:namespace/_meta' => :show
+  delete 'attribute/:namespace/_meta' => :delete
+  delete 'attribute/:namespace' => :delete
+  match 'attribute/:namespace/_meta' => :update, via: %i[post put]
+end
+
+controller :attribute do
+  get 'attribute/:namespace/:name/_meta' => :show
+  delete 'attribute/:namespace/:name/_meta' => :delete
+  delete 'attribute/:namespace/:name' => :delete
+  match 'attribute/:namespace/:name/_meta' => :update, via: %i[post put]
+end
+
+### /architecture
+resources :architectures, only: %i[index show update] # create,delete currently disabled
+
+### /trigger
+post 'trigger' => 'trigger#create'
+post 'trigger/webhook' => 'trigger#create'
+post 'trigger/rebuild' => 'trigger#rebuild'
+post 'trigger/release' => 'trigger#release'
+post 'trigger/runservice' => 'trigger#runservice'
+post 'trigger/workflow' => 'trigger_workflow#create'
+
+### /issue_trackers
+resources :issue_trackers, only: %i[index show create update destroy], param: :name do
+  resources :issues, only: [:show]
+end
+
+### /statistics
+# Routes for statistics
+# ---------------------
+controller :statistics do
+  # Timestamps
+  #
+  get 'statistics/added_timestamp/:project(/:package)' => :added_timestamp, constraints: cons
+  get 'statistics/updated_timestamp/:project(/:package)' => :updated_timestamp, constraints: cons
+
+  # Activity
+  #
+  get 'statistics/activity/:project(/:package)' => :activity, constraints: cons
+
+  get 'statistics' => :index
+  get 'statistics/most_active_projects' => :most_active_projects
+  get 'statistics/most_active_packages' => :most_active_packages
+  get 'statistics/latest_added' => :latest_added
+  get 'statistics/latest_updated' => :latest_updated
+  get 'statistics/global_counters' => :global_counters
+
+  get 'statistics/active_request_creators/:project' => :active_request_creators, constraints: cons
+  get 'statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons,
+      as: 'maintenance_statistics'
+  get 'public/statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons
+end
+
+### /status_message
+resources :status_messages, only: %i[show index update create destroy], path: 'status/messages'
+
+resources :status_project, only: [:show], param: :project, path: 'status/project'
+
+get 'status_message' => 'status_messages#index'
+get 'status/workerstatus' => 'worker/status#index'
+
+### /search
+
+controller :search do
+  match 'search/published/binary/id' => :pass_to_backend, via: %i[get post]
+  match 'search/published/repoinfo/id' => :pass_to_backend, via: %i[get post]
+  match 'search/published/pattern/id' => :pass_to_backend, via: %i[get post]
+  match 'search/channel/binary/id' => :channel_binary_id, via: %i[get post]
+  match 'search/channel/binary' => :channel_binary, via: %i[get post]
+  match 'search/channel' => :channel, via: %i[get post]
+  match 'search/released/binary/id' => :released_binary_id, via: %i[get post]
+  match 'search/released/binary' => :released_binary, via: %i[get post]
+  match 'search/project/id' => :project_id, via: %i[get post]
+  match 'search/package/id' => :package_id, via: %i[get post]
+  match 'search/project_id' => :project_id_deprecated, via: %i[get post] # FIXME3.0: to be removed
+  match 'search/package_id' => :package_id_deprecated, via: %i[get post] # FIXME3.0: to be removed
+  match 'search/project' => :project, via: %i[get post]
+  match 'search/package' => :package, via: %i[get post]
+  match 'search/person' => :person, via: %i[get post]
+  match 'search/owner' => :owner, via: %i[get post]
+  match 'search/missing_owner' => :missing_owner, via: %i[get post]
+  match 'search/request' => :bs_request, via: %i[get post]
+  match 'search/request/id' => :bs_request_id, via: %i[get post]
+  match 'search' => :pass_to_backend, via: %i[get post]
+
+  match 'search/repository/id' => :repository_id, via: %i[get post]
+  match 'search/issue' => :issue, via: %i[get post]
+end
+
+### /request
+
+resources :request, only: %i[index show update destroy] do
+  collection do
+    post :create, constraints: ->(req) { req.params[:cmd] == 'create' }
+  end
+end
+
+post 'request/:id' => 'request#request_command', constraints: cons
+controller :request do
+  constraints(cons) do
+    post 'request/:id' => :request_command_diff, constraints: ->(req) { req.params[:cmd] == 'diff' }
+    post 'request/:id' => :request_command, constraints: lambda { |req|
+      %w[addreview approve assignreview cancelapproval changereviewstate changestate setacceptat setincident setpriority].include?(req.params[:cmd])
+    }
+  end
+end
+
+### /lastevents
+
+get '/lastevents' => 'source#lastevents_public'
+match 'public/lastevents' => 'source#lastevents_public', via: %i[get post]
+post '/lastevents' => 'source#lastevents'
+
+### /distributions
+
+resources :distributions, except: %i[new edit] do
+  collection do
+    get 'include_remotes'
+    put 'bulk_replace' => :bulk_replace
+    # This GET routes gives us a poor mans osc interface for bulk replacing...
+    # Like: osc api -e /distributions/bulk_replace
+    get 'bulk_replace' => :index
+    # This PUT route is for backward compatiblity, it was traditionally
+    # used for bulk replacing distributions.
+    put '' => :bulk_replace
+  end
+end
+
+### /public
+controller :public do
+  get 'public', to: redirect('/public/about')
+  get 'public/about' => 'about#index'
+  get 'public/configuration' => :configuration_show
+  get 'public/configuration.xml' => :configuration_show
+  get 'public/request/:number' => :show_request, constraints: cons
+  get 'public/source/:project' => :project_index, constraints: cons
+  get 'public/source/:project/_meta' => :project_meta, constraints: cons
+  get 'public/source/:project/_config' => :project_file, constraints: cons
+  get 'public/source/:project/_keyinfo' => :project_file, constraints: cons
+  get 'public/source/:project/_pubkey' => :project_file, constraints: cons
+  get 'public/source/:project/:package' => :package_index, constraints: cons
+  get 'public/source/:project/:package/_meta' => :package_meta, constraints: cons
+  get 'public/source/:project/:package/:filename' => :source_file, constraints: cons
+  get 'public/distributions' => :distributions
+  get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
+  get 'public/build/:project(/:repository(/:arch(/:package(/:filename))))' => 'public#build', constraints: cons, as: :public_build
+  get 'public/image_templates' => :image_templates, constraints: cons
+  get 'public/package_templates' => :package_templates, constraints: cons
+end
+
+resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
+
+### /reports
+resources :reports, only: %i[index show create update destroy], constraints: cons
 
 # StagingWorkflow API
 resources :staging, only: [], param: 'workflow_project', module: 'staging', constraints: cons do
@@ -420,13 +417,6 @@ scope :label_templates do
   resources :projects, only: [], param: :name do
     resources :label_templates, only: %i[index create update destroy], path: '', controller: 'label_templates/projects', constraints: cons
   end
-end
-
-# spiders request this, not browsers
-controller 'webui/sitemaps' do
-  get 'sitemaps' => :index
-  get 'project/sitemap' => :projects
-  get 'package/sitemap(/:project_name)' => :packages
 end
 
 ### /worker

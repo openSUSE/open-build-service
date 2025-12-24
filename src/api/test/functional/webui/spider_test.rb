@@ -27,6 +27,8 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return true if link.include?('/live_build_log')
     # we do not really serve binary packages in the test environment
     return true if %r{/projects/.*/packages/.*/repositories/.*/binaries/.*/.*}.match?(link)
+    return true if link.end_with?('-1.0-1.i586.rpm')
+    return true if link.end_with?('-1.0-1.src.rpm')
     # apidocs is not configured in test environment
     return true if link.end_with?('/apidocs/index')
 
@@ -90,7 +92,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   end
 
   def crawl
-    load_sitemap('/sitemaps')
+    load_sitemap('/sitemaps.xml')
     until @pages_to_visit.empty?
       theone = @pages_to_visit.keys.min
       @pages_visited[theone] = @pages_to_visit[theone]

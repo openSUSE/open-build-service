@@ -4,5 +4,5 @@
          'xsi:schemalocation': 'http://www.sitemaps.org/schemas/sitemap/0.9\n            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd' }
   - @packages.each do |project, package|
     %url
-      %loc= url_for(controller: :package, action: :show, project: project, package: package, only_path: false)
+      %loc= package_show_url(project: project, package: package)
       %priority 0.6
