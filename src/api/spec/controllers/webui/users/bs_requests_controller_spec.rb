@@ -191,6 +191,68 @@ RSpec.describe Webui::Users::BsRequestsController do
 
         it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request) }
       end
+
+      context 'and empty strings are submitted in filter parameters' do
+        context 'with empty project_names' do
+          let(:context_params) { { project_names: ['', request_with_review.bs_request_actions.first.target_project, ''] } }
+
+          it 'filters out empty values and only uses valid project names' do
+            expect(assigns[:bs_requests]).to contain_exactly(request_with_review)
+            expect(assigns[:selected_filter][:project_names]).not_to include('')
+            expect(assigns[:selected_filter][:project_names]).to eq([request_with_review.bs_request_actions.first.target_project])
+          end
+        end
+
+        context 'with empty package_names' do
+          let(:context_params) { { package_names: ['', incoming_request.bs_request_actions.first.source_package, ''] } }
+
+          it 'filters out empty values and only uses valid package names' do
+            expect(assigns[:bs_requests]).to contain_exactly(incoming_request)
+            expect(assigns[:selected_filter][:package_names]).not_to include('')
+            expect(assigns[:selected_filter][:package_names]).to eq([incoming_request.bs_request_actions.first.source_package])
+          end
+        end
+
+        context 'with empty creators' do
+          let(:context_params) { { creators: ['', user.login, ''] } }
+
+          it 'filters out empty values and only uses valid creators' do
+            expect(assigns[:bs_requests]).to contain_exactly(outgoing_request)
+            expect(assigns[:selected_filter][:creators]).not_to include('')
+            expect(assigns[:selected_filter][:creators]).to eq([user.login])
+          end
+        end
+
+        context 'with empty reviewers' do
+          let(:context_params) { { reviewers: ['', user.login, ''] } }
+
+          it 'filters out empty values and only uses valid reviewers' do
+            expect(assigns[:bs_requests]).to contain_exactly(request_with_review)
+            expect(assigns[:selected_filter][:reviewers]).not_to include('')
+            expect(assigns[:selected_filter][:reviewers]).to eq([user.login])
+          end
+        end
+
+        context 'with empty staging_projects' do
+          let(:context_params) { { staging_projects: ['', request_with_review.staging_project.name, ''] } }
+
+          it 'filters out empty values and only uses valid staging projects' do
+            expect(assigns[:bs_requests]).to contain_exactly(request_with_review)
+            expect(assigns[:selected_filter][:staging_projects]).not_to include('')
+            expect(assigns[:selected_filter][:staging_projects]).to eq([request_with_review.staging_project.name])
+          end
+        end
+
+        context 'with empty priorities' do
+          let(:context_params) { { priorities: ['', 'critical', ''] } }
+
+          it 'filters out empty values and only uses valid priorities' do
+            expect(assigns[:bs_requests]).to contain_exactly(request_with_review)
+            expect(assigns[:selected_filter][:priorities]).not_to include('')
+            expect(assigns[:selected_filter][:priorities]).to eq(['critical'])
+          end
+        end
+      end
     end
   end
 end
