@@ -142,7 +142,20 @@ class BuildController < ApplicationController
 
   def result
     # this route is mainly for checking submissions to a target project
-    return result_lastsuccess if params.key?(:lastsuccess)
+    if params.key?(:lastsuccess)
+      value = params[:lastsuccess]
+      allowed_values = %w[1 0 true false]
+
+      if value.present? && allowed_values.exclude?(value)
+        return render_error(
+          status: 400,
+          errorcode: 'invalid_lastsuccess_value',
+          message: 'Invalid value for lastsuccess.'
+        )
+      end
+
+      return result_lastsuccess
+    end
 
     # for permission check
     Project.get_by_name(params[:project])
