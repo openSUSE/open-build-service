@@ -26,10 +26,12 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
         repository.path_elements.find_or_create_by(link: target_repository)
       end
 
-      repository.repository_architectures.destroy_all
+      repository.with_lock do
+        repository.repository_architectures.destroy_all
 
-      repository_instructions[:architectures].uniq.each do |architecture_name|
-        repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
+        repository_instructions[:architectures].uniq.each do |architecture_name|
+          repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
+        end
       end
     end
 
