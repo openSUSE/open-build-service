@@ -307,7 +307,7 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mocha (3.0.0)
+    mocha (3.0.1)
       ruby2_keywords (>= 0.0.5)
     multi_xml (0.7.2)
       bigdecimal (~> 3.1)
