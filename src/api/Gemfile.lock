@@ -548,7 +548,7 @@ GEM
       unicode-display_width (>= 1.1.1, < 4)
     terser (1.2.6)
       execjs (>= 0.3.0, < 3)
-    test-unit (3.7.3)
+    test-unit (3.7.6)
       power_assert
     thinking-sphinx (5.6.0)
       activerecord (>= 4.2.0)
