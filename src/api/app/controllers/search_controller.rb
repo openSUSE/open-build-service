@@ -195,7 +195,7 @@ class SearchController < ApplicationController
 
     items = find_items(what, predicate)
 
-    matches = items.size
+    matches = items.count
     if render_all && search_results_exceed_configured_limit?(matches)
       render_error status: 403, errorcode: 'search_results_exceed_configured_limit', message: <<~MESSAGE.chomp
         The number of results returned by the performed search exceeds the configured limit.
@@ -215,6 +215,9 @@ class SearchController < ApplicationController
       items = filter_items(items)
     end
 
+    # plucking the ids for the cache and for the output
+    item_ids = items.pluck(:id)
+
     opts = {}
 
     if what == :request
@@ -230,13 +233,13 @@ class SearchController < ApplicationController
                    else
                      "xml_id_#{what}_%d"
                    end
-    search_items = filter_items_from_cache(items, xml, key_template)
+    search_items = filter_items_from_cache(item_ids, xml, key_template)
 
     search_finder = SearchFinder.new(what: what, search_items: search_items, render_all: render_all)
 
     relation = search_finder.call
 
-    unless items.empty?
+    unless item_ids.empty?
       relation.each do |item|
         next if xml[item.id]
 
@@ -245,7 +248,7 @@ class SearchController < ApplicationController
       end
     end
 
-    items.each do |i|
+    item_ids.each do |i|
       output << xml[i]
     end
 
@@ -257,8 +260,8 @@ class SearchController < ApplicationController
 
   def filter_items(items)
     offset = params.fetch(:offset, 0).to_i
-    limit = params.fetch(:limit, items.size).to_i
-    Kaminari.paginate_array(items, limit: limit, offset: offset)
+    limit = params.fetch(:limit, items.count).to_i
+    items.offset(offset).limit(limit)
   end
 
   def group_attribute_values_by_attrib_id(values)

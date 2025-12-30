@@ -364,7 +364,7 @@ class XpathEngine
                                               conditions: cond_ary }.inspect}")
     relation = relation.joins(@joins.flatten.uniq.join(' ')).where(cond_ary).order(order)
     # .distinct is critical for perfomance here...
-    relation.distinct.pluck(:id)
+    relation.distinct
   end
 
   def parse_predicate(root, stack)
