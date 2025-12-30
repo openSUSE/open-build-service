@@ -103,7 +103,7 @@ GEM
     base64 (0.2.0)
     bcrypt (3.1.20)
     benchmark (0.5.0)
-    bigdecimal (3.3.1)
+    bigdecimal (4.0.1)
     bootstrap (5.3.5)
       popper_js (>= 2.11.8, < 3)
     builder (3.3.0)
@@ -226,7 +226,7 @@ GEM
     hashdiff (1.2.1)
     highline (3.1.2)
       reline
-    httparty (0.23.2)
+    httparty (0.24.0)
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -309,8 +309,8 @@ GEM
       ruby-progressbar
     mocha (3.0.1)
       ruby2_keywords (>= 0.0.5)
-    multi_xml (0.7.2)
-      bigdecimal (~> 3.1)
+    multi_xml (0.8.0)
+      bigdecimal (>= 3.1, < 5)
     mysql2 (0.5.7)
       bigdecimal
     net-http (0.9.1)
