@@ -14,6 +14,13 @@ class CommentsController < ApplicationController
     render_ok
   end
 
+  def update
+    comment = Comment.find(params[:id])
+    authorize comment, :update?
+    comment.update!(body: request.raw_post)
+    render_ok
+  end
+
   def destroy
     comment = Comment.find(params[:id])
     authorize comment, :destroy?
