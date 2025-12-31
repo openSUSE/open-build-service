@@ -75,8 +75,6 @@ gem 'deep_cloneable'
 gem 'ajax-datatables-rails'
 # Add syntax highlight in ruby
 gem 'coderay'
-# required by rails
-gem 'bigdecimal'
 # Catch unsafe migrations in development
 gem 'strong_migrations'
 # for some rails console fancy
