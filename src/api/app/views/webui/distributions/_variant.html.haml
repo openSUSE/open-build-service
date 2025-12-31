@@ -6,6 +6,11 @@
   = hidden_field_tag 'distribution', variant.id
   %label.form-check-label{ for: "distribution-#{variant.id}-checkbox" }
     = variant.name
+    - if variant.eol?
+      %span.badge.text-bg-secondary.ms-1{ title: "End of life: #{variant.eol}" } EOL
+    - elsif variant.eol.present?
+      %span.badge.text-bg-info.ms-1{ title: "End of life: #{variant.eol}" }
+        EOL: #{variant.eol.strftime('%b %Y')}
   %i.fa.fa-spinner.fa-spin.d-none{ id: "distribution-#{variant.id}-spinner" }
   %i.fa.fa-check.text-success.d-none{ id: "distribution-#{variant.id}-success" }
   %i.fa.fa-times.text-danger.d-none{ id: "distribution-#{variant.id}-fail" }
