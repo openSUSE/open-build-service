@@ -14,7 +14,7 @@ module Webui::MaintenanceIncidentHelper
     requests = BsRequest.list_numbers(roles: %w[target], states: %w[new review], project: incident.name)
     return if requests.none?
 
-    path = (requests.count == 1 ? request_show_path(requests.first) : project_requests_path(project: incident.name))
+    path = (requests.one? ? request_show_path(requests.first) : project_requests_path(project: incident.name))
 
     tag.div do
       link_to(path) do

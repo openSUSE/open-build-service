@@ -82,7 +82,7 @@ class BuildResultsMonitorComponent < ApplicationComponent
   end
 
   def show
-    'show' if filtered_package_names.count == 1
+    'show' if filtered_package_names.one?
   end
 
   def filtered_data(data)
