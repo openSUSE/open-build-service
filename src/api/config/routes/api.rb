@@ -384,7 +384,7 @@ defaults format: 'xml' do
     post 'comments/project/:project' => :create, constraints: cons, as: :create_project_comment
     get 'comments/user' => :index, constraints: cons, as: :comments_user
     get 'comment/:id/history' => :history, constraints: cons
-
+    put 'comment/:id' => :update, constraints: cons, as: :comment_update
     delete 'comment/:id' => :destroy, constraints: cons, as: :comment_delete
   end
 end

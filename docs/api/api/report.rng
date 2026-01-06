@@ -33,7 +33,13 @@
       </optional>
       <optional>
         <attribute name="category">
-          <data type="string" />
+          <choice>
+            <value>spam</value>
+            <value>scam</value>
+            <value>forbidden_license</value>
+            <value>illegal_content</value>
+            <value>other</value>
+          </choice>
         </attribute>
       </optional>
       <optional>

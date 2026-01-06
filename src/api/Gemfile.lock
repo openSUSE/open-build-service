@@ -92,7 +92,7 @@ GEM
     ajax-datatables-rails (1.5.0)
       rails (>= 6.0)
       zeitwerk
-    amq-protocol (2.3.4)
+    amq-protocol (2.5.0)
     annotaterb (4.20.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -101,9 +101,9 @@ GEM
     ast (2.4.3)
     awesome_print (1.9.2)
     base64 (0.2.0)
-    bcrypt (3.1.20)
+    bcrypt (3.1.21)
     benchmark (0.5.0)
-    bigdecimal (3.3.1)
+    bigdecimal (4.0.1)
     bootstrap (5.3.5)
       popper_js (>= 2.11.8, < 3)
     builder (3.3.0)
@@ -155,8 +155,10 @@ GEM
     date (3.5.1)
     deep_cloneable (3.2.1)
       activerecord (>= 3.1.0, < 9)
-    delayed_job (4.1.13)
+    delayed_job (4.2.0)
       activesupport (>= 3.0, < 9.0)
+      benchmark
+      logger
     delayed_job_active_record (4.1.11)
       activerecord (>= 3.0, < 9.0)
       delayed_job (>= 3.0, < 5)
@@ -182,7 +184,7 @@ GEM
       logger
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
-    ffi (1.17.2)
+    ffi (1.17.3)
     flipper (1.3.6)
       concurrent-ruby (< 2)
     flipper-active_record (1.3.6)
@@ -226,11 +228,11 @@ GEM
     hashdiff (1.2.1)
     highline (3.1.2)
       reline
-    httparty (0.23.2)
+    httparty (0.24.0)
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
-    i18n (1.14.7)
+    i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     importmap-rails (2.2.2)
       actionpack (>= 6.0.0)
@@ -242,7 +244,8 @@ GEM
       railties (>= 5.0)
     innertube (1.1.0)
     io-console (0.8.2)
-    irb (1.14.3)
+    irb (1.16.0)
+      pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     joiner (0.6.0)
@@ -307,15 +310,15 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mocha (3.0.0)
+    mocha (3.0.1)
       ruby2_keywords (>= 0.0.5)
-    multi_xml (0.7.2)
-      bigdecimal (~> 3.1)
+    multi_xml (0.8.0)
+      bigdecimal (>= 3.1, < 5)
     mysql2 (0.5.7)
       bigdecimal
-    net-http (0.8.0)
+    net-http (0.9.1)
       uri (>= 0.11.1)
-    net-imap (0.6.0)
+    net-imap (0.6.2)
       date
       net-protocol
     net-pop (0.1.2)
@@ -328,7 +331,7 @@ GEM
       rainbow (>= 3)
     nio4r (2.7.5)
     nkf (0.2.0)
-    nokogiri (1.18.10)
+    nokogiri (1.19.0)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     octokit (10.0.0)
@@ -345,7 +348,10 @@ GEM
     pkg-config (1.6.5)
     popper_js (2.11.8)
     power_assert (3.0.1)
-    prism (1.6.0)
+    pp (0.6.3)
+      prettyprint
+    prettyprint (0.2.0)
+    prism (1.7.0)
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -354,10 +360,10 @@ GEM
       pry (>= 0.13, < 0.16)
     pry-rails (0.3.11)
       pry (>= 0.13.0)
-    psych (5.3.0)
+    psych (5.3.1)
       date
       stringio
-    public_suffix (7.0.0)
+    public_suffix (7.0.2)
     puma (7.1.0)
       nio4r (~> 2.0)
     pundit (2.5.2)
@@ -417,7 +423,7 @@ GEM
     rantly (3.0.0)
     rbtree (0.4.6)
     rbtree3 (0.7.1)
-    rdoc (6.17.0)
+    rdoc (7.0.3)
       erb
       psych (>= 4.0.0)
       tsort
@@ -452,7 +458,7 @@ GEM
     rspec-support (3.13.6)
     rspec_junit_formatter (0.6.0)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (1.82.0)
+    rubocop (1.82.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -463,9 +469,9 @@ GEM
       rubocop-ast (>= 1.48.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.48.0)
+    rubocop-ast (1.49.0)
       parser (>= 3.3.7.2)
-      prism (~> 1.4)
+      prism (~> 1.7)
     rubocop-capybara (2.22.1)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
@@ -476,7 +482,7 @@ GEM
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.47.1, < 2.0)
-    rubocop-rails (2.34.1)
+    rubocop-rails (2.34.3)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
@@ -539,7 +545,7 @@ GEM
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
     stringio (3.1.2)
-    strong_migrations (2.5.1)
+    strong_migrations (2.5.2)
       activerecord (>= 7.1)
     strscan (3.1.2)
     sysexits (1.2.0)
@@ -548,7 +554,7 @@ GEM
       unicode-display_width (>= 1.1.1, < 4)
     terser (1.2.6)
       execjs (>= 0.3.0, < 3)
-    test-unit (3.7.3)
+    test-unit (3.7.7)
       power_assert
     thinking-sphinx (5.6.0)
       activerecord (>= 4.2.0)
@@ -559,7 +565,7 @@ GEM
       riddle (~> 2.3)
     thor (1.4.0)
     tilt (2.6.1)
-    timeout (0.5.0)
+    timeout (0.6.0)
     tsort (0.2.0)
     turbo-rails (2.0.20)
       actionpack (>= 7.1.0)
@@ -572,8 +578,7 @@ GEM
     uniform_notifier (1.18.0)
     uri (1.1.1)
     useragent (0.16.11)
-    vcr (6.3.1)
-      base64
+    vcr (6.4.0)
     view_component (4.1.1)
       actionview (>= 7.1.0, < 8.2)
       activesupport (>= 7.1.0, < 8.2)
@@ -615,7 +620,6 @@ DEPENDENCIES
   awesome_print
   base64 (= 0.2.0)
   bcrypt
-  bigdecimal
   bootstrap
   builder
   bullet
@@ -651,7 +655,7 @@ DEPENDENCIES
   highline
   importmap-rails
   influxdb-rails
-  irb (= 1.14.3)
+  irb (= 1.16.0)
   jquery-datatables
   jquery-rails
   jquery-ui-rails
