@@ -75,8 +75,6 @@ gem 'deep_cloneable'
 gem 'ajax-datatables-rails'
 # Add syntax highlight in ruby
 gem 'coderay'
-# required by rails
-gem 'bigdecimal'
 # Catch unsafe migrations in development
 gem 'strong_migrations'
 # for some rails console fancy
@@ -119,7 +117,7 @@ gem 'rexml'
 # The following gems have a pin: they are default gems in our ruby 3.4 package and we rather use those, then maintaining them in our bundle.
 # Also, they are used by bundler so version mismatches cause problems when booting the app in passenger
 gem 'base64', '0.2.0', require: false
-gem 'irb', '1.14.3'
+gem 'irb', '1.16.0'
 gem 'stringio', '3.1.2'
 gem 'strscan', '3.1.2'
 
