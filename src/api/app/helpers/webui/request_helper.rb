@@ -217,7 +217,7 @@ module Webui::RequestHelper
   # Note: We don't allow labeling requests with more than 1 target project
   def project_for_labels(bs_request)
     target_project_ids = bs_request.bs_request_actions.pluck(:target_project_id).uniq
-    return if target_project_ids.count > 1
+    return if target_project_ids.many?
 
     Project.find_by(id: target_project_ids.last)
   end

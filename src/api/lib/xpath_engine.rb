@@ -358,7 +358,7 @@ class XpathEngine
       logger.debug "strange base table: #{@base_table}"
     end
     cond_ary = nil
-    cond_ary = [@conditions.flatten.uniq.join(' AND '), @condition_values].flatten if @conditions.count.positive?
+    cond_ary = [@conditions.flatten.uniq.join(' AND '), @condition_values].flatten if @conditions.any?
 
     logger.debug("#{relation.to_sql}.find #{{ joins: @joins.flatten.uniq.join(' '),
                                               conditions: cond_ary }.inspect}")

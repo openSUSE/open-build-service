@@ -755,28 +755,6 @@ Style/ClassVars:
     - 'test/functional/branch_publish_flag_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 21
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/CollectionQuerying:
-  Exclude:
-    - 'app/components/build_results_monitor_component.rb'
-    - 'app/components/request_decision_component.rb'
-    - 'app/controllers/webui/comments_controller.rb'
-    - 'app/helpers/maintenance_helper.rb'
-    - 'app/helpers/webui/maintenance_incident_helper.rb'
-    - 'app/helpers/webui/request_helper.rb'
-    - 'app/models/binary_release.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/kiwi/image.rb'
-    - 'app/models/label.rb'
-    - 'app/models/project.rb'
-    - 'app/models/repository.rb'
-    - 'lib/tasks/dev/workflows.rake'
-    - 'lib/xpath_engine.rb'
-    - 'script/import_database.rb'
-    - 'test/functional/release_management_test.rb'
-
 # Offense count: 7
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/CombinableLoops:
