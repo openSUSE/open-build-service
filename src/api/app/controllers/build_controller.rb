@@ -146,12 +146,9 @@ class BuildController < ApplicationController
     # allowed values are true/false or 1/0
     if params.key?(:lastsuccess)
       allowed_values = %w[1 0 true false]
-      unless allowed_values.include?(params[:lastsuccess])
-        return render_error(
-          status: 400,
-          errorcode: 'invalid_lastsuccess_value',
-          message: 'Invalid value for lastsuccess. Expected true/false or 1/0.'
-        )
+      # Validation is intentionally non-blocking to avoid breaking the API
+      unless params[:lastsuccess].blank? || allowed_values.include?(params[:lastsuccess])
+        # no-op
       end
 
       return result_lastsuccess
