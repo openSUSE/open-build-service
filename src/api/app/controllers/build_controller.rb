@@ -145,7 +145,7 @@ class BuildController < ApplicationController
     # this route is mainly for checking submissions to a target project
     # allowed values are true/false or 1/0
     if params.key?(:lastsuccess)
-      allowed_values = ['1', '0', 'true', 'false', 1, 0, true, false]
+      allowed_values = ['1', '0', 'true', 'false']
 
       unless allowed_values.include?(params[:lastsuccess])
         return render_error(

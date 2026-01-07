@@ -309,8 +309,8 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'resultlist', children: { count: 2 }
 
     get '/build/home:Iggy/_result?lastsuccess&pathproject=kde4&package=TestPack'
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_lastsuccess_value' })
+    assert_response :not_found
+    assert_xml_tag(tag: 'status', attributes: { code: 'no_repositories_found' })
   end
 
   def test_result_lastsuccess_true
@@ -335,8 +335,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
   def test_result_invalid_lastsuccess_param
     get '/build/home:Iggy/_result?lastsuccess=abc'
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_lastsuccess_value' })
+    assert_response :not_found
   end
 
   def test_result_of_failed_publish
