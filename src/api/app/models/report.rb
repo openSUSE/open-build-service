@@ -39,6 +39,8 @@ class Report < ApplicationRecord
   end
 
   def other_reports_from_reportable
+    return [] unless reportable
+
     reportable.reports - [self]
   end
 

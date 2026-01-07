@@ -27,5 +27,16 @@ RSpec.describe Report do
     let!(:another_report) { create(:report, reportable: comment) }
 
     it { expect(report.other_reports_from_reportable).to contain_exactly(another_report) }
+
+    context 'when reportable is nil' do
+      let(:report) { create(:report) }
+
+      before do
+        report.reportable.destroy
+        report.reload
+      end
+
+      it { expect(report.other_reports_from_reportable).to eq([]) }
+    end
   end
 end
