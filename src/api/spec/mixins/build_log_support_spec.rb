@@ -62,6 +62,12 @@ class=\"ansible_none\">\r[  580s] </span><span class=\"ansible_36\">Reaping 1 jo
 
         it { expect(subject).to eq('<span class="ansible_none">invalid byte sequence -&gt;�&#39;</span>') }
       end
+
+      context 'with invalid \xFF byte in build log' do
+        let(:build_log) { "Build log start \xFF Build log end" }
+
+        it { is_expected.to include('Build log start').and(include('Build log end')) }
+      end
     end
   end
 
