@@ -114,7 +114,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       files = Xmlhash.parse(@response.body)
       revision_parts = vrevs[k].to_s.split(/(.*\.)([^.]*)$/)
       expectedvrev = (revision_parts[0].to_i + 2).to_s # no dot inside of vrev as fallback
-      expectedvrev = "#{revision_parts[1]}#{revision_parts[2].to_i + 2}" if revision_parts.count > 1
+      expectedvrev = "#{revision_parts[1]}#{revision_parts[2].to_i + 2}" if revision_parts.many?
       assert_equal expectedvrev, files['vrev']
     end
 

@@ -31,7 +31,7 @@ module MaintenanceHelper
     # lock the scheduler
     target_project.suspend_scheduler(comment)
 
-    if source_package.name.starts_with?('_product:') && target_project.packages.where(name: '_product').count.positive?
+    if source_package.name.starts_with?('_product:') && target_project.packages.where(name: '_product').any?
       # a master _product container exists, so we need to copy all sources
       _release_product(source_package, target_project, action)
     else

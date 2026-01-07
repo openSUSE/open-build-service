@@ -395,7 +395,7 @@ class BsRequestAction < ApplicationRecord
     source_project = Project.find_by_name(self.source_project)
     return unless source_project
 
-    if (source_project.packages.count == 1 && ::Configuration.cleanup_empty_projects) || !source_package
+    if (source_project.packages.one? && ::Configuration.cleanup_empty_projects) || !source_package
 
       # remove source project, if this is the only package and not a user's home project
       splits = self.source_project.split(':')
