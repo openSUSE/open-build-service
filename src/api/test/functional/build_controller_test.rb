@@ -332,7 +332,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     get '/build/home:Iggy/_result?lastsuccess=0&pathproject=kde4&package=TestPack'
     assert_response :not_found
   end
-  
+
   def test_result_of_failed_publish
     run_publisher
     get '/build/BrokenPublishing/_result'
