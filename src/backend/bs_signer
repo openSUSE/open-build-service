@@ -774,6 +774,17 @@ sub getsignkey {
   return ($algo, $signkey, $pubkey, $cert);
 }
 
+sub getsignflavor {
+  my ($projid, $repoid, $arch) = @_;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getconfig",
+    'timeout' => 300,
+  };
+  my $config = BSRPC::rpc($param, undef, "project=$projid", "repository=$repoid");
+  my $bconf = Build::read_config($arch, [ split("\n", $config) ]);
+  return $bconf->{'buildflags:signflavor'};
+}
+
 sub setsigntype {
   my ($signargs, $signtype) = @_;
   return unless $BSConfig::sign_type;
@@ -870,6 +881,10 @@ sub signjob {
   }
   if (@signfiles) {
     my $signflavor;
+    if (($info->{'signflavor'} || '') eq '_unknown') {
+      $info->{'signflavor'} = getsignflavor($info->{'project'}, $info->{'repository'}, $info->{'arch'});
+      delete $info->{'signflavor'} unless $info->{'signflavor'};
+    }
     if (($info->{'signflavor'} || '') eq '_buildenv') {
       # take the signflavor from the generated _buildenv file
       my $buildenv = readxml("$jobdir/_buildenv", $BSXML::buildinfo);
