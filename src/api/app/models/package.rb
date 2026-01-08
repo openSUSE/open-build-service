@@ -1411,7 +1411,7 @@ class Package < ApplicationRecord
     # detected as Generic protocol and the detection of the fragments is a
     # bit... weird.
     if parsed_report_bug_url.is_a?(URI::Generic)
-      errors.add(:report_bug_url, 'Local urls are not allowed') if parsed_report_bug_url.path&.starts_with?('/')
+      errors.add(:report_bug_url, 'Local urls are not allowed') if parsed_report_bug_url.host.blank? && parsed_report_bug_url.path&.starts_with?('/')
       # urls like localhost:3000 have no path and no host, and the schema is 'localhost'
       errors.add(:report_bug_url, 'Local urls are not allowed') if parsed_report_bug_url.scheme == parsed_instance_url.host
     elsif parsed_report_bug_url == parsed_instance_url
