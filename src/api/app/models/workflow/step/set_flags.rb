@@ -50,6 +50,7 @@ class Workflow::Step::SetFlags < Workflow::Step
   end
 
   def validate_flags
+    return if flags.blank?
     return if flags.all? { |flag| (REQUIRED_FLAG_KEYS - flag.keys).empty? }
 
     required_flag_keys_sentence ||= REQUIRED_FLAG_KEYS.map { |key| "'#{key}'" }.to_sentence
