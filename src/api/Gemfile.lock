@@ -312,7 +312,7 @@ GEM
       ruby-progressbar
     mocha (3.0.1)
       ruby2_keywords (>= 0.0.5)
-    multi_xml (0.8.0)
+    multi_xml (0.8.1)
       bigdecimal (>= 3.1, < 5)
     mysql2 (0.5.7)
       bigdecimal
