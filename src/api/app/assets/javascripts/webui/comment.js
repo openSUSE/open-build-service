@@ -218,3 +218,54 @@ function openInlineCommentFormWithDraftAvailable(commentableType, commentableId)
     }
   });
 }
+
+// Initialize Tribute.js for @mention autocomplete in comment textareas
+/* global Tribute */
+function initializeCommentMentions(textarea) {
+  var tribute = new Tribute({
+    values: function (text, cb) {
+      // Endpoint returns {login, realname, avatarUrl} objects
+      $.ajax({
+        url: '/users/mentions_autocomplete',
+        data: { term: text },
+        success: function(data) {
+          cb(data.map(function(user) { 
+            return {
+              key: user.login,
+              value: user.login,
+              realname: user.realname || '',
+              avatarUrl: user.avatarUrl
+            };
+          }));
+        }
+      });
+    },
+    selectTemplate: function(item) {
+      return '@' + item.original.value;
+    },
+    menuItemTemplate: function(item) {
+      var user = item.original;
+      var displayName = user.realname || user.value;
+      
+      return '<img class="tribute-avatar" src="' + user.avatarUrl + '" alt="' + user.value + '">' +
+             '<div class="tribute-user-info">' +
+               '<span class="tribute-username">' + user.value + '</span>' +
+               (user.realname ? '<span class="tribute-realname">' + displayName + '</span>' : '') +
+             '</div>';
+    },
+    lookup: 'key',
+    fillAttr: 'value',
+    trigger: '@',
+    requireLeadingSpace: true
+  });
+
+  tribute.attach(textarea);
+}
+
+// Initialize autocomplete for all comment textareas when they receive focus
+$(document).on('focus', '.write-and-preview textarea', function() {
+  if (!this.tributeInitialized) {
+    initializeCommentMentions(this);
+    this.tributeInitialized = true;
+  }
+});

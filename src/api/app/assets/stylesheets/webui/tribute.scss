@@ -1,0 +1,65 @@
+/* Tribute.js autocomplete dropdown styling */
+.tribute-container {
+    position: absolute;
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+
+    ul {
+        margin: 0;
+        padding: 0.25rem 0;
+        list-style: none;
+
+        li {
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            transition: background-color 0.15s ease-in-out;
+
+            &.highlight {
+                background-color: var(--bs-secondary-bg, #e9ecef);
+            }
+
+            &:hover {
+                background-color: var(--bs-secondary-bg, #e9ecef);
+            }
+
+            // Avatar image
+            .tribute-avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+
+            // User info container
+            .tribute-user-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.125rem;
+                flex: 1;
+                min-width: 0;
+
+                .tribute-username {
+                    color: var(--bs-body-color, #212529);
+                    font-weight: 600;
+                    font-size: 0.875rem;
+                    line-height: 1.25;
+                }
+
+                .tribute-realname {
+                    color: var(--bs-secondary-color, #6c757d);
+                    font-size: 0.75rem;
+                    line-height: 1.25;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+        }
+    }
+}
