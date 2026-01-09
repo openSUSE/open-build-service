@@ -49,12 +49,6 @@ RSpec/MultipleExpectations:
     - 'dist/t/spec/features/0020_interconnect_spec.rb'
     - 'dist/t/spec/features/0040_package_spec.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-RSpec/Output:
-  Exclude:
-    - 'dist/t/spec/features/0040_package_spec.rb'
-
 # Offense count: 4
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Inferences.
