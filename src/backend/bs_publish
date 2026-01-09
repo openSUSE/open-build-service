@@ -2189,6 +2189,48 @@ sub fixsleimage {
   return 1;
 }
 
+sub fixvmx {
+  my ($data, $p, $origin) = @_;
+  return 0 unless $origin;
+  die unless -e $origin;
+  return 0 unless -f _ && -s _ < 1000000;
+  my $pdir = '';
+  $pdir = $1 if $p =~ /(.*\/)/;
+  my $changed;
+  my $content = readstr($origin);
+  my $newcontent = '';
+  my $mapped = $data->{'mapped'};
+  for (split("\n", $content)) {
+    if (/\"(.*)\"$/ && $mapped->{"$pdir$1"}) {
+      my $f = $1;
+      s/\"(.*)\"/\"$mapped->{"$pdir$f"}\"/;
+      #s/  \Q$pdir\E/  / if $pdir ne '';
+      $changed = 1;
+    }
+    $newcontent .= "$_\n";
+  }
+  return 0 unless $changed;
+  my $extrep = $data->{'extrep'};
+  my $bins_id = $data->{'bins_id'};
+  my @s = lstat("$extrep/$p");
+  if (-d _) {
+    BSUtil::cleandir("$extrep/$p");
+    rmdir("$extrep/$p") || die("rmdir $extrep/$p: $!\n");
+    print "      ! $p\n";
+  } elsif (-f _ && -s _ < 1000000) {
+    print "      ! $p\n";
+  } else {
+    print "      + $p\n";
+  }
+  unlink("$extrep/$p");
+  mkdir_p(($p =~ /(.*)\//) ? "$extrep/$1" : $extrep);
+  writestr("$extrep/$p", undef, $newcontent);
+  @s = stat("$extrep/$p");
+  die unless @s;
+  $bins_id->{$p} = "$s[9]/$s[7]/$s[1]";
+  return 1;
+}
+
 sub linkintoblobdir {
   my ($file, $blobdirref) = @_;
   $$blobdirref ||= create_blobdir();
@@ -2907,10 +2949,14 @@ sub publish {
     }
   }
 
-  # fix sha256 checksum files of mapped iso files
   if ($sleimagedata && %{$sleimagedata->{'mapped'}}) {
+    # fix sha256 checksum files of mapped iso files
     for my $p (grep {/\.sha256$/} sort keys %bins) {
       $changed = 1 if fixsleimage($sleimagedata, $p, $bins{$p});
+    }
+    # fix vmx files of mapped vmdk files
+    for my $p (grep {/\.vmx$/} sort keys %bins) {
+      $changed = 1 if fixvmx($sleimagedata, $p, $bins{$p});
     }
   }
 
