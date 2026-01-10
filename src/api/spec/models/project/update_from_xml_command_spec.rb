@@ -236,6 +236,42 @@ RSpec.describe Project::UpdateFromXmlCommand do
           expect { subject }.to raise_error(Project::SaveError, "Repotype 'INVALID' is not a valid repotype")
         end
       end
+
+      context 'with multiple download elements with the same arch' do
+        subject! { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }
+
+        let(:xml_hash) do
+          Xmlhash.parse(
+            <<-XML
+              <project name="#{project.name}">
+                <repository name="dod_repo">
+                  <download arch='i586' url='http://repo1.example.org' repotype='deb'>
+                    <pubkey>KEY1</pubkey>
+                  </download>
+                  <download arch='i586' url='http://repo2.example.org' repotype='deb'>
+                    <pubkey>KEY2</pubkey>
+                  </download>
+                  <download arch='i586' url='http://repo3.example.org' repotype='deb'>
+                    <pubkey>KEY3</pubkey>
+                  </download>
+                  <arch>i586</arch>
+                </repository>
+              </project>
+            XML
+          )
+        end
+
+        it 'creates multiple download repositories with the same arch' do
+          dod_repo = project.repositories.find_by(name: 'dod_repo')
+          expect(dod_repo.download_repositories.count).to eq(3)
+          expect(dod_repo.download_repositories.pluck(:url)).to contain_exactly(
+            'http://repo1.example.org',
+            'http://repo2.example.org',
+            'http://repo3.example.org'
+          )
+          expect(dod_repo.download_repositories.pluck(:pubkey)).to contain_exactly('KEY1', 'KEY2', 'KEY3')
+        end
+      end
     end
 
     describe 'path elements' do
