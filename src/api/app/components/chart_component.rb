@@ -43,6 +43,10 @@ class ChartComponent < ApplicationComponent
     raw_data.pluck(:repository).to_set
   end
 
+  def distinct_package_names
+    raw_data.pluck(:package_name).to_set
+  end
+
   def status_color(status)
     build_result = Buildresult.new(status)
     return 'text-bg-success' if build_result.successful_final_status?
