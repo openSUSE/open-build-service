@@ -2,5 +2,6 @@ $('#flash').empty();
 $('#comment<%= @line %> .diff-comments').html("<%= escape_javascript(render(partial: 'webui/request/inline_comment', locals: { comment: @comment, commentable: @action, diff_ref: @line, file_index: @file_index, line_number: @line_number, source_rev: @source_rev, target_rev: @target_rev })) %>");
 $("#comment<%= @line %> .diff-comments textarea").focus();
 $("#comment<%= @line %>").on('click', '#new_comment_<%= @line %>_form .cancel-comment', function (e) {
+  clearDraftCommentFromSession('new_comment_<%= @line %>_form');
   $('#comment<%= @line %> .diff-comments').html("<%= escape_javascript(render(partial: 'webui/request/add_inline_comment', locals: { commentable: @action, diff_file_index: @file_index, diff_line_number: @line_number, source_rev: @source_rev, target_rev: @target_rev })) %>");
 });
