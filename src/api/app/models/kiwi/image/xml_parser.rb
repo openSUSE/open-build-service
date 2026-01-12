@@ -73,6 +73,8 @@ module Kiwi
           )
 
           package_group_xml.xpath('package').each do |package_xml|
+            next if package_xml.attribute('name').nil?
+
             attributes = {
               name: package_xml.attribute('name').value,
               arch: package_xml.attribute('arch')&.value,
