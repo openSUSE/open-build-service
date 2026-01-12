@@ -40,6 +40,7 @@ my %commands = (
   'service-containers' => \&setup_service_containers,
   'sc'                 => \&setup_service_containers,
   'gitea'              => \&setup_gitea,
+  'obs-gitea-bridge'   => \&setup_obs_gitea_bridge,
 );
 
 for my $opt (@args) {
@@ -207,6 +208,9 @@ DEFAULT_MERGE_STYLE = merge
 [repository.signing]
 DEFAULT_TRUST_MODEL = committer
 
+[webhook]
+ALLOWED_HOST_LIST = loopback
+
 EOF
 
   my $inifile = "/etc/gitea/conf/app.ini";
@@ -237,5 +241,10 @@ EOF
 
   run_cmd("systemctl enable --now $GITEA_SERVICE_NAME");
 
+  return 1;
+}
+
+sub setup_obs_gitea_bridge {
+  run_cmd("systemctl enable --now obs-gitea-bridge");
   return 1;
 }

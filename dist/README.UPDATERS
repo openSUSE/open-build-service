@@ -40,7 +40,20 @@ Note: Update from OBS 2.5 should also work, but it is not fully tested.
 
         PassengerRuby "/usr/bin/ruby.ruby3.4"
 
-  6) Reboot your system to restart all OBS components
+  6) Enable gitea/obs-gitea-bridge (optional)
+
+        if you would like to use the new git workflow
+        you need to install the required packages
+
+        zypper -n install gitea obs-gitea-bridge
+
+        and run the following commands to generate the configuration and enable
+        the required services.
+
+        obs-setup gitea
+        obs-setup obs-gitea-bridge
+
+  7) Reboot your system to restart all OBS components
 
 
 For Updaters from OBS 2.9 to OBS 2.10

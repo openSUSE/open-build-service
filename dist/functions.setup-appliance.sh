@@ -706,7 +706,13 @@ function set_gpg_expiry_date {
 ###############################################################################
 function prepare_gitea {
 
-  [ "$WITH_GITEA" -gt 0 ] &&  obs_setup --gitea
+  [ "$WITH_GITEA" -gt 0 ] && obs-setup gitea
 
+}
+
+###############################################################################
+function prepare_gitea {
+
+  [ "$WITH_OBS_GITEA_BRIDGE" -gt 0 ] && obs-setup obs-gitea-bridge
 
 }
