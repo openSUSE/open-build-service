@@ -104,7 +104,7 @@ GEM
     bcrypt (3.1.21)
     benchmark (0.5.0)
     bigdecimal (4.0.1)
-    bootstrap (5.3.5)
+    bootstrap (5.3.8)
       popper_js (>= 2.11.8, < 3)
     builder (3.3.0)
     bullet (8.1.0)
