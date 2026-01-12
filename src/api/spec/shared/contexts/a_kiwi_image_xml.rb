@@ -133,4 +133,29 @@ RSpec.shared_context 'a kiwi image xml' do
       </image>
     XML
   end
+
+  let(:kiwi_xml_with_package_missing_name) do
+    <<~XML
+      <?xml version="1.0" encoding="UTF-8"?>
+      <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+        <description type="system">
+          <author>Christian Bruckmayer</author>
+          <contact>noemail@example.com</contact>
+          <specification>Tiny, minimalistic appliances</specification>
+        </description>
+        <packages type="image" patternType="onlyRequired">
+          <package name="vim"/>
+          <package arch="x86_64"/>
+          <package name="zypper"/>
+        </packages>
+        <repository type="apt-deb" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
+          <source path="http://download.opensuse.org/update/13.2/"/>
+        </repository>
+        <preferences>
+          <type image="docker" boot="grub"/>
+          <version>2.0.0</version>
+        </preferences>
+      </image>
+    XML
+  end
 end

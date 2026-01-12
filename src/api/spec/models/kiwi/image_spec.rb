@@ -205,6 +205,12 @@ RSpec.describe Kiwi::Image, :vcr do
         )
       end
     end
+
+    context 'with packages missing the name attribute' do
+      subject { Kiwi::Image.build_from_xml(kiwi_xml_with_package_missing_name, 'some_md5') }
+
+      it { is_expected.to be_valid }
+    end
   end
 
   describe '#to_xml' do
