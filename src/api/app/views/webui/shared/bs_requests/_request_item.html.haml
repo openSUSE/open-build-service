@@ -20,10 +20,10 @@
       - if Flipper.enabled?(:labels, User.session) && bs_request.labels
         .mb-1
           = render partial: 'webui/shared/label', collection: bs_request.labels, as: :label
-      .mb-1
-        = render BsRequestSummaryDescriptionComponent.new(bs_request:)
-        .mb-2.request-index-description.text-truncate
-          = bs_request.description
+      .mb-1.my-2.small
+        = render partial: 'webui/request/request_header_actions_list', locals: { bs_request: bs_request }
+      .mb-2.request-index-description.text-truncate
+        = bs_request.description
       .text-end
         %span
           = render AvatarComponent.new(name: bs_request.creator, email: User.find_by_login(bs_request.creator).email, custom_css: 'align-text-bottom')

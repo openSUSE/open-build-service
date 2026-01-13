@@ -5,4 +5,4 @@
       = type.humanize.titleize
     - actions.each do |action|
       .list-group-item.list-group-item-action
-        = render partial: 'action_description', locals: { action: action }
+        = render partial: 'webui/shared/bs_request_action_description', locals: { action: action }
