@@ -334,7 +334,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def rpmlint_summary
     render partial: 'webui/package/beta/rpmlint_summary',
-           locals: { lints_list: @results, badness: @badness, errors: @errors, warnings: @warnings, info: @info, project: @project, package_name: @package_name }
+           locals: { lints_list: @results, badness: @badness, errors: @errors, warnings: @warnings, info: @info, project: @project, package_name: @package_name, content: @content }
   end
 
   def preview_description
@@ -388,6 +388,7 @@ class Webui::PackageController < Webui::WebuiController
             parsed = filter_rpmlint(rpmlint_log_file: rpmlint_log_file, repo: result['repository'], arch: result['arch'])
             next if parsed.nil?
 
+            @content = rpmlint_log_file
             @results << parsed.results
             max_badness = parsed.badness.values.max
             @badness = max_badness if parsed.badness.present? && (max_badness > @badness)
