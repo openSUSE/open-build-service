@@ -46,10 +46,8 @@ module Event
       nil
     end
 
-    # Reencode the fail log replacing invalid UTF-8 characters with the default unicode replacement character: '\ufffd'
-    # source: https://stackoverflow.com/a/24493972
     def reencode_faillog(faillog)
-      faillog&.encode('UTF-8', 'UTF-8', invalid: :replace)
+      faillog&.encode('UTF-8', 'BINARY', invalid: :replace, undef: :replace, replace: '?')
     end
   end
 end
