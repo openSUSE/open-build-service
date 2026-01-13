@@ -29,6 +29,9 @@ RSpec.configure do |config|
 
     # to disable deprecated should syntax
     expectations.syntax = :expect
+
+    # Include the devise test helpers in the controllers
+    config.include Devise::Test::ControllerHelpers, type: :controller
   end
 
   # Allows RSpec to persist some state between runs in order to support

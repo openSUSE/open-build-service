@@ -10,12 +10,17 @@ class User < ApplicationRecord
   NOBODY_LOGIN = '_nobody_'.freeze
   MAX_BIOGRAPHY_LENGTH_ALLOWED = 250
 
+  devise :database_authenticatable
+
   attribute :color_theme, :integer
+  attr_writer :password_digest
+
   enum :color_theme, { 'system' => 0, 'light' => 1, 'dark' => 2 }
 
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
-  has_secure_password validations: false
+  # FIXME: This is disabled because it conflicts with Devise's DatabaseAuthenticatable's password attribute writter
+  # has_secure_password validations: false
 
   has_many :watched_items, dependent: :destroy
   has_many :groups_users, inverse_of: :user
@@ -103,6 +108,7 @@ class User < ApplicationRecord
                       too_long: 'must have less than 100 characters',
                       too_short: 'must have more than two characters' }
 
+  validates :encrypted_password, length: { maximum: 255 }
   validates :state, inclusion: { in: STATES }
 
   validate :validate_state
@@ -278,7 +284,11 @@ class User < ApplicationRecord
 
     # it seems that the user is not using a deprecated password so we use bcrypt's
     # #authenticate method
-    super
+    if valid_password?(unencrypted_password)
+      self
+    else
+      false
+    end
   end
 
   # Returns true if the the state transition from "from" state to "to" state
@@ -823,7 +833,7 @@ class User < ApplicationRecord
   private_class_method :nobody
 
   def password_validation
-    return if password_digest || deprecated_password
+    return if encrypted_password || deprecated_password
 
     errors.add(:password, 'can\'t be blank')
   end
@@ -870,13 +880,13 @@ end
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)
 #  email                         :string(200)      default(""), not null
+#  encrypted_password            :string(255)
 #  ignore_auth_services          :boolean          default(FALSE)
 #  in_beta                       :boolean          default(FALSE), indexed
 #  in_rollout                    :boolean          default(TRUE), indexed
 #  last_logged_in_at             :datetime
 #  login                         :text(65535)      uniquely indexed
 #  login_failure_count           :integer          default(0), not null
-#  password_digest               :string(255)
 #  realname                      :string(200)      default(""), not null
 #  rss_secret                    :string(200)      uniquely indexed
 #  state                         :string           default("unconfirmed"), indexed

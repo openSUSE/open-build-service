@@ -240,3 +240,5 @@ group :assets do
   # assets for font-awesome vector icons
   gem 'font-awesome-sass'
 end
+
+gem 'devise', '~> 4.9'
