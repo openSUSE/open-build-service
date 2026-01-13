@@ -419,13 +419,6 @@ scope :label_templates do
   end
 end
 
-# spiders request this, not browsers
-controller 'webui/sitemaps' do
-  get 'sitemaps' => :index
-  get 'project/sitemap' => :projects
-  get 'package/sitemap(/:project_name)' => :packages
-end
-
 ### /worker
 scope :worker, as: :worker do
   resources :status, only: [:index], controller: 'worker/status'                        # Deprecated: GET  /worker/status

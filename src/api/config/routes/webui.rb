@@ -494,3 +494,9 @@ resource :labels, controller: 'webui/labels', only: %i[update], constraints: con
 end
 
 resources :global_feature_toggles, only: [:index], controller: 'webui/global_feature_toggles'
+
+controller 'webui/sitemaps' do
+  get 'sitemaps' => :index
+  get 'project/sitemap' => :projects
+  get 'package/sitemap(/:project_name)' => :packages
+end
