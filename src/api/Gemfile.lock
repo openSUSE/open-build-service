@@ -424,7 +424,7 @@ GEM
     rantly (3.0.0)
     rbtree (0.4.6)
     rbtree3 (0.7.1)
-    rdoc (7.0.3)
+    rdoc (7.1.0)
       erb
       psych (>= 4.0.0)
       tsort
