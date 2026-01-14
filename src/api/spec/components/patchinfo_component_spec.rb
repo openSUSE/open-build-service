@@ -152,7 +152,7 @@ RSpec.describe PatchinfoComponent, type: :component do
     let(:patchinfo_text) do
       '<patchinfo>
         <category>recommended</category>
-        <rating>low</rating>
+        <rating/>
         <packager>tom</packager>
         <summary/>
         <description/>
@@ -175,6 +175,10 @@ RSpec.describe PatchinfoComponent, type: :component do
       %w[reboot_needed relogin_needed zypp_restart_needed].each do |property|
         expect(rendered_content).to have_no_css('span.badge.text-bg-info', text: property)
       end
+    end
+
+    it 'does not display a badge for rating' do
+      expect(rendered_content).to have_no_css('span.badge.text-bg-warning')
     end
 
     it do
