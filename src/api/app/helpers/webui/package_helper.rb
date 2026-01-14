@@ -87,6 +87,7 @@ module Webui::PackageHelper
   end
 
   def binary_file?(filename)
+    return true if filename == '_icon'
     return false unless (mime = Marcel::Magic.by_path(filename))
 
     !mime.text?
