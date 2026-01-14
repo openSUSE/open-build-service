@@ -1,10 +1,17 @@
+:ruby
+  source_container = project_or_package_link({ project: action.source_project, package: action.source_package, trim_to: nil })
+  target_container = project_or_package_link({ project: action.target_project, package: action.target_package, trim_to: nil })
+  source_and_target_container = BsRequestActionSourceAndTargetComponent.new(action.bs_request).combine(source_container, target_container)
+
 - case action.type
 - when 'submit'
   Submit
   = source_and_target_container
 - when 'delete'
   Delete
-  = target_repository
+  - if action.target_repository
+    - target_repository_hash = { project: action.target_project, package: action.target_package, trim_to: nil }
+    repository #{link_to(action.target_repository, repositories_path(target_repository_hash))} for
   = target_container
 - when 'add_role', 'set_bugowner'
   = user_with_realname_and_icon(action.bs_request.creator)

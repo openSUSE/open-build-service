@@ -50,4 +50,4 @@
 
 
   %p.fst-italic
-    = render BsRequestActionDescriptionComponent.new(action: action)
+    = render partial: 'action_description', locals: { action: action }
