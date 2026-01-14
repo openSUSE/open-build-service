@@ -277,6 +277,7 @@ RSpec.describe Webui::PackageHelper do
     it { expect(binary_file?('MzQ1OHI3OGZ5ZW.svgz')).to be(true) }
     it { expect(binary_file?('hzeml5OTc2e.taz')).to be(true) }
     it { expect(binary_file?('WZ6OTdneXJqa.tlz')).to be(true) }
+    it { expect(binary_file?('shim-opensuse.x86.efi')).to be(true) }
     it { expect(binary_file?('3c0ZWdha.diff')).to be(false) }
     it { expect(binary_file?('GpyNWpoc.txt')).to be(false) }
     it { expect(binary_file?('0ZLREpoCg.csv')).to be(false) }

@@ -1,11 +1,12 @@
 - can_be_removed = removable_file?(file_name: file['name'], package: package) && can_modify && is_current_rev
+- is_viewable = viewable_file?(file['name'], file['size'].to_i)
 %tr{ id: "file-#{valid_xml_id(file['name'])}" }
   %td.text-word-break-all
     - link_opts = { action: :show, controller: 'webui/packages/files', project_name: project,
                     package_name: package, filename: file['name'], expand: expand }
     - unless is_current_rev
       - link_opts[:rev] = srcmd5
-    = link_to_if(viewable_file?(file['name'], file['size'].to_i), nbsp(file['name']), link_opts)
+    = link_to_if(is_viewable, nbsp(file['name']), link_opts)
   %td.text-nowrap
     %span.d-none= file['size'].rjust(10, '0')
     = human_readable_fsize(file['size'])
@@ -14,7 +15,7 @@
   / limit download for anonymous user to avoid getting killed by crawlers
   - unless nobody
     %td.text-center<
-      - if viewable_file?(file['name'], file['size'].to_i)
+      - if is_viewable
         = link_to(project_package_file_blame_path(project, package, file['name'], expand: expand), title: 'Blame file') do
           %i.fas.fa-fw.fa-file-waveform
       = link_to(file_url(project.name, package.name, file['name'], srcmd5), title: 'Download file', class: 'me-1') do
