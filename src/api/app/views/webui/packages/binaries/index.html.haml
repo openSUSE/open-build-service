@@ -18,7 +18,7 @@
                                                          options: { modal_title: 'Delete all built binaries?',
                                                                     confirmation_text: 'Please confirm deletion of all built binaries',
                                                                     action: project_package_repository_binaries_path(project_name: @project,
-                                                                                                                     package_name: @package,
+                                                                                                                     package_name: @package_name,
                                                                                                                      repository_name: @repository) })
           = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-binaries-modal',
                                                          method: :delete,
