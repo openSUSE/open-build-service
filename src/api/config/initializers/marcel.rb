@@ -8,3 +8,4 @@ Marcel::MimeType.extend "application/x-tarz", parents: "application/x-compress",
 Marcel::MimeType.extend "application/x-lzma-compressed-tar", parents: "application/x-lzma", extensions: %w[tlz]
 Marcel::MimeType.extend "application/zstd", extensions: %w[zst]
 Marcel::MimeType.extend "application/vnd.microsoft.portable-executable", extensions: %w[efi]
+Marcel::MimeType.extend "application/x-cpio", extensions: %w[obscpio]
