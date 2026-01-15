@@ -1,0 +1,10 @@
+workflow_percent:
+  steps:
+    - branch_package:
+        source_project: "test-project:%f{SCM_ORGANIZATION_NAME}"
+        source_package: "%{SCM_REPOSITORY_NAME}"
+        target_project: "test-target-project"
+  filters:
+    branches:
+      only:
+        - 'main'
