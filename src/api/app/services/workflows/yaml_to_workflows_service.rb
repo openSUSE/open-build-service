@@ -49,7 +49,7 @@ module Workflows
       placeholder_variables = SUPPORTED_PLACEHOLDER_VARIABLES.zip([scm_organization_name, scm_repository_name, pr_number, commit_sha, label]).to_h
       begin
         format(workflow_configuration, placeholder_variables)
-      rescue ArgumentError => e
+      rescue ArgumentError, KeyError => e
         raise Token::Errors::WorkflowsYamlFormatError, e.message
       end
     end
