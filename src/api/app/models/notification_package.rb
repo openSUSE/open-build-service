@@ -10,7 +10,9 @@ class NotificationPackage < Notification
     when 'Event::RelationshipDelete'
       "#{event_payload['who']} removed #{recipient} as #{event_payload['role']} of #{target_object}"
     when 'Event::BuildFail'
-      "Build was triggered because of #{event_payload['reason']}"
+      "Package: #{event_payload['project']} / #{event_payload['package']}
+       Repository: #{event_payload['repository']} / #{event_payload['arch']}
+       Reason: #{event_payload['reason']}"
     end
   end
 
@@ -29,7 +31,7 @@ class NotificationPackage < Notification
     when 'Event::RelationshipDelete'
       "Removed as #{event_payload['role']} of a package"
     when 'Event::BuildFail'
-      "Package #{event_payload['package']} on #{event_payload['project']} project failed to build against #{event_payload['repository']} / #{event_payload['arch']}"
+      'Package failed to build'
     end
   end
 
