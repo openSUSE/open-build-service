@@ -41,42 +41,42 @@ module Webui::RequestsFilter
   def filter_creators
     return if params[:creators]&.compact_blank.blank?
 
-    @selected_filter['creators'] = params[:creators]
+    @selected_filter['creators'] = params[:creators].compact_blank
     @bs_requests = @bs_requests.where(creator: @selected_filter['creators'])
   end
 
   def filter_priorities
     return if params[:priorities]&.compact_blank.blank?
 
-    @selected_filter['priorities'] = params[:priorities]
+    @selected_filter['priorities'] = params[:priorities].compact_blank
     @bs_requests = @bs_requests.where(priority: @selected_filter['priorities'])
   end
 
   def filter_staging_projects
     return if params[:staging_projects]&.compact_blank.blank?
 
-    @selected_filter['staging_projects'] = params[:staging_projects]
+    @selected_filter['staging_projects'] = params[:staging_projects].compact_blank
     @bs_requests = @bs_requests.where(staging_project: Project.find_by(name: @selected_filter['staging_projects']))
   end
 
   def filter_reviewers
     return if params[:reviewers]&.compact_blank.blank?
 
-    @selected_filter['reviewers'] = params[:reviewers]
+    @selected_filter['reviewers'] = params[:reviewers].compact_blank
     @bs_requests = @bs_requests.where(reviews: { by_user: @selected_filter['reviewers'] }).or(@bs_requests.where(reviews: { by_group: @selected_filter['reviewers'] }))
   end
 
   def filter_project_names
     return if params[:project_names]&.compact_blank.blank?
 
-    @selected_filter['project_names'] = params[:project_names]
+    @selected_filter['project_names'] = params[:project_names].compact_blank
     @bs_requests = @bs_requests.where(bs_request_actions: { source_project: @selected_filter['project_names'] }).or(@bs_requests.where(bs_request_actions: { target_project: @selected_filter['project_names'] }))
   end
 
   def filter_package_names
     return if params[:package_names]&.compact_blank.blank?
 
-    @selected_filter['package_names'] = params[:package_names]
+    @selected_filter['package_names'] = params[:package_names].compact_blank
     @bs_requests = @bs_requests.where(bs_request_actions: { source_package: @selected_filter['package_names'] }).or(@bs_requests.where(bs_request_actions: { target_package: @selected_filter['package_names'] }))
   end
 
