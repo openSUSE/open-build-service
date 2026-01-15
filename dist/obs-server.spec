@@ -476,6 +476,7 @@ OBS_RUBY_ABI_VERSION=%{__obs_ruby_abi_version}
 EOF
 
 pushd src/api
+mkdir -p %_libdir/obs-api/
 bundle config set path %_libdir/obs-api/
 
 bundle install --local
