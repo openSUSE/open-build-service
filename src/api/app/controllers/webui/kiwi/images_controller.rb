@@ -19,9 +19,18 @@ module Webui
         package.kiwi_image.destroy if package.kiwi_image && package.kiwi_image_outdated?
 
         if package.kiwi_image.blank? || package.kiwi_image.destroyed?
-          package.kiwi_image = ::Kiwi::Image.build_from_xml(package.source_file(kiwi_file), package.kiwi_file_md5)
-          unless package.save
-            errors = package.kiwi_image.nested_error_messages.merge(title: "Kiwi File '#{kiwi_file}' has errors:")
+          begin
+            package.kiwi_image = ::Kiwi::Image.build_from_xml(package.source_file(kiwi_file), package.kiwi_file_md5)
+          rescue ArgumentError => e
+            errors = { base: [e.message] }
+          end
+
+          if errors.nil? && !package.save
+            errors = package.kiwi_image.nested_error_messages
+          end
+
+          if errors.present?
+            errors = errors.merge(title: "Kiwi File '#{kiwi_file}' has errors:")
 
             redirect_to project_package_file_path(project_name: package.project, package_name: package, filename: kiwi_file), error: errors
             return
