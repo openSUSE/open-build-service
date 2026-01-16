@@ -14,11 +14,17 @@ module Person
 
     # GET /my/notifications
     def index
+      # If you pass show_maximum as a query parameter, you'll get up to that many notifications (capped at max_per_page).
+      # This matches what clients expect and fixes the old behavior where it always used total. See issue #18910.
       @notifications_count = @notifications.count
       @paged_notifications = @notifications.order(created_at: :desc).page(params[:page])
 
       params[:page] = @paged_notifications.total_pages if @paged_notifications.out_of_range?
-      params[:show_maximum] ? show_maximum(@notifications) : @paged_notifications
+      if params[:show_maximum]
+        show_maximum(@notifications)
+      else
+        @paged_notifications
+      end
     end
 
     def update
@@ -55,8 +61,9 @@ module Person
     end
 
     def show_maximum(notifications)
-      total = notifications.size
-      notifications.page(params[:page]).per([total, Notification.max_per_page].min)
+      max = params[:show_maximum].to_i
+      max = Notification.max_per_page if max <= 0 || max > Notification.max_per_page
+      notifications.order(created_at: :desc).limit(max)
     end
 
     def set_filter_kind

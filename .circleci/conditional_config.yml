@@ -71,6 +71,7 @@ aliases:
       bundle config build.nokogiri --use-system-libraries
       bundle config build.sassc --disable-march-tune-native
       bundle config build.nio4r --with-cflags='-Wno-return-type'
+      bundle config build.xmlhash --with-cflags='-Wno-error=shorten-64-to-32'
       bundle config set --local path 'vendor/bundle'
       bundle install --jobs=4 --retry=3 --local
 
