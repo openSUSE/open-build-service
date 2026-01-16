@@ -58,8 +58,11 @@ class FetchUpstreamPackageVersionJob < ApplicationJob
 
   def fetch_upstream_package_info(package_name:, distribution_name:)
     url = URI.parse("https://release-monitoring.org/api/v2/packages/?name=#{package_name}&distribution=#{distribution_name}")
-    response = Net::HTTP.get_response(url)
+    response = Net::HTTP.get_response(url, read_timeout: 10)
     JSON.parse(response.body) if response.is_a?(Net::HTTPSuccess)
+  rescue Net::OpenTimeout => e
+    Rails.logger.warn("Timeout while fetching upstream package info for #{package_name} (#{distribution_name}): #{e.message}")
+    nil
   end
 
   def extract_version(response)
