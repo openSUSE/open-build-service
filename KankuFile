@@ -112,8 +112,8 @@ jobs:
     options:
       api_url: https://api.opensuse.org/public/
       project: devel:kanku:images
-      package: openSUSE-Leap-15.6-JeOS
-      repository: images_leap_15_6
+      package: openSUSE-Leap-16.0-JeOS
+      repository: images_leap_16_0
       arch: x86_64
   -
     use_module: Kanku::Handler::ImageDownload
@@ -132,9 +132,9 @@ jobs:
     use_module: Kanku::Handler::ExecuteCommandViaSSH
     options:
       commands:
-        - zypper ar https://download.opensuse.org/repositories/OBS:/Server:/Unstable/15.6/OBS:Server:Unstable.repo
+        - zypper ar https://download.opensuse.org/repositories/OBS:/Server:/Unstable/16.0/OBS:Server:Unstable.repo
         # FIXME: remove home:M0ses:OBS:Server:Unstable
-        - zypper ar https://download.opensuse.org/repositories/home:/M0ses:/OBS:/Server:/Unstable/15.6/home:M0ses:OBS:Server:Unstable.repo
+        - zypper ar https://download.opensuse.org/repositories/home:/M0ses:/OBS:/Server:/Unstable/16.0/home:M0ses:OBS:Server:Unstable.repo
         - zypper -n --gpg-auto-import-keys ref -s
         - zypper -n install obs-server obs-api obs-worker obs-signd obs-service-tar_scm obs-service-obs_scm obs-service-set_version obs-service-tar
         - perl -p -i -e 's/^OBS_API_AUTOSETUP=.*/OBS_API_AUTOSETUP="yes"/' /etc/sysconfig/obs-server || exit 1
