@@ -24,3 +24,28 @@ function updateRpmLintLog() {
     }
   });
 }
+
+$(document).on('click', '.js-accordion-proxy', function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  var targetId = $(this).data('target');
+  var targetEl = document.getElementById(targetId);
+
+  if (targetEl) {
+    var collapseTargetSelector = targetEl.getAttribute('data-bs-target');
+    var collapseEl = document.querySelector(collapseTargetSelector);
+    if (collapseEl) {
+      var bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+      bsCollapse.toggle();
+      targetEl.classList.toggle('collapsed');
+    }
+  }
+});
+
+$(document).on('mouseenter', '.lint-description', function() {
+  $(this).tooltip({
+    container: 'body',
+    trigger: 'hover'
+  }).tooltip('show');
+});
