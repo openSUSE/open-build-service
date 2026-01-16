@@ -409,7 +409,7 @@ RSpec.describe EventMailer, :vcr do
 
       context 'and there is a payload' do
         it 'renders the body' do
-          expect(mail.body.encoded).to have_text('Last lines of build log:')
+          expect(mail.body.encoded).to have_text('invalid byte sequence ->?')
         end
       end
 

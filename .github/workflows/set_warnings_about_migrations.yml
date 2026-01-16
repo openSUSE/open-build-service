@@ -60,7 +60,7 @@ jobs:
           echo "$COMMENT_TEXT_DATA_SCHEMA" > ./artifacts/comment_text_data_schema.txt
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: migrations_artifacts
           path: artifacts/

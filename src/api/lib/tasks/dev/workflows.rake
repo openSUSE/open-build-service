@@ -53,8 +53,8 @@ namespace :dev do
     task cleanup_non_closed_projects: :environment do
       workflow_runs = WorkflowRun.where(status: 'running')
                                  .select do |workflow_run|
-        workflow_run.hook_event.in?(['pull_request', 'Merge Request Hook']) &&
-          workflow_run.hook_action.in?(%w[closed close merge])
+                                   workflow_run.hook_event.in?(['pull_request', 'Merge Request Hook']) &&
+                                     workflow_run.hook_action.in?(%w[closed close merge])
       end
 
       puts "There are #{workflow_runs.count} workflow runs affected"
@@ -64,10 +64,10 @@ namespace :dev do
 
         # If there is more than one project, we don't know which of them is the one related to the current
         # workflow run (as we only can get the postfix, we don't have the full project name).
-        next if projects.count > 1
+        next if projects.many?
 
         # If there is no project to remove (previously removed), the workflow run should change the status anyway.
-        User.default_admin.run_as { projects.first.destroy } if projects.count == 1
+        User.default_admin.run_as { projects.first.destroy } if projects.one?
         workflow_run.update(status: 'success')
       rescue StandardError => e
         Airbrake.notify("Failed to remove project created by the workflow: #{e}")

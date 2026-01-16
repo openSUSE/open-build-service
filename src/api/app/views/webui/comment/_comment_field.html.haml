@@ -1,5 +1,5 @@
 = form_for(comment, method: form_method, remote: true,
-           html: { id: "#{element_suffix}_form", class: "#{form_method}-comment-form", onsubmit: "clearDraftCommentFromSession(event)" },
+           html: { id: "#{element_suffix}_form", class: "#{form_method}-comment-form", onsubmit: "clearDraftCommentFromSession(event.target.id)" },
            data: { turbo_frame: "_top" }) do |f|
   = hidden_field_tag :commentable_type, commentable.class.name, { id: "#{element_suffix}_commentable_type" }
   = hidden_field_tag :commentable_id, commentable.id, { id: "#{element_suffix}_commentable_id" }

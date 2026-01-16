@@ -586,7 +586,7 @@ class User < ApplicationRecord
     Project.where('name like ?', "#{home_project_name}%").find_each do |prj|
       next if prj.locked?
 
-      prj.lock('User account got locked')
+      prj.command_lock('User account got locked')
     end
   end
 
@@ -739,10 +739,6 @@ class User < ApplicationRecord
         incoming_requests.count +
         involved_reviews.count
     end
-  end
-
-  def unread_notifications_count
-    notifications.for_web.unread.size
   end
 
   def update_globalroles(global_roles)

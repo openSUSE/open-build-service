@@ -1,0 +1,7 @@
+in: path
+name: report_id
+schema:
+  type: integer
+required: true
+description: The id of the report.
+example: 16626

@@ -20,13 +20,13 @@ class SourcePackageController < SourceController
 
     show_package_issues && return if params[:view] == 'issues'
 
-    # exec
     path = request.path_info
     path += build_query_from_hash(params, %i[rev linkrev emptylink
                                              expand view extension
                                              lastworking withlinked meta
                                              deleted parse arch
                                              repository product nofilename])
+
     pass_to_backend(path)
   end
 
@@ -66,17 +66,10 @@ class SourcePackageController < SourceController
     if params.key?(:deleted)
       if package_name == '_project'
         validate_read_access_of_deleted_project(project_name)
-        pass_to_backend
-        return
+      else
+        validate_read_access_of_deleted_package(project_name, package_name)
       end
-
-      validate_read_access_of_deleted_package(project_name, package_name)
-      pass_to_backend
-      return
-    end
-
-    # a readable package, even on remote instance is enough here
-    if package_name == '_project'
+    elsif package_name == '_project' # a readable package, even on remote instance is enough here
       Project.get_by_name(project_name)
     else
       pack = Package.get_by_project_and_name(project_name, package_name)

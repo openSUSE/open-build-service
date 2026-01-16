@@ -94,7 +94,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # run search
     open_ids = rel.select('bs_requests').pluck(:number)
     open_ids.delete(bs_request.number) if bs_request
-    if open_ids.count.positive?
+    if open_ids.any?
       msg = "The following open requests have the same target #{target_project} / #{tpkgprefix}: " + open_ids.join(', ')
       raise OpenReleaseRequests, msg
     end

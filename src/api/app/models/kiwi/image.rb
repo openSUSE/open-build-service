@@ -150,7 +150,7 @@ module Kiwi
 
     def check_package_groups
       # FIXME: This should be a validation on Kiwi::PackageGroup, it would need a new join table
-      return if package_groups.group_by { |package_group| [package_group.kiwi_type, package_group.profiles] }.select { |_, value| value.count > 1 }.keys.empty?
+      return if package_groups.group_by { |package_group| [package_group.kiwi_type, package_group.profiles] }.select { |_, value| value.many? }.keys.empty?
 
       errors.add(:base, 'Multiple package groups with same type and profiles are not allowed')
     end

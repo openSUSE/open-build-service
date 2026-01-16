@@ -110,25 +110,25 @@ class SourceProjectController < SourceController
     render_ok
   end
 
-  # GET /source/:project/_pubkey and /_sslcert
+  # GET /source/:project/_pubkey
   def show_pubkey
-    # assemble path for backend
-    path = pubkey_path
-
-    # GET /source/:project/_pubkey
-    pass_to_backend(path)
+    render plain: Backend::Api::Sources::Project.pubkey(params[:project], { rev: params[:rev] }.compact)
   end
 
   # DELETE /source/:project/_pubkey
   def delete_pubkey
-    params[:user] = User.session.login
-    path = pubkey_path
+    backend_params = {
+      user: User.session.login,
+      meta: params[:meta],
+      comment: params[:comment]
+    }.compact
 
     # check for permissions
-    upper_project = @prj.name.gsub(/:[^:]*$/, '')
-    while upper_project != @prj.name && upper_project.present?
+    project_name = Project.get_by_name(params[:project]).name
+    upper_project = project_name.gsub(/:[^:]*$/, '')
+    while upper_project != project_name && upper_project.present?
       if Project.exists_by_name(upper_project) && User.session.can_modify?(Project.get_by_name(upper_project))
-        pass_to_backend(path)
+        render xml: Backend::Api::Sources::Project.delete_pubkey(params[:project], backend_params)
         return
       end
       break unless upper_project.include?(':')
@@ -137,18 +137,10 @@ class SourceProjectController < SourceController
     end
 
     if User.admin_session?
-      pass_to_backend(path)
+      render xml: Backend::Api::Sources::Project.delete_pubkey(params[:project], backend_params)
     else
       raise DeleteProjectPubkeyNoPermission, "No permission to delete public key for project '#{params[:project]}'. " \
                                              'Either maintainer permissions by upper project or admin permissions is needed.'
     end
-  end
-
-  private
-
-  def pubkey_path
-    # check for project
-    @prj = Project.get_by_name(params[:project])
-    request.path_info + build_query_from_hash(params, %i[user comment meta rev])
   end
 end

@@ -21,6 +21,8 @@ module Webui::ReportablesHelper
       link_to(reportable.name.to_s, Rails.application.routes.url_helpers.project_show_url(reportable, anchor: 'comments-list', only_path: only_path, host: host))
     when 'User'
       link_to(reportable.login.to_s, Rails.application.routes.url_helpers.user_url(reportable, only_path: only_path, host: host))
+    when 'BsRequest'
+      link_to("Request ##{reportable.number}", Rails.application.routes.url_helpers.request_show_url(reportable, only_path: only_path, host: host))
     end
   end
 

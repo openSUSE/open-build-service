@@ -67,7 +67,7 @@ class Webui::CommentsController < Webui::WebuiController
 
     if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
       if @comment.commentable_type == 'BsRequestAction' &&
-         Comment.where(commentable: @comment.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number).count.zero?
+         Comment.where(commentable: @comment.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number).none?
         return render(partial: 'webui/request/add_inline_comment',
                       locals: { commentable: @comment.root.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number,
                                 source_rev: @comment.root.source_rev, target_rev: @comment.root.target_rev })

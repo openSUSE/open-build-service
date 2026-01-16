@@ -28,8 +28,8 @@ module Workflows
       parsed_workflow_configuration = extract_and_set_workflow_version(parsed_workflow_configuration: parsed_workflow_configuration)
       parsed_workflow_configuration
         .map do |_workflow_name, workflow_instructions|
-        Workflow.new(workflow_instructions: workflow_instructions, token: @token,
-                     workflow_run: @workflow_run, workflow_version_number: @workflow_version_number)
+          Workflow.new(workflow_instructions: workflow_instructions, token: @token,
+                       workflow_run: @workflow_run, workflow_version_number: @workflow_version_number)
       end
     end
 
@@ -49,7 +49,7 @@ module Workflows
       placeholder_variables = SUPPORTED_PLACEHOLDER_VARIABLES.zip([scm_organization_name, scm_repository_name, pr_number, commit_sha, label]).to_h
       begin
         format(workflow_configuration, placeholder_variables)
-      rescue ArgumentError => e
+      rescue ArgumentError, KeyError => e
         raise Token::Errors::WorkflowsYamlFormatError, e.message
       end
     end

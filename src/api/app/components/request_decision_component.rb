@@ -20,7 +20,7 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   def single_action_request
-    @single_action_request ||= @bs_request.bs_request_actions.count == 1
+    @single_action_request ||= @bs_request.bs_request_actions.one?
   end
 
   def confirmation

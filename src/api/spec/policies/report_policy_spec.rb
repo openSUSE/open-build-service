@@ -1,7 +1,12 @@
 RSpec.describe ReportPolicy, type: :policy do
   subject { ReportPolicy }
 
+  let(:admin_user) { create(:admin_user) }
+  let(:moderator_user) { create(:moderator) }
+  let(:staff_user) { create(:staff_user) }
   let(:user) { create(:confirmed_user) }
+  let(:other_user) { create(:confirmed_user) }
+  let(:report) { create(:report, reporter: user) }
 
   before do
     Flipper.enable(:content_moderation)
@@ -9,22 +14,15 @@ RSpec.describe ReportPolicy, type: :policy do
 
   permissions :show? do
     context 'when the current user is the owner of the report' do
-      let(:report) { create(:report, reporter: user) }
-
       it { is_expected.to permit(user, report) }
     end
 
     context 'when the current user is an admin' do
-      let(:admin) { create(:admin_user) }
-      let(:report) { create(:report) }
-
-      it { is_expected.to permit(admin, report) }
+      it { is_expected.to permit(admin_user, report) }
     end
 
     context 'when the current user is not the owner of the report' do
-      let(:report) { create(:report) }
-
-      it { is_expected.not_to permit(user, report) }
+      it { is_expected.not_to permit(other_user, report) }
     end
   end
 
@@ -71,10 +69,9 @@ RSpec.describe ReportPolicy, type: :policy do
       context "when trying to report a report's comment" do
         let(:report_on_package_comment) { create(:report, reporter: user) }
         let(:report_comment) { create(:comment_report, commentable: report_on_package_comment) }
-        let(:moderator) { create(:moderator) }
-        let(:report) { build(:report, reporter: moderator, reportable: report_comment) }
+        let(:report) { build(:report, reporter: moderator_user, reportable: report_comment) }
 
-        it { is_expected.not_to(permit(moderator, report)) }
+        it { is_expected.not_to(permit(moderator_user, report)) }
       end
     end
 
@@ -110,24 +107,68 @@ RSpec.describe ReportPolicy, type: :policy do
   end
 
   permissions :notify? do
-    let(:staff_user) { create(:staff_user) }
-    let(:admin_user) { create(:admin_user) }
-    let!(:moderator_user) { create(:moderator) }
-
     it 'notifies the moderator' do
-      expect(subject).to permit(moderator_user, Report)
+      expect(subject).to permit(moderator_user, report)
     end
 
     it 'notifies admin users' do
-      expect(subject).to permit(admin_user, Report)
+      expect(subject).to permit(admin_user, report)
     end
 
     it 'notifies staff users' do
-      expect(subject).to permit(staff_user, Report)
+      expect(subject).to permit(staff_user, report)
     end
 
-    it 'does not notify common users' do
-      expect(subject).not_to(permit(user, Report))
+    it 'does not notify the reporter' do
+      expect(subject).not_to permit(user, report)
+    end
+
+    it 'does not notify users not being the reporter' do
+      expect(subject).not_to permit(other_user, report)
+    end
+  end
+
+  permissions :update? do
+    it 'allows admin users to update' do
+      expect(subject).to permit(admin_user, report)
+    end
+
+    it 'allows moderator to update' do
+      expect(subject).to permit(moderator_user, report)
+    end
+
+    it 'allows staff users to update' do
+      expect(subject).to permit(staff_user, report)
+    end
+
+    it 'allows the current user when being the owner of the report to update' do
+      expect(subject).to permit(user, report)
+    end
+
+    it 'does not allow the current user when not being the owner of the report to update' do
+      expect(subject).not_to permit(other_user, report)
+    end
+  end
+
+  permissions :destroy? do
+    it 'allows admin users to delete' do
+      expect(subject).to permit(admin_user, report)
+    end
+
+    it 'allows moderator to delete' do
+      expect(subject).to permit(moderator_user, report)
+    end
+
+    it 'allows staff users to delete' do
+      expect(subject).to permit(staff_user, report)
+    end
+
+    it 'allows the current user when being the owner of the report' do
+      expect(subject).to permit(user, report)
+    end
+
+    it 'does not allow the current user when not being the owner of the report' do
+      expect(subject).not_to permit(other_user, report)
     end
   end
 end

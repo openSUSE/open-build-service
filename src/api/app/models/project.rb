@@ -967,17 +967,17 @@ class Project < ApplicationRecord
             # of my repositories?
             repositories.joins(:path_elements).where('path_elements.repository_id': ipe.link, 'path_elements.kind': path_kind).find_each do |my_repo|
               next if my_repo == repo # do not add my self
-              next if repo.path_elements.where(link: my_repo).count.positive?
+              next if repo.path_elements.where(link: my_repo).any?
 
               elements = repo.path_elements.where(position: ipe.position, kind: path_kind)
-              if elements.count.zero?
+              if elements.none?
                 new_path = repo.path_elements.create(link: my_repo, position: ipe.position, kind: path_kind)
                 cycle_detection[new_path.id]
               else
                 PathElement.update(elements.first.id, position: ipe.position, link: my_repo, kind: path_kind)
               end
               cycle_detection[elements.first.id] = true
-              if elements.count > 1
+              if elements.many?
                 # note: we don't enforce a unique entry by position atm....
                 repo.path_elements.where('position = ipe.position AND kind = ? AND NOT id = ?', [path_kind, elements.first.id]).delete_all
               end
@@ -1149,7 +1149,7 @@ class Project < ApplicationRecord
     packages.dirty_backend_packages.each(&:update_if_dirty)
   end
 
-  def lock(comment = nil)
+  def command_lock(comment = nil)
     transaction do
       f = flags.find_by_flag_and_status('lock', 'disable')
       flags.delete(f) if f
@@ -1209,7 +1209,7 @@ class Project < ApplicationRecord
       end
     end
 
-    return unless repositories.count.positive?
+    return unless repositories.any?
 
     # ensure higher build numbers for re-release
     Backend::Api::Build::Project.wipe_binaries(name)

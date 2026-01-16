@@ -1,0 +1,34 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 16626
+    xml:
+      attribute: true
+  reportable_id:
+    type: integer
+    example: 498723
+    xml:
+      attribute: true
+  reportable_type:
+    type: string
+    example: Comment
+    xml:
+      attribute: true
+  category:
+    type: string
+    example: Important
+    xml:
+      attribute: true
+  created_at:
+    type: string
+    example: '2025-04-14T08:34:39Z'
+    xml:
+      attribute: true
+  updated_at:
+    type: string
+    example: '2025-04-24T08:34:39Z'
+    xml:
+      attribute: true
+xml:
+  name: report

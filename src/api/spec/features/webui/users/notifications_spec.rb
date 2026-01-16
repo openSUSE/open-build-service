@@ -171,7 +171,7 @@ RSpec.describe 'User notifications', :js do
     end
 
     context 'when the notification is about user' do
-      let(:event_payload) { { reporter: user.login, reportable_id: accused.id, reportable_type: 'User', reason: 'some sample text for reason field', category: 'spam', accused: accused.login } }
+      let(:event_payload) { { id: notifiable.id, reporter: user.login, reportable_id: accused.id, reportable_type: 'User', reason: 'some sample text for reason field', category: 'spam', accused: accused.login } }
       let(:event_type) { 'Event::ReportForUser' }
       let(:notifiable) { create(:report, reportable: accused, reason: 'Some sample text') }
 
@@ -186,7 +186,7 @@ RSpec.describe 'User notifications', :js do
       let(:comment) { create(:comment, commentable: project) }
       let(:event_type) { 'Event::ReportForComment' }
       let(:notifiable) { create(:report, reportable: comment, reason: 'Some sample text') }
-      let(:event_payload) { { reporter: user.login, reportable_id: comment.id, reportable_type: 'Comment', reason: 'some sample text for reason field', category: 'spam' } }
+      let(:event_payload) { { id: notifiable.id, reporter: user.login, reportable_id: comment.id, reportable_type: 'Comment', reason: 'some sample text for reason field', category: 'spam' } }
 
       it 'renders information about user state and its existing reports' do
         skip_on_mobile
@@ -200,7 +200,7 @@ RSpec.describe 'User notifications', :js do
       let(:comment) { create(:comment, commentable: project) }
       let(:event_type) { 'Event::ReportForComment' }
       let!(:notifiable) { create(:report, reportable: comment, reason: 'Some sample text') }
-      let(:event_payload) { { reporter: user.login, reportable_id: comment.id, reportable_type: 'Comment', reason: 'some sample text for reason field', category: 'spam' } }
+      let(:event_payload) { { id: notifiable.id, reporter: user.login, reportable_id: comment.id, reportable_type: 'Comment', reason: 'some sample text for reason field', category: 'spam' } }
       let!(:additional_report) { create(:report, reportable: comment, reason: 'This is spam') }
 
       it 'renders a badge that indicates that there are more reports' do
@@ -218,7 +218,7 @@ RSpec.describe 'User notifications', :js do
       let(:comment) { create(:comment, commentable: project) }
       let(:event_type) { 'Event::ReportForComment' }
       let(:notifiable) { create(:report, reportable: comment, reason: 'Some sample text') }
-      let(:event_payload) { { reporter: accused.login, reportable_id: comment.id, reportable_type: 'Comment', reason: 'some sample text for reason field', category: 'spam' } }
+      let(:event_payload) { { id: notifiable.id, reporter: accused.login, reportable_id: comment.id, reportable_type: 'Comment', reason: 'some sample text for reason field', category: 'spam' } }
       let!(:decision) { create(:decision_favored, reports: [notifiable]) }
 
       before do

@@ -136,9 +136,7 @@
 }
 
 .build-state-excluded {
-  @extend .text-bg-light;
-  @extend .border;
-  @extend .px-1;
+  color: $gray-600;
 }
 
 .build-state-blocked {

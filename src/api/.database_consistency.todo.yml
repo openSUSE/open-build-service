@@ -1,4 +1,8 @@
 ---
+Appeal:
+  appellant:
+    MissingDependentDestroyChecker:
+      enabled: false
 Architecture:
   id:
     PrimaryKeyTypeChecker:
@@ -22,22 +26,34 @@ AttribDefaultValue:
     PrimaryKeyTypeChecker:
       enabled: false
 AttribIssue:
+  attrib:
+    MissingDependentDestroyChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
   index_attrib_issues_on_attrib_id_and_issue_id:
     UniqueIndexChecker:
       enabled: false
+  issue:
+    MissingDependentDestroyChecker:
+      enabled: false
 AttribNamespace:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
   attrib_namespace_modifiable_bies:
     ForeignKeyCascadeChecker:
       enabled: false
+AttribNamespaceModifiableBy:
+  group:
+    MissingDependentDestroyChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-AttribNamespaceModifiableBy:
-  id:
-    PrimaryKeyTypeChecker:
+  user:
+    MissingDependentDestroyChecker:
       enabled: false
 AttribType:
   allowed_values:
@@ -49,6 +65,9 @@ AttribType:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
+  issue_list:
+    ThreeStateBooleanChecker:
+      enabled: false
   name:
     LengthConstraintChecker:
       enabled: false
@@ -56,8 +75,17 @@ AttribTypeModifiableBy:
   attrib_type:
     ForeignKeyChecker:
       enabled: false
+  group:
+    MissingDependentDestroyChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
+      enabled: false
+  role:
+    MissingDependentDestroyChecker:
+      enabled: false
+  user:
+    MissingDependentDestroyChecker:
       enabled: false
 AttribValue:
   id:
@@ -303,6 +331,9 @@ Channel:
     UniqueIndexChecker:
       enabled: false
 ChannelBinary:
+  architecture:
+    MissingDependentDestroyChecker:
+      enabled: false
   binaryarch:
     LengthConstraintChecker:
       enabled: false
@@ -317,12 +348,27 @@ ChannelBinary:
   package:
     LengthConstraintChecker:
       enabled: false
+  project:
+    MissingDependentDestroyChecker:
+      enabled: false
+  repository:
+    MissingDependentDestroyChecker:
+      enabled: false
 ChannelBinaryList:
+  architecture:
+    MissingDependentDestroyChecker:
+      enabled: false
   channel_binaries:
     ForeignKeyCascadeChecker:
       enabled: false
   id:
     PrimaryKeyTypeChecker:
+      enabled: false
+  project:
+    MissingDependentDestroyChecker:
+      enabled: false
+  repository:
+    MissingDependentDestroyChecker:
       enabled: false
 ChannelTarget:
   disabled:
@@ -362,6 +408,9 @@ Comment:
 CommentLock:
   commentable_type:
     LengthConstraintChecker:
+      enabled: false
+  moderator:
+    MissingDependentDestroyChecker:
       enabled: false
 CommitActivity:
   id:
@@ -427,6 +476,10 @@ Configuration:
       enabled: false
   title:
     ColumnPresenceChecker:
+      enabled: false
+Decision:
+  moderator:
+    MissingDependentDestroyChecker:
       enabled: false
 DisabledBetaFeature:
   feature:
@@ -782,6 +835,9 @@ EventSubscription:
     ForeignKeyChecker:
       enabled: false
 Flag:
+  architecture:
+    MissingDependentDestroyChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
@@ -817,6 +873,8 @@ GroupMaintainer:
   user:
     ColumnPresenceChecker:
       enabled: false
+    MissingDependentDestroyChecker:
+      enabled: false
 GroupsUser:
   email:
     ThreeStateBooleanChecker:
@@ -826,6 +884,9 @@ GroupsUser:
       enabled: false
   id:
     PrimaryKeyTypeChecker:
+      enabled: false
+  user:
+    MissingDependentDestroyChecker:
       enabled: false
   web:
     ThreeStateBooleanChecker:
@@ -1143,6 +1204,9 @@ Issue:
       enabled: false
     NullConstraintChecker:
       enabled: false
+  owner:
+    MissingDependentDestroyChecker:
+      enabled: false
   package_issues:
     ForeignKeyCascadeChecker:
       enabled: false
@@ -1444,6 +1508,9 @@ Package:
   binary_releases:
     ForeignKeyCascadeChecker:
       enabled: false
+  develpackage:
+    MissingDependentDestroyChecker:
+      enabled: false
   flags:
     ForeignKeyCascadeChecker:
       enabled: false
@@ -1455,6 +1522,9 @@ Package:
       enabled: false
   package_kinds:
     ForeignKeyCascadeChecker:
+      enabled: false
+  project:
+    MissingDependentDestroyChecker:
       enabled: false
   scmsync:
     LengthConstraintChecker:
@@ -1505,6 +1575,9 @@ Product:
     LengthConstraintChecker:
       enabled: false
 ProductMedium:
+  arch_filter:
+    MissingDependentDestroyChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
@@ -1518,6 +1591,9 @@ ProductMedium:
     LengthConstraintChecker:
       enabled: false
 ProductUpdateRepository:
+  arch_filter:
+    MissingDependentDestroyChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
@@ -1666,6 +1742,9 @@ Repository:
     LengthConstraintChecker:
       enabled: false
 RepositoryArchitecture:
+  architecture:
+    MissingDependentDestroyChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
@@ -1688,6 +1767,9 @@ Review:
   project:
     ForeignKeyChecker:
       enabled: false
+  review_assigned_from:
+    MissingDependentDestroyChecker:
+      enabled: false
   review_assigned_to:
     MissingIndexChecker:
       enabled: false
@@ -1708,12 +1790,24 @@ Role:
     MissingUniqueIndexChecker:
       enabled: false
 RolesStaticPermission:
+  role:
+    MissingDependentDestroyChecker:
+      enabled: false
   roles_static_permissions_all_index:
     UniqueIndexChecker:
+      enabled: false
+  static_permission:
+    MissingDependentDestroyChecker:
       enabled: false
 RolesUser:
   id:
     PrimaryKeyTypeChecker:
+      enabled: false
+  role:
+    MissingDependentDestroyChecker:
+      enabled: false
+  user:
+    MissingDependentDestroyChecker:
       enabled: false
 SCMStatusReport:
   id:

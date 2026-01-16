@@ -46,7 +46,7 @@ class LocalBuildResult
     end
 
     def set_architectures_for
-      repos_archs = project.repositories.joins(:architectures).pluck(:name, Arel.sql('architectures.name'))
+      repos_archs = project.repositories.joins(:architectures).pluck(:name, 'architectures.name')
       @architectures_for = {}
       repos_archs.each do |element|
         @architectures_for[element.first] ||= []

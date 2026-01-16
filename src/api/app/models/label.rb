@@ -29,7 +29,7 @@ class Label < ApplicationRecord
     return labelable.project unless labelable.is_a?(BsRequest)
 
     target_project_ids = labelable.bs_request_actions.pluck(:target_project_id).uniq
-    return if target_project_ids.count > 1
+    return if target_project_ids.many?
 
     Project.find_by(id: target_project_ids.last)
   end

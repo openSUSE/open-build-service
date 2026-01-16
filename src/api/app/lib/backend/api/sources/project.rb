@@ -59,6 +59,18 @@ module Backend
           http_get(['/source/:project/_keyinfo', project_name], params: { withsslcert: 1, donotcreatecert: 1 })
         end
 
+        # Returns the pubkey file for the project
+        # @return [String]
+        def self.pubkey(project_name, options = {})
+          http_get(['/source/:project/_pubkey', project_name], params: options, accepted: %i[rev])
+        end
+
+        # Deletes the pubkey file for the project
+        # @return [String]
+        def self.delete_pubkey(project_name, options = {})
+          http_delete(['/source/:project/_pubkey', project_name], params: options, accepted: %i[user comment meta])
+        end
+
         # Returns the patchinfo for the project
         # @return [String]
         def self.patchinfo(project_name)
@@ -70,6 +82,21 @@ module Backend
           http_post(['/source/:project', project_name],
                     defaults: { cmd: :copy }, params: options,
                     accepted: %i[user comment oproject withbinaries withhistory makeolder makeoriginolder noservice resign])
+        end
+
+        # Create a key for a project
+        def self.createkey(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :createkey }, params: options, accepted: %i[user comment])
+        end
+
+        # Extend a key for a project
+        def self.extendkey(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :extendkey }, params: options, accepted: %i[user comment days])
+        end
+
+        # Freeze a project link
+        def self.freezelink(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :freezelink }, params: options, accepted: %i[user comment requestid])
         end
 
         # Moves the source project to the target

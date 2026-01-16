@@ -121,15 +121,17 @@ sub check {
   my @archs = @{$repo->{'arch'}};
   return ('broken', 'missing archs') unless @archs;     # can't happen
   my $patchinfo = $pdata->{'patchinfo'};
-  if (exists $patchinfo->{'seperate_build_arch'}) {
+  my $seperate_build_arch = exists($patchinfo->{'seperate_build_arch'}) ? 1 : 0;
+  if ($seperate_build_arch) {
     # build on all schedulers, but don't take content from each other
     return ('excluded') if $BSConfig::localarch && $myarch eq 'local';
     @archs = ($myarch);
-  };
+  }
   my $buildarch = $archs[0];
   my $reporoot = $gctx->{'reporoot'};
   my $markerdir = "$reporoot/$prp/$buildarch/$packid";
   my $proj = $ctx->{'proj'};
+  my $pdatas = $proj->{'package'} || {};
 
   if (@{$patchinfo->{'releasetarget'} || []}) {
     my $ok;
@@ -151,14 +153,12 @@ sub check {
   my @packages;
   if ($patchinfo->{'package'}) {
     @packages = @{$patchinfo->{'package'}};
-    my $pdatas = $proj->{'package'} || {};
     my @missing;
     for my $apackid (@packages) {
       push @missing, $apackid unless $pdatas->{$apackid};
     }
     $broken = 'missing packages: '.join(', ', @missing) if @missing;
   } else {
-    my $pdatas = $proj->{'package'} || {};
     @packages = grep {!$pdatas->{$_}->{'aggregatelist'} && !$pdatas->{$_}->{'patchinfo'}} sort keys %$pdatas;
     @packages = BSSched::ProjPacks::orderpackids($proj, @packages);
   }
@@ -302,12 +302,13 @@ sub check {
           $rpms_seen = 1;
         }
         $metas{"$arch/$apackid"} = Digest::MD5::md5_hex($m);
-      } elsif ($ptype eq 'direct' || $ptype eq 'transitive') {
-        my ($ameta) = split("\n", readstr("$agdst/:meta/$apackid", 1) || '', 2);
+      } elsif ($ptype eq 'direct' || $ptype eq 'transitive' || $ptype eq 'local') {
+        my ($ameta) = split(' ', readstr("$agdst/:meta/$apackid", 1) || '', 2);
         if (!$ameta) {
           push @blocked, "$arch/$apackid";
           $blockedarch = 1;
         } else {
+          $metas{$apackid} = $pdatas->{$apackid}->{'verifymd5'} || $pdatas->{$apackid}->{'srcmd5'} if !$metas{$apackid} && $pdatas->{$apackid} && !$seperate_build_arch;
           if ($metas{$apackid} && $metas{$apackid} ne $ameta) {
             push @blocked, "meta/$apackid";
             $blockedarch = 1;
@@ -325,6 +326,8 @@ sub check {
       unlink("$markerdir/.waiting_for_$arch");
     }
   }
+
+  %metas = () if $ptype eq 'local';
 
   if (@blocked) {
     splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
@@ -676,7 +679,7 @@ sub build {
   $update->{'version'} = $patchinfo->{'version'} || '1';        # bodhi inserts its own version...
   $update->{'id'} = $patchinfo->{'incident'};
   if (!$update->{'id'}) {
-    $update->{'id'} = $projid;
+    $update->{'id'} = "${projid}::$packid";
     $update->{'id'} =~ s/:/_/g;
   }
   if ($target && $target->{'id_template'}) {

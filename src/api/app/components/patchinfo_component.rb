@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'mail'
+
 class PatchinfoComponent < ApplicationComponent
   attr_reader :patchinfo, :path, :release_targets, :binaries, :packages, :issues
 
@@ -19,6 +21,8 @@ class PatchinfoComponent < ApplicationComponent
     @patchinfo = Xmlhash.parse(patchinfo)
     @path = path
 
+    return unless @patchinfo
+
     @release_targets = [@patchinfo['releasetarget']].flatten
     @binaries = [@patchinfo['binary']].flatten
     @packages = [@patchinfo['package']].flatten
@@ -26,11 +30,15 @@ class PatchinfoComponent < ApplicationComponent
   end
 
   def category
-    badge(patchinfo['category'], CATEGORY_COLOR[patchinfo['category'].to_sym])
+    return unless @patchinfo['category'].is_a?(String)
+
+    badge(@patchinfo['category'], CATEGORY_COLOR[@patchinfo['category'].to_sym])
   end
 
   def rating
-    badge("#{patchinfo['rating']} priority", RATING_COLOR[patchinfo['rating'].to_sym])
+    return unless @patchinfo['rating'].is_a?(String)
+
+    badge("#{@patchinfo['rating']} priority", RATING_COLOR[@patchinfo['rating'].to_sym])
   end
 
   def stopped

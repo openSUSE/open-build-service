@@ -146,6 +146,7 @@ sub check {
   my $cpool;
   my @cbdep;
   my @cmeta;
+  my $cinstalled;
   my $expanddebug = $ctx->{'expanddebug'};
 
   my @cdeps = grep {/^container:/} @$edeps;
@@ -202,6 +203,15 @@ sub check {
       my $error = getpathfromannotation($ctx, $annotation, $annotationbdep, \@newpath);
       return ('broken', $error) if $error;
     }
+    $cinstalled = $annotation->{'installed'} if $basecbdep && $annotation;
+#   if (@cbdep > 1) {
+#     # merge in installed data from all the other containers
+#     for my $cbdep (@cbdep) {
+#       next if $basecbdep && $cbdep->{'p'} == $basecbdep->{'p'};
+#       $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $cbdep->{'p'});
+#       push @{$cinstalled}, @{$annotation->{'installed'} || []} if $annotation && @{$annotation->{'installed'} || []};
+#     }
+#   }
     my $r = $ctx->append_info_path($info, \@newpath);
     return ('delayed', 'remotemap entry missing') unless $r;
   }
@@ -248,6 +258,14 @@ sub check {
   my $bconfignoreh = $bconf->{'ignoreh'};
   delete $bconf->{'ignore'};
   delete $bconf->{'ignoreh'};
+
+  if ($cinstalled) {
+    if ($bconf->{"expandflags:filterbasecontainerpkgs"} || grep {$_ eq '--filterbasecontainerpkgs'} @deps) {
+      for (@$cinstalled) {
+        push @deps, "-$1" if /^([^-\s:][^\s:]*)/;
+      }
+    }
+  }
 
   local $Build::expand_dbg = 1 if $expanddebug;
   my $xp = BSSolv::expander->new($pool, $bconf);

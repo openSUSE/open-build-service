@@ -198,13 +198,43 @@ function draftComments(formId) { // jshint ignore:line
 
 $(document).on('click', '.cancel-comment', function() {
   var formId = $(this).closest('form').attr('id');
-  sessionStorage.removeItem(formId); // clear session
+  clearDraftCommentFromSession(formId);
 });
 
-function clearDraftCommentFromSession(event) { // jshint ignore:line
-  var form = event.target;
-  var formId = form.id;
-  sessionStorage.removeItem(formId);
+// Returns the sessionStorage key or null. Examples of returned values:
+//   - new_comment_diff_0_n1_form
+//   - BsRequestActionSubmit_70_0_1
+//   - null
+function sessionStorageKey(formId) {
+  if (sessionStorage.getItem(formId) !== null) {
+    return formId;
+  }
+
+  let commentForm = document.getElementById(formId);
+  if (!commentForm) return null;
+  var commentableType = commentForm.querySelector('[name="commentable_type"]').value;
+  var commentableId = commentForm.querySelector('[name="commentable_id"]').value;
+  var diffFileIndex;
+  var diffLineNumber;
+  if (commentForm.querySelector('[name="comment[diff_file_index]"]')) {
+    diffFileIndex = commentForm.querySelector('[name="comment[diff_file_index]"]').value;
+  }
+
+  if (commentForm.querySelector('[name="comment[diff_line_number]"]')) {
+    diffLineNumber = commentForm.querySelector('[name="comment[diff_line_number]"]').value;
+  }
+
+  var compositeKey = `${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`;
+  return sessionStorage.getItem(compositeKey) !== null ? compositeKey : null;
+}
+
+// Removes the sessionStorage key-value pair
+function clearDraftCommentFromSession(formId) {
+  var key = sessionStorageKey(formId);
+
+  if (key !== null && key !== undefined) {
+    sessionStorage.removeItem(key);
+  }
 }
 
 function openInlineCommentFormWithDraftAvailable(commentableType, commentableId) { // jshint ignore:line

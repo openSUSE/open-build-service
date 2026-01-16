@@ -133,6 +133,10 @@ module Webui
         @blame_info = blame_parsed.slice_when { |a, b| a['revision'] != b['revision'] }.to_a
         @rev = params[:rev] || revision_numbers.max
         @expand = params[:expand]
+      rescue ArgumentError
+        flash[:error] = "Unable to display blame for file '#{@filename}' because it contains invalid UTF-8 characters."
+
+        redirect_to package_show_path(project: @project, package: @package)
       end
 
       private
