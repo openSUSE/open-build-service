@@ -340,11 +340,11 @@ class Webui::RequestController < Webui::WebuiController
     sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, file: filename, filelimit: 0, tarlimit: 0 }.compact).first
     source_rev = sourcediff.dig('new', 'srcmd5')
     if @action.source_package_object&.file_exists?(filename, { rev: source_rev, expand: 1 }.compact)
-      source_file = project_package_file_path(@action.source_project_object, @action.source_package_object, filename, rev: source_rev, expand: 1)
+      source_file = project_package_file_path(@action.source_project_object || @action.source_project, @action.source_package_object, filename, rev: source_rev, expand: 1)
     end
     target_rev = sourcediff.dig('old', 'srcmd5')
     if @action.target_package_object&.file_exists?(filename, { rev: target_rev, expand: 1 }.compact)
-      target_file = project_package_file_path(@action.target_project_object, @action.target_package_object, filename, rev: target_rev, expand: 1)
+      target_file = project_package_file_path(@action.target_project_object || @action.source_project, @action.target_package_object, filename, rev: target_rev, expand: 1)
     end
     render partial: 'webui/request/changes_diff', formats: [:html],
            locals: { commentable: @action,
