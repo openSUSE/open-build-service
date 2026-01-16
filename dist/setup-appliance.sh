@@ -59,7 +59,7 @@ while [[ $1 ]];do
     --enable-optional-services) ENABLE_OPTIONAL_SERVICES=1;;
     --force) OBS_API_AUTOSETUP="yes";;
     --disable-forceprojectkeys) ENABLE_FORCEPROJECTKEYS=0;;
-    --with-gitea) WITH_GITEA=1;;
+    --with-gitea) WITH_GITEA=1;WITH_OBS_GITEA_BRIDGE=1;;
   esac
   shift
 done
