@@ -151,7 +151,6 @@ resources :request, only: %i[index show update destroy] do
   end
 end
 
-post 'request/:id' => 'request#request_command', constraints: cons
 controller :request do
   constraints(cons) do
     post 'request/:id' => :request_command_diff, constraints: ->(req) { req.params[:cmd] == 'diff' }
