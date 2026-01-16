@@ -2,7 +2,10 @@
   = icon
   .ms-2
     %span.small
-      = link_to(helpers.realname_with_login(element.user), user_path(element.user))
+      - if element.user.present?
+        = link_to(helpers.realname_with_login(element.user), user_path(element.user))
+      - else
+        A delete user
       - if element.instance_of?(HistoryElement::RequestSuperseded)
         superseded this request with
         = link_to("request ##{element.description_extension}", request_show_path(element.description_extension))
