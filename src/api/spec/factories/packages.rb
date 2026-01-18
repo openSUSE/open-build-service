@@ -184,6 +184,15 @@ FactoryBot.define do
       end
     end
 
+    factory :package_with_manual_service do
+      after(:create) do |package|
+        if CONFIG['global_write_through']
+          Backend::Connection.put(Addressable::URI.escape("/source/#{package.project.name}/#{package.name}/_service"),
+                                  File.read('spec/fixtures/files/manual_service.xml'))
+        end
+      end
+    end
+
     factory :package_with_broken_service do
       after(:create) do |package|
         if CONFIG['global_write_through']

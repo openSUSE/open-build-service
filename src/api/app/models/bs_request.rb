@@ -29,7 +29,13 @@ class BsRequest < ApplicationRecord
 
   ACTION_NOTIFY_LIMIT = 50
 
-  enum :status, VALID_REQUEST_STATES, instance_methods: false, scopes: false, validate: true
+  # Ensure attribute is declared for the enum in a migration-safe way
+  # This handles cases where the model is loaded during migrations before the status column exists
+  # or when upgrading from older OBS versions
+  if column_names.include?('status')
+    attribute :status, :integer unless attribute_types.key?('status')
+    enum :status, VALID_REQUEST_STATES, instance_methods: false, scopes: false, validate: true
+  end
 
   scope :to_accept_by_time, -> { where(state: %w[new review]).where(accept_at: ...Time.now) }
 

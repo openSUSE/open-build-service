@@ -9,14 +9,33 @@ RSpec.describe Webui::Packages::TriggerController, :vcr do
   describe 'POST #services' do
     let(:package) { create(:package_with_service, name: 'my_service_package', project: project) }
 
-    before do
-      post :services, params: { project_name: project, package_name: package }
+    context 'success' do
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:trigger_services)
+        post :services, params: { project_name: project, package_name: package }
+      end
+
+      it { expect(flash[:success]).to eq('Services successfully triggered') }
     end
 
-    it { expect(flash[:success]).to eq('Services successfully triggered') }
+    context 'when triggering services in manual mode fails' do
+      let(:package) { create(:package_with_manual_service, name: 'manual_service_package', project: project) }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:trigger_services).and_raise(Backend::Error.new('services are in manual mode!'))
+        post :services, params: { project_name: project, package_name: package }
+      end
+
+      it { expect(flash[:error]).to eq('Error while triggering services for my_project/manual_service_package: services are in manual mode!') }
+    end
 
     context 'when triggering services fails' do
       let(:package) { create(:package, name: 'my_package', project: project) }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:trigger_services).and_raise(Backend::Error.new('no source service defined!'))
+        post :services, params: { project_name: project, package_name: package }
+      end
 
       it { expect(flash[:error]).to eq('Error while triggering services for my_project/my_package: no source service defined!') }
     end
