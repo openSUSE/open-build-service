@@ -1,4 +1,8 @@
 OBSApi::Application.routes.draw do
-  draw :webui
-  draw :api
+  constraints(RoutesHelper::WebuiMatcher) do
+    draw :webui
+  end
+  constraints(RoutesHelper::APIMatcher) do
+    draw :api
+  end
 end

@@ -71,5 +71,14 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
         expect { subject }.to raise_error(Token::Errors::WorkflowsYamlNotParsable, 'Unable to parse .obs/workflows.yml: malformed format string - %S')
       end
     end
+
+    context 'with workflow containing invalid format specifier' do
+      let(:workflows_yml_file) { file_fixture('workflow_with_float_format.yml') }
+      let(:request_payload) { workflow_run_github_payload }
+
+      it 'raises a user-friendly error' do
+        expect { subject }.to raise_error(Token::Errors::WorkflowsYamlNotParsable, "Unable to parse .obs/workflows.yml: can't convert Hash into Float")
+      end
+    end
   end
 end

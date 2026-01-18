@@ -817,6 +817,12 @@ RSpec.describe Package, :vcr do
       it { expect(package.errors).to be_empty }
     end
 
+    context 'url is external and has a path' do
+      let(:package) { build(:package, report_bug_url: 'https://example.com/issues') }
+
+      it { expect(package.errors).to be_empty }
+    end
+
     context 'url is relative' do
       let(:package) { build(:package, report_bug_url: '/about') }
 

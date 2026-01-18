@@ -196,6 +196,28 @@ RSpec.describe Workflow::Step::SetFlags do
     let(:hook_event) { 'Push Hook' }
     let(:scm_vendor) { 'gitlab' }
 
+    context 'when flags key is missing' do
+      let(:step_instructions) do
+        {}
+      end
+
+      it 'gives an error for missing flags key' do
+        expect(subject).not_to be_valid
+        expect(subject.errors.full_messages.to_sentence).to include("The 'flags' key is missing")
+      end
+    end
+
+    context 'when flags is nil' do
+      let(:step_instructions) do
+        { flags: nil }
+      end
+
+      it 'gives an error for nil flags' do
+        expect(subject).not_to be_valid
+        expect(subject.errors.full_messages.to_sentence).to include("The 'flags' key must provide a value")
+      end
+    end
+
     context 'when a flag is missing a key' do
       let(:step_instructions) do
         {

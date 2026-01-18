@@ -26,4 +26,24 @@ RSpec.describe ChartComponent, type: :component do
     it { expect(distinct_repositories).not_to include('openSUSE_Leap_42.2') }
     it { expect(distinct_repositories).not_to include('Debian_Unstable') }
   end
+
+  context 'for build results with multibuild flavors' do
+    let(:fake_raw_data) do
+      [
+        { architecture: 'x86_64', repository: 'openSUSE_Tumbleweed', status: 'succeeded', package_name: 'hello', project_name: 'home:Admin', repository_status: 'published', is_repository_in_db: true, details: nil,
+          buildtype: 'spec' },
+        { architecture: 'x86_64', repository: 'openSUSE_Tumbleweed', status: 'succeeded', package_name: 'hello:foo', project_name: 'home:Admin', repository_status: 'published', is_repository_in_db: true, details: nil,
+          buildtype: 'spec' }
+      ]
+    end
+
+    before do
+      render_inline(subject)
+    end
+
+    it 'renders the build results summary for the individual multibuild flavors' do
+      expect(rendered_content).to have_css('h5', text: 'hello')
+      expect(rendered_content).to have_css('h5', text: 'hello:foo')
+    end
+  end
 end

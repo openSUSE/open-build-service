@@ -741,7 +741,7 @@ sub createrepo_rpmmd {
       delete $up->{'blocked_in_product'};
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
         for my $pkg (@{$cl->{'package'} || []}) {
-          if ($pkg->{'embargo_date'} =~ /^(\d+)-(\d+)-(\d+)(?: (\d+):(\d+))?/) {
+          if ($pkg->{'embargo_date'} && $pkg->{'embargo_date'} =~ /^(\d+)-(\d+)-(\d+)(?: (\d+):(\d+))?/) {
             # normalize in case of missing 0 prefixes
             my $t = sprintf("%04d-%02d-%02d %02d:%02d", $1, $2, $3, $4 || 0, $5 || 0);
             $embargo_date = $t if !$embargo_date || $embargo_date lt $t;

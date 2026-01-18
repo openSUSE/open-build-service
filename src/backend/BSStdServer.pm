@@ -190,7 +190,7 @@ sub periodic {
     }
     my @args;
     push @args, '--logfile', $conf->{'logfile'} if $conf->{'logfile'};
-    exec($0, '--restart', $arg, @args);
+    exec($0, @args, '--restart', $arg);
     die("$0: $!\n");
   }
   memoize_files($memoize_fn, $memoize_max_size) if $memoize_fn;

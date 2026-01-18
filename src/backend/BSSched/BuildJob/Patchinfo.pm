@@ -159,7 +159,6 @@ sub check {
     }
     $broken = 'missing packages: '.join(', ', @missing) if @missing;
   } else {
-    my $pdatas = $proj->{'package'} || {};
     @packages = grep {!$pdatas->{$_}->{'aggregatelist'} && !$pdatas->{$_}->{'patchinfo'}} sort keys %$pdatas;
     @packages = BSSched::ProjPacks::orderpackids($proj, @packages);
   }
@@ -304,12 +303,12 @@ sub check {
         }
         $metas{"$arch/$apackid"} = Digest::MD5::md5_hex($m);
       } elsif ($ptype eq 'direct' || $ptype eq 'transitive' || $ptype eq 'local') {
-        my ($ameta) = split("\n", readstr("$agdst/:meta/$apackid", 1) || '', 2);
+        my ($ameta) = split(' ', readstr("$agdst/:meta/$apackid", 1) || '', 2);
         if (!$ameta) {
           push @blocked, "$arch/$apackid";
           $blockedarch = 1;
         } else {
-          $metas{$apackid} = $pdatas->{$apackid}->{'srcmd5'} if !$metas{$apackid} && $pdatas->{$apackid} && !$seperate_build_arch;
+          $metas{$apackid} = $pdatas->{$apackid}->{'verifymd5'} || $pdatas->{$apackid}->{'srcmd5'} if !$metas{$apackid} && $pdatas->{$apackid} && !$seperate_build_arch;
           if ($metas{$apackid} && $metas{$apackid} ne $ameta) {
             push @blocked, "meta/$apackid";
             $blockedarch = 1;

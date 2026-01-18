@@ -62,7 +62,7 @@ RSpec.describe 'Package', type: :feature do
       visit('/package/show/home:Admin/hello_world')
       # Force to wait for the build results ajax call. page.all doesn't wait for AJAX calls to finish
       sleep(5)
-      puts "Refreshed build results, #{counter} retries left."
+      puts "Refreshed build results, #{counter} retries left." # rubocop:disable RSpec/Output
       builds_in_final_state = page.all('a', class: /build-state-(succeeded|failed)/).length
       break if builds_in_final_state.positive?
     end

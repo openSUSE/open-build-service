@@ -20,28 +20,28 @@
         linkBuildSummaryChartToBuildResultsTab();
     - else
       %div
-        .row.p-2.ps-1
-          %b.col-3= Repository
-          %b.col-9= Architecture
-        - distinct_repositories.each do |repo|
-          .row.p-1.align-items-start
-            .col-3
-              = repo
-            .col-9.d-flex.flex-wrap.gap-1.justify-content-start.align-items-start
-              - raw_data.each do |result|
-                - if result[:repository] == repo
-                  = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
-                                                                                 text: result[:status].humanize,
-                                                                                 details: result[:details],
-                                                                                 architecture: result[:architecture],
-                                                                                 buildtype: result[:buildtype],
-                                                                                 url: helpers.live_build_log_url(result[:status],
-                                                                                                         result[:project_name],
-                                                                                                         result[:package_name],
-                                                                                                         result[:repository],
-                                                                                                         result[:architecture]),
-                                                                                 rpm_lint_url: rpmlint_result_path(result[:project_name],
-                                                                                               result[:package_name],
-                                                                                               "repo_#{result[:repository]}": 1,
-                                                                                               "arch_#{result[:architecture]}": 1) }
+        - distinct_package_names.each do |package_name|
+          %h5
+            = package_name
+          - distinct_repositories.each do |repo|
+            .row.p-1.align-items-start
+              .col-3
+                = repo
+              .col-9.d-flex.flex-wrap.gap-1.justify-content-start.align-items-start
+                - raw_data.each do |result|
+                  - if result[:repository] == repo && result[:package_name] == package_name
+                    = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
+                                                                                  text: result[:status].humanize,
+                                                                                  details: result[:details],
+                                                                                  architecture: result[:architecture],
+                                                                                  buildtype: result[:buildtype],
+                                                                                  url: helpers.live_build_log_url(result[:status],
+                                                                                                          result[:project_name],
+                                                                                                          result[:package_name],
+                                                                                                          result[:repository],
+                                                                                                          result[:architecture]),
+                                                                                  rpm_lint_url: rpmlint_result_path(result[:project_name],
+                                                                                                result[:package_name],
+                                                                                                "repo_#{result[:repository]}": 1,
+                                                                                                "arch_#{result[:architecture]}": 1) }
 -# haml-lint:enable LineLength
