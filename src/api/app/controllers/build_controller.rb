@@ -143,7 +143,16 @@ class BuildController < ApplicationController
 
   def result
     # this route is mainly for checking submissions to a target project
-    return result_lastsuccess if params.key?(:lastsuccess)
+    # allowed values are true/false or 1/0
+    if params.key?(:lastsuccess)
+      allowed_values = %w[1 0 true false]
+      # Validation is intentionally non-blocking to avoid breaking the API
+      unless params[:lastsuccess].blank? || allowed_values.include?(params[:lastsuccess])
+        # no-op
+      end
+
+      return result_lastsuccess
+    end
 
     # for permission check
     Project.get_by_name(params[:project])
