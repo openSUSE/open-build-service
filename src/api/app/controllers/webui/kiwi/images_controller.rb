@@ -19,9 +19,10 @@ module Webui
         package.kiwi_image.destroy if package.kiwi_image && package.kiwi_image_outdated?
 
         if package.kiwi_image.blank? || package.kiwi_image.destroyed?
-          package.kiwi_image = ::Kiwi::Image.build_from_xml(package.source_file(kiwi_file), package.kiwi_file_md5)
-          unless package.save
-            errors = package.kiwi_image.nested_error_messages.merge(title: "Kiwi File '#{kiwi_file}' has errors:")
+          errors = create_kiwi_image(package, kiwi_file)
+
+          if errors.present?
+            errors = errors.merge(title: "Kiwi File '#{kiwi_file}' has errors:")
 
             redirect_to project_package_file_path(project_name: package.project, package_name: package, filename: kiwi_file), error: errors
             return
@@ -96,6 +97,18 @@ module Webui
       end
 
       private
+
+      def create_kiwi_image(package, kiwi_file)
+        begin
+          package.kiwi_image = ::Kiwi::Image.build_from_xml(package.source_file(kiwi_file), package.kiwi_file_md5)
+        rescue ArgumentError => e
+          return { base: [e.message] }
+        end
+
+        return package.kiwi_image.nested_error_messages unless package.save
+
+        nil
+      end
 
       def image_params
         preferences_attributes = %i[
