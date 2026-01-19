@@ -25,6 +25,10 @@ module Workflows
         raise Token::Errors::WorkflowsYamlNotParsable, "Unable to parse #{@token.workflow_configuration_path}: #{e.message}"
       end
 
+      unless parsed_workflow_configuration.is_a?(Hash)
+        raise Token::Errors::WorkflowsYamlNotParsable, "Invalid format in #{@token.workflow_configuration_path}: expected a YAML mapping, got #{parsed_workflow_configuration.class}"
+      end
+
       parsed_workflow_configuration = extract_and_set_workflow_version(parsed_workflow_configuration: parsed_workflow_configuration)
       parsed_workflow_configuration
         .map do |_workflow_name, workflow_instructions|
