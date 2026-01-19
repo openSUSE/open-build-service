@@ -17,9 +17,6 @@ testbuild:
               - x86_64
   filters:
     event: pull_request
-    label:
-      only:
-        - NON_EXISTING_LABEL # Workaround for preventing workflows from running on labeled/unlabeled events
 
 rebuild:
   steps:
