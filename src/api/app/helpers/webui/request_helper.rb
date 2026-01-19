@@ -193,6 +193,23 @@ module Webui::RequestHelper
     end
   end
 
+  # bs_request_action_release only contains an attribute about the (release) target_repository, we have to query
+  # the source_repository and associated release target based on that info...
+  def find_source_release_targets(action)
+    return [] unless action.source_project_object
+
+    action.source_project_object.repositories
+          .joins(release_targets: :target_repository)
+          .find_by(target_repository: { name: action.target_repository })
+          &.release_targets
+  end
+
+  def matching_architectures(release_target)
+    src_arch = release_target.repository.architectures.pluck(:name)
+    tgt_arch = release_target.target_repository.architectures.pluck(:name)
+    (src_arch & tgt_arch).join(', ')
+  end
+
   private
 
   def action_type_icon(type)
