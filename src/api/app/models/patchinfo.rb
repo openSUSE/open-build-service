@@ -19,6 +19,10 @@ class Patchinfo
     setup 404
   end
 
+  class PatchinfoNotFound < APIError
+    setup 404
+  end
+
   # FIXME: Layout and colors belong to CSS
   RATING_COLORS = {
     'low' => 'green',
@@ -231,6 +235,8 @@ class Patchinfo
 
     # get existing file
     xml = pkg.patchinfo
+    raise PatchinfoNotFound, "Patchinfo not found for package '#{package}'" unless xml
+
     xml = update_patchinfo(pkg.project, xml)
 
     Backend::Api::Sources::Package.write_patchinfo(pkg.project.name, pkg.name, User.session&.login, xml.document.to_xml, message)
