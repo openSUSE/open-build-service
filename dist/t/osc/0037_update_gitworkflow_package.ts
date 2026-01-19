@@ -35,17 +35,15 @@ if ( -f "$TMP_DIR/.SKIP" ) {
   exit 0;
 }
 
-plan tests => 6;
+plan tests => 5;
 
 ok(prepare_tmp_dir(), 'Checking preparation of temp directory');
 
-ok(checkout_home_project(), 'Checking preparation of project');
+ok(prepare_ssh(), "Checking preparation of ssh keys");
 
-ok(create_gitea_migration(), "Checking creation of gitea migration");
+ok(clone_git_repository(), 'Checking git clone of package');
 
-ok(configure_gitworkflow_package(), "Checking creation of a git workflow package");
-
-ok(update_obs_working_copy(), "Checking update of OBS working copy");
+ok(update_package_repository(), 'Checking update and commit of package');
 
 ok(wait_for_buildresults(), 'Checking if build succeeded');
 
@@ -65,71 +63,60 @@ sub prepare_tmp_dir {
   return !$@;
 }
 
-sub create_gitea_migration {
-
-  my $hooks_param = {
-    'headers' => [ 'Content-Type: application/json' ],
-    'uri'     => "https://obsadmin:opensuse\@$fqhn/gitea/api/v1/admin/hooks",
-    'request' => 'POST',
-    'data'    => '{'.
-      '"config": {'.
-        '"url": "http://localhost:9998/repositoryevent", "content_type": "json"'.
-      '},'.
-      '"events": ['.
-        '"create", "delete", "fork", "push", "repository", "release"'.
-      '],'.
-      '"type": "gitea",'.
-      '"active": true'.
-      '}',
-  };
-
-  BSRPC::rpc($hooks_param);
-
-  my $param = {
-    'headers' => [ 'Content-Type: application/json' ],
-    'uri'     => "https://obsadmin:opensuse\@$fqhn/gitea/api/v1/repos/migrate",
-    'request' => 'POST',
-    'data'    => '{"clone_addr": "https://github.com/openSUSE/'.$PKG.'", "repo_name": "'.$PKG.'", "default_branch": "master", "private": false, "mirror": false}',
-  };
-  BSRPC::rpc($param);
-}
-
-sub configure_gitworkflow_package {
-   
-  my $pkg_meta = <<EOF;
-<package name="$PKG" project="$PRJ">
- <title>OBS GitWorkFlow TestPackage</title>
- <description>An example for native OBS git support.
-This is one has our packaging specific files in git and is downloading the upstream files, like the tar ball via the asset mechanism.
- </description>
- <scmsync>https://$fqhn/gitea/obsadmin/$PKG</scmsync>
-</package>
-EOF
-
-  my @cmd = (qw/osc meta pkg -F - /, $PRJ, $PKG);
-  my $rc = 0;
-  if (open(my $pipe, '|-', @cmd)) {
-    print $pipe $pkg_meta;
-    close $pipe;
-    $rc = !$?;
+sub prepare_ssh {
+  my $id_file = "$::ENV{HOME}/.ssh/id_rsa";
+  `[ -f $id_file ] || ssh-keygen -t rsa -f $id_file -N ""`;
+  `ssh-keyscan $fqhn >> ~/.ssh/known_hosts`;
+  my $key;
+  if(!open(my $fh, '<', "$id_file.pub")) {
+    return 0;
   } else {
-    warn "Could not create pipe for command '@cmd'\n";
+    local $/ = undef;
+    $key = <$fh>;
+    close $fh;
   }
-  return $rc;
+
+  my $keys_param = {
+    'headers' => [ 'Content-Type: application/json' ],
+    'uri'     => "https://obsadmin:opensuse\@$fqhn/gitea/api/v1/user/keys",
+    'request' => 'POST',
+    'data'    => '{"key": "'.$key.'", "title": "root on localhost", "read_only": false}',
+  };
+  BSRPC::rpc($keys_param);
+
+  return 1;
 }
 
-sub checkout_home_project {
-  my @output = `osc co $PRJ`;
+sub clone_git_repository {
+  my $url    = "gitea\@$fqhn:obsadmin/obs-gitworkflow-testpackage.git";
+  my @output = `git clone $url`;
+  `git -C $TMP_DIR/obs-gitworkflow-testpackage/ config user.email root\@$fqhn`;
+  `git -C $TMP_DIR/obs-gitworkflow-testpackage/ config user.name "OBS Admin"`;
   print STDERR @output if $?;
-  chdir $PRJ || croak "Could not change to directory '$PRJ': $!";
   return !$?;
 }
 
-
-sub update_obs_working_copy {
-  my @output = `osc update`;
-  print STDERR @output if $?;
-  return !$?;
+sub update_package_repository {
+  my $spec_file = "$TMP_DIR/obs-gitworkflow-testpackage/obs-gitworkflow-testpackage.spec";
+  my @fc;
+  if(!open(my $fh, '<', $spec_file)) {
+    return 0;
+  } else {
+    @fc = <$fh>;
+    close $fh;
+  }
+  map { s/^Version:.*/Version: 0.99.0/ } @fc;
+  
+  if(!open(my $fh, '>', $spec_file)) {
+    return 0;
+  } else {
+    print $fh @fc;
+    close $fh;
+  }
+  `git -C $TMP_DIR/obs-gitworkflow-testpackage/ add obs-gitworkflow-testpackage.spec`;
+  `git -C $TMP_DIR/obs-gitworkflow-testpackage/ commit -m "update spec to Version: 0.99.0"`;
+  `git -C $TMP_DIR/obs-gitworkflow-testpackage/ push`;
+  return 1;
 }
 
 sub wait_for_buildresults {
