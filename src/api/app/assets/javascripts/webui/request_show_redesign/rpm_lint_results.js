@@ -24,3 +24,10 @@ function updateRpmLintLog() {
     }
   });
 }
+
+$(document).on('mouseenter', '.lint-description', function() {
+  $(this).tooltip({
+    container: 'body',
+    trigger: 'hover'
+  }).tooltip('show');
+});

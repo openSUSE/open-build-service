@@ -3,3 +3,32 @@
     background-color: var(--bs-secondary-bg);
   }
 }
+
+.lint-description {
+  pointer-events: auto;
+  cursor: help;
+  position: relative;
+  z-index: 3;
+}
+
+.rpmlint {
+  .accordion-header {
+    position: relative;
+    min-height: 45px;
+  }
+  .accordion-button {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+  .lint-check {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .js-accordion-proxy {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+}
