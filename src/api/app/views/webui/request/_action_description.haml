@@ -33,7 +33,7 @@
   %i.fas.fa-long-arrow-alt-right.text-info.mx-2
   = project_or_package_link({ project: action.target_project, package: action.target_package, trim_to: nil })
 - when 'release'
-  Release
+  Release (copy sources and binaries)
   = project_or_package_link({ project: action.source_project, package: action.source_package, trim_to: nil })
   %i.fas.fa-long-arrow-alt-right.text-info.mx-2
   = project_or_package_link({ project: action.target_project, package: action.target_package, trim_to: nil })
