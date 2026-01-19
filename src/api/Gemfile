@@ -124,6 +124,9 @@ gem 'strscan', '3.1.2'
 # OpenStruct implementation (no longer a default gem from ruby > 3.4.0)
 gem 'ostruct'
 
+# for parsing toml in rake rpmlint:sync_description
+gem 'toml-rb'
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
