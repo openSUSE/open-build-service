@@ -10,6 +10,7 @@ RSpec.describe ApplicationController do # rubocop:disable RSpec/SpecFilePathForm
   context 'proxy auth' do
     before do
       allow(Configuration).to receive(:proxy_auth_mode_enabled?).and_return(true)
+      User.find_nobody! # avoid user nobody creation during examples
       request.headers['HTTP_X_USERNAME'] = 'hans'
       request.headers['HTTP_X_FIRSTNAME'] = 'Hans'
       request.headers['HTTP_X_LASTNAME'] = 'Sarpei'

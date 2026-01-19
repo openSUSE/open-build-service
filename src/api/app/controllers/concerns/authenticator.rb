@@ -2,10 +2,15 @@ module Authenticator
   extend ActiveSupport::Concern
 
   included do
+    before_action :set_anonymous_user
     before_action :extract_user
     before_action :check_user_state
     before_action :check_anonymous_access
     before_action :track_user_login
+  end
+
+  def set_anonymous_user
+    User.session = User.find_nobody!
   end
 
   def extract_user
@@ -18,7 +23,9 @@ module Authenticator
              User.find_with_credentials(basic_auth_info[:login], basic_auth_info[:password])
            end
 
-    User.session = user || User.find_nobody!
+    return unless user
+
+    User.session = user
     Rails.logger.debug { "User.session set to #{User.possibly_nobody.login}" }
   end
 
@@ -40,7 +47,7 @@ module Authenticator
                    'inactive_user'
                  end
 
-    User.session = nil
+    set_anonymous_user
     reset_session
 
     respond_to do |format|
