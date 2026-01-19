@@ -22,6 +22,8 @@
                 Expand all
               %button.btn.btn-outline-secondary.collapse-diffs{ data: { object: @action.source_package } }
                 Collapse all
+          - else
+            %p No source changes.
 
         - if sourcediff[:error]
           %p
