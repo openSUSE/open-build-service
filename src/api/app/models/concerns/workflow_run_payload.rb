@@ -2,13 +2,6 @@
 module WorkflowRunPayload
   extend ActiveSupport::Concern
 
-  SOURCE_NAME_PAYLOAD_MAPPING = {
-    'pull_request' => %w[pull_request number],
-    'Merge Request Hook' => %w[object_attributes iid],
-    'push' => %w[head_commit id],
-    'Push Hook' => ['commits', 0, 'id']
-  }.freeze
-
   def new_pull_request?
     github_new_pull_request? || gitlab_new_pull_request? || gitea_new_pull_request?
   end
@@ -31,6 +24,14 @@ module WorkflowRunPayload
 
   def push_event?
     github_push_event? || gitlab_push_event? || gitea_push_event?
+  end
+
+  def committed_push_event?
+    github_committed_push_event? || gitlab_committed_push_event? || gitea_committed_push_event?
+  end
+
+  def deleted_push_event?
+    github_deleted_push_event? || gitlab_deleted_push_event? || gitea_deleted_push_event?
   end
 
   def tag_push_event?
@@ -77,14 +78,6 @@ module WorkflowRunPayload
     github_api_endpoint || gitlab_api_endpoint || gitea_api_endpoint
   end
 
-  def project_id
-    gitlab_project_id
-  end
-
-  def path_with_namespace
-    gitlab_path_with_namespace
-  end
-
   def label
     github_pull_request_label || gitea_pull_request_label || gitlab_merge_request_label
   end
@@ -101,18 +94,17 @@ module WorkflowRunPayload
 
   def payload_generic_event_type
     # We only have filters for push, tag_push, and pull_request
-    if hook_event == 'Push Hook' || payload.fetch('ref', '').match('refs/heads')
+    if push_event?
       'push'
-    elsif hook_event == 'Tag Push Hook' || payload.fetch('ref', '').match('refs/tag')
+    elsif tag_push_event?
       'tag_push'
-    elsif hook_event.in?(['pull_request', 'Merge Request Hook'])
+    elsif pull_request_event?
       'pull_request'
     end
   end
 
   def payload_event_source_name
-    path = SOURCE_NAME_PAYLOAD_MAPPING[hook_event]
-    payload.dig(*path) if path
+    github_event_source_name || gitlab_event_source_name
   end
 
   def payload_repository_name
@@ -124,6 +116,14 @@ module WorkflowRunPayload
   end
 
   def payload_hook_action
-    payload['action'] || payload.dig('object_attributes', 'action')
+    payload['action'] || payload.dig('object_attributes', 'action') || push_hook_action
+  end
+
+  def push_hook_action
+    return 'committed' if committed_push_event?
+    return 'deleted' if deleted_push_event?
+    return 'tagged' if tag_push_event?
+
+    'unknown'
   end
 end

@@ -65,6 +65,14 @@ module WorkflowRunGithubPayload
     scm_vendor == 'github' && hook_event == 'push' && payload.fetch(:ref, '').start_with?('refs/heads/')
   end
 
+  def github_committed_push_event?
+    scm_vendor == 'github' && hook_event == 'push' && !payload[:deleted]
+  end
+
+  def github_deleted_push_event?
+    scm_vendor == 'github' && hook_event == 'push' && payload[:deleted]
+  end
+
   def github_tag_push_event?
     scm_vendor == 'github' && hook_event == 'push' && payload.fetch(:ref, '').starts_with?('refs/tags/')
   end
@@ -99,5 +107,10 @@ module WorkflowRunGithubPayload
 
   def github_unlabeled_pull_request?
     github_pull_request? && hook_action == 'unlabeled'
+  end
+
+  def github_event_source_name
+    payload.dig('pull_request', 'number') if github_pull_request?
+    payload.dig('head_commit', 'id') if github_push_event?
   end
 end

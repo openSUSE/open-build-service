@@ -7,9 +7,10 @@ RSpec.describe Workflow::Step::SetFlags do
 
   let(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:workflow_run) do
-    create(:workflow_run, scm_vendor: scm_vendor, hook_event: hook_event, request_payload: request_payload)
+    create(:workflow_run, scm_vendor: scm_vendor, hook_event: hook_event, hook_action: hook_action, request_payload: request_payload)
   end
   let(:token) { create(:workflow_token, executor: user) }
+  let(:hook_action) { nil }
 
   describe '#call' do
     let(:hook_event) { 'pull_request' }
@@ -186,15 +187,9 @@ RSpec.describe Workflow::Step::SetFlags do
   end
 
   describe '#validate_flags' do
-    let(:request_payload) do
-      {
-        object_kind: 'push',
-        after: '0087aa5c0549a6cc0b4c1bb324d2fa8dc665e063'
-      }.to_json
-    end
-
-    let(:hook_event) { 'Push Hook' }
+    let(:request_payload) { file_fixture('request_payload_gitlab_push.json').read }
     let(:scm_vendor) { 'gitlab' }
+    let(:hook_event) { 'Push Hook' }
 
     context 'when flags key is missing' do
       let(:step_instructions) do
