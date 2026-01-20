@@ -307,7 +307,7 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --vm-initrd : set initrd to use (xen/kvm)
 
-       --vm-memory : set amount of memory to use (xen/kvm)
+       --vm-memory : set amount of memory to use (xen/kvm/lxc)
 
        --vm-worker NAME
                    : (z/VM) set name of the actual worker
@@ -3123,6 +3123,10 @@ sub dobuild {
     push @args, "--vm-worker", $vm_worker_name;
     push @args, "--vm-kernel", $vm_kernel;
     push @args, "--openstack-flavor", "$openstack_flavor";
+  } elsif ($vm eq 'lxc') {
+    push @args, '--root', $buildroot;
+    push @args, '--vm-type', $vm;
+    push @args, '--memory', $vm_memory if $vm_memory;
   } else {
     print "VM-TYPE $vm not detected" if $vm;
     push @args, '--root', $buildroot;
