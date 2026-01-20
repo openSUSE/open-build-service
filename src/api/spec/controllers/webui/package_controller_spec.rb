@@ -153,6 +153,22 @@ RSpec.describe Webui::PackageController, :vcr do
         it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: package_with_revisions)) }
       end
     end
+
+    context 'with a package that has services' do
+      before do
+        get :show, params: { project: user.home_project, package: create(:package_with_service, name: 'service_package', project: user.home_project) }
+      end
+
+      it { expect(assigns(:services)).to be(true) }
+    end
+
+    context 'with a package that has only services which do not run on the server' do
+      before do
+        get :show, params: { project: user.home_project, package: create(:package_with_manual_service, name: 'manual_service_package', project: user.home_project) }
+      end
+
+      it { expect(assigns(:services)).to be(false) }
+    end
   end
 
   describe 'GET #revisions' do
