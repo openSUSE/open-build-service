@@ -882,12 +882,12 @@ class BsRequest < ApplicationRecord
 
   # Check if 'user' is maintainer in _all_ request sources:
   def source_maintainer?(user)
-    bs_request_actions.all? { |action| action.source_maintainer?(user) }
+    bs_request_actions.includes(:source_project_object, :source_package_object).all? { |action| action.source_maintainer?(user) }
   end
 
   # Check if 'user' is maintainer in _all_ request targets:
   def target_maintainer?(user)
-    bs_request_actions.all? { |action| action.target_maintainer?(user) }
+    bs_request_actions.includes(:target_package_object, :target_project_object).all? { |action| action.target_maintainer?(user) }
   end
 
   def sanitize!
