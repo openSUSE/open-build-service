@@ -78,7 +78,7 @@ class Repository < ApplicationRecord
 
   def self.find_by_project_and_name!(project, repo)
     result = find_by_project_and_name(project, repo)
-    return ActiveRecord::RecordNotFound if result.blank?
+    raise ActiveRecord::RecordNotFound if result.blank?
 
     result
   end
