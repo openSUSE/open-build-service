@@ -116,6 +116,29 @@ sub genservicemark {
   return $smd5;
 }
 
+sub get_service_modes {
+  my ($projid, $packid, $files) = @_;
+
+  my %modes;
+  my $collect_modes = sub {
+    my ($services) = @_;
+    for my $se (@{$services->{'service'}||[]}) {
+      $modes{$se->{'mode'} || 'active'} = 1;
+    }
+  };
+
+  my $projectservices = getprojectservices($projid, $packid, undef, $files);
+  $collect_modes->($projectservices);
+
+  if ($files->{'_service'}) {
+    my $packagerev = {'project' => $projid, 'package' => $packid};
+    my $services = BSRevision::revreadxml($packagerev, '_service', $files->{'_service'}, $BSXML::services, 1) || {};
+    $collect_modes->($services);
+  }
+
+  return \%modes;
+}
+
 #
 # Send a notification of the service run result
 #
