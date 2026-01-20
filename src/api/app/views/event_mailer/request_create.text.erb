@@ -1,5 +1,9 @@
 Visit <%= url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false) %>
 
+<% if event['accept_at']-%>
+*** This request will get accepted automatically at <%= event['accept_at']%>, except it gets declined ***
+<%-end-%>
+
 <% if event['description']-%>
 Description:
 <%= event['description']%>
