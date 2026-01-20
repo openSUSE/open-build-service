@@ -36,10 +36,14 @@ class Webui::DistributionsController < Webui::WebuiController
     repository = Repository.new_from_distribution(@distribution)
     repository.project = @project
 
-    if repository.save
-      @project.store(comment: "Added #{repository.name} repository")
-    else
-      flash.now[:error] = "Can't add repository: #{repository.errors.full_messages.to_sentence}"
+    begin
+      if repository.save
+        @project.store(comment: "Added #{repository.name} repository")
+      else
+        flash.now[:error] = "Can't add repository: #{repository.errors.full_messages.to_sentence}"
+      end
+    rescue ActiveRecord::RecordNotUnique
+      flash.now[:error] = "Repository #{repository.name} already exists"
     end
   end
 
