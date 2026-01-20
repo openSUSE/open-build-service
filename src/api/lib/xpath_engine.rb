@@ -148,6 +148,8 @@ class XpathEngine
         '@release' => { cpart: 'binary_release' },
         '@arch' => { cpart: 'binary_arch' },
         '@medium' => { cpart: 'medium' },
+        '@on_medium' => { cpart: 'on_medium.medium',
+                          joins: ['LEFT join binary_releases on_medium ON on_medium.id=binary_releases.id '] },
         'disturl' => { cpart: 'binary_disturl' },
         'binaryid' => { cpart: 'binary_id' },
         'cpeid' => { cpart: 'binary_cpeid' },
