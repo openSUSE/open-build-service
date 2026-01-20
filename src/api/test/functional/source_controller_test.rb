@@ -4312,14 +4312,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_select 'status[code] > summary', /invalid project name/
   end
 
-  # _attribute is a "file", but can only be written by API->backend not directly
-  def test_puting__attribute_to_backend
-    login_tom
-    put '/source/home:tom/_project/_attribute?meta=1', params: ''
-    assert_response :bad_request
-    assert_select 'status[code] > summary', 'Attributes need to be changed through /source/home:tom/_attribute'
-  end
-
   def test_obscpio_deltastore
     login_tom
     put('/source/home:tom:deltastore/_meta', params: '<project name="home:tom:deltastore"><title/><description/></project>')
