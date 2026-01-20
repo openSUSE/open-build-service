@@ -476,9 +476,20 @@ OBS_RUBY_ABI_VERSION=%{__obs_ruby_abi_version}
 EOF
 
 pushd src/api
-bundle config set path %_libdir/obs-api/
+# Configure bundler to find gems installed by obs-bundled-gems package.
+# We create .bundle/config manually instead of running 'bundle install'.
+# Since obs-server is noarch, %{_libdir} might default to /usr/lib, but
+# obs-bundled-gems installs to /usr/lib64 on 64-bit systems.
+# We explicitly check for the 64-bit path presence.
+GEM_PATH="%{_libdir}/obs-api"
+if [ -d "/usr/lib64/obs-api" ]; then
+    GEM_PATH="/usr/lib64/obs-api"
+fi
 
-bundle install --local
+mkdir -p .bundle
+echo "---" > .bundle/config
+echo "BUNDLE_PATH: \"$GEM_PATH\"" >> .bundle/config
+echo "BUNDLE_FROZEN: \"true\"" >> .bundle/config
 rm -rf vendor/cache/* vendor/cache.next/*
 popd
 
