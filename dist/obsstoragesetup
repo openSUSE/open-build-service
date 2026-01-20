@@ -388,29 +388,51 @@ case "$1" in
 			fi
 			echo "OBS_WORKER_JOBS=\"$MYJOBS\"" >> /etc/buildhost.config
 
+			# in order to decide, how many hugetables we cann allocate
+			# detect the number of numa nodes
+			NUMAHASMEMORY="$(cat /sys/devices/system/node/has_memory)"
+			NUMANODESNUMBER=$(( ${NUMAHASMEMORY##*-} + 1 ))
+			NUMANODES=`seq 0 $(echo $NUMAHASMEMORY | cut -f2 -d- )`
                         if [ -z "$OBS_INSTANCE_MEMORY" ]; then
 				# Guess how much memory can be used
-				TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
-				OBS_INSTANCE_MEMORY=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
+				# find memory of NUMA node with smallest assigned memory
+				NUMAMINMEM=1099511627776 # rediculously large 1PB
+				TOTALMEM=0
+				for node in $NUMANODES; do
+					NUMANODEMEM=$(( `cat /sys/devices/system/node/node${node}/meminfo | sed -n 's/^.*MemTotal:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
+					if [ $NUMANODEMEM -lt $NUMAMINMEM ]; then
+						NUMAMINMEM=$NUMANODEMEM
+					fi
+					TOTALMEM=$(( $TOTALMEM + $NUMANODEMEM ))
+				done
+				# reserve 768MB per numa node for the machine, divide remaining mem between instances
+				OBS_INSTANCE_MEMORY=$(( ( $NUMAMINMEM * $NUMANODESNUMBER - 2048 ) / $OBS_WORKER_INSTANCES  ))
 				echo "OBS_INSTANCE_MEMORY=\"$OBS_INSTANCE_MEMORY\"" >> /etc/buildhost.config
                         fi
 			if grep ^flags /proc/cpuinfo | grep -E -q " (svm|vmx) " && test -n "$RUN_VIRT"; then
                                 # try to use hugetlb on kvm
 				mkdir -p /dev/hugetlbfs # systemd may have mounted it already
-			        HUGETLBINSTANCEMEM=$(( ($OBS_INSTANCE_MEMORY * 512) / 1024 )) # 2M page sizes
+			        HUGETLBINSTANCEMEM=$(( $OBS_INSTANCE_MEMORY / 2 )) # 2M page sizes
 			        HUGETLMEM=$(( $HUGETLBINSTANCEMEM * $OBS_WORKER_INSTANCES ))
-                                # register huge table memory pages
-                                echo "$HUGETLMEM" > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-                                # enable it if it was successful
-                                if [ "$HUGETLMEM" == `cat /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages` ]; then
+				NUMAHUGETLMEM=$(( $HUGETLMEM / $NUMANODESNUMBER ))
+				HUGETABLEMEMREGISTERED=0
+				for node in $NUMANODES; do
+					# register huge table memory pages
+					echo "$NUMAHUGETLMEM" > /sys/devices/system/node/node${node}/hugepages/hugepages-2048kB/nr_hugepages
+					HUGETABLEMEMREGISTERED=$(( $HUGETABLEMEMREGISTERED + `cat /sys/devices/system/node/node${node}/hugepages/hugepages-2048kB/nr_hugepages` ))
+				done
+				# enable it if it was successful
+				if [ "$HUGETLMEM" == "$HUGETABLEMEMREGISTERED" ]; then
                                 	grep -q \ /dev/hugetlbfs /proc/mounts || \
  					   mount hugetlbfs /dev/hugetlbfs -t hugetlbfs
                                 	grep -q \ /dev/hugetlbfs /proc/mounts && \
 	                		   echo "OBS_VM_USE_HUGETLBFS=\"/dev/hugetlbfs\"" >> /etc/buildhost.config
 				else
 					echo "WARNING: registration of huge table memory pages failed!"
-                                        echo "Just `cat /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages` of $HUGETLMEM registered, resetting ..."
-	                                echo "0" > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+					echo "Just $HUGETABLEMEMREGISTERED of $HUGETLMEM registered, resetting ..."
+					for node in $NUMANODES; do
+						echo "0" > /sys/devices/system/node/node${node}/hugepages/hugepages-2048kB/nr_hugepages
+					done
 				fi
                         fi
 			# append user presets
