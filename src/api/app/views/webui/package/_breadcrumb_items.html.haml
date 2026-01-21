@@ -1,7 +1,7 @@
 = render partial: 'webui/project/breadcrumb_items'
 
 -# The package doesn't exist in the context of package#new, so we don't check other paths below to avoid exceptions
-- if current_page?(new_package_path(@project))
+- if controller_name == 'package' && action_name == 'new'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Create Package
 - else
