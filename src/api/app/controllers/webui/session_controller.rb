@@ -1,6 +1,6 @@
 class Webui::SessionController < Webui::WebuiController
-  skip_before_action :extract_user
-  skip_before_action :check_anonymous_access
+  # We are signing up people, can't require them to login
+  skip_before_action :extract_user, :check_anonymous_access
 
   def create
     user = User.find_with_credentials(params.fetch(:username, ''), params.fetch(:password, ''))

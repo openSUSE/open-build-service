@@ -4,8 +4,8 @@ class SourceController < ApplicationController
   include MaintenanceHelper
   include Source::Errors
 
-  skip_before_action :extract_user, only: :lastevents_public
-  skip_before_action :require_login, only: :lastevents_public
+  # We always allow access to this action...
+  skip_before_action :extract_user, :require_login, :check_anonymous_access, only: :lastevents_public
 
   # POST, GET /public/lastevents
   # GET /lastevents
