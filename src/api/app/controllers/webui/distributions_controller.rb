@@ -41,6 +41,8 @@ class Webui::DistributionsController < Webui::WebuiController
     else
       flash.now[:error] = "Can't add repository: #{repository.errors.full_messages.to_sentence}"
     end
+  rescue ActiveRecord::RecordNotFound
+    flash.now[:error] = "Repository #{@distribution.repository} was not found"
   end
 
   def destroy_repository
