@@ -174,11 +174,11 @@ sub mkdir_p {
   }
   while (!mkdir($dir, 0777)) {
     my $e = $!;
-    return 1 if -d $dir;
-    if (defined($pdir) && ! -d $pdir) {
+    if (defined($pdir) && $! == POSIX::ENOENT) {
       mkdir_p($pdir) || return undef;
       next;
     }
+    return 1 if -d $dir;
     $! = $e;
     warn("mkdir: $dir: $!\n");
     return undef;
