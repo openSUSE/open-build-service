@@ -2,10 +2,8 @@ class TriggerWorkflowController < ApplicationController
   include ScmWebhookHeadersDataExtractor
   include Trigger::Errors
 
-  # Authentication happens with tokens, so extracting the user is not required
-  skip_before_action :extract_user
-  # Authentication happens with tokens, so no login is required
-  skip_before_action :require_login
+  # Authentication happens via tokens, so no login is required
+  skip_before_action :extract_user, :require_login, :check_anonymous_access
   # SCMs like GitLab/GitHub send data as parameters which are not strings (e.g.: GitHub - PR number is a integer, GitLab - project is a hash)
   # Other SCMs might also do this, so we're not validating parameters.
   skip_before_action :validate_params

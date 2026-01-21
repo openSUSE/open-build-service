@@ -1,7 +1,6 @@
 class SourceCommandController < SourceController
-  skip_before_action :extract_user, only: %i[global_command_orderkiwirepos global_command_triggerscmsync]
-  skip_before_action :require_login, only: %i[global_command_orderkiwirepos global_command_triggerscmsync]
-
+  # Authentication happens via HTTP_X_SCM_BRIDGE_COOKIE, so no login is required
+  skip_before_action :extract_user, :require_login, :check_anonymous_access, only: %i[global_command_orderkiwirepos global_command_triggerscmsync]
   before_action :require_scmsync_host_check, only: :global_command_triggerscmsync
 
   # POST /source?cmd=createmaintenanceincident

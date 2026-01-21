@@ -1,8 +1,7 @@
 class AboutController < ApplicationController
   validate_action index: { method: :get, response: :about }
-  skip_before_action :extract_user
-  skip_before_action :check_anonymous_access
-  skip_before_action :require_login
+  # We always allow access to this action...
+  skip_before_action :extract_user, :require_login, :check_anonymous_access
   before_action :set_response_format_to_xml
 
   def index

@@ -5,10 +5,8 @@ class PersonController < ApplicationController
   validate_action register: { method: :put, response: :status }
   validate_action register: { method: :post, response: :status }
 
-  skip_before_action :extract_user, only: %i[command register]
-  skip_before_action :check_anonymous_access, only: %i[command register]
-  skip_before_action :require_login, only: %i[command register]
-
+  # We are signing up people, can't require them to login
+  skip_before_action :extract_user, :require_login, :check_anonymous_access, only: %i[command register]
   before_action :set_user, only: %i[post_userinfo change_my_password watchlist put_watchlist]
   before_action :user_permission_check, only: [:post_userinfo]
   before_action :require_admin, only: [:post_userinfo], if: -> { %w[delete lock].include?(params[:cmd]) }
