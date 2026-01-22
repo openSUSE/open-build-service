@@ -133,29 +133,4 @@ RSpec.describe Repository do
       it { expect(subject.download_repositories.pluck(:arch, :url)).to contain_exactly([dod_repository.arch, dod_repository.url]) }
     end
   end
-
-  describe '#new_from_distribution' do
-    subject { subject_repository }
-
-    let(:target_project) { create(:project) }
-    let(:project) { create(:project_with_repository) }
-    let(:distribution) { create(:distribution, project: project, repository: project.repositories.first.name) }
-    let(:subject_repository) do
-      repository = Repository.new_from_distribution(distribution)
-      repository.project = target_project
-      repository.save!
-      repository
-    end
-
-    it 'builds a valid repository from a distribution' do
-      expect(subject.name).to eq(distribution.reponame)
-      expect(subject).to be_persisted
-    end
-
-    it { expect(subject.architectures.pluck(:name)).to contain_exactly('x86_64', 'ppc64le') }
-
-    it 'sets the path elements of the repository' do
-      expect(subject.path_elements.where(repository_id: project.repositories.first.id)).to exist
-    end
-  end
 end
