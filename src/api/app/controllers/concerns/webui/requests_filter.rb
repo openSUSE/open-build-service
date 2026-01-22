@@ -81,11 +81,11 @@ module Webui::RequestsFilter
   end
 
   def filter_created_at
-    return if params[:created_at_from].blank? && params[:created_at_to].blank?
+    @selected_filter['created_at_from'] = params[:created_at_from] if params[:created_at_from].present?
+    @selected_filter['created_at_to']   = params[:created_at_to]   if params[:created_at_to].present?
 
-    @selected_filter['created_at_from'] = DateTime.parse(params[:created_at_from]) if params[:created_at_from].present?
-    @selected_filter['created_at_to'] = DateTime.parse(params[:created_at_to]) if params[:created_at_to].present?
-    @bs_requests = @bs_requests.where(created_at: @selected_filter['created_at_from']..@selected_filter['created_at_to'])
+    @bs_requests = @bs_requests.where(created_at: Time.zone.parse(@selected_filter['created_at_from'])..) if @selected_filter['created_at_from'].present?
+    @bs_requests = @bs_requests.where(created_at: ..Time.zone.parse(@selected_filter['created_at_to']))   if @selected_filter['created_at_to'].present?
   end
 
   def filter_search_text
