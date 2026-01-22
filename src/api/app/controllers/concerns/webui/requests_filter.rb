@@ -92,7 +92,13 @@ module Webui::RequestsFilter
     return if params[:search].blank?
 
     @selected_filter['search'] = params[:search]
-    @bs_requests = @bs_requests.where(id: BsRequest.search_for_ids(@selected_filter['search']))
+    if BsRequest.search_count(@selected_filter['search']) > TEXT_SEARCH_MAX_RESULTS
+      flash.now[:error] = 'Your text search pattern matches too many results. Please, try again with a more restrictive search pattern.'
+      @bs_requests = BsRequest.none
+      return
+    end
+
+    @bs_requests = @bs_requests.where(id: BsRequest.search_for_ids(@selected_filter['search'], per_page: TEXT_SEARCH_MAX_RESULTS))
   end
 
   def filter_labels
