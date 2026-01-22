@@ -1,5 +1,7 @@
 class Webui::DistributionsController < Webui::WebuiController
   before_action :set_project
+  before_action :set_distribution, only: :toggle
+  before_action :set_distribution_repository, only: :toggle
   after_action :verify_authorized
 
   # GET /projects/:project/distributions/new
@@ -20,37 +22,49 @@ class Webui::DistributionsController < Webui::WebuiController
   # POST /projects/:project_name/distributions/toggle
   def toggle
     authorize @project, :update?
-    @distribution = Distribution.find(params[:distribution])
 
-    @repository = @project.repositories.find_by(name: @distribution.reponame)
-    if @repository && @project.distribution?(@distribution.project, @distribution.repository)
+    if @project.distribution?(@distribution.project, @distribution.repository)
       destroy_repository
     else
-      create_repository_from_distribution
+      create_repository
     end
   end
 
   private
 
-  def create_repository_from_distribution
-    repository = Repository.new_from_distribution(@distribution)
-    repository.project = @project
+  def create_repository
+    new_repository = @project.repositories.new(name: @distribution.reponame)
+    new_repository.path_elements.build(link: @distribution_repository)
+    @distribution.architectures.map { |architecture| new_repository.repository_architectures.build(architecture: architecture) }
 
-    if repository.save
-      @project.store(comment: "Added #{repository.name} repository")
+    if new_repository.save
+      @project.store(comment: "Added #{new_repository.name} repository")
     else
-      flash.now[:error] = "Can't add repository: #{repository.errors.full_messages.to_sentence}"
+      flash.now[:error] = "Can't add repository: #{new_repository.errors.full_messages.to_sentence}"
     end
-  rescue ActiveRecord::RecordNotFound
-    flash.now[:error] = "Repository #{@distribution.repository} was not found"
   end
 
   def destroy_repository
-    @project.repositories.delete(@repository)
+    repository = @project.repositories.find_by(name: @distribution.reponame)
+    @project.repositories.delete(repository)
     if @project.valid?
-      @project.store(comment: "Removed #{@repository.name} repository")
+      @project.store(comment: "Removed #{repository.name} repository")
     else
       flash.now[:error] = "Failed to remove repository: #{@project.errors.full_messages.to_sentence}"
     end
+  end
+
+  def set_distribution
+    @distribution = Distribution.find(params[:distribution])
+  rescue ActiveRecord::RecordNotFound
+    flash.now[:error] = 'Distribution not found'
+    render :toggle
+  end
+
+  def set_distribution_repository
+    @distribution_repository = Repository.find_by_project_and_name!(@distribution.project, @distribution.repository)
+  rescue ActiveRecord::RecordNotFound
+    flash.now[:error] = "The project #{@distribution.project} has no repository named #{@distribution.repository}"
+    render :toggle
   end
 end
