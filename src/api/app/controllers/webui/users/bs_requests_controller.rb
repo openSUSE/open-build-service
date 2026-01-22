@@ -53,7 +53,7 @@ module Webui
         end
 
         if @selected_filter['involvement'].include?('outgoing')
-          bs_requests_filters << @bs_requests.where(creator: User.session)
+          bs_requests_filters << @bs_requests.where(creator: User.session.login)
           bs_requests_filters << @bs_requests.where(bs_request_actions: { source_project_id: User.session.relationships.projects.maintainers.pluck(:project_id) })
           bs_requests_filters << @bs_requests.where(bs_request_actions: { source_package_id: User.session.relationships.packages.maintainers.pluck(:package_id) })
         end
