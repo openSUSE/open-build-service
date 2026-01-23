@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_25_121822) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_22_085231) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -279,6 +279,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_25_121822) do
     t.string "approver"
     t.integer "staging_project_id"
     t.integer "status"
+    t.index ["created_at"], name: "index_bs_requests_on_created_at"
     t.index ["creator"], name: "index_bs_requests_on_creator"
     t.index ["number"], name: "index_bs_requests_on_number", unique: true
     t.index ["staging_project_id"], name: "index_bs_requests_on_staging_project_id"

@@ -1,0 +1,12 @@
+:ruby
+  info_text = "<p>Filter the requests by some text of the request content.</p>
+               <p>Sphinx extended query syntax allowed:
+                 <ul>
+                   <li> OR: `some | text`</li>
+                   <li> NOT: `-text` or `!text`</li>
+                   <li> phrase search: 'some text'</li>
+                 </ul>
+              </p>"
+
+
+= render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: info_text }

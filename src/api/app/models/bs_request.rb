@@ -1277,12 +1277,13 @@ end
 #  status             :integer          indexed
 #  superseded_by      :integer          indexed
 #  updated_when       :datetime
-#  created_at         :datetime         not null
+#  created_at         :datetime         not null, indexed
 #  updated_at         :datetime         not null
 #  staging_project_id :integer          indexed
 #
 # Indexes
 #
+#  index_bs_requests_on_created_at          (created_at)
 #  index_bs_requests_on_creator             (creator)
 #  index_bs_requests_on_number              (number) UNIQUE
 #  index_bs_requests_on_staging_project_id  (staging_project_id)

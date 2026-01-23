@@ -60,7 +60,7 @@ class NotificationReport < Notification
   def link_path
     if event_type.starts_with?('Event::ReportFor')
       Rails.application.routes.url_helpers.report_path(event_payload['id'])
-    elsif event_type == 'Event::ClearedDecision' || 'Event::FavoredDecision'
+    elsif ['Event::ClearedDecision', 'Event::FavoredDecision'].include?(event_type)
       reportable = notifiable.reports.first.reportable
       link_for_reportables(reportable)
     elsif event_type == 'Event::AppealCreated'

@@ -68,6 +68,12 @@ RSpec.describe Webui::Users::BsRequestsController do
                priority: :critical,
                description: 'review_request')
       end
+      let!(:request_with_creator) do
+        create(:delete_bs_request,
+               creator: user,
+               target_project: create(:project),
+               description: 'outgoing_delete')
+      end
 
       let(:label_template) do
         create(:label_template, project: target_project)
@@ -84,7 +90,7 @@ RSpec.describe Webui::Users::BsRequestsController do
         get :index, params: params, format: :html
       end
 
-      it { expect(assigns[:bs_requests].map(&:description)).to contain_exactly('incoming', 'outgoing', 'review_request') }
+      it { expect(assigns[:bs_requests].map(&:description)).to contain_exactly('incoming', 'outgoing', 'review_request', 'outgoing_delete') }
 
       context 'and the involvement parameter is "incoming"' do
         let(:context_params) { { involvement: ['incoming'] } }
@@ -95,7 +101,7 @@ RSpec.describe Webui::Users::BsRequestsController do
       context 'and the involvement parameter is "outgoing"' do
         let(:context_params) { { involvement: ['outgoing'] } }
 
-        it { expect(assigns[:bs_requests]).to contain_exactly(outgoing_request) }
+        it { expect(assigns[:bs_requests]).to contain_exactly(outgoing_request, request_with_creator) }
       end
 
       context 'and the involvement parameter is "review"' do
@@ -107,7 +113,7 @@ RSpec.describe Webui::Users::BsRequestsController do
       context 'and the involvement parameter is "[incoming, outgoing]"' do
         let(:context_params) { { involvement: %w[incoming outgoing] } }
 
-        it { expect(assigns[:bs_requests].map(&:description)).to contain_exactly('incoming', 'outgoing') }
+        it { expect(assigns[:bs_requests].map(&:description)).to contain_exactly('incoming', 'outgoing', 'outgoing_delete') }
       end
 
       context 'and the involvement parameter is "[incoming, review]"' do
@@ -119,7 +125,7 @@ RSpec.describe Webui::Users::BsRequestsController do
       context 'and the involvement parameter is "[outgoing, review]"' do
         let(:context_params) { { involvement: %w[outgoing review] } }
 
-        it { expect(assigns[:bs_requests].map(&:description)).to contain_exactly('outgoing', 'review_request') }
+        it { expect(assigns[:bs_requests].map(&:description)).to contain_exactly('outgoing', 'review_request', 'outgoing_delete') }
       end
 
       context 'and the state parameter is used' do
@@ -131,13 +137,13 @@ RSpec.describe Webui::Users::BsRequestsController do
       context 'and the action_type parameter is used' do
         let(:context_params) { { action_types: ['delete'] } }
 
-        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
+        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review, request_with_creator) }
       end
 
       context 'and the creators parameter is used' do
         let(:context_params) { { creators: [user.login] } }
 
-        it { expect(assigns[:bs_requests]).to contain_exactly(outgoing_request) }
+        it { expect(assigns[:bs_requests]).to contain_exactly(outgoing_request, request_with_creator) }
       end
 
       context 'and the priority parameter is used' do

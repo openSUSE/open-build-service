@@ -11,7 +11,7 @@
             = @group.users.size
       - if Flipper.enabled?(:request_index, User.session)
         %li.nav-item
-          = link_to(group_requests_path(@group, state: %w[new review]), class: 'nav-link', title: 'Requests') do
+          = link_to(group_requests_path(@group), class: 'nav-link', title: 'Requests') do
             Group Requests
             %span.badge.text-bg-primary
               = @group.bs_requests.where(state: %w[new review]).count
