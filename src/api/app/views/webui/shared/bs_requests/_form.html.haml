@@ -19,10 +19,15 @@
             .card-body.row
               .col
               .col-lg
-                = render partial: 'webui/shared/search_box', locals: { html_id: 'search',
-                                                                       value: selected_filter[:search],
-                                                                       required: false,
-                                                                       button: { type: 'submit' } }
+                .d-flex.align-items-center
+                  .me-2
+                    = render partial: 'webui/shared/bs_requests/filter_help_search_box'
+                  .w-100
+                    = render partial: 'webui/shared/search_box', locals: { html_id: 'search',
+                                                                          value: selected_filter[:search],
+                                                                          required: false,
+                                                                          button: { type: 'submit' },
+                                                                          placeholder: 'Search' }
           .text-center.mb-3
             - if bs_requests.total_count == 0
               %p There are no requests available
