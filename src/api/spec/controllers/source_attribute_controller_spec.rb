@@ -47,6 +47,7 @@ RSpec.describe SourceAttributeController, :vcr do
       <<~XMLATTRIB
         <attributes>
           <attribute namespace='#{update_project_attrib.namespace}' name='#{update_project_attrib.name}'>
+            <position>1</position>
             <value>1111112</value>
           </attribute>
         </attributes>
