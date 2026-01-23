@@ -476,20 +476,18 @@ OBS_RUBY_ABI_VERSION=%{__obs_ruby_abi_version}
 EOF
 
 pushd src/api
-# Configure bundler to find gems installed by obs-bundled-gems package.
-# We create .bundle/config manually instead of running 'bundle install'.
-# Since obs-server is noarch, %{_libdir} might default to /usr/lib, but
-# obs-bundled-gems installs to /usr/lib64 on 64-bit systems.
-# We explicitly check for the 64-bit path presence.
-GEM_PATH="%{_libdir}/obs-api"
-if [ -d "/usr/lib64/obs-api" ]; then
-    GEM_PATH="/usr/lib64/obs-api"
-fi
-
+# Configure bundler to find gems installed by obs-bundled-gems package
+# Since obs-server is noarch, %{_libdir} defaults to /usr/lib on noarch builds
+# However, obs-bundled-gems is arch-dependent and installs to /usr/lib64 on
+# 64-bit systems. We use %(rpm -E %%_libdir) which correctly evaluates the
+# architecture-dependent libdir on the build system (see issue #16989)
+# The %post script also sets this at install time for the target system
 mkdir -p .bundle
-echo "---" > .bundle/config
-echo "BUNDLE_PATH: \"$GEM_PATH\"" >> .bundle/config
-echo "BUNDLE_FROZEN: \"true\"" >> .bundle/config
+cat > .bundle/config <<EOF
+---
+BUNDLE_PATH: "%(rpm -E %%_libdir)/obs-api"
+BUNDLE_FROZEN: "true"
+EOF
 rm -rf vendor/cache/* vendor/cache.next/*
 popd
 
@@ -611,9 +609,14 @@ make -C src/backend test
 
 ####
 # start api testing
+# Skip on aarch64 and ppc64le as spider tests are too slow and cause timeouts (see issue #19098)
 #
 %if 0%{?disable_obs_frontend_test_suite:1} < 1
+%ifnarch aarch64 ppc64le
 make -C src/api test
+%else
+echo "Skipping frontend test suite on aarch64/ppc64le (spider tests timeout)"
+%endif
 %endif
 
 ####
@@ -771,6 +774,19 @@ fi
 %endif
 
 %post -n obs-api
+# Update .bundle/config with the correct architecture-dependent gem path.
+# obs-bundled-gems installs to /usr/lib64/obs-api on 64-bit systems.
+BUNDLE_CONFIG="%{__obs_api_prefix}/.bundle/config"
+if [ -d "/usr/lib64/obs-api" ]; then
+    GEM_PATH="/usr/lib64/obs-api"
+else
+    GEM_PATH="/usr/lib/obs-api"
+fi
+cat > "$BUNDLE_CONFIG" <<EOF
+---
+BUNDLE_PATH: "$GEM_PATH"
+BUNDLE_FROZEN: "true"
+EOF
 if [ -e %{__obs_document_root}/frontend/config/database.yml ] && [ ! -e %{__obs_api_prefix}/config/database.yml ]; then
   cp %{__obs_document_root}/frontend/config/database.yml %{__obs_api_prefix}/config/database.yml
 fi
@@ -1058,7 +1074,8 @@ usermod -a -G docker obsservicerun
 %attr(0644,root,root) %{__obs_api_prefix}/config/options.yml.example
 %dir %attr(0755,%apache_user,%apache_group) %{__obs_api_prefix}/db/sphinx
 %dir %attr(0755,%apache_user,%apache_group) %{__obs_api_prefix}/db/sphinx/production
-%{__obs_api_prefix}/.bundle
+%dir %{__obs_api_prefix}/.bundle
+%config(noreplace) %{__obs_api_prefix}/.bundle/config
 
 %config %{__obs_api_prefix}/config/environment.rb
 %config %{__obs_api_prefix}/config/environments/production.rb
