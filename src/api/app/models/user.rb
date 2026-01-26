@@ -695,16 +695,27 @@ class User < ApplicationRecord
 
   # Returns an ActiveRecord::Relation with all BsRequest that the user is somehow involved in
   def bs_requests
-    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(creator: login)
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { user_id: id }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { group_id: groups.pluck(:id) }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { project_id: involved_projects.pluck(:id) }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { package_id: involved_packages.pluck(:id) }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_project_id: involved_projects.pluck(:id) }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_package_id: involved_packages.pluck(:id) }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_project_id: involved_projects.pluck(:id) }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_package_id: involved_packages.pluck(:id) }))
-             .distinct
+    groups_ids = groups.pluck(:id)
+    projects_ids = involved_projects.pluck(:id)
+    packages_ids = involved_packages.pluck(:id)
+
+    creator_ids = BsRequest.where(creator: login).pluck(:id)
+
+    review_ids = Review.where(user_id: id)
+                       .or(Review.where(group_id: groups_ids))
+                       .or(Review.where(project_id: projects_ids))
+                       .or(Review.where(package_id: packages_ids))
+                       .pluck(:bs_request_id)
+
+    action_ids = BsRequestAction.where(target_project_id: projects_ids)
+                                .or(BsRequestAction.where(target_package_id: packages_ids))
+                                .or(BsRequestAction.where(source_project_id: projects_ids))
+                                .or(BsRequestAction.where(source_package_id: packages_ids))
+                                .pluck(:bs_request_id)
+
+    all_ids = (creator_ids + review_ids + action_ids).compact.uniq
+
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids)
   end
 
   # TODO: This should be in a query object

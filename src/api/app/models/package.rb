@@ -1332,11 +1332,16 @@ class Package < ApplicationRecord
 
   # Returns an ActiveRecord::Relation with all BsRequest that the package is somehow involved in
   def bs_requests
-    BsRequest.left_outer_joins(:bs_request_actions, :reviews)
-             .where(reviews: { package_id: id })
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_package_id: id }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_package_id: id }))
-             .distinct
+    review_ids = Review.where(package_id: id)
+                       .pluck(:bs_request_id)
+
+    action_ids = BsRequestAction.where(target_package_id: id)
+                                .or(BsRequestAction.where(source_package_id: id))
+                                .pluck(:bs_request_id)
+
+    all_ids = (review_ids + action_ids).compact.uniq
+
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids)
   end
 
   private
