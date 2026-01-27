@@ -6,7 +6,9 @@ module Webui::RequestsFilter
   SortBy = Struct.new(:name, :value, :sql)
   SORTS = [
     SortBy.new(name: 'Newest to Oldest', value: 'newest', sql: 'number DESC'),
-    SortBy.new(name: 'Oldest to Newest', value: 'oldest', sql: 'number')
+    SortBy.new(name: 'Oldest to Newest', value: 'oldest', sql: 'number'),
+    SortBy.new(name: 'Most Comments', value: 'most_comments', sql: 'comments_count DESC'),
+    SortBy.new(name: 'Least Comments', value: 'least_comments', sql: 'comments_count')
   ].freeze
 
   def filter_requests
