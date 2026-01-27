@@ -12,8 +12,6 @@ class BsRequestActionChangeDevel < BsRequestAction
     errors.add(:source_package, "should not be empty for #{action_type} requests") if !maintenance_incident? && source_package.blank?
     errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
     errors.add(:target_package, 'No source changes are allowed, if source and target is identical') if source_package == target_package && source_project == target_project && (sourceupdate || updatelink)
-
-    super
   end
 
   #### Class methods using self. (public and then private)

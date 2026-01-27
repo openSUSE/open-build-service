@@ -18,7 +18,12 @@ class BsRequestActionSetBugowner < BsRequestAction
 
   #### Instance methods (public and then protected/private)
   def check_sanity
-    super
+    errors.add(:target_package, 'is invalid package name') if target_package && !Package.valid_name?(target_package)
+    errors.add(:target_project, 'is invalid project name') if target_project && !Project.valid_name?(target_project)
+    errors.add(:source_project, 'is invalid project name') if source_project && !Project.valid_name?(source_project)
+    errors.add(:source_rev, 'should not be upload') if source_rev == 'upload'
+
+    # TODO: to be continued
     return unless person_name.blank? && group_name.blank?
 
     errors.add(:person_name, 'Either person or group needs to be set')
