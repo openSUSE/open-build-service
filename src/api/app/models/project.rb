@@ -1490,6 +1490,7 @@ end
 #
 #  id                       :integer          not null, primary key
 #  anitya_distribution_name :string(255)
+#  comments_count           :integer          default(0), not null, indexed
 #  delta                    :boolean          default(TRUE), not null
 #  description              :text(65535)
 #  kind                     :string           default("standard")
@@ -1509,6 +1510,7 @@ end
 # Indexes
 #
 #  devel_project_id_index                 (develproject_id)
+#  index_projects_on_comments_count       (comments_count)
 #  index_projects_on_staging_workflow_id  (staging_workflow_id)
 #  projects_name_index                    (name) UNIQUE
 #

@@ -1428,6 +1428,7 @@ end
 #  id              :integer          not null, primary key
 #  activity_index  :float(24)        default(100.0)
 #  bcntsynctag     :string(255)
+#  comments_count  :integer          default(0), not null, indexed
 #  delta           :boolean          default(TRUE), not null
 #  description     :text(65535)
 #  name            :string(200)      not null, uniquely indexed => [project_id]
@@ -1444,9 +1445,10 @@ end
 #
 # Indexes
 #
-#  devel_package_id_index           (develpackage_id)
-#  index_packages_on_kiwi_image_id  (kiwi_image_id)
-#  packages_all_index               (project_id,name) UNIQUE
+#  devel_package_id_index            (develpackage_id)
+#  index_packages_on_comments_count  (comments_count)
+#  index_packages_on_kiwi_image_id   (kiwi_image_id)
+#  packages_all_index                (project_id,name) UNIQUE
 #
 # Foreign Keys
 #

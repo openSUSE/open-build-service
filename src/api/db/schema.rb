@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_22_085231) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_27_121427) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -239,9 +239,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_22_085231) do
     t.integer "target_project_id"
     t.integer "source_project_id"
     t.integer "source_package_id"
+    t.integer "comments_count", default: 0, null: false
     t.index ["bs_request_id", "target_package_id"], name: "index_bs_request_actions_on_bs_request_id_and_target_package_id"
     t.index ["bs_request_id", "target_project_id"], name: "index_bs_request_actions_on_bs_request_id_and_target_project_id"
     t.index ["bs_request_id"], name: "bs_request_id"
+    t.index ["comments_count"], name: "index_bs_request_actions_on_comments_count"
     t.index ["source_package"], name: "index_bs_request_actions_on_source_package"
     t.index ["source_package_id"], name: "index_bs_request_actions_on_source_package_id"
     t.index ["source_project"], name: "index_bs_request_actions_on_source_project"
@@ -279,6 +281,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_22_085231) do
     t.string "approver"
     t.integer "staging_project_id"
     t.integer "status"
+    t.integer "comments_count", default: 0, null: false
+    t.index ["comments_count"], name: "index_bs_requests_on_comments_count"
     t.index ["created_at"], name: "index_bs_requests_on_created_at"
     t.index ["creator"], name: "index_bs_requests_on_creator"
     t.index ["number"], name: "index_bs_requests_on_number", unique: true
@@ -861,6 +865,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_22_085231) do
     t.integer "kiwi_image_id"
     t.string "scmsync"
     t.string "report_bug_url", limit: 8192
+    t.integer "comments_count", default: 0, null: false
+    t.index ["comments_count"], name: "index_packages_on_comments_count"
     t.index ["develpackage_id"], name: "devel_package_id_index"
     t.index ["kiwi_image_id"], name: "index_packages_on_kiwi_image_id"
     t.index ["project_id", "name"], name: "packages_all_index", unique: true
@@ -950,6 +956,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_22_085231) do
     t.text "scmsync"
     t.string "report_bug_url", limit: 8192
     t.string "anitya_distribution_name"
+    t.integer "comments_count", default: 0, null: false
+    t.index ["comments_count"], name: "index_projects_on_comments_count"
     t.index ["develproject_id"], name: "devel_project_id_index"
     t.index ["name"], name: "projects_name_index", unique: true
     t.index ["staging_workflow_id"], name: "index_projects_on_staging_workflow_id"
@@ -987,6 +995,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_22_085231) do
     t.bigint "decision_id"
     t.integer "category", default: 99
     t.integer "reporter_id", null: false
+    t.integer "comments_count", default: 0, null: false
+    t.index ["comments_count"], name: "index_reports_on_comments_count"
     t.index ["decision_id"], name: "index_reports_on_decision_id"
     t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable"
     t.index ["reporter_id"], name: "index_reports_on_reporter_id"
