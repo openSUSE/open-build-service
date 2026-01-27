@@ -94,3 +94,6 @@
         %tr
           %th Name
       %tbody
+
+:javascript
+  initializeRemoteDatatable('#filelist-table', { columns: [{ data: 'name' }], paging: false, searching: false, info: false });
