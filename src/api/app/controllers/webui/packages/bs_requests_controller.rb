@@ -12,7 +12,7 @@ module Webui
         if Flipper.enabled?(:request_index, User.session)
           # FIXME: Once we roll out filter_requests should become a before_action
           filter_requests
-          @bs_requests = @bs_requests.order(number: :desc).page(params[:page])
+          @bs_requests = @bs_requests.page(params[:page])
 
           @url = packages_requests_path(@project, @package)
         else

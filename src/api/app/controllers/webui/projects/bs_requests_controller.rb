@@ -11,7 +11,7 @@ module Webui
         if Flipper.enabled?(:request_index, User.session)
           # FIXME: Once we roll out filter_requests should become a before_action
           filter_requests
-          @bs_requests = @bs_requests.order(number: :desc).page(params[:page])
+          @bs_requests = @bs_requests.page(params[:page])
         else
           parsed_params = BsRequest::DataTable::ParamsParserWithStateAndType.new(params).parsed_params
           requests_query = BsRequest::DataTable::FindForProjectQuery.new(@project, parsed_params)
