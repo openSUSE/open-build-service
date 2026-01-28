@@ -47,27 +47,32 @@ module Webui
         bs_requests_filters = []
 
         # We want to hit the database immediately, the @bs_request query is already complicated enough. No need to add sub-queries to it...
-        # rubocop:disable Rails/PluckInWhere
-        if @selected_filter['involvement'].include?('incoming')
-          bs_requests_filters << @bs_requests.where(bs_request_actions: { target_project_id: User.session.relationships.projects.maintainers.pluck(:project_id) })
-          bs_requests_filters << @bs_requests.where(bs_request_actions: { target_package_id: User.session.relationships.packages.maintainers.pluck(:package_id) })
-        end
-
-        if @selected_filter['involvement'].include?('outgoing')
-          bs_requests_filters << @bs_requests.where(creator: User.session.login)
-          bs_requests_filters << @bs_requests.where(bs_request_actions: { source_project_id: User.session.relationships.projects.maintainers.pluck(:project_id) })
-          bs_requests_filters << @bs_requests.where(bs_request_actions: { source_package_id: User.session.relationships.packages.maintainers.pluck(:package_id) })
-        end
-
-        if @selected_filter['involvement'].include?('review')
-          bs_requests_filters << @bs_requests.where(reviews: { user_id: User.session.id })
-          bs_requests_filters << @bs_requests.where(reviews: { group_id: User.session.groups.pluck(:id) })
-          bs_requests_filters << @bs_requests.where(reviews: { project_id: User.session.relationships.projects.maintainers.pluck(:project_id) })
-          bs_requests_filters << @bs_requests.where(reviews: { package_id: User.session.relationships.packages.maintainers.pluck(:package_id) })
-        end
-        # rubocop:enable Rails/PluckInWhere
+        bs_requests_filters << incoming_query if @selected_filter['involvement'].include?('incoming')
+        bs_requests_filters << outgoing_query if @selected_filter['involvement'].include?('outgoing')
+        bs_requests_filters << review_query   if @selected_filter['involvement'].include?('review')
 
         @bs_requests = @bs_requests.merge(bs_requests_filters.inject(:or)) if bs_requests_filters.length.positive?
+      end
+
+      def incoming_query
+        user = User.session
+        @bs_requests.where(bs_request_actions: { target_project_id: user.relationships.projects.maintainers.pluck(:project_id) })
+                    .or(@bs_requests.where(bs_request_actions: { target_package_id: user.relationships.packages.maintainers.pluck(:package_id) }))
+      end
+
+      def outgoing_query
+        user = User.session
+        @bs_requests.where(creator: user.login)
+                    .or(@bs_requests.where(bs_request_actions: { source_project_id: user.relationships.projects.maintainers.pluck(:project_id) }))
+                    .or(@bs_requests.where(bs_request_actions: { source_package_id: user.relationships.packages.maintainers.pluck(:package_id) }))
+      end
+
+      def review_query
+        user = User.session
+        @bs_requests.where(reviews: { user_id: user.id })
+                    .or(@bs_requests.where(reviews: { group_id: user.groups.pluck(:id) }))
+                    .or(@bs_requests.where(reviews: { project_id: user.relationships.projects.maintainers.pluck(:project_id) }))
+                    .or(@bs_requests.where(reviews: { package_id: user.relationships.packages.maintainers.pluck(:package_id) }))
       end
 
       def request_method
