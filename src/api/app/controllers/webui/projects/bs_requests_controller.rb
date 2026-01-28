@@ -2,6 +2,7 @@ module Webui
   module Projects
     class BsRequestsController < WebuiController
       include Webui::RequestsFilter
+      include Webui::RequestsCount
 
       before_action :set_project
       before_action :redirect_legacy
