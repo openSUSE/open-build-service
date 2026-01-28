@@ -171,7 +171,7 @@ class Group < ApplicationRecord
 
     all_ids = (review_ids + action_ids).compact.uniq
 
-    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids)
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids).distinct
   end
 
   def requests(search = nil)

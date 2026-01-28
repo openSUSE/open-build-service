@@ -715,7 +715,7 @@ class User < ApplicationRecord
 
     all_ids = (creator_ids + review_ids + action_ids).compact.uniq
 
-    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids)
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids).distinct
   end
 
   # TODO: This should be in a query object
