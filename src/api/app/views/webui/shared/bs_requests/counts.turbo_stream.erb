@@ -8,3 +8,12 @@
     <span><%= count %></span>
   <% end %>
 <% end %>
+<%= turbo_stream.update 'request_counter_for_incoming_requests' do %>
+  <span><%= @count_for_incoming_requests %></span>
+<% end %>
+<%= turbo_stream.update 'request_counter_for_outgoing_requests' do %>
+  <span><%= @count_for_outgoing_requests %></span>
+<% end %>
+<%= turbo_stream.update 'request_counter_for_reviews' do %>
+  <span><%= @count_for_reviews %></span>
+<% end %>

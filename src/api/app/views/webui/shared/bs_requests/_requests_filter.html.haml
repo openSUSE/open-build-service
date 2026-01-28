@@ -10,13 +10,16 @@
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-involvement
       = render partial: 'webui/shared/check_box', locals: { label: "To #{viewed_object}",
                                                             key: 'involvement[incoming]', name: 'involvement[]', value: 'incoming',
-                                                            checked: selected_filter[:involvement]&.include?('incoming') }
+                                                            checked: selected_filter[:involvement]&.include?('incoming'),
+                                                            turbo_stream_counter_id: 'request_counter_for_incoming_requests'}
       = render partial: 'webui/shared/check_box', locals: { label: "From #{viewed_object}",
                                                             key: 'involvement[outgoing]', name: 'involvement[]', value: 'outgoing',
-                                                            checked: selected_filter[:involvement]&.include?('outgoing') }
+                                                            checked: selected_filter[:involvement]&.include?('outgoing'),
+                                                            turbo_stream_counter_id: 'request_counter_for_outgoing_requests' }
       = render partial: 'webui/shared/check_box', locals: { label: "Review for #{viewed_object}",
                                                             key: 'involvement[review]', name: 'involvement[]', value: 'review',
-                                                            checked: selected_filter[:involvement]&.include?('review') }
+                                                            checked: selected_filter[:involvement]&.include?('review'),
+                                                            turbo_stream_counter_id: 'request_counter_for_reviews' }
 
   .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-state' },
