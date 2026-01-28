@@ -17,7 +17,12 @@
         .card-body.list-group.list-group-flush.p-3.pt-0#requests
           .card.border-0.border-bottom.rounded-0.sticky-top.mb-3#requests-filter-search-text
             .card-body.row
-              .col
+              .col.auto-submit-on-change
+                .d-flex.align-items-center.gap-2
+                  = label_tag('sort', 'Sort by:')
+                  = select_tag('sort', options_from_collection_for_select(Webui::RequestsFilter::SORTS, :value,
+                                                                          :name, selected_filter[:sort]),
+                               class: 'form-select w-auto')
               .col-lg
                 .d-flex.align-items-center
                   .me-2

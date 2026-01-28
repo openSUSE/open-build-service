@@ -155,15 +155,23 @@ class Group < ApplicationRecord
   end
 
   def bs_requests
-    BsRequest.left_outer_joins(:bs_request_actions, :reviews)
-             .where(reviews: { group_id: id })
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { project_id: involved_projects_ids }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { package_id: involved_packages_ids }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_project_id: involved_projects_ids }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_package_id: involved_packages_ids }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_project_id: involved_projects_ids }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_package_id: involved_packages_ids }))
-             .distinct
+    projects_ids = involved_projects.pluck(:id)
+    packages_ids = involved_packages.pluck(:id)
+
+    review_ids = Review.where(group_id: id)
+                       .or(Review.where(project_id: projects_ids))
+                       .or(Review.where(package_id: packages_ids))
+                       .pluck(:bs_request_id)
+
+    action_ids = BsRequestAction.where(target_project_id: projects_ids)
+                                .or(BsRequestAction.where(target_package_id: packages_ids))
+                                .or(BsRequestAction.where(source_project_id: projects_ids))
+                                .or(BsRequestAction.where(source_package_id: packages_ids))
+                                .pluck(:bs_request_id)
+
+    all_ids = (review_ids + action_ids).compact.uniq
+
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids)
   end
 
   def requests(search = nil)
