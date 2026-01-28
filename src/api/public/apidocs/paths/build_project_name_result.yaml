@@ -76,11 +76,17 @@ get:
       name: lastsuccess
       schema:
         type: string
+        enum:  [ "1", "0", "true", "false" ]
       description: |
-        Set to `1` to show the last build results.
+       Filter by last successful build.
 
-        Since the schema of the output of this endpoint depends on the value of the `lastsuccess` parameter,
-        the case where `lastsuccess` is set to `1` is documented under this [other endpoint](#/Build/get_build__project_name___result_lastsuccess_1).
+       Allowed values: `1`, `0`, `true`, `false`.
+
+       The API returns `400 Bad Request` only if the parameter is present with any other value.
+
+       Since the schema of the output depends on the value of `lastsuccess`,
+       the case where it is set is documented under this
+       [other endpoint](#/Build/get_build__project_name___result_lastsuccess_1).
   responses:
     '200':
       $ref: '../components/responses/resultlist.yaml'
