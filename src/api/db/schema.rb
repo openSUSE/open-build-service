@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_27_121427) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_28_155710) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -503,7 +503,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_27_121427) do
     t.integer "channel", default: 0, null: false
     t.boolean "enabled", default: false
     t.integer "token_id"
-    t.text "payload"
     t.integer "package_id"
     t.integer "workflow_run_id"
     t.integer "bs_request_id"
