@@ -1,568 +1,6 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '199'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="patchinfo" rev="9" vrev="9" srcmd5="ad6350770882b0851e64646bc9a83d06">
-          <entry name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146" mtime="1710523124"/>
-        </directory>
-  recorded_at: Mon, 18 Mar 2024 12:14:17 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo?view=info
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '185'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourceinfo package="patchinfo" rev="9" vrev="9" srcmd5="ad6350770882b0851e64646bc9a83d06" verifymd5="ad6350770882b0851e64646bc9a83d06">
-          <filename>_patchinfo</filename>
-        </sourceinfo>
-  recorded_at: Mon, 18 Mar 2024 12:14:17 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '199'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="patchinfo" rev="9" vrev="9" srcmd5="ad6350770882b0851e64646bc9a83d06">
-          <entry name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146" mtime="1710523124"/>
-        </directory>
-  recorded_at: Mon, 18 Mar 2024 12:14:17 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_patchinfo
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Content-Length:
-      - '146'
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-    body:
-      encoding: UTF-8
-      string: |-
-        <patchinfo>
-          <category>recommended</category>
-          <rating>low</rating>
-          <packager>kugelblitz</packager>
-          <summary/>
-          <description/>
-        </patchinfo>
-  recorded_at: Mon, 18 Mar 2024 12:14:17 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:kugelblitz/_result?lastbuild=0&locallink=1&multibuild=1&package=patchinfo&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 18fe51d6-9521-4d34-a4a9-bdf414cffecb
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'ball.home_titan' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'ball.home_titan' does not exist</summary>
-          <details>404 package 'ball.home_titan' does not exist</details>
-        </status>
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 18fe51d6-9521-4d34-a4a9-bdf414cffecb
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'ball.home_titan' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'ball.home_titan' does not exist</summary>
-          <details>404 package 'ball.home_titan' does not exist</details>
-        </status>
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 18fe51d6-9521-4d34-a4a9-bdf414cffecb
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'ball.home_titan' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'ball.home_titan' does not exist</summary>
-          <details>404 package 'ball.home_titan' does not exist</details>
-        </status>
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=&tarlimit=10000&view=xml&withissues=1
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      X-Request-Id:
-      - 18fe51d6-9521-4d34-a4a9-bdf414cffecb
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 400
-      message: revision is empty
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '69'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="400">
-          <summary>revision is empty</summary>
-        </status>
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'ball.home_titan' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'ball.home_titan' does not exist</summary>
-          <details>404 package 'ball.home_titan' does not exist</details>
-        </status>
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 18fe51d6-9521-4d34-a4a9-bdf414cffecb
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'ball.home_titan' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'ball.home_titan' does not exist</summary>
-          <details>404 package 'ball.home_titan' does not exist</details>
-        </status>
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 18fe51d6-9521-4d34-a4a9-bdf414cffecb
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: package 'ball.home_titan' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>package 'ball.home_titan' does not exist</summary>
-          <details>404 package 'ball.home_titan' does not exist</details>
-        </status>
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=&tarlimit=10000&view=xml&withissues=1
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      X-Request-Id:
-      - 18fe51d6-9521-4d34-a4a9-bdf414cffecb
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 400
-      message: revision is empty
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '69'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="400">
-          <summary>revision is empty</summary>
-        </status>
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 18fe51d6-9521-4d34-a4a9-bdf414cffecb
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '199'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="patchinfo" rev="9" vrev="9" srcmd5="ad6350770882b0851e64646bc9a83d06">
-          <entry name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146" mtime="1710523124"/>
-        </directory>
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_patchinfo?rev=9
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Content-Length:
-      - '146'
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-    body:
-      encoding: UTF-8
-      string: |-
-        <patchinfo>
-          <category>recommended</category>
-          <rating>low</rating>
-          <packager>kugelblitz</packager>
-          <summary/>
-          <description/>
-        </patchinfo>
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:kugelblitz/_result?lastbuild=0&locallink=1&multibuild=1&package=patchinfo&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 39b46519-1afc-47e3-aea2-7d922789cc2d
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Mon, 18 Mar 2024 12:14:18 GMT
-- request:
     method: put
     uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
     body:
@@ -574,6 +12,8 @@ http_interactions:
           <person userid="kugelblitz" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765803611'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -601,175 +41,20 @@ http_interactions:
           <description></description>
           <person userid="kugelblitz" role="maintainer"/>
         </project>
-  recorded_at: Mon, 19 May 2025 09:51:51 GMT
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_meta?user=kugelblitz
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="patchinfo" project="home:kugelblitz">
-          <title>Patchinfo</title>
-          <description>Collected packages for update</description>
-          <build>
-            <enable/>
-          </build>
-          <publish>
-            <enable/>
-          </publish>
-          <useforbuild>
-            <disable/>
-          </useforbuild>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '272'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="patchinfo" project="home:kugelblitz">
-          <title>Patchinfo</title>
-          <description>Collected packages for update</description>
-          <build>
-            <enable/>
-          </build>
-          <publish>
-            <enable/>
-          </publish>
-          <useforbuild>
-            <disable/>
-          </useforbuild>
-        </package>
-  recorded_at: Mon, 19 May 2025 09:51:53 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=kugelblitz
-    body:
-      encoding: UTF-8
-      string: |-
-        <patchinfo>
-          <category>recommended</category>
-          <rating>low</rating>
-          <packager>kugelblitz</packager>
-          <summary/>
-          <description/>
-        </patchinfo>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '243'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>ad6350770882b0851e64646bc9a83d06</srcmd5>
-          <version>unknown</version>
-          <time>1747648313</time>
-          <user>kugelblitz</user>
-          <comment>generated by createpatchinfo call</comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 19 May 2025 09:51:53 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_meta?user=kugelblitz
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="patchinfo" project="home:kugelblitz">
-          <title>Patchinfo</title>
-          <description>Collected packages for update</description>
-          <build>
-            <enable/>
-          </build>
-          <publish>
-            <enable/>
-          </publish>
-          <useforbuild>
-            <disable/>
-          </useforbuild>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '272'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="patchinfo" project="home:kugelblitz">
-          <title>Patchinfo</title>
-          <description>Collected packages for update</description>
-          <build>
-            <enable/>
-          </build>
-          <publish>
-            <enable/>
-          </publish>
-          <useforbuild>
-            <disable/>
-          </useforbuild>
-        </package>
-  recorded_at: Mon, 19 May 2025 09:51:53 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=kugelblitz
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>Recalled to Life</title>
-          <description>Cumque tempora sequi quia.</description>
+          <title>No Highway</title>
+          <description>Ullam ab ex quia.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765803611'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -788,15 +73,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '134'
     body:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>Recalled to Life</title>
-          <description>Cumque tempora sequi quia.</description>
+          <title>No Highway</title>
+          <description>Ullam ab ex quia.</description>
         </package>
-  recorded_at: Mon, 19 May 2025 09:51:53 GMT
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/_meta?user=titan
@@ -809,6 +94,8 @@ http_interactions:
           <person userid="titan" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765803611'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -836,10 +123,10 @@ http_interactions:
           <description></description>
           <person userid="titan" role="maintainer"/>
         </project>
-  recorded_at: Mon, 19 May 2025 09:51:53 GMT
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/MaintenanceProject/_meta?user=kugelblitz
+    uri: http://backend:5352/source/MaintenanceProject/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
@@ -852,6 +139,8 @@ http_interactions:
           </build>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765803611'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -882,10 +171,10 @@ http_interactions:
             <disable/>
           </build>
         </project>
-  recorded_at: Mon, 19 May 2025 09:51:53 GMT
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/MaintenanceProject/_project/_attribute?meta=1&user=kugelblitz
+    uri: http://backend:5352/source/MaintenanceProject/_project/_attribute?meta=1
     body:
       encoding: UTF-8
       string: |
@@ -893,6 +182,8 @@ http_interactions:
           <attribute name="MaintenanceProject" namespace="OBS"/>
         </attributes>
     headers:
+      X-Frontend-Start:
+      - '1765803611'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -911,21 +202,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5">
+        <revision rev="41">
           <srcmd5>45aed8f5a3bea1c585a60f0b0af875d4</srcmd5>
-          <time>1747648313</time>
-          <user>kugelblitz</user>
+          <time>1765803611</time>
+          <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 19 May 2025 09:51:53 GMT
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/MaintenanceProject/_meta?user=kugelblitz
+    uri: http://backend:5352/source/MaintenanceProject/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
@@ -938,6 +229,8 @@ http_interactions:
           </build>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765803611'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -968,16 +261,16 @@ http_interactions:
             <disable/>
           </build>
         </project>
-  recorded_at: Mon, 19 May 2025 09:51:53 GMT
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
 - request:
-    method: post
-    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan?cmd=diff&expand=1&filelimit=10000&orev=0&rev=&tarlimit=10000&view=xml&withissues=1
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
     body:
-      encoding: UTF-8
+      encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - application/octet-stream
+      X-Frontend-Start:
+      - '1765803611'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -986,8 +279,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 400
-      message: revision is empty
+      code: 404
+      message: package 'ball.home_titan' does not exist
     headers:
       Content-Type:
       - text/xml
@@ -996,14 +289,89 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '69'
+      - '158'
     body:
       encoding: UTF-8
       string: |
-        <status code="400">
-          <summary>revision is empty</summary>
+        <status code="404">
+          <summary>package 'ball.home_titan' does not exist</summary>
+          <details>404 package 'ball.home_titan' does not exist</details>
         </status>
-  recorded_at: Mon, 19 May 2025 09:51:54 GMT
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1765803611'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'ball.home_titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'ball.home_titan' does not exist</summary>
+          <details>404 package 'ball.home_titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan?cmd=diff&expand=1&filelimit=10000&orev=0&rev&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Frontend-Start:
+      - '1765803611'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'ball.home_titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'ball.home_titan' does not exist</summary>
+          <details>404 package 'ball.home_titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:kugelblitz/patchinfo
@@ -1011,6 +379,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765803611'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1029,23 +399,60 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '201'
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="2" vrev="2" srcmd5="ad6350770882b0851e64646bc9a83d06">
-          <entry name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146" mtime="1747648296"/>
+        <directory name="patchinfo" rev="10" vrev="10" srcmd5="ad6350770882b0851e64646bc9a83d06">
+          <entry name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146" mtime="1765556610"/>
         </directory>
-  recorded_at: Mon, 19 May 2025 09:51:54 GMT
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1765803611'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '201'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="10" vrev="10" srcmd5="ad6350770882b0851e64646bc9a83d06">
+          <entry name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146" mtime="1765556610"/>
+        </directory>
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo?cmd=diff&expand=1&filelimit=10000&orev=0&rev=2&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo?cmd=diff&expand=1&filelimit=10000&orev=0&rev=10&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1765803611'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1064,13 +471,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '726'
+      - '727'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="a15043442a0f47e8eff62df153d6cfdc">
+        <sourcediff key="aac6936702b4da22308cdf697f50b16e">
           <old project="home:kugelblitz" package="patchinfo" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:kugelblitz" package="patchinfo" rev="2" srcmd5="ad6350770882b0851e64646bc9a83d06"/>
+          <new project="home:kugelblitz" package="patchinfo" rev="10" srcmd5="ad6350770882b0851e64646bc9a83d06"/>
           <files>
             <file state="added">
               <new name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146"/>
@@ -1089,53 +496,29 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 19 May 2025 09:51:54 GMT
+  recorded_at: Mon, 15 Dec 2025 13:00:11 GMT
 - request:
-    method: post
-    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan?cacheonly=1&cmd=diff&expand=1&nodiff=1&orev=0&rev=&view=xml&withissues=1
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      X-Request-Id:
-      - 9a573e63-ba52-4442-9a86-0800379fab22
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 400
-      message: revision is empty
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '69'
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_meta?user=kugelblitz
     body:
       encoding: UTF-8
       string: |
-        <status code="400">
-          <summary>revision is empty</summary>
-        </status>
-  recorded_at: Mon, 19 May 2025 09:51:54 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo
-    body:
-      encoding: US-ASCII
-      string: ''
+        <package name="patchinfo" project="home:kugelblitz">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
     headers:
-      X-Request-Id:
-      - 9a573e63-ba52-4442-9a86-0800379fab22
+      X-Frontend-Start:
+      - '1765803612'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1154,21 +537,243 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '272'
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="2" vrev="2" srcmd5="ad6350770882b0851e64646bc9a83d06">
-          <entry name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146" mtime="1747648296"/>
-        </directory>
-  recorded_at: Mon, 19 May 2025 09:51:59 GMT
+        <package name="patchinfo" project="home:kugelblitz">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>kugelblitz</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+    headers:
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '245'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="11" vrev="11">
+          <srcmd5>ad6350770882b0851e64646bc9a83d06</srcmd5>
+          <version>unknown</version>
+          <time>1765803612</time>
+          <user>kugelblitz</user>
+          <comment>generated by createpatchinfo call</comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:kugelblitz">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '272'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:kugelblitz">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_patchinfo?rev=2
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo
     body:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '201'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="11" vrev="11" srcmd5="ad6350770882b0851e64646bc9a83d06">
+          <entry name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146" mtime="1765556610"/>
+        </directory>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '187'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="patchinfo" rev="11" vrev="11" srcmd5="ad6350770882b0851e64646bc9a83d06" verifymd5="ad6350770882b0851e64646bc9a83d06">
+          <filename>_patchinfo</filename>
+        </sourceinfo>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '201'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="11" vrev="11" srcmd5="ad6350770882b0851e64646bc9a83d06">
+          <entry name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146" mtime="1765556610"/>
+        </directory>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1765803612'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1198,5 +803,273 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-  recorded_at: Mon, 19 May 2025 09:51:59 GMT
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ec211593-c43c-4c59-802e-a69d729e592b
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'ball.home_titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'ball.home_titan' does not exist</summary>
+          <details>404 package 'ball.home_titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ec211593-c43c-4c59-802e-a69d729e592b
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'ball.home_titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'ball.home_titan' does not exist</summary>
+          <details>404 package 'ball.home_titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ec211593-c43c-4c59-802e-a69d729e592b
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'ball.home_titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'ball.home_titan' does not exist</summary>
+          <details>404 package 'ball.home_titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball.home_titan?cacheonly=1&cmd=diff&expand=1&nodiff=1&orev=0&rev&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - ec211593-c43c-4c59-802e-a69d729e592b
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'ball.home_titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'ball.home_titan' does not exist</summary>
+          <details>404 package 'ball.home_titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ec211593-c43c-4c59-802e-a69d729e592b
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '201'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="11" vrev="11" srcmd5="ad6350770882b0851e64646bc9a83d06">
+          <entry name="_patchinfo" md5="32b5704f6bec0c64e5cfc77e89c4ed15" size="146" mtime="1765556610"/>
+        </directory>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/patchinfo/_patchinfo?rev=11
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ec211593-c43c-4c59-802e-a69d729e592b
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '146'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>kugelblitz</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:kugelblitz/_result?lastbuild=0&locallink=1&multibuild=1&package=patchinfo&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 6d6df5e7-6c19-44b8-98b5-431e6d339031
+      X-Frontend-Start:
+      - '1765803612'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 15 Dec 2025 13:00:12 GMT
 recorded_with: VCR 6.3.1
