@@ -28,7 +28,8 @@
         = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: state)),
                                                               key: "states[#{state}]", name: 'states[]',
                                                               value: state,
-                                                              checked: selected_filter[:states]&.include?(state.to_s) }
+                                                              checked: selected_filter[:states]&.include?(state.to_s),
+                                                              turbo_stream_counter_id: "request_counter_for_state_#{state}" }
 
   .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-action' },
@@ -39,42 +40,50 @@
       = render partial: 'webui/shared/check_box', locals: { label: 'Bugowner Change', key: 'action_types[set_bugowner]',
                                                             name: 'action_types[]', value: 'set_bugowner',
                                                             label_icon: action_type_icon('set_bugowner'),
-                                                            checked: selected_filter[:action_types]&.include?('set_bugowner')}
+                                                            checked: selected_filter[:action_types]&.include?('set_bugowner'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_set_bugowner' }
 
       = render partial: 'webui/shared/check_box', locals: { label: 'Change Devel Project', key: 'action_types[change_devel]',
                                                             name: 'action_types[]', value: 'change_devel',
                                                             label_icon: action_type_icon('change_devel'),
-                                                            checked: selected_filter[:action_types]&.include?('change_devel')}
+                                                            checked: selected_filter[:action_types]&.include?('change_devel'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_change_devel' }
 
       = render partial: 'webui/shared/check_box', locals: { label: 'Delete', key: 'action_types[delete]',
                                                             name: 'action_types[]', value: 'delete',
                                                             label_icon: action_type_icon('delete'),
-                                                            checked: selected_filter[:action_types]&.include?('delete')}
+                                                            checked: selected_filter[:action_types]&.include?('delete'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_delete' }
 
       = render partial: 'webui/shared/check_box', locals: { label: 'Maintenance Incident', key: 'action_types[maintenance_incident]',
                                                             name: 'action_types[]', value: 'maintenance_incident',
                                                             label_icon: action_type_icon('maintenance_incident'),
-                                                            checked: selected_filter[:action_types]&.include?('maintenance_incident')}
+                                                            checked: selected_filter[:action_types]&.include?('maintenance_incident'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_maintenance_incident' }
 
       = render partial: 'webui/shared/check_box', locals: { label: 'Maintenance Release', key: 'action_types[maintenance_release]',
                                                             name: 'action_types[]', value: 'maintenance_release',
                                                             label_icon: action_type_icon('maintenance_release'),
-                                                            checked: selected_filter[:action_types]&.include?('maintenance_release')}
+                                                            checked: selected_filter[:action_types]&.include?('maintenance_release'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_maintenance_release' }
 
       = render partial: 'webui/shared/check_box', locals: { label: 'Release', key: 'action_types[release]',
                                                             name: 'action_types[]', value: 'release',
                                                             label_icon: action_type_icon('release'),
-                                                            checked: selected_filter[:action_types]&.include?('release')}
+                                                            checked: selected_filter[:action_types]&.include?('release'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_release' }
 
       = render partial: 'webui/shared/check_box', locals: { label: 'Role Change', key: 'action_types[add_role]',
                                                             name: 'action_types[]', value: 'add_role',
                                                             label_icon: action_type_icon('add_role'),
-                                                            checked: selected_filter[:action_types]&.include?('add_role')}
+                                                            checked: selected_filter[:action_types]&.include?('add_role'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_add_role' }
 
       = render partial: 'webui/shared/check_box', locals: { label: 'Submit', key: 'action_types[submit]',
                                                             name: 'action_types[]', value: 'submit',
                                                             label_icon: action_type_icon('submit'),
-                                                            checked: selected_filter[:action_types]&.include?('submit')}
+                                                            checked: selected_filter[:action_types]&.include?('submit'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_submit' }
 
   .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-priority' },
@@ -253,5 +262,8 @@
   = link_to('Clear', url, class: 'btn btn-light border')
 
 - content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
+-# turbo frame used to trigger the turbo stream which updates the request filter counters
+= turbo_frame_tag("request_filter_counts_processor", src: url_for(controller_path: controller_path,
+                                                                  action: 'counts_for_states_and_types', format: :turbo_stream))
 
 -# haml-lint:enable ViewLength
