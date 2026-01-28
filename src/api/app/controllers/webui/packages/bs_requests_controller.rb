@@ -2,6 +2,7 @@ module Webui
   module Packages
     class BsRequestsController < Webui::WebuiController
       include Webui::RequestsFilter
+      include Webui::RequestsCount
 
       before_action :set_project
       before_action :set_package

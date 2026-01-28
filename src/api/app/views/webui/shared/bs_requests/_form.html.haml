@@ -9,7 +9,8 @@
         .collapse#content-selector-filters
           = render partial: 'webui/shared/bs_requests/requests_filter',
                    locals: { selected_filter: selected_filter, url: url,
-                             viewed_object: viewed_object }
+                             viewed_object: viewed_object,
+                             controller_path: controller_path }
     .col-md-8.col-lg-9.px-0.px-md-3.d-none.content-list-loading
       = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
     .col-md-8.col-lg-9.px-0.px-md-3.content-list#requests-list

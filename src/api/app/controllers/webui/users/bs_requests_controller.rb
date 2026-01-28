@@ -6,6 +6,7 @@ module Webui
       before_action :set_bs_requests
 
       include Webui::RequestsFilter
+      include Webui::RequestsCount
 
       REQUEST_METHODS = {
         'all_requests_table' => :requests,
