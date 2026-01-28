@@ -77,9 +77,8 @@
                                                                 history_elements: @history_elements,
                                                                 request_reviews_for_non_staging_projects: @request_reviews)
 
-              - if !policy(@bs_request).revoke_request? && !policy(@bs_request).reopen_request? && !policy(@bs_request).accept_request?
-                .comment_new
-                  = render partial: 'webui/comment/new', locals: { commentable: @bs_request }
+              .comment_new
+                = render partial: 'webui/comment/new', locals: { commentable: @bs_request }
               %hr
 
               - if @bs_request.accept_at.present?
