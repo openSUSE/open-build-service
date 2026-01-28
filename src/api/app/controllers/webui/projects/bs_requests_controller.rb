@@ -34,14 +34,23 @@ module Webui
       def filter_involvement
         @selected_filter['involvement'] = params[:involvement] if params[:involvement]&.compact_blank.present?
         bs_requests_filters = []
-
-        bs_requests_filters << @bs_requests.where(bs_request_actions: { target_project_id: @project.id }) if @selected_filter['involvement'].include?('incoming')
-
-        bs_requests_filters << @bs_requests.where(bs_request_actions: { source_project_id: @project.id }) if @selected_filter['involvement'].include?('outgoing')
-
-        bs_requests_filters << @bs_requests.where(reviews: { project_id: @project.id }) if @selected_filter['involvement'].include?('review')
+        bs_requests_filters << incoming_query if @selected_filter['involvement'].include?('incoming')
+        bs_requests_filters << outgoing_query if @selected_filter['involvement'].include?('outgoing')
+        bs_requests_filters << review_query   if @selected_filter['involvement'].include?('review')
 
         @bs_requests = @bs_requests.merge(bs_requests_filters.inject(:or)) if bs_requests_filters.length.positive?
+      end
+
+      def incoming_query
+        @bs_requests.where(bs_request_actions: { target_project_id: @project.id })
+      end
+
+      def outgoing_query
+        @bs_requests.where(bs_request_actions: { source_project_id: @project.id })
+      end
+
+      def review_query
+        @bs_requests.where(reviews: { project_id: @project.id })
       end
 
       def redirect_legacy
