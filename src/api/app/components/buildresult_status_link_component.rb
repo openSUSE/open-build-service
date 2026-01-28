@@ -1,4 +1,6 @@
 class BuildresultStatusLinkComponent < ApplicationComponent
+  include Webui::BuildresultHelper
+
   def initialize(repository_name:, architecture_name:, project_name:, package_name:, build_status:, build_details:)
     super()
 
@@ -23,5 +25,9 @@ class BuildresultStatusLinkComponent < ApplicationComponent
 
   def span_id
     "id-#{@package_name}_#{@repository_name}_#{@architecture_name}"
+  end
+
+  def status_icon_class
+    build_status_icon(@build_status) || 'fa-question'
   end
 end
