@@ -1,0 +1,10 @@
+<% @counts_grouped_by_state.each do |state, count| %>
+  <%= turbo_stream.update "request_counter_for_state_#{state}" do %>
+    <span><%= count %></span>
+  <% end %>
+<% end %>
+<% @counts_grouped_by_type.each do |type, count| %>
+  <%= turbo_stream.update "request_counter_for_type_#{type}" do %>
+    <span><%= count %></span>
+  <% end %>
+<% end %>
