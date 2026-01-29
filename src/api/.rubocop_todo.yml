@@ -778,14 +778,6 @@ Style/ConditionalAssignment:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 7
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: class_definition, class_new
-Style/EmptyClassDefinition:
-  Exclude:
-    - 'app/lib/gitea_api/v1/client.rb'
-
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
 Style/ExplicitBlockArgument:
