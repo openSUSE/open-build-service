@@ -7,6 +7,10 @@ class BsRequestActionAddRole < BsRequestAction
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
+  validates :source_project, :source_package, :source_rev, :sourceupdate, :target_releaseproject, :target_repository, absence: true
+  validates :person_name, presence: true, unless: :group_name
+  validates :group_name, presence: true, unless: :person_name
+  validates :role, presence: true, inclusion: { in: Role.local_roles.map(&:title) }
 
   #### Class methods using self. (public and then private)
   def self.sti_name
@@ -17,19 +21,6 @@ class BsRequestActionAddRole < BsRequestAction
   #### private
 
   #### Instance methods (public and then protected/private)
-  def check_sanity
-    errors.add(:target_package, 'is invalid package name') if target_package && !Package.valid_name?(target_package)
-    errors.add(:target_project, 'is invalid project name') if target_project && !Project.valid_name?(target_project)
-    errors.add(:source_project, 'is invalid project name') if source_project && !Project.valid_name?(source_project)
-    errors.add(:source_rev, 'should not be upload') if source_rev == 'upload'
-
-    # TODO: to be continued
-    errors.add(:role, 'should not be empty for add_role') if role.blank?
-    return unless person_name.blank? && group_name.blank?
-
-    errors.add(:person_name, 'Either person or group needs to be set')
-  end
-
   def uniq_key
     "add_role/#{target_project}/#{target_package}/#{person_name}/#{role}"
   end

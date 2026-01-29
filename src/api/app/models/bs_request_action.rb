@@ -75,7 +75,13 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_sanity
-    # implemented in the subclasses
+    errors.add(:target_package, 'is invalid package name') if target_package && !Package.valid_name?(target_package)
+    errors.add(:target_project, 'is invalid project name') if target_project && !Project.valid_name?(target_project)
+    errors.add(:source_package, 'is invalid package name') if source_package && !Package.valid_name?(source_package)
+    errors.add(:source_project, 'is invalid project name') if source_project && !Project.valid_name?(source_project)
+    return unless source_project.present? && source_package.present? && source_package == target_package && source_project == target_project && (sourceupdate || updatelink)
+
+    errors.add(:target_package, 'No source changes are allowed, if source and target is identical')
   end
 
   def action_type

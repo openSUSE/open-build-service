@@ -7,6 +7,11 @@ class BsRequestActionDelete < BsRequestAction
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
+  validates :source_project, :source_package, :source_rev, :sourceupdate, absence: true
+  validates :target_project, presence: true
+  validates :target_repository, absence: { message: 'must not target package and target repository' }, if: :target_package
+  validates :target_package, absence: { message: 'must not target package and target repository' }, if: :target_repository
+  validates :group_name, :person_name, :role, :target_releaseproject, absence: true
 
   #### Class methods using self. (public and then private)
   def self.sti_name
@@ -16,11 +21,6 @@ class BsRequestActionDelete < BsRequestAction
   #### To define class methods as private use private_class_method
   #### private
   #### Instance methods (public and then protected/private)
-  def check_sanity
-    errors.add(:source_project, 'source can not be used in delete action') if source_project
-    errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-    errors.add(:target_project, 'must not target package and target repository') if target_repository && target_package
-  end
 
   def uniq_key
     "#{target_project}/#{target_package}"

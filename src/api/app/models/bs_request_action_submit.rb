@@ -15,12 +15,8 @@ class BsRequestActionSubmit < BsRequestAction
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
-  def check_sanity
-    errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
-    errors.add(:source_package, "should not be empty for #{action_type} requests") if !maintenance_incident? && source_package.blank?
-    errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-    errors.add(:target_package, 'No source changes are allowed, if source and target is identical') if source_package == target_package && source_project == target_project && (sourceupdate || updatelink)
-  end
+  validates :source_project, :source_package, :target_project, presence: true
+  validates :group_name, :person_name, :role, :target_releaseproject, :target_repository, absence: true
 
   #### Class methods using self. (public and then private)
   #### To define class methods as private use private_class_method
