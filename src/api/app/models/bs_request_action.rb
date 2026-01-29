@@ -82,7 +82,7 @@ class BsRequestAction < ApplicationRecord
       errors.add(:target_package, 'No source changes are allowed, if source and target is identical') if source_package == target_package && source_project == target_project && (sourceupdate || updatelink)
     end
     errors.add(:target_package, 'is invalid package name') if target_package && !Package.valid_name?(target_package)
-    errors.add(:source_package, 'is invalid package name') if source_package && !Package.valid_name?(source_package)
+    errors.add(:source_package, 'is invalid package name') if source_package && !Package.valid_name?(Package.striping_multibuild_suffix(source_package))
     errors.add(:target_project, 'is invalid project name') if target_project && !Project.valid_name?(target_project)
     errors.add(:source_project, 'is invalid project name') if source_project && !Project.valid_name?(source_project)
     errors.add(:source_rev, 'should not be upload') if source_rev == 'upload'
@@ -707,6 +707,16 @@ class BsRequestAction < ApplicationRecord
       return
     end
 
+    if action_type.in?(%i[release])
+      # allow to release flavors only
+      if source_package # rubocop wants this in multiple lines
+        if source_package.include?(':')
+          Package.get_by_project_and_name(source_project, source_package, { follow_multibuild: true })
+          return
+        end
+      end
+    end
+
     if action_type.in?(%i[submit release maintenance_release maintenance_incident])
       packages = []
       if source_package
@@ -739,7 +749,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def source_access_check!
-    sp = Package.find_by_project_and_name(source_project, source_package)
+    sp = Package.find_by_project_and_name(source_project, Package.striping_multibuild_suffix(source_package))
     if sp.nil?
       # either not there or read permission problem
       if Package.exists_on_backend?(source_package, source_project)
@@ -749,7 +759,7 @@ class BsRequestAction < ApplicationRecord
         tprj = Project.find_by_name(target_project)
         if tprj.nil? || !User.possibly_nobody.can_modify?(tprj)
           # produce an error for the source
-          Package.get_by_project_and_name(source_project, source_package)
+          Package.get_by_project_and_name(source_project, source_package, { follow_multibuild: true })
         end
         return
       end
@@ -759,7 +769,7 @@ class BsRequestAction < ApplicationRecord
       end
 
       # produce the same exception for webui
-      Package.get_by_project_and_name(source_project, source_package)
+      Package.get_by_project_and_name(source_project, source_package, { follow_multibuild: true })
     end
     if sp.instance_of?(String)
       # a remote package
@@ -937,7 +947,7 @@ class BsRequestAction < ApplicationRecord
     raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet." unless sprj.instance_of?(Project) || action_type.in?(%i[submit maintenance_incident])
 
     if source_package
-      spkg = Package.get_by_project_and_name(source_project, source_package)
+      spkg = Package.get_by_project_and_name(source_project, source_package, { follow_multibuild: true })
       spkg.check_weak_dependencies! if spkg && sourceupdate == 'cleanup'
     end
 
@@ -995,7 +1005,7 @@ class BsRequestAction < ApplicationRecord
   def check_permissions_for_sources!
     return unless sourceupdate.in?(%w[update cleanup]) || updatelink
 
-    source_object = Package.find_by_project_and_name(source_project, source_package) ||
+    source_object = Package.find_by_project_and_name(source_project, Package.striping_multibuild_suffix(source_package)) ||
                     Project.get_by_name(source_project)
 
     raise LackingMaintainership if !source_object.is_a?(String) && !User.possibly_nobody.can_modify?(source_object)
