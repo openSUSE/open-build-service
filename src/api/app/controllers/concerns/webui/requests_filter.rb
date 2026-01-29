@@ -108,6 +108,9 @@ module Webui::RequestsFilter
     end
 
     @bs_requests = @bs_requests.where(id: BsRequest.search_for_ids(@selected_filter['search'], per_page: TEXT_SEARCH_MAX_RESULTS))
+  rescue ThinkingSphinx::ParseError
+    flash.now[:error] = "Check your search expression. Use the <a href='https://sphx.org/docs/sphinx3.html#cheat-sheet' target='blank'>syntax guide</a> for help."
+    @bs_requests = BsRequest.none
   end
 
   def filter_labels
