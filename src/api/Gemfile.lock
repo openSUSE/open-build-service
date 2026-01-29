@@ -352,7 +352,7 @@ GEM
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
-    prism (1.8.0)
+    prism (1.9.0)
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
