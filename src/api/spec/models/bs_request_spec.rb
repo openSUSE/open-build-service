@@ -25,7 +25,7 @@ RSpec.describe BsRequest, :vcr do
       bs_request_action.update_attribute(:sourceupdate, 'foo')
       # rubocop:enable Rails/SkipsModelValidations
       expect { bs_request.reload.save! }.to raise_error(
-        ActiveRecord::RecordInvalid, 'Validation failed: Bs request actions Sourceupdate is not included in the list'
+        ActiveRecord::RecordInvalid, 'Validation failed: Bs request actions Sourceupdate is not included in the list and Sourceupdate must be blank'
       )
     end
   end
