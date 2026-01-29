@@ -6,15 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 17
-# This cop supports safe autocorrection (--autocorrect).
-Layout/HeredocIndentation:
-  Exclude:
-    - 'app/models/channel_binary.rb'
-    - 'db/migrate/20170426153510_add_references_to_review.rb'
-    - 'db/migrate/20170509123922_add_references_to_bs_request_action.rb'
-    - 'db/migrate/20170627111730_split_review_references.rb'
-
 # Offense count: 4
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: Width, EnforcedStyleAlignWith, AllowedPatterns.
