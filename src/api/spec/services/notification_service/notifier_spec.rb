@@ -86,7 +86,7 @@ RSpec.describe NotificationService::Notifier do
 
           context 'and a user is subscribed to the event' do
             before do
-              event_subscription = create(
+              create(
                 :event_subscription,
                 eventtype: 'Event::RelationshipCreate',
                 receiver_role: 'any_role',
@@ -94,7 +94,6 @@ RSpec.describe NotificationService::Notifier do
                 group: nil,
                 channel: :web
               )
-              event_subscription.payload = { project: project.name }
             end
 
             it 'creates a new notification for the target user' do
@@ -116,7 +115,7 @@ RSpec.describe NotificationService::Notifier do
 
           context 'and a group member is subscribed to the event' do
             before do
-              event_subscription = create(
+              create(
                 :event_subscription,
                 eventtype: 'Event::RelationshipCreate',
                 receiver_role: 'any_role',
@@ -124,7 +123,6 @@ RSpec.describe NotificationService::Notifier do
                 group: nil,
                 channel: :web
               )
-              event_subscription.payload = { project: project.name }
               group.groups_users.first.update(email: false)
             end
 
@@ -151,7 +149,7 @@ RSpec.describe NotificationService::Notifier do
 
           context 'and a user is subscribed to the event' do
             before do
-              event_subscription = create(
+              create(
                 :event_subscription,
                 eventtype: 'Event::RelationshipCreate',
                 receiver_role: 'any_role',
@@ -159,7 +157,6 @@ RSpec.describe NotificationService::Notifier do
                 group: nil,
                 channel: :web
               )
-              event_subscription.payload = { package: package.name }
             end
 
             it 'creates a new notification for the target user' do
@@ -181,7 +178,7 @@ RSpec.describe NotificationService::Notifier do
 
           context 'and a group is subscribed to the event' do
             before do
-              event_subscription = create(
+              create(
                 :event_subscription,
                 eventtype: 'Event::RelationshipCreate',
                 receiver_role: 'any_role',
@@ -189,7 +186,6 @@ RSpec.describe NotificationService::Notifier do
                 group: nil,
                 channel: :web
               )
-              event_subscription.payload = { package: package.name }
             end
 
             it 'creates a new notification for the target user' do
@@ -218,7 +214,7 @@ RSpec.describe NotificationService::Notifier do
 
           context 'and a user is subscribed to the event' do
             before do
-              event_subscription = create(
+              create(
                 :event_subscription,
                 eventtype: 'Event::RelationshipDelete',
                 receiver_role: 'any_role',
@@ -226,7 +222,6 @@ RSpec.describe NotificationService::Notifier do
                 group: nil,
                 channel: :web
               )
-              event_subscription.payload = { project: project.name }
             end
 
             it 'creates a new notification for the target user' do
@@ -248,7 +243,7 @@ RSpec.describe NotificationService::Notifier do
 
           context 'and a group member is subscribed to the event' do
             before do
-              event_subscription = create(
+              create(
                 :event_subscription,
                 eventtype: 'Event::RelationshipDelete',
                 receiver_role: 'any_role',
@@ -256,7 +251,6 @@ RSpec.describe NotificationService::Notifier do
                 group: nil,
                 channel: :web
               )
-              event_subscription.payload = { project: project.name }
             end
 
             it 'creates a new notification for the subscribed group members' do
@@ -282,7 +276,7 @@ RSpec.describe NotificationService::Notifier do
 
           context 'and a user is subscribed to the event' do
             before do
-              event_subscription = create(
+              create(
                 :event_subscription,
                 eventtype: 'Event::RelationshipDelete',
                 receiver_role: 'any_role',
@@ -290,7 +284,6 @@ RSpec.describe NotificationService::Notifier do
                 group: nil,
                 channel: :web
               )
-              event_subscription.payload = { package: package.name }
             end
 
             it 'creates a new notification for the target user' do
@@ -322,7 +315,7 @@ RSpec.describe NotificationService::Notifier do
 
           context 'and a group is subscribed to the event' do
             before do
-              event_subscription = create(
+              create(
                 :event_subscription,
                 eventtype: 'Event::RelationshipDelete',
                 receiver_role: 'any_role',
@@ -330,7 +323,6 @@ RSpec.describe NotificationService::Notifier do
                 group: nil,
                 channel: :web
               )
-              event_subscription.payload = { package: package.name }
             end
 
             it 'creates a new notification for the target user' do

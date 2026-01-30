@@ -291,7 +291,7 @@ RSpec.describe EventSubscription::FindForEvent do
           let(:event) { Event::RelationshipCreate.create(who: owner.login, user: user.login, project: project.name) }
 
           before do
-            event_subscription = create(
+            create(
               :event_subscription,
               eventtype: 'Event::RelationshipCreate',
               receiver_role: 'any_role',
@@ -299,7 +299,6 @@ RSpec.describe EventSubscription::FindForEvent do
               group: nil,
               channel: :web
             )
-            event_subscription.payload = { project: project.name }
           end
 
           it 'includes the target user' do
@@ -320,7 +319,7 @@ RSpec.describe EventSubscription::FindForEvent do
           let(:event) { Event::RelationshipCreate.create(who: owner.login, group: group.title, project: project.name) }
 
           before do
-            event_subscription = create(
+            create(
               :event_subscription,
               eventtype: 'Event::RelationshipCreate',
               receiver_role: 'any_role',
@@ -328,7 +327,6 @@ RSpec.describe EventSubscription::FindForEvent do
               group: nil,
               channel: :web
             )
-            event_subscription.payload = { project: project.name }
           end
 
           it 'includes the target group' do
@@ -370,7 +368,7 @@ RSpec.describe EventSubscription::FindForEvent do
           let(:event) { Event::RelationshipCreate.create(who: owner.login, user: user.login, package: package.name) }
 
           before do
-            event_subscription = create(
+            create(
               :event_subscription,
               eventtype: 'Event::RelationshipCreate',
               receiver_role: 'any_role',
@@ -378,7 +376,6 @@ RSpec.describe EventSubscription::FindForEvent do
               group: nil,
               channel: :web
             )
-            event_subscription.payload = { package: package.name }
           end
 
           it 'includes the target user' do
@@ -399,7 +396,7 @@ RSpec.describe EventSubscription::FindForEvent do
           let(:event) { Event::RelationshipCreate.create(who: owner.login, group: group.title, package: package.name) }
 
           before do
-            event_subscription = create(
+            create(
               :event_subscription,
               eventtype: 'Event::RelationshipCreate',
               receiver_role: 'any_role',
@@ -407,7 +404,6 @@ RSpec.describe EventSubscription::FindForEvent do
               group: nil,
               channel: :web
             )
-            event_subscription.payload = { package: package.name }
           end
 
           it 'includes the target group' do
@@ -441,7 +437,7 @@ RSpec.describe EventSubscription::FindForEvent do
           let(:event) { Event::RelationshipDelete.create(who: owner.login, user: user.login, project: project.name) }
 
           before do
-            event_subscription = create(
+            create(
               :event_subscription,
               eventtype: 'Event::RelationshipDelete',
               receiver_role: 'any_role',
@@ -449,7 +445,6 @@ RSpec.describe EventSubscription::FindForEvent do
               group: nil,
               channel: :web
             )
-            event_subscription.payload = { project: project.name }
           end
 
           it 'includes the target user' do
@@ -470,7 +465,7 @@ RSpec.describe EventSubscription::FindForEvent do
           let(:event) { Event::RelationshipDelete.create(who: owner.login, group: group.title, project: project.name) }
 
           before do
-            event_subscription = create(
+            create(
               :event_subscription,
               eventtype: 'Event::RelationshipDelete',
               receiver_role: 'any_role',
@@ -478,7 +473,6 @@ RSpec.describe EventSubscription::FindForEvent do
               group: nil,
               channel: :web
             )
-            event_subscription.payload = { project: project.name }
           end
 
           it 'includes the target group' do
@@ -501,7 +495,7 @@ RSpec.describe EventSubscription::FindForEvent do
           let(:event) { Event::RelationshipDelete.create(who: owner.login, user: user.login, package: package.name) }
 
           before do
-            event_subscription = create(
+            create(
               :event_subscription,
               eventtype: 'Event::RelationshipDelete',
               receiver_role: 'any_role',
@@ -509,7 +503,6 @@ RSpec.describe EventSubscription::FindForEvent do
               group: nil,
               channel: :web
             )
-            event_subscription.payload = { package: package.name }
           end
 
           it 'includes the target user' do
@@ -530,7 +523,7 @@ RSpec.describe EventSubscription::FindForEvent do
           let(:event) { Event::RelationshipDelete.create(who: owner.login, group: group.title, package: package.name) }
 
           before do
-            event_subscription = create(
+            create(
               :event_subscription,
               eventtype: 'Event::RelationshipDelete',
               receiver_role: 'any_role',
@@ -538,7 +531,6 @@ RSpec.describe EventSubscription::FindForEvent do
               group: nil,
               channel: :web
             )
-            event_subscription.payload = { package: package.name }
           end
 
           it 'includes the target group' do
