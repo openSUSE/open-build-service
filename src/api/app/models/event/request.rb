@@ -126,13 +126,13 @@ module Event
     def source_or_target_package_watchers(project_type:, package_type:)
       payload['actions'].map { |action| [action[project_type], action[package_type]] }
                         .filter_map do |project_name, package_name|
-                          next if project_name.blank? || package_name.blank?
+        next if project_name.blank? || package_name.blank?
 
-                          Package.get_by_project_and_name(project_name,
-                                                          package_name,
-                                                          { follow_multibuild: true, follow_project_links: false, use_source: false })
-                        rescue Package::Errors::UnknownObjectError, Project::Errors::UnknownObjectError
-                          nil
+        Package.get_by_project_and_name(project_name,
+                                        package_name,
+                                        { follow_multibuild: true, follow_project_links: false, use_source: false })
+      rescue Package::Errors::UnknownObjectError, Project::Errors::UnknownObjectError
+        nil
       end
                         .map(&:watched_items)
                         .flatten.map(&:user)
