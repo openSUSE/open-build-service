@@ -17,14 +17,29 @@ get:
         type: integer
     - in: query
       name: show_maximum
+      description: Maximum number of notifications per page (capped at 300).
       schema:
-        type: string
-      example: 1
+        type: integer
+      example: 10
     - in: query
-      name: notifications_type
+      name: state
+      description: Filter notifications by their state.
       schema:
         type: string
-        enum: ['read', 'comments', 'requests', 'unread', 'incoming_requests', 'outgoing_requests', 'relationships_created', 'relationships_deleted', 'build_failures', 'reports', 'workflow_runs', 'appealed_decisions']
+        enum: ['unread', 'read']
+        default: 'unread'
+    - in: query
+      name: kind
+      description: Filter notifications by their kind.
+      schema:
+        type: string
+        enum: ['all', 'comments', 'requests', 'incoming_requests', 'outgoing_requests', 'relationships_created', 'relationships_deleted', 'build_failures', 'reports', 'reviews', 'workflow_runs', 'appealed_decisions', 'decisions', 'member_on_groups']
+        default: 'all'
+    - in: query
+      name: group
+      description: Filter notifications by group title.
+      schema:
+        type: string
   responses:
     '200':
       description: OK. The request has succeeded.
