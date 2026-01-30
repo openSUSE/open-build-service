@@ -82,7 +82,7 @@
                   %span.badge.text-bg-info= role.title.capitalize
             .row.mt-1
               .col
-                #involvement-description= render partial: 'webui/shared/collapsible_text', locals: { text: involved_item.description }
+                .involvement-description= render partial: 'webui/shared/collapsible_text', locals: { text: involved_item.description }
 
       = paginate involved_items, window: 2, views_prefix: 'webui'
 - content_for :ready_function do
