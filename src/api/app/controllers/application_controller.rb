@@ -244,12 +244,21 @@ class ApplicationController < ActionController::Base
   end
 
   def set_influxdb_data
-    InfluxDB::Rails.current.tags = {
-      beta: User.possibly_nobody.in_beta?,
+    in_beta = User.possibly_nobody.in_beta?
+
+    tags = {
+      beta: in_beta,
       anonymous: !User.session,
       spider: spider_request?,
       interconnect: false,
       interface: :api
     }
+    if in_beta
+      Flipper.preload_all.map(&:name).each do |feature_name|
+        tags[:"beta_#{feature_name}"] = Flipper.enabled?(feature_name.to_sym, User.possibly_nobody)
+      end
+    end
+
+    InfluxDB::Rails.current.tags = tags
   end
 end
