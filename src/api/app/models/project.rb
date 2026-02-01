@@ -1342,11 +1342,16 @@ class Project < ApplicationRecord
 
   # Returns an ActiveRecord::Relation with all BsRequest that the project is somehow involved in
   def bs_requests
-    BsRequest.left_outer_joins(:bs_request_actions, :reviews)
-             .where(reviews: { project_id: id })
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_project_id: id }))
-             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_project_id: id }))
-             .distinct
+    review_ids = Review.where(project_id: id)
+                       .pluck(:bs_request_id)
+
+    action_ids = BsRequestAction.where(target_project_id: id)
+                                .or(BsRequestAction.where(source_project_id: id))
+                                .pluck(:bs_request_id)
+
+    all_ids = (review_ids + action_ids).compact.uniq
+
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids).distinct
   end
 
   private
@@ -1490,6 +1495,7 @@ end
 #
 #  id                       :integer          not null, primary key
 #  anitya_distribution_name :string(255)
+#  comments_count           :integer          default(0), not null, indexed
 #  delta                    :boolean          default(TRUE), not null
 #  description              :text(65535)
 #  kind                     :string           default("standard")
@@ -1509,6 +1515,7 @@ end
 # Indexes
 #
 #  devel_project_id_index                 (develproject_id)
+#  index_projects_on_comments_count       (comments_count)
 #  index_projects_on_staging_workflow_id  (staging_workflow_id)
 #  projects_name_index                    (name) UNIQUE
 #

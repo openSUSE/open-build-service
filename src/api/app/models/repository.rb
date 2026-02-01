@@ -96,17 +96,6 @@ class Repository < ApplicationRecord
     project.repositories.find_or_create_by!(name: 'deleted')
   end
 
-  def self.new_from_distribution(distribution)
-    target_repository = find_by_project_and_name!(distribution.project, distribution.repository)
-    distribution_repository = new(name: distribution.reponame)
-    distribution_repository.path_elements.build(link: target_repository)
-    distribution.architectures.each do |architecture|
-      distribution_repository.repository_architectures.build(architecture: architecture)
-    end
-
-    distribution_repository
-  end
-
   def cleanup_before_destroy
     # change all linking repository pathes
     linking_repositories.each do |lrep|

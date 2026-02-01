@@ -2,6 +2,7 @@ module Webui
   module Packages
     class BsRequestsController < Webui::WebuiController
       include Webui::RequestsFilter
+      include Webui::RequestsCount
 
       before_action :set_project
       before_action :set_package
@@ -12,7 +13,7 @@ module Webui
         if Flipper.enabled?(:request_index, User.session)
           # FIXME: Once we roll out filter_requests should become a before_action
           filter_requests
-          @bs_requests = @bs_requests.order(number: :desc).page(params[:page])
+          @bs_requests = @bs_requests.page(params[:page])
 
           @url = packages_requests_path(@project, @package)
         else
@@ -38,13 +39,23 @@ module Webui
         @selected_filter['involvement'] = params[:involvement] if params[:involvement]&.compact_blank.present?
         bs_requests_filters = []
 
-        bs_requests_filters << @bs_requests.where(bs_request_actions: { target_package_id: @package.id }) if @selected_filter['involvement'].include?('incoming')
-
-        bs_requests_filters << @bs_requests.where(bs_request_actions: { source_package_id: @package.id }) if @selected_filter['involvement'].include?('outgoing')
-
-        bs_requests_filters << @bs_requests.where(reviews: { package_id: @package.id }) if @selected_filter['involvement'].include?('review')
+        bs_requests_filters << incoming_query if @selected_filter['involvement'].include?('incoming')
+        bs_requests_filters << outgoing_query if @selected_filter['involvement'].include?('outgoing')
+        bs_requests_filters << review_query   if @selected_filter['involvement'].include?('review')
 
         @bs_requests = @bs_requests.merge(bs_requests_filters.inject(:or)) if bs_requests_filters.length.positive?
+      end
+
+      def incoming_query
+        @bs_requests.where(bs_request_actions: { target_package_id: @package.id })
+      end
+
+      def outgoing_query
+        @bs_requests.where(bs_request_actions: { source_package_id: @package.id })
+      end
+
+      def review_query
+        @bs_requests.where(reviews: { package_id: @package.id })
       end
 
       def redirect_legacy

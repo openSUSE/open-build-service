@@ -1269,6 +1269,7 @@ end
 #  approver           :string(255)
 #  comment            :text(65535)
 #  commenter          :string(255)
+#  comments_count     :integer          default(0), not null, indexed
 #  creator            :string(255)      indexed
 #  description        :text(65535)
 #  number             :integer          uniquely indexed
@@ -1283,6 +1284,7 @@ end
 #
 # Indexes
 #
+#  index_bs_requests_on_comments_count      (comments_count)
 #  index_bs_requests_on_created_at          (created_at)
 #  index_bs_requests_on_creator             (creator)
 #  index_bs_requests_on_number              (number) UNIQUE

@@ -3,12 +3,20 @@ module Webui::RequestsFilter
 
   TEXT_SEARCH_MAX_RESULTS = 10_000
 
+  SortBy = Struct.new(:name, :value, :sql)
+  SORTS = [
+    SortBy.new(name: 'Newest to Oldest', value: 'newest', sql: 'number DESC'),
+    SortBy.new(name: 'Oldest to Newest', value: 'oldest', sql: 'number'),
+    SortBy.new(name: 'Most Comments', value: 'most_comments', sql: 'comments_count DESC'),
+    SortBy.new(name: 'Least Comments', value: 'least_comments', sql: 'comments_count')
+  ].freeze
+
   def filter_requests
     @selected_filter = { states: %w[new review], action_types: [], creators: [],
                          priorities: [], staging_projects: [], reviewers: [],
                          project_names: [], created_at_from: nil, created_at_to: nil,
                          involvement: %w[incoming outgoing review], search: nil, package_names: [],
-                         labels: [] }.with_indifferent_access
+                         labels: [], sort: SORTS.first.value }.with_indifferent_access
 
     filter_states
     filter_action_types
@@ -22,6 +30,7 @@ module Webui::RequestsFilter
     filter_involvement
     filter_search_text
     filter_labels
+    filter_sort
   end
 
   private
@@ -92,7 +101,16 @@ module Webui::RequestsFilter
     return if params[:search].blank?
 
     @selected_filter['search'] = params[:search]
-    @bs_requests = @bs_requests.where(id: BsRequest.search_for_ids(@selected_filter['search']))
+    if BsRequest.search_count(@selected_filter['search']) > TEXT_SEARCH_MAX_RESULTS
+      flash.now[:error] = 'Your text search pattern matches too many results. Please, try again with a more restrictive search pattern.'
+      @bs_requests = BsRequest.none
+      return
+    end
+
+    @bs_requests = @bs_requests.where(id: BsRequest.search_for_ids(@selected_filter['search'], per_page: TEXT_SEARCH_MAX_RESULTS))
+  rescue ThinkingSphinx::ParseError
+    flash.now[:error] = "Check your search expression. Use the <a href='https://sphx.org/docs/sphinx3.html#cheat-sheet' target='blank'>syntax guide</a> for help."
+    @bs_requests = BsRequest.none
   end
 
   def filter_labels
@@ -100,5 +118,13 @@ module Webui::RequestsFilter
 
     @selected_filter['labels'] = params[:labels].compact_blank
     @bs_requests = @bs_requests.joins(labels: :label_template).where(label_templates: { name: @selected_filter['labels'] })
+  end
+
+  def filter_sort
+    sort = SORTS.find { |s| s.value == params[:sort] }
+    sort = SORTS.first if sort.blank?
+
+    @selected_filter['sort'] = sort.value
+    @bs_requests = @bs_requests.order(sort.sql)
   end
 end

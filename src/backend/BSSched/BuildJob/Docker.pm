@@ -128,6 +128,44 @@ sub getpathfromannotation {
   return undef;
 }
 
+sub filterbasecontainerpkgs {
+  my ($pool, $cinstalled, $remove_basepackages, @deps) = @_;
+  my %dep2pkg;
+  for my $p ($pool->consideredpackages()) {
+    my $n = $pool->pkg2name($p);
+    $dep2pkg{$n} = $p;
+  }
+  my %keep;
+  for (@deps) {
+    $keep{$1} = 1 if /^([^-\s:][^\s:]*)/;
+  }
+  for (@$cinstalled) {
+    next unless /^([^-\s:][^\s:]*)/;
+    my $pname = $1;
+    next if $keep{$pname};
+    my $p = $dep2pkg{$pname};
+    next unless $p;	# do we have a package with the same name?
+    my $pdata = $pool->pkg2data($p);
+    next unless $pdata;
+    $remove_basepackages->{$pname} = 1 if $remove_basepackages;
+    my $hascplx;
+    my @ign;
+    for my $dep (@{$pdata->{'requires'} || []}) {
+      if ($dep =~ / (?:<IF>|<UNLESS>) /) {
+	$hascplx = 1;
+      } else {
+        push @ign, $1 if $dep =~ /^\(*([^-\s:][^\s:]*)/;
+      }
+    }
+    if (!$hascplx) {
+      push @deps, "-$pname";
+    } else {
+      push @deps, map {"-$pname:$_"} @ign;
+    }
+  }
+  return @deps;
+}
+
 sub check {
   my ($self, $ctx, $packid, $pdata, $info, $buildtype, $edeps) = @_;
 
@@ -259,11 +297,11 @@ sub check {
   delete $bconf->{'ignore'};
   delete $bconf->{'ignoreh'};
 
+  my $remove_basepackages;
   if ($cinstalled) {
     if ($bconf->{"expandflags:filterbasecontainerpkgs"} || grep {$_ eq '--filterbasecontainerpkgs'} @deps) {
-      for (@$cinstalled) {
-        push @deps, "-$1" if /^([^-\s:][^\s:]*)/;
-      }
+      $remove_basepackages = {};
+      @deps = filterbasecontainerpkgs($pool, $cinstalled, $remove_basepackages, @deps);
     }
   }
 
@@ -284,6 +322,8 @@ sub check {
   }
   $bconf->{'ignore'} = $bconfignore if $bconfignore;
   $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
+
+  @edeps = grep {!$remove_basepackages->{$_}} @edeps if $remove_basepackages;
 
   my @new_meta;
 

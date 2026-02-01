@@ -12,7 +12,7 @@ class ReportToSCMJob < CreateJob
 
     matched_event_subscription(event: event).each do |event_subscription|
       SCMStatusReporter.new(event_payload: event.payload,
-                            event_subscription_payload: event_subscription.payload,
+                            event_subscription_payload: event_subscription.workflow_run&.payload,
                             scm_token: event_subscription.token.scm_token,
                             workflow_run: event_subscription.workflow_run,
                             event_type: event_subscription.eventtype).call

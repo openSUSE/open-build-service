@@ -27,7 +27,7 @@ module Workflows
                                              token: @token,
                                              package: package).tap do |subscription|
           # Set payload and workflow_run regardless of whether the subscription already existed or not
-          subscription.update!(workflow_run: @workflow_run, payload: @workflow_run.payload)
+          subscription.update!(workflow_run: @workflow_run)
         end
       end
     end
@@ -40,7 +40,7 @@ module Workflows
                                            enabled: true,
                                            token: @token,
                                            bs_request: bs_request).tap do |subscription|
-        subscription.update!(workflow_run: @workflow_run, payload: @workflow_run.payload) # The payload is updated regardless of whether the subscription already existed or not.
+        subscription.update!(workflow_run: @workflow_run) # The payload is updated regardless of whether the subscription already existed or not.
       end
     end
   end

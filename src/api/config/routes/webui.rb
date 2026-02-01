@@ -348,7 +348,9 @@ resources :requests, only: [], param: :number, controller: 'webui/request' do
 end
 
 get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
+get 'projects/:project/requests/counts' => 'webui/projects/bs_requests#counts', constraints: cons
 get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
+get 'projects/:project/packages/:package/requests/counts' => 'webui/packages/bs_requests#counts', constraints: cons
 get 'notification/autocomplete_projects' => 'webui/users/notifications#autocomplete_projects', as: 'notification_autocomplete_projects'
 
 controller 'webui/search' do
@@ -374,7 +376,11 @@ end
 
 scope :my do
   resources :tasks, only: [:index], controller: 'webui/users/tasks', as: :my_tasks
-  resources :requests, only: [:index], controller: 'webui/users/bs_requests', as: :my_requests
+  resources :requests, only: [:index], controller: 'webui/users/bs_requests', as: :my_requests do
+    collection do
+      get :counts
+    end
+  end
 
   resources :notifications, only: [:index], controller: 'webui/users/notifications', as: :my_notifications do
     collection do
@@ -437,7 +443,11 @@ end
 
 resources :groups, only: %i[index show new create edit update], param: :title, constraints: cons, controller: 'webui/groups' do
   resources :user, only: %i[create destroy update], param: :user_login, constraints: cons, controller: 'webui/groups/users'
-  resources :requests, only: [:index], controller: 'webui/groups/bs_requests'
+  resources :requests, only: [:index], controller: 'webui/groups/bs_requests' do
+    collection do
+      get :counts
+    end
+  end
 
   collection do
     get :autocomplete

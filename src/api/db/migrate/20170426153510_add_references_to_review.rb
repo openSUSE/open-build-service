@@ -10,7 +10,7 @@ class AddReferencesToReview < ActiveRecord::Migration[5.0]
     add_reference(:reviews, :reviewable, polymorphic: true)
 
     # Migrate by_user reviews
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN users ON users.login = reviews.by_user
       SET reviews.reviewable_id = users.id, reviews.reviewable_type = 'User'
@@ -19,7 +19,7 @@ class AddReferencesToReview < ActiveRecord::Migration[5.0]
     execute(sql)
 
     # migrate by_group reviews
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN groups ON groups.title = reviews.by_group
       SET reviews.reviewable_id = groups.id, reviews.reviewable_type = 'Group'
@@ -28,7 +28,7 @@ class AddReferencesToReview < ActiveRecord::Migration[5.0]
     execute(sql)
 
     # migrate by_project reviews
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN projects ON projects.name = reviews.by_project
       SET reviews.reviewable_id = projects.id, reviews.reviewable_type = 'Project'
@@ -37,7 +37,7 @@ class AddReferencesToReview < ActiveRecord::Migration[5.0]
     execute(sql)
 
     # migrate by_package reviews
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN projects ON projects.name = reviews.by_project
       INNER JOIN packages ON packages.name = reviews.by_package AND packages.project_id = projects.id

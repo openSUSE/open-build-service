@@ -94,6 +94,7 @@ end
 #
 #  id              :bigint           not null, primary key
 #  category        :integer          default("other")
+#  comments_count  :integer          default(0), not null, indexed
 #  reason          :text(65535)
 #  reportable_type :string(255)      indexed => [reportable_id]
 #  created_at      :datetime         not null
@@ -104,9 +105,10 @@ end
 #
 # Indexes
 #
-#  index_reports_on_decision_id  (decision_id)
-#  index_reports_on_reportable   (reportable_type,reportable_id)
-#  index_reports_on_reporter_id  (reporter_id)
+#  index_reports_on_comments_count  (comments_count)
+#  index_reports_on_decision_id     (decision_id)
+#  index_reports_on_reportable      (reportable_type,reportable_id)
+#  index_reports_on_reporter_id     (reporter_id)
 #
 # Foreign Keys
 #

@@ -53,8 +53,8 @@ namespace :dev do
     task cleanup_non_closed_projects: :environment do
       workflow_runs = WorkflowRun.where(status: 'running')
                                  .select do |workflow_run|
-                                   workflow_run.hook_event.in?(['pull_request', 'Merge Request Hook']) &&
-                                     workflow_run.hook_action.in?(%w[closed close merge])
+        workflow_run.hook_event.in?(['pull_request', 'Merge Request Hook']) &&
+          workflow_run.hook_action.in?(%w[closed close merge])
       end
 
       puts "There are #{workflow_runs.count} workflow runs affected"

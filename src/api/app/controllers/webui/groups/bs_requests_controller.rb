@@ -6,6 +6,7 @@ module Webui
       before_action :set_bs_request
 
       include Webui::RequestsFilter
+      include Webui::RequestsCount
 
       REQUEST_METHODS = {
         'all_requests_table' => :requests,
@@ -18,7 +19,7 @@ module Webui
           format.html do
             filter_requests
 
-            @bs_requests = @bs_requests.order(number: :desc).page(params[:page])
+            @bs_requests = @bs_requests.page(params[:page])
           end
           format.json do
             parsed_params = BsRequest::DataTable::ParamsParser.new(params).parsed_params
@@ -48,26 +49,29 @@ module Webui
 
       def filter_involvement
         @selected_filter['involvement'] = params[:involvement] if params[:involvement]&.compact_blank.present?
-
         bs_requests_filters = []
 
-        if @selected_filter['involvement'].include?('incoming')
-          bs_requests_filters << @bs_requests.where(bs_request_actions: { target_project_id: @group.relationships.projects.maintainers.pluck(:project_id) })
-          bs_requests_filters << @bs_requests.where(bs_request_actions: { target_package_id: @group.relationships.packages.maintainers.pluck(:package_id) })
-        end
-
-        if @selected_filter['involvement'].include?('outgoing')
-          bs_requests_filters << @bs_requests.where(bs_request_actions: { source_project_id: @group.relationships.projects.maintainers.pluck(:project_id) })
-          bs_requests_filters << @bs_requests.where(bs_request_actions: { source_package_id: @group.relationships.packages.maintainers.pluck(:package_id) })
-        end
-
-        if @selected_filter['involvement'].include?('review')
-          bs_requests_filters << @bs_requests.where(reviews: { group_id: @group.id })
-          bs_requests_filters << @bs_requests.where(reviews: { project_id: @group.relationships.projects.maintainers.pluck(:project_id) })
-          bs_requests_filters << @bs_requests.where(reviews: { package_id: @group.relationships.packages.maintainers.pluck(:package_id) })
-        end
+        bs_requests_filters << incoming_query if @selected_filter['involvement'].include?('incoming')
+        bs_requests_filters << outgoing_query if @selected_filter['involvement'].include?('outgoing')
+        bs_requests_filters << review_query   if @selected_filter['involvement'].include?('review')
 
         @bs_requests = @bs_requests.merge(bs_requests_filters.inject(:or)) if bs_requests_filters.length.positive?
+      end
+
+      def incoming_query
+        @bs_requests.where(bs_request_actions: { target_project_id: @group.relationships.projects.maintainers.pluck(:project_id) })
+                    .or(@bs_requests.where(bs_request_actions: { target_package_id: @group.relationships.packages.maintainers.pluck(:package_id) }))
+      end
+
+      def outgoing_query
+        @bs_requests.where(bs_request_actions: { source_project_id: @group.relationships.projects.maintainers.pluck(:project_id) })
+                    .or(@bs_requests.where(bs_request_actions: { source_package_id: @group.relationships.packages.maintainers.pluck(:package_id) }))
+      end
+
+      def review_query
+        @bs_requests.where(reviews: { group_id: @group.id })
+                    .or(@bs_requests.where(reviews: { project_id: @group.relationships.projects.maintainers.pluck(:project_id) }))
+                    .or(@bs_requests.where(reviews: { package_id: @group.relationships.packages.maintainers.pluck(:package_id) }))
       end
 
       def redirect_legacy

@@ -41,10 +41,11 @@ RSpec.describe Webui::DistributionsController do
     let(:distribution) { create(:distribution, project: apache_project, repository: apache_project.repositories.first.name) }
 
     context 'with an existing distribution repository' do
+      let!(:repository) do
+        create(:repository, project: user.home_project, name: distribution.reponame, path_elements: [create(:path_element, link: Repository.find_by_project_and_name!(distribution.project, distribution.repository))])
+      end
+
       before do
-        repository = Repository.new_from_distribution(distribution)
-        repository.project = user.home_project
-        repository.save!
         login user
         get :toggle, params: { project_name: user.home_project_name, distribution: distribution }, xhr: true
       end

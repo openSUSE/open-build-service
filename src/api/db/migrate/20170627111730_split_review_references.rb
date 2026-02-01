@@ -2,7 +2,7 @@ class SplitReviewReferences < ActiveRecord::Migration[5.1]
   def up
     # Migrate by_user reviews
     add_reference(:reviews, :user, index: true, type: :integer)
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN users ON users.login = reviews.by_user
       SET reviews.user_id = users.id
@@ -12,7 +12,7 @@ class SplitReviewReferences < ActiveRecord::Migration[5.1]
 
     # migrate by_group reviews
     add_reference(:reviews, :group, index: true, type: :integer)
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN groups ON groups.title = reviews.by_group
       SET reviews.group_id = groups.id
@@ -22,7 +22,7 @@ class SplitReviewReferences < ActiveRecord::Migration[5.1]
 
     # migrate by_project reviews
     add_reference(:reviews, :project, index: true, type: :integer)
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN projects ON projects.name = reviews.by_project
       SET reviews.project_id = projects.id
@@ -32,7 +32,7 @@ class SplitReviewReferences < ActiveRecord::Migration[5.1]
 
     # migrate by_package reviews
     add_reference(:reviews, :package, index: true, type: :integer)
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN projects ON projects.name = reviews.by_project
       INNER JOIN packages ON packages.name = reviews.by_package AND packages.project_id = projects.id
@@ -48,7 +48,7 @@ class SplitReviewReferences < ActiveRecord::Migration[5.1]
     add_reference(:reviews, :reviewable, polymorphic: true)
 
     # Migrate by_user reviews
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN users ON users.login = reviews.by_user
       SET reviews.reviewable_id = users.id, reviews.reviewable_type = 'User'
@@ -57,7 +57,7 @@ class SplitReviewReferences < ActiveRecord::Migration[5.1]
     execute(sql)
 
     # migrate by_group reviews
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN groups ON groups.title = reviews.by_group
       SET reviews.reviewable_id = groups.id, reviews.reviewable_type = 'Group'
@@ -66,7 +66,7 @@ class SplitReviewReferences < ActiveRecord::Migration[5.1]
     execute(sql)
 
     # migrate by_project reviews
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN projects ON projects.name = reviews.by_project
       SET reviews.reviewable_id = projects.id, reviews.reviewable_type = 'Project'
@@ -75,7 +75,7 @@ class SplitReviewReferences < ActiveRecord::Migration[5.1]
     execute(sql)
 
     # migrate by_package reviews
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE reviews
       INNER JOIN projects ON projects.name = reviews.by_project
       INNER JOIN packages ON packages.name = reviews.by_package AND packages.project_id = projects.id
