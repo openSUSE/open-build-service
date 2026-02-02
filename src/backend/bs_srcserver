@@ -1962,6 +1962,7 @@ sub getprojpack {
 	    $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
 	    $rinfo->{'name'} = $d->{'name'};
 	    $rinfo->{'dep'} = $d->{'deps'};
+	    $pinfo->{'hasbigdep'} = 1 if ($d->{'deps'} || []) > 100;
 	    if ($d->{'prereqs'}) {
 	      my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
 	      my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
