@@ -6294,6 +6294,22 @@ sub getsignkey {
   return ($sk, 'Content-Type: text/plain');
 }
 
+sub getsignpubkey {
+  my ($cgi, $projid) = @_;
+  my ($sk) = getsignkey({%$cgi, 'withpubkey' => 1}, $projid);
+  my $pk;
+  if (!$sk) {
+    if ($BSConfig::sign_project && $BSConfig::sign) {
+      $pk = BSSrcServer::Signkey::getdefaultpubkey($projid, $cgi->{'signtype'}, $cgi->{'signflavor'});
+    } elsif ($BSConfig::keyfile) {
+      $pk = readstr($BSConfig::keyfile, 1)
+    }
+  } else {
+    ($sk, $pk) = split("\n", $sk, 2);
+  }
+  return (($pk || ''), 'Content-Type: text/plain');
+}
+
 sub projid2sslcert {
   my ($skprojid, $sk, $projid, $nocreate, $signtype, $signflavor) = @_;
   if ($BSConfig::disable_sslcert_cache && $BSConfig::disable_sslcert_cache->{$skprojid}) {
@@ -8016,6 +8032,7 @@ my $dispatches = [
 
   # worker/publisher/signer calls
   '/getsignkey $project withpubkey:bool? autoextend:bool? withalgo:bool? signtype:? signflavor:?' => \&getsignkey,
+  '/getpubkey $project autoextend:bool? signtype:? signflavor:?' => \&getsignpubkey,
 
   # event/notification handling
   '!- /lastevents $filter:* start:num? obsname:? client:? block:bool?' => \&lastevents,
