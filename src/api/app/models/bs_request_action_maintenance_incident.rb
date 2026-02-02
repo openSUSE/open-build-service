@@ -14,6 +14,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
+  validates :source_project, :target_project, presence: true
+  validates :group_name, :person_name, :role, absence: true
 
   #### Class methods using self. (public and then private)
   def self.sti_name

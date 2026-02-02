@@ -17,12 +17,9 @@ class BsRequestActionSetBugowner < BsRequestAction
   #### private
 
   #### Instance methods (public and then protected/private)
-  def check_sanity
-    super
-    return unless person_name.blank? && group_name.blank?
-
-    errors.add(:person_name, 'Either person or group needs to be set')
-  end
+  validates :source_project, :source_package, :source_rev, :sourceupdate, :role, :target_releaseproject, :target_repository, absence: true
+  validates :person_name, presence: true, unless: :group_name
+  validates :group_name, presence: true, unless: :person_name
 
   def uniq_key
     "setbugowner/#{target_project}/#{target_package}"

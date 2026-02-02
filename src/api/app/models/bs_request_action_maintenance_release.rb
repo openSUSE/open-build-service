@@ -16,6 +16,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
+  validates :source_project, :source_package, :target_project, presence: true
+  validates :group_name, :person_name, :role, :target_releaseproject, absence: true
 
   #### Class methods using self. (public and then private)
   def self.sti_name

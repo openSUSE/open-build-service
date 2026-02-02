@@ -523,7 +523,7 @@ class Webui::RequestController < Webui::WebuiController
     opt['target_project'] = params[:project]
     opt['target_package'] = params[:package]
     opt['source_project'] = params[:devel_project]
-    opt['source_package'] = params[:devel_package] || params[:package]
+    opt['source_package'] = (params[:devel_package] || params[:package]) if params[:devel_project].present?
     opt['target_repository'] = params[:repository]
     opt['person_name'] = params[:user] if params[:user].present?
     opt['group_name'] = params[:group] if params[:group].present?
