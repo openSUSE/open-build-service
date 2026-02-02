@@ -379,6 +379,7 @@ our $projpack = [
 		@flags,
 		'bcntsynctag',
 		'hasbuildenv',
+		'hasbigdep',
 	 ]],
 	    'missingpackages',
      ]],

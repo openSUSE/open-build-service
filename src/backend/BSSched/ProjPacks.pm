@@ -962,6 +962,7 @@ sub setup_projects {
     $gctx->{'channelids'} = {};
     $gctx->{'project_prps'} = {};
     $gctx->{'alllocked'} = {};
+    $gctx->{'bigdeps'} = {};
   } else {
     # just updating some projects, delete all the entries we currently have
 
@@ -1010,6 +1011,7 @@ sub setup_projects {
   }
   my $t2 = Time::HiRes::time();
 
+  my ($nbigdeps, $nbigdepsu) = (0, 0);
   for my $projid (@projids_todo) {
     my $proj = $projpacks->{$projid};
     next if !$proj || $proj->{'remoteurl'};
@@ -1057,6 +1059,7 @@ sub setup_projects {
     my @aggs = grep {$_->{'aggregatelist'}} @pdatas;
     my @channels = grep {$_->{'channel'}} @pdatas;
     my @kiwiinfos = grep {$_->{'path'} || $_->{'containerpath'}} map {@{$_->{'info'} || []}} @pdatas;
+    my @bigdeps = grep {$_->{'hasbigdep'}} @pdatas;
     # filter out disabled/excluded/locked/broken entries
     @aggs = grep {!$_->{'error'}} @aggs;
     @channels = grep {!$_->{'error'}} @channels;
@@ -1094,6 +1097,20 @@ sub setup_projects {
 	}
       }
       $gctx->{'channelids'}->{$projid} = [ sort keys %channelids ] if %channelids;
+    }
+    if (@bigdeps) {
+      my $bigdeps = $gctx->{'bigdeps'};
+      for my $pdata (@bigdeps) {
+	for my $info (@{$pdata->{'info'} || []}) {
+	  next unless @{$info->{'dep'} || []} > 100;
+	  my $depkey = join("\n", @{$info->{'dep'}});
+	  if (exists($bigdeps->{$depkey})) {
+	    $info->{'dep'} = $bigdeps->{$depkey};
+	  } else {
+	    $bigdeps->{$depkey} = $info->{'dep'};
+	  }
+	}
+      }
     }
     my %myprps;
     my $prpsearchpath = $gctx->{'prpsearchpath'};
@@ -1203,6 +1220,7 @@ sub setup_projects {
   }
 
   print "have ".scalar(keys %{$gctx->{'channeldata'}})." unique channel configs\n" if %{$gctx->{'channeldata'}};
+  print "unified $nbigdeps into $nbigdepsu big dependencies\n";
 
   # create list of prps and sort them
   print "sorting projects and repositories...\n";
@@ -1911,6 +1929,30 @@ sub do_delayed_startup {
       }
     }
   }
+}
+
+sub bigdeps_unification {
+  my ($gctx) = @_;
+  my $projpacks = $gctx->{'projpacks'};
+  my $bigdeps = $gctx->{'bigdeps'} = {};
+  my ($nbigdeps, $nbigdepsu) = (0, 0);
+  for my $projid (sort keys %$projpacks) {
+    for my $pdata (values %{$projpacks->{$projid}->{'package'} || {}}) {
+      for my $info (@{$pdata->{'info'} || []}) {
+	next unless @{$info->{'dep'} || []} > 100;
+	$pdata->{'hasbigdep'} = 1;
+	my $depkey = join("\n", @{$info->{'dep'}});
+        $nbigdeps++;
+	if (exists($bigdeps->{$depkey})) {
+	  $info->{'dep'} = $bigdeps->{$depkey};
+	} else {
+	  $bigdeps->{$depkey} = $info->{'dep'};
+	  $nbigdepsu++;
+	}
+      }
+    }
+  }
+  print "unified $nbigdeps into $nbigdepsu big dependencies\n";
 }
 
 1;

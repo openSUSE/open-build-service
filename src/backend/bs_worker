@@ -1240,19 +1240,16 @@ sub getmodulemddata {
 sub getpubkey {
   my ($buildinfo, $dir, $signtype) = @_;
   my $server = $buildinfo->{'srcserver'} || $srcserver;
-  my @args = ("project=$buildinfo->{'project'}", "withpubkey=1");
+  my @args = ("project=$buildinfo->{'project'}");
   push @args, "signtype=$signtype" if $signtype;
   push @args, "signflavor=$buildinfo->{'signflavor'}" if $buildinfo->{'signflavor'};
-  my $signkey;
-  my $pubkey;
-  eval {
-    $signkey = BSRPC::rpc({
-      'uri' => "$server/getsignkey",
+  my $pubkey = eval {
+    BSRPC::rpc({
+      'uri' => "$server/getpubkey",
       'timeout' => $gettimeout,
     }, undef, @args);
   };
-  die("could not retrieve build key: $@\n") if $@;
-  ($signkey, $pubkey) = split("\n", $signkey, 2);
+  die("could not retrieve pubkey: $@\n") if $@;
   die("unusable pubkey\n") unless $pubkey && length($pubkey) > 10;
   writestr("$dir/_pubkey", undef, $pubkey);
 }
