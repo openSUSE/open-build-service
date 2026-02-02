@@ -28,8 +28,8 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     filter_package_names
     filter_created_at
     filter_involvement
-    filter_search_text
     filter_labels
+    filter_search_text
     filter_sort
   end
 
@@ -99,27 +99,34 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     @bs_requests = @bs_requests.where(created_at: ..Time.zone.parse(@selected_filter['created_at_to']))   if @selected_filter['created_at_to'].present?
   end
 
-  def filter_search_text
-    return if params[:search].blank?
-
-    @selected_filter['search'] = params[:search]
-    if BsRequest.search_count(@selected_filter['search']) > TEXT_SEARCH_MAX_RESULTS
-      flash.now[:error] = 'Your text search pattern matches too many results. Please, try again with a more restrictive search pattern.'
-      @bs_requests = BsRequest.none
-      return
-    end
-
-    @bs_requests = @bs_requests.where(id: BsRequest.search_for_ids(@selected_filter['search'], per_page: TEXT_SEARCH_MAX_RESULTS))
-  rescue ThinkingSphinx::ParseError, ThinkingSphinx::SyntaxError
-    flash.now[:error] = "Check your search expression. Use the <a href='https://sphx.org/docs/sphinx3.html#cheat-sheet' target='blank'>syntax guide</a> for help."
-    @bs_requests = BsRequest.none
-  end
-
   def filter_labels
     return if params[:labels]&.compact_blank.blank?
 
     @selected_filter['labels'] = params[:labels].compact_blank
     @bs_requests = @bs_requests.joins(labels: :label_template).where(label_templates: { name: @selected_filter['labels'] })
+  end
+
+  def filter_search_text
+    return if params[:search].blank?
+
+    @selected_filter['search'] = params[:search]
+    search_for_ids_options = { per_page: TEXT_SEARCH_MAX_RESULTS }
+
+    if BsRequest.search_count(@selected_filter['search']) > TEXT_SEARCH_MAX_RESULTS
+      if @bs_requests.limit(TEXT_SEARCH_MAX_RESULTS + 1).count > TEXT_SEARCH_MAX_RESULTS
+        flash.now[:error] = 'Your text search pattern matches too many results. Please, try again with a more restrictive search pattern.'
+        @bs_requests = BsRequest.none
+
+        return
+      end
+
+      search_for_ids_options[:with] = { bs_request_id: @bs_requests.pluck(:id) }
+    end
+
+    @bs_requests = @bs_requests.where(id: BsRequest.search_for_ids(@selected_filter['search'], search_for_ids_options))
+  rescue ThinkingSphinx::ParseError, ThinkingSphinx::SyntaxError
+    flash.now[:error] = "Check your search expression. Use the <a href='https://sphx.org/docs/sphinx3.html#cheat-sheet' target='blank'>syntax guide</a> for help."
+    @bs_requests = BsRequest.none
   end
 
   def filter_sort
