@@ -27,7 +27,7 @@ module Webui::RequestsCount
   end
 
   def group_and_fill(relation, column, keys)
-    counts = relation.group(column).order(column).count
+    counts = relation.unscope(:order).group(column).count
     keys.index_with { |key| counts.fetch(key, 0) }
   end
 end
