@@ -207,6 +207,12 @@ function loadChanges() {
 }
 
 $(function ($) {
+  // Hide the "Some of the changes are collapsed" banner when the user clicks the
+  // Expand changes link so the banner does not persist after the action is taken.
+  $('body').on('click', '.expand-changes', function () {
+    $(this).closest('.alert.alert-warning').remove();
+  });
+
   $('body').on('click', '.expand-diffs', function () {
     var forObject = $(this).data('object');
     var details = $('.collapse[data-object="' + forObject + '"]');
