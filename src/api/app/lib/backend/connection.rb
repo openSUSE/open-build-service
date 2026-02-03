@@ -40,11 +40,7 @@ module Backend
 
       response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
         http.read_timeout = timeout
-        if block_given?
-          http.request(backend_request, &)
-        else
-          http.request(backend_request)
-        end
+        http.request(backend_request, &)
       end
 
       method = 'GET'
