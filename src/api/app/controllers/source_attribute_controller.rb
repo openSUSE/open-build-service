@@ -61,8 +61,8 @@ class SourceAttributeController < SourceController
       attrib_type = AttribType.find_by_namespace_and_name!(attr.value('namespace'), attr.value('name'))
       attrib = Attrib.new(attrib_type: attrib_type)
 
-      attr.elements('value') do |value|
-        attrib.values.new(value: value)
+      attr.elements('value').zip(attr.elements('position')).each do |(value, position)|
+        attrib.values.new(value: value, position: position)
       end
 
       attrib.container = @attribute_container
