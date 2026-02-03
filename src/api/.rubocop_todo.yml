@@ -13,18 +13,6 @@
 Layout/LineLength:
   Max: 200
 
-# Offense count: 9
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: RequireParenthesesForMethodChains.
-Lint/AmbiguousRange:
-  Exclude:
-    - 'app/controllers/statistics_controller.rb'
-    - 'app/controllers/webui/request_controller.rb'
-    - 'app/helpers/webui/elisions_helper.rb'
-    - 'app/jobs/status_history_rescaler_job.rb'
-    - 'spec/models/kiwi/repository_spec.rb'
-    - 'test/node_matcher.rb'
-
 # Offense count: 8
 # Configuration parameters: MaximumRangeSize.
 Lint/MissingCopEnableDirective:

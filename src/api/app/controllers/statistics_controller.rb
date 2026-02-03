@@ -55,7 +55,7 @@ class StatisticsController < ApplicationController
     list.sort! { |a, b| b.created_at <=> a.created_at }
 
     @list = if @limit
-              list[0..@limit - 1]
+              list[0..(@limit - 1)]
             else
               list
             end
