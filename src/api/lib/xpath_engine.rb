@@ -227,7 +227,8 @@ class XpathEngine
                                            "LEFT JOIN history_elements he ON (he.op_object_id = r.id AND he.type IN (\"#{HistoryElement::Review.descendants.join('","')}\") )" },
         'history/@when' => { cpart: 'he.created_at',
                              joins: "LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )" },
-        'history/@who' => { cpart: 'husers.login', joins: ["LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
+        'history/@who' => { cpart: 'husers.login', joins: ['LEFT JOIN history_elements he ' \
+                                                           "ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
                                                            'LEFT JOIN users husers ON he.user_id = husers.id'] },
 
         'submit/target/@project' => { empty: true },

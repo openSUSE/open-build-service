@@ -1270,7 +1270,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
     assert_response :success
     put '/source/home:tom:projectB/_meta',
-        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> <arch>i586</arch> </repository> </project>"
+        params: "<project name='home:tom:projectB'> <title/> <description/> " \
+                "<repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> <arch>i586</arch> </repository> </project>"
     assert_response :success
     # delete the project including the repository
     delete '/source/home:tom:projectA'
