@@ -778,13 +778,6 @@ Style/ConditionalAssignment:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-Style/ExplicitBlockArgument:
-  Exclude:
-    - 'app/lib/backend/connection.rb'
-    - 'app/models/project.rb'
-
 # Offense count: 1918
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.

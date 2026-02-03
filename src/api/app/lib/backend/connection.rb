@@ -32,7 +32,7 @@ module Backend
       @backend_runtime
     end
 
-    def self.get(path, in_headers = {})
+    def self.get(path, in_headers = {}, &)
       start_time = Time.now
       in_headers['X-Frontend-Start'] = start_time.to_i.to_s
       timeout = in_headers.delete('Timeout') || 1000
@@ -41,9 +41,7 @@ module Backend
       response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
         http.read_timeout = timeout
         if block_given?
-          http.request(backend_request) do |backend_response|
-            yield(backend_response)
-          end
+          http.request(backend_request, &)
         else
           http.request(backend_request)
         end
