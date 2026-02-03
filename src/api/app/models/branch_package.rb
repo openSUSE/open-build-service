@@ -440,8 +440,11 @@ class BranchPackage
       prj = Project.get_by_name(params[:project])
       tpkg_name = params[:target_package]
       if params[:missingok]
-        raise NotMissingError, "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists." if Package.exists_by_project_and_name(params[:project], params[:package],
-                                                                                                                                                                                  allow_remote_packages: true)
+        if Package.exists_by_project_and_name(params[:project], params[:package],
+                                              allow_remote_packages: true)
+          raise NotMissingError,
+                "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists."
+        end
       else
         pkg = Package.get_by_project_and_name(params[:project], params[:package], check_update_project: params[:ignoredevel].blank?)
         if prj.is_a?(Project) && prj.find_attribute('OBS', 'BranchTarget')

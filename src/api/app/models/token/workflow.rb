@@ -29,7 +29,8 @@ class Token::Workflow < Token
 
     # We return early with a ping event, since it doesn't make sense to perform payload checks with it, just respond
     if workflow_run.ping_event?
-      SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
+      SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success',
+                            initial_report: true).call
       return []
     end
     yaml_file = Workflows::YAMLDownloader.new(workflow_run, token: self).call
@@ -44,7 +45,8 @@ class Token::Workflow < Token
 
       workflow.call
     end
-    SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
+    SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success',
+                          initial_report: true).call
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized

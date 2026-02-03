@@ -101,7 +101,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     # the diffed packages
     assert_xml_tag(tag: 'old', attributes: { project: 'BaseDistro3', package: 'pack2', srcmd5: 'c3f6b2ae46cbc4cfb495774733c842f0' })
-    assert_xml_tag(tag: 'new', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '33fed2157de2517bc62894b3fdfd485c', srcmd5: '33fed2157de2517bc62894b3fdfd485c' })
+    assert_xml_tag(tag: 'new',
+                   attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '33fed2157de2517bc62894b3fdfd485c',
+                                 srcmd5: '33fed2157de2517bc62894b3fdfd485c' })
     # the diffed files
     assert_xml_tag(tag: 'old', attributes: { name: 'file', md5: '722d122e81cbbe543bd5520bb8678c0e', size: '4' },
                    parent: { tag: 'file', attributes: { state: 'changed' } })
@@ -536,7 +538,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     old_release_date = node['update']['issued']['date']
     assert_equal old_release_date, old_release_date.to_i.to_s
-    assert_xml_tag parent: { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, tag: 'id', content: "UpdateInfoTag-#{Time.now.utc.year}-My_Maintenance_0__patchinfo"
+    assert_xml_tag parent: { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, tag: 'id',
+                   content: "UpdateInfoTag-#{Time.now.utc.year}-My_Maintenance_0__patchinfo"
 
     # check published search db
     get "/search/published/binary/id?match=project='" + incident_project + "'"

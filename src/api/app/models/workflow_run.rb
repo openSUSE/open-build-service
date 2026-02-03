@@ -36,7 +36,9 @@ class WorkflowRun < ApplicationRecord
   validates :hook_event, inclusion: { in: ALLOWED_GITEA_EVENTS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitea' }
   validates :hook_action, inclusion: { in: ALLOWED_GITHUB_PULL_REQUEST_ACTIONS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'github' && hook_event == 'pull_request' }
   validates :hook_action, inclusion: { in: ALLOWED_GITEA_PULL_REQUEST_ACTIONS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitea' && hook_event == 'pull_request' }
-  validates :hook_action, inclusion: { in: ALLOWED_GITLAB_PULL_REQUEST_ACTIONS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitlab' && hook_event == 'Merge Request Hook' }
+  validates :hook_action, inclusion: { in: ALLOWED_GITLAB_PULL_REQUEST_ACTIONS, allow_nil: true, message: "unsupported '%{value}'" }, if: lambda {
+    scm_vendor == 'gitlab' && hook_event == 'Merge Request Hook'
+  }
   validate :validate_payload_is_json
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true

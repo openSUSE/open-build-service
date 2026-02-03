@@ -28,7 +28,9 @@ namespace :data do
 
       # this rake task replaces the 20250131143734_backfill_sources_on_bs_request_actions.rb data migration
       # after this task has been performed, we need to mark the data migration as executed
-      DataMigrate::DataSchemaMigration.create_version('20250131143734') if DataMigrate::DatabaseTasks.pending_data_migrations.find { |data_migration| data_migration[:version] == 20_250_131_143_734 }.present?
+      DataMigrate::DataSchemaMigration.create_version('20250131143734') if DataMigrate::DatabaseTasks.pending_data_migrations.find do |data_migration|
+        data_migration[:version] == 20_250_131_143_734
+      end.present?
     end
   end
 end

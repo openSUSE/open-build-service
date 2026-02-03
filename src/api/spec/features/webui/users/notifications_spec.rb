@@ -171,7 +171,9 @@ RSpec.describe 'User notifications', :js do
     end
 
     context 'when the notification is about user' do
-      let(:event_payload) { { id: notifiable.id, reporter: user.login, reportable_id: accused.id, reportable_type: 'User', reason: 'some sample text for reason field', category: 'spam', accused: accused.login } }
+      let(:event_payload) do
+        { id: notifiable.id, reporter: user.login, reportable_id: accused.id, reportable_type: 'User', reason: 'some sample text for reason field', category: 'spam', accused: accused.login }
+      end
       let(:event_type) { 'Event::ReportForUser' }
       let(:notifiable) { create(:report, reportable: accused, reason: 'Some sample text') }
 

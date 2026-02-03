@@ -1,7 +1,9 @@
 RSpec.describe Label do
   let(:source_package) { create(:package) }
   let(:target_package) { create(:package) }
-  let(:bs_request) { create(:bs_request_with_submit_action, source_project: source_package.project, source_package: source_package, target_project: target_package.project, target_package: target_package) }
+  let(:bs_request) do
+    create(:bs_request_with_submit_action, source_project: source_package.project, source_package: source_package, target_project: target_package.project, target_package: target_package)
+  end
   let(:package) { create(:package) }
   let(:label_template) { create(:label_template, project: package.project) }
 

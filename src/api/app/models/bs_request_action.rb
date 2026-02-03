@@ -957,7 +957,10 @@ class BsRequestAction < ApplicationRecord
       end
 
       a = tprj.find_attribute('OBS', 'RejectRequests')
-      raise RequestRejected, "The target project #{target_project} is not accepting requests because: #{a.values.first.value}" if a && a.values.first && (a.values.length < 2 || a.values.find_by_value(action_type))
+      if a && a.values.first && (a.values.length < 2 || a.values.find_by_value(action_type))
+        raise RequestRejected,
+              "The target project #{target_project} is not accepting requests because: #{a.values.first.value}"
+      end
     end
     if target_package
       if Package.exists_by_project_and_name(target_project, target_package) ||

@@ -8,7 +8,10 @@ class ChannelBinary < ApplicationRecord
   validates :superseded_by, length: { maximum: 255 }
 
   validate do |channel_binary|
-    errors.add(:base, :invalid, message: 'Associated project has to match with repository.project') if channel_binary.project && channel_binary.repository && !(channel_binary.repository.project == channel_binary.project)
+    if channel_binary.project && channel_binary.repository && !(channel_binary.repository.project == channel_binary.project)
+      errors.add(:base, :invalid,
+                 message: 'Associated project has to match with repository.project')
+    end
   end
 
   def self._sync_keys

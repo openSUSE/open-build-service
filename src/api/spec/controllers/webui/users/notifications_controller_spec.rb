@@ -233,7 +233,9 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when filtering by `labels` param' do
       let(:source_package) { create(:package) }
       let(:target_package) { create(:package) }
-      let(:bs_request) { create(:bs_request_with_submit_action, source_project: source_package.project, source_package: source_package, target_project: target_package.project, target_package: target_package) }
+      let(:bs_request) do
+        create(:bs_request_with_submit_action, source_project: source_package.project, source_package: source_package, target_project: target_package.project, target_package: target_package)
+      end
       let!(:notification_for_request) { create(:notification_for_request, :web_notification, subscriber: user, event_type: 'Event::RequestCreate', notifiable: bs_request) }
       let!(:notification_build_failure) { create(:notification_for_package, :web_notification, event_type: 'Event::BuildFail', subscriber: user, notifiable: target_package) }
 

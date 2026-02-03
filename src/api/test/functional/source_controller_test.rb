@@ -1123,7 +1123,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
-    put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta',
+        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
     get '/source/home:tom:projectB/_meta'
     assert_response :success
@@ -1131,7 +1132,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'path', attributes: { project: 'home:tom:projecta' }
 
     # write again with a capital letter change
-    put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projecta' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta',
+        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projecta' repository='repoA' /> </repository> </project>"
     assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'repository_access_failure' }
     get '/source/home:tom:projectB/_meta'
@@ -1172,9 +1174,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
-    put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta',
+        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
-    put '/source/home:tom:projectC/_meta', params: "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
+    put '/source/home:tom:projectC/_meta',
+        params: "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
     assert_response :success
     put '/source/home:tom:projectD/_meta', params: "<project name='home:tom:projectD'> <title/> <description/> <repository name='repoD'>  " \
                                                    "<path project='home:tom:projectA' repository='repoA' /> " \
@@ -1222,9 +1226,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
-    put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta',
+        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
-    put '/source/home:tom:projectC/_meta', params: "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
+    put '/source/home:tom:projectC/_meta',
+        params: "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
     assert_response :success
     # delete a repo
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> </project>"
@@ -3403,7 +3409,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_links
     login_king
-    put url_for(controller: :source_project_meta, action: :update, project: 'TEMPORARY'), params: '<project name="TEMPORARY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'TEMPORARY'),
+        params: '<project name="TEMPORARY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
     assert_response :ok
     # create packages via user without any special roles
     login_fred
@@ -3417,7 +3424,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
     put '/source/kde4/temporary/file_in_linked_package', params: 'FILE CONTENT'
     assert_response :ok
-    put url_for(controller: :source_package_meta, action: :update, project: 'TEMPORARY', package: 'temporary2'), params: '<package project="TEMPORARY" name="temporary2"> <title/> <description/> </package>'
+    put url_for(controller: :source_package_meta, action: :update, project: 'TEMPORARY', package: 'temporary2'),
+        params: '<package project="TEMPORARY" name="temporary2"> <title/> <description/> </package>'
     assert_response :ok
 
     url = '/source/kde4/temporary/_link'
@@ -3678,7 +3686,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_use_project_link_as_non_maintainer
     login_tom
-    put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/> <link project="kde4" /> </project>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'),
+        params: '<project name="home:tom:temporary"> <title/> <description/> <link project="kde4" /> </project>'
     assert_response :success
     get '/source/home:tom:temporary'
     assert_response :success
