@@ -13,14 +13,6 @@
 Layout/LineLength:
   Max: 220
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: aligned, indented, indented_relative_to_receiver
-Layout/MultilineMethodCallIndentation:
-  Exclude:
-    - 'app/controllers/webui/projects/pulse_controller.rb'
-
 # Offense count: 9
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: RequireParenthesesForMethodChains.
