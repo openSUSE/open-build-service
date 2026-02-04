@@ -30,10 +30,10 @@ RSpec.describe ChartComponent, type: :component do
   context 'for build results with multibuild flavors' do
     let(:fake_raw_data) do
       [
-        { architecture: 'x86_64', repository: 'openSUSE_Tumbleweed', status: 'succeeded', package_name: 'hello', project_name: 'home:Admin', repository_status: 'published', is_repository_in_db: true, details: nil,
-          buildtype: 'spec' },
-        { architecture: 'x86_64', repository: 'openSUSE_Tumbleweed', status: 'succeeded', package_name: 'hello:foo', project_name: 'home:Admin', repository_status: 'published', is_repository_in_db: true, details: nil,
-          buildtype: 'spec' }
+        { architecture: 'x86_64', repository: 'openSUSE_Tumbleweed', status: 'succeeded', package_name: 'hello', project_name: 'home:Admin', repository_status: 'published',
+          is_repository_in_db: true, details: nil, buildtype: 'spec' },
+        { architecture: 'x86_64', repository: 'openSUSE_Tumbleweed', status: 'succeeded', package_name: 'hello:foo', project_name: 'home:Admin', repository_status: 'published',
+          is_repository_in_db: true, details: nil, buildtype: 'spec' }
       ]
     end
 

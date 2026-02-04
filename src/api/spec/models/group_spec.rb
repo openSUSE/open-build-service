@@ -87,7 +87,9 @@ RSpec.describe Group do
     let!(:outgoing_request) { create(:bs_request_with_submit_action, source_project: involved_project, description: 'outgoing') }
     let!(:request_with_group_review) { create(:delete_bs_request, target_project: create(:project), review_by_group: group, description: 'group_review') }
     let!(:request_with_project_review) { create(:delete_bs_request, target_project: create(:project), review_by_project: involved_project, description: 'project_review') }
-    let!(:request_with_package_review) { create(:delete_bs_request, target_project: create(:project), review_by_package: create(:package_with_maintainer, maintainer: group), description: 'package_review') }
+    let!(:request_with_package_review) do
+      create(:delete_bs_request, target_project: create(:project), review_by_package: create(:package_with_maintainer, maintainer: group), description: 'package_review')
+    end
     let!(:unrelated_request) { create(:bs_request_with_submit_action, source_project: create(:project), description: 'unrelated') }
 
     it { expect(group.bs_requests.pluck(:description)).to contain_exactly('incoming', 'outgoing', 'group_review', 'project_review', 'package_review') }

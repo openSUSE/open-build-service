@@ -11,7 +11,7 @@
 # Configuration parameters: AllowHeredoc, AllowURI, AllowQualifiedName, URISchemes, AllowRBSInlineAnnotation, AllowCopDirectives, AllowedPatterns, SplitStrings.
 # URISchemes: http, https
 Layout/LineLength:
-  Max: 220
+  Max: 200
 
 # Offense count: 9
 # This cop supports unsafe autocorrection (--autocorrect-all).

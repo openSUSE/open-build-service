@@ -42,7 +42,8 @@ RSpec.describe Webui::DistributionsController do
 
     context 'with an existing distribution repository' do
       let!(:repository) do
-        create(:repository, project: user.home_project, name: distribution.reponame, path_elements: [create(:path_element, link: Repository.find_by_project_and_name!(distribution.project, distribution.repository))])
+        create(:repository, project: user.home_project, name: distribution.reponame,
+                            path_elements: [create(:path_element, link: Repository.find_by_project_and_name!(distribution.project, distribution.repository))])
       end
 
       before do

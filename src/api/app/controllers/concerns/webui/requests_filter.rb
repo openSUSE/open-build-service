@@ -1,4 +1,4 @@
-module Webui::RequestsFilter
+module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
 
   TEXT_SEARCH_MAX_RESULTS = 10_000
@@ -79,14 +79,16 @@ module Webui::RequestsFilter
     return if params[:project_names]&.compact_blank.blank?
 
     @selected_filter['project_names'] = params[:project_names].compact_blank
-    @bs_requests = @bs_requests.where(bs_request_actions: { source_project: @selected_filter['project_names'] }).or(@bs_requests.where(bs_request_actions: { target_project: @selected_filter['project_names'] }))
+    @bs_requests = @bs_requests.where(bs_request_actions: { source_project: @selected_filter['project_names'] })
+                               .or(@bs_requests.where(bs_request_actions: { target_project: @selected_filter['project_names'] }))
   end
 
   def filter_package_names
     return if params[:package_names]&.compact_blank.blank?
 
     @selected_filter['package_names'] = params[:package_names].compact_blank
-    @bs_requests = @bs_requests.where(bs_request_actions: { source_package: @selected_filter['package_names'] }).or(@bs_requests.where(bs_request_actions: { target_package: @selected_filter['package_names'] }))
+    @bs_requests = @bs_requests.where(bs_request_actions: { source_package: @selected_filter['package_names'] })
+                               .or(@bs_requests.where(bs_request_actions: { target_package: @selected_filter['package_names'] }))
   end
 
   def filter_created_at

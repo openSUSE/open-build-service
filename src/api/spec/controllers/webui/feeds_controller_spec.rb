@@ -133,7 +133,9 @@ RSpec.describe Webui::FeedsController, :vcr do
           role: 'role'
         }
       end
-      let!(:notification_relationship_create) { create(:notification_for_request, :rss_notification, event_type: 'Event::RelationshipCreate', subscriber: user, notifiable: package, event_payload: event_payload) }
+      let!(:notification_relationship_create) do
+        create(:notification_for_request, :rss_notification, event_type: 'Event::RelationshipCreate', subscriber: user, notifiable: package, event_payload: event_payload)
+      end
 
       render_views
       before do

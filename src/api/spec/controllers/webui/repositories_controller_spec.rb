@@ -228,7 +228,11 @@ RSpec.describe Webui::RepositoriesController, :vcr do
         post :mark_important, params: { project: user.home_project, repository: repo_for_user_home.name }
       end
 
-      it { expect(RepositoryArchitecture.joins(:architecture).where(repository: repo_for_user_home).pluck('architecture.name', :important)).to contain_exactly(['armv7l', false], ['i586', false], ['x86_64', false]) }
+      it {
+        expect(RepositoryArchitecture.joins(:architecture).where(repository: repo_for_user_home).pluck('architecture.name',
+                                                                                                       :important)).to contain_exactly(['armv7l', false], ['i586', false], ['x86_64', false])
+      }
+
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:success]).to eq('Successfully updated repository') }
     end
@@ -241,7 +245,11 @@ RSpec.describe Webui::RepositoriesController, :vcr do
         post :mark_important, params: { project: user.home_project, repository: repo_for_user_home.name, important: { 'i586' => true, 'x86_64' => true } }
       end
 
-      it { expect(RepositoryArchitecture.joins(:architecture).where(repository: repo_for_user_home).pluck('architecture.name', :important)).to contain_exactly(['armv7l', false], ['i586', true], ['x86_64', true]) }
+      it {
+        expect(RepositoryArchitecture.joins(:architecture).where(repository: repo_for_user_home).pluck('architecture.name',
+                                                                                                       :important)).to contain_exactly(['armv7l', false], ['i586', true], ['x86_64', true])
+      }
+
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:success]).to eq('Successfully updated repository') }
     end
