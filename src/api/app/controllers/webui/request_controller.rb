@@ -573,7 +573,7 @@ class Webui::RequestController < Webui::WebuiController
 
     if staging_review.for_project?
       staging_project = {
-        name: staging_review.project.name[target_project.name.length + 1..],
+        name: staging_review.project.name[(target_project.name.length + 1)..],
         url: staging_workflow_staging_project_path(target_project.name, staging_review.project.name)
       }
     end
