@@ -22,7 +22,7 @@
         %thead
           %tr
             %th.w-30 Name
-            - if Flipper.enabled?(:package_version_tracking, User.session)
+            - if Flipper.enabled?(:package_version_tracking, User.session) && project.anitya_distribution_name.present?
               %th.w-30 Version
             - if Flipper.enabled?(:labels, User.session)
               %th.w-30 Labels
@@ -47,7 +47,7 @@
   :plain
     var package_datatable_columns = [{"data": "name"}]
 
-  - if Flipper.enabled?(:package_version_tracking, User.session)
+  - if Flipper.enabled?(:package_version_tracking, User.session) && project.anitya_distribution_name.present?
     :plain
       package_datatable_columns.push({"data": "version", "orderable": false})
 
