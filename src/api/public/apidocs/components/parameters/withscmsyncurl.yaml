@@ -1,0 +1,12 @@
+in: query
+name: withscmsyncurl
+schema:
+  type: integer
+  enum:
+    - 0
+    - 1
+description: |
+  Add the scmsync url in the results as attribute `scmsyncurl`.
+
+  A value `0` means without the scmsync url. A value `1` means with the scmsync url.
+example: 1

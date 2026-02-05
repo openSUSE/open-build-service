@@ -5801,6 +5801,16 @@ sub published_binary_projectindexfunc {
   return sort keys %bins;
 }
 
+sub search_add_scmsyncurl {
+  my ($data) = @_;
+  
+  for my $d (@$data) {
+    next unless $d->{'project'} && $d->{'package'};
+    my $scmsyncurl = BSSrcServer::ScmsyncDB::getscmsyncurl($d->{'project'}, $d->{'package'});
+    $d->{'scmsyncurl'} = $scmsyncurl if $scmsyncurl;
+  }
+}
+
 sub search_add_downloadurl {
   my ($data) = @_;
   for my $d (@$data) {
@@ -5848,6 +5858,7 @@ sub search_published_binary_id {
   $res->{'limited'} = 'true' if $limit && @$data > $limit;
   splice(@$data, $limit) if $limit && @$data > $limit;
   delete $_->{'path'} for @$data;
+  search_add_scmsyncurl($data) if $cgi->{'withscmsyncurl'};
   search_add_downloadurl($data) if $cgi->{'withdownloadurl'};
   $res->{'binary'} = $data;
   return ($res, $BSXML::collection);
@@ -8035,10 +8046,10 @@ my $dispatches = [
   '/search/package/id $match:' => \&search_pack_id,
 
   'POST:/search/published cmd:' => \&search_published_updatedb,
-  '/search/published/binary/id $match: limit:num? withdownloadurl:bool?' => \&search_published_binary_id,
-  '/search/published/binary/name $match: limit:num?' => \&search_published_binary_name,
-  '/search/published/pattern/id $match: limit:num? withdownloadurl:bool?' => \&search_published_pattern_id,
-  '/search/published/repoinfo/id $match: limit:num? withdownloadurl:bool?' => \&search_published_repoinfo_id,
+  '/search/published/binary/id $match: limit:num? withdownloadurl:bool? withscmsyncurl:bool?' => \&search_published_binary_id,
+  '/search/published/binary/name $match: limit:num? withdownloadurl:bool? withscmsyncurl:bool?' => \&search_published_binary_name,
+  '/search/published/pattern/id $match: limit:num? withdownloadurl:bool? withscmsyncurl:bool?' => \&search_published_pattern_id,
+  '/search/published/repoinfo/id $match: limit:num? withdownloadurl:bool? withscmsyncurl:bool?' => \&search_published_repoinfo_id,
 
   # service interface, just for listing for now
   '/service' => \&listservices,
