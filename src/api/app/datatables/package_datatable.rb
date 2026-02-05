@@ -18,7 +18,7 @@ class PackageDatatable < Datatable
     # or in aliased_join_table.column_name format
     @view_columns ||= {
       name: { source: 'Package.name' },
-      version: { source: 'PackageVersion.version' },
+      version: { source: 'PackageVersion.version', cond: versions_filter },
       labels: { source: 'LabelTemplate.name' },
       changed: { source: 'Package.updated_at', searchable: false }
     }
@@ -34,7 +34,7 @@ class PackageDatatable < Datatable
     records.map do |record|
       {
         name: name_with_link(record),
-        version: versions(record),
+        version: versions_text(record),
         labels: labels_list(record.labels),
         changed: format('%{duration} ago',
                         duration: time_ago_in_words(Time.at(record.updated_at.to_i)))
@@ -71,18 +71,39 @@ class PackageDatatable < Datatable
     end
   end
 
-  def versions(record)
-    tag.span do
-      local = record.latest_local_version&.version
-      upstream = record.latest_upstream_version&.version
-      tag.span(local) +
-        if upstream && local != upstream
-          ActionController::Base.helpers.sanitize(" (#{release_monitoring_package_link(record, "#{upstream} available")})")
-        elsif upstream && local == upstream
-          ActionController::Base.helpers.sanitize(" (#{release_monitoring_package_link(record, 'up to date')})")
-        else
-          ActionController::Base.helpers.sanitize(" (#{release_monitoring_search_link(record, 'no upstream')})")
-        end
+  def versions_filter
+    lambda do |_column, value|
+      local = 'package_versions.version'
+      upstream = 'latest_upstream_versions_packages.version'
+
+      text = <<~SQL.squish
+        CASE
+          WHEN #{upstream} IS NULL THEN 'no upstream'
+          WHEN #{local} = #{upstream} THEN 'up to date'
+          ELSE CONCAT(#{upstream}, ' available')
+        END
+      SQL
+
+      parenthesized_text = "CONCAT('(', #{text}, ')')"
+
+      ::Arel::Nodes::SqlLiteral.new("CONCAT_WS(' ', #{local}, #{parenthesized_text})").matches("%#{value}%")
     end
+  end
+
+  def versions_text(record)
+    local = record.latest_local_version&.version
+    upstream = record.latest_upstream_version&.version
+
+    link = if upstream.blank?
+             release_monitoring_search_link(record, 'no upstream')
+           elsif local == upstream
+             release_monitoring_package_link(record, 'up to date')
+           else
+             release_monitoring_package_link(record, "#{upstream} available")
+           end
+
+    parenthesized_text = "(#{link})".html_safe # rubocop:disable Rails/OutputSafety
+
+    ActionController::Base.helpers.safe_join([local, parenthesized_text].compact, ' ')
   end
 end
