@@ -121,7 +121,6 @@ end
 #  channel         :integer          default("disabled"), not null
 #  enabled         :boolean          default(FALSE)
 #  eventtype       :string(255)      not null
-#  payload         :text(65535)
 #  receiver_role   :string(255)      not null
 #  created_at      :datetime
 #  updated_at      :datetime
