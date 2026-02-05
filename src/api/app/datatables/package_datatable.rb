@@ -18,7 +18,7 @@ class PackageDatatable < Datatable
     # or in aliased_join_table.column_name format
     @view_columns ||= {
       name: { source: 'Package.name' },
-      version: { source: 'PackageVersion.version' },
+      version: { source: 'PackageVersion.version', cond: versions_filter },
       labels: { source: 'LabelTemplate.name' },
       changed: { source: 'Package.updated_at', searchable: false }
     }
@@ -68,6 +68,25 @@ class PackageDatatable < Datatable
       # rubocop:disable Style/StringConcatenation
       tag.i(class: 'fas fa-link') + ' Link'
       # rubocop:enable Style/StringConcatenation
+    end
+  end
+
+  def versions_filter
+    lambda do |_column, value|
+      local = 'package_versions.version'
+      upstream = 'latest_upstream_versions_packages.version'
+
+      text = <<~SQL.squish
+        CASE
+          WHEN #{upstream} IS NULL THEN 'no upstream'
+          WHEN #{local} = #{upstream} THEN 'up to date'
+          ELSE CONCAT(#{upstream}, ' available')
+        END
+      SQL
+
+      parenthesized_text = "CONCAT('(', #{text}, ')')"
+
+      ::Arel::Nodes::SqlLiteral.new("CONCAT_WS(' ', #{local}, #{parenthesized_text})").matches("%#{value}%")
     end
   end
 
