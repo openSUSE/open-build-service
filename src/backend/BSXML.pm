@@ -1324,6 +1324,7 @@ our $binary_id = [
 	'baseproject',
 	'type',
 	'downloadurl',
+	'scmsyncurl',
 ];
 
 our $pattern_id = [
