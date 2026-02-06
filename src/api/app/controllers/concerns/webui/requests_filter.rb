@@ -14,7 +14,7 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
   def filter_requests
     @selected_filter = { states: %w[new review], action_types: [], creators: [],
                          priorities: [], staging_projects: [], reviewers: [],
-                         project_names: [], created_at_from: nil, created_at_to: nil,
+                         project_names: [], created_at_from: 2.years.ago.beginning_of_day.strftime('%Y-%m-%dT%H:%M'), created_at_to: nil,
                          involvement: %w[incoming outgoing review], search: nil, package_names: [],
                          labels: [], sort: SORTS.first.value }.with_indifferent_access
 
