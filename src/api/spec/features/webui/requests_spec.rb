@@ -35,6 +35,35 @@ RSpec.describe 'Requests', :js, :vcr do
       expect(page).to have_no_text(comment1.body)
     end
 
+    context 'for declined requests' do
+      let(:declined_request) { create(:declined_bs_request, target_project: target_project, creator: submitter) }
+
+      it 'shows the comment box for logged in users' do
+        login receiver
+        visit request_show_path(declined_request)
+        expect(page).to have_css('.comment_new')
+        expect(page).to have_css('form.post-comment-form')
+      end
+    end
+
+    context 'for accepted requests' do
+      let(:accepted_request) { create(:bs_request_with_submit_action, state: :accepted, target_project: target_project, creator: submitter) }
+
+      it 'shows the comment box for logged in users' do
+        login receiver
+        visit request_show_path(accepted_request)
+        expect(page).to have_css('.comment_new')
+      end
+    end
+
+    context 'for new requests' do
+      it 'shows the comment box for logged in users' do
+        login receiver
+        visit request_show_path(bs_request)
+        expect(page).to have_css('.comment_new')
+      end
+    end
+
     describe 'request description field' do
       it 'superseded requests' do
         visit request_show_path(bs_request)
