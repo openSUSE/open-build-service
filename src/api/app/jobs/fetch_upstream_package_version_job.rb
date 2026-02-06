@@ -17,7 +17,11 @@ class FetchUpstreamPackageVersionJob < ApplicationJob
     return if project.blank?
 
     distribution_name = project.anitya_distribution_name
-    return if distribution_name.blank?
+    if distribution_name.blank?
+      delete_package_version_upstream(project)
+
+      return
+    end
 
     project.packages.each do |package|
       create_upstream_package_versions(package_name: package.name, distribution_name: distribution_name, package_ids: [package.id])
@@ -66,5 +70,9 @@ class FetchUpstreamPackageVersionJob < ApplicationJob
     return if response.nil?
 
     response.dig('items', 0, 'stable_version')
+  end
+
+  def delete_package_version_upstream(project)
+    PackageVersionUpstream.joins(:package).where(package_id: project.packages.ids).delete_all
   end
 end
