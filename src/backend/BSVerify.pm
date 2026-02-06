@@ -252,10 +252,13 @@ sub verify_repo {
     verify_repoid($rt->{'repository'});
   }
   my %archs = map {$_ => 1} @{$repo->{'arch'} || []};
+  my %urls;
   for my $dod (@{$repo->{'download'} || []}) {
     verify_dod($dod);
     die("dod arch $dod->{'arch'} not in repo\n") unless $archs{$dod->{'arch'}};
-    die("dod arch $dod->{'arch'} listed more than once\n") if $archs{$dod->{'arch'}}++ > 1;
+    # Multiple download elements with the same arch are allowed - each can have its own URL and pubkey,
+    # but fail if the same url is listed more than once for the same arch, to avoid exact duplicates
+    die("dod url $dod->{'url'} listed more than once\n") if $urls{$dod->{'url'}}++;
   }
   if ($repo->{'base'}) {
     die("repo contains a 'base' element\n");
