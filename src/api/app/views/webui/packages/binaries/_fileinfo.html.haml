@@ -31,20 +31,7 @@
     #{btime}
     = render TimeComponent.new(time: btime)
 
-= render partial: 'deps', locals: { fileinfo: fileinfo,
-                                    filename: filename,
-                                    project: project,
-                                    package: package,
-                                    repository: repository,
-                                    architecture: architecture }
-
-- content_for :ready_function do
-  :plain
-    initializeRemoteDatatable('#filelist-table', {
-        "columns": [
-          {"data": "name"}
-        ],
-        paging: false,
-        searching: false,
-        info: false
-      });
+= turbo_frame_tag "binary-dependencies-#{filename}",
+                  loading: 'lazy',
+                  src: project_package_repository_binary_dependencies_path(project, package, repository, architecture, filename) do
+  = render partial: 'webui/shared/loading', locals: { text: 'Loading binary details...' }
