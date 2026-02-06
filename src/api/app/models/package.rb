@@ -742,6 +742,8 @@ class Package < ApplicationRecord
   def update_from_xml(xmlhash, ignore_lock = nil)
     check_write_access!(ignore_lock)
 
+    validate_scmsync_with_aggregate(xmlhash)
+
     Package.transaction do
       assign_attributes_from_from_xml(xmlhash)
 
@@ -770,6 +772,16 @@ class Package < ApplicationRecord
     self.bcntsynctag = xmlhash.value('bcntsynctag')
     self.releasename = xmlhash.value('releasename')
     self.scmsync = xmlhash.value('scmsync')
+  end
+
+  def validate_scmsync_with_aggregate(xmlhash)
+    new_scmsync = xmlhash.value('scmsync')
+    return if new_scmsync.blank?
+    return if scmsync.present? # Already has scmsync, allow updates
+
+    return unless file_exists?('_aggregate')
+
+    raise SaveError, 'Cannot set scmsync: package contains _aggregate file. Remove the _aggregate file first or use a different package.'
   end
 
   def assign_devel_package_from_xml(xmlhash)
