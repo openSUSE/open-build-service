@@ -176,7 +176,7 @@ BuildRequires:  %{rubygem hana}
 BuildRequires:  %{rubygem json_refs}
 # /for the resolve_swagger_yaml.rb script
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
-BuildArch:      noarch
+
 Requires(pre):  obs-common
 Requires:       %{__obs_build_package_name} >= 20201211
 Requires:       perl-BSSolv >= 0.36
@@ -476,7 +476,7 @@ OBS_RUBY_ABI_VERSION=%{__obs_ruby_abi_version}
 EOF
 
 pushd src/api
-bundle config set path %_libdir/obs-api/
+bundle config set path %(rpm -E %%_libdir)/obs-api
 
 bundle install --local
 rm -rf vendor/cache/* vendor/cache.next/*
@@ -495,6 +495,10 @@ make resolve_swagger_yaml
 export DESTDIR=$RPM_BUILD_ROOT
 export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install
+
+# install .bundle/config generated in %%build
+mkdir -p %{buildroot}%{__obs_api_prefix}/.bundle
+install -m 0640 src/api/.bundle/config %{buildroot}%{__obs_api_prefix}/.bundle/config
 
 %if 0%{?suse_version}
 systemd_services="$(basename --multiple --suffix .service %{buildroot}%{_unitdir}/*.service) $(basename --multiple --suffix .target %{buildroot}%{_unitdir}/*.target)"
