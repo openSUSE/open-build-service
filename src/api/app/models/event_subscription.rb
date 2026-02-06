@@ -1,6 +1,4 @@
 class EventSubscription < ApplicationRecord
-  self.ignored_columns += ['payload']
-
   RECEIVER_ROLE_TEXTS = {
     maintainer: 'Maintainer',
     bugowner: 'Bugowner',
