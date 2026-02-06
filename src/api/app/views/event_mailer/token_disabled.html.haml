@@ -1,0 +1,5 @@
+%p
+  Your #{ event['scm_vendor']&.capitalize } workflow token #{ event['token_name'] } was disabled due to authorization errors.
+
+%p
+  Please check your credentials and enable the token again here: #{ link_to('Token', token_url(event['token_id'], only_path: false, host: @host)) }.

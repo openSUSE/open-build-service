@@ -22,7 +22,8 @@ module NotificationService
                         'Event::AddedUserToGroup',
                         'Event::RemovedUserFromGroup',
                         'Event::AssignmentCreate',
-                        'Event::AssignmentDelete'].freeze
+                        'Event::AssignmentDelete',
+                        'Event::TokenDisabled'].freeze
     CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
@@ -49,7 +50,8 @@ module NotificationService
                         'Event::FavoredDecision',
                         'Event::WorkflowRunFail',
                         'Event::AddedUserToGroup',
-                        'Event::RemovedUserFromGroup'].freeze
+                        'Event::RemovedUserFromGroup',
+                        'Event::TokenDisabled'].freeze
 
     def initialize(event)
       @event = event

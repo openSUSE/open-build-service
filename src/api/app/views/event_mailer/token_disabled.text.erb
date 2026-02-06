@@ -1,0 +1,3 @@
+Your <%= @event['scm_vendor']&.capitalize %> workflow token <%= @event['token_name'] %> was disabled due to authorization errors.
+
+Please check your credentials and enable the token again here: <%= token_url(@event['token_id'], only_path: false, host: @host) %>.
