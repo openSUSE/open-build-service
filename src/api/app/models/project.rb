@@ -480,11 +480,9 @@ class Project < ApplicationRecord
     end
   end
 
-  def find_repos(sym)
+  def find_repos(sym, &)
     repositories.each do |repo|
-      repo.send(sym).each do |lrep|
-        yield lrep
-      end
+      repo.send(sym).each(&)
     end
   end
 
