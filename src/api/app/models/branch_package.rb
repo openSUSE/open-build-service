@@ -198,7 +198,15 @@ class BranchPackage
         tpkg.bcntsynctag << ".#{p[:link_target_project].name.tr(':', '_')}" if tpkg.bcntsynctag && @extend_names
         tpkg.releasename = p[:release_name]
       end
-      tpkg.store
+
+      begin
+        tpkg.store
+      rescue ActiveRecord::RecordNotUnique
+        raise DoubleBranchPackageError.new(tprj.name, tpkg.name), "branch target package already exists: #{tprj.name}/#{tpkg.name}" unless params[:force]
+
+        # reload package that already exists if params[:force] is given
+        tpkg = tprj.packages.find_by_name(pack_name)
+      end
 
       if p[:local_link]
         # copy project local linked packages
