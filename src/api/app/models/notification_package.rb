@@ -11,6 +11,8 @@ class NotificationPackage < Notification
       "#{event_payload['who']} removed #{recipient} as #{event_payload['role']} of #{target_object}"
     when 'Event::BuildFail'
       "Build was triggered because of #{event_payload['reason']}"
+    when 'Event::UpstreamPackageVersionChanged'
+      "The upstream version of package #{event_payload['project']} / #{event_payload['package']} has changed to #{event_payload['upstream_version']}"
     end
   end
 
@@ -30,14 +32,21 @@ class NotificationPackage < Notification
       "Removed as #{event_payload['role']} of a package"
     when 'Event::BuildFail'
       "Package #{event_payload['package']} on #{event_payload['project']} project failed to build against #{event_payload['repository']} / #{event_payload['arch']}"
+    when 'Event::UpstreamPackageVersionChanged'
+      "New upstream version for #{event_payload['package']}"
     end
   end
 
   def link_path
-    if event_type == 'Event::BuildFail'
+    case event_type
+    when 'Event::BuildFail'
       Rails.application.routes.url_helpers.package_live_build_log_path(package: event_payload['package'], project: event_payload['project'],
                                                                        repository: event_payload['repository'], arch: event_payload['arch'],
                                                                        notification_id: id)
+    when 'Event::UpstreamPackageVersionChanged'
+      Rails.application.routes.url_helpers.package_show_path(event_payload['project'],
+                                                             event_payload['package'],
+                                                             notification_id: id)
     else
       Rails.application.routes.url_helpers.package_users_path(event_payload['project'],
                                                               event_payload['package'],
