@@ -5,5 +5,7 @@ module Event
     self.notification_explanation = 'Receive a notification when a new upstream version is available for a package you are involved with.'
 
     payload_keys :upstream_version, :project, :package
+
+    receiver_roles :maintainer
   end
 end
