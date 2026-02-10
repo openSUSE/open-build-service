@@ -22,7 +22,8 @@ module NotificationService
                         'Event::AddedUserToGroup',
                         'Event::RemovedUserFromGroup',
                         'Event::AssignmentCreate',
-                        'Event::AssignmentDelete'].freeze
+                        'Event::AssignmentDelete',
+                        'Event::UpstreamPackageVersionChanged'].freeze
     CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
