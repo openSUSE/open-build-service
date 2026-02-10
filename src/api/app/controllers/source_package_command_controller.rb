@@ -273,7 +273,7 @@ class SourcePackageCommandController < SourceController
       @package.save!
     end
 
-    path = @package.source_path
+    path = Package.source_path(@package.project.name, @package.name)
     path << build_query_from_hash(params, %i[cmd rev user comment oproject opackage orev expand
                                              keeplink repairlink linkrev olinkrev requestid
                                              withvrev noservice dontupdatesource])
