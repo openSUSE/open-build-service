@@ -315,10 +315,10 @@ RSpec.describe Package, :vcr do
     end
   end
 
-  describe '#source_path' do
-    it { expect(package_with_file.source_path).to eq('/source/home:tom/package_with_files') }
-    it { expect(package_with_file.source_path('icon')).to eq('/source/home:tom/package_with_files/icon') }
-    it { expect(package_with_file.source_path('icon', format: :html)).to eq('/source/home:tom/package_with_files/icon?format=html') }
+  describe '.source_path' do
+    it { expect(Package.source_path(package_with_file.project.name, package_with_file.name)).to                        eq('/source/home:tom/package_with_files') }
+    it { expect(Package.source_path(package_with_file.project.name, package_with_file.name, 'icon')).to                eq('/source/home:tom/package_with_files/icon') }
+    it { expect(Package.source_path(package_with_file.project.name, package_with_file.name, 'icon', format: :html)).to eq('/source/home:tom/package_with_files/icon?format=html') }
   end
 
   describe '.what_depends_on' do

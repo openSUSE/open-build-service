@@ -501,10 +501,6 @@ class Package < ApplicationRecord
     path
   end
 
-  def source_path(file = nil, opts = {})
-    Package.source_path(project.name, name, file, opts)
-  end
-
   def source_file(file, opts = {})
     Backend::Api::Sources::File.content(project.name, name, file, opts)
   end
