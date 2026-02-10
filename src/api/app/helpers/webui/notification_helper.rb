@@ -30,6 +30,8 @@ module Webui::NotificationHelper
   def notification_icon(notification)
     if notification.event_type.in?(['Event::RelationshipCreate', 'Event::RelationshipDelete'])
       tag.i(class: %w[fas fa-user-tag], title: 'Relationship notification')
+    elsif notification.event_type.in?(['Event::UpstreamPackageVersionChanged'])
+      tag.i(class: %w[fas fa-archive])
     elsif NOTIFICATION_ICON[notification.notifiable_type].present?
       tag.i(class: ['fas', NOTIFICATION_ICON[notification.notifiable_type]], title: NOTIFICATION_TITLE[notification.notifiable_type])
     end
