@@ -55,8 +55,9 @@ module Person
     end
 
     def show_maximum(notifications)
-      total = notifications.size
-      notifications.page(params[:page]).per([total, Notification.max_per_page].min)
+      requested_count = params[:show_maximum].to_i
+      capped_count = [requested_count, Notification.max_per_page].min
+      notifications.page(params[:page]).per(capped_count)
     end
 
     def set_filter_kind
