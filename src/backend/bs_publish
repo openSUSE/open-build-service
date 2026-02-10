@@ -437,9 +437,6 @@ sub create_detached_cms_signature {
     die("    cms sign failed: $?\n");
   }
   unlink("$uploaddir/publisher.$$.cert");
-  my $sig = readstr("$file.p7s");
-  writestr("$file.p7m.$$", "$file.p7m", BSASN1::der2pem($sig, 'CMS'));
-  unlink("$file.p7s");
 }
 
 ##########################################################################
