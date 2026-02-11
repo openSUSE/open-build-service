@@ -38,7 +38,8 @@ RSpec.describe TriggerWorkflowController do
       it { expect(response).to have_http_status(:not_found) }
 
       it "displays a user-friendly error message in the response's body" do
-        expect(response.body).to include("<status code=\"non_existent_workflows_file\">\n  <summary>.obs/workflows.yml could not be downloaded from the SCM branch/commit master: Octokit::NotFound</summary>\n</status>\n")
+        expect(response.body).to include("<status code=\"non_existent_workflows_file\">\n  " \
+                                         "<summary>.obs/workflows.yml could not be downloaded from the SCM branch/commit master: Octokit::NotFound</summary>\n</status>\n")
       end
 
       it { expect(WorkflowRun.count).to eq(1) }

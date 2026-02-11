@@ -78,7 +78,7 @@ RSpec.describe Kiwi::Repository do
           index = range(0, string.length - 3)
           string[index] = ':'
           string[index + 1] = string[index + 2] = '/'
-          guard(%w[ftp http https plain dir iso smb this obs].exclude?(string[0..index - 1]))
+          guard(%w[ftp http https plain dir iso smb this obs].exclude?(string[0..(index - 1)]))
           string
         end.check(3) do |string|
           expect(subject).not_to allow_value(string).for(:source_path)

@@ -14,31 +14,43 @@ class PackageDatatable < Datatable
   end
 
   def view_columns
+    return @view_columns if @view_columns
+
     # Declare strings in this format: ModelName.column_name
     # or in aliased_join_table.column_name format
-    @view_columns ||= {
+    @view_columns = {
       name: { source: 'Package.name' },
-      version: { source: 'PackageVersion.version' },
       labels: { source: 'LabelTemplate.name' },
       changed: { source: 'Package.updated_at', searchable: false }
     }
+
+    @view_columns[:version] = { source: 'PackageVersion.version', cond: versions_filter } if show_version_column?
+
+    @view_columns
   end
 
   # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
-    @project.packages.includes(:package_kinds).left_joins(:latest_local_version, :latest_upstream_version, labels: [:label_template]).references(:labels, :label_template)
+    query = @project.packages.includes(:package_kinds).left_joins(labels: [:label_template]).references(:labels, :label_template)
+
+    query = query.left_joins(:latest_local_version, :latest_upstream_version) if show_version_column?
+
+    query
   end
   # rubocop:enable Naming/AccessorMethodName
 
   def data
     records.map do |record|
-      {
+      row = {
         name: name_with_link(record),
-        version: versions(record),
         labels: labels_list(record.labels),
         changed: format('%{duration} ago',
                         duration: time_ago_in_words(Time.at(record.updated_at.to_i)))
       }
+
+      row[:version] = versions_text(record) if show_version_column?
+
+      row
     end
   end
 
@@ -71,18 +83,43 @@ class PackageDatatable < Datatable
     end
   end
 
-  def versions(record)
-    tag.span do
-      local = record.latest_local_version&.version
-      upstream = record.latest_upstream_version&.version
-      tag.span(local) +
-        if upstream && local != upstream
-          ActionController::Base.helpers.sanitize(" (#{release_monitoring_package_link(record, "#{upstream} available")})")
-        elsif upstream && local == upstream
-          ActionController::Base.helpers.sanitize(" (#{release_monitoring_package_link(record, 'up to date')})")
-        else
-          ActionController::Base.helpers.sanitize(" (#{release_monitoring_search_link(record, 'no upstream')})")
-        end
+  def versions_filter
+    lambda do |_column, value|
+      local = 'package_versions.version'
+      upstream = 'latest_upstream_versions_packages.version'
+
+      text = <<~SQL.squish
+        CASE
+          WHEN #{upstream} IS NULL THEN 'no upstream'
+          WHEN #{local} = #{upstream} THEN 'up to date'
+          ELSE CONCAT(#{upstream}, ' available')
+        END
+      SQL
+
+      parenthesized_text = "CONCAT('(', #{text}, ')')"
+
+      ::Arel::Nodes::SqlLiteral.new("CONCAT_WS(' ', #{local}, #{parenthesized_text})").matches("%#{value}%")
     end
+  end
+
+  def versions_text(record)
+    local = record.latest_local_version&.version
+    upstream = record.latest_upstream_version&.version
+
+    link = if upstream.blank?
+             release_monitoring_search_link(record, 'no upstream')
+           elsif local == upstream
+             release_monitoring_package_link(record, 'up to date')
+           else
+             release_monitoring_package_link(record, "#{upstream} available")
+           end
+
+    parenthesized_text = "(#{link})".html_safe # rubocop:disable Rails/OutputSafety
+
+    ActionController::Base.helpers.safe_join([local, parenthesized_text].compact, ' ')
+  end
+
+  def show_version_column?
+    @show_version_column ||= Flipper.enabled?(:package_version_tracking, User.session) && @project.anitya_distribution_name.present?
   end
 end

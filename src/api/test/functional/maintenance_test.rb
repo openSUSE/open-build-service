@@ -58,12 +58,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # need write permission in maintained project...
-    put '/source/home:tom:maintenance/_meta', params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="BaseDistro"/></maintenance> </project>'
+    put '/source/home:tom:maintenance/_meta',
+        params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="BaseDistro"/></maintenance> </project>'
     assert_response :forbidden
     assert_xml_tag tag: 'summary', content: 'No write access to maintained project BaseDistro'
 
     # create one ...
-    put '/source/home:tom:maintenance/_meta', params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="home:tom"/></maintenance> </project>'
+    put '/source/home:tom:maintenance/_meta',
+        params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="home:tom"/></maintenance> </project>'
     assert_response :success
     get '/source/home:tom:maintenance/_meta'
     assert_response :success
@@ -1450,7 +1452,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'status', attributes: { code: 'under_embargo' })
 
     # use the special form, no time specified
-    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.year}-#{Time.now.month}-#{Time.now.day}</value></attribute></attributes>"
+    post "/source/#{incident_project}/_attribute",
+         params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.year}-#{Time.now.month}-#{Time.now.day}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response :bad_request
@@ -1714,7 +1717,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'releasetarget', attributes: { trigger: 'maintenance' }
 
     # create a service pack on top of it
-    put '/source/BaseDistro2.0:ServicePack1/_meta', params: '<project name="BaseDistro2.0:ServicePack1"> <title/><description/><link project="BaseDistro2.0:LinkedUpdateProject" vrevmode="extend"/></project>'
+    put '/source/BaseDistro2.0:ServicePack1/_meta',
+        params: '<project name="BaseDistro2.0:ServicePack1"> <title/><description/><link project="BaseDistro2.0:LinkedUpdateProject" vrevmode="extend"/></project>'
     assert_response :success
     # get current vrev
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'

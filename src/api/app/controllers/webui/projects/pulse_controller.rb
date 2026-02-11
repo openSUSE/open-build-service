@@ -20,7 +20,7 @@ module Webui
 
             render partial: 'pulse_list', locals: { project: @project,
                                                     builds: pulse.where(event_type: %i[build_fail build_success])
-                                                                 .where(datetime: 24.hours.ago..Time.zone.now),
+                                                            .where(datetime: 24.hours.ago..Time.zone.now),
                                                     new_packages: pulse.where(event_type: :create_package),
                                                     deleted_packages: pulse.where(event_type: :delete_package),
                                                     branches: pulse.where(event_type: :branch_command),

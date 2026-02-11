@@ -488,6 +488,7 @@ my $gctx = {
   'rrelatedprpdeps' => {},		# reverse of relatedprpdeps
   'alllocked' => {},			# prps where all packages are locked
   'prpsearchpath_host' => {},		# which prps to use for building for the host system
+  'bigdeps' => {},			# dependency unification
 
   # triggers
   'prpcheckuseforbuild' => {},		# project/package meta has changed
@@ -725,6 +726,7 @@ if (!$gctx->{'projpacks'}) {
   @{$gctx->{'lookat_low'}} = sort keys %{$gctx->{'projpacks'}};
   push @{$gctx->{'lookat_low'}}, @{$gctx->{'prps'}};
 }
+BSSched::ProjPacks::bigdeps_unification($gctx);
 
 # look at suspended projects to check the timeout
 push @{$gctx->{'lookat_med'}}, @{$gctx->{'project_prps'}->{$_} || []} for sort keys %{$gctx->{'projsuspended'}};
@@ -906,6 +908,8 @@ eval {
     if ($lastprojectstats + 4 * 3600 < time()) {
       BSUtil::printlog("dumping project statistics");
       BSSched::ProjPacks::print_project_stats($gctx);
+      # do bigdeps unification to get rid of stale entries
+      BSSched::ProjPacks::bigdeps_unification($gctx);
       $lastprojectstats = time();
     }
 

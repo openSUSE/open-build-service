@@ -367,8 +367,6 @@ RSpec.describe Webui::RequestController, :vcr do
             login(submitter)
             create(:bs_request_action_set_bugowner,
                    bs_request: bs_request,
-                   source_project: source_project,
-                   source_package: source_package,
                    target_project: target_project,
                    target_package: target_package)
           end
@@ -402,8 +400,6 @@ RSpec.describe Webui::RequestController, :vcr do
           subject! do
             create(:bs_request_action_set_bugowner,
                    bs_request: bs_request,
-                   source_project: source_project,
-                   source_package: source_package,
                    target_project: target_project,
                    target_package: target_package)
             login(receiver)
@@ -417,8 +413,6 @@ RSpec.describe Webui::RequestController, :vcr do
             create(:add_role_request,
                    creator: submitter,
                    role: 'bugowner',
-                   source_project: source_project,
-                   source_package: source_package,
                    target_project: target_project,
                    target_package: target_package)
           end

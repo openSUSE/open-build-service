@@ -579,7 +579,9 @@ RSpec.describe User do
     let!(:outgoing_request) { create(:bs_request_with_submit_action, creator: confirmed_user, description: 'outgoing') }
     let!(:request_with_user_review) { create(:delete_bs_request, target_project: create(:project), review_by_user: confirmed_user, description: 'user_review') }
     let!(:request_with_project_review) { create(:delete_bs_request, target_project: create(:project), review_by_project: confirmed_user.home_project, description: 'project_review') }
-    let!(:request_with_package_review) { create(:delete_bs_request, target_project: create(:project), review_by_package: create(:package_with_maintainer, maintainer: confirmed_user), description: 'package_review') }
+    let!(:request_with_package_review) do
+      create(:delete_bs_request, target_project: create(:project), review_by_package: create(:package_with_maintainer, maintainer: confirmed_user), description: 'package_review')
+    end
     let!(:unrelated_request) { create(:bs_request_with_submit_action, source_project: create(:project), description: 'unrelated') }
 
     it { expect(confirmed_user.bs_requests.pluck(:description)).to contain_exactly('incoming', 'outgoing', 'user_review', 'project_review', 'package_review') }

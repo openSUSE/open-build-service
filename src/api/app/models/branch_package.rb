@@ -147,15 +147,19 @@ class BranchPackage
     end
 
     # add repositories
-    opts = {}
-    opts[:rebuild] = @rebuild_policy if @rebuild_policy
-    opts[:block]   = @block_policy   if @block_policy
-    source_project = Project.get_by_name(params[:project])
-    project.branch_to_repositories_from(source_project, package, opts)
-    project.sync_repository_pathes
-    project.scmsync = @scmsync if params[:package] == '_project'
-    project.store
+    if @add_repositories
+      opts = {}
+      opts[:rebuild] = @rebuild_policy if @rebuild_policy
+      opts[:block]   = @block_policy   if @block_policy
+      source_project = Project.get_by_name(params[:project])
+      project.branch_to_repositories_from(source_project, package, opts)
+      project.sync_repository_pathes
+      project.store
+    end
+
     if params[:package] == '_project'
+      project.scmsync = @scmsync
+      project.store
       return { targetproject: project.name,
                sourceproject: params[:project] }
     end
@@ -440,8 +444,11 @@ class BranchPackage
       prj = Project.get_by_name(params[:project])
       tpkg_name = params[:target_package]
       if params[:missingok]
-        raise NotMissingError, "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists." if Package.exists_by_project_and_name(params[:project], params[:package],
-                                                                                                                                                                                  allow_remote_packages: true)
+        if Package.exists_by_project_and_name(params[:project], params[:package],
+                                              allow_remote_packages: true)
+          raise NotMissingError,
+                "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists."
+        end
       else
         pkg = Package.get_by_project_and_name(params[:project], params[:package], check_update_project: params[:ignoredevel].blank?)
         if prj.is_a?(Project) && prj.find_attribute('OBS', 'BranchTarget')

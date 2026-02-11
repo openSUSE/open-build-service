@@ -815,12 +815,14 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     # check if unsufficiently permitted users tries to access protected projects
     put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:ProtectedProject2'),
-        params: '<project name="home:tom:ProtectedProject2"> <title/> <description/>  <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+        params: '<project name="home:tom:ProtectedProject2"> <title/> <description/> ' \
+                '<repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
     assert_response :not_found
 
     # building against can not work, as we don't see the project
     put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:ProtectedProject2'),
-        params: '<project name="home:tom:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+        params: '<project name="home:tom:ProtectedProject2"> <title/> <description/> ' \
+                '<repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
     assert_response :not_found
 
     # try to access it with a user permitted for access

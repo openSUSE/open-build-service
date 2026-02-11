@@ -13,7 +13,8 @@ class Webui::RequestController < Webui::WebuiController
   before_action :require_request,
                 only: %i[changerequest show beta_show request_action request_action_changes request_action_details inline_comment build_results
                          changes changes_diff mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues chart_build_results complete_build_results request_action_changes request_action_details],
+  before_action :set_actions, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues chart_build_results complete_build_results
+                                       request_action_changes request_action_details],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
   before_action :set_actions_deprecated, only: [:show]
   before_action :set_action, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues request_action_details request_action_changes],
@@ -523,7 +524,7 @@ class Webui::RequestController < Webui::WebuiController
     opt['target_project'] = params[:project]
     opt['target_package'] = params[:package]
     opt['source_project'] = params[:devel_project]
-    opt['source_package'] = params[:devel_package] || params[:package]
+    opt['source_package'] = (params[:devel_package] || params[:package]) if params[:devel_project].present?
     opt['target_repository'] = params[:repository]
     opt['person_name'] = params[:user] if params[:user].present?
     opt['group_name'] = params[:group] if params[:group].present?
@@ -572,7 +573,7 @@ class Webui::RequestController < Webui::WebuiController
 
     if staging_review.for_project?
       staging_project = {
-        name: staging_review.project.name[target_project.name.length + 1..],
+        name: staging_review.project.name[(target_project.name.length + 1)..],
         url: staging_workflow_staging_project_path(target_project.name, staging_review.project.name)
       }
     end

@@ -67,6 +67,7 @@ our $oid_ext_key_usage		= BSASN1::pack_obj_id(2, 5, 29, 37);
 our $oid_server_auth		= BSASN1::pack_obj_id(1 ,3, 6, 1, 5, 5, 7, 3, 1);
 our $oid_client_auth		= BSASN1::pack_obj_id(1 ,3, 6, 1, 5, 5, 7, 3, 2);
 our $oid_code_signing		= BSASN1::pack_obj_id(1, 3, 6, 1, 5, 5, 7, 3, 3);
+our $oid_email_protection	= BSASN1::pack_obj_id(1, 3, 6, 1, 5, 5, 7, 3, 4);
 our $oid_ed25519		= BSASN1::pack_obj_id(1, 3, 101, 112);
 our $oid_ed448			= BSASN1::pack_obj_id(1, 3, 101, 113);
 our $oid_mldsa65		= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 3, 18);
