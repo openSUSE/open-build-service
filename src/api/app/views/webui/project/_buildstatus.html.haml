@@ -52,13 +52,14 @@
                 - build_result.summary.each do |status_count|
                   .toggle-build-info-parent.text-nowrap
                     %i.fa.fa-question-circle.text-info.px-2.ps-lg-1.toggle-build-info{ title: 'Click to keep it open' }
-                    = link_to("#{status_count.code}: #{status_count.count}",
-                      { action: :monitor,
+                    = link_to({ action: :monitor,
                         "#{valid_xml_id("repo_#{repository}")}": 1,
                         "arch_#{build_result.architecture}": 1,
                         project: params[:project],
                         "#{status_count.code}": 1,
-                        defaults: 0 }, rel: 'nofollow', class: "nowrap build-state-#{status_count.code}")
+                        defaults: 0 }, rel: 'nofollow', class: "nowrap build-state-#{status_count.code}", title: status_count.code.to_s.humanize) do
+                      %i.fa{ class: build_status_icon(status_count.code) }
+                      %span.ms-1= status_count.count
                   .build-info.p2.mb-2.mt-1.me-sm-3.collapsed
                     .triangle.left
                     .build-info-content
