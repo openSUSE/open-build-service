@@ -1,7 +1,11 @@
 .modal.fade{ id: 'report-modal', tabindex: -1, role: 'dialog', aria: { labelledby: "report-modal-label", hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
+      .modal-header
+        %h5.modal-title#report-modal-label
+        %button.btn-close{ type: 'button', 'data-bs-dismiss': 'modal', 'aria-label': 'Close' }
       .modal-body
+
         %p.wrap-text.confirmation-text
           Are you sure you want to report this
           %span.reportable_type
