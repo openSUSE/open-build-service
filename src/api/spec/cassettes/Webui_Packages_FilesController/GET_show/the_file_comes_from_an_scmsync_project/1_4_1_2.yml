@@ -12,6 +12,8 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556264'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -39,20 +41,22 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 12 Mar 2025 10:27:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:17:44 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/lorem/_meta?user=tom
+    uri: http://backend:5352/source/lorem/_meta?user=user_13
     body:
       encoding: UTF-8
       string: |
         <project name="lorem">
-          <title>Unweaving the Rainbow</title>
+          <title>Endless Night</title>
           <description/>
           <scmsync>https://github.com/example/scmsync-project.git</scmsync>
           <person userid="tom" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556264'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -71,28 +75,30 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '214'
+      - '206'
     body:
       encoding: UTF-8
       string: |
         <project name="lorem">
-          <title>Unweaving the Rainbow</title>
+          <title>Endless Night</title>
           <description></description>
           <scmsync>https://github.com/example/scmsync-project.git</scmsync>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 12 Mar 2025 10:27:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:17:44 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/lorem/scmsync_package/_meta?user=tom
+    uri: http://backend:5352/source/lorem/scmsync_package/_meta?user=user_14
     body:
       encoding: UTF-8
       string: |
         <package name="scmsync_package" project="lorem">
-          <title>The Wings of the Dove</title>
-          <description>Non earum natus architecto.</description>
+          <title>Mother Night</title>
+          <description>Natus libero qui voluptas.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556264'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -118,5 +124,5 @@ http_interactions:
         <status code="400">
           <summary>lorem is controlled by obs-scm</summary>
         </status>
-  recorded_at: Wed, 12 Mar 2025 10:27:00 GMT
+  recorded_at: Fri, 12 Dec 2025 16:17:44 GMT
 recorded_with: VCR 6.3.1

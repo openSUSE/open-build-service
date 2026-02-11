@@ -114,8 +114,13 @@ module Backend
 
         expanded_params += params.delete(key).map { |value| value.to_query(key) } if params.key?(key)
       end
-      expanded_params += [params.to_query] unless params.empty?
-      expanded_params
+
+      empty_query_parameters = params.select { |_, v| v.nil? }
+      expanded_params += [empty_query_parameters.keys.join('&')]
+
+      expanded_params += [params.except(*empty_query_parameters.keys).to_query]
+
+      expanded_params.compact_blank
     end
 
     def calculate_endpoint(endpoint)
