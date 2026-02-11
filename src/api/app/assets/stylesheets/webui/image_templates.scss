@@ -1,8 +1,37 @@
 .image-template-box {
   @extend .p-3;
+  // Prevent label content from overflowing and overlapping adjacent template radio buttons
+  overflow: hidden;
+  // Ensure proper stacking context for each template box
+  position: relative;
 
   &.active{
     @extend .card;
     background: var(--bs-tertiary-bg);
+  }
+
+  // Ensure the form-check container is properly positioned
+  .form-check {
+    position: relative;
+  }
+
+  // Ensure radio button is always clickable above any overlapping content
+  .form-check-input {
+    position: relative;
+    z-index: 1;
+  }
+
+  // Constrain the label to prevent overlap with adjacent columns
+  .form-check-label {
+    display: block;
+    overflow: hidden;
+    // Ensure label doesn't extend beyond its container
+    max-width: 100%;
+  }
+
+  // Ensure description text wraps properly
+  .description {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 }
