@@ -700,6 +700,35 @@ sub fixup_sha256_checksum {
   writestr("$jobdir/$shafile", undef, $sha);
 }
 
+sub sha512file {
+  my ($file) = @_;
+  my $fd;
+  open($fd, '<', $file) || die("$file: $!\n");
+  my $ctx = Digest->new('SHA-512');
+  $ctx->addfile($fd);
+  close $fd;
+  return $ctx->hexdigest();
+}
+
+sub fixup_sha512_checksum {
+  my ($jobdir, $shafile, $isofile) = @_;
+  return if ((-s "$jobdir/$shafile") || 0) > 65536;
+  my $sha = readstr("$jobdir/$shafile", 1);
+  return unless $sha;
+  return unless $sha =~ /[ \/]\Q$isofile\E\n/s;
+  # ok, needs patching...
+  if ($sha =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
+    # de-pgp
+    $sha =~ s/.*-----BEGIN PGP SIGNED MESSAGE-----//s;
+    $sha =~ s/.*?\n\n//s;
+    $sha =~ s/-----BEGIN PGP SIGNATURE-----.*//s;
+  }
+  return unless -e "$jobdir/$isofile";
+  my $newdigest = sha512file("$jobdir/$isofile");
+  $sha =~ s/^.{128}(  (?:.*\/)?\Q$isofile\E)$/$newdigest$1/m;
+  writestr("$jobdir/$shafile", undef, $sha);
+}
+
 sub updateredisjobstatus {
   my ($arch, $job, $info, $details) = @_;
   return unless $BSConfig::redisserver;
@@ -862,7 +891,7 @@ sub signjob {
   my $packid = $info->{'package'};
   $prpa_stats = "$projid/$info->{'repository'}/$arch";
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {$_ eq '_slsa_provenance.json' || /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo|apk)$/} @files;
+  my @signfiles = grep {$_ eq '_slsa_provenance.json' || /\.(?:d?rpm|sha256|sha512|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo|apk)$/} @files;
   my $needpubkey;
   if (grep {$_ eq '.kiwitree_tosign'} @files) {
     for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
@@ -1017,7 +1046,7 @@ sub signjob {
 	@signmode = ('-r', '-T', 'buildtime') if $signfile =~ /\.drpm$/;
 	@signmode = ('-D', '-4') if $signfile =~ /\.pkg\.tar\.(?:gz|xz|zst)$/;
 	@signmode = ('-a') if $signfile =~ /\.AppImage$/;
-	@signmode = ('-d') if $signfile =~ /\.sha256$/;
+	@signmode = ('-d') if $signfile =~ /\.sha256$/ || $signfile =~ /\.sha512$/;
 	if ($signfile =~ /\.key$/s) {
 	  next unless (-s "$jobdir/$signfile") == 8192;
 	  my $signfilec = readstr("$jobdir/$signfile");
@@ -1029,6 +1058,9 @@ sub signjob {
 	}
 	if ($signfile =~ /^(.*\.iso)\.sha256$/) {
 	  fixup_sha256_checksum($jobdir, $signfile, $1);
+	}
+	if ($signfile =~ /^(.*\.iso)\.sha512$/) {
+	  fixup_sha512_checksum($jobdir, $signfile, $1);
 	}
 	if ($signfile =~ /\.asc$/s) {
 	  next unless (-s "$jobdir/$signfile") == 2048;
