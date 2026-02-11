@@ -1,9 +1,0 @@
-- @pagetitle = "Dependencies of #{@filename}"
-
-= turbo_frame_tag "binary-dependencies-#{@filename}" do
-  = render partial: 'deps', locals: { fileinfo: @fileinfo,
-                                      filename: @filename,
-                                      project: @project,
-                                      package: @package_name,
-                                      repository: @repository,
-                                      architecture: @architecture }

@@ -16,10 +16,10 @@ module Webui
       before_action :set_package
       before_action :set_multibuild_flavor
       before_action :set_repository
-      before_action :set_architecture, only: %i[show dependency filelist dependencies]
+      before_action :set_architecture, only: %i[show dependency filelist]
       before_action :set_dependant_project, only: :dependency
       before_action :set_dependant_repository, only: :dependency
-      before_action :set_filename, only: %i[show dependency filelist dependencies]
+      before_action :set_filename, only: %i[show dependency filelist]
 
       prepend_before_action :lockout_spiders
 
@@ -51,8 +51,7 @@ module Webui
       end
 
       def show
-        # Use basic fileinfo for initial page load; dependencies are loaded lazily via Turbo Frame
-        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo(@project.name, @package_name, @repository.name, @architecture.name, @filename)
+        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename)
         raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
         respond_to do |format|
@@ -61,11 +60,6 @@ module Webui
           end
           format.any { redirect_to download_url_for_binary(architecture_name: @architecture.name, file_name: @filename) }
         end
-      end
-
-      def dependencies
-        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename)
-        raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
       end
 
       def dependency

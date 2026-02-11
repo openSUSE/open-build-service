@@ -39,7 +39,7 @@ class Group < ApplicationRecord
 
   alias_attribute :name, :title
 
-  def update_from_xml(xmlhash, user_session_login:)
+  def update_from_xml(xmlhash)
     with_lock do
       self.email = xmlhash.value('email')
     end
@@ -84,26 +84,41 @@ class Group < ApplicationRecord
 
     # delete all users which were not listed
     cache.each do |login_id, _|
-      delete_user(GroupsUser, login_id, id, user_session_login: user_session_login)
+      delete_user(GroupsUser, login_id, id)
     end
   end
 
   def add_user(user)
-    GroupsUser.find_or_create_by!(user: user, group: self)
+    return if GroupsUser.exists?(user: user, group: self)
+
+    GroupsUser.create!(user: user, group: self)
+  rescue ActiveRecord::RecordInvalid => e
+    raise e unless GroupsUser.exists?(user: user, group: self)
   end
 
   def replace_members(members)
-    new_members = members.split(',').map do |m|
+    new_member_logins = members.split(',').map(&:strip).compact_blank
+    new_members = new_member_logins.map do |m|
       User.not_deleted.find_by!(login: m)
     end
-    users.replace(new_members)
+
+    transaction do
+      current_members = users.to_a
+      (current_members - new_members).each do |u|
+        remove_user(u)
+      end
+      (new_members - current_members).each do |u|
+        add_user(u)
+      end
+    end
+    users.reload
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     errors.add(:base, e.message)
     false
   end
 
-  def remove_user(user, user_session_login:)
-    delete_user(GroupsUser, user.id, id, user_session_login: user_session_login)
+  def remove_user(user)
+    delete_user(GroupsUser, user.id, id)
   end
 
   def to_s
@@ -202,9 +217,15 @@ class Group < ApplicationRecord
 
   private
 
-  def delete_user(klass, login_id, group_id, user_session_login: nil)
+  def delete_user(klass, login_id, group_id)
     klass.where('user_id = ? AND group_id = ?', login_id, group_id).delete_all if [GroupMaintainer, GroupsUser].include?(klass)
-    Event::RemovedUserFromGroup.create(group: Group.find(group_id).title, member: User.find(login_id).login, who: user_session_login) if klass == GroupsUser
+    return unless klass == GroupsUser
+
+    Event::RemovedUserFromGroup.create(
+      group: Group.find(group_id).title,
+      member: User.find(login_id).login,
+      who: User.session&.login
+    )
   end
 
   # IDs of the Projects where the group is maintainer

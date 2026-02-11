@@ -8,6 +8,29 @@ RSpec.describe Group do
     it { is_expected.to validate_length_of(:title).is_at_most(100).with_message('must have less than 100 characters') }
   end
 
+  describe '#add_user' do
+    context 'when the user is already in the group' do
+      before do
+        group.users << user
+      end
+
+      it 'does nothing' do
+        expect { group.add_user(user) }.not_to change(GroupsUser, :count)
+      end
+    end
+
+    context 'when a race condition occurs' do
+      before do
+        allow(GroupsUser).to receive(:exists?).with(user: user, group: group).and_return(false, true)
+        allow(GroupsUser).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
+      end
+
+      it 'handles it gracefully' do
+        expect { group.add_user(user) }.not_to raise_error
+      end
+    end
+  end
+
   describe '#replace_members' do
     subject! { group.replace_members(members) }
 
