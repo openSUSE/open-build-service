@@ -77,6 +77,13 @@
                                     key: 'kind[member_on_groups]', name: 'kind[]', value: 'member_on_groups',
                                     label_icon: 'fas fa-people-group',
                                     checked: selected_filter[:kind]&.include?('member_on_groups') }
+        - counter_path = count_for_notification_types_my_notifications_path(notification_type: 'package_upstream_versions')
+        = render partial: 'check_box',
+                          locals: { label: 'Package Upstream Versions',
+                                    turbo_frame_path: counter_path,
+                                    key: 'kind[package_upstream_versions]', name: 'kind[]', value: 'package_upstream_versions',
+                                    label_icon: 'fas fa-archive',
+                                    checked: selected_filter[:kind]&.include?('package_upstream_versions') }
 
     - if policy(Report.new).notify?
       .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
