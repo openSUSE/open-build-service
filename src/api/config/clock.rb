@@ -97,6 +97,6 @@ module Clockwork
   end
 
   every(12.hours, 'update package upstream version') do
-    FetchUpstreamPackageVersionJob.perform_later
+    SyncUpstreamPackageVersionJob.perform_later
   end
 end

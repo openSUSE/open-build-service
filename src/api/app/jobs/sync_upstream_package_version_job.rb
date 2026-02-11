@@ -1,5 +1,5 @@
-# Job to fetch upstream versions for all packages
-class FetchUpstreamPackageVersionJob < ApplicationJob
+# Job to sync (create/update/delete) upstream versions for all packages
+class SyncUpstreamPackageVersionJob < ApplicationJob
   queue_as :quick
 
   def perform(project_name: nil)
@@ -17,11 +17,7 @@ class FetchUpstreamPackageVersionJob < ApplicationJob
     return if project.blank?
 
     distribution_name = project.anitya_distribution_name
-    if distribution_name.blank?
-      delete_package_version_upstream(project.packages.ids)
-
-      return
-    end
+    PackageVersionUpstream.where(package_id: project.packages.ids).delete_all && return if distribution_name.blank?
 
     project.packages.each do |package|
       create_upstream_package_versions(package_name: package.name, distribution_name: distribution_name, package_ids: [package.id])
@@ -45,7 +41,7 @@ class FetchUpstreamPackageVersionJob < ApplicationJob
     response = fetch_upstream_package_info(package_name: package_name, distribution_name: distribution_name)
 
     # When we get empty result, we can’t rely on the past information we stored in the database anymore
-    delete_package_version_upstream(package_ids) && return if response&.dig('total_items')&.zero?
+    PackageVersionUpstream.where(package_id: package_ids).delete_all && return if response&.dig('total_items')&.zero?
 
     upstream_version = extract_version(response)
     return if upstream_version.blank?
@@ -70,9 +66,5 @@ class FetchUpstreamPackageVersionJob < ApplicationJob
     return if response.nil?
 
     response.dig('items', 0, 'stable_version')
-  end
-
-  def delete_package_version_upstream(package_ids)
-    PackageVersionUpstream.where(package_id: package_ids).delete_all
   end
 end

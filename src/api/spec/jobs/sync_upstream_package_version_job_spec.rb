@@ -1,4 +1,4 @@
-RSpec.describe FetchUpstreamPackageVersionJob, :vcr do
+RSpec.describe SyncUpstreamPackageVersionJob, :vcr do
   describe '#perform' do
     let!(:project) { create(:project_with_package, name: 'factory', package_name: 'hello') }
     let(:package) { project.packages.first }
