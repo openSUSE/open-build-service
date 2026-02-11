@@ -1017,6 +1017,12 @@ class Project < ApplicationRecord
                                                                .joins(:bs_request_actions), name).call
   end
 
+  def open_requests_with_project_as_target
+    # Includes also requests for packages contained in this project
+    OpenRequestsWithProjectAsTargetFinder.new(BsRequest.where(state: %i[new review declined])
+                                                               .joins(:bs_request_actions), name).call
+  end
+
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
     OpenRequestsWithByProjectReviewFinder.new(BsRequest.where(state: %i[new review])
