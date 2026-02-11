@@ -40,7 +40,7 @@ module Webui::RescueHandler
     end
 
     rescue_from ActiveRecord::RecordNotUnique do |exception|
-      message = "This #{exception.record.class} already exists."
+      message = "This record already exists."
 
       if request.xhr?
         render json: { error: message }, status: :conflict
