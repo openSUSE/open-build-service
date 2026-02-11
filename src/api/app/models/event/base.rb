@@ -24,7 +24,7 @@ module Event
          Event::Report, Event::Decision, Event::AppealCreated,
          Event::WorkflowRunFail,
          Event::AddedUserToGroup, Event::RemovedUserFromGroup,
-         Event::Assignment]
+         Event::Assignment, Event::UpstreamPackageVersionChanged]
       end
 
       def classnames
