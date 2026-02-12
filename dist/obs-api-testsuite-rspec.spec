@@ -51,8 +51,11 @@ ln -sf /usr/lib/build build
 popd
 
 pushd src/api
-# configure to the bundled gems
-bundle --local --path %_libdir/obs-api/
+# FIXME: RPM 4.20 changed of behaviour for global macros in noarch builds
+#        https://github.com/rpm-software-management/rpm/pull/3071
+#        Use the build host RPM to evaluate libdir while parsing the spec.
+#        The build host is always x86_64 for noarch builds in OBS...
+bundle config set path %(rpm -E %%_libdir)/obs-api
 
 ./script/prepare_spec_tests.sh
 
