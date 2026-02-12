@@ -19,6 +19,7 @@ module Webui::NotificationsFilter
     relations_kind << notifications.for_workflow_runs if filter_kind.include?('workflow_runs')
     relations_kind << notifications.for_appealed_decisions if filter_kind.include?('appealed_decisions')
     relations_kind << notifications.for_member_on_groups if filter_kind.include?('member_on_groups')
+    relations_kind << notifications.for_member_on_groups if filter_kind.include?('package_upstream_versions')
 
     notifications = notifications.merge(relations_kind.inject(:or)) unless relations_kind.empty?
     notifications
@@ -95,5 +96,11 @@ module Webui::NotificationsFilter
     request_notifications = notifications.where(notifiable_type: 'BsRequest', notifiable_id: labelled_bs_requests)
     package_notifications = notifications.where(notifiable_type: 'Package', notifiable_id: labelled_packages)
     request_notifications.or(package_notifications)
+  end
+
+  def filter_notifications_by_package_upstream_version(notifications, filter_package_upstream_version)
+    return notifications if filter_package_upstream_version.blank?
+
+    Notification.where(event_type: 'Event::UpstreamPackageVersionChanged')
   end
 end

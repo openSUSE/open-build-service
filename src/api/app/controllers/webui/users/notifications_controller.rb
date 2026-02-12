@@ -2,7 +2,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   include Webui::NotificationsFilter
 
   ALLOWED_FILTERS = %w[all comments requests incoming_requests outgoing_requests relationships_created relationships_deleted build_failures
-                       reports reviews workflow_runs appealed_decisions member_on_groups].freeze
+                       reports reviews workflow_runs appealed_decisions member_on_groups package_upstream_versions].freeze
   ALLOWED_STATES = %w[all unread read].freeze
   ALLOWED_REPORT_FILTERS = %w[with_decision without_decision reportable_type].freeze
 
@@ -171,6 +171,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @notifications = filter_notifications_by_report_decision(@notifications, @filter_report_decision)
     @notifications = filter_notifications_by_reportable_type(@notifications, @filter_reportable_type)
     @notifications = filter_notifications_by_labels(@notifications, @filter_label)
+    @notifications = filter_notifications_by_package_upstream_version(@notifications, @filter_package_upstream_version)
   end
 
   def set_notifications_to_be_updated
@@ -192,7 +193,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
                          group: @filter_group,
                          request_state: @filter_request_state,
                          reportable_type: @filter_reportable_type,
-                         labels: @filter_label }
+                         labels: @filter_label,
+                         package_upstream_version: @filter_package_upstream_version }
   end
 
   def send_notifications_information_rabbitmq(delivered, count)
