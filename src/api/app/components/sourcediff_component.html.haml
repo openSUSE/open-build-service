@@ -11,7 +11,7 @@
         - if expandable?(sourcediff)
           .alert.alert-warning
             Some of the changes are collapsed due to size.
-            = link_to(request_changes_path(@bs_request, @action, tarlimit: 0)) do
+            = link_to(request_changes_path(@bs_request, @action, tarlimit: 0), class: 'expand-changes') do
               Expand changes
         - source_rev = sourcediff.dig('new', 'srcmd5') || @action.source_rev
         - target_rev = sourcediff.dig('old', 'srcmd5')
