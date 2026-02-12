@@ -55,7 +55,7 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
       end
 
       before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo).and_raise(Backend::Error, 'fake message')
+        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_raise(Backend::Error, 'fake message')
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -76,7 +76,7 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
       end
 
       before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo).and_return(nil)
+        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(nil)
       end
 
       it { expect { subject }.to raise_error(ActiveRecord::RecordNotFound) }
@@ -85,7 +85,7 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
     context 'with a valid download url' do
       before do
         # We want to use the backend path here
-        allow(Backend::Api::BuildResults::Binaries).to receive_messages(fileinfo: fake_fileinfo, download_url_for_file: nil)
+        allow(Backend::Api::BuildResults::Binaries).to receive_messages(fileinfo_ext: fake_fileinfo, download_url_for_file: nil)
       end
 
       context 'and normal html request' do
@@ -105,36 +105,6 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
         it { expect(response).to have_http_status(:redirect) }
         it { is_expected.to redirect_to('http://test.host/build/home:tom/source_repo/x86_64/my_package/filename.txt') }
       end
-    end
-  end
-
-  describe 'GET #dependencies' do
-    let(:fake_fileinfo) { { summary: 'fileinfo', description: 'fake', provides_ext: [], requires_ext: [] } }
-
-    before do
-      login tom
-    end
-
-    context 'with valid params' do
-      before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(fake_fileinfo)
-        get :dependencies, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, arch: 'x86_64', binary_filename: 'test.rpm' }
-      end
-
-      it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:fileinfo)).to eq(fake_fileinfo) }
-    end
-
-    context 'without file info' do
-      subject do
-        get :dependencies, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, arch: 'x86_64', binary_filename: 'nonexistent.rpm' }
-      end
-
-      before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(nil)
-      end
-
-      it { expect { subject }.to raise_error(ActiveRecord::RecordNotFound) }
     end
   end
 end

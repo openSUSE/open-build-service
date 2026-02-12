@@ -58,7 +58,7 @@ class GroupController < ApplicationController
     xmlhash = Xmlhash.parse(request.raw_post)
     raise InvalidParameterError, 'group name from path and xml mismatch' unless group.title == xmlhash.value('title')
 
-    group.update_from_xml(xmlhash, user_session_login: User.session.login)
+    group.update_from_xml(xmlhash)
     group.save!
 
     render_ok
@@ -75,7 +75,7 @@ class GroupController < ApplicationController
     when 'add_user'
       group.add_user(user)
     when 'remove_user'
-      group.remove_user(user, user_session_login: User.session.login)
+      group.remove_user(user)
     when 'set_email'
       group.update!(email: params[:email])
     end

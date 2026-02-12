@@ -147,19 +147,15 @@ class BranchPackage
     end
 
     # add repositories
-    if @add_repositories
-      opts = {}
-      opts[:rebuild] = @rebuild_policy if @rebuild_policy
-      opts[:block]   = @block_policy   if @block_policy
-      source_project = Project.get_by_name(params[:project])
-      project.branch_to_repositories_from(source_project, package, opts)
-      project.sync_repository_pathes
-      project.store
-    end
-
+    opts = {}
+    opts[:rebuild] = @rebuild_policy if @rebuild_policy
+    opts[:block]   = @block_policy   if @block_policy
+    source_project = Project.get_by_name(params[:project])
+    project.branch_to_repositories_from(source_project, package, opts)
+    project.sync_repository_pathes
+    project.scmsync = @scmsync if params[:package] == '_project'
+    project.store
     if params[:package] == '_project'
-      project.scmsync = @scmsync
-      project.store
       return { targetproject: project.name,
                sourceproject: params[:project] }
     end
