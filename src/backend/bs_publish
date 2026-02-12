@@ -734,6 +734,7 @@ sub createrepo_rpmmd {
     # strip supportstatus and patchinforef from updateinfos
     my $updateinfos = BSUtil::clone($data->{'updateinfos'});
     for my $up (@$updateinfos) {
+      next if $up->{'type'} == '_internal';
       delete $up->{'patchinforef'};
       delete $up->{'blocked_in_product'};
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
