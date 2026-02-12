@@ -657,7 +657,6 @@ DEPENDENCIES
   highline
   importmap-rails
   influxdb-rails
-  irb (= 1.16.0)
   jquery-datatables
   jquery-rails
   jquery-ui-rails
