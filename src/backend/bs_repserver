@@ -2545,7 +2545,7 @@ sub putjob {
 
   my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
 
-  if ($BSConfig::sign && (@{$kiwitree_tosign || []} || grep {$_->{'name'} eq '_slsa_provenance.json' || $_->{'name'} =~ /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|AppImage|deb|appx|apk|helminfo|raw|efi|roothash|usrhash)$/} @$uploaded)) {
+  if ($BSConfig::sign && (@{$kiwitree_tosign || []} || grep {$_->{'name'} eq '_slsa_provenance.json' || $_->{'name'} =~ /\.(?:d?rpm|sha256|sha512|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|AppImage|deb|appx|apk|helminfo|raw|efi|roothash|usrhash)$/} @$uploaded)) {
     if (@{$kiwitree_tosign || []}) {
       my $c = '';
       $c .= BSHTTP::urlencode($_)."\n" for @$kiwitree_tosign;
@@ -2659,7 +2659,7 @@ sub copybuild {
       writexml("$dir/$bin", undef, $updateinfo, $BSXML::updateinfo);
     } else {
       next if $bin =~ /^::import::/;	# can't copy those yet
-      $needsign = 1 if $bin =~ /\.(?:d?rpm|sha256|iso)$/;
+      $needsign = 1 if $bin =~ /\.(?:d?rpm|sha256|sha512|iso)$/;
       my $nbin = $bin;
       my $setrelease = $cgi->{'setrelease'};
       my $oldsetrelease;
@@ -2740,7 +2740,7 @@ sub copybuild {
 	BSUtil::store("$dir/$nbin", undef, $obsbinlnk);
       } else {
 	# patch in new file name if we renamed files
-	if (%renamed && $bin =~ /\.sha256$/ && (((-s "$odir/$bin") || 0) <= 65536)) {
+	if (%renamed && $bin =~ /\.sha[0-9]*$/ && (((-s "$odir/$bin") || 0) <= 65536)) {
 	  my $shafile = readstr("$odir/$bin");
 	  if ($shafile =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
 	    # de-pgp
