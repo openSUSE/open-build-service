@@ -39,8 +39,8 @@ module Webui::RescueHandler
       redirect_to root_path, error: RegistrationDisabledError.new.default_message
     end
 
-    rescue_from ActiveRecord::RecordNotUnique do |exception|
-      message = "This #{exception.record.class} already exists."
+    rescue_from ActiveRecord::RecordNotUnique do
+      message = 'This record already exists.'
 
       if request.xhr?
         render json: { error: message }, status: :conflict
