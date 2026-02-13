@@ -773,17 +773,6 @@ Style/Documentation:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# Offense count: 8
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: braces, no_braces
-Style/HashAsLastArrayItem:
-  Exclude:
-    - 'app/models/project.rb'
-    - 'spec/factories/workflow_artifacts_per_step.rb'
-    - 'spec/models/token/workflow_spec.rb'
-    - 'spec/validators/workflow_steps_validator_spec.rb'
-
 # Offense count: 319
 # This cop supports safe autocorrection (--autocorrect).
 Style/IfUnlessModifier:

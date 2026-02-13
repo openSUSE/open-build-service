@@ -109,7 +109,7 @@ class Project < ApplicationRecord
   scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
   scope :related_to_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id }) }
-  scope :with_package_templates, -> { joins(attribs: [attrib_type: [:attrib_namespace]]).where(attribs: { attrib_types: { name: 'PackageTemplates', attrib_namespaces: { name: 'OBS' } } }) }
+  scope :with_package_templates, -> { joins(attribs: [{ attrib_type: [:attrib_namespace] }]).where(attribs: { attrib_types: { name: 'PackageTemplates', attrib_namespaces: { name: 'OBS' } } }) }
 
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: { case_sensitive: true }
   validates :title, length: { maximum: 250 }
