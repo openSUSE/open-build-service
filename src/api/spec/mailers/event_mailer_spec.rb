@@ -750,5 +750,31 @@ RSpec.describe EventMailer, :vcr do
         expect(mail.body.encoded).to include("#{who} unassigned you")
       end
     end
+
+    context 'for event of type Event::UpstreamPackageVersionChanged' do
+      let(:user) { create(:confirmed_user) }
+      let(:project) { create(:project, name: 'foo') }
+      let(:package) { create(:package, name: 'bar', project: project) }
+      let!(:subscription) { create(:event_subscription_upstream_version, user: user) }
+
+      let(:mail) { EventMailer.with(subscribers: [user], event: Event::UpstreamPackageVersionChanged.last).notification_email.deliver_now }
+
+      before do
+        login(user)
+        Event::UpstreamPackageVersionChanged.create!(package: package.name, project: package.project.name, upstream_version: '4.9')
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(user.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include("Upstream version changed for #{project.name}/#{package.name} to 4.9")
+      end
+    end
   end
 end
