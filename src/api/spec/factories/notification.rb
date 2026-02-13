@@ -99,6 +99,11 @@ FactoryBot.define do
         event_type { 'Event::BuildFail' }
         notifiable factory: [:package]
       end
+
+      trait :upstream_version do
+        event_type { 'Event::UpstreamPackageVersionChanged' }
+        notifiable factory: [:package]
+      end
     end
 
     factory :notification_for_report, class: 'NotificationReport' do

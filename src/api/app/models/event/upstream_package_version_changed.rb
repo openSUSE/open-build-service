@@ -7,5 +7,11 @@ module Event
     payload_keys :upstream_version, :project, :package
 
     receiver_roles :maintainer
+
+    def parameters_for_notification
+      super.merge(notifiable_type: 'Package',
+                  notifiable_id: ::Package.find_by_project_and_name(payload['project'], payload['package'])&.id,
+                  type: 'NotificationPackage')
+    end
   end
 end
