@@ -35,7 +35,7 @@ RSpec.describe Token::Workflow do
       let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: workflow_token, workflow_run: workflow_run) }
       let(:workflow) do
         Workflow.new(workflow_run: workflow_run, token: workflow_token,
-                     workflow_instructions: { steps: [branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' }] })
+                     workflow_instructions: { steps: [{ branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' } }] })
       end
       let(:workflows) { [workflow] }
 
@@ -105,7 +105,7 @@ RSpec.describe Token::Workflow do
       let(:request_payload) { { sender: { url: 'https://api.github.com' } }.to_json }
       let(:workflow) do
         Workflow.new(token: workflow_token, workflow_run: workflow_run,
-                     workflow_instructions: { steps: [branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' }] })
+                     workflow_instructions: { steps: [{ branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' } }] })
       end
       let(:workflows) { [workflow] }
 
@@ -190,7 +190,7 @@ RSpec.describe Token::Workflow do
       let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: workflow_token, workflow_run: workflow_run) }
       let(:workflow) do
         Workflow.new(token: workflow_token, workflow_run: workflow_run,
-                     workflow_instructions: { steps: [branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' }] })
+                     workflow_instructions: { steps: [{ branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' } }] })
       end
       let(:workflows) { [workflow] }
       let(:octokit_client) { instance_double(Octokit::Client) }
@@ -229,7 +229,7 @@ RSpec.describe Token::Workflow do
       let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: workflow_token, workflow_run: workflow_run) }
       let(:workflow) do
         Workflow.new(token: workflow_token, workflow_run: workflow_run,
-                     workflow_instructions: { steps: [branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' }] })
+                     workflow_instructions: { steps: [{ branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' } }] })
       end
       let(:workflows) { [workflow] }
       let(:octokit_client) { instance_double(Octokit::Client) }
