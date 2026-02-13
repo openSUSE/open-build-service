@@ -1,0 +1,11 @@
+The upstream version of package
+<%= link_to(
+      event['package'],
+      package_show_url(
+        package: event['package'],
+        project: event['project'],
+        only_path: false,
+        host: @host
+      )
+    ) %>
+has changed to <%= event['upstream_version'] %>
