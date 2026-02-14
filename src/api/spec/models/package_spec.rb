@@ -759,6 +759,78 @@ RSpec.describe Package, :vcr do
       package.update_from_xml(Xmlhash.parse(corrected_meta_xml))
       expect(package.develpackage).to be_nil
     end
+
+    context 'when setting scmsync on a package with _aggregate file' do
+      let(:meta_with_scmsync) do
+        <<~XML_DATA
+          <package name="test_package" project="home:tom">
+            <title/>
+            <description/>
+            <scmsync>https://github.com/example/repo.git</scmsync>
+          </package>
+        XML_DATA
+      end
+
+      before do
+        login user
+        allow(package).to receive(:file_exists?).with('_aggregate').and_return(true)
+      end
+
+      it 'raises SaveError' do
+        expect do
+          package.update_from_xml(Xmlhash.parse(meta_with_scmsync))
+        end.to raise_error(Package::SaveError, /Cannot set scmsync: package contains _aggregate file/)
+      end
+    end
+
+    context 'when setting scmsync on a package without _aggregate file' do
+      let(:meta_with_scmsync) do
+        <<~XML_DATA
+          <package name="test_package" project="home:tom">
+            <title/>
+            <description/>
+            <scmsync>https://github.com/example/repo.git</scmsync>
+          </package>
+        XML_DATA
+      end
+
+      before do
+        login user
+        allow(package).to receive(:file_exists?).with('_aggregate').and_return(false)
+      end
+
+      it 'allows setting scmsync' do
+        expect do
+          package.update_from_xml(Xmlhash.parse(meta_with_scmsync))
+        end.not_to raise_error
+        expect(package.scmsync).to eq('https://github.com/example/repo.git')
+      end
+    end
+
+    context 'when updating scmsync on a package that already has scmsync' do
+      let(:meta_with_updated_scmsync) do
+        <<~XML_DATA
+          <package name="test_package" project="home:tom">
+            <title/>
+            <description/>
+            <scmsync>https://github.com/example/new-repo.git</scmsync>
+          </package>
+        XML_DATA
+      end
+
+      before do
+        login user
+        package.update(scmsync: 'https://github.com/example/old-repo.git')
+        allow(package).to receive(:file_exists?).with('_aggregate').and_return(true)
+      end
+
+      it 'allows updating scmsync even if _aggregate exists' do
+        expect do
+          package.update_from_xml(Xmlhash.parse(meta_with_updated_scmsync))
+        end.not_to raise_error
+        expect(package.scmsync).to eq('https://github.com/example/new-repo.git')
+      end
+    end
   end
 
   describe '#add_containers' do
