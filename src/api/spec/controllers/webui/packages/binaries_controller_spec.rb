@@ -56,6 +56,7 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
 
       before do
         allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)
+        allow(Backend::Api::BuildResults::Binaries).to receive(:download_url_for_file).and_return('http://test.host/download')
         get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom }
       end
 
