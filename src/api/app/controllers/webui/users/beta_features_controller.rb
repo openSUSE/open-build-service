@@ -1,9 +1,10 @@
 class Webui::Users::BetaFeaturesController < Webui::WebuiController
-  skip_before_action :require_login, only: [:index], raise: false
+  before_action :require_login
   after_action :verify_policy_scoped, except: [:index]
 
   def index
-    @disabled_beta_features = if defined?(current_user) && current_user
+    @user = User.session
+    @disabled_beta_features = if @user
                                 policy_scope(DisabledBetaFeature).pluck(:name)
                               else
                                 []
