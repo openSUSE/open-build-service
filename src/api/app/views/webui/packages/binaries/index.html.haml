@@ -73,8 +73,10 @@
     - @repository_statistics.each do |arch, stats|
       %ul.nav
         - if policy(@package).update?
-          = render partial: 'trigger_rebuild_wipe_binaries', locals: { result: { arch: arch, binaries: @binaries_by_arch[arch] }, project: @project,
-            package: @package_name, repository: @repository }
+          = render partial: 'trigger_rebuild_wipe_binaries',
+                   locals: { result: { arch: arch, binaries: @binaries_by_arch[arch] },
+                             project: @project, package: @package_name, repository: @repository }
 
-        = render partial: 'show_statistics_job_history_build_reason', locals: { result: { arch: arch, statistics: stats[:has_statistics], binaries: @binaries_by_arch[arch] },
-          project: @project, package: @package_name, repository: @repository }
+        = render partial: 'show_statistics_job_history_build_reason',
+                 locals: { result: { arch: arch, statistics: stats[:has_statistics], binaries: @binaries_by_arch[arch] },
+                           project: @project, package: @package_name, repository: @repository }
