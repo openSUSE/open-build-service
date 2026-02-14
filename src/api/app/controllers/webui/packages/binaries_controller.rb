@@ -46,7 +46,7 @@ module Webui
               binary_hash = {
                 arch: arch,
                 filename: binary['filename'],
-                size: binary['size'],
+                size: binary['size'].to_i,
                 details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
                 download_url: download_url_for_binary(architecture_name: arch, file_name: binary['filename'])
               }
