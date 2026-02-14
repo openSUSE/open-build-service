@@ -284,6 +284,8 @@ resources :projects, only: [], param: :name do
           post 'rebuild' => :rebuild
           post 'abort_build' => :abort_build
           post 'services' => :services
+
+          post 'mergeservice' => :mergeservice
         end
       end
     end

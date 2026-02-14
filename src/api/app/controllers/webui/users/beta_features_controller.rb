@@ -1,11 +1,18 @@
 class Webui::Users::BetaFeaturesController < Webui::WebuiController
-  after_action :verify_policy_scoped
+  skip_before_action :require_login, only: [:index], raise: false
+  after_action :verify_policy_scoped, except: [:index]
 
   def index
-    @disabled_beta_features = policy_scope(DisabledBetaFeature).pluck(:name)
-    @user = User.session
-    @beta_features = ENABLED_FEATURE_TOGGLES.reject { |feature_toggle| beta_features_to_reject.include?(feature_toggle[:name].to_s) }
-                                            .sort_by { |feature_toggle| feature_toggle[:name] }
+    @disabled_beta_features = if defined?(current_user) && current_user
+                                policy_scope(DisabledBetaFeature).pluck(:name)
+                              else
+                                []
+                              end
+
+    @beta_features =
+      ENABLED_FEATURE_TOGGLES
+      .reject { |feature_toggle| beta_features_to_reject.include?(feature_toggle) }
+      .sort_by(&:to_s)
   end
 
   def update
