@@ -10,13 +10,20 @@
       @extend .bg-body-secondary;
       @extend .text-pre-wrap;
     }
-    code { line-height: 1.5rem; }
-  }
 
+    code {
+      line-height: 1.5rem;
+    }
+  }
+}
+
+.comment,
+.comment-bubble-content {
   blockquote {
     color: $gray-500;
     padding: 0 1rem;
     border-left: .25rem solid $custom-gray-300;
+    font-style: italic;
   }
 }
 
@@ -30,7 +37,8 @@
   min-width: 20%;
   background-color: var(--comment-bubble-background);
 
-  &.comment-bubble-content, .comment-bubble-content {
+  &.comment-bubble-content,
+  .comment-bubble-content {
     @extend .p-3;
   }
 
@@ -38,6 +46,7 @@
   $comment-bubble-arrow-top-position: 12px;
   $comment-bubble-arrow-left-position: 0;
   $comment-bubble-arrow-size: 14px;
+
   // This creates two triangles.
   // `::before` creates a triangle which matches the color of the comment bubble's outline.
   //
@@ -45,7 +54,8 @@
   // It is displayed on top of the one created by `::before` with a small offset.
   //
   // Together, they produce a single comment bubble arrow... Magic!
-  &::before, &::after {
+  &::before,
+  &::after {
     content: '';
     position: absolute;
     top: $comment-bubble-arrow-top-position;
@@ -59,6 +69,7 @@
     margin-top: -($comment-bubble-arrow-size / 4);
     margin-left: -$comment-bubble-arrow-size;
   }
+
   &::after {
     top: $comment-bubble-arrow-top-position + 1px;
     left: $comment-bubble-arrow-left-position + 2px;
