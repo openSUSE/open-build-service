@@ -4,6 +4,11 @@
       = image_tag(::Configuration.logo.attached? ? ::Configuration.logo : 'obs-logo_small.svg')
     .d-flex.nav
       = render partial: 'layouts/webui/top_navigation_search'
+      .toggler.text-center.justify-content-center.nav-item
+        = link_to('https://openbuildservice.org/help/manuals/', class: 'nav-link p-0 w-100', title: 'Manual', target: '_blank',
+                  rel: 'noopener noreferrer') do
+          %i.fas.fa-question-circle
+          %span.d-block Help
       - if User.session
         .toggler.text-center.justify-content-center.nav-item
           = link_to('javascript:void(0)', class: 'nav-link p-0 w-100', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
