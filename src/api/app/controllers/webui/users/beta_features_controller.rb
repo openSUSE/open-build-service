@@ -12,8 +12,8 @@ class Webui::Users::BetaFeaturesController < Webui::WebuiController
 
     @beta_features =
       ENABLED_FEATURE_TOGGLES
-      .reject { |feature_toggle| beta_features_to_reject.include?(feature_toggle) }
-      .sort_by(&:to_s)
+      .reject { |feature_toggle| beta_features_to_reject.include?(feature_toggle[:name].to_s) }
+      .sort_by { |feature_toggle| feature_toggle[:name].to_s }
   end
 
   def update
