@@ -182,8 +182,10 @@ sub addmultibuildpackages {
   my $mc = getcache($projid);
   return @packages if !$mc || !%$mc;
   for my $packid (splice @packages) {
-    push @packages, $packid;
     my $mb = $mc->{$packid};
+    if (!$mb || !defined($mb->{'buildemptyflavor'}) || $mb->{'buildemptyflavor'} ne 'false') {
+      push @packages, $packid;
+    }
     next unless $mb;
     my @mbp = map {"$packid:$_"} @{$mb->{'flavor'} || $mb->{'package'} || []};
     push @packages, @mbp;
@@ -195,6 +197,47 @@ sub addmultibuildpackages {
     }
   }
   return @packages;
+}
+
+
+# Check if any package in @packages matches an entry in $packids, accounting
+# for multibuild flavors. A flavor package like 'pkg:flavor' matches if the
+# base name 'pkg' is in $packids. This is needed because buildemptyflavor="false"
+# excludes the base package from the list, leaving only flavors.
+sub packids_match_packages {
+  my ($packids, @packages) = @_;
+  for my $pkg (@packages) {
+    return 1 if $packids->{$pkg};
+    next unless $pkg =~ /(?<!^_product)(?<!^_patchinfo):./;
+    next unless $pkg =~ /^(.*):[^:]+$/;
+    return 1 if $packids->{$1};
+  }
+  return 0;
+}
+
+# Update the multibuild cache during getprojpack processing. Handles both base
+# and flavor packages. Returns ($mb, $stale_packages):
+#   - Base package: ($mb, undef) where $mb is the multibuild data
+#   - Valid flavor: (undef, undef)
+#   - Stale flavor: (undef, \@newpackages) with the corrected package list
+# For flavor packages, this also refreshes the cache for the base package,
+# which is needed when buildemptyflavor="false" excludes the base from
+# the getprojpack package list and updatemultibuild would otherwise never
+# be called for it.
+sub check_flavor_update {
+  my ($projid, $packid, $files, $isprojpack) = @_;
+  # base package: just call updatemultibuild directly
+  if ($packid !~ /(?<!^_product)(?<!^_patchinfo):./) {
+    return (updatemultibuild($projid, $packid, $files, $isprojpack), undef);
+  }
+  # flavor package: update cache for the base and check for stale flavors
+  return (undef, undef) unless $packid =~ /^(.*):[^:]+$/;
+  my $basepackid = $1;
+  my $basemb = updatemultibuild($projid, $basepackid, $files, $isprojpack);
+  return (undef, undef) unless $basemb;
+  my @newpackages = addmultibuildpackages($projid, undef, $basepackid);
+  return (undef, undef) if grep {$_ eq $packid} @newpackages;
+  return (undef, \@newpackages);
 }
 
 1;
