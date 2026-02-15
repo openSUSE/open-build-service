@@ -40,7 +40,7 @@ RSpec.describe WorkflowStepsValidator do
     context 'with unsupported and supported steps' do
       let(:step_instructions) { { source_project: 'project', source_package: 'package', target_project: 'target_project' } }
       let(:steps) { [Workflow::Step::BranchPackageStep.new(step_instructions: step_instructions)] }
-      let(:workflow_steps) { [unsupported_step: {}, branch_package: step_instructions] }
+      let(:workflow_steps) { [{ unsupported_step: {}, branch_package: step_instructions }] }
 
       it 'is not valid and has an error message' do
         subject.valid?
@@ -52,7 +52,7 @@ RSpec.describe WorkflowStepsValidator do
     context 'with unsupported and invalid steps' do
       let(:step_instructions) { { source_project: 'project' } }
       let(:steps) { [Workflow::Step::BranchPackageStep.new(step_instructions: step_instructions)] }
-      let(:workflow_steps) { [unsupported_step: {}, branch_package: step_instructions] }
+      let(:workflow_steps) { [{ unsupported_step: {}, branch_package: step_instructions }] }
 
       it 'is not valid and has an error message' do
         subject.valid?

@@ -2044,6 +2044,8 @@ sub mapsleimage {
     $rbin =~ s/\.asc$//;
     $rbin =~ s/\.sha256$//;
     $rbin =~ s/\.sha256.asc$//;
+    $rbin =~ s/\.sha512$//;
+    $rbin =~ s/\.sha512.asc$//;
     $rbin =~ s/\.(?:bz2|gz|xz|zst)$//;
     $rbin =~ s/\.(spdx|cdx)\.json$//;
     $rbin =~ s/\.(install\.iso|install\.tar|iso|packages|raw|tbz|tgz|tar|qcow2|vdi|vhdfixed|vhdx|vmdk|vmx|vagrant\..*\.box)$//;
@@ -2574,7 +2576,7 @@ sub publish {
       } elsif ($bin =~ /\.slsa_provenance\.json$/) {
 	next;	# we pick them up with the binaries
       } else {
-	if ($bin =~ /\.iso(?:\.sha256(?:\.asc)?)?$/) {
+	if ($bin =~ /\.iso(?:\.sha[0-9]*(?:\.asc)?)?$/) {
 	  $p = "iso/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)\.iso$/;
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;

@@ -23,7 +23,7 @@ class EventSubscription < ApplicationRecord
     offender: 'As the creator of the content',
     member: 'Member',
     assignee: 'Assignee',
-    group_maintainer: 'Mantainer of the group'
+    group_maintainer: 'Maintainer of the group'
   }.freeze
 
   enum :channel, {

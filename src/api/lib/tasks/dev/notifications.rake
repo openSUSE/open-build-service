@@ -83,6 +83,13 @@ namespace :dev do
         token.users << iggy # share token with iggy
         token.groups << another_group
         create(:workflow_run, :failed, token: token)
+
+        # New upstream version
+        create(:event_subscription_upstream_version, channel: :web, user: admin, receiver_role: 'maintainer')
+        project = Project.find_by(name: admin_package.project.name)
+        project.update(anitya_distribution_name: 'Anitdist')
+        # Ends up creating an event (Event::UpstreamPackageVersion)
+        create(:package_version_upstream, package: admin_package)
       end
 
       # Process notifications immediately to see them in the web UI
