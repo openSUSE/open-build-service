@@ -11,7 +11,7 @@ class SyncLocalPackageVersionJob < ApplicationJob
 
   def create_package_version_local(project_name:, package_name:)
     info = if package_name
-             Backend::Api::Sources::Package.files(project_name, package_name, view: :info, parse: 1)
+             Backend::Api::Sources::Package.files(project_name, package_name, view: :info, parse: 1, expand: 1)
            else
              Backend::Api::Sources::Project.packages(project_name, view: :info, parse: 1)
            end
