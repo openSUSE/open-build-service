@@ -114,7 +114,7 @@ module Backend
 
         # Returns the list of packages inside the project
         def self.packages(project_name, options = {})
-          http_get(['/source/:project', project_name], params: options, accepted: %i[view parse])
+          http_get(['/source/:project', project_name], params: options, accepted: %i[view parse expand])
         end
 
         # Returns the list of projects

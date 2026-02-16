@@ -3,9 +3,9 @@ class FetchLocalPackageVersionJob < ApplicationJob
 
   def perform(project_name, package_name: nil)
     info = if package_name
-             Backend::Api::Sources::Package.files(project_name, package_name, view: :info, parse: 1)
+             Backend::Api::Sources::Package.files(project_name, package_name, view: :info, parse: 1, expand: 1)
            else
-             Backend::Api::Sources::Project.packages(project_name, view: :info, parse: 1)
+             Backend::Api::Sources::Project.packages(project_name, view: :info, parse: 1, expand: 1)
            end
 
     Nokogiri::XML(info).xpath('//sourceinfo[@package]').each do |sourceinfo|
