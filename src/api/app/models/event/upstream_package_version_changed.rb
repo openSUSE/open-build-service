@@ -2,11 +2,11 @@ module Event
   class UpstreamPackageVersionChanged < Base
     self.description = 'Version of the upstream package has changed'
     self.message_bus_routing_key = 'package.upstream_version_changed'
-    self.notification_explanation = 'Receive a notification when a new upstream version is available for a package you are involved with.'
+    self.notification_explanation = 'Receive a notification when a new upstream version is available for a package you are involved with (as a develpackage maintainer or as maintainer).'
 
     payload_keys :upstream_version, :project, :package
 
-    receiver_roles :maintainer
+    receiver_roles :develpackage_or_package_maintainer
 
     def parameters_for_notification
       super.merge(notifiable_type: 'Package',

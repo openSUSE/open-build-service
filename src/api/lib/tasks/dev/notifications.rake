@@ -85,7 +85,7 @@ namespace :dev do
         create(:workflow_run, :failed, token: token)
 
         # New upstream version
-        create(:event_subscription_upstream_version, channel: :web, user: admin, receiver_role: 'maintainer')
+        create(:event_subscription_upstream_version, channel: :web, user: admin, receiver_role: 'develpackage_or_package_maintainer')
         project = Project.find_by(name: admin_package.project.name)
         project.update(anitya_distribution_name: 'Anitdist')
         # Ends up creating an event (Event::UpstreamPackageVersion)
