@@ -2,7 +2,7 @@ module Event
   class Commit < Base
     include EventObjectPackage
 
-    after_create :fetch_local_package_version
+    after_create :sync_local_package_version
 
     self.message_bus_routing_key = 'package.commit'
     self.description = 'New revision of a package committed'
@@ -27,11 +27,11 @@ module Event
       CommitActivity.create_from_event_payload(payload)
     end
 
-    def fetch_local_package_version
+    def sync_local_package_version
       return unless (package = Package.find_by_project_and_name(payload['project'], payload['package']))
       return if package.project.anitya_distribution_name.blank?
 
-      FetchLocalPackageVersionJob.perform_later(payload['project'], package_name: payload['package'])
+      SyncLocalPackageVersionJob.perform_later(payload['project'], package_name: payload['package'])
     end
   end
 end

@@ -1,5 +1,5 @@
-# Job to fetch upstream versions for all packages
-class FetchUpstreamPackageVersionJob < ApplicationJob
+# Job to sync (create/update/delete) upstream versions for all packages
+class SyncUpstreamPackageVersionJob < ApplicationJob
   queue_as :quick
 
   def perform(project_name: nil)
@@ -17,7 +17,7 @@ class FetchUpstreamPackageVersionJob < ApplicationJob
     return if project.blank?
 
     distribution_name = project.anitya_distribution_name
-    return if distribution_name.blank?
+    PackageVersionUpstream.where(package_id: project.packages.ids).delete_all && return if distribution_name.blank?
 
     project.packages.each do |package|
       create_upstream_package_versions(package_name: package.name, distribution_name: distribution_name, package_ids: [package.id])

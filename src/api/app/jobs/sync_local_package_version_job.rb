@@ -1,7 +1,15 @@
-class FetchLocalPackageVersionJob < ApplicationJob
+class SyncLocalPackageVersionJob < ApplicationJob
   queue_as :quick
 
   def perform(project_name, package_name: nil)
+    project = Project.find_by_name(project_name)
+    distribution_name = project.anitya_distribution_name
+    PackageVersionLocal.where(package_id: project.packages.ids).delete_all && return if distribution_name.blank?
+
+    create_package_version_local(project_name: project_name, package_name: package_name)
+  end
+
+  def create_package_version_local(project_name:, package_name:)
     info = if package_name
              Backend::Api::Sources::Package.files(project_name, package_name, view: :info, parse: 1)
            else
