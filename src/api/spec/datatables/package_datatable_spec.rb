@@ -4,16 +4,20 @@ RSpec.describe PackageDatatable, type: :datatable do
   let(:project) { create(:project, name: 'test_project') }
   let(:package_with_scm) { create(:package, name: 'scm_pkg', project: project, scmsync: 'https://github.com/example/pkg.git') }
   let(:package_without_scm) { create(:package, name: 'no_scm_pkg', project: project) }
+  # rubocop:disable RSpec/VerifiedDoubles
   let(:view_context) { double('view_context') }
+  # rubocop:enable RSpec/VerifiedDoubles
   let(:params) { ActionController::Parameters.new({}) }
   let(:datatable) { PackageDatatable.new(params, project: project, view_context: view_context) }
 
   before do
     allow(view_context).to receive(:link_to) { |*args, &block| block ? block.call : args.first }
-    allow(view_context).to receive(:package_show_path).and_return('/path')
-    allow(view_context).to receive(:time_ago_in_words).and_return('2 days')
-    allow(view_context).to receive(:tag).and_return(ActionController::Base.helpers.tag)
-    allow(view_context).to receive(:safe_join) { |args| args.join(' ').html_safe }
+    allow(view_context).to receive_messages(
+      package_show_path: '/path',
+      time_ago_in_words: '2 days',
+      tag: ActionController::Base.helpers.tag
+    )
+    allow(view_context).to receive(:safe_join) { |args| args.join(' ') }
   end
 
   describe '#data' do
