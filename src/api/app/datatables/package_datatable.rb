@@ -58,6 +58,7 @@ class PackageDatatable < Datatable
     name = []
     name << link_to(record.name, package_show_path(package: record, project: @project))
     name << link_tag if record.package_kinds.any? { |package_kind| package_kind.kind == 'link' }
+    name << scmsync_tag(record) if record.scmsync.present?
     safe_join(name, ' ')
   end
 
@@ -79,6 +80,14 @@ class PackageDatatable < Datatable
       # Using String Concatenation changes the behavior of this line
       # rubocop:disable Style/StringConcatenation
       tag.i(class: 'fas fa-link') + ' Link'
+      # rubocop:enable Style/StringConcatenation
+    end
+  end
+
+  def scmsync_tag(record)
+    link_to(record.scmsync, class: 'badge text-body border ms-1', title: 'Managed in SCM') do
+      # rubocop:disable Style/StringConcatenation
+      tag.i(class: 'fas fa-code-branch') + ' SCM'
       # rubocop:enable Style/StringConcatenation
     end
   end
