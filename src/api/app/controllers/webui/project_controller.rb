@@ -14,7 +14,7 @@ class Webui::ProjectController < Webui::WebuiController
   # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
   before_action :set_project, only: %i[autocomplete_repositories users subprojects
                                        edit release_request
-                                       show buildresult
+                                       show buildresult build_status_summary
                                        destroy remove_path_from_target
                                        requests save monitor edit_comment
                                        unlock save_person save_group remove_role
@@ -29,7 +29,7 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_staging_projects
                                               autocomplete_incidents autocomplete_packages
                                               autocomplete_repositories users subprojects new show
-                                              buildresult requests monitor new_release_request
+                                              buildresult build_status_summary requests monitor new_release_request
                                               remove_target_request edit_comment edit_comment_form preview_description]
 
   def index
@@ -326,6 +326,24 @@ class Webui::ProjectController < Webui::WebuiController
     else
       @buildresult_unavailable = true
     end
+  end
+
+  def build_status_summary
+    skip_authorization
+    results = monitor_buildresult
+    return render json: { error: 'Unavailable' }, status: :service_unavailable unless results
+
+    monitor_parse_buildresult(results)
+    summary = Hash.new { |h, k| h[k] = [] }
+    @statushash.each_value { |a| a.each_value { |p| p.each { |name, s| summary[name] << s['code'] } } }
+
+    render json: summary.transform_values { |codes|
+      if codes.intersect?(%w[failed broken unresolvable]) then 'failed'
+      elsif codes.include?('building') then 'building'
+      elsif codes.include?('succeeded') then 'succeeded'
+      else codes.first
+      end
+    }
   end
 
   def clear_failed_comment

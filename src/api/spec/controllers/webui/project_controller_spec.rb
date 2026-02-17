@@ -883,4 +883,62 @@ RSpec.describe Webui::ProjectController, :vcr do
       it { is_expected.to be_falsey }
     end
   end
+
+  describe 'GET #build_status_summary' do
+    let(:arch_i586) { Architecture.find_by(name: 'i586') || create(:architecture, name: 'i586') }
+    let(:arch_x86_64) { Architecture.find_by(name: 'x86_64') || create(:architecture, name: 'x86_64') } # rubocop:disable Naming/VariableNumber
+    let(:repo) { create(:repository, name: 'openSUSE', project: user.home_project) }
+    let!(:repo_arch_i586) { create(:repository_architecture, repository: repo, architecture: arch_i586) }
+    let!(:repo_arch_x86_64) { create(:repository_architecture, repository: repo, architecture: arch_x86_64) } # rubocop:disable Naming/VariableNumber
+
+    context 'when build results are available' do
+      let(:fake_buildresult_xml) do
+        <<-XML
+          <resultlist>
+            <result repository="openSUSE" arch="x86_64">
+              <status package="c++" code="succeeded" />
+              <status package="redis" code="failed" />
+              <status package="vim" code="building" />
+            </result>
+            <result repository="openSUSE" arch="i586">
+              <status package="c++" code="unresolvable" />
+              <status package="vim" code="succeeded" />
+              <status package="bash" code="scheduled" />
+            </result>
+          </resultlist>
+        XML
+      end
+
+      let(:expected_priority_summary) do
+        {
+          'c++' => 'failed',   # succeeded + unresolvable -> failed
+          'redis' => 'failed', # failed -> failed
+          'vim' => 'building', # building + succeeded -> building
+          'bash' => 'scheduled' # scheduled -> scheduled
+        }
+      end
+
+      before do
+        allow(Buildresult).to receive(:find_hashed).and_return(Xmlhash.parse(fake_buildresult_xml))
+        get :build_status_summary, params: { project: user.home_project }
+      end
+
+      it 'returns a JSON summary with correct status priorities' do
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body).to eq(expected_priority_summary)
+      end
+    end
+
+    context 'when build results are unavailable' do
+      before do
+        allow(Buildresult).to receive(:find_hashed).and_return(Xmlhash.parse('<resultlist><ignored/></resultlist>'))
+        get :build_status_summary, params: { project: user.home_project }
+      end
+
+      it 'returns a service unavailable error' do
+        expect(response).to have_http_status(:service_unavailable)
+        expect(response.parsed_body).to eq({ 'error' => 'Unavailable' })
+      end
+    end
+  end
 end
