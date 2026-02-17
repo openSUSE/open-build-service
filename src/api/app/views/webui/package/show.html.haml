@@ -26,6 +26,11 @@
                                               package: @package,
                                               project: @project,
                                               current_object: @package)
+    - if @package.scmsync.present?
+      .alert.alert-info.mb-3
+        %i.fas.fa-info-circle
+        This package is managed in SCM.
+        = link_to 'Go to SCM', @package.scmsync, class: 'alert-link'
     .row
       .col-md-8
         .mb-3
