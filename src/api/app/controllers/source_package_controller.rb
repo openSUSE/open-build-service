@@ -168,7 +168,7 @@ class SourcePackageController < SourceController
       raise WrongRouteForStagingWorkflow if @file == '_staging_workflow' && @package_name == '_project'
     else
       # we need a local package here in any case for modifications
-      @pack = Package.get_by_project_and_name(@project_name, @package_name)
+      @pack = Package.get_by_project_and_name(@project_name, @package_name, follow_project_links: false)
       # no modification or deletion of scmsynced projects and packages allowed
       check_for_scmsynced_package_and_project(project: @prj, package: @pack)
       @allowed = permissions.package_change?(@pack)
