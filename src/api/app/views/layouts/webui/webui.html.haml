@@ -39,7 +39,7 @@
     - if User.session&.rss_secret.present?
       = auto_discovery_link_tag(:rss, user_rss_notifications_url(secret: User.session.rss_secret, format: :rss), title: 'Notifications')
     = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), title: 'Latest updates')
-  %body{ class: feature_css_class }
+  %body{ class: feature_css_class, data: { 'home-project': User.session&.home_project&.name } }
     #grid
       #top-navigation-area
         = render partial: 'layouts/webui/top_navigation', locals: { unread_notifications_count: @unread_notifications_count }

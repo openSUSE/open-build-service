@@ -187,6 +187,7 @@ controller 'webui/project' do
   post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons, as: :project_new_release_request
   get 'project/show/:project' => :show, constraints: cons, as: 'project_show'
   get 'project/buildresult' => :buildresult, constraints: cons, as: 'project_buildresult'
+  get 'project/build_status_summary/:project' => :build_status_summary, constraints: cons, as: 'project_build_status_summary'
   get 'project/new' => :new, as: 'new_project'
   get 'project/edit/:project' => :edit, constraints: cons, as: 'edit_project'
   post 'project/create' => :create, constraints: cons, as: 'projects_create'
