@@ -17,7 +17,10 @@ RSpec.describe PackageDatatable, type: :datatable do
       time_ago_in_words: '2 days',
       tag: ActionController::Base.helpers.tag
     )
-    allow(view_context).to receive(:safe_join) { |args| args.join(' ') }
+
+    allow(view_context).to receive(:safe_join) do |args|
+      ActionController::Base.helpers.safe_join(args, ' ')
+    end
   end
 
   describe '#data' do
