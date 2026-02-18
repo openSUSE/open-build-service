@@ -2,6 +2,8 @@
 class SyncUpstreamPackageVersionJob < ApplicationJob
   queue_as :quick
 
+  include PackageVersionLabeler
+
   def perform(project_name: nil)
     if project_name.present?
       create_for_project(project_name: project_name)
@@ -47,6 +49,7 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
     return if upstream_version.blank?
 
     upsert_package_versions(package_ids, upstream_version)
+    update_package_version_labels(package_ids: package_ids)
   end
 
   def upsert_package_versions(package_ids, upstream_version)
