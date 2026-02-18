@@ -2,6 +2,8 @@
 class SyncUpstreamPackageVersionJob < ApplicationJob
   queue_as :quick
 
+  include PackageVersionLabeler
+
   def perform(project_name: nil)
     if project_name.present?
       create_for_project(project_name: project_name)
@@ -41,12 +43,12 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
     response = fetch_upstream_package_info(package_name: package_name, distribution_name: distribution_name)
 
     # When we get empty result, we can’t rely on the past information we stored in the database anymore
-    PackageVersionUpstream.where(package_id: package_ids).delete_all && return if response&.dig('total_items')&.zero?
+    PackageVersionUpstream.where(package_id: package_ids).delete_all if response&.dig('total_items')&.zero?
 
     upstream_version = extract_version(response)
-    return if upstream_version.blank?
 
-    upsert_package_versions(package_ids, upstream_version)
+    upsert_package_versions(package_ids, upstream_version) if upstream_version.present?
+    update_package_version_labels(package_ids: package_ids)
   end
 
   def upsert_package_versions(package_ids, upstream_version)

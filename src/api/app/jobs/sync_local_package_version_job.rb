@@ -1,6 +1,8 @@
 class SyncLocalPackageVersionJob < ApplicationJob
   queue_as :quick
 
+  include PackageVersionLabeler
+
   def perform(project_name, package_name: nil)
     project = Project.find_by_name(project_name)
     distribution_name = project.anitya_distribution_name
@@ -22,6 +24,7 @@ class SyncLocalPackageVersionJob < ApplicationJob
 
       package_version_local = PackageVersionLocal.find_or_create_by(version: version, package: package)
       package_version_local.touch if package_version_local.persisted? # rubocop:disable Rails/SkipsModelValidations
+      update_package_version_labels(package_ids: [package.id])
     end
   end
 end
