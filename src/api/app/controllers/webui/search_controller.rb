@@ -124,15 +124,16 @@ class Webui::SearchController < Webui::WebuiController
     # If there is nothing to search for, just return
     return unless params[:search_text]
 
-    # If the search is too short, return too
-    if (!@search_text || @search_text.length < 2) && !@search_attrib_type_id && !@search_issue
-      flash[:error] = 'Search string must contain at least two characters.'
+    # request number shortcuts (e.g., #123, rq123, request 123)
+    # This check happens BEFORE the length check to support single-digit request numbers (e.g. "1")
+    if (match = @search_text.to_s.match(/\A(?:request|rq)?\s*#?\s*(\d+)\z/i))
+      redirect_to controller: 'request', action: 'show', number: match[1]
       return
     end
 
-    # request number when string starts with a #
-    if @search_text.starts_with?('#') && @search_text[1..].to_i.positive?
-      redirect_to controller: 'request', action: 'show', number: @search_text[1..]
+    # If the search is too short, return too
+    if (!@search_text || @search_text.length < 2) && !@search_attrib_type_id && !@search_issue
+      flash[:error] = 'Search string must contain at least two characters.'
       return
     end
 
