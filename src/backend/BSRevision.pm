@@ -174,14 +174,11 @@ sub retrofit_old_meta {
       BSUtil::cp("$projectsdir/$projid.pkg/_sslcert", "$uploaddir/addrev_meta$$");
       $files->{'_sslcert'} = BSSrcrep::addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_sslcert');
     }
-    if (-e "$projectsdir/$projid.pkg/_pubkey") {
-      BSUtil::cp("$projectsdir/$projid.pkg/_pubkey", "$uploaddir/addrev_meta$$");
-      $files->{'_pubkey'} = BSSrcrep::addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_pubkey');
-    }
-    if (-e "$projectsdir/$projid.pkg/_signkey") {
-      BSUtil::cp("$projectsdir/$projid.pkg/_signkey", "$uploaddir/addrev_meta$$");
-      chmod(0600, "$uploaddir/addrev_meta$$");
-      $files->{'_signkey'} = BSSrcrep::addfile($projid, $packid, "$uploaddir/addrev_meta$$", '_signkey');
+    for my $rfile (qw{_pubkey _pubkey_pending _pubkey_previous _signkey _signkey_pending}) {
+      next unless -e "$projectsdir/$projid.pkg/$rfile";
+      BSUtil::cp("$projectsdir/$projid.pkg/$rfile", "$uploaddir/addrev_meta$$");
+      chmod(0600, "$uploaddir/addrev_meta$$") if $rfile =~ /^_signkey(?:_|$)/;
+      $files->{$rfile} = BSSrcrep::addfile($projid, $packid, "$uploaddir/addrev_meta$$", $rfile);
     }
   }
   return $files;
@@ -202,15 +199,19 @@ sub extract_old_meta {
   delete $rev->{'keepsignkey'};
   if (!defined($packid) || $packid eq '_project') {
     $packid = '_project';
-    my $pubkey;
-    $pubkey = revreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
-    writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_pubkey", $pubkey) if $pubkey;
-    my $signkey;
-    $signkey = revreadstr($rev, '_signkey', $files->{'_signkey'}, 1) if $files->{'_signkey'};
-    if ($signkey) {
-      writestr("$uploaddir/$$.2", undef, $signkey);
-      chmod(0600, "$uploaddir/$$.2");
-      rename("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_signkey") || die("rename $uploaddir/$$.2 $projectsdir/$projid.pkg/_signkey: $!\n");
+    for my $rfile (qw{_pubkey _pubkey_pending _pubkey_previous}) {
+      my $content;
+      $content = revreadstr($rev, $rfile, $files->{$rfile}, 1) if $files->{$rfile};
+      writestr("$uploaddir/$$.2", "$projectsdir/$projid.pkg/$rfile", $content) if $content;
+    }
+    for my $rfile (qw{_signkey _signkey_pending}) {
+      my $content;
+      $content = revreadstr($rev, $rfile, $files->{$rfile}, 1) if $files->{$rfile};
+      if ($content) {
+        writestr("$uploaddir/$$.2", undef, $content);
+        chmod(0600, "$uploaddir/$$.2");
+        rename("$uploaddir/$$.2", "$projectsdir/$projid.pkg/$rfile") || die("rename $uploaddir/$$.2 $projectsdir/$projid.pkg/$rfile: $!\n");
+      }
     }
     my $meta;
     $meta = revreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
@@ -240,7 +241,7 @@ sub addrev_replace_common {
     mkdir_p($uploaddir);
     unlink("$uploaddir/addrev_meta$$");
     BSUtil::cp($tmpfile, "$uploaddir/addrev_meta$$");
-    chmod(0600, "$uploaddir/addrev_meta$$") if !defined($packid) && $suf eq 'mrev' && $rfile eq '_signkey';
+    chmod(0600, "$uploaddir/addrev_meta$$") if !defined($packid) && $suf eq 'mrev' && $rfile =~ /^_signkey(?:_|$)/;
     $rfilemd5{$rfile} = BSSrcrep::addfile($projid, $rpackid, "$uploaddir/addrev_meta$$", $rfile);
   }
 
@@ -548,8 +549,10 @@ sub lsrev {
   die("revision package missing\n") unless defined $packid;
   die("no such revision\n") unless defined $srcmd5;
   my $files = BSSrcrep::lsfiles($projid, $packid, $srcmd5, $linkinfo);
-  # hack: do not list _signkey in project meta
-  delete $files->{'_signkey'} if $packid eq '_project' && !$rev->{'keepsignkey'};
+  # hack: do not list private signing key material in project meta
+  if ($packid eq '_project' && !$rev->{'keepsignkey'}) {
+    delete $files->{$_} for grep { /^_signkey(?:_|$)/ } keys %$files;
+  }
   return $files;
 }
 
