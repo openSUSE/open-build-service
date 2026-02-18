@@ -8,6 +8,10 @@ module Event
 
     receiver_roles :develpackage_or_package_maintainer
 
+    def self.notification_feature_flag
+      :package_version_tracking
+    end
+
     def parameters_for_notification
       super.merge(notifiable_type: 'Package',
                   notifiable_id: ::Package.find_by_project_and_name(payload['project'], payload['package'])&.id,

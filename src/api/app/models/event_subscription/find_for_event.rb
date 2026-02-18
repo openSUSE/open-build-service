@@ -78,11 +78,17 @@ class EventSubscription
 
     private
 
+    def allowed_by_feature_flag?(user)
+      return true if event.class.notification_feature_flag.blank?
+
+      Flipper.enabled?(event.class.notification_feature_flag, user)
+    end
+
     def expand_receivers(receivers, channel)
       receivers.inject([]) do |new_receivers, receiver|
         case receiver
         when User
-          new_receivers << receiver if receiver.active?
+          new_receivers << receiver if receiver.active? && allowed_by_feature_flag?(receiver)
           puts "Skipped receiver #{receiver} because it's inactive" if @debug && !receiver.active?
         when Group
           new_receivers += expand_receivers_for_groups(receiver, channel)
@@ -101,7 +107,7 @@ class EventSubscription
       return [receiver] if channel == :web || receiver.email.present?
 
       puts "Expanding group #{receiver}..." if @debug
-      receiver.email_users
+      receiver.email_users.select { |user| allowed_by_feature_flag?(user) }
     end
     # rubocop: enable Rails/Output
   end
