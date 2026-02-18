@@ -22,10 +22,7 @@ class EventSubscription
 
         # Allow descendant events to also receive notifications if the subscription only covers the base class
         # This only supports 1 level of ancestry
-        superclass = event.class.superclass.name
-        eventtypes = [event.eventtype]
-        eventtypes << superclass if superclass != 'Event::Base'
-        options = { eventtype: eventtypes, receiver_role: receiver_role, channel: channel }
+        options = { eventtype: event_types, receiver_role: receiver_role, channel: channel }
         # Find the default subscription for this eventtype and receiver_role
         default_subscription = EventSubscription.defaults.find_by(options)
 
@@ -82,6 +79,15 @@ class EventSubscription
       return true if event.class.notification_feature_flag.blank?
 
       Flipper.enabled?(event.class.notification_feature_flag, user)
+    end
+
+    def event_types
+      @event_types ||= begin
+        types = [event.eventtype]
+        superclass = event.class.superclass.name
+        types << superclass if superclass != 'Event::Base'
+        types
+      end
     end
 
     def expand_receivers(receivers, channel)
