@@ -15,6 +15,7 @@ RSpec.describe SourceProjectCommandController do
       end
 
       it { expect(response).to have_http_status(:success) }
+
       it do
         expect(Backend::Api::Sources::Project).to have_received(:createkey).with(
           project.name,
@@ -31,6 +32,7 @@ RSpec.describe SourceProjectCommandController do
       end
 
       it { expect(response).to have_http_status(:success) }
+
       it do
         expect(Backend::Api::Sources::Project).to have_received(:preparekey).with(
           project.name,
@@ -47,6 +49,7 @@ RSpec.describe SourceProjectCommandController do
       end
 
       it { expect(response).to have_http_status(:success) }
+
       it do
         expect(Backend::Api::Sources::Project).to have_received(:activatekey).with(
           project.name,
