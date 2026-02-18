@@ -2499,7 +2499,7 @@ sub publish {
         my $updateinfoxml = readstr("$r/$bin", 1) || '';
 	$updateinfos_state .= Digest::MD5::md5_hex($updateinfoxml);
 	my $updateinfo = readxml("$r/$bin", $BSXML::updateinfo, 1) || {};
-	push @updateinfos, @{$updateinfo->{'update'} || []};
+	push @updateinfos, grep {($_->{'type'} || '') ne '_internal'} @{$updateinfo->{'update'} || []};
       }
       if ($bin =~ /:_modulemd.yaml$/) {
         my @s = stat("$r/$bin");
