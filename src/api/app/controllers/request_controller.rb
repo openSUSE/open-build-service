@@ -61,14 +61,19 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def create
-    BsRequest.transaction do
-      @req = BsRequest.new_from_xml(request.raw_post.to_s)
-      authorize @req, :create?
-      @req.set_add_revision       if params[:addrevision].present?
-      @req.set_ignore_delegate    if params[:ignore_delegate].present?
-      @req.set_ignore_build_state if params[:ignore_build_state].present?
-      @req.save!
+    @req = BsRequest.new_from_xml(request.raw_post.to_s)
+    authorize @req, :create?
+    @req.set_add_revision       if params[:addrevision].present?
+    @req.set_ignore_delegate    if params[:ignore_delegate].present?
+    @req.set_ignore_build_state if params[:ignore_build_state].present?
+    @req.save!
+
+    begin
       Suse::Validator.validate(:request, @req.render_xml)
+    rescue Suse::Validator::ValidationError
+      @req.destroy
+
+      raise
     end
 
     render xml: @req.render_xml
