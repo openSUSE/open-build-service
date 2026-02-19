@@ -184,6 +184,7 @@ class Webui::RequestController < Webui::WebuiController
       bs_request_action = BsRequestAction.find(@action[:id])
       job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
       return unless job.zero?
+
       priority = User.session.present? ? -10 : 0
       BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(bs_request_action)
     end
@@ -593,6 +594,7 @@ class Webui::RequestController < Webui::WebuiController
 
     job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
     return unless job.zero?
+    
     priority = User.session.present? ? -10 : 0
     BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(@action, tarlimit: @tarlimit)
   end
