@@ -387,8 +387,25 @@ sub getsigndata {
 
 ##########################################################################
 
+sub have_good_project_signkey {
+  my ($signargs) = @_;
+  return 0 unless @{$signargs || []} >= 2;
+  return 0 if $signargs->[0] ne '-P';
+  return (-s $signargs->[1]) >= 10;
+}
+
 sub get_cert {
   my ($projid, $signargs, $signtype, $signflavor) = @_;
+
+  if (have_good_project_signkey($signargs)) {
+    # have project signing key, ask the source server for the corresponding cert
+    my @args = ("project=$projid", "autoextend=1");
+    push @args, "signtype=$signtype" if $signtype;
+    push @args, "signflavor=$signflavor" if $signflavor;
+    my $cert = eval { BSRPC::rpc("$BSConfig::srcserver/getsslcert", undef, @args) };
+    warn($@) if $@;
+    return $cert if $cert;
+  }
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, '--signtype', $signtype if $BSConfig::sign_type || $BSConfig::sign_type;
