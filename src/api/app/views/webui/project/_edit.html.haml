@@ -12,7 +12,13 @@
       = form.label(:report_bug_url, 'Report Bug URL:')
       = form.url_field(:report_bug_url, class: 'form-control')
   .mb-3
-    = form.label(:anitya_distribution_name, 'Anitya Distribution Name:')
+    = form.label(:anitya_distribution_name) do
+      Anitya Distribution Name
+      %small.form-text
+        = link_to 'Version Tracking Guide',
+          'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-versiontracking',
+          target: '_blank',
+          rel: 'noopener'
     = form.text_field(:anitya_distribution_name, class: 'form-control')
   .mb-3
     = form.label(:description, 'Description:')
