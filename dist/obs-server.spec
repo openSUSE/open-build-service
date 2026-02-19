@@ -492,6 +492,8 @@ popd
 make resolve_swagger_yaml
 
 %install
+mkdir -p %{buildroot}%{obs_backend_data_dir}
+mkdir -p %{buildroot}%{__obs_api_prefix}/public/assets
 export DESTDIR=$RPM_BUILD_ROOT
 export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install
@@ -520,7 +522,7 @@ fi
 
 # create empty directories we own
 for dir in MySQL certs db diffcache remotecache repos sources trees upload workers; do
-    install -d "$RPM_BUILD_ROOT%{obs_backend_data_dir}/$dir"
+    install -d "%{buildroot}%{obs_backend_data_dir}/$dir"
 done
 
 # drop testcases for now
@@ -538,7 +540,7 @@ if ! test -L %{buildroot}%{obs_backend_dir}/build; then
 fi
 
 # Link the assets without hash to make them accessible for third party tools like the pattern library
-pushd $RPM_BUILD_ROOT%{__obs_api_prefix}/public/assets/webui/
+pushd %{buildroot}%{__obs_api_prefix}/public/assets/webui/
 ln -sf application-*.js application.js
 ln -sf application-*.css application.css
 popd
@@ -557,11 +559,14 @@ DIR=%buildroot%perl_vendorlib/OBS
 cp src/backend/BSXML.pm $DIR/XML.pm
 sed -i -e 's,package BSXML;,package OBS::XML;,' $DIR/XML.pm
 
-%if 0%{?suse_version} >= 1500
-mkdir -p %{buildroot}%{_sysusersdir}
-install -m 0644 dist/system-user-obsrun.conf %{buildroot}%{_sysusersdir}/
-install -m 0644 dist/system-user-obsservicerun.conf %{buildroot}%{_sysusersdir}/
-%endif
+if ls dist/system-user-*.conf >/dev/null 2>&1; then
+  mkdir -p %{buildroot}%{_sysusersdir}
+  install -m 0644 dist/system-user-*.conf %{buildroot}%{_sysusersdir}/
+fi
+
+
+# remove logs generated during tests so RPM packaging doesn't fail
+rm -f %{buildroot}%{__obs_api_prefix}/server.log %{buildroot}%{__obs_api_prefix}/test_output.log
 
 %check
 %if 0%{?disable_obs_test_suite}

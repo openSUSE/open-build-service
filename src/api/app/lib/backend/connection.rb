@@ -38,9 +38,13 @@ module Backend
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Get.new(path, in_headers)
 
-      response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
-        http.read_timeout = timeout
-        http.request(backend_request, &)
+      begin
+        response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
+          http.read_timeout = timeout
+          http.request(backend_request, &)
+        end
+      rescue Errno::ECONNREFUSED, SocketError, Errno::ECONNRESET, Errno::EPIPE, Errno::ETIMEDOUT => e
+        raise Backend::Error, "Backend unreachable: #{e.message}"
       end
 
       method = 'GET'
@@ -67,9 +71,13 @@ module Backend
       in_headers['X-Frontend-Start'] = start_time.to_i.to_s
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Delete.new(path, in_headers)
-      response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
-        http.read_timeout = timeout
-        http.request(backend_request)
+      begin
+        response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
+          http.read_timeout = timeout
+          http.request(backend_request)
+        end
+      rescue Errno::ECONNREFUSED, SocketError, Errno::ECONNRESET, Errno::EPIPE, Errno::ETIMEDOUT => e
+        raise Backend::Error, "Backend unreachable: #{e.message}"
       end
       method = 'DELETE'
       @backend_runtime = ((Time.now - start_time) * 1000).ceil
@@ -117,18 +125,22 @@ module Backend
         backend_request.body = data
       end
 
-      response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
-        http.read_timeout = if method == 'POST'
-                              # POST requests can be quite complicate and take some time ..
-                              timeout || 100_000
-                            else
-                              timeout || 1000
-                            end
-        begin
-          http.request(backend_request)
-        rescue Errno::EPIPE, Errno::ECONNRESET, SocketError, Errno::EINTR, IOError, Errno::ETIMEDOUT
-          raise Timeout::Error
+      begin
+        response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
+          http.read_timeout = if method == 'POST'
+                                # POST requests can be quite complicate and take some time ..
+                                timeout || 100_000
+                              else
+                                timeout || 1000
+                              end
+          begin
+            http.request(backend_request)
+          rescue Errno::EPIPE, Errno::ECONNRESET, SocketError, Errno::EINTR, IOError, Errno::ETIMEDOUT
+            raise Timeout::Error
+          end
         end
+      rescue Errno::ECONNREFUSED, SocketError, Errno::ECONNRESET, Errno::EPIPE, Errno::ETIMEDOUT => e
+        raise Backend::Error, "Backend unreachable: #{e.message}"
       end
 
       @backend_runtime = ((Time.now - start_time) * 1000).ceil

@@ -60,9 +60,11 @@ class MigrateToUtf8mb4 < ActiveRecord::Migration[7.0]
       execute 'ALTER TABLE `channel_binaries` MODIFY `binaryarch` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
       execute 'ALTER TABLE `channel_binaries` MODIFY `supportstatus` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
 
-      # In some circumstances these columns don't exist, this is to make sure that they do
-      execute 'ALTER TABLE `channel_targets` MODIFY IF EXISTS `prefix` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
-      execute 'ALTER TABLE `channel_targets` ADD IF NOT EXISTS `prefix` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
+      if column_exists?(:channel_targets, :prefix)
+        execute 'ALTER TABLE `channel_targets` MODIFY `prefix` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
+      else
+        execute 'ALTER TABLE `channel_targets` ADD `prefix` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
+      end
 
       execute 'ALTER TABLE `channel_targets` MODIFY `id_template` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
       execute 'ALTER TABLE `cloud_azure_configurations` MODIFY `application_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL'
