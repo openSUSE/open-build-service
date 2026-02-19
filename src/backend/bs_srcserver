@@ -988,7 +988,7 @@ sub findfile {
     }
   }
 
-  return $files{'_preinstallimage'} if $ext ne 'kiwi' && $ext ne 'productcompose' && $ext ne 'docker' && keys(%files) == 1 && $files{'_preinstallimage'};
+  return $files{'_preinstallimage'} if $ext ne 'kiwi' && $ext ne 'productcompose' && $ext ne 'docker' && $ext ne 'mkosi' && keys(%files) == 1 && $files{'_preinstallimage'};
   return $files{'Chart.yaml'} if $ext eq 'helm';
   return $files{'appimage.yml'} if $ext eq 'appimage';
   return $files{'PKGBUILD'} if $ext eq 'arch';
