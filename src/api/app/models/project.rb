@@ -27,7 +27,7 @@ class Project < ApplicationRecord
   after_save :discard_cache
   after_save :populate_to_sphinx
 
-  after_save :fetch_upstream_package_version, :fetch_local_package_version, if: -> { saved_change_to_anitya_distribution_name? }
+  after_save :sync_upstream_package_version, :sync_local_package_version, if: -> { saved_change_to_anitya_distribution_name? }
   after_rollback :reset_cache
   after_rollback :discard_cache
 
@@ -1476,12 +1476,12 @@ class Project < ApplicationRecord
     DeleteFromSphinxJob.perform_later(id, self.class)
   end
 
-  def fetch_upstream_package_version
-    FetchUpstreamPackageVersionJob.perform_later(project_name: name)
+  def sync_upstream_package_version
+    SyncUpstreamPackageVersionJob.perform_later(project_name: name)
   end
 
-  def fetch_local_package_version
-    FetchLocalPackageVersionJob.perform_later(name)
+  def sync_local_package_version
+    SyncLocalPackageVersionJob.perform_later(name)
   end
 end
 

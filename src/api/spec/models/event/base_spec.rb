@@ -145,4 +145,41 @@ RSpec.describe Event::Base do
       end
     end
   end
+
+  describe '#develpackage_or_package_maintainers' do
+    subject { event.develpackage_or_package_maintainers }
+
+    let(:package_maintainer) { create(:confirmed_user) }
+    let(:project) do
+      project = create(:project)
+      project.update_column(:anitya_distribution_name, 'Anitdist') # rubocop:disable Rails/SkipsModelValidations
+      project.store
+      project
+    end
+    let(:package) { create(:package, project: project, develpackage: develpackage) }
+    let!(:package_maintainer_role) { create(:relationship, package: package, user: package_maintainer) }
+    let!(:package_maintainer_subscription) { create(:event_subscription_upstream_version, subscriber: package_maintainer) }
+    # This creation on a PackageVersionUpstream object ends up creating the related event
+    let!(:package_version_upstream) { create(:package_version_upstream, package: package) }
+    let(:event) { Event::UpstreamPackageVersionChanged.last }
+
+    context "when the package don't have a devel package" do
+      let(:develpackage) { nil }
+
+      it 'only the maintainer receive the notification' do
+        expect(subject).to contain_exactly(package_maintainer)
+      end
+    end
+
+    context 'when the package has a devel package' do
+      let(:develpackage_maintainer) { create(:confirmed_user) }
+      let(:develpackage) { create(:package, project: project) }
+      let!(:develpackage_maintainer_role) { create(:relationship, package: develpackage, user: develpackage_maintainer) }
+      let!(:develpackage_maintainer_subscription) { create(:event_subscription_upstream_version, subscriber: develpackage_maintainer) }
+
+      it 'only the develpackage maintainer receiver of the notification' do
+        expect(subject).to contain_exactly(develpackage_maintainer)
+      end
+    end
+  end
 end

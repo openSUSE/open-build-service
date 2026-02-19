@@ -313,7 +313,7 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mocha (3.0.1)
+    mocha (3.0.2)
       ruby2_keywords (>= 0.0.5)
     multi_xml (0.8.1)
       bigdecimal (>= 3.1, < 5)
@@ -334,7 +334,7 @@ GEM
       rainbow (>= 3)
     nio4r (2.7.5)
     nkf (0.2.0)
-    nokogiri (1.19.0)
+    nokogiri (1.19.1)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     octokit (10.0.0)
@@ -345,7 +345,7 @@ GEM
       activerecord (>= 7.1)
       request_store (~> 1.4)
     parallel (1.27.0)
-    parser (3.3.10.1)
+    parser (3.3.10.2)
       ast (~> 2.4.1)
       racc
     pkg-config (1.6.5)

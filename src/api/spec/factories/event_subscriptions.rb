@@ -152,7 +152,7 @@ FactoryBot.define do
 
     factory :event_subscription_upstream_version do
       eventtype { 'Event::UpstreamPackageVersionChanged' }
-      receiver_role { 'maintainer' }
+      receiver_role { 'develpackage_or_package_maintainer' }
       channel { :instant_email }
       user
       group { nil }

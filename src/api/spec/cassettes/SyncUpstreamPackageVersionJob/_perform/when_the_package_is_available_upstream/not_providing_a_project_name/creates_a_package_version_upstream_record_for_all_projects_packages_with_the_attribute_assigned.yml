@@ -1,0 +1,657 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>The Soldier's Art</title>
+          <description/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1770810996'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '101'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>The Soldier's Art</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 11 Feb 2026 11:56:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/hello/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>A Many-Splendoured Thing</title>
+          <description>Non velit molestiae inventore.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1770810996'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>A Many-Splendoured Thing</title>
+          <description>Non velit molestiae inventore.</description>
+        </package>
+  recorded_at: Wed, 11 Feb 2026 11:56:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/hello/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>A Many-Splendoured Thing</title>
+          <description>Non velit molestiae inventore.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1770810996'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>A Many-Splendoured Thing</title>
+          <description>Non velit molestiae inventore.</description>
+        </package>
+  recorded_at: Wed, 11 Feb 2026 11:56:36 GMT
+- request:
+    method: get
+    uri: https://release-monitoring.org/api/v2/packages/?distribution=openSUSE&name=hello
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - release-monitoring.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Feb 2026 11:56:37 GMT
+      Server:
+      - Apache/2.4.66 (Fedora Linux) mod_wsgi/5.0.2 Python/3.13
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Apptime:
+      - D=62814
+      Content-Length:
+      - '213'
+      Content-Type:
+      - application/json
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - Cookie
+      X-Content-Type-Options:
+      - nosniff
+      X-Fedora-Proxyserver:
+      - proxy10.rdu3.fedoraproject.org
+      X-Fedora-Requestid:
+      - aYxudaV2e4jz3KGijMbLOgAAAdU
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Set-Cookie:
+      - c7f2af7958ac7bdd3fe2e687de986bfb=6a018c29723930485a81a6336f6c24ee; path=/;
+        HttpOnly; Secure; SameSite=None
+    body:
+      encoding: UTF-8
+      string: '{"items":[{"distribution":"openSUSE","ecosystem":"https://www.gnu.org/software/hello/","name":"hello","project":"hello","stable_version":"2.12.2","version":"2.12.2"}],"items_per_page":25,"page":1,"total_items":1}
+
+'
+  recorded_at: Wed, 11 Feb 2026 11:56:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>Look to Windward</title>
+          <description/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1770811149'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '100'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>Look to Windward</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 11 Feb 2026 11:59:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/hello/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>The House of Mirth</title>
+          <description>Cupiditate ut et ex.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1770811149'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '138'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>The House of Mirth</title>
+          <description>Cupiditate ut et ex.</description>
+        </package>
+  recorded_at: Wed, 11 Feb 2026 11:59:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/hello/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>The House of Mirth</title>
+          <description>Cupiditate ut et ex.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1770811149'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '138'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>The House of Mirth</title>
+          <description>Cupiditate ut et ex.</description>
+        </package>
+  recorded_at: Wed, 11 Feb 2026 11:59:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory?parse=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1770811149'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfolist>
+          <sourceinfo package="hello" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+            <error>no source uploaded</error>
+          </sourceinfo>
+        </sourceinfolist>
+  recorded_at: Wed, 11 Feb 2026 11:59:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/games/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="games">
+          <title>Great Work of Time</title>
+          <description/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1770811149'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '100'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="games">
+          <title>Great Work of Time</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 11 Feb 2026 11:59:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/games/0ad/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="0ad" project="games">
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Iusto at atque est.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1770811149'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="0ad" project="games">
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Iusto at atque est.</description>
+        </package>
+  recorded_at: Wed, 11 Feb 2026 11:59:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/games/0ad/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="0ad" project="games">
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Iusto at atque est.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1770811149'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="0ad" project="games">
+          <title>The Yellow Meads of Asphodel</title>
+          <description>Iusto at atque est.</description>
+        </package>
+  recorded_at: Wed, 11 Feb 2026 11:59:09 GMT
+- request:
+    method: get
+    uri: https://release-monitoring.org/api/v2/packages/?distribution=openSUSE&name=0ad
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - release-monitoring.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Feb 2026 11:59:10 GMT
+      Server:
+      - Apache/2.4.66 (Fedora Linux) mod_wsgi/5.0.2 Python/3.13
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Apptime:
+      - D=49373
+      Content-Length:
+      - '194'
+      Content-Type:
+      - application/json
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - Cookie
+      X-Content-Type-Options:
+      - nosniff
+      X-Fedora-Proxyserver:
+      - proxy10.rdu3.fedoraproject.org
+      X-Fedora-Requestid:
+      - aYxvDlGPw7FkVf24l51gkwAAEw0
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Set-Cookie:
+      - c7f2af7958ac7bdd3fe2e687de986bfb=6a018c29723930485a81a6336f6c24ee; path=/;
+        HttpOnly; Secure; SameSite=None
+    body:
+      encoding: UTF-8
+      string: '{"items":[{"distribution":"openSUSE","ecosystem":"https://play0ad.com/","name":"0ad","project":"0ad","stable_version":"0.27.1","version":"0.27.1"}],"items_per_page":25,"page":1,"total_items":1}
+
+'
+  recorded_at: Wed, 11 Feb 2026 11:59:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/games?parse=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1770811150'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfolist>
+          <sourceinfo package="0ad" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+            <error>no source uploaded</error>
+          </sourceinfo>
+        </sourceinfolist>
+  recorded_at: Wed, 11 Feb 2026 11:59:10 GMT
+- request:
+    method: get
+    uri: https://release-monitoring.org/api/v2/packages/?distribution=openSUSE&name=hello
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - release-monitoring.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Feb 2026 11:59:10 GMT
+      Server:
+      - Apache/2.4.66 (Fedora Linux) mod_wsgi/5.0.2 Python/3.13
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Apptime:
+      - D=39019
+      Content-Length:
+      - '213'
+      Content-Type:
+      - application/json
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - Cookie
+      X-Content-Type-Options:
+      - nosniff
+      X-Fedora-Proxyserver:
+      - proxy01.rdu3.fedoraproject.org
+      X-Fedora-Requestid:
+      - aYxvDlXJ9xpRUOMraetUmQAADBg
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Set-Cookie:
+      - c7f2af7958ac7bdd3fe2e687de986bfb=6a018c29723930485a81a6336f6c24ee; path=/;
+        HttpOnly; Secure; SameSite=None
+    body:
+      encoding: UTF-8
+      string: '{"items":[{"distribution":"openSUSE","ecosystem":"https://www.gnu.org/software/hello/","name":"hello","project":"hello","stable_version":"2.12.2","version":"2.12.2"}],"items_per_page":25,"page":1,"total_items":1}
+
+'
+  recorded_at: Wed, 11 Feb 2026 11:59:10 GMT
+- request:
+    method: get
+    uri: https://release-monitoring.org/api/v2/packages/?distribution=openSUSE&name=0ad
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - release-monitoring.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 11 Feb 2026 11:59:11 GMT
+      Server:
+      - Apache/2.4.66 (Fedora Linux) mod_wsgi/5.0.2 Python/3.13
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Apptime:
+      - D=38732
+      Content-Length:
+      - '194'
+      Content-Type:
+      - application/json
+      Referrer-Policy:
+      - same-origin
+      Vary:
+      - Cookie
+      X-Content-Type-Options:
+      - nosniff
+      X-Fedora-Proxyserver:
+      - proxy10.rdu3.fedoraproject.org
+      X-Fedora-Requestid:
+      - aYxvDzsib06xuU4AU_K3pwAAAIM
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      Set-Cookie:
+      - c7f2af7958ac7bdd3fe2e687de986bfb=6a018c29723930485a81a6336f6c24ee; path=/;
+        HttpOnly; Secure; SameSite=None
+    body:
+      encoding: UTF-8
+      string: '{"items":[{"distribution":"openSUSE","ecosystem":"https://play0ad.com/","name":"0ad","project":"0ad","stable_version":"0.27.1","version":"0.27.1"}],"items_per_page":25,"page":1,"total_items":1}
+
+'
+  recorded_at: Wed, 11 Feb 2026 11:59:11 GMT
+recorded_with: VCR 6.4.0

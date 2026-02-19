@@ -2,6 +2,8 @@ class EventSubscription
   class Form
     EVENTS_FOR_CONTENT_MODERATORS = ['Event::Report', 'Event::AppealCreated'].freeze
     EVENTS_IN_CONTENT_MODERATION_BETA = ['Event::Decision', 'Event::CommentForReport'].freeze
+    # Event class name and correspoding beta feature name:
+    EVENTS_IN_BETA = { Event::UpstreamPackageVersionChanged => :package_version_tracking }.freeze
 
     attr_reader :subscriber
 
@@ -10,7 +12,7 @@ class EventSubscription
     end
 
     def subscriptions_by_event
-      event_classes = Event::Base.notification_events
+      event_classes = Event::Base.notification_events - non_enabled_events
       event_classes.filter_map do |event_class|
         EventSubscription::ForEventForm.new(event_class, subscriber).call if show_form_for_content_moderation_events?(event_class: event_class, subscriber: subscriber)
       end
@@ -56,6 +58,10 @@ class EventSubscription
       return false if EVENTS_IN_CONTENT_MODERATION_BETA.include?(event_class.name) && !Flipper.enabled?(:content_moderation, subscriber)
 
       true
+    end
+
+    def non_enabled_events
+      EVENTS_IN_BETA.filter { |_, feature| !Flipper.enabled?(feature, subscriber) }.keys
     end
   end
 end
