@@ -80,7 +80,7 @@ end
 #  password_digest               :string(255)
 #  realname                      :string(200)      default(""), not null
 #  rss_secret                    :string(200)      uniquely indexed
-#  state                         :string           default("unconfirmed"), indexed
+#  state                         :string           default("unconfirmed")
 #  created_at                    :datetime
 #  updated_at                    :datetime
 #  owner_id                      :integer
@@ -91,7 +91,6 @@ end
 #  index_users_on_in_beta     (in_beta)
 #  index_users_on_in_rollout  (in_rollout)
 #  index_users_on_rss_secret  (rss_secret) UNIQUE
-#  index_users_on_state       (state)
 #  users_login_index          (login) UNIQUE
 #  users_password_index       (deprecated_password)
 #
