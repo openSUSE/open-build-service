@@ -183,10 +183,9 @@ class Webui::RequestController < Webui::WebuiController
     if @action[:diff_not_cached]
       bs_request_action = BsRequestAction.find(@action[:id])
       job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
-      if job.zero?
-        priority = User.session.present? ? -10 : 0
-        BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(bs_request_action)
-      end
+      return unless job.zero?
+      priority = User.session.present? ? -10 : 0
+      BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(bs_request_action)
     end
 
     respond_to do |format|
@@ -593,10 +592,9 @@ class Webui::RequestController < Webui::WebuiController
     return unless @diff_not_cached
 
     job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
-    if job.zero?
-      priority = User.session.present? ? -10 : 0
-      BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(@action, tarlimit: @tarlimit)
-    end
+    return unless job.zero?
+    priority = User.session.present? ? -10 : 0
+    BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(@action, tarlimit: @tarlimit)
   end
 
   # Shared data used in multiple views (request conversation, request build results, etc)
