@@ -361,3 +361,9 @@ IssueTracker.where(name: 'svg').first_or_create(description: 'GNU Savannah bug t
                                                 regex: 'svg#(\d+)',
                                                 url: 'https://savannah.gnu.org/bugs',
                                                 label: 'svg#@@@', show_url: 'https://savannah.gnu.org/bugs/?@@@')
+IssueTracker.where(name: 'debbugs').first_or_create(description: 'GNU Debbugs',
+                                                    kind: 'debbugs',
+                                                    regex: 'debbugs#(\d+)',
+                                                    url: 'https://debbugs.gnu.org/',
+                                                    label: 'debbugs#@@@',
+                                                    show_url: 'https://debbugs.gnu.org/cgi/bugreport.cgi?bug=@@@')

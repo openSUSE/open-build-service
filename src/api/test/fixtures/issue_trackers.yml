@@ -292,3 +292,13 @@ savannah_gnu:
   label: svg#@@@
   issues_updated: 2024-03-11 14:00:21.000000000 Z
   enable_fetch: 0
+debbugs:
+  name: debbugs
+  kind: debbugs
+  description: GNU Debbugs
+  url: https://debbugs.gnu.org/
+  show_url: https://debbugs.gnu.org/cgi/bugreport.cgi?bug=@@@
+  regex: debbugs#(\d+)
+  label: debbugs#@@@
+  issues_updated: 2026-02-19 14:00:00.000000000 Z
+  enable_fetch: 0
