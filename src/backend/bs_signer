@@ -189,13 +189,15 @@ sub readisodir {
 }
 
 sub signisofiles {
-  my ($fd, $pubkey, @signargs) = @_;
+  my ($fd, $data, @signargs) = @_;
 
+  my $pubkey = $data->{'pubkey'};
   my $signed = 0;
   my $vol = readblk($fd, 16);
   die("fatal: primary volume descriptor missing\n") if substr($vol, 0, 6) ne "\001CD001";
   my ($path_table_size, $path_table_pos) = unpack('@132V@140V', $vol);
   my $path_table = readblk($fd, $path_table_pos * 2048, $path_table_size, 1);
+  my $cmscertfile;
   while ($path_table ne '') {
     my ($l, $dirpos) = unpack('C@2V', $path_table);
     die("fatal: empty dir in path table\n") unless $l;
@@ -205,8 +207,9 @@ sub signisofiles {
     die("fatal: $@") if $@;
     for my $e (@c) {
       #print "$e->[0] $e->[1] $e->[2] $e->[3] $e->[4]\n";
-      if ($e->[0] =~ /^(.*)\.asc$/i && $e->[2] == 2048) {
+      if ($e->[0] =~ /^(.*)\.(asc|p7s)$/i && $e->[2] == ($2 eq 'p7s' ? 8192 : 2048)) {
 	my $n = $1;
+	my $signfilesuf = $2; 
 	my $signfile = readblk($fd, $e->[1]);
 	next if substr($signfile, 0, 8) ne "sIGnMe!\n";
 	my $len = hex(substr($signfile, 8, 8));
@@ -220,11 +223,18 @@ sub signisofiles {
 	  undef $sf;
 	}
 	die("fatal: content of $n does not match signature\n") unless defined $sf;
-	my $sig = BSUtil::xsystem($sf, $BSConfig::sign, @signargs, '-d');
+	my @signmode = ('-d');
+	if ($signfilesuf eq 'p7s') {
+	  $data->{'cmscert'} ||= getsslcert($data->{'projid'}, 'cms', $data->{'signflavor'});
+	  $cmscertfile = "$uploaddir/signer.cmscert.$$";
+	  writestr($cmscertfile, undef, $data->{'cmscert'});
+	  @signmode = ('--cmssign', '--cert', $cmscertfile, '--cms-nocerts', '-h', 'sha512');
+	}
+	my $sig = BSUtil::xsystem($sf, $BSConfig::sign, @signargs, @signmode);
 	die("fatal: returned signature is empty\n") unless $sig;
-	die("fatal: returned signature is too big\n") if length($sig) > 2048;
+	die("fatal: returned signature is too big\n") if length($sig) > $e->[2];
 	# replace old content
-	writeblk($fd, $e->[1], $sig . ("\0" x (2048 - length($sig))));
+	writeblk($fd, $e->[1], $sig . ("\0" x ($e->[2] - length($sig))));
 	my $dirblk = readblk($fd, $e->[3]);
 	# patch in new content len
 	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($sig)); # little endian
@@ -237,9 +247,9 @@ sub signisofiles {
 	next if substr($signfile, 0, 8) ne "sIGnMeP\n";
 	$pubkey ||= BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p');
 	die("fatal: pubkey is not available\n") unless $pubkey;
-	die("fatal: pubkey is too big\n") if length($pubkey) > 8192;
+	die("fatal: pubkey is too big\n") if length($pubkey) > $e->[2];
 	# replace old content
-	writeblk($fd, $e->[1], $pubkey . ("\0" x (8192 - length($pubkey))));
+	writeblk($fd, $e->[1], $pubkey . ("\0" x ($e->[2] - length($pubkey))));
 	my $dirblk = readblk($fd, $e->[3]);
 	# patch in new content len
 	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($pubkey)); # little endian
@@ -249,6 +259,7 @@ sub signisofiles {
       }
     }
   }
+  unlink($cmscertfile) if $cmscertfile;
   return $signed;
 }
 
@@ -395,7 +406,7 @@ sub signiso {
   my ($data, $signfile, @signargs) = @_;
   local *ISO;
   open(ISO, '+<', $signfile) || die("$signfile: $!\n");
-  my $signed = signisofiles(\*ISO, $data->{'pubkey'}, @signargs);
+  my $signed = signisofiles(\*ISO, $data, @signargs);
   retagiso(\*ISO) if $signed;
   signisotag(\*ISO, $data->{'pubkey'}, @signargs);
   close(ISO) || die("close $signfile: $!\n");
@@ -904,7 +915,7 @@ sub signjob {
 	push @signfiles, $f;
 	next;
       }
-      die("bad file in kiwitree_tosign: $f\n") unless $f =~ /^(.*)\.asc$/s;
+      die("bad file in kiwitree_tosign: $f\n") unless $f =~ /^(.*)\.(?:asc|p7s)$/s;
       push @signfiles, $f if -s "$jobdir/$f" && -e "$jobdir/$1";
     }
   }
@@ -928,7 +939,10 @@ sub signjob {
     my $needcert = grep {/\.appx$/} @signfiles;
     $needpubkey ||= grep {/\.(?:iso|apk)$/} @signfiles;
     $needpubkey = 1 if $info->{'file'} eq '_aggregate' && grep {/\.d?rpm$/} @signfiles;
+    my $needcmscert = grep {/\.p7s$/} @signfiles;
     my ($algo, $signkey, $pubkey, $cert) = getsignkey($projid, $packid, $needpubkey, $needcert, undef, $signflavor);
+    my $cmscert;
+    $cmscert = getsslcert($projid, 'cms', $signflavor) if $needcmscert;
     my $pubkey_create_time;
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
@@ -974,6 +988,7 @@ sub signjob {
       'pubkey' => $pubkey,
       'signkey' => $signkey,
       'cert' => $cert,
+      'cmscert' => $cmscert,
       'signflavor' => $signflavor,
       'time' => time(),
     };
@@ -1062,12 +1077,15 @@ sub signjob {
 	if ($signfile =~ /^(.*\.iso)\.sha512$/) {
 	  fixup_sha512_checksum($jobdir, $signfile, $1);
 	}
-	if ($signfile =~ /\.asc$/s) {
-	  next unless (-s "$jobdir/$signfile") == 2048;
+	if ($signfile =~ /\.(asc|p7s)$/s) {
+	  my $signfilesuf = $1;
+	  next unless (-s "$jobdir/$signfile") == ($signfilesuf eq 'p7s' ? 8192 : 2048);
 	  my $signfilec = readstr("$jobdir/$signfile");
 	  next if substr($signfilec, 0, 8) ne "sIGnMe!\n";
 	  @signmode = ('-d');
-	  $signfile =~ s/\.asc$//s;
+	  die("cms cert is not available\n") if $signfilesuf eq 'p7s' && !$cmscert;
+	  @signmode = ('--cmssign', '--cert', $cmscert, '--cms-nocerts', '-h', 'sha512') if $signfilesuf eq 'p7s';
+	  $signfile =~ s/\.(?:asc|p7s)$//s;
 	  # fallthrough...
 	}
 	if (system($BSConfig::sign, @signargs, @signmode, "$jobdir/$signfile")) {

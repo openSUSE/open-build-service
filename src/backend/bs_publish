@@ -449,7 +449,7 @@ sub create_detached_cms_signature {
   mkdir_p($uploaddir);
   writestr("$uploaddir/publisher.$$.cert", undef, $data->{'cms_cert'});
 
-  if (qsystem($BSConfig::sign, @signargs, '--cmssign', '--cert', "$uploaddir/publisher.$$.cert", '-h', 'sha512', $file)) {
+  if (qsystem($BSConfig::sign, @signargs, '--cmssign', '--cert', "$uploaddir/publisher.$$.cert", '--cms-nocerts', '-h', 'sha512', $file)) {
     unlink("$uploaddir/publisher.$$.cert");
     die("    cms sign failed: $?\n");
   }
