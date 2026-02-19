@@ -2239,7 +2239,7 @@ sub receivekiwitree {
       }
       $todo{$file} = 1 unless $found;
     } else {
-      push @tosign, $file if $file =~ /\.(?:asc|key)$/s;
+      push @tosign, $file if $file =~ /\.(?:asc|key|p7s)$/s;
       $todo{$file} = 1;
     }
     $done{$file} = $type;
