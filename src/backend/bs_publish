@@ -1079,6 +1079,7 @@ sub fixup_scanpackages_output {
   open ($f2, '>', "$file.tmp") || die("$file.tmp: $!\n");
   while (<$f>) {
     s/^Filename: \.\//Filename: /;
+    s/^Filename: (.*)\.ddeb\.deb$/Filename: $1.ddeb/;
     print $f2 $_ or die("$file.tmp: $!\n");
   }
   close($f);
@@ -1090,9 +1091,13 @@ sub createrepo_debian {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   print "    running dpkg-scanpackages\n";
+  # temporarily symlink .ddeb to .deb so dpkg-scanpackages picks them up
+  qsystem('find', $extrep, '-name', '*.ddeb', '-exec', 'ln', '-s', '{}', '{}.deb', ';');
   if (qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')) {
+    qsystem('find', $extrep, '-name', '*.ddeb.deb', '-delete');
     die("    dpkg-scanpackages failed: $?\n");
   }
+  qsystem('find', $extrep, '-name', '*.ddeb.deb', '-delete');
   fixup_scanpackages_output("$extrep/Packages.new");
   compress_and_rename("$extrep/Packages.new", "$extrep/Packages");
   # create an empty Packages file for empty repositories
