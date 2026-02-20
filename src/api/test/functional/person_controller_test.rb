@@ -27,6 +27,36 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_confirmed_param_validation
+    login_adrian
+
+    # valid: true
+    get '/person?confirmed=true'
+    assert_response :success
+
+    # valid: false
+    get '/person?confirmed=false'
+    assert_response :success
+
+    # valid: numeric true
+    get '/person?confirmed=1'
+    assert_response :success
+
+    # valid: numeric false
+    get '/person?confirmed=0'
+    assert_response :success
+
+    # invalid: random string
+    get '/person?confirmed=abc'
+    assert_response :bad_request
+    assert_xml_tag tag: 'status', attributes: { code: 'invalid_parameter' }
+
+    # invalid: empty value
+    get '/person?confirmed='
+    assert_response :bad_request
+    assert_xml_tag tag: 'status', attributes: { code: 'invalid_parameter' }
+  end
+
   def test_ichain
     login_adrian
     get '/person/tom', headers: { 'username' => 'fred' }

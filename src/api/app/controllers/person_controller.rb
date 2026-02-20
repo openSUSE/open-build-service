@@ -12,9 +12,20 @@ class PersonController < ApplicationController
   before_action :require_admin, only: [:post_userinfo], if: -> { %w[delete lock].include?(params[:cmd]) }
 
   def show
+    if params.key?(:confirmed)
+      allowed = %w[true false 1 0]
+
+      unless allowed.include?(params[:confirmed].to_s)
+        return render_error(
+          status: 400,
+          errorcode: 'invalid_parameter',
+          message: "Invalid value for 'confirmed'. Allowed values: #{allowed.join(', ')}"
+        )
+      end
+    end
     @list = if params[:prefix]
               User.where('login LIKE ?', "#{params[:prefix]}%")
-            elsif params[:confirmed]
+            elsif %w[true 1].include?(params[:confirmed].to_s)
               User.confirmed
             else
               User.not_deleted
