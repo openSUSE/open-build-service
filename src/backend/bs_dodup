@@ -97,6 +97,10 @@ Options:
   --masterfingerprint    - master gpg fingerprint
   --archfilter           - filter for architectures
 
+  For deb repositories, multiple URLs can be specified to merge packages
+  from different repositories (e.g., main, security, updates). The highest
+  version of each package across all URLs will be kept.
+
 ";
 }
 
@@ -119,6 +123,43 @@ sub fetch {
   eval { $r = BSRPC::rpc($param); };
   die("$url: $@") if $@;
   return $r;
+}
+
+# Get all sources from doddata structure
+# Each source has its own url, pubkey, master, archfilter
+sub getdodsources {
+  my ($doddata) = @_;
+  my $sources = $doddata->{'source'};
+  return () unless $sources;
+  return @$sources if ref($sources) eq 'ARRAY';
+  return ($sources);
+}
+
+# Extract URLs from doddata structure (for backward compatibility with single-url and simple cases)
+sub getdodurls {
+  my ($doddata) = @_;
+  # First try new source array format
+  my @sources = getdodsources($doddata);
+  if (@sources) {
+    return map { $_->{'url'} } grep { defined $_->{'url'} } @sources;
+  }
+  # Fall back to single url per dodata format
+  my $url_data = $doddata->{'url'};
+  return () unless $url_data;
+  if (ref($url_data) eq 'ARRAY') {
+    return map { ref($_) eq 'HASH' ? $_->{'_content'} : $_ } @$url_data;
+  } elsif (ref($url_data) eq 'HASH') {
+    return ($url_data->{'_content'});
+  } else {
+    return ($url_data);
+  }
+}
+
+# Get single/first URL from doddata
+sub getdodurl {
+  my ($doddata) = @_;
+  my @urls = getdodurls($doddata);
+  return $urls[0];
 }
 
 sub chkverify {
@@ -227,10 +268,10 @@ sub uncompress {
 }
 
 sub mastercheck {
-  my ($doddata, $urlpath, $data) = @_;
-  my $master = $doddata->{'master'};
+  my ($source, $urlpath, $data, $url) = @_;
+  my $master = $source->{'master'};
   return unless $master && $master->{'url'};
-  return if $master->{'url'} eq $doddata->{'url'};	# mirror is master
+  return if $master->{'url'} eq $url;	# mirror is master
   my $masterurl = $master->{'url'};
   $masterurl .= '/' unless $masterurl =~ /\/$/;
   my $masterdata = fetch("$masterurl$urlpath", $master->{'sslfingerprint'}, $timeout_small);
@@ -238,36 +279,39 @@ sub mastercheck {
 }
 
 sub signaturecheck {
-  my ($doddata, $url, $sslfingerprint, $data, $strip) = @_;
-  return unless $doddata->{'pubkey'};
+  my ($source, $url, $sslfingerprint, $data, $strip) = @_;
+  return unless $source->{'pubkey'};
   my $data_asc = fetch($url, $sslfingerprint, $timeout_small);
   if ($strip) {
     # remove stable key sig
     $data_asc =~ s/-----END PGP SIGNATURE-----\n.*$/-----END PGP SIGNATURE-----\n/s;
   }
-  gpgverify($data , $data_asc, $doddata->{'pubkey'});
+  gpgverify($data , $data_asc, $source->{'pubkey'});
 }
 
 sub getsslfingerprint {
-  my ($doddata) = @_;
-  my $master = $doddata->{'master'};
+  my ($source) = @_;
+  my $master = $source->{'master'};
   return undef unless $master;
-  return undef if $master->{'url'} && $master->{'url'} ne $doddata->{'url'};
+  return undef if $master->{'url'} && $source->{'url'} && $master->{'url'} ne $source->{'url'};
   return $master->{'sslfingerprint'};	# mirror is master
 }
 
 sub dod_susetags {
   my ($doddata, $cookie, $file) = @_;
-  my $url = $doddata->{'url'};
-  my $sslfingerprint = getsslfingerprint($doddata);
+  # Get first source or use doddata for single-url format
+  my @sources = getdodsources($doddata);
+  my $source = @sources ? $sources[0] : $doddata;
+  my $url = $source->{'url'} || getdodurl($doddata);
+  my $sslfingerprint = getsslfingerprint($source);
   my $descrdir = 'suse/setup/descr';
   my $datadir = 'suse';
   $url .= '/' unless $url =~ /\/$/;
   my $content = fetch("${url}content", $sslfingerprint, $timeout_small);
   my $newcookie = Digest::MD5::md5_hex("$url\n$content");
   return undef if ($cookie || '') eq $newcookie;
-  mastercheck($doddata, 'content', $content);
-  signaturecheck($doddata, "${url}content.asc", $sslfingerprint, $content);
+  mastercheck($source, 'content', $content, $url);
+  signaturecheck($source, "${url}content.asc", $sslfingerprint, $content);
   my ($packages, $packages_sum);
   for (split("\n", $content)) {
     next unless /^META (\S+) (\S+)  (packages(?:.gz)?)$/s;
@@ -284,28 +328,31 @@ sub dod_susetags {
 
 sub dod_rpmmd {
   my ($doddata, $cookie, $file) = @_;
-  my $url = $doddata->{'url'};
-  my $sslfingerprint = getsslfingerprint($doddata);
+  # Get first source or use doddata for single-url format
+  my @sources = getdodsources($doddata);
+  my $source = @sources ? $sources[0] : $doddata;
+  my $url = $source->{'url'} || getdodurl($doddata);
+  my $sslfingerprint = getsslfingerprint($source);
   $url .= '/' unless $url =~ /\/$/;
   my $repomd = fetch("${url}repodata/repomd.xml", $sslfingerprint, $timeout_small);
   my $newcookie = Digest::MD5::md5_hex("$url\n$repomd");
   return undef if ($cookie || '') eq $newcookie;
-  mastercheck($doddata, 'repodata/repomd.xml', $repomd);
-  signaturecheck($doddata, "${url}repodata/repomd.xml.asc", $sslfingerprint, $repomd);
+  mastercheck($source, 'repodata/repomd.xml', $repomd, $url);
+  signaturecheck($source, "${url}repodata/repomd.xml.asc", $sslfingerprint, $repomd);
   writestr("$file.repomd", undef, $repomd);
   my @files;
   Build::Rpmmd::parse_repomd("$file.repomd", \@files);
   unlink("$file.repomd");
   my $primaryfile = (grep {$_->{'type'} eq 'primary' && defined($_->{'location'})} @files)[0];
   die("no primary file in repomd.xml\n") unless $primaryfile;
-  die("primary file has no checksum\n") if $doddata->{'pubkey'} && !$primaryfile->{'checksum'};
+  die("primary file has no checksum\n") if $source->{'pubkey'} && !$primaryfile->{'checksum'};
   fetch("${url}$primaryfile->{'location'}", $sslfingerprint, $timeout_large, $file);
   chkverify($file, $primaryfile->{'checksum'}) if $primaryfile->{'checksum'};
   uncompress($file, $primaryfile->{'location'});
   my $moduleinfo;
   my $moduleinfofile = (grep {$_->{'type'} eq 'modules' && defined($_->{'location'})} @files)[0];
   if ($moduleinfofile) {
-    die("module file has no checksum\n") if $doddata->{'pubkey'} && !$moduleinfofile->{'checksum'};
+    die("module file has no checksum\n") if $source->{'pubkey'} && !$moduleinfofile->{'checksum'};
     my $tmp = "$file.tmp";
     fetch("${url}$moduleinfofile->{'location'}", $sslfingerprint, $timeout_large, $tmp);
     chkverify($tmp, $moduleinfofile->{'checksum'}) if $moduleinfofile->{'checksum'};
@@ -322,15 +369,16 @@ sub dod_rpmmd {
 #     or:           <baseurl>?dist=<dist>[&component=comp1&component=comp2...]
 #   flat repo:      <baseurl>/.[/subdir]
 #     components:   comp1,comp2... (main if empty)
-sub dod_deb {
-  my ($doddata, $cookie, $file) = @_;
-  my ($baseurl, $url, $components) = Build::Debrepo::parserepourl($doddata->{'url'});
-  my $sslfingerprint = getsslfingerprint($doddata);
+
+# fetch packages from a single deb repository URL
+# returns ($release, $baseurl, $urlmap) where $urlmap maps Filename -> baseurl
+sub dod_deb_single {
+  my ($doddata, $source, $repourl, $file, $append, $urlmap) = @_;
+  my $sslfingerprint = getsslfingerprint($source);
+  my ($baseurl, $url, $components) = Build::Debrepo::parserepourl($repourl);
   my $release = fetch("${url}Release", $sslfingerprint, $timeout_small);
-  my $newcookie = Digest::MD5::md5_hex("$baseurl\n".join(',',@$components)."\n$release");
-  return undef if ($cookie || '') eq $newcookie;
-  mastercheck($doddata, 'Release', $release);
-  signaturecheck($doddata, "${url}Release.gpg", $sslfingerprint, $release, 1);
+  mastercheck($source, 'Release', $release, $repourl) unless $append;
+  signaturecheck($source, "${url}Release.gpg", $sslfingerprint, $release, 1);
   my %files;
   my %csums = ('md5sum' => 'md5', 'sha1' => 'sha1', 'sha256' => 'sha256', 'sha512' => 'sha512');
   my $csum;
@@ -341,28 +389,99 @@ sub dod_deb {
     next if $files{$2} && length($files{$2}) > length("$csum:$1");	# bigger is better...
     $files{$2} = "$csum:$1";
   }
-  writestr($file, undef, '');
+  writestr($file, undef, '') unless $append;
   my $basearch = Build::Deb::basearch($doddata->{'arch'});
+  $baseurl =~ s/\/$//;
   for my $component (@$components) {
     my $pfile;
     for ('Packages.xz', 'Packages.gz') {
       $pfile = $component eq '.' ? $_ : "$component/binary-$basearch/$_";
       last if $files{$pfile};
     }
-    die("$pfile not in Release\n") if $doddata->{'pubkey'} && !$files{$pfile};
+    die("$pfile not in Release\n") if $source->{'pubkey'} && !$files{$pfile};
     my $tmp = "$file.tmp";
     fetch("$url$pfile", $sslfingerprint, $timeout_large, $tmp);
     chkverify($tmp, $files{$pfile}) if $files{$pfile};
-    uncompress($tmp, $pfile, $file);
-    unlink($tmp);
+    uncompress($tmp, $pfile);
+    unlink("$tmp.$$");	# uncompress may leave this behind on error
+    # extract Filename entries and build urlmap before appending
+    if ($urlmap) {
+      local *F;
+      open(F, '<', $tmp) || die("$tmp: $!\n");
+      while (<F>) {
+        if (/^Filename:\s*(\S+)/i) {
+          $urlmap->{$1} = $baseurl;
+        }
+      }
+      close(F);
+    }
+    # append to output file
+    if ($append || $component ne $components->[0]) {
+      local *F;
+      local *O;
+      open(F, '<', $tmp) || die("$tmp: $!\n");
+      open(O, '>>', $file) || die("$file: $!\n");
+      while (<F>) { print O $_; }
+      close(O);
+      close(F);
+      unlink($tmp);
+    } else {
+      rename($tmp, $file) || die("rename $tmp $file: $!\n");
+    }
   }
-  return ($newcookie, $baseurl);
+  return ($release, $baseurl);
+}
+
+sub dod_deb {
+  my ($doddata, $cookie, $file) = @_;
+
+  # get all sources (each with its own url, pubkey, etc.)
+  my @sources = getdodsources($doddata);
+  # Fall back to single-url format if no sources
+  if (!@sources) {
+    my $url = $doddata->{'url'};
+    @sources = ($doddata) if $url;
+  }
+  return undef unless @sources;
+
+  # fetch Release files from all sources to build cookie
+  my @releases;
+  my @baseurls;
+  for my $source (@sources) {
+    my $repourl = $source->{'url'};
+    my $sslfingerprint = getsslfingerprint($source);
+    my ($baseurl, $url, $components) = Build::Debrepo::parserepourl($repourl);
+    my $release = fetch("${url}Release", $sslfingerprint, $timeout_small);
+    push @releases, "$baseurl\n".join(',',@$components)."\n$release";
+    push @baseurls, $baseurl;
+  }
+
+  my $newcookie = Digest::MD5::md5_hex(join("\n---\n", @releases));
+  return undef if ($cookie || '') eq $newcookie;
+
+  my $multi_url = @sources > 1;
+  my $urlmap = $multi_url ? {} : undef;
+
+  # fetch packages from all sources
+  my $first = 1;
+  for my $source (@sources) {
+    my $repourl = $source->{'url'};
+    print "  fetching from $repourl\n" if $multi_url;
+    dod_deb_single($doddata, $source, $repourl, $file, !$first, $urlmap);
+    $first = 0;
+  }
+
+  # return (cookie, primary_baseurl, moduleinfo, urlmap)
+  return ($newcookie, $baseurls[0], undef, $urlmap);
 }
 
 sub dod_arch {
   my ($doddata, $cookie, $file) = @_;
-  my $url = $doddata->{'url'};
-  my $sslfingerprint = getsslfingerprint($doddata);
+  # Get first source or use doddata for single-url format
+  my @sources = getdodsources($doddata);
+  my $source = @sources ? $sources[0] : $doddata;
+  my $url = $source->{'url'} || getdodurl($doddata);
+  my $sslfingerprint = getsslfingerprint($source);
   $url .= '/' unless $url =~ /\/$/;
   die("cannot determine repo name\n") unless $url =~ /.*\/([^\/]+)\/os\//;
   my $reponame = $1;
@@ -394,12 +513,15 @@ sub dod_apk_sigverify {
 
 sub dod_apk {
   my ($doddata, $cookie, $file) = @_;
-  my $url = $doddata->{'url'};
-  my $sslfingerprint = getsslfingerprint($doddata);
+  # Get first source or use doddata for single-url format
+  my @sources = getdodsources($doddata);
+  my $source = @sources ? $sources[0] : $doddata;
+  my $url = $source->{'url'} || getdodurl($doddata);
+  my $sslfingerprint = getsslfingerprint($source);
   $url .= '/' unless $url =~ /\/$/;
   my $r = fetch("${url}APKINDEX.tar.gz", $sslfingerprint, $timeout_large, $file, 1);
   die unless $r->{'md5'};
-  dod_apk_sigverify($file, $doddata->{'pubkey'}) if $doddata->{'pubkey'};
+  dod_apk_sigverify($file, $source->{'pubkey'}) if $source->{'pubkey'};
   my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
   return undef if ($cookie || '') eq $newcookie;
   return ($newcookie, $url);
@@ -407,8 +529,11 @@ sub dod_apk {
 
 sub dod_mdk {
   my ($doddata, $cookie, $file) = @_;
-  my $url = $doddata->{'url'};
-  my $sslfingerprint = getsslfingerprint($doddata);
+  # Get first source or use doddata for single-url format
+  my @sources = getdodsources($doddata);
+  my $source = @sources ? $sources[0] : $doddata;
+  my $url = $source->{'url'} || getdodurl($doddata);
+  my $sslfingerprint = getsslfingerprint($source);
   $url .= '/' unless $url =~ /\/$/;
   my $r = fetch("${url}media_info/synthesis.hdlist.cz", $sslfingerprint, $timeout_large, $file, 1);
   die unless $r->{'md5'};
@@ -639,7 +764,7 @@ sub dod_registry {
   my ($doddata, $cookie, $file) = @_;
   my $arch = $doddata->{'arch'};
   my @dodresources = getdodresources($doddata);
-  my $url = $doddata->{'url'};
+  my $url = getdodurl($doddata);
   $url =~ s/\/+$//;
   my $cache = {};
   my $urldomain = $url;
@@ -782,7 +907,7 @@ sub cmppkg {
 }
 
 sub addpkg {
-  my ($cache, $p, $archfilter, $moduleinfo) = @_; 
+  my ($cache, $p, $archfilter, $moduleinfo, $urlmap) = @_;
 
   return unless $p->{'location'} && $p->{'name'} && $p->{'arch'};
   return if $archfilter && !$archfilter->{$p->{'arch'}};
@@ -790,6 +915,12 @@ sub addpkg {
     return if grep {$p->{'name'} =~ /^$_/s } @$BSConfig::dodupblacklist;
   }
   $p->{'path'} = delete $p->{'location'};
+  # For multi-url mode: store full URL as path since a per-package URL field cannot be added as BSSolv cannot preserve it
+  if ($urlmap && $urlmap->{$p->{'path'}}) {
+    my $pkgurl = $urlmap->{$p->{'path'}};
+    $pkgurl .= '/' unless $pkgurl =~ /\/$/;
+    $p->{'path'} = $pkgurl . $p->{'path'};
+  }
   if (!$p->{'hdrid'} && $p->{'apkchksum'}) {
     # convert to hdrid
     my $chk = delete $p->{'apkchksum'};
@@ -819,7 +950,7 @@ sub addpkg {
 }
 
 sub parsemetadata {
-  my ($doddata, $file, $baseurl, $moduleinfo) = @_;
+  my ($doddata, $file, $baseurl, $moduleinfo, $urlmap) = @_;
   return if $doddata->{'repotype'} eq 'registry';
   my $cache = {};
   my $archfilter;
@@ -829,7 +960,7 @@ sub parsemetadata {
       $archfilter->{$_} = 1 unless delete $archfilter->{"-$_"};
     }
   }
-  Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter, $moduleinfo) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1, 'testcaseformat' => 1);
+  Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter, $moduleinfo, $urlmap) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1, 'testcaseformat' => 1);
   $baseurl =~ s/\/$//;
   $cache->{'/url'} = $baseurl;
   $cache->{'/moduleinfo'} = $moduleinfo->{"/moduleinfo"} if $moduleinfo->{"/moduleinfo"};
@@ -866,7 +997,8 @@ sub update_dod {
   die("bad doddata\n") unless $projid && $repoid && $arch;
   my $repotype = $doddata->{'repotype'} || '';
   die("unknown repotype '$repotype'\n") unless $handler{$repotype};
-  print "updating metadata for $repotype repo at $doddata->{'url'}\n";
+  my $urlstr = getdodurl($doddata);
+  print "updating metadata for $repotype repo at $urlstr\n";
 
   die("scheduler does not exist for arch '$arch'\n") unless -e "$eventdir/$arch/.ping";
   my $repodir = "$reporoot/$projid/$repoid/$arch/:full";
@@ -878,10 +1010,10 @@ sub update_dod {
   my $newfile = "$repodir/doddata.new.$$";
   unlink($newfile);
   my $now = time();
-  my ($newcookie, $baseurl, $moduleinfo) = $handler{$repotype}->($doddata, $cookie, $newfile);
+  my ($newcookie, $baseurl, $moduleinfo, $urlmap) = $handler{$repotype}->($doddata, $cookie, $newfile);
   if ($newcookie) {
     if (!$unparsed) {
-      eval { parsemetadata($doddata, $newfile, $baseurl, $moduleinfo) };
+      eval { parsemetadata($doddata, $newfile, $baseurl, $moduleinfo, $urlmap) };
       if ($@) {
 	unlink($newfile);
 	die($@);
@@ -944,9 +1076,10 @@ sub scan_dodsdir {
   if (%rechecks) {
     for my $doddata (values %newdoddatas) {
       my $recheck = 0;
+      my @urls = getdodurls($doddata);
       for my $rc (sort keys %rechecks) {
         if ($rc =~ /^https?:\/\//) {
-          $recheck = 1 if $doddata->{'url'} && $doddata->{'url'} =~ /^\Q$rc\E/;
+          $recheck = 1 if grep { /^\Q$rc\E/ } @urls;
         } else {
           $recheck = 1 if "$doddata->{'project'}/$doddata->{'repository'}" =~ /^\Q$rc\E/;
         }
@@ -1072,16 +1205,16 @@ if ($options->{dodfile}) {
 }
 
 if (@args) {
-  my ($prpa, $repotype, $url) = @args;
+  my ($prpa, $repotype, @urls) = @args;
   my ($projid, $repoid, $arch) = split('/', ($prpa || ''), 3);
-  die("Usage: bs_dodup [--stop|--restart]\n       bs_dodup --dodfile <dodfile>\n       bs_dodup [--pubkey <pubkeyfile>] <prpa> <repotype> <url>\n") unless @args == 3 && defined($arch);
+  die("Usage: bs_dodup [--stop|--restart]\n       bs_dodup --dodfile <dodfile>\n       bs_dodup [--pubkey <pubkeyfile>] <prpa> <repotype> <url> [<url2> ...]\n") unless @args >= 3 && defined($arch);
 
   my $doddata = {
     'project' => $projid,
     'repository' => $repoid,
     'arch' => $arch,
     'repotype' => $repotype,
-    'url' => $url,
+    'url' => @urls > 1 ? \@urls : $urls[0],
   };
   $doddata->{'archfilter'} = $options->{archfilter} if $options->{archfilter};
   $doddata->{'master'}->{'url'} = $options->{master} if $options->{master};

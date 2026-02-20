@@ -236,7 +236,9 @@
         <zeroOrMore>
           <element name="download">
             <!-- Download On Demand section. Can be used to integrate content from
-                 external package repositories -->
+                 external package repositories. Multiple download elements with the
+                 same arch are allowed to merge content from multiple pockets (e.g.: deb),
+                 each with its own pubkey. -->
             <attribute name="arch">
               <!-- Valid for this scheduler architecture only -->
               <data type="string" />
