@@ -34,6 +34,54 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
 
       it { expect { set_binaries }.to raise_error(ActiveRecord::RecordNotFound) }
     end
+
+    context 'with valid build results' do
+      let(:fake_buildresult) do
+        Xmlhash.parse(
+          "<resultlist state='123'>
+             <result project='#{home_tom.name}' repository='#{repo_for_home_tom.name}' arch='x86_64' state='succeeded'>
+               <binarylist>
+                 <binary filename='test1.rpm' size='1024'/>
+                 <binary filename='_statistics' size='0'/>
+               </binarylist>
+             </result>
+             <result project='#{home_tom.name}' repository='#{repo_for_home_tom.name}' arch='i586' state='building'>
+               <binarylist>
+                 <binary filename='test2.rpm' size='2048'/>
+               </binarylist>
+             </result>
+           </resultlist>"
+        )
+      end
+
+      before do
+        allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)
+        allow(Backend::Api::BuildResults::Binaries).to receive(:download_url_for_file).and_return('http://test.host/download')
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+
+      it 'assigns @binaries' do
+        expect(assigns(:binaries).first[:filename]).to eq('test1.rpm')
+        expect(assigns(:binaries).last[:filename]).to eq('test2.rpm')
+      end
+
+      it 'assigns @binaries_by_arch correctly' do
+        expect(assigns(:binaries_by_arch)['x86_64'].first[:filename]).to eq('test1.rpm')
+        expect(assigns(:binaries_by_arch)['i586'].first[:filename]).to eq('test2.rpm')
+      end
+
+      it 'assigns @repository_statistics correctly' do
+        expect(assigns(:repository_statistics)['x86_64'][:has_statistics]).to be true
+        expect(assigns(:repository_statistics)['i586'][:has_statistics]).to be false
+      end
+
+      it 'ensures binary size is an integer' do
+        expect(assigns(:binaries).first[:size]).to be_an(Integer)
+        expect(assigns(:binaries).first[:size]).to eq(1024)
+      end
+    end
   end
 
   describe 'GET #show' do

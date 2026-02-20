@@ -7,7 +7,7 @@
     %ul.list-inline
       - if @configuration['download_url']
         = render DownloadRepositoryLinkComponent.new(project: @project, repository: @repository, configuration: @configuration)
-      - if @buildresults.present? && policy(@package).update?
+      - if @binaries.present? && policy(@package).update?
         %li.list-inline-item
           = link_to('#', title: 'Delete all built binaries', data: { 'bs-toggle': 'modal',
                                                                      'bs-target': '#delete-all-binaries-modal' }) do
@@ -24,28 +24,42 @@
                                                          method: :delete,
                                                          options: { modal_title: 'Do you want to remove these binaries?' })
 
-    - @buildresults.each do |result|
-      %h5.bg-body-secondary.p-2.mb-0
-        = repository_status_icon(status: result[:repocode].to_s, html_class: 'fa-xs')
-        = result[:arch]
-      - if result[:binaries].empty?
-        %p.ps-2
-          %i No built binaries
-      - else
-        .table-responsive
-          %table.table.table-hover.table-sm
-            %thead
-            %tbody
-            - result[:binaries].each do |binary|
+    - if @binaries.empty?
+      %p.ps-2
+        %i No built binaries
+    - else
+      .d-flex.justify-content-between.align-items-center.mb-2
+        %p.text-muted.mb-0
+          Showing
+          = @binaries.offset_value + 1
+          - range_end = [@binaries.offset_value + @binaries.size, @binaries.total_count].min
+          -# haml-lint:disable LineLength
+          = "-#{range_end} of #{@binaries.total_count} binaries"
+        - if @binaries.total_pages > 1
+          = render partial: 'webui/users/notifications/page_size_navigation', locals: { paginated_objects: @binaries }
+
+      = paginate @binaries, views_prefix: 'webui', window: 2
+
+      .table-responsive
+        %table.table.table-hover.table-sm
+          %thead
+            %tr
+              %th Architecture
+              %th Binary (Size)
+              %th.text-end Actions
+          %tbody
+            - @binaries.each do |binary|
               %tr
-                %td.px-2 #{binary[:filename]} (#{number_to_human_size(binary[:size])})
+                %td.px-2
+                  = repository_status_icon(status: @repository_statistics[binary[:arch]][:repocode].to_s, html_class: 'fa-xs')
+                  = binary[:arch]
+                %td.px-2
+                  = binary[:filename]
+                  %span.text-muted
+                    (#{number_to_human_size(binary[:size])})
                 %td.text-nowrap.text-end.px-2
-                  - render_partial = h(render partial: 'binaries_actions', locals: { project: @project,
-                                                                                   package_name: @package_name,
-                                                                                   package: @package,
-                                                                                   binary: binary,
-                                                                                   repository: @repository,
-                                                                                   architecture: result[:arch] })
+                  -# haml-lint:disable LineLength
+                  - render_partial = h(render(partial: 'binaries_actions', locals: { project: @project, package_name: @package_name, package: @package, binary: binary, repository: @repository, architecture: binary[:arch] }))
                   .d-none.d-sm-block
                     = render_partial
                   .d-sm-none
@@ -53,10 +67,16 @@
                       %i.fas.fa-ellipsis-h.text-secondary{ type: 'button', 'data-bs-toggle': 'dropdown' }
                       .dropdown-menu
                         = render_partial
-      %ul.nav
-        - if User.possibly_nobody.can_modify?(@package)
-          = render partial: 'trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
-                                                            package: @package_name, repository: @repository }
 
-        = render partial: 'show_statistics_job_history_build_reason', locals: { result: result,
-          project: @project, package: @package_name, repository: @repository }
+      = paginate @binaries, views_prefix: 'webui', window: 2
+
+    - @repository_statistics.each do |arch, stats|
+      %ul.nav
+        - if policy(@package).update?
+          = render partial: 'trigger_rebuild_wipe_binaries',
+                   locals: { result: { arch: arch, binaries: @binaries_by_arch[arch] },
+                             project: @project, package: @package_name, repository: @repository }
+
+        = render partial: 'show_statistics_job_history_build_reason',
+                 locals: { result: { arch: arch, statistics: stats[:has_statistics], binaries: @binaries_by_arch[arch] },
+                           project: @project, package: @package_name, repository: @repository }

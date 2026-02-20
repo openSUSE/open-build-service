@@ -29,22 +29,37 @@ module Webui
         results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: %w[binarylist status])
         raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
 
-        @buildresults = []
+        # Collect all binaries with their architecture information
+        all_binaries = []
+        @repository_statistics = {}
+        @binaries_by_arch = {}
+
         results_from_backend.elements('result') do |result|
-          build_results_set = { arch: result['arch'], statistics: false, repocode: result['state'], binaries: [] }
+          arch = result['arch']
+          @repository_statistics[arch] = { repocode: result['state'], has_statistics: false }
+          arch_binaries = []
 
           result.get('binarylist').try(:elements, 'binary') do |binary|
             if binary['filename'] == '_statistics'
-              build_results_set[:statistics] = true
+              @repository_statistics[arch][:has_statistics] = true
             else
-              build_results_set[:binaries] << { filename: binary['filename'],
-                                                size: binary['size'],
-                                                links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
-                                                         download_url: download_url_for_binary(architecture_name: result['arch'], file_name: binary['filename']) } }
+              binary_hash = {
+                arch: arch,
+                filename: binary['filename'],
+                size: binary['size'].to_i,
+                details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
+                download_url: download_url_for_binary(architecture_name: arch, file_name: binary['filename'])
+              }
+              all_binaries << binary_hash
+              arch_binaries << binary_hash
             end
           end
-          @buildresults << build_results_set
+          @binaries_by_arch[arch] = arch_binaries
         end
+
+        # Paginate the binaries
+        @per_page = (params[:page_size] || 50).to_i
+        @binaries = Kaminari.paginate_array(all_binaries).page(params[:page]).per(@per_page)
       rescue Backend::Error => e
         flash[:error] = e.message
         redirect_back_or_to({ controller: :package, action: :show, project: @project, package: @package })
