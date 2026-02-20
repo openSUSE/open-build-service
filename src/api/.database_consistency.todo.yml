@@ -39,11 +39,11 @@ AttribIssue:
     MissingDependentDestroyChecker:
       enabled: false
 AttribNamespace:
-  id:
-    PrimaryKeyTypeChecker:
-      enabled: false
   attrib_namespace_modifiable_bies:
     ForeignKeyCascadeChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
       enabled: false
 AttribNamespaceModifiableBy:
   group:
@@ -64,9 +64,6 @@ AttribType:
       enabled: false
   id:
     PrimaryKeyTypeChecker:
-      enabled: false
-  issue_list:
-    ThreeStateBooleanChecker:
       enabled: false
   name:
     LengthConstraintChecker:
@@ -222,6 +219,9 @@ BsRequestAction:
       enabled: false
     MissingIndexChecker:
       enabled: false
+  bs_request_actions_seen_by_users:
+    ForeignKeyTypeChecker:
+      enabled: false
   bs_request_id:
     RedundantIndexChecker:
       enabled: false
@@ -313,8 +313,12 @@ BsRequestActionsSeenByUser:
   bs_request_action:
     ForeignKeyChecker:
       enabled: false
+    ForeignKeyTypeChecker:
+      enabled: false
   user:
     ForeignKeyChecker:
+      enabled: false
+    ForeignKeyTypeChecker:
       enabled: false
 BsRequestCounter:
   id:
@@ -404,6 +408,9 @@ Comment:
       enabled: false
   project:
     ForeignKeyChecker:
+      enabled: false
+  versions:
+    ForeignKeyTypeChecker:
       enabled: false
 CommentLock:
   commentable_type:
@@ -818,9 +825,6 @@ EventSubscription:
       enabled: false
   package:
     ForeignKeyChecker:
-      enabled: false
-  payload:
-    LengthConstraintChecker:
       enabled: false
   receiver_role:
     LengthConstraintChecker:
@@ -1707,6 +1711,10 @@ ReleaseTarget:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
+Report:
+  comments:
+    ForeignKeyTypeChecker:
+      enabled: false
 Repository:
   channel_targets:
     ForeignKeyCascadeChecker:
@@ -1965,9 +1973,6 @@ Token:
   lower(string):
     MissingUniqueIndexChecker:
       enabled: false
-  scm_token:
-    LengthConstraintChecker:
-      enabled: false
   string:
     LengthConstraintChecker:
       enabled: false
@@ -1989,6 +1994,8 @@ User:
     LengthConstraintChecker:
       enabled: false
   bs_request_actions_seen_by_users:
+    ForeignKeyTypeChecker:
+      enabled: false
     MissingIndexChecker:
       enabled: false
   deprecated_password:
@@ -2026,6 +2033,9 @@ User:
       enabled: false
   realname:
     LengthConstraintChecker:
+      enabled: false
+  requests_created:
+    ForeignKeyTypeChecker:
       enabled: false
   state:
     ColumnPresenceChecker:
