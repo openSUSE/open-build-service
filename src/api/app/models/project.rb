@@ -117,6 +117,9 @@ class Project < ApplicationRecord
   validate :valid_name
   validates :anitya_distribution_name, length: { maximum: 200 }
   validates :kind, inclusion: { in: TYPES }
+  validates :anitya_distribution_name,
+            inclusion: { in: ANITYA_DISTROS, message: '%{value} is not a valid Anitya distribution' },
+            allow_blank: true
 
   class << self
     def home?(name)

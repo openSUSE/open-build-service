@@ -152,7 +152,7 @@ RSpec.describe Event::Base do
     let(:package_maintainer) { create(:confirmed_user) }
     let(:project) do
       project = create(:project)
-      project.update_column(:anitya_distribution_name, 'Anitdist') # rubocop:disable Rails/SkipsModelValidations
+      project.update_column(:anitya_distribution_name, 'test') # rubocop:disable Rails/SkipsModelValidations
       project.store
       project
     end
