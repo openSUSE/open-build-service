@@ -115,6 +115,11 @@ class SourceProjectController < SourceController
     render plain: Backend::Api::Sources::Project.pubkey(params[:project], { rev: params[:rev] }.compact)
   end
 
+  # GET /source/:project/_pubkeys
+  def show_pubkeys
+    render plain: Backend::Api::Sources::Project.pubkeys(params[:project])
+  end
+
   # DELETE /source/:project/_pubkey
   def delete_pubkey
     backend_params = {

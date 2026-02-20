@@ -2133,12 +2133,22 @@ sub updatesslcert {
   return "$uploaddir/sslcert.$$";
 }
 
+sub keyfile_path {
+  my ($projid, $name) = @_;
+  return "$projectsdir/$projid.pkg/$name";
+}
+
+sub read_project_pubkey_if_exists {
+  my ($projid, $name) = @_;
+  return readstr(keyfile_path($projid, $name), 1);
+}
+
 sub createkey {
   my ($cgi, $projid) = @_;
   $cgi->{'comment'} ||= 'create sign key';
   die("don't know how to create a key\n") unless $BSConfig::sign;
   die("404 project $projid does not exist\n") unless -s "$projectsdir/$projid.xml";
-  my ($pubkey, $signkey) = BSSrcServer::Signkey::createkey($projid);
+  my ($pubkey, $signkey) = BSSrcServer::Signkey::createkey($projid, $cgi->{'keyalgo'}, $cgi->{'days'});
   mkdir_p("$projectsdir/$projid.pkg");
   mkdir_p($uploaddir);
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
@@ -2169,6 +2179,48 @@ sub extendkey {
   return $BSStdServer::return_ok;
 }
 
+sub preparekey {
+  my ($cgi, $projid) = @_;
+  $cgi->{'comment'} ||= 'prepare sign key migration';
+  die("don't know how to create a key\n") unless $BSConfig::sign;
+  die("404 project $projid does not exist\n") unless -s "$projectsdir/$projid.xml";
+  die("pending key already exists\n") if -s keyfile_path($projid, '_pubkey_pending') || -s keyfile_path($projid, '_signkey_pending');
+  my ($pubkey, $signkey) = BSSrcServer::Signkey::createkey($projid, $cgi->{'keyalgo'}, $cgi->{'days'});
+  mkdir_p("$projectsdir/$projid.pkg");
+  mkdir_p($uploaddir);
+  writestr("$uploaddir/pubkey_pending.$$", undef, $pubkey);
+  writestr("$uploaddir/signkey_pending.$$", undef, $signkey);
+  chmod(0600, "$uploaddir/signkey_pending.$$");
+  BSRevision::addrev_meta_replace($cgi, $projid, undef,
+	[ "$uploaddir/pubkey_pending.$$",  keyfile_path($projid, '_pubkey_pending'),  '_pubkey_pending' ],
+	[ "$uploaddir/signkey_pending.$$", keyfile_path($projid, '_signkey_pending'), '_signkey_pending' ]);
+  return $BSStdServer::return_ok;
+}
+
+sub activatekey {
+  my ($cgi, $projid) = @_;
+  $cgi->{'comment'} ||= 'activate prepared sign key';
+  die("project does not have a prepared key\n") unless -s keyfile_path($projid, '_pubkey_pending');
+  die("project does not have a prepared signkey\n") unless -s keyfile_path($projid, '_signkey_pending');
+  mkdir_p($uploaddir);
+  my @replace = (
+	[ keyfile_path($projid, '_pubkey_pending'),  keyfile_path($projid, '_pubkey'),  '_pubkey' ],
+	[ keyfile_path($projid, '_signkey_pending'), keyfile_path($projid, '_signkey'), '_signkey' ],
+	[ undef,                                      keyfile_path($projid, '_pubkey_pending'),  '_pubkey_pending' ],
+	[ undef,                                      keyfile_path($projid, '_signkey_pending'), '_signkey_pending' ],
+  );
+  if (-s keyfile_path($projid, '_pubkey')) {
+    BSUtil::cp(keyfile_path($projid, '_pubkey'), "$uploaddir/pubkey_previous.$$");
+    push @replace, [ "$uploaddir/pubkey_previous.$$", keyfile_path($projid, '_pubkey_previous'), '_pubkey_previous' ];
+  } else {
+    push @replace, [ undef, keyfile_path($projid, '_pubkey_previous'), '_pubkey_previous' ];
+  }
+  my $certfile = updatesslcert($projid, keyfile_path($projid, '_pubkey_pending'), keyfile_path($projid, '_signkey_pending'));
+  push @replace, [ $certfile, undef, '_sslcert' ];
+  BSRevision::addrev_meta_replace($cgi, $projid, undef, @replace);
+  return $BSStdServer::return_ok;
+}
+
 sub recreatesslcert {
   my ($cgi, $projid) = @_;
   $cgi->{'comment'} ||= 'recreate cert';
@@ -2195,6 +2247,9 @@ sub deletekey {
   BSRevision::addrev_meta_replace($cgi, $projid, undef,
 	[ undef, "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
 	[ undef, "$projectsdir/$projid.pkg/_signkey", '_signkey' ],
+	[ undef, "$projectsdir/$projid.pkg/_pubkey_pending",  '_pubkey_pending' ],
+	[ undef, "$projectsdir/$projid.pkg/_signkey_pending", '_signkey_pending' ],
+	[ undef, "$projectsdir/$projid.pkg/_pubkey_previous", '_pubkey_previous' ],
 	[ undef, undef,                               '_sslcert' ]);
   rmdir("$projectsdir/$projid.pkg");
   return $BSStdServer::return_ok;
@@ -2221,6 +2276,34 @@ sub getpubkey {
   }
   die("404 $projid: no pubkey available\n") unless $pubkey;
   return ($pubkey, 'Content-Type: text/plain');
+}
+
+sub getpubkeys {
+  my ($cgi, $projid) = @_;
+  my @pubkeys;
+
+  my $proj = BSRevision::readproj_local($projid, 1);
+  $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
+  die("404 project '$projid' does not exist\n") unless $proj;
+
+  if ($proj->{'remoteurl'}) {
+    eval {
+      my $pubkeys = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_pubkeys", 'proxy' => $proxy}, undef);
+      push @pubkeys, $pubkeys if $pubkeys;
+    };
+    if ($@) {
+      my $pubkey = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_pubkey", 'proxy' => $proxy}, undef);
+      push @pubkeys, $pubkey if $pubkey;
+    }
+  } else {
+    for my $file (qw{_pubkey _pubkey_pending _pubkey_previous}) {
+      my $pk = read_project_pubkey_if_exists($projid, $file);
+      push @pubkeys, $pk if $pk;
+    }
+  }
+
+  die("404 $projid: no pubkey available\n") unless @pubkeys;
+  return (join("\n", grep { defined($_) && $_ ne '' } @pubkeys), 'Content-Type: text/plain');
 }
 
 #########################################################################
@@ -6372,11 +6455,13 @@ sub getkeyinfo {
   my ($skprojid, $sk) = findsignkey($projid);
   my $signtype = $cgi->{'signtype'};
   my $signflavor = $cgi->{'signflavor'};
-  my ($pk, $cert);
+  my ($pk, $cert, $pending_pk, $previous_pk);
   if ($sk) {
     $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
     undef $pk if $pk && length($pk) <= 2;
     $pk = autoextend_check($skprojid, $pk) if $cgi->{'autoextend'};
+    $pending_pk = read_project_pubkey_if_exists($skprojid, '_pubkey_pending');
+    $previous_pk = read_project_pubkey_if_exists($skprojid, '_pubkey_previous');
   }
   if ($cgi->{'withsslcert'} && $skprojid && $sk) {
     $cert = projid2sslcert($skprojid, $sk, $projid, $cgi->{'donotcreatecert'}, $signtype, $signflavor);
@@ -6400,6 +6485,14 @@ sub getkeyinfo {
   if ($pk) {
     $keyinfo->{'pubkey'} = BSSrcServer::Signkey::pubkeyinfo($pk);
     $keyinfo->{'pubkey'}->{'_content'} = $pk;
+  }
+  if ($pending_pk) {
+    $keyinfo->{'pending_pubkey'} = BSSrcServer::Signkey::pubkeyinfo($pending_pk);
+    $keyinfo->{'pending_pubkey'}->{'_content'} = $pending_pk;
+  }
+  if ($previous_pk) {
+    $keyinfo->{'previous_pubkey'} = BSSrcServer::Signkey::pubkeyinfo($previous_pk);
+    $keyinfo->{'previous_pubkey'}->{'_content'} = $previous_pk;
   }
   if ($cert) {
     $keyinfo->{'sslcert'} = BSSrcServer::Signkey::certinfo($cert);
@@ -7940,8 +8033,10 @@ my $dispatches = [
   # /source name space: manage project and package data
   '/source deleted:bool? project*' => \&getprojectlist,
 
-  'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
+  'POST:/source/$project cmd=createkey user:? comment:? keyalgo:? days:num?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:? days:num?' => \&extendkey,
+  'POST:/source/$project cmd=preparekey user:? comment:? keyalgo:? days:num?' => \&preparekey,
+  'POST:/source/$project cmd=activatekey user:? comment:?' => \&activatekey,
   'POST:/source/$project cmd=recreatesslcert user:? comment:?' => \&recreatesslcert,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? makeoriginolder:bool? resign:bool? noservice:bool?' => \&copyproject,
@@ -7957,6 +8052,7 @@ my $dispatches = [
   'PUT:/source/$project/_meta user:? comment:? requestid:num? lowprio:bool?' => \&putproject,
 
   '/source/$project/_pubkey rev?' => \&getpubkey,
+  '/source/$project/_pubkeys' => \&getpubkeys,
   'DELETE:/source/$project/_pubkey user:? comment:?' => \&deletekey,
 
   '/source/$project/_config rev?' => \&getprojectconfig,
