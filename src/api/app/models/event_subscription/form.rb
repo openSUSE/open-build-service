@@ -61,6 +61,8 @@ class EventSubscription
     end
 
     def non_enabled_events
+      return [] unless subscriber # For default subscriptions
+
       EVENTS_IN_BETA.filter { |_, feature| !Flipper.enabled?(feature, subscriber) }.keys
     end
   end
