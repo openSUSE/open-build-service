@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_28_155710) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_19_163000) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -36,6 +36,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_28_155710) do
   create_table "active_storage_variant_records", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "blob_id", null: false
     t.string "variation_digest", null: false
+    t.datetime "created_at", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
@@ -618,7 +619,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_28_155710) do
 
   create_table "issue_trackers", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
-    t.column "kind", "enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge','github','jira')", null: false
+    t.column "kind", "enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge','github','jira','debbugs')", null: false
     t.string "description"
     t.string "url", null: false
     t.string "show_url", limit: 8192
@@ -1228,7 +1229,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_28_155710) do
     t.index ["in_rollout"], name: "index_users_on_in_rollout"
     t.index ["login"], name: "users_login_index", unique: true, length: 255
     t.index ["rss_secret"], name: "index_users_on_rss_secret", unique: true
-    t.index ["state"], name: "index_users_on_state"
   end
 
   create_table "versions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|

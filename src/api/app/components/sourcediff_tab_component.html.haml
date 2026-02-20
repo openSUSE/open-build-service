@@ -40,7 +40,8 @@
                                                                                           index: file_index,
                                                                                           last: sourcediff['filenames'].last == filename,
                                                                                           package: @action[:spkg],
-                                                                                          linkinfo: nil }
+                                                                                          linkinfo: nil,
+                                                            bs_request: @bs_request }
             - else
               .mb-2
                 %p.lead
