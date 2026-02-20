@@ -1370,7 +1370,13 @@ sub getprojpack {
       }
     }
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
-    next if $packids && !grep {$packids->{$_}} @packages;
+    # When buildemptyflavor="false" is set in a _multibuild, the base package is
+    # excluded from @packages by addmultibuildpackages() and only flavor packages
+    # remain (e.g. 'pkg:flavor'). Since $packids contains the base package name
+    # (e.g. 'pkg'), a direct lookup would fail and the entire project would be
+    # skipped. To handle this, also match flavor packages by stripping the flavor
+    # suffix and checking if the base name is in $packids.
+    next if $packids && !BSSrcServer::Multibuild::packids_match_packages($packids, @packages);
     for (qw{title description build publish debuginfo useforbuild remoteurl remoteproject download link sourceaccess privacy access lock}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
     }
@@ -1663,9 +1669,19 @@ sub getprojpack {
 	}
 	# get rid of old multibuild packages, this assumes the main package comes first
 	@packages = grep {!/^\Q$packid\E:/} @packages if $packages_multibuild{$packid};
-	# get current multibuild state, ignoredisable means this is not the scheduler but
-	# a buildinfo query
-	my $mb = BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, $cgi->{'ignoredisable'} ? 0 : 1);
+	# Update the multibuild cache and check for stale flavors. For base packages,
+	# this returns the multibuild data in $mb. For flavor packages, it refreshes
+	# the cache for the base package (needed when buildemptyflavor="false" excludes
+	# the base from @packages) and returns $stale_packages if the flavor was renamed.
+	my ($mb, $stale_packages) = BSSrcServer::Multibuild::check_flavor_update($projid, $packid, $files, $cgi->{'ignoredisable'} ? 0 : 1);
+	if ($stale_packages) {
+	  my $basepackid = $packid;
+	  $basepackid =~ s/:[^:]+$//;
+	  @packages = grep {!/^\Q$basepackid\E:/ && $_ ne $basepackid} @packages;
+	  unshift @packages, @$stale_packages;
+	  pop @pinfo;
+	  next;
+	}
 	unshift @packages, map {"$packid:$_"} @{$mb->{'flavor'} || $mb->{'package'} || []} if $mb;
 
 	if ($packid eq '_pattern') {

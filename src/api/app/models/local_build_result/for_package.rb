@@ -19,14 +19,32 @@ class LocalBuildResult
       self.results = {}
       self.excluded_counter = 0
 
+      base_package_name = package.name
       backend_build_result.each do |result|
+        has_flavor_for_base = false
+        has_base_package_entry = false
+
         result.elements('status').each do |status|
           results[status['package']] ||= []
+          has_flavor_for_base = true if status['package'].start_with?("#{base_package_name}:")
+          has_base_package_entry = true if status['package'] == base_package_name
+
           if excluded_or_disabled?(status['code'])
             self.excluded_counter += 1
             next
           end
           results[status['package']] << local_build_result(result, status)
+        end
+
+        # When buildemptyflavor=false, the backend omits the base package entry.
+        # Show the base package as "excluded" so the user is aware of this.
+        next unless has_flavor_for_base && !has_base_package_entry
+
+        results[base_package_name] ||= []
+        if !show_all
+          self.excluded_counter += 1
+        else
+          results[base_package_name] << local_build_result(result, { 'code' => 'excluded', 'details' => nil })
         end
       end
     end
