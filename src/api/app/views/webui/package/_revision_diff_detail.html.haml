@@ -9,6 +9,20 @@
           = calculate_filename(filename, file)
           %span.badge{ class: "badge-#{file['state']}" }= file['state'].capitalize
       = render_diff(diff_content, file_index: index)
+      - if file.dig('diff', 'lines').to_i > file.dig('diff', 'shown').to_i
+        .alert.alert-warning.m-3
+          %i.fa.fa-exclamation-triangle.text-warning
+          This diff is truncated.
+          :ruby
+            if bs_request
+              full_diff_path = request_show_path(number: bs_request.number, full_diff: true)
+            else
+              full_diff_path = request.original_url.sub(/([?&])full_diff=false/, '\1full_diff=true')
+              unless full_diff_path.include?('full_diff=true')
+                full_diff_path += full_diff_path.include?('?') ? '&full_diff=true' : '?full_diff=true'
+              end
+            end
+          = link_to 'See full diff', full_diff_path
   - else
     .card{ id: "revision_details_#{index}" }
       .card-header.py-3

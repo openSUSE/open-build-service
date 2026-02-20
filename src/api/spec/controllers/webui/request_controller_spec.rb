@@ -671,4 +671,90 @@ RSpec.describe Webui::RequestController, :vcr do
       it { expect(response).to redirect_to(request_show_path(number: bs_request)) }
     end
   end
+
+  describe 'GET #changes', :beta do
+    let(:action) { bs_request.bs_request_actions.first }
+
+    before do
+      login(submitter)
+      allow(BsRequest).to receive(:find_by!).and_return(bs_request)
+      allow(bs_request.bs_request_actions).to receive(:find).and_return(action)
+      allow(action).to receive_messages(webui_sourcediff: [], diff_not_cached: false)
+    end
+
+    it 'responds successfully' do
+      get :changes, params: { number: bs_request.number }
+      expect(response).to have_http_status(:success)
+      expect(response).to render_template(:changes)
+    end
+
+    it 'assigns @active_tab' do
+      get :changes, params: { number: bs_request.number }
+      expect(assigns(:active_tab)).to eq('changes')
+    end
+
+    it 'supports full_diff parameter' do
+      allow(action).to receive(:diff_not_cached).with(hash_including(tarlimit: 0)).and_return(false)
+      get :changes, params: {
+        number: bs_request.number,
+        full_diff: 'true'
+      }
+      expect(response).to have_http_status(:success)
+      expect(action).to have_received(:diff_not_cached).with(hash_including(tarlimit: 0))
+    end
+
+    it 'queues a job when diff is not cached' do
+      allow(action).to receive(:diff_not_cached).and_return(true)
+      allow(BsRequestActionWebuiInfosJob).to receive(:perform_later)
+      get :changes, params: { number: bs_request.number }
+      expect(response).to have_http_status(:success)
+      expect(BsRequestActionWebuiInfosJob).to have_received(:perform_later)
+    end
+  end
+
+  describe 'GET #changes_diff', :beta do
+    let(:action) { bs_request.bs_request_actions.first }
+
+    before do
+      login(submitter)
+      allow(BsRequest).to receive(:find_by!).and_return(bs_request)
+      allow(bs_request.bs_request_actions).to receive(:find).and_return(action)
+      allow(action).to receive_messages(webui_sourcediff: [{ 'files' => {}, 'new' => {}, 'old' => {} }],
+                                        diff_not_cached: false, source_package_object: nil, target_package_object: nil)
+    end
+
+    it 'responds successfully' do
+      get :changes_diff, params: { number: bs_request.number, request_action_id: bs_request.bs_request_actions.first.id, filename: 'foo', format: :html }
+      expect(response).to have_http_status(:success)
+      expect(response).to render_template(partial: 'webui/request/_changes_diff')
+    end
+  end
+
+  describe 'GET #request_action_changes', :beta do
+    let(:action) { bs_request.bs_request_actions.first }
+
+    before do
+      login(submitter)
+      allow(BsRequest).to receive(:find_by!).and_return(bs_request)
+      allow(bs_request.bs_request_actions).to receive(:find).and_return(action)
+      allow(action).to receive_messages(webui_sourcediff: [], diff_not_cached: false)
+    end
+
+    it 'responds successfully' do
+      get :request_action_changes, params: { number: bs_request.number, request_action_id: bs_request.bs_request_actions.first.id }, xhr: true
+      expect(response).to have_http_status(:success)
+      expect(response).to render_template(:request_action_changes)
+    end
+
+    it 'supports full_diff parameter' do
+      allow(action).to receive(:diff_not_cached).with(hash_including(tarlimit: 0)).and_return(false)
+      get :request_action_changes, params: {
+        number: bs_request.number,
+        request_action_id: action.id,
+        full_diff: 'true'
+      }, xhr: true
+      expect(response).to have_http_status(:success)
+      expect(action).to have_received(:diff_not_cached).with(hash_including(tarlimit: 0))
+    end
+  end
 end

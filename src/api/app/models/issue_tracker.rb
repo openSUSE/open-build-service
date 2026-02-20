@@ -9,7 +9,7 @@ class IssueTracker < ApplicationRecord
 
   validates :name, :regex, :url, :kind, presence: true
   validates :name, :regex, uniqueness: { case_sensitive: true }
-  validates :kind, inclusion: { in: %w[other bugzilla cve fate trac launchpad sourceforge github jira] }
+  validates :kind, inclusion: { in: %w[other bugzilla cve fate trac launchpad sourceforge github jira debbugs] }
   validates :description, presence: true
   validates :show_url, presence: true
 

@@ -585,7 +585,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def cache_diff_data
-    @tarlimit = params[:tarlimit]
+    @tarlimit = params[:full_diff] ? 0 : params[:tarlimit]
     @diff_not_cached = @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded, tarlimit: @tarlimit }.compact)
     return unless @diff_not_cached
 

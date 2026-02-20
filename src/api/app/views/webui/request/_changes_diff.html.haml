@@ -1,3 +1,8 @@
 = turbo_frame_tag "file-#{file_index}" do
   = render(DiffComponent.new(diff:, file_index:, commentable:, commented_lines:,
                              source_file:, target_file:, source_rev:, target_rev:))
+  - if total_lines.to_i > shown_lines.to_i
+    .alert.alert-warning.m-3
+      %i.fa.fa-exclamation-triangle.text-warning
+      This diff is truncated.
+      = link_to 'See full diff', request_show_path(number: commentable.bs_request.number, full_diff: true)

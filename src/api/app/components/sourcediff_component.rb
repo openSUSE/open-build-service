@@ -16,6 +16,12 @@ class SourcediffComponent < ApplicationComponent
     @tarlimit = tarlimit
   end
 
+  def truncated?
+    @webui_sourcediff.any? do |sd|
+      sd['files']&.any? { |file| file[1]['diff'].try(:[], 'shown') }
+    end
+  end
+
   def expandable?(sourcediff)
     return false unless sourcediff.key?('files')
 

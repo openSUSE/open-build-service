@@ -7,6 +7,8 @@
           %i.fas.fa-sync-alt{ id: "cache#0-reload" }
         = render partial: 'webui/shared/loading', locals: { text: 'Loading changes...', wrapper_css: ['loading', 'invisible'] }
     - else
+      - if truncated? && User.session
+        = render partial: 'webui/shared/truncated_diff_hint', locals: { path: request_show_path(number: @bs_request.number, full_diff: true) }
       - @webui_sourcediff.each do |sourcediff|
         - if expandable?(sourcediff)
           .alert.alert-warning
