@@ -476,10 +476,15 @@ OBS_RUBY_ABI_VERSION=%{__obs_ruby_abi_version}
 EOF
 
 pushd src/api
-bundle config set path %_libdir/obs-api/
 
+# FIXME: RPM 4.20 changed of behaviour for global macros in noarch builds
+#        https://github.com/rpm-software-management/rpm/pull/3071
+#        Use the build host RPM to evaluate libdir while parsing the spec.
+#        The build host is always x86_64 for noarch builds in OBS...
+bundle config set path %(rpm -E %%_libdir)/obs-api
 bundle install --local
 rm -rf vendor/cache/* vendor/cache.next/*
+
 popd
 
 %if 0%{?suse_version} >= 1500
