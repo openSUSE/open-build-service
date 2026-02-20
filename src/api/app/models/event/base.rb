@@ -27,6 +27,10 @@ module Event
          Event::Assignment, Event::UpstreamPackageVersionChanged]
       end
 
+      def notification_feature_flag
+        nil
+      end
+
       def classnames
         @classnames || [name]
       end
