@@ -297,7 +297,7 @@ http_interactions:
   recorded_at: Wed, 11 Feb 2026 11:59:11 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/factory?parse=1&view=info
+    uri: http://backend:5352/source/factory?expand=1&parse=1&view=info
     body:
       encoding: US-ASCII
       string: ''
