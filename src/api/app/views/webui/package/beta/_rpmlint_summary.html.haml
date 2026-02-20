@@ -17,30 +17,34 @@
       - lints_list.flatten.sort_by { |l| -l[:badness] }.group_by { |l| l[:linter] }.each do |lint, lint_list|
         - collapse_id = "collapse_#{lint}"
         - list_grouped_by_error_message = lint_list.group_by { |l| l[:error_message] }
-        .accordion-item
-          %h2.accordion-header
-            %button.accordion-button.collapsed{ type: 'button',
-                                                aria: { expanded: 'false', controls: collapse_id },
-                                                data: { 'bs-toggle': 'collapse', 'bs-target': "##{collapse_id}" } }
-              .row.w-100
-                .col-6
+        .accordion-item.rpmlint
+          .accordion-header.d-flex.align-items-stretch
+            %button.accordion-button.collapsed{
+              type: 'button',
+              id: "toggle-#{collapse_id}",
+              data: { 'bs-toggle': 'collapse', 'bs-target': "##{collapse_id}" } }
+            .row.w-100.m-0.py-2.lint-check
+              .col-6
+                %span.js-accordion-proxy.me-1{ data: { target: "toggle-#{collapse_id}" } }
                   = lint
-                .col-2
+                - lint_desc = lint_description(lint)
+                - if lint_desc.present?
+                  %span.fa-regular.fa-question-circle.text-info.lint-description{ 'data-bs-toggle': 'tooltip',
+                                           'data-bs-html': 'true',
+                                           title: lint_desc }
+              .col-2
+                %span
                   - case lint_list.first[:level]
                   - when 'E'
-                    .text-danger
-                      Error
+                    .text-danger Error
                   - when 'W'
-                    .text-warning
-                      Warning
+                    .text-warning Warning
                   - when 'I'
-                    .text-info
-                      Info
-                .col-2
-                  = lint_list.first[:badness]
-                .col-2.d-none.d-md-block
-                  = lint_list.count
-                  = "(#{list_grouped_by_error_message.count})"
+                    .text-info Info
+              .col-2
+                = lint_list.first[:badness]
+              .col-2.d-none.d-md-block
+                #{lint_list.count} (#{list_grouped_by_error_message.count})
           .accordion-collapse.collapse{ id: collapse_id }
             .accordion-body
               - list_grouped_by_error_message.sort.each do |error_message, error_messages_list|
