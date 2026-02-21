@@ -2807,6 +2807,61 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_auto_accept_request_scmsync_project
+    login_tom
+
+    travel_to(Date.new(2010, 7, 12))
+
+    # create request with auto accept tomorrow
+    req = "<request>
+            <action type='delete'>
+              <target project='ScmSyncProject' />
+            </action>
+            <accept_at>2010-07-13 14:00:21.000000000 Z</accept_at>
+            <description>SUBMIT</description>
+            <state name='new' />
+          </request>"
+    post '/request?cmd=create', params: req
+    # user has no write permission in target
+    assert_response :forbidden
+    assert_xml_tag(tag: 'status', attributes: { code: 'post_request_no_permission' })
+
+    # works as user with write permission in target
+    login_fred
+    post '/request?cmd=create', params: req
+    assert_response :success
+    assert_xml_tag(tag: 'request')
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert id.present?
+
+    # correct rendered
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(tag: 'accept_at', content: '2010-07-13 14:00:21 UTC')
+
+    # now time travel and accept
+    travel(2.days)
+    # the backend has to be up before we can accept
+    Backend::Test.start
+    BsRequest.delayed_auto_accept
+    # Run delayed jobs for newly created bs request.
+    BsRequestAutoAcceptJob.new.perform(BsRequest.find_by_number(id).id)
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(tag: 'accept_at', content: '2010-07-13 14:00:21 UTC')
+    assert_xml_tag(tag: 'state', attributes: { name: 'accepted', when: '2010-07-14T00:00:00', who: 'fred' })
+
+    # and now check that the package is gone indeed
+    get '/source/ScmSyncProject'
+    assert_response :not_found
+
+    # good, now revive to fix the state of the union
+    login_king
+    post '/source/ScmSyncProject?cmd=undelete'
+    assert_response :success
+  end
+
   def test_auto_accept_request
     login_tom
 
@@ -2840,7 +2895,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'request')
     node = Xmlhash.parse(@response.body)
     id2 = node['id']
-    assert id.present?
+    assert id2.present?
 
     # correct rendered
     get "/request/#{id}"
