@@ -1,5 +1,5 @@
 class SyncLocalPackageVersionJob < ApplicationJob
-  queue_as :quick
+  queue_as :slow_user
 
   def perform(project_name, package_name: nil)
     project = Project.find_by_name(project_name)

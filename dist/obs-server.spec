@@ -992,6 +992,9 @@ usermod -a -G docker obsservicerun
 %{_unitdir}/obs-delayedjob-queue-mailers.service
 %{_unitdir}/obs-delayedjob-queue-project_log_rotate.service
 %{_unitdir}/obs-delayedjob-queue-quick@.service
+%{_unitdir}/obs-delayedjob-queue-quick_user@.service
+%{_unitdir}/obs-delayedjob-queue-slow_user@.service
+%{_unitdir}/obs-delayedjob-queue-internal@.service
 %{_unitdir}/obs-delayedjob-queue-releasetracking.service
 %{_unitdir}/obs-delayedjob-queue-staging.service
 %{_unitdir}/obs-delayedjob-queue-scm.service
