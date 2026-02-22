@@ -1,6 +1,6 @@
 # Job to sync (create/update/delete) upstream versions for all packages
 class SyncUpstreamPackageVersionJob < ApplicationJob
-  queue_as :quick
+  queue_as :slow_user
 
   def perform(project_name: nil)
     if project_name.present?
