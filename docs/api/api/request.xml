@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+Boolean Parameters:
+If a boolean parameter is passed without a value (e.g., ?updatelink),
+it is interpreted as true.
+If explicitly set to false (e.g., ?updatelink=false),
+it is interpreted as false.
+-->
 <request id="12" creator="Iggy">
  <priority>moderate</priority>
  <action type="submit">
