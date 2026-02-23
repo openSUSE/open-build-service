@@ -60,8 +60,9 @@
  </history>
  <accept_at>2009-12-22T23:00:00</accept_at>
  <title>Kraft</title>
- <description>Kraft is KDE software for craftsmen and should urgently
- be added to the openSUSE distribution. The version from kraft.old can be 
- deleted and will not be used as devel package anymore.
- </description>
-</request>
+<description>
+Kraft is KDE software designed for craftsmen.
+This request proposes adding Kraft to the openSUSE distribution.
+The previous package version (kraft.old) can be safely removed
+and will no longer be used as the development package.
+</description>
