@@ -126,6 +126,12 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
     local = record.latest_local_version&.version
     upstream = record.latest_upstream_version&.version
 
+    # for users in the labels beta program we show
+    # different text, since the version state is indicated by labels
+    if Flipper.enabled?(:labels, User.session)
+      return versions_text_for_users_in_labels_beta(record:, local_version: local, upstream_version: upstream)
+    end
+
     link = if upstream.blank?
              release_monitoring_search_link(record, 'no upstream')
            elsif local == upstream
@@ -137,6 +143,18 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
     parenthesized_text = "(#{link})".html_safe # rubocop:disable Rails/OutputSafety
 
     ActionController::Base.helpers.safe_join([local, parenthesized_text].compact, ' ')
+  end
+
+  def versions_text_for_users_in_labels_beta(record:, local_version:, upstream_version:)
+    return if local_version.blank? && upstream_version.blank?
+
+    if upstream_version.blank?
+      release_monitoring_search_link(record, local_version)
+    elsif local_version == upstream_version
+      release_monitoring_package_link(record, local_version)
+    else
+      release_monitoring_package_link(record, "#{upstream_version} available")
+    end
   end
 
   def show_version_column?
