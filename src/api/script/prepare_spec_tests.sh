@@ -69,4 +69,6 @@ echo "MYSQL_BASEDIR=$MYSQL_BASEDIR" > mysql_environment
 echo "MYSQL_SOCKET_DIR=$MYSQL_SOCKET_DIR" >> mysql_environment
 echo "MYSQL_SOCKET=$MYSQL_SOCKET" >> mysql_environment
 echo "MYSQLD_USER=$MYSQLD_USER" >> mysql_environment
+echo "MARIADB_SSL_MODE=DISABLED" >> mysql_environment
+echo "MARIADB_TLS_DISABLE_PEER_VERIFICATION=1" >> mysql_environment
 
