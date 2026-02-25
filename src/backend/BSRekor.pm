@@ -65,6 +65,7 @@ sub upload_entry {
     'headers' => [ 'Content-Type: application/json' ],
     'replyheaders' => \$replyheaders,
     'ignorestatus' => 1,
+    'chunked' => 1,
   };
   my $r = BSRPC::rpc($param);
   # new:    {"84f4192f5c38c9eb0973dae7bdd24e0ad6781d9e228b4ee60f411ea0e1050482":{"body":"...","integratedTime":1638195094,"logID":"c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d","logIndex":897532,"verification":{"signedEntryTimestamp":"MEQCIDd8LwH1lbeUfCjwRoX5J7fzZ5qIK4PwMsf+sHJHgCCTAiB1h1nD0OjeleiBph8UtlZMTwlpNLq3cSaZ0Oxc8Gom0A=="}}}
