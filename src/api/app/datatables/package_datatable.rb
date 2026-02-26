@@ -78,6 +78,7 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
     name = []
     name << link_to(record.name, package_show_path(package: record, project: @project))
     name << link_tag if record.package_kinds.any? { |package_kind| package_kind.kind == 'link' }
+    name << scmsync_tag(record) if record.scmsync.present?
     safe_join(name, ' ')
   end
 
@@ -100,6 +101,12 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
       # rubocop:disable Style/StringConcatenation
       tag.i(class: 'fas fa-link') + ' Link'
       # rubocop:enable Style/StringConcatenation
+    end
+  end
+
+  def scmsync_tag(record)
+    link_to(record.scmsync, record.scmsync, class: 'ms-1', title: 'Managed in SCM') do
+      safe_join([tag.i(class: 'fas fa-code-branch'), ' SCM'])
     end
   end
 
