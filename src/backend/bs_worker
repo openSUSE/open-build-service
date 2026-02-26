@@ -4711,6 +4711,7 @@ sub periodic {
 	$kill_job = "kvm spinnlock bug" if $tail =~ /INFO: rcu_sched self-detected stall on CPU/;
 # leads to false positive on i586 kernels
 #	$kill_job = "xen soft lockup" if $tail =~ /BUG: soft lockup - CPU#\d+ stuck for/;
+	$kill_job = "kvm soft lockup" if $tail =~ /BUG: soft lockup - CPU#\d+ stuck for (\d+)s/ && $1 > 1800;
 	$kill_job = "stuck in SLOF" if $tail =~ /\( \d+ \) Data Storage Exception/;
 	if ($kill_job) {
 	  next unless $locked;
