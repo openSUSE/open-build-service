@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" xmlns:a="http://www.example.com/annotation" ns="http://buildservice.org/api" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <ref name="keyinfo-element"/>
+  </start>
+  <define name="keyinfo-pubkey-element">
+    <element ns="" name="pubkey">
+      <optional>
+        <attribute name="keyid"/>
+      </optional>
+      <optional>
+        <attribute name="userid"/>
+      </optional>
+      <optional>
+        <attribute name="algo"/>
+      </optional>
+      <optional>
+        <attribute name="keysize"/>
+      </optional>
+      <optional>
+        <attribute name="expires"/>
+      </optional>
+      <optional>
+        <attribute name="fingerprint"/>
+      </optional>
+      <data type="string"/>
+    </element>
+  </define>
+  <define name="keyinfo-sslcert-element">
+    <element ns="" name="sslcert">
+      <optional>
+        <attribute name="keyid"/>
+      </optional>
+      <optional>
+        <attribute name="serial"/>
+      </optional>
+      <optional>
+        <attribute name="issuer"/>
+      </optional>
+      <optional>
+        <attribute name="subject"/>
+      </optional>
+      <optional>
+        <attribute name="algo"/>
+      </optional>
+      <optional>
+        <attribute name="keysize"/>
+      </optional>
+      <optional>
+        <attribute name="begins"/>
+      </optional>
+      <optional>
+        <attribute name="expires"/>
+      </optional>
+      <optional>
+        <attribute name="fingerprint"/>
+      </optional>
+      <data type="string"/>
+    </element>
+  </define>
+  <define name="keyinfo-element">
+    <element ns="" name="keyinfo">
+      <attribute name="project">
+        <a:documentation>
+          The name of the project.
+        </a:documentation>
+      </attribute>
+      <interleave>
+        <zeroOrMore>
+          <ref name="keyinfo-pubkey-element"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="keyinfo-sslcert-element"/>
+        </zeroOrMore>
+      </interleave>
+    </element>
+  </define>
+</grammar>
