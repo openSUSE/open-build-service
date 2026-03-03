@@ -92,7 +92,11 @@ sub check {
 
   # check for localdep repos
   if (exists($pdata->{'originproject'})) {
-    if ($repo->{'linkedbuild'} && $repo->{'linkedbuild'} eq 'localdep') {
+    my $linkedbuild = $repo->{'linkedbuild'} || 'none';
+    if ($linkedbuild eq 'alldirect_or_localdep') {
+      $linkedbuild = 'localdep' unless grep {$_->{'project'} eq $pdata->{'originproject'}} @{$ctx->{'proj'}->{'link'} || []};
+    }
+    if ($linkedbuild eq 'localdep') {
       if (!grep {$depislocal->{$_}} @$edeps) {
         return ('excluded', 'project link, only depends on non-local packages');
       }

@@ -551,7 +551,7 @@ sub wipeobsolete {
       } else {
 	if (exists($pdata->{'originproject'})) {
 	  # package from project link
-	  if (!$linkedbuild || ($linkedbuild ne 'localdep' && $linkedbuild ne 'all' && $linkedbuild ne 'alldirect')) {
+	  if (!$linkedbuild || ($linkedbuild ne 'localdep' && $linkedbuild ne 'all' && $linkedbuild ne 'alldirect' && $linkedbuild ne 'alldirect_or_localdep')) {
 	    $reason = 'excluded';
 	  } elsif ($linkedbuild eq 'alldirect' && !grep {$_->{'project'} eq $pdata->{'originproject'}} @{$proj->{'link'}||[]}) {
 	    $reason = 'excluded';
@@ -788,6 +788,7 @@ sub expandandsort {
 
   my $subpacks = $ctx->{'subpacks'};
   my $cross = $ctx->{'conf_host'} ? 1 : 0;
+  my $linkedbuild = $ctx->{'repo'}->{'linkedbuild'};
 
   $ctx->{'experrors'} = \%experrors;
   my $packs = $ctx->{'packs'};
@@ -854,11 +855,11 @@ sub expandandsort {
       }
     }
     if (exists($pdata->{'originproject'})) {
-      # this is a package from a project link
-      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all' && $repo->{'linkedbuild'} ne 'alldirect')) {
+      # this is a package from a project link, clear deps from excluded packages
+      if (!$linkedbuild || ($linkedbuild ne 'localdep' && $linkedbuild ne 'all' && $linkedbuild ne 'alldirect' && $linkedbuild ne 'alldirect_or_localdep')) {
 	$pdeps{$packid} = [];
 	next;
-      } elsif ($repo->{'linkedbuild'} eq 'alldirect' &&  !grep {$_->{'project'} eq $pdata->{'originproject'}} @{$proj->{'link'}||[]}) {
+      } elsif ($linkedbuild eq 'alldirect' &&  !grep {$_->{'project'} eq $pdata->{'originproject'}} @{$proj->{'link'}||[]}) {
 	$pdeps{$packid} = [];
 	next;
       }
@@ -1200,12 +1201,12 @@ sub checkpkgs {
     # check if this package is project link excluded
     if (exists($pdata->{'originproject'}) && (!$pdata->{'error'} || $pdata->{'error'} eq 'disabled')) {
       # this is a package from a project link
-      my $repo = $ctx->{'repo'};
-      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all' && $repo->{'linkedbuild'} ne 'alldirect')) {
+      my $linkedbuild = $ctx->{'repo'}->{'linkedbuild'};
+      if (!$linkedbuild || ($linkedbuild ne 'localdep' && $linkedbuild ne 'all' && $linkedbuild ne 'alldirect' && $linkedbuild ne 'alldirect_or_localdep')) {
 	$packstatus{$packid} = 'excluded';
 	$packerror{$packid} = 'project link';
 	next;
-      } elsif ($repo->{'linkedbuild'} eq 'alldirect' &&  !grep {$_->{'project'} eq $pdata->{'originproject'}} @{$proj->{'link'}||[]}) {
+      } elsif ($linkedbuild eq 'alldirect' &&  !grep {$_->{'project'} eq $pdata->{'originproject'}} @{$proj->{'link'}||[]}) {
 	$packstatus{$packid} = 'excluded';
 	$packerror{$packid} = 'project link';
 	next;
