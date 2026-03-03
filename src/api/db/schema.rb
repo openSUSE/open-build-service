@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_26_144818) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_01_144818) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1008,7 +1008,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_26_144818) do
     t.string "remote_project_name", default: "", null: false, collation: "utf8mb4_bin"
     t.column "rebuild", "enum('transitive','direct','local')"
     t.column "block", "enum('all','local','never')"
-    t.column "linkedbuild", "enum('off','localdep','all','alldirect')"
+    t.column "linkedbuild", "enum('off','localdep','all','alldirect','alldirect_or_localdep')"
     t.integer "hostsystem_id"
     t.string "required_checks"
     t.index ["db_project_id", "name", "remote_project_name"], name: "projects_name_index", unique: true
