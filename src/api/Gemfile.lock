@@ -130,11 +130,8 @@ GEM
     chartkick (5.2.1)
     childprocess (5.1.0)
       logger (~> 1.5)
-    clockwork (4.0.0)
+    clockwork (4.0.1)
       activesupport
-      base64
-      bigdecimal
-      ostruct
       tzinfo
     cocoon (1.2.15)
     coderay (1.1.3)
