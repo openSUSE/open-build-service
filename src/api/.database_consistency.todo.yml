@@ -1235,6 +1235,9 @@ IssueTracker:
   issues_updated:
     NullConstraintChecker:
       enabled: false
+  kind:
+    MissingIndexFindByChecker:
+      enabled: false
   label:
     LengthConstraintChecker:
       enabled: false
@@ -1242,6 +1245,8 @@ IssueTracker:
       enabled: false
   name:
     LengthConstraintChecker:
+      enabled: false
+    MissingIndexFindByChecker:
       enabled: false
     MissingUniqueIndexChecker:
       enabled: false
@@ -1729,6 +1734,8 @@ Repository:
     PrimaryKeyTypeChecker:
       enabled: false
   name:
+    MissingIndexFindByChecker:
+      enabled: false
     NullConstraintChecker:
       enabled: false
   path_elements:
@@ -1795,6 +1802,8 @@ Role:
     PrimaryKeyTypeChecker:
       enabled: false
   title:
+    MissingIndexFindByChecker:
+      enabled: false
     MissingUniqueIndexChecker:
       enabled: false
 RolesStaticPermission:
@@ -2009,6 +2018,8 @@ User:
       enabled: false
   email:
     LengthConstraintChecker:
+      enabled: false
+    MissingIndexFindByChecker:
       enabled: false
   id:
     PrimaryKeyTypeChecker:
