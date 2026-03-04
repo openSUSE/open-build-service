@@ -92,7 +92,7 @@ sub check {
 
   # check for localdep repos
   if (exists($pdata->{'originproject'})) {
-    my $linkedbuild = $repo->{'linkedbuild'} || 'none';
+    my $linkedbuild = $repo->{'linkedbuild'} || 'off';
     if ($linkedbuild eq 'alldirect_or_localdep') {
       $linkedbuild = 'localdep' unless grep {$_->{'project'} eq $pdata->{'originproject'}} @{$ctx->{'proj'}->{'link'} || []};
     }
