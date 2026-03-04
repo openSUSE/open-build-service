@@ -1001,7 +1001,7 @@ sub filtersources_bininfo {
   return unless $bininfo->{'.nosourceaccess'};
   for my $bin (keys %$bininfo) {
     delete $bininfo->{$bin} if $bin =~ /\.(?:no)?src\.rpm$/;
-    delete $bininfo->{$bin} if $bin =~ /-debug(:?info|source).*\.rpm$/;
+    delete $bininfo->{$bin} if $bin =~ /-debug(:?info|source)-.*\.rpm$/;
   }
 }
 

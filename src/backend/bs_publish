@@ -2372,6 +2372,7 @@ sub publish {
 
   if ($config->{'publishflags:archsync'}) {
     my @bad;
+    my @same;
     my $lastchange = 0;
     my %as;
     for my $a (@archs) {
@@ -2382,8 +2383,9 @@ sub publish {
     for my $a (@archs) {
       my $as = $as{$a};
       push @bad, $a if !$as->{'lastchange'} || !$as->{'lastcheck'} || $as->{'lastcheck'} < $lastchange;
-      $lastchange++ if $as->{'lastcheck'} && $as->{'lastcheck'} == $lastchange;
+      push @same, $a if $as->{'lastcheck'} && $as->{'lastcheck'} == $lastchange;
     }
+    push @bad, @same if @same > 1;
     if (@bad) {
       print "    delaying publishing as architectures ".join(',', @bad)." are not ready\n";
       for my $a (@bad) {
