@@ -103,6 +103,6 @@ class MeasurementsJob < ApplicationJob
   end
 
   def dj_queue_measurements
-    Delayed::Job.all.group(:queue).count.each_pair {|key, value| RabbitmqBus.send_to_bus('metrics', "active_job,queue=#{key} count=#{value}") }
+    Delayed::Job.group(:queue).count.each_pair { |key, value| RabbitmqBus.send_to_bus('metrics', "active_job,queue=#{key} count=#{value}") }
   end
 end
