@@ -989,7 +989,7 @@ sub filtersources {
   my $debian = grep {/\.(?:dsc|sdeb)$/} @bins;
   for my $bin (splice @bins) {
     next if $bin =~ /\.(?:no)?src\.rpm$/;
-    next if $bin =~ /-debug(?:info|source).*\.rpm$/;
+    next if $bin =~ /-debug(?:info|source)(?:-.*)?\.rpm$/;
     next if $debian && ($bin !~ /\.deb$/) && ($bin !~ /[-.]appdata\.xml$/) && $bin ne '_modulemd.yaml';
     push @bins, $bin;
   }
@@ -1001,7 +1001,7 @@ sub filtersources_bininfo {
   return unless $bininfo->{'.nosourceaccess'};
   for my $bin (keys %$bininfo) {
     delete $bininfo->{$bin} if $bin =~ /\.(?:no)?src\.rpm$/;
-    delete $bininfo->{$bin} if $bin =~ /-debug(:?info|source)-.*\.rpm$/;
+    delete $bininfo->{$bin} if $bin =~ /-debug(:?info|source)(?:-.*)?\.rpm$/;
   }
 }
 
