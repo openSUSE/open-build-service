@@ -88,7 +88,7 @@ class Package < ApplicationRecord
   after_destroy :delete_from_sphinx
 
   after_save :write_to_backend
-  after_save :populate_to_sphinx
+  after_save :populate_to_sphinx, if: :needs_sphinx_update?
 
   after_rollback :reset_cache
 
@@ -1374,6 +1374,14 @@ class Package < ApplicationRecord
     [new_activity, 100].min
 
     self.activity_index = new_activity
+  end
+
+  def needs_sphinx_update?
+    return true if previously_new_record?
+
+    relevant_columns = %w[name title description project_id activity_index]
+
+    saved_changes.keys.intersect?(relevant_columns)
   end
 
   def populate_to_sphinx

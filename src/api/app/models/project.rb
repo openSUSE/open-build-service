@@ -25,7 +25,7 @@ class Project < ApplicationRecord
 
   after_destroy :delete_from_sphinx
   after_save :discard_cache
-  after_save :populate_to_sphinx
+  after_save :populate_to_sphinx, if: :needs_sphinx_update?
 
   after_save :sync_upstream_package_version, :sync_local_package_version, if: -> { saved_change_to_anitya_distribution_name? }
   after_rollback :reset_cache
@@ -1485,6 +1485,14 @@ class Project < ApplicationRecord
 
   def calculate_missing_checks
     combined_status_reports.map(&:missing_checks).flatten
+  end
+
+  def needs_sphinx_update?
+    return true if previously_new_record?
+
+    relevant_columns = %w[name title description]
+
+    saved_changes.keys.intersect?(relevant_columns)
   end
 
   def populate_to_sphinx
