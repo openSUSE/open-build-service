@@ -240,7 +240,8 @@ sub sendrelsyncupdate {
 
   my ($projid, $repoid) = split('/', $prp, 2);
   my $projpacks = $gctx->{'projpacks'};
-  my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
+  my $proj = $projpacks->{$projid} || {};
+  my $packs = $proj->{'package'} || {};
   # retrieve new data
   my $relsync = BSUtil::retrieve("$gdst/:relsync") || {};
   # convert to max format
@@ -259,7 +260,36 @@ sub sendrelsyncupdate {
   }
   # merge with relsync.max
   updaterelsyncmax($gdst, $relsyncmax, $isfinished);
+
   # send to other schedulers
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0] || {};
+  my @archs = @{$repo->{'arch'} || []};
+  if (grep {$_ eq $myarch} @archs) {
+    # archs seems legit, use fast notification without src/repserver
+    my $errors;
+    for my $arch (@archs) {
+      next if $arch eq $myarch;
+      next if $BSConfig::relsync_pool && ($BSConfig::relsync_pool->{$myarch} || '') ne ($BSConfig::relsync_pool->{$arch} || '');
+      eval {
+        mkdir_p("$gctx->{'reporoot'}/$prp/$arch");
+        if (updaterelsyncmax("$gctx->{'reporoot'}/$prp/$arch", $relsyncmax, 0)) {
+	  BSSched::EventSource::Directory::sendrelsyncevent($gctx, $prp, $arch);
+        }
+      };
+      if ($@) {
+	warn($@);
+	$errors = 1;
+      }
+    }
+    if (!$errors) {
+      unlink("$gdst/:relsync$$");
+      link("$gdst/:relsync", "$gdst/:relsync$$");
+      rename("$gdst/:relsync$$", "$gdst/:relsync.sent");
+    }
+    return;
+  }
+  # there's somthing wrong with our project data, fallback to the src server
+
   my $param = {
     'uri' => "$BSConfig::srcserver/relsync",
     'request' => 'POST',
@@ -1088,6 +1118,13 @@ eval {
     # trigger dod package fetching
     BSSched::DoD::dodfetch($ctx) if $ctx->{'doddownloads'};
 
+    # send relsync file if something has been changed
+    my @relsync1 = stat("$gdst/:relsync");
+    my @relsync2 = stat("$gdst/:relsync.sent");
+    if (@relsync1 && (!@relsync2 || "$relsync1[9]/$relsync1[7]/$relsync1[1]" ne "$relsync2[9]/$relsync2[7]/$relsync2[1]")) {
+      sendrelsyncupdate($gctx, $prp, $isfinished);
+    }
+
     # we always publish some build types right away...
     my $earlypublish = $ctx->{'prptype'} && ($ctx->{'prptype'} eq 'kiwi' || $ctx->{'prptype'} eq 'productcompose');
     $earlypublish = 0 if $bconf->{'publishflags:noearlypublish'} || $bconf->{'publishflags:noearlykiwipublish'};
@@ -1179,13 +1216,6 @@ eval {
       delete $gctx->{'prpunfinished'}->{$prp};
     }
     $gctx->{'prpchecktimes'}->{$prp} = $ctx->{'prpchecktime'};
-
-    # send relsync file if something has been changed
-    my @relsync1 = stat("$gdst/:relsync");
-    my @relsync2 = stat("$gdst/:relsync.sent");
-    if (@relsync1 && (!@relsync2 || "$relsync1[9]/$relsync1[7]/$relsync1[1]" ne "$relsync2[9]/$relsync2[7]/$relsync2[1]")) {
-      sendrelsyncupdate($gctx, $prp, $isfinished);
-    }
 
     BSSched::Remote::cleanup_remotepackstatus($gctx, $prp) if $gctx->{'remotepackstatus_cleanup'}->{$prp} && !$ctx->{'havedelayed'};
 
