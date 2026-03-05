@@ -83,7 +83,11 @@ class WorkflowRun < ApplicationRecord
     # "Failed to report back to GitHub: Unauthorized request. Please check your credentials again."
     # "Failed to report back to GitHub: Request is forbidden."
 
-    token.update(enabled: false) if message.include?('Unauthorized request') || /Request (is )?forbidden/.match?(message)
+      if fail? && (
+      message.include?('Unauthorized request') ||
+      /Request (is )?forbidden/.match?(message)
+    )
+      token&.update(enabled: false)
   end
 
   # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
