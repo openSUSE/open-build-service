@@ -84,8 +84,8 @@ class WorkflowRun < ApplicationRecord
     # "Failed to report back to GitHub: Request is forbidden."
 
       if fail? && (
-      message.include?('Unauthorized request') ||
-      /Request (is )?forbidden/.match?(message)
+        message.include?('Unauthorized request') ||
+        /Request (is )?forbidden/.match?(message)
     )
       token&.update(enabled: false)
       end
