@@ -350,6 +350,13 @@ sub check {
     close F;
     chomp @meta;
   }
+  if (@meta && $meta[0] eq $new_meta[0] && $ctx->{'conf'}->{'buildflags:aggregate-checklocal'}) {
+    if (($ctx->{'repo'}->{'rebuild'} || 'transitive') eq 'local') {
+      print "      - $packid (aggregate)\n";
+      print "        nothing changed (local)\n";
+      return ('done');
+    }
+  }
   if (join('\n', @meta) eq join('\n', @new_meta)) {
     print "      - $packid (aggregate)\n";
     print "        nothing changed\n";
