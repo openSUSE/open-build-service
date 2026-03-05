@@ -6,11 +6,11 @@ class MeasurementsJob < ApplicationJob
 
     RabbitmqBus.send_to_bus('metrics', "group count=#{Group.count}")
     RabbitmqBus.send_to_bus('metrics', "user #{measurements_to_fields(users_measurements)}")
+    RabbitmqBus.send_to_bus('metrics', "token_workflow #{measurements_to_fields(token_workflow_measurements)}")
     notifications_measurements
     subscription_measurements
     beta_features_measurements
-
-    RabbitmqBus.send_to_bus('metrics', "token_workflow #{measurements_to_fields(token_workflow_measurements)}")
+    dj_queue_measurements
   end
 
   private
@@ -100,5 +100,9 @@ class MeasurementsJob < ApplicationJob
       user_with_tokens: User.joins(:shared_workflow_tokens).distinct.count,
       groups_sharing_tokens: Group.joins(:shared_workflow_tokens).distinct.count
     }
+  end
+
+  def dj_queue_measurements
+    Delayed::Job.all.group(:queue).count.each_pair {|key, value| RabbitmqBus.send_to_bus('metrics', "active_job,queue=#{key} count=#{value}") }
   end
 end
