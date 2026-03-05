@@ -88,6 +88,7 @@ class WorkflowRun < ApplicationRecord
       /Request (is )?forbidden/.match?(message)
     )
       token&.update(enabled: false)
+      end
   end
 
   # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
