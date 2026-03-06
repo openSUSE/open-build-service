@@ -224,13 +224,15 @@ sub signisofiles {
 	}
 	die("fatal: content of $n does not match signature\n") unless defined $sf;
 	my @signmode = ('-d');
+	my @signargs_cpy = @signargs;
 	if ($signfilesuf eq 'p7s') {
 	  $data->{'cmscert'} ||= getsslcert($data->{'projid'}, 'cms', $data->{'signflavor'});
 	  $cmscertfile = "$uploaddir/signer.cmscert.$$";
 	  writestr($cmscertfile, undef, $data->{'cmscert'});
 	  @signmode = ('--cmssign', '--cert', $cmscertfile, '--cms-nocerts', '-h', 'sha512');
+	  setsigntype(\@signargs_cpy, 'cms') if $BSConfig::sign_type;
 	}
-	my $sig = BSUtil::xsystem($sf, $BSConfig::sign, @signargs, @signmode);
+	my $sig = BSUtil::xsystem($sf, $BSConfig::sign, @signargs_cpy, @signmode);
 	die("fatal: returned signature is empty\n") unless $sig;
 	die("fatal: returned signature is too big\n") if length($sig) > $e->[2];
 	# replace old content
@@ -1077,18 +1079,22 @@ sub signjob {
 	if ($signfile =~ /^(.*\.iso)\.sha512$/) {
 	  fixup_sha512_checksum($jobdir, $signfile, $1);
 	}
+	my @signargs_cpy = @signargs;
 	if ($signfile =~ /\.(asc|p7s)$/s) {
 	  my $signfilesuf = $1;
 	  next unless (-s "$jobdir/$signfile") == ($signfilesuf eq 'p7s' ? 8192 : 2048);
 	  my $signfilec = readstr("$jobdir/$signfile");
 	  next if substr($signfilec, 0, 8) ne "sIGnMe!\n";
 	  @signmode = ('-d');
-	  die("cms cert is not available\n") if $signfilesuf eq 'p7s' && !$cmscert;
-	  @signmode = ('--cmssign', '--cert', $cmscert, '--cms-nocerts', '-h', 'sha512') if $signfilesuf eq 'p7s';
+	  if ($signfilesuf eq 'p7s') {
+	    die("cms cert is not available\n") unless $cmscert;
+	    @signmode = ('--cmssign', '--cert', $cmscert, '--cms-nocerts', '-h', 'sha512') if $signfilesuf eq 'p7s';
+	    setsigntype(\@signargs_cpy, 'cms') if $BSConfig::sign_type;
+	  }
 	  $signfile =~ s/\.(?:asc|p7s)$//s;
 	  # fallthrough...
 	}
-	if (system($BSConfig::sign, @signargs, @signmode, "$jobdir/$signfile")) {
+	if (system($BSConfig::sign, @signargs_cpy, @signmode, "$jobdir/$signfile")) {
 	  if ($signfile =~ /\.rpm$/) {
 	    print("sign failed: $? - checking digest\n");
 	    if (system('rpm', '--checksig', '--nosignature', "$jobdir/$signfile")) {
