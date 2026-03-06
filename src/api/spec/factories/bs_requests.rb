@@ -232,11 +232,13 @@ FactoryBot.define do
 
       trait :with_patchinfo do
         callback(:before_create) do |instance, evaluator|
-          instance.bs_request_actions << create(:bs_request_action_maintenance_incident,
-                                                bs_request: instance,
-                                                source_project: evaluator.source_project_name,
-                                                source_package: 'patchinfo',
-                                                target_project: evaluator.target_project_name)
+          evaluator.creator.run_as do
+            instance.bs_request_actions << create(:bs_request_action_maintenance_incident,
+                                                  bs_request: instance,
+                                                  source_project: evaluator.source_project_name,
+                                                  source_package: 'patchinfo',
+                                                  target_project: evaluator.target_project_name)
+          end
         end
       end
 
