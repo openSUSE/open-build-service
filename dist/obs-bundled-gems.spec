@@ -51,7 +51,7 @@ BuildRequires:  nodejs
 BuildRequires:  ruby3.4-devel
 BuildRequires:  openldap2-devel
 # For comparing package/bundle versions with make test_rack
-BuildRequires:  rubygem(ruby:3.4.0:rack)
+BuildRequires:  rubygem(rack)
 %else
 BuildRequires:  ruby-devel
 BuildRequires:  rubygem-bundler
@@ -80,7 +80,7 @@ Requires:       obs-bundled-gems = %{version}
 Requires:       sphinx >= 2.2.11
 Requires:       perl(GD)
 %if 0%{?suse_version}
-Requires:       rubygem(ruby:3.4.0:rack) = %{rack_version}
+Requires:       rubygem(rack)
 Requires:       rubygem(ruby:3.4.0:rake) = %{rake_version}
 %else
 Requires:       rubygem-bundler
