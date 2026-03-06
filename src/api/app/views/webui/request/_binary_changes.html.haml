@@ -1,0 +1,32 @@
+%h5 Binary Changes
+.card.p-4.mb-2
+  %ul.list-group.list-group-flush
+    - release_targets = find_source_release_targets(action)
+    - if release_targets.blank?
+      %p The source project or repository doesn't exist anymore. No binary changes to show.
+    - else
+      - release_targets.each do |release_target|
+        %li.list-group-item
+          Copy binaries of
+          - if action.source_package_object.multibuild_flavors.present?
+            = safe_join(action.source_package_object.multibuild_flavors.map { |f| link_to("#{action.source_package}:#{f}",
+                        project_package_repository_binaries_path(project_name: action.source_project, package_name: "#{action.source_package}:#{f}",
+                        repository_name: release_target.repository.name)) }, ', ')
+          - else
+            = link_to(action.source_package,
+                      project_package_repository_binaries_path(project_name: action.source_project, package_name: action.source_package,
+                                                               repository_name: release_target.repository.name),
+                                                               title: "Binaries for #{release_target.repository.name}")
+          from repository
+          = link_to release_target.repository.name, project_repository_state_path(project: action.source_project,
+          repository: release_target.repository)
+          (#{matching_architectures(release_target)})
+          of project
+          = link_to action.source_project, project_show_path(action.source_project)
+          %i.fas.fa-long-arrow-alt-right.text-info.mx-2
+          Repository
+          = link_to release_target.target_repository.name, project_repository_state_path(project: action.target_project,
+          repository: release_target.target_repository)
+          (#{matching_architectures(release_target)})
+          of project
+          = link_to action.target_project, project_show_path(action.target_project)
