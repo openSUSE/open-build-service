@@ -42,6 +42,21 @@ RSpec.describe LocalBuildResult::ForPackage, :vcr do
       </resultlist>
     HEREDOC
   end
+  let(:fake_multibuild_results_without_base_package) do
+    <<-HEREDOC
+      <resultlist state="b006a28328744bf1186d2b6fb3006ecb">
+        <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="finished" state="finished">
+          <status package="test_package:flavor_foo" code="unresolvable" />
+        </result>
+        <result project="home:tom" repository="openSUSE_Tumbleweed" arch="x86_64" code="building" state="building">
+          <status package="test_package:flavor_foo" code="excluded" />
+          <status package="test_package:flavor_bar" code="broken">
+            <details>fake details</details>
+          </status>
+        </result>
+      </resultlist>
+    HEREDOC
+  end
 
   describe '#buildresults' do
     let(:test_package) { results['test_package'] }
@@ -83,6 +98,32 @@ RSpec.describe LocalBuildResult::ForPackage, :vcr do
         it { expect(test_package_source.first.state).to eq('building') }
         it { expect(test_package_source.first.details).to eq('fake details') }
       end
+
+      context 'when buildemptyflavor=false omits the base package entry' do
+        let(:flavor_foo) { results['test_package:flavor_foo'] }
+        let(:flavor_bar) { results['test_package:flavor_bar'] }
+
+        before do
+          allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_multibuild_results_without_base_package)
+        end
+
+        # Base package is shown as excluded (not hidden) so the user is aware of buildemptyflavor=false
+        it { expect(results).to have_key('test_package') }
+        it { expect(results['test_package']).to be_empty }
+        # excluded_counter = 2 synthetic excluded for base package (i586 + x86_64) + 1 for test_package:flavor_foo excluded
+        it { expect(excluded_counter).to eq(3) }
+
+        it { expect(flavor_foo.length).to eq(1) }
+        it { expect(flavor_foo.first.repository).to eq('openSUSE_Tumbleweed') }
+        it { expect(flavor_foo.first.architecture).to eq('i586') }
+        it { expect(flavor_foo.first.code).to eq('unresolvable') }
+
+        it { expect(flavor_bar.length).to eq(1) }
+        it { expect(flavor_bar.first.repository).to eq('openSUSE_Tumbleweed') }
+        it { expect(flavor_bar.first.architecture).to eq('x86_64') }
+        it { expect(flavor_bar.first.code).to eq('broken') }
+        it { expect(flavor_bar.first.details).to eq('fake details') }
+      end
     end
 
     context 'with "show_all" equal true' do
@@ -107,6 +148,31 @@ RSpec.describe LocalBuildResult::ForPackage, :vcr do
       it { expect(test_package_source.map(&:code)).to eq(%w[excluded excluded broken]) }
       it { expect(test_package_source.map(&:state)).to eq(%w[finished finished building]) }
       it { expect(test_package_source.map(&:details)).to eq([nil, nil, 'fake details']) }
+
+      context 'when buildemptyflavor=false omits the base package entry' do
+        let(:flavor_foo) { results['test_package:flavor_foo'] }
+        let(:flavor_bar) { results['test_package:flavor_bar'] }
+
+        before do
+          allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_multibuild_results_without_base_package)
+        end
+
+        it { expect(excluded_counter).to eq(0) }
+
+        # Base package shows with synthetic excluded entries for each repository/arch
+        it { expect(results['test_package'].length).to eq(2) }
+        it { expect(results['test_package'].map(&:repository)).to eq(%w[openSUSE_Tumbleweed openSUSE_Tumbleweed]) }
+        it { expect(results['test_package'].map(&:architecture)).to eq(%w[i586 x86_64]) }
+        it { expect(results['test_package'].map(&:code)).to eq(%w[excluded excluded]) }
+
+        it { expect(flavor_foo.length).to eq(2) }
+        it { expect(flavor_foo.map(&:architecture)).to eq(%w[i586 x86_64]) }
+        it { expect(flavor_foo.map(&:code)).to eq(%w[unresolvable excluded]) }
+
+        it { expect(flavor_bar.length).to eq(1) }
+        it { expect(flavor_bar.first.architecture).to eq('x86_64') }
+        it { expect(flavor_bar.first.code).to eq('broken') }
+      end
     end
   end
 end
