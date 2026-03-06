@@ -529,7 +529,6 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 4.0)
       websocket (~> 1.0)
-    set (1.1.2)
     shoulda-matchers (7.0.1)
       activesupport (>= 7.1)
     simplecov (0.22.0)
@@ -543,9 +542,8 @@ GEM
     simplecov_json_formatter (0.1.4)
     single_test (0.6.0)
       rake
-    sorted_set (1.0.3)
+    sorted_set (1.1.0)
       rbtree
-      set (~> 1.0)
     sprockets (4.2.2)
       concurrent-ruby (~> 1.0)
       logger
