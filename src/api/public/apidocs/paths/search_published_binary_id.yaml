@@ -12,6 +12,7 @@ get:
       example: project='home:foo'+and+name='bar'
     - $ref: '../components/parameters/limit.yaml'
     - $ref: '../components/parameters/withdownloadurl.yaml'
+    - $ref: '../components/parameters/withscmsyncurl.yaml'
   responses:
     '200':
       $ref: '../components/responses/search/published_binary_id.yaml'

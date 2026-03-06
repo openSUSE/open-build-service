@@ -65,11 +65,15 @@ content:
                 type: string
                 xml:
                   attribute: true
+              scmsyncurl:
+                type: string
+                xml:
+                  attribute: true
       xml:
         name: collection
         wrapped: true
     examples:
-      including_download_urls:
+      including_urls:
         value:
           matches: 2
           binary:
@@ -97,6 +101,7 @@ content:
               baseproject: home:bar
               type: rpm
               downloadurl: https://server1.myorg.org/repositories/home:/foo/openSUSE_Tumbleweed/src/package_name2-20201220-3.1.src.rpm
+              scmsyncurl: https://gitea.myorg.org/org/repo#main
         summary: Including download urls
         description: Result after adding the `withdownloadurl=1` parameter/value pair to the request.
       with_limit:
