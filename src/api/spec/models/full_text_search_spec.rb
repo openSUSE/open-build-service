@@ -47,6 +47,20 @@ RSpec.describe FullTextSearch do
       let!(:package) { create(:package, name: 'test', project: project, title: '', description: '') }
       let(:search_param_text) { { text: 'test' } }
 
+      before do
+        allow(ThinkingSphinx).to receive(:search) do |_, options|
+          classes = options[:classes]
+
+          if classes == [Project]
+            [project]
+          elsif classes == [Package]
+            [package]
+          else
+            [package, project]
+          end
+        end
+      end
+
       context 'without any class' do
         let(:search_params) { search_param_text }
 
