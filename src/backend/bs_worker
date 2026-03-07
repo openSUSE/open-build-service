@@ -80,6 +80,7 @@ my $vm_initrd;
 my $vm_memory;
 my $vm_custom_option;
 my $vm_use_mkfs_copyin;
+my $use_container_preinstallimage;
 my $vm_enable_console;
 my $vm_worker_name;
 my $vm_worker_instance;
@@ -206,7 +207,7 @@ sub cleanup_job {
   }
 
   # if this is a chroot like case, get rid of it after the build
-  if ((!$vm || $vm eq 'lxc' || $vm eq 'docker' || $vm eq 'nspwan') && $cleanup_chroot && -d $buildroot) {
+  if ((!$vm || $vm eq 'lxc' || $vm eq 'docker' || $vm eq 'nspwan' || $vm eq 'podman') && $cleanup_chroot && -d $buildroot) {
       print "Removing buildroot $buildroot...";
       eval {
         rm_rf($buildroot);
@@ -229,7 +230,7 @@ sub kill_job {
     push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
   } else {
     push @args, '--root', $buildroot;
-    push @args, '--vm-type', $vm if $vm eq 'lxc' || $vm eq 'docker';
+    push @args, '--vm-type', $vm if $vm eq 'lxc' || $vm eq 'docker' || $vm eq 'podman';
   }
   if (system("$statedir/build/build", @args, "--kill")) {
     return 0;
@@ -307,7 +308,7 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --hostlabel : define a host label for build constraints, can be used multiple times
 
        --vm-type   : set virtualisation mode to use (kvm, xen, qemu:\$HOSTARCH, zvm, emulator:\$HOSTARCH)
-                     Also possible are lxc or docker, but these are less secure and are not using
+                     Also possible are lxc or docker or podman, but these are less secure and are not using
                      the specified kernel for the build target.
 
        --vm-kernel : set kernel to use (xen/kvm)
@@ -335,6 +336,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
                    : filesystem to use for autosetup root disk image
 
        --vm-network: enable network (kvm)
+
+       --vm-use-container-preinstallimage: use preinstallimage as container base image (docker|podman)
 
        --emulator-script <script>
                    : Define the emulator script 
@@ -482,7 +485,7 @@ while (@ARGV) {
     $testmode = 1;
     next;
   }
-  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm|docker|pvm|openstack)$/) {
+  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm|docker|pvm|openstack|docker|podman)$/) {
     $vm = $1;
     shift @ARGV;
     next;
@@ -545,6 +548,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vm-use-mkfs-copyin') {
     shift @ARGV;
     $vm_use_mkfs_copyin = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--vm-use-container-preinstallimage') {
+    shift @ARGV;
+    $use_container_preinstallimage = 1;
     next;
   }
   if ($ARGV[0] eq '--vmdisk-rootsize') {
@@ -2456,7 +2464,8 @@ sub getpreinstallimage {
   $imagesource =~ s/\/[^\/]*$//;	# strip arch
   $imagesource .= "/$imageinfo->{'package'}" if $imageinfo->{'package'};
   $imagesource .= " [$imageinfo->{'hdrmd5'}]";
-  return $imagefile, \%imagebins, $imagesource, \%metas, \%imageorigins;
+  my $imageinfofile = -e "$dir/preinstallimage.info" ? 'preinstallimage.info' : undef;
+  return $imagefile, \%imagebins, $imagesource, \%metas, \%imageorigins, $imageinfofile;
 }
 
 sub getbinaries_buildenv {
@@ -2876,12 +2885,13 @@ sub getbinaries {
   # get a preinstall image if available
   my ($imagefile, $imagebins);
   if (@todo && $preinstallimagedata && $Build::Features::preinstallimage) {
-    my ($imagesource, $imagemetas, $imageorigins);
-    ($imagefile, $imagebins, $imagesource, $imagemetas, $imageorigins) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
+    my ($imagesource, $imagemetas, $imageorigins, $imageinfofile);
+    ($imagefile, $imagebins, $imagesource, $imagemetas, $imageorigins, $imageinfofile) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
     if ($imagefile && $imagebins && $imagemetas) {
       $preinstallimagedata->{'imagename'} = $imagefile;
       $preinstallimagedata->{'imagebins'} = $imagebins;
       $preinstallimagedata->{'imagesource'} = $imagesource;
+      $preinstallimagedata->{'imageinfofile'} = $imageinfofile if $imageinfofile;
       $meta{$_} = 1 for keys %$imagemetas;
       if ($outbdep) {
 	# record preinstallimage data
@@ -4049,6 +4059,7 @@ sub dobuild {
   }
   push @rpmlist, "preinstallimage: $pkgdir/$preinstallimagedata->{'imagename'}" if $preinstallimagedata->{'imagename'};
   push @rpmlist, "preinstallimagesource: $preinstallimagedata->{'imagesource'}" if $preinstallimagedata->{'imagesource'};
+  push @rpmlist, "preinstallimageinfo: $pkgdir/$preinstallimagedata->{'imageinfofile'}" if $preinstallimagedata->{'imageinfofile'};
   push @rpmlist, "localkiwi $localkiwi/localkiwi.rpm" if $localkiwi && -e "$localkiwi/localkiwi.rpm";
   push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
   push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
@@ -4107,10 +4118,11 @@ sub dobuild {
     push @args, "--vm-worker", $vm_worker_name;
     push @args, "--vm-kernel", $vm_kernel;
     push @args, "--openstack-flavor", "$openstack_flavor";
-  } elsif ($vm eq 'lxc' || $vm eq 'docker') {
+  } elsif ($vm eq 'lxc' || $vm eq 'docker' || $vm eq 'podman') {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $vm;
     push @args, '--memory', $vm_memory if $vm_memory;
+    push @args, '--vm-use-container-preinstallimage' if ($vm eq 'docker' || $vm eq 'podman') && $use_container_preinstallimage;
   } else {
     print "VM-TYPE $vm not detected" if $vm;
     push @args, '--root', $buildroot;
