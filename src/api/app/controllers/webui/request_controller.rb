@@ -337,6 +337,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def changes
     @active_tab = 'changes'
+    @tarlimit = params[:full_diff].present? ? 0 : params[:tarlimit]
   end
 
   def changes_diff

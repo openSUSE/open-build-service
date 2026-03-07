@@ -34,4 +34,28 @@ RSpec.describe SourcediffComponent, :vcr, type: :component do
       expect(rendered_content).to have_css("turbo-frame#file-0[loading=\"lazy\"][src=\"#{first_file_url}\"]")
     end
   end
+
+  describe '#truncated?' do
+    subject(:component) { described_class.new(bs_request: bs_request, action: action, diff_not_cached: false) }
+
+    let(:action) { bs_request.bs_request_actions.last }
+
+    context 'when any sourcediff file has a shown value' do
+      before do
+        allow(action).to receive(:webui_sourcediff).and_return(
+          [{ 'files' => { 'foo.rb' => { 'diff' => { 'shown' => '10' } } } }]
+        )
+      end
+
+      it { expect(component.truncated?).to be(true) }
+    end
+
+    context 'when no sourcediff files have a shown value' do
+      before do
+        allow(action).to receive(:webui_sourcediff).and_return([])
+      end
+
+      it { expect(component.truncated?).to be(false) }
+    end
+  end
 end
