@@ -140,6 +140,7 @@ License:        GPL-2.0-only OR GPL-3.0-only
 Version:        2.10~pre
 Release:        0
 Url:            http://www.openbuildservice.org
+BuildArch:      noarch
 Source0:        open-build-service-%version.tar.xz
 
 # None of our perl modules are for consumption
@@ -176,7 +177,6 @@ BuildRequires:  %{rubygem hana}
 BuildRequires:  %{rubygem json_refs}
 # /for the resolve_swagger_yaml.rb script
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
-BuildArch:      noarch
 Requires(pre):  obs-common
 Requires:       %{__obs_build_package_name} >= 20201211
 Requires:       perl-BSSolv >= 0.36
@@ -476,7 +476,11 @@ OBS_RUBY_ABI_VERSION=%{__obs_ruby_abi_version}
 EOF
 
 pushd src/api
-bundle config set path %_libdir/obs-api/
+# we use the build host RPM to evaluate %_libdir while parsing the spec
+# the build host is never noarch, so this ensures we get a proper architecture-specific path
+# even though this package is noarch. This is required for Leap 16 where the gems are
+# expected to be found in /usr/lib64/obs-api instead of /usr/lib/obs-api.
+bundle config set path %(rpm -E %%_libdir)/obs-api
 
 bundle install --local
 rm -rf vendor/cache/* vendor/cache.next/*
@@ -495,6 +499,10 @@ make resolve_swagger_yaml
 export DESTDIR=$RPM_BUILD_ROOT
 export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install
+
+# install .bundle/config generated in %%build
+mkdir -p %{buildroot}%{__obs_api_prefix}/.bundle
+install -m 0644 src/api/.bundle/config %{buildroot}%{__obs_api_prefix}/.bundle/config
 
 %if 0%{?suse_version}
 systemd_services="$(basename --multiple --suffix .service %{buildroot}%{_unitdir}/*.service) $(basename --multiple --suffix .target %{buildroot}%{_unitdir}/*.target)"
