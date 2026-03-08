@@ -44,6 +44,10 @@ of packaging the application
 %setup -q -n open-build-service-%{version}
 
 %build
+# required in openSUSE >= 16.0
+export MARIADB_SSL_MODE=DISABLED
+export MARIADB_TLS_DISABLE_PEER_VERIFICATION=1
+
 # run in build environment
 pushd src/backend/
 rm -rf build
@@ -51,8 +55,12 @@ ln -sf /usr/lib/build build
 popd
 
 pushd src/api
-# configure to the bundled gems
-bundle --local --path %_libdir/obs-api/
+# we use the build host RPM to evaluate %_libdir while parsing the spec
+# the build host is never noarch, so this ensures we get a proper architecture-specific path
+# even though this package is noarch. This is required for Leap 16 where the gems are
+# expected to be found in /usr/lib64/obs-api instead of /usr/lib/obs-api.
+bundle config set path %(rpm -E %%_libdir)/obs-api
+bundle install --local
 
 ./script/prepare_spec_tests.sh
 

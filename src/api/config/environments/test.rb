@@ -9,12 +9,16 @@ ENV['OBS_BACKEND_TEMP'] ||= Dir.mktmpdir('obsbackend', '/var/tmp')
 # and recreated between test runs. Don't rely on the data there!
 
 Rails.application.configure do
+  config.force_ssl = false
+
   config.active_support.test_order = :sorted # switch to :random ?
 end
 
 # This isn't going to change since this is how we configure Rails
 # rubocop:disable Metrics/BlockLength
 OBSApi::Application.configure do
+  config.force_ssl = false
+
   # Settings specified here will take precedence over those in config/application.rb.
   config.cache_classes = true
 
