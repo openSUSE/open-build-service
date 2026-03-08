@@ -1,6 +1,11 @@
 # OBS spec helper. See README.md in this directory for details.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+#
+
+# Avoid ssl problems in test scenarios
+ENV['MARIADB_SSL_MODE'] = 'DISABLED'
+ENV['MYSQL_SSL_MODE'] = 'DISABLED'
 
 # for generating test coverage
 require 'simplecov'
