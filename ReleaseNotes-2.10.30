@@ -11,9 +11,10 @@ The dist/README.UPDATERS file has information for people updating
 from a previous OBS release.
 
 
-Features
+Bugfixes
 ========
 
-Backend:
- * Switch to GPG version 4 signatures for debian repositories
-
+Frontend:
+ * Update rack RubyGem to version 2.2.22
+   - XSS injection via malicious filename in Rack::Directory (CVE-2026-25500)
+   - Directory traversal via root prefix bypass in Rack::Directory (CVE-2026-22860)
