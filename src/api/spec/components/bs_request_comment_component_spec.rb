@@ -98,4 +98,49 @@ RSpec.describe BsRequestCommentComponent, type: :component do
       expect(rendered_content).to have_css("#{(['.d-flex > .timeline-item-comment'] * 4).join(' > ')} > .comment-bubble", text: 'Comment E')
     end
   end
+
+  describe '#range' do
+    context "when the file is new (no 'old' diff present)" do
+      let(:added_diff) do
+        {
+          'state' => 'added',
+          'new' => {
+            'size' => '340'
+          },
+          'diff' => {
+            'lines' => '12',
+            '_content' => "@@ -0,0 +1,11 @@\n+--\n+Fri Aug 11 \n+\n+- Testing the submit diff\n+- Fixing issue among others.\n+\n+--\n+Wed Aug  2 14:59:15 UTC 2017\n+\n+- Temporary hack\n+\n"
+          }
+        }
+      end
+
+      it 'returns a single-line range for the commented line' do
+        comment_a.update(diff_line_number: 6)
+        component = described_class.new(comment: comment_a, commentable: commentable, level: 1, diff: added_diff)
+
+        expect(component.range).to eq(5..5)
+      end
+    end
+
+    context 'when the file is modified' do
+      let(:changed_diff) do
+        {
+          'state' => 'changed',
+          'old' => { 'name' => 'somefile.txt', 'md5' => '6741a2f4... ', 'size' => '74' },
+          'new' => { 'name' => 'somefile.txt', 'md5' => '801c9f97... ', 'size' => '65' },
+          'diff' => {
+            'lines' => '5',
+            '_content' => "@@ -1,1 +1,1 @@\n-Minima tenetlabore.\n\\ No newline at end of file\n+Impedit dolores recusandae.\n\\ No newline at end of file\n"
+          }
+        }
+      end
+
+      it 'returns a range starting from the removed line when commenting on the added line' do
+        comment_a.update(diff_line_number: 4)
+        component = described_class.new(comment: comment_a, commentable: commentable, level: 1, diff: changed_diff)
+
+        expect(component.range).to eq(1..3)
+      end
+    end
+  end
 end
