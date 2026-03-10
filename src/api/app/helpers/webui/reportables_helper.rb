@@ -51,7 +51,7 @@ module Webui::ReportablesHelper
     when BsRequestAction
       Rails.application.routes.url_helpers.request_show_path(number: comment.commentable.bs_request.number,
                                                              request_action_id: comment.commentable.id,
-                                                             anchor: 'tab-pane-changes')
+                                                             anchor: anchor)
     when Package
       Rails.application.routes.url_helpers.package_show_path(package: comment.commentable,
                                                              project: comment.commentable.project,
