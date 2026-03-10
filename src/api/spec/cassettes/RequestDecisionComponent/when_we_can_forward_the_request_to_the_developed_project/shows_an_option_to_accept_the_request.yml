@@ -1,12 +1,412 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/devel_project/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel_project">
+          <title>Such, Such Were the Joys</title>
+          <description/>
+          <person userid="maintainer" role="maintainer"/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1773057647'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel_project">
+          <title>Such, Such Were the Joys</title>
+          <description></description>
+          <person userid="maintainer" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel_project/devel_package/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="devel_package" project="devel_project">
+          <title>Ah, Wilderness!</title>
+          <description>Qui aut et id.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1773057647'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="devel_package" project="devel_project">
+          <title>Ah, Wilderness!</title>
+          <description>Qui aut et id.</description>
+        </package>
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Where Angels Fear to Tread</title>
+          <description/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1773057647'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Where Angels Fear to Tread</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      X-Frontend-Start:
+      - '1773057647'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '173'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="40">
+          <srcmd5>3371706265459cd8186dacbe0a4a68d0</srcmd5>
+          <time>1773057647</time>
+          <user>maintainer</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Soluta nostrum autem ullam.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1773057647'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '187'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Soluta nostrum autem ullam.</description>
+        </package>
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057647'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=devel_package&oproject=devel_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Frontend-Start:
+      - '1773057647'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '326'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="2d14be5a095cedb444da6fa4c17bd196">
+          <old project="devel_project" package="devel_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel_project/package_with_devel/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_devel" project="devel_project">
+          <title>As I Lay Dying</title>
+          <description>Ratione cupiditate a pariatur.</description>
+          <devel project="devel_project" package="devel_package"/>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1773057647'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '222'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_devel" project="devel_project">
+          <title>As I Lay Dying</title>
+          <description>Ratione cupiditate a pariatur.</description>
+          <devel project="devel_project" package="devel_package"/>
+        </package>
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057647'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=package_with_devel&oproject=devel_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Frontend-Start:
+      - '1773057647'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '331'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="5c005e7b17bdbbcb78e1a86431761e7a">
+          <old project="devel_project" package="package_with_devel" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
+- request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
     body:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057647'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -31,7 +431,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:50 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -39,6 +439,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057647'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -63,7 +465,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:50 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -71,6 +473,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057647'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -95,7 +499,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:50 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -103,6 +507,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057647'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -127,7 +533,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:50 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -135,6 +541,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057647'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -159,7 +567,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:50 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -167,6 +575,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057647'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -191,7 +601,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:50 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -199,6 +609,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057647'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -223,7 +635,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:50 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -231,6 +643,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -255,7 +669,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:50 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -263,6 +677,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -287,7 +703,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -295,6 +711,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -319,7 +737,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -327,6 +745,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -351,7 +771,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -359,6 +779,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -383,7 +805,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -391,6 +813,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -415,7 +839,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -423,6 +847,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -447,7 +873,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -455,6 +881,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -479,7 +907,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -487,6 +915,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -511,7 +941,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -519,6 +949,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -543,7 +975,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -551,6 +983,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -575,7 +1009,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -583,6 +1017,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -607,7 +1043,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -615,6 +1051,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -639,7 +1077,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -647,6 +1085,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -671,7 +1111,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -679,6 +1119,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -703,7 +1145,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -711,6 +1153,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -735,7 +1179,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -743,6 +1187,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -767,7 +1213,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -775,6 +1221,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -799,7 +1247,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -807,6 +1255,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -831,7 +1281,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -839,6 +1289,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -863,7 +1315,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -871,6 +1323,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -895,7 +1349,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -903,6 +1357,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -927,7 +1383,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:51 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -935,6 +1391,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -959,7 +1417,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:52 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -967,6 +1425,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -991,7 +1451,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:52 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -999,6 +1459,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1023,7 +1485,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:52 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -1031,6 +1493,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1055,7 +1519,7 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:52 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -1063,6 +1527,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1087,7 +1553,7 @@ http_interactions:
       string: |
         <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:52 GMT
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/package_with_devel
@@ -1095,6 +1561,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1773057648'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1119,5 +1587,481 @@ http_interactions:
       string: |
         <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 26 Sep 2025 09:55:52 GMT
-recorded_with: VCR 6.3.1
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/package_with_devel
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/package_with_devel
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/package_with_devel
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/package_with_devel
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/package_with_devel
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/package_with_devel
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/package_with_devel
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057648'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057649'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/package_with_devel
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1773057649'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '93'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_devel" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+recorded_with: VCR 6.4.0
