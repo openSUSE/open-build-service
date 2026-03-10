@@ -93,10 +93,6 @@ FactoryBot.define do
       state { 'locked' }
     end
 
-    factory :user_nobody do
-      login { '_nobody_' }
-    end
-
     # This is needed because the salt is random
     # in User.after_validation
     after(:create) do |user|
