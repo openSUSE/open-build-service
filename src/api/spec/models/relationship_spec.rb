@@ -35,7 +35,7 @@ RSpec.describe Relationship do
     context 'with banned user' do
       subject { Relationship.add_user(project, nobody, role, true, true) }
 
-      let(:nobody) { create(:user_nobody) }
+      let(:nobody) { User.find_nobody! }
 
       it { expect { subject }.to raise_error(NotFoundError, "Couldn't find user #{nobody.login}") }
     end

@@ -1,7 +1,7 @@
 RSpec.describe LabelPolicy do
   subject { described_class }
 
-  let(:anonymous_user) { create(:user_nobody) }
+  let(:anonymous_user) { User.find_nobody! }
   let(:another_user) { create(:confirmed_user) }
   let(:admin) { create(:admin_user) }
   let(:user) { create(:confirmed_user, :with_home) }

@@ -129,7 +129,10 @@ RSpec.describe 'rollout' do
 
   context 'with anonymous user' do
     describe 'anonymous_on' do
-      let!(:anonymous_user) { create(:user_nobody, in_rollout: false) }
+      let!(:anonymous_user) do
+        nobody = User.find_nobody!
+        nobody.update_attribute(:in_rollout, false) # rubocop:disable Rails/SkipsModelValidations
+      end
       let(:task) { 'rollout:anonymous_on' }
 
       it 'moves the anonymous user to Rollout Program' do
@@ -138,7 +141,10 @@ RSpec.describe 'rollout' do
     end
 
     describe 'anonymous_off' do
-      let!(:anonymous_user) { create(:user_nobody, in_rollout: true) }
+      let!(:anonymous_user) do
+        nobody = User.find_nobody!
+        nobody.update_attribute(:in_rollout, true) # rubocop:disable Rails/SkipsModelValidations
+      end
       let(:task) { 'rollout:anonymous_off' }
 
       it 'moves anonymous user out of Rollout Program' do

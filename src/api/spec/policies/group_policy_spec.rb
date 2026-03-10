@@ -2,7 +2,7 @@ RSpec.describe GroupPolicy do
   subject { described_class }
 
   let(:group) { create(:group) }
-  let(:anonymous_user) { create(:user_nobody) }
+  let(:anonymous_user) { User.find_nobody! }
   let(:user) { create(:confirmed_user) }
   let(:admin) { create(:admin_user) }
   let(:group_member) { create(:groups_user, group: group).user }

@@ -108,7 +108,7 @@ RSpec.describe Review do
     end
 
     context 'with invalid attributes' do
-      let!(:nobody) { create(:user_nobody) }
+      let!(:nobody) { User.find_nobody! }
 
       it 'does not set user association when by_user object does not exist' do
         review = Review.new(by_user: 'not-existent')

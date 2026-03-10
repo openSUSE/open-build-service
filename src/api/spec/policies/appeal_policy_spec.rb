@@ -1,7 +1,7 @@
 RSpec.describe AppealPolicy do
   subject { described_class }
 
-  let(:anonymous_user) { create(:user_nobody) }
+  let(:anonymous_user) { User.find_nobody! }
   let(:user) { create(:confirmed_user) }
   let(:moderator) { create(:moderator) }
   let(:staff_user) { create(:staff_user) }
