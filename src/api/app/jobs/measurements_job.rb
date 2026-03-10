@@ -11,6 +11,9 @@ class MeasurementsJob < ApplicationJob
     subscription_measurements
     beta_features_measurements
     dj_queue_measurements
+  rescue StandardError => e
+    Rails.logger.error "[MeasurementsJob] Error: #{e.message}"
+    raise e
   end
 
   private
