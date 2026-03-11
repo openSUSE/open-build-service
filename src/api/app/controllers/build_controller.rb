@@ -1,7 +1,7 @@
 class BuildController < ApplicationController
   # Authentication happens via HTTP_X_SCM_BRIDGE_COOKIE, so no login is required
-  skip_before_action :extract_user, :require_login, :check_anonymous_access, only: [:scmresult]
-  before_action :require_scmsync_host_check, only: [:scmresult]
+  skip_before_action :require_login, :check_anonymous_access, only: [:scmresult]
+  before_action :require_user_or_scmsync_host_check, only: [:scmresult]
 
   def index
     # for read access and visibility permission check
