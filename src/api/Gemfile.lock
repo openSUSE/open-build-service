@@ -130,6 +130,7 @@ GEM
     chartkick (5.2.1)
     childprocess (5.1.0)
       logger (~> 1.5)
+    citrus (3.0.2)
     clockwork (4.0.1)
       activesupport
       tzinfo
@@ -573,6 +574,9 @@ GEM
     thor (1.5.0)
     tilt (2.7.0)
     timeout (0.6.0)
+    toml-rb (4.1.0)
+      citrus (~> 3.0, > 3.0)
+      racc (~> 1.7)
     tsort (0.2.0)
     turbo-rails (2.0.23)
       actionpack (>= 7.1.0)
@@ -715,6 +719,7 @@ DEPENDENCIES
   terser
   test-unit
   thinking-sphinx
+  toml-rb
   turbo-rails
   vcr
   view_component
