@@ -4574,16 +4574,19 @@ sub getscmresult {
 
   my $scmrepo = $cgi->{'scmrepository'};
   my $scmbranch = $cgi->{'scmbranch'};
+  my $usetrackingbranch;
+  $usetrackingbranch = 1 if $cgi->{'usetrackingbranch'};
 
   my $results = [];
 
-  for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch)) {
+  for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch, $usetrackingbranch)) {
     my $projid = @$ref[0];
 
     my $packids;
     $packids = [@$ref[1]] unless @$ref[1] eq '_project';
 
     my $proj = checkprojrepoarch($projid, undef, undef, 1);
+    next if $proj->{'access'};
 
     if ($cgi->{'multibuild'} && @$packids[0] ne '_project' && !$BSStdServer::isajax) {
       $packids = [ BSSrcServer::Multibuild::addmultibuildpackages($projid, undef, @{$packids}) ];

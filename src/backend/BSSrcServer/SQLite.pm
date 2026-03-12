@@ -128,16 +128,23 @@ CREATE TABLE IF NOT EXISTS scmsync(
   package TEXT,
   scmsync_repo TEXT,
   scmsync_branch TEXT,
+  scmsync_trackingbranch TEXT,
   UNIQUE(project,package)
 )
 EOS
   }
+  # add possible missing collumn
+  my @ary = $h->selectrow_array("SELECT COUNT(*) FROM pragma_table_info('scmsync') WHERE name='scmsync_trackingbranch'");
+  dbdo($h, 'ALTER TABLE scmsync ADD scmsync_trackingbranch TEXT') if $ary[0] == 0;
+
+  # create indexes
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_sourceproject_sourcepackage on linkinfo(sourceproject,sourcepackage)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_project_package on linkinfo(project,package)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_package on linkinfo(package)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_project_package on scmsync(project,package)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_scmsync_repo on scmsync(scmsync_repo)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_scmsync_branch on scmsync(scmsync_repo,scmsync_branch)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_scmsync_trackingbranch on scmsync(scmsync_repo,scmsync_trackingbranch)');
 }
 
 sub asyncmode {

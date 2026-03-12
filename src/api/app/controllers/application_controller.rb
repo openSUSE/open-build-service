@@ -79,6 +79,12 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def require_user_or_scmsync_host_check
+    return if User.session
+
+    require_scmsync_host_check
+  end
+
   def require_scmsync_host_check
     scm_cookie = request.env['HTTP_X_SCM_BRIDGE_COOKIE']
     raise MissingParameterError, 'X-SCM_BRIDGE_COOKIE is not set' if scm_cookie.blank?
