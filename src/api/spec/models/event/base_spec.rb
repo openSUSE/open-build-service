@@ -150,12 +150,7 @@ RSpec.describe Event::Base do
     subject { event.develpackage_or_package_maintainers }
 
     let(:package_maintainer) { create(:confirmed_user) }
-    let(:project) do
-      project = create(:project)
-      project.update_column(:anitya_distribution_name, 'test') # rubocop:disable Rails/SkipsModelValidations
-      project.store
-      project
-    end
+    let(:project) { create(:project) }
     let(:package) { create(:package, project: project, develpackage: develpackage) }
     let!(:package_maintainer_role) { create(:relationship, package: package, user: package_maintainer) }
     let!(:package_maintainer_subscription) { create(:event_subscription_upstream_version, subscriber: package_maintainer) }
