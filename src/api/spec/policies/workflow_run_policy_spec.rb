@@ -44,7 +44,7 @@ RSpec.describe WorkflowRunPolicy do
   permissions :show? do
     subject { WorkflowRunPolicy }
 
-    let(:anonymous_user) { create(:user_nobody) }
+    let(:anonymous_user) { User.find_nobody! }
     let(:user_without_permission) { create(:confirmed_user) }
 
     it { is_expected.to permit(token_user, workflow_run) }

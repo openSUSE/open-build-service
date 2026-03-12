@@ -31,7 +31,7 @@ RSpec.describe Group do
       end
 
       context 'with user _nobody_' do
-        let(:members) { create(:user_nobody).login }
+        let(:members) { User.find_nobody!.login }
 
         it 'does not add the user' do
           expect(subject).to be_falsey

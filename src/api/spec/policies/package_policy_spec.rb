@@ -1,7 +1,7 @@
 RSpec.describe PackagePolicy do
   subject { described_class }
 
-  let(:anonymous_user) { create(:user_nobody) }
+  let(:anonymous_user) { User.find_nobody! }
   let(:user) { create(:confirmed_user, :with_home) }
   let(:other_user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
