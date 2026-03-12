@@ -4574,10 +4574,12 @@ sub getscmresult {
 
   my $scmrepo = $cgi->{'scmrepository'};
   my $scmbranch = $cgi->{'scmbranch'};
+  my $usetrackingbranch;
+  $usetrackingbranch = 1 if $cgi->{'usetrackingbranch'};
 
   my $results = [];
 
-  for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch)) {
+  for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch, $usetrackingbranch)) {
     my $projid = @$ref[0];
 
     my $packids;

@@ -42,22 +42,25 @@ sub normalize_url {
   $scmsync_repo   =~ s/\.git$//;
   my $scmsync_branch = $uri->fragment;
 
-  return ($scmsync_repo, $scmsync_branch);
+  my %params = $uri->query_form;
+  my $scmsync_trackingbranch = $params{'trackingbranch'};
+
+  return ($scmsync_repo, $scmsync_branch, $scmsync_trackingbranch);
 }
 
 sub storescmsync {
   my ($projid, $packid, $scmsync_url) = @_;
   return unless $BSConfig::source_db_sqlite;
 
-  my ($scmsync_repo, $scmsync_branch) = normalize_url($scmsync_url);
+  my ($scmsync_repo, $scmsync_branch, $scmsync_trackingbranch) = normalize_url($scmsync_url);
   my $db = BSSrcServer::SQLite::opendb($sourcedb, 'scmsync');
   my $h = $db->{'sqlite'} || BSSrcServer::SQLite::connectdb($db);
 
   BSSQLite::begin_work($h);
-  BSSQLite::dbdo_bind($h, 'INSERT INTO scmsync(project,package,scmsync_repo,scmsync_branch) VALUES(?,?,?,?)
+  BSSQLite::dbdo_bind($h, 'INSERT INTO scmsync(project,package,scmsync_repo,scmsync_branch,scmsync_trackingbranch) VALUES(?,?,?,?,?)
                            ON CONFLICT(project,package) DO UPDATE SET
-                            scmsync_repo=excluded.scmsync_repo,scmsync_branch=excluded.scmsync_branch
-                            WHERE excluded.project=scmsync.project AND excluded.package=scmsync.package', [$projid], [$packid], [$scmsync_repo], [$scmsync_branch]);
+                            scmsync_repo=excluded.scmsync_repo,scmsync_branch=excluded.scmsync_branch,scmsync_trackingbranch=excluded.scmsync_trackingbranch
+                            WHERE excluded.project=scmsync.project AND excluded.package=scmsync.package', [$projid], [$packid], [$scmsync_repo], [$scmsync_branch], [$scmsync_trackingbranch]);
   BSSQLite::commit($h);
 }
 
@@ -78,7 +81,7 @@ sub deletescmsync {
 }
 
 sub getscmsyncpackages {
-  my ($scmsync_repo, $scmsync_branch) = @_;
+  my ($scmsync_repo, $scmsync_branch, $use_tracking) = @_;
   return [] unless $BSConfig::source_db_sqlite;
 
   my $db = BSSrcServer::SQLite::opendb($sourcedb, 'scmsync');
@@ -86,6 +89,9 @@ sub getscmsyncpackages {
 
   $scmsync_repo   =~ s/\.git$//;
   $scmsync_repo   = lc($scmsync_repo);
+
+  my $branch_collumn = 'scmsync_branch';
+  $branch_collumn = 'scmsync_trackingbranch' if $use_tracking;
 
   my $sh;
   if (!defined($scmsync_branch)) {
@@ -96,7 +102,7 @@ sub getscmsyncpackages {
     $sh = BSSQLite::dbdo_bind($h, 'SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ? AND scmsync_branch IS NULL', [$scmsync_repo]);
   } else {
     # deliver for defined branch only
-    $sh = BSSQLite::dbdo_bind($h, 'SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ? AND scmsync_branch = ?', [$scmsync_repo], [$scmsync_branch]);
+    $sh = BSSQLite::dbdo_bind($h, "SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ? AND $branch_collumn = ?", [$scmsync_repo], [$scmsync_branch]);
   };
   my ($project, $package);
   $sh->bind_columns(\$project, \$package);
