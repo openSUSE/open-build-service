@@ -1,5 +1,5 @@
 class DeleteFromSphinxJob < ApplicationJob
-  queue_as :quick
+  queue_as :slow_user
 
   def perform(id, klass)
     delete_from_sphinx(id: id, klass: klass)
