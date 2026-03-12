@@ -88,14 +88,15 @@ sub getscmsyncpackages {
   $scmsync_repo   = lc($scmsync_repo);
 
   my $sh;
-  if ($scmsync_branch) {
-    $sh = BSSQLite::dbdo_bind($h, 'SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ? AND scmsync_branch = ?', [$scmsync_repo], [$scmsync_branch]);
+  if (!defined($scmsync_branch)) {
+    # all branches
+    $sh = BSSQLite::dbdo_bind($h, 'SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ?', [$scmsync_repo]);
   } elsif ($scmsync_branch eq '') {
     # default branch only
     $sh = BSSQLite::dbdo_bind($h, 'SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ? AND scmsync_branch IS NULL', [$scmsync_repo]);
   } else {
-    # all branches
-    $sh = BSSQLite::dbdo_bind($h, 'SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ?', [$scmsync_repo]);
+    # deliver for defined branch only
+    $sh = BSSQLite::dbdo_bind($h, 'SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ? AND scmsync_branch = ?', [$scmsync_repo], [$scmsync_branch]);
   };
   my ($project, $package);
   $sh->bind_columns(\$project, \$package);
