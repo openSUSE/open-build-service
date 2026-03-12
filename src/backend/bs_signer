@@ -227,7 +227,7 @@ sub signisofiles {
 	my @signargs_cpy = @signargs;
 	if ($signfilesuf eq 'p7s') {
 	  $data->{'cmscert'} ||= getsslcert($data->{'projid'}, 'cms', $data->{'signflavor'});
-	  $cmscertfile = "$uploaddir/signer.cmscert.$$";
+	  $cmscertfile = "$uploaddir/signer.cmscert.iso.$$";
 	  writestr($cmscertfile, undef, $data->{'cmscert'});
 	  @signmode = ('--cmssign', '--cert', $cmscertfile, '--cms-nocerts', '-h', 'sha512');
 	  setsigntype(\@signargs_cpy, 'cms') if $BSConfig::sign_type;
@@ -945,6 +945,11 @@ sub signjob {
     my ($algo, $signkey, $pubkey, $cert) = getsignkey($projid, $packid, $needpubkey, $needcert, undef, $signflavor);
     my $cmscert;
     $cmscert = getsslcert($projid, 'cms', $signflavor) if $needcmscert;
+    my $cmscertfile;
+    if ($cmscert) {
+      $cmscertfile = "$uploaddir/signer.cmscert.$$";
+      writestr($cmscertfile, undef, $cmscert);
+    }
     my $pubkey_create_time;
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
@@ -1087,8 +1092,8 @@ sub signjob {
 	  next if substr($signfilec, 0, 8) ne "sIGnMe!\n";
 	  @signmode = ('-d');
 	  if ($signfilesuf eq 'p7s') {
-	    die("cms cert is not available\n") unless $cmscert;
-	    @signmode = ('--cmssign', '--cert', $cmscert, '--cms-nocerts', '-h', 'sha512') if $signfilesuf eq 'p7s';
+	    die("cms cert is not available\n") unless $cmscertfile;
+	    @signmode = ('--cmssign', '--cert', $cmscertfile, '--cms-nocerts', '-h', 'sha512') if $signfilesuf eq 'p7s';
 	    setsigntype(\@signargs_cpy, 'cms') if $BSConfig::sign_type;
 	  }
 	  $signfile =~ s/\.(?:asc|p7s)$//s;
@@ -1171,6 +1176,7 @@ sub signjob {
 
     # all files signed now
     unlink("$uploaddir/signer.$$") if $signkey;
+    unlink($cmscertfile) if $cmscertfile;
 
     if ($followupfile) {
       # we need to create a followup job to integrate the signatures
