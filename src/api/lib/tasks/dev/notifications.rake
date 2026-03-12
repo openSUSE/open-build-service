@@ -87,7 +87,7 @@ namespace :dev do
         # New upstream version
         create(:event_subscription_upstream_version, channel: :web, user: admin, receiver_role: 'develpackage_or_package_maintainer')
         project = Project.find_by(name: admin_package.project.name)
-        project.update(anitya_distribution_name: 'Anitdist')
+        project.update(anitya_distribution_name: 'openSUSE')
         # Ends up creating an event (Event::UpstreamPackageVersion)
         create(:package_version_upstream, package: admin_package)
       end
