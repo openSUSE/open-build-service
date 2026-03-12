@@ -95,7 +95,7 @@ class NotificationReport < Notification
       Rails.application.routes.url_helpers.request_show_path(commentable.number, notification_id: id, anchor: 'comments-list')
     when BsRequestAction
       Rails.application.routes.url_helpers.request_show_path(number: commentable.bs_request.number, request_action_id: commentable.id,
-                                                             notification_id: id, anchor: 'tab-pane-changes')
+                                                             notification_id: id, anchor: 'comments-list')
     when Package
       Rails.application.routes.url_helpers.package_show_path(package: commentable,
                                                              project: commentable.project,
