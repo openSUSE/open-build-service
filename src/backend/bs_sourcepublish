@@ -32,7 +32,6 @@ use XML::Structured ':bytes';
 use BSConfiguration;
 use BSUtil;
 use BSRevision;
-use BSSrcrep;
 use BSStdRunner;
 use BSSQLite;
 use Data::Dumper;
@@ -91,7 +90,7 @@ sub linksourceintodir {
   my $dir = "$basedir/$projid/$packid/$srcmd5";
   mkdir_p($dir);
   for my $filename (sort keys %$files) {
-    BSSrcrep::copyonefile_tmp($projid, $packid, $filename, $files->{$filename}, "$dir/$filename") unless -e "$dir/$filename";
+    BSRevision::revcopyoutfile($rev, $filename, $files->{$filename}, "$dir/$filename") unless -e "$dir/$filename";
   }
   return 1;
 }

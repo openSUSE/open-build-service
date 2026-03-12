@@ -538,6 +538,11 @@ sub revcpiofile {
   return BSSrcrep::cpiofile($rev->{'project'}, $rev->{'package'}, $filename, $md5, $forcehandle);
 }
 
+sub revcopyoutfile {
+  my ($rev, $filename, $md5, $dst) = @_;
+  BSSrcrep::copyonefile_tmp($rev->{'project'}, $rev->{'package'}, $filename, $md5, $dst);
+}
+
 sub lsrev {
   my ($rev, $linkinfo) = @_;
   die("nothing known\n") unless $rev;
