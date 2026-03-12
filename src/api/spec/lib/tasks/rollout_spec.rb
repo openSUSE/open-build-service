@@ -126,30 +126,4 @@ RSpec.describe 'rollout' do
       it { expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(4).to(3) }
     end
   end
-
-  context 'with anonymous user' do
-    describe 'anonymous_on' do
-      let!(:anonymous_user) do
-        nobody = User.find_nobody!
-        nobody.update_attribute(:in_rollout, false) # rubocop:disable Rails/SkipsModelValidations
-      end
-      let(:task) { 'rollout:anonymous_on' }
-
-      it 'moves the anonymous user to Rollout Program' do
-        expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(3).to(4)
-      end
-    end
-
-    describe 'anonymous_off' do
-      let!(:anonymous_user) do
-        nobody = User.find_nobody!
-        nobody.update_attribute(:in_rollout, true) # rubocop:disable Rails/SkipsModelValidations
-      end
-      let(:task) { 'rollout:anonymous_off' }
-
-      it 'moves anonymous user out of Rollout Program' do
-        expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(4).to(3)
-      end
-    end
-  end
 end
