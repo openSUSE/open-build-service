@@ -1,5 +1,5 @@
 class BuildController < ApplicationController
-  # Authentication happens via HTTP_X_SCM_BRIDGE_COOKIE, so no login is required
+  # Authentication happens via HTTP_X_SCM_BRIDGE_COOKIE, no login is required for :scmresult
   skip_before_action :require_login, :check_anonymous_access, only: [:scmresult]
   before_action :require_user_or_scmsync_host_check, only: [:scmresult]
 
@@ -177,5 +177,13 @@ class BuildController < ApplicationController
       @result << [repo, archs]
     end
     render xml: render_to_string(partial: 'lastsuccess')
+  end
+
+  private
+
+  def require_user_or_scmsync_host_check
+    return if User.session
+
+    require_scmsync_host_check
   end
 end
