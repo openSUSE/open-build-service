@@ -133,9 +133,10 @@ CREATE TABLE IF NOT EXISTS scmsync(
 )
 EOS
   }
-  # add possible missing collumn
-  my @ary = $h->selectrow_array("SELECT COUNT(*) FROM pragma_table_info('scmsync') WHERE name='scmsync_trackingbranch'");
-  dbdo($h, 'ALTER TABLE scmsync ADD scmsync_trackingbranch TEXT') if $ary[0] == 0;
+  # add possible missing column
+  if (! grep {$_ eq 'scmsync_trackingbranch'} BSSQLite::list_columns($h, 'scmsync')) {
+    dbdo($h, 'ALTER TABLE scmsync ADD scmsync_trackingbranch TEXT');
+  }
 
   # create indexes
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_sourceproject_sourcepackage on linkinfo(sourceproject,sourcepackage)');

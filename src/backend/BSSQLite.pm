@@ -55,6 +55,12 @@ sub list_tables {
   return map {$_->[2]} @{$sh->fetchall_arrayref()};
 }
 
+sub list_columns {
+  my ($h, $table) = @_;
+  my $sh = $h->column_info(undef, undef, $table, undef);
+  return map {$_->[3]} @{$sh->fetchall_arrayref()};
+}
+
 sub foreignkeys {
   my ($h, $on) = @_;
   dbdo($h, 'PRAGMA foreign_keys = '.($on ? 'ON' : 'OFF'));
