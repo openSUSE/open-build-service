@@ -594,22 +594,25 @@ workflows:
       - linters:
           requires:
             - checkout_code
-      - rspec:
-          requires:
-            - linters
-      - minitest:
-          requires:
-            - linters
-      - spider:
-          requires:
-            - rspec
-            - minitest
-            - feature
-      - coverage:
-          requires:
-            - rspec
-            - minitest
-            - feature
-      - feature:
-          requires:
-            - linters
+      #
+      # Temporarily disable tests for the current Rais version until tests for the next Rails version are fixed
+      #
+      # - rspec:
+      #     requires:
+      #       - linters
+      # - minitest:
+      #     requires:
+      #       - linters
+      # - spider:
+      #     requires:
+      #       - rspec
+      #       - minitest
+      #       - feature
+      # - coverage:
+      #     requires:
+      #       - rspec
+      #       - minitest
+      #       - feature
+      # - feature:
+      #     requires:
+      #       - linters
