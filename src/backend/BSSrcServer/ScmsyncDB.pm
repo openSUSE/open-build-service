@@ -118,12 +118,13 @@ sub getscmsyncurl {
   my $db = BSSrcServer::SQLite::opendb($sourcedb, 'scmsync');
   my $h = $db->{'sqlite'} || BSSrcServer::SQLite::connectdb($db);
 
-  my $sh = BSSQLite::dbdo_bind($h, 'SELECT scmsync_repo, scmsync_branch FROM scmsync WHERE project = ? AND package = ? LIMIT 1', [$project], [$package]);
-  my ($scmsync_repo, $scmsync_branch);
-  $sh->bind_columns(\$scmsync_repo, \$scmsync_branch);
+  my $sh = BSSQLite::dbdo_bind($h, 'SELECT scmsync_repo, scmsync_branch, scmsync_trackingbranch FROM scmsync WHERE project = ? AND package = ? LIMIT 1', [$project], [$package]);
+  my ($scmsync_repo, $scmsync_branch, $scmsync_trackingbranch);
+  $sh->bind_columns(\$scmsync_repo, \$scmsync_branch, \$scmsync_trackingbranch);
   my $scmsync_url;
   if ($sh->fetch()) {
     $scmsync_url = $scmsync_repo;
+    $scmsync_url .= "?trackingbranch=".$scmsync_trackingbranch if $scmsync_trackingbranch;
     $scmsync_url .= "#".$scmsync_branch if $scmsync_branch;
   }
   return $scmsync_url;
