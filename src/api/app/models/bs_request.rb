@@ -1134,19 +1134,19 @@ class BsRequest < ApplicationRecord
       if r.instance_of?(User)
         next if reviews.any? { |a| a.by_user == r.login }
 
-        reviews.new(by_user: r.login, state: :new)
+        reviews.new(by_user: r.login, state: :new, expires_at: 2.months.from_now)
       elsif r.instance_of?(Group)
         next if reviews.any? { |a| a.by_group == r.title }
 
-        reviews.new(by_group: r.title, state: :new)
+        reviews.new(by_group: r.title, state: :new, expires_at: 2.months.from_now)
       elsif r.instance_of?(Project)
         next if reviews.any? { |a| a.by_project == r.name && a.by_package.nil? }
 
-        reviews.new(by_project: r.name, state: :new)
+        reviews.new(by_project: r.name, state: :new, expires_at: 2.months.from_now)
       elsif r.instance_of?(Package)
         next if reviews.any? { |a| a.by_project == r.project.name && a.by_package == r.name }
 
-        reviews.new(by_project: r.project.name, by_package: r.name, state: :new)
+        reviews.new(by_project: r.project.name, by_package: r.name, state: :new, expires_at: 7.days.from_now)
       else
         raise 'Unknown review type'
       end
@@ -1156,6 +1156,16 @@ class BsRequest < ApplicationRecord
 
     self.state = :review
     self.status = :review
+  end
+
+  def expire_review(review)
+    User.as_nobody do
+      change_review_state(:accepted, by_user: review.by_user,
+                                     by_group: review.by_group,
+                                     by_project: review.by_project,
+                                     by_package: review.by_package,
+                                     comment: 'Automatic acceptance due to expiration')
+    end
   end
 
   #

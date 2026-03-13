@@ -58,6 +58,7 @@ class Review < ApplicationRecord
   scope :bs_request_ids_of_involved_users, ->(user_ids) { where(user_id: user_ids).select(:bs_request_id) }
 
   scope :opened, -> { where(state: :new) }
+  scope :expired, -> { opened.where(expires_at: ...Time.now) }
   scope :accepted, -> { where(state: :accepted) }
   scope :declined, -> { where(state: :declined) }
   scope :for_staging_projects, lambda { |project|
