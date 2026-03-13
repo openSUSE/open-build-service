@@ -45,16 +45,17 @@ if (defined $user) {
   die "setuid: $!\n" if ($> != $user);
 }
 
-die("usage: bs_dbtool binary|pattern|repoinfo|linkinfo <cmd> [args]\n") unless @ARGV >= 2;
+die("usage: bs_dbtool binary|pattern|repoinfo|linkinfo|scmsync <cmd> [args]\n") unless @ARGV >= 2;
 
 my $table = shift @ARGV;
 my $cmd = shift @ARGV;
 
 my $db;
-if ($table eq 'linkinfo') {
+if ($table eq 'linkinfo' || $table eq 'scmsync') {
   if ($BSConfig::source_db_sqlite) {
     $db = BSSrcServer::SQLite::opendb($sourcedb, $table);
   } else {
+    die("scmsync database needs source_db_sqlite\n") if $table eq 'scmsync';
     $db = BSDB::opendb($sourcedb, $table);
     $db->{'allkeyspath'} = 'project';
   }

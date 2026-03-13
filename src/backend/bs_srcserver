@@ -411,7 +411,7 @@ sub triggerscmsync {
 sub triggerscmsyncrun {
   my ($cgi, $scmrepo, $scmbranch) = @_;
   for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch)) {
-    my ($projid, $packid) = @$ref;
+    my ($projid, $packid) = split('/', $ref, 2);
     my $proj = BSRevision::readproj_local($projid, 1);
     next unless $proj;
     if ($packid eq '_project') {
@@ -2287,7 +2287,7 @@ sub delproject {
 
   unlink("$projectsdir/$projid.conf");
   unlink("$projectsdir/$projid.xml");
-  BSSrcServer::ScmsyncDB::deletescmsync($projid, '_project');
+  BSSrcServer::ScmsyncDB::deletescmsync($projid, undef);	# delete all entries for this project
   notify_repservers('project', $projid);
 
   notify("SRCSRV_DELETE_PROJECT", { "project" => $projid, "comment" => $cgi->{'comment'}, "sender" => ($cgi->{'user'} || "unknown"), "requestid" => $cgi->{'requestid'} });
@@ -4574,29 +4574,25 @@ sub getscmresult {
 
   my $scmrepo = $cgi->{'scmrepository'};
   my $scmbranch = $cgi->{'scmbranch'};
-  my $usetrackingbranch;
-  $usetrackingbranch = 1 if $cgi->{'usetrackingbranch'};
+  my $usetrackingbranch = $cgi->{'usetrackingbranch'} ? 1 : undef;
+
+  my %projids;
+  for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch, $usetrackingbranch)) {
+    my ($projid, $packid) = split('/', $ref, 2);
+    $projids{$projid}->{$packid} = 1;
+  }
 
   my $results = [];
 
-  for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch, $usetrackingbranch)) {
-    my $projid = @$ref[0];
-
-    my $packids;
-    $packids = [@$ref[1]] unless @$ref[1] eq '_project';
-
-    my $proj = checkprojrepoarch($projid, undef, undef, 1);
-    next if $proj->{'access'};
-
-    if ($cgi->{'multibuild'} && @$packids[0] ne '_project' && !$BSStdServer::isajax) {
-      $packids = [ BSSrcServer::Multibuild::addmultibuildpackages($projid, undef, @{$packids}) ];
-    }
-
-    if ($packids ne '_project') {
-      my %knownpackids = map {$_ => 1} findpackages($projid, $proj, 1);
-      for (@{$packids}) {
-        die("404 unknown package '$_'\n") if !$knownpackids{$_};
-      }
+  for my $projid (sort keys %projids) {
+    my $proj = BSRevision::readproj_local($projid, 1);
+    next if !$proj || $proj->{'remoteurl'};
+    my @packids = sort keys %{$projids{$projid}};
+    @packids = () if $projids{$projid}->{'_project'};	# hmm?
+    if (@packids) {
+      my %knownpackids = map {$_ => 1} BSRevision::lspackages_local($projid);
+      @packids = grep {$knownpackids{$_}} @packids;
+      @packids = BSSrcServer::Multibuild::addmultibuildpackages($projid, undef, @packids) if $cgi->{'multibuild'};
     }
     my @prpas;
     for my $repo (@{$proj->{'repository'} || []}) {
@@ -4609,7 +4605,7 @@ sub getscmresult {
     my @args;
     push @args, 'lastbuild' if $cgi->{'lastbuild'};
     push @args, map {"prpa=$_"} @prpas;
-    push @args, map {"package=$_"} @{$packids || []};
+    push @args, map {"package=$_"} @packids;
     push @args, map {"code=$_"} @{$cgi->{'code'} || []};
     eval {
       $ps = BSWatcher::rpc("$reposerver/_result", $BSXML::resultlist, @args);
@@ -4618,7 +4614,6 @@ sub getscmresult {
       print "warning: $reposerver: $@";
       $ps = {};
     }
-
     push @$results, @{$ps->{'result'}};
   }
   return ({'result' => $results}, $BSXML::resultlist);
