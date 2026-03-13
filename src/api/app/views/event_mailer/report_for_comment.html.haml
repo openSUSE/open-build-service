@@ -10,7 +10,7 @@
   - when 'BsRequestAction'
     = link_to("Request #{event['bs_request_number']}", request_show_url(number: event['bs_request_number'],
                                                                          request_action_id: event['bs_request_action_id'],
-                                                                         anchor: 'tab-pane-changes', only_path: false, host: @host))
+                                                                         anchor: 'comments-list', only_path: false, host: @host))
   - when 'Package'
     = link_to("#{event['package_name']}", package_show_url(package: event['package_name'], project: event['project_name'],
                                                             anchor: 'comments-list', only_path: false, host: @host))
