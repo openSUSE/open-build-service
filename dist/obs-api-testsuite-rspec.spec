@@ -51,8 +51,11 @@ ln -sf /usr/lib/build build
 popd
 
 pushd src/api
-# configure to the bundled gems
-bundle --local --path %_libdir/obs-api/
+# FIXME: RPM 4.20 changed of behaviour for global macros in noarch builds
+#        https://github.com/rpm-software-management/rpm/pull/3071
+#        Use the build host RPM to evaluate libdir while parsing the spec.
+#        The build host is always x86_64 for noarch builds in OBS...
+bundle config set path %(rpm -E %%_libdir)/obs-api
 
 ./script/prepare_spec_tests.sh
 
@@ -60,6 +63,8 @@ export RAILS_ENV=test
 bin/rake db:setup
 bin/rails assets:precompile
 
+export MARIADB_SSL_MODE=DISABLED
+export MARIADB_TLS_DISABLE_PEER_VERIFICATION=1
 bin/rspec -f d --exclude-pattern 'spec/db/**/*_spec.rb'
 
 # now migration tests (if they fail they create tons of follow up errors, so run them last)
