@@ -42,6 +42,7 @@ RSpec.describe LocalBuildResult::ForPackage, :vcr do
       </resultlist>
     HEREDOC
   end
+
   describe '#buildresults' do
     let(:test_package) { results['test_package'] }
     let(:test_package_source) { results['test_package:test_package-source'] }
