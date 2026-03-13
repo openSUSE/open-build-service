@@ -57,7 +57,7 @@
                 = render(DiffSubjectComponent.new(state: diff['state'], file_info: diff))
               - if comment.outdated?
                 %span.badge.text-bg-warning Outdated
-            = render(DiffComponent.new(diff: diff.dig('diff', '_content'), range:))
+            = render(DiffComponent.new(diff: diff.dig('diff', '_content'), range:, highlighted_lines: [comment.diff_line_number]))
           - else
             %p.border-bottom.fst-italic.px-3.pt-3.pb-2
               The following comment was attached to a line that is outdated.
