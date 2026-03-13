@@ -77,7 +77,7 @@
         @extend .px-3;
       }
       .line-comment .comment-diff { display: none; }
-      &:target {
+      &:target, &.highlighted {
         .number {
           background-color: rgba($editor-warning, 0.5)!important
         }
