@@ -60,10 +60,10 @@ export RAILS_ENV=test
 bin/rake db:setup
 bin/rails assets:precompile
 
-bin/rspec -f d --exclude-pattern 'spec/db/**/*_spec.rb'
+bin/rspec -f d --exclude-pattern 'spec/db/**/*_spec.rb' --fail-fast
 
 # now migration tests (if they fail they create tons of follow up errors, so run them last)
-bin/rspec -f d -P 'spec/db/**/*_spec.rb'
+bin/rspec -f d -P 'spec/db/**/*_spec.rb' --fail-fast
 
 %install
 
