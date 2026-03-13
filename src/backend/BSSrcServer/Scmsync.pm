@@ -61,7 +61,9 @@ sub deletepackage {
   # now do the real delete of the package
   BSRevision::delete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.rev", "$projectsdir/$projid.pkg/$packid.rev.del");
   BSRevision::delete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.mrev", "$projectsdir/$projid.pkg/$packid.mrev.del");
-  # get rid of the generated product packages as well
+  # get rid of the generated product packages as well?
+  # update db
+  BSSrcServer::ScmsyncDB::deletescmsync($projid, $packid);
 }
 
 sub undeletepackage {
@@ -71,6 +73,7 @@ sub undeletepackage {
   if (-s "$projectsdir/$projid.pkg/$packid.rev.del") {
     BSRevision::undelete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.rev.del", "$projectsdir/$projid.pkg/$packid.rev");
   }
+  # we'll always call putpackage next so we don't have to update the scmsyncdb here
 }
 
 sub putpackage {
