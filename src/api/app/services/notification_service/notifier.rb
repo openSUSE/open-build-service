@@ -25,7 +25,8 @@ module NotificationService
                         'Event::AssignmentDelete',
                         'Event::UpstreamPackageVersionChanged',
                         'Event::TokenMembershipUpdate',
-                        'Event::GlobalRoleAssigned'].freeze
+                        'Event::GlobalRoleAssigned',
+                        'Event::TokenStateChange'].freeze
     CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
@@ -55,7 +56,8 @@ module NotificationService
                         'Event::WorkflowRunFail',
                         'Event::AddedUserToGroup',
                         'Event::RemovedUserFromGroup',
-                        'Event::GlobalRoleAssigned'].freeze
+                        'Event::GlobalRoleAssigned',
+                        'Event::TokenStateChange'].freeze
 
     def initialize(event)
       @event = event

@@ -46,6 +46,7 @@ module Person
       xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'scm_token', 'workflow_configuration_path', 'workflow_configuration_url')
 
       token = @user.tokens.find(params[:id])
+      xml_attributes['reason'] = "Changed by #{User.session.login}." if token.is_a?(Token::Workflow)
       if token.update(xml_attributes)
         render_ok
       else
