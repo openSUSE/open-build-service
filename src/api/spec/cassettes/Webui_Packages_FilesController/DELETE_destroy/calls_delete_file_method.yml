@@ -12,6 +12,8 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1765556263'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -39,18 +41,20 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:56 GMT
+  recorded_at: Fri, 12 Dec 2025 16:17:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Tender Is the Night</title>
-          <description>Quas et blanditiis minus.</description>
+          <title>Little Hands Clapping</title>
+          <description>Architecto ut voluptatem quasi.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1765556263'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -69,13 +73,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Tender Is the Night</title>
-          <description>Quas et blanditiis minus.</description>
+          <title>Little Hands Clapping</title>
+          <description>Architecto ut voluptatem quasi.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:56 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Fri, 12 Dec 2025 16:17:43 GMT
+recorded_with: VCR 6.3.1
