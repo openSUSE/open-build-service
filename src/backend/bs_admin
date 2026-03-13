@@ -683,6 +683,17 @@ sub check_package {
   write_event($project, undef, $arch, 'package', $package);
 }
 
+sub update_scmsyncdb {
+  my ($projid) = @_;
+  require BSSrcServer::ScmsyncDB;
+  my $proj = BSRevision::readproj_local($projid);
+  BSSrcServer::ScmsyncDB::storescmsync($projid, '_project', $proj->{'scmsync'}) if $proj->{'scmsync'};
+  for my $packid (BSRevision::lspackages_local($projid)) {
+    my $pack = BSRevision::readpack_local($projid, $packid);
+    BSSrcServer::ScmsyncDB::storescmsync($projid, $packid, $pack->{'scmsync'}) if $pack->{'scmsync'};
+  }
+}
+
 # make stdout non-buffered
 $| = 1;
 
@@ -1404,6 +1415,14 @@ while (@ARGV) {
     print "Executing:\n@cmd\n" if $debug;
     system(@cmd);
     exit $? >> 8;
+  } elsif ( $arg eq "--update-scmsyncdb" ) {
+    BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+    my @projids = splice @ARGV;
+    @projids = BSRevision::lsprojects_local() unless @projids;
+    for my $projid (@projids) {
+      print "updating $projid\n";
+      update_scmsyncdb($projid);
+    }
   } else {
     echo_help();
     exit(1)
