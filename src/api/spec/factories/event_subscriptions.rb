@@ -118,6 +118,14 @@ FactoryBot.define do
       group { nil }
     end
 
+    factory :event_subscription_token_disabled do
+      eventtype { 'Event::TokenDisabled' }
+      receiver_role { 'token_executor' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
     factory :event_subscription_build_fail do
       eventtype { 'Event::BuildFail' }
       receiver_role { 'maintainer' }

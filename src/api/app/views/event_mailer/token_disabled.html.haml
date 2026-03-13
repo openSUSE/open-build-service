@@ -1,0 +1,7 @@
+%p
+  The Workflow Token
+  '#{Token.find(event['token_id']).description}'
+  was automatically disabled due to a failed call to the SCM.
+
+%p
+  Check the details about this #{link_to('Workflow Run', token_workflow_run_url(event['token_id'], event['id'], only_path: false, host: @host)) }.
