@@ -460,6 +460,43 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
+    context 'for an event of type Event::TokenDisabled' do
+      let(:token) { create(:workflow_token, executor: receiver, description: 'Token for GitHub') }
+      let(:workflow_run) { create(:workflow_run, token: token) }
+      let!(:subscription) { create(:event_subscription_token_disabled, user: receiver) }
+      let(:mail) { EventMailer.with(subscribers: Event::TokenDisabled.last.subscribers, event: Event::TokenDisabled.last).notification_email.deliver_now }
+
+      before do
+        login(receiver)
+      end
+
+      context 'when the workflow run fails' do
+        before do
+          workflow_run.update_as_failed('Unauthorized request')
+        end
+
+        it 'gets delivered' do
+          expect(ActionMailer::Base.deliveries).to include(mail)
+        end
+
+        it 'has a subject' do
+          expect(mail.subject).to eq("Workflow Token 'Token for GitHub' was disabled automatically")
+        end
+
+        it 'has the right subscribers' do
+          expect(mail.to).to eq(Event::TokenDisabled.last.subscribers.map(&:email))
+        end
+
+        it 'renders links absolute' do
+          expect(mail.body.encoded).to include('Check the details about this ' \
+                                               "<a href=\"https://build.example.com/my/tokens/#{token.id}/workflow_runs/#{workflow_run.id}\">Workflow Run</a>")
+        end
+
+        it { expect(mail.text_part.body.to_s).to include("The Workflow Token 'Token for GitHub' was automatically disabled due to a failed call to the SCM.") }
+        it { expect(mail.html_part.body.to_s).to include("The Workflow Token\n'Token for GitHub'\nwas automatically disabled due to a failed call to the SCM.") }
+      end
+    end
+
     context 'for an event of type Event::ClearedDecision' do
       let(:admin) { create(:admin_user) }
       let(:reporter) { create(:confirmed_user) }
