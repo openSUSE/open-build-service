@@ -205,4 +205,33 @@ RSpec.describe Webui::RequestHelper do
       it { expect(next_prev_path(number: 10, request_action_id: 30, page_name: 'request_build_results')).to eq('/requests/10/actions/30/build_results') }
     end
   end
+
+  describe '#find_source_release_targets' do
+    let(:source_project) { create(:project) }
+    let(:source_repository) { create(:repository, project: source_project) }
+    let(:target_project) { create(:project) }
+    let(:target_repository) { create(:repository, project: target_project) }
+    let!(:release_target) { create(:release_target, repository: source_repository, target_repository: target_repository) }
+    let(:bs_request_action) do
+      instance_double(BsRequestAction, source_project_object: source_project, target_repository: target_repository.name)
+    end
+
+    context 'when source project does not exist' do
+      let(:bs_request_action) { instance_double(BsRequestAction, source_project_object: nil) }
+
+      it { expect(find_source_release_targets(bs_request_action)).to eq([]) }
+    end
+
+    context 'when matching release target exists' do
+      it { expect(find_source_release_targets(bs_request_action)).to include(release_target) }
+    end
+
+    context 'when no matching release target exists' do
+      let(:bs_request_action) do
+        instance_double(BsRequestAction, source_project_object: source_project, target_repository: 'unknown_repo')
+      end
+
+      it { expect(find_source_release_targets(bs_request_action)).to be_nil }
+    end
+  end
 end
