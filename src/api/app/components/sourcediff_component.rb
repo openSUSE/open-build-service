@@ -28,6 +28,10 @@ class SourcediffComponent < ApplicationComponent
     end.any?
   end
 
+  def truncated?
+    @webui_sourcediff.any? { |sd| sd['files']&.values&.any? { |f| f.dig('diff', 'shown') } }
+  end
+
   def commentable
     BsRequestAction.find(@action.id)
   end

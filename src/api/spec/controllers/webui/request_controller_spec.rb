@@ -671,4 +671,21 @@ RSpec.describe Webui::RequestController, :vcr do
       it { expect(response).to redirect_to(request_show_path(number: bs_request)) }
     end
   end
+
+  describe '#changes (tarlimit logic)' do
+    it 'sets @tarlimit to 0 when full_diff is present' do
+      allow(controller).to receive(:params).and_return(ActionController::Parameters.new(full_diff: 'true', number: bs_request.number))
+      allow(controller).to receive(:require_request)
+      allow(controller).to receive(:set_action)
+      allow(controller).to receive(:set_actions)
+      allow(controller).to receive(:set_actions_deprecated)
+      allow(controller).to receive(:cache_diff_data)
+      allow(controller).to receive(:check_beta_user_redirect)
+      allow(controller).to receive(:prepare_request_header_data)
+      allow(controller).to receive(:render)
+      login receiver
+      controller.send(:changes)
+      expect(controller.instance_variable_get(:@tarlimit)).to eq(0)
+    end
+  end
 end
