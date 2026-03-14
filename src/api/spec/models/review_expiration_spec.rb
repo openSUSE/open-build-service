@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'Review Expiration', type: :model do
@@ -49,7 +51,7 @@ RSpec.describe 'Review Expiration', type: :model do
     it 'updates the request state if all reviews are accepted' do
       bs_request.state = :review
       bs_request.save!
-      
+
       bs_request.expire_review(review)
       bs_request.reload
       expect(bs_request.state).to eq(:new)

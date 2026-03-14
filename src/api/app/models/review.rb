@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'api_error'
 
 class Review < ApplicationRecord
@@ -395,6 +397,7 @@ end
 #  reason           :text(65535)
 #  reviewer         :string(255)      indexed
 #  state            :string(255)      indexed => [by_group], indexed => [by_project], indexed => [by_user]
+#  expires_at       :datetime         indexed
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
 #  bs_request_id    :integer          indexed
@@ -412,6 +415,7 @@ end
 #  index_reviews_on_by_project                 (by_project)
 #  index_reviews_on_by_user                    (by_user)
 #  index_reviews_on_creator                    (creator)
+#  index_reviews_on_expires_at                 (expires_at)
 #  index_reviews_on_group_id                   (group_id)
 #  index_reviews_on_package_id                 (package_id)
 #  index_reviews_on_project_id                 (project_id)
