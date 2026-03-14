@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_01_144818) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_13_193856) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1044,12 +1044,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_01_144818) do
     t.integer "project_id"
     t.integer "package_id"
     t.datetime "changed_state_at", precision: nil
+    t.datetime "expires_at"
     t.index ["bs_request_id"], name: "bs_request_id"
     t.index ["by_group"], name: "index_reviews_on_by_group"
     t.index ["by_package", "by_project"], name: "index_reviews_on_by_package_and_by_project"
     t.index ["by_project"], name: "index_reviews_on_by_project"
     t.index ["by_user"], name: "index_reviews_on_by_user"
     t.index ["creator"], name: "index_reviews_on_creator"
+    t.index ["expires_at"], name: "index_reviews_on_expires_at"
     t.index ["group_id"], name: "index_reviews_on_group_id"
     t.index ["package_id"], name: "index_reviews_on_package_id"
     t.index ["project_id"], name: "index_reviews_on_project_id"
