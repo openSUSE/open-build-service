@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Review Expiration', type: :model do
+RSpec.describe 'Review Expiration' do
   let(:project) { create(:project_with_package, name: 'Apache', package_name: 'apache2') }
   let(:package) { project.packages.first }
   let(:user) { create(:confirmed_user) }
@@ -10,8 +10,10 @@ RSpec.describe 'Review Expiration', type: :model do
 
   describe 'BsRequest#apply_default_reviewers' do
     before do
-      # Mock default reviewers to include both a project and a package
-      allow_any_instance_of(BsRequestAction).to receive(:default_reviewers).and_return([project, package])
+      # Mock default reviewers for each action in the request
+      bs_request.bs_request_actions.each do |action|
+        allow(action).to receive(:default_reviewers).and_return([project, package])
+      end
       bs_request.apply_default_reviewers
     end
 
@@ -27,13 +29,19 @@ RSpec.describe 'Review Expiration', type: :model do
   end
 
   describe 'Review.expired scope' do
-    it 'finds only expired reviews in new state' do
-      expired_review = create(:review, bs_request: bs_request, by_user: 'user1', state: :new, expires_at: 1.day.ago)
-      not_expired_review = create(:review, bs_request: bs_request, by_user: 'user2', state: :new, expires_at: 1.day.from_now)
-      accepted_expired_review = create(:review, bs_request: bs_request, by_user: 'user3', state: :accepted, expires_at: 1.day.ago)
+    let!(:expired_review) { create(:review, bs_request: bs_request, by_user: 'user1', state: :new, expires_at: 1.day.ago) }
+    let!(:not_expired_review) { create(:review, bs_request: bs_request, by_user: 'user2', state: :new, expires_at: 1.day.from_now) }
+    let!(:accepted_expired_review) { create(:review, bs_request: bs_request, by_user: 'user3', state: :accepted, expires_at: 1.day.ago) }
 
+    it 'includes expired reviews in new state' do
       expect(Review.expired).to include(expired_review)
+    end
+
+    it 'excludes reviews that are not yet expired' do
       expect(Review.expired).not_to include(not_expired_review)
+    end
+
+    it 'excludes expired reviews that are already accepted' do
       expect(Review.expired).not_to include(accepted_expired_review)
     end
   end
