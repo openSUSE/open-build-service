@@ -99,7 +99,7 @@ module Clockwork
   every(12.hours, 'update package upstream version') do
     SyncUpstreamPackageVersionJob.perform_later
   end
-  
+
   every(1.hour, 'expire reviews') do
     ReviewExpirationJob.perform_later
   end
