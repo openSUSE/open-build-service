@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Review Expiration' do
+RSpec.describe Review do
   let(:project) { create(:project_with_package, name: 'Apache', package_name: 'apache2') }
   let(:package) { project.packages.first }
   let(:user) { create(:confirmed_user) }
