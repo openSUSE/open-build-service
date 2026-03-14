@@ -1376,6 +1376,7 @@ our $sourcediff = [
       [ 'files' =>
 	 [[ 'file' =>
 		'state',	# added, deleted, changed
+		'kind',		# file, archive
 	      [ 'old' =>
 		    'name',
 		    'md5',
