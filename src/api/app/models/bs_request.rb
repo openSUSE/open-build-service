@@ -1161,7 +1161,7 @@ class BsRequest < ApplicationRecord
   end
 
   def expire_review(review)
-    User.as_nobody do
+    User.find_nobody!.run_as do
       change_review_state(:accepted, by_user: review.by_user,
                                      by_group: review.by_group,
                                      by_project: review.by_project,

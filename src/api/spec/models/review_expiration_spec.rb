@@ -13,6 +13,7 @@ RSpec.describe Review do
         allow(action).to receive(:default_reviewers).and_return([project, package])
       end
       bs_request.apply_default_reviewers
+      bs_request.save!
     end
 
     it 'sets correct expiration for project reviews (2 months)' do
