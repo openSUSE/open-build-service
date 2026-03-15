@@ -7,7 +7,13 @@
   = render(partial: 'webui/project/tabs', locals: { project: @project })
 
   .card-body
-    %h3= @pagetitle
+    %h3
+      = @pagetitle
+      %span.ms-2.small.text-muted
+        = link_to 'Documentation ↗',
+                  'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-build-config.html',
+                  target: '_blank',
+                  rel: 'noopener'
     - if User.possibly_nobody.can_modify?(@project)
       = render partial: 'webui/shared/editor', locals: { text: @content, mode: 'prjconf',
         save: { url: project_config_path, method: :put,
