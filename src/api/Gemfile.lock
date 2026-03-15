@@ -690,6 +690,7 @@ DEPENDENCIES
   pry-rails
   puma
   pundit
+  rack (~> 2.2)
   rack_session_access
   rails (~> 7.2.0)
   rails-controller-testing
