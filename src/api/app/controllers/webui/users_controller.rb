@@ -3,8 +3,8 @@ class Webui::UsersController < Webui::WebuiController
 
   skip_before_action :check_anonymous_access, only: :create
   before_action :require_login, except: %i[show new create tokens autocomplete]
-  before_action :require_admin, only: %i[index edit destroy]
-  before_action :check_displayed_user, only: %i[show edit censor update destroy edit_account update_color_theme]
+  before_action :require_admin, only: %i[index edit destroy admin_change_password]
+  before_action :check_displayed_user, only: %i[show edit censor update destroy edit_account update_color_theme change_password admin_change_password]
   before_action :role_titles, only: %i[show edit_account update]
   before_action :account_edit_link, only: %i[show edit_account update]
 
@@ -169,7 +169,25 @@ class Webui::UsersController < Webui::WebuiController
     else
       flash[:error] = 'The value of current password does not match your current password. Please enter the password and try again.'
       redirect_back_or_to root_path
-      nil
+    end
+  end
+
+  def admin_change_password
+    unless ::Configuration.passwords_changable?
+      flash[:error] = 'Changing passwords is currently disabled.'
+      redirect_back_or_to root_path
+      return
+    end
+
+    @displayed_user.password = params[:new_password]
+    @displayed_user.password_confirmation = params[:repeat_password]
+
+    if @displayed_user.save
+      flash[:success] = "The password for '#{@displayed_user.login}' has been changed successfully."
+      redirect_to action: :show, login: @displayed_user
+    else
+      flash[:error] = "The password could not be changed. #{@displayed_user.errors.full_messages.to_sentence}"
+      redirect_back_or_to user_path(@displayed_user)
     end
   end
 
