@@ -203,11 +203,12 @@ RSpec.describe Webui::Packages::FilesController, :vcr do
 
   describe 'GET #show' do
     context 'the file comes from an scmsync project' do
-      let(:scmsync_project) { create(:project, name: 'lorem', scmsync: 'https://github.com/example/scmsync-project.git', maintainer: user) }
+      let(:scmsync_project) { create(:project, name: 'lorem', maintainer: user) }
       let(:scmsync_package) { create(:package_with_file, name: 'scmsync_package', project: scmsync_project, file_name: 'README.txt', file_content: 'foo bar') }
 
       before do
         login(user)
+        scmsync_project.update_columns(scmsync: 'https://github.com/hennevogel/scmsync-project.git') # rubocop:disable Rails/SkipsModelValidations
         get :show, params: { project_name: scmsync_project.name, package_name: scmsync_package.name, filename: 'README.txt' }
       end
 
