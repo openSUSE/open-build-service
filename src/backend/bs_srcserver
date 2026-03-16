@@ -2333,7 +2333,14 @@ sub undeleteproject {
     if ($f =~ /\.m?rev\.del$/) {
       BSUtil::cp("$projectsdir/_deleted/$projid.pkg/$f", "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$f");
     } elsif ($f =~ /^(.*)\.(m?rev)$/) {
-      BSRevision::undelete_rev($cgi, $projid, $1, "$projectsdir/_deleted/$projid.pkg/$f", "$projectsdir/$projid.pkg/$f");
+      my $packid = $1;
+      BSRevision::undelete_rev($cgi, $projid, $packid, "$projectsdir/_deleted/$projid.pkg/$f", "$projectsdir/$projid.pkg/$f");
+      if ($f eq "$packid.mrev") {
+        eval {
+          my $d = $packid eq '_project' ? BSRevision::readproj_local($projid, 1) : BSRevision::readpack_local($projid, $packid, 1);
+          BSSrcServer::ScmsyncDB::storescmsync($projid, $packid, $d->{'scmsync'}) if $d && $d->{'scmsync'};
+        };
+      }
     }
   }
   notify_repservers('project', $projid);
@@ -2476,6 +2483,10 @@ sub undeletepackage {
   if (-s "$projectsdir/$projid.pkg/$packid.rev.del") {
     BSRevision::undelete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.rev.del", "$projectsdir/$projid.pkg/$packid.rev");
   }
+  eval {
+    my $d = BSRevision::readpack_local($projid, $packid, 1);
+    BSSrcServer::ScmsyncDB::storescmsync($projid, $packid, $d->{'scmsync'}) if $d && $d->{'scmsync'};
+  };
   if ($packid eq '_product') {
     my $rev = BSRevision::getrev_local($projid, $packid);
     if ($rev) {

@@ -56,7 +56,7 @@ sub generate_scmsyncurl {
 sub storescmsync {
   my ($projid, $packid, $scmsyncurl) = @_;
   return unless $BSConfig::source_db_sqlite;
-  my $scmsyncinfo = generate_scmsyncinfo($scmsyncurl);
+  my $scmsyncinfo = eval { generate_scmsyncinfo($scmsyncurl) };
   my $db = BSSrcServer::SQLite::opendb($sourcedb, 'scmsync');
   $db->store_scmsyncinfo($projid, $packid, $scmsyncinfo);
 }
