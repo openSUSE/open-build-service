@@ -4,6 +4,10 @@ RSpec.describe Webui::MonitorController do
   let(:xml_response) do
     <<-HEREDOC
     <workerstatus clients="7">
+      <idle workerid="idle-1" hostarch="x86_64" />
+      <away workerid="away-1" hostarch="x86_64" />
+      <down workerid="down-1" hostarch="x86_64" />
+      <dead workerid="dead-1" hostarch="x86_64" />
       <building workerid="simulated" hostarch="i586" project="BinaryprotectedProject" repository="nada" package="bdpack" arch="i586" starttime="0" />
       <building workerid="simulated" hostarch="i586" project="SourceprotectedProject" repository="repo" package="pack" arch="i586" starttime="0" />
       <building workerid="simulated" hostarch="x86_64" project="home:Iggy" repository="10.2" package="TestPack" arch="x86_64" starttime="0" />
@@ -57,6 +61,11 @@ RSpec.describe Webui::MonitorController do
     end
 
     it { expect(json_response).to have_key('simulated') }
+    it { expect(json_response['simulated']).to include('delta') }
+    it { expect(json_response).to include('idle-1' => { 'state' => 'idle' }) }
+    it { expect(json_response).to include('away-1' => { 'state' => 'away' }) }
+    it { expect(json_response).to include('down-1' => { 'state' => 'down' }) }
+    it { expect(json_response).to include('dead-1' => { 'state' => 'dead' }) }
   end
 
   describe 'GET #events' do
