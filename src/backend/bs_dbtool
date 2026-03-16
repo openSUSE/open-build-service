@@ -31,19 +31,7 @@ use strict;
 my $extrepodb = "$BSConfig::bsdir/db/published";
 my $sourcedb = "$BSConfig::bsdir/db/source";
 
-my $user = $BSConfig::bsuser;
-my $group = $BSConfig::bsgroup;
-
-!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
-!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
-if (defined $group) {
-  ($), $() = ($group, $group);
-  die "setgid: $!\n" if ($) != $group);
-}
-if (defined $user) {
-  ($>, $<) = ($user, $user);
-  die "setuid: $!\n" if ($> != $user);
-}
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 die("usage: bs_dbtool binary|pattern|repoinfo|linkinfo|scmsync <cmd> [args]\n") unless @ARGV >= 2;
 
