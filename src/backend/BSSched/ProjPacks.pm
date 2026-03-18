@@ -1104,10 +1104,12 @@ sub setup_projects {
 	for my $info (@{$pdata->{'info'} || []}) {
 	  next unless @{$info->{'dep'} || []} > 100;
 	  my $depkey = join("\n", @{$info->{'dep'}});
+	  $nbigdeps++;
 	  if (exists($bigdeps->{$depkey})) {
 	    $info->{'dep'} = $bigdeps->{$depkey};
 	  } else {
 	    $bigdeps->{$depkey} = $info->{'dep'};
+	    $nbigdepsu++;
 	  }
 	}
       }
@@ -1220,7 +1222,7 @@ sub setup_projects {
   }
 
   print "have ".scalar(keys %{$gctx->{'channeldata'}})." unique channel configs\n" if %{$gctx->{'channeldata'}};
-  print "unified $nbigdeps into $nbigdepsu big dependencies\n";
+  print "unified $nbigdeps into $nbigdepsu big dependencies\n" if $nbigdeps;
 
   # create list of prps and sort them
   print "sorting projects and repositories...\n";
@@ -1952,7 +1954,7 @@ sub bigdeps_unification {
       }
     }
   }
-  print "unified $nbigdeps into $nbigdepsu big dependencies\n";
+  print "unified $nbigdeps into $nbigdepsu big dependencies\n" if $nbigdeps;
 }
 
 1;
