@@ -658,8 +658,10 @@ sub allkeys {
     $sh = dbdo_bind($h, "SELECT sourceproject,sourcepackage FROM $table");
   } elsif ($table eq 'scmsync') {
     $sh = dbdo_bind($h, "SELECT project,package FROM $table");
-  } else {
+  } elsif ($table eq 'binary' || $table eq 'pattern') {
     $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo");
+  } else {
+    die("Cannot get all keys for sqlite table $table\n");
   }
   my ($col1, $col2);
   $sh->bind_columns(\$col1, \$col2);
@@ -699,18 +701,21 @@ sub rawkeys {
     return @$ary;
   }
 
-  my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE $path = ?", [ $value ]);
-  my ($prp_ext_path, $bin_path, $package);
-  $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
-  my $key2package = $table eq 'binary' ? $db->{'key2package'} : undef;
-  my @res;
-  while ($sh->fetch()) {
-    my $key = "$prp_ext_path/$bin_path";
-    $key2package->{$key} = $package if $key2package;
-    push @res, $key;
+  if ($table eq 'binary' || $table eq 'pattern') {
+    my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE $path = ?", [ $value ]);
+    my ($prp_ext_path, $bin_path, $package);
+    $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
+    my $key2package = $table eq 'binary' ? $db->{'key2package'} : undef;
+    my @res;
+    while ($sh->fetch()) {
+      my $key = "$prp_ext_path/$bin_path";
+      $key2package->{$key} = $package if $key2package;
+      push @res, $key;
+    }
+    die($sh->errstr) if $sh->err();
+    return sort(@res);
   }
-  die($sh->errstr) if $sh->err();
-  return sort(@res);
+  die("Cannot get keys for sqlite table $table\n");
 }
 
 1;
