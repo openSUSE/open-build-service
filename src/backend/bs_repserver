@@ -4335,6 +4335,10 @@ sub registry_manifest {
   my $manifestct = 'application/vnd.docker.distribution.manifest.v2+json';
   my $manifestlistct = 'application/vnd.docker.distribution.manifest.list.v2+json';
   my $ct = $mani->{'mediaType'} || $manifestct;
+  if ($ct eq 'application/vnd.oci.image.manifest.v1+json' || $ct eq 'application/vnd.oci.image.index.v1+json') {
+    $manifestct = 'application/vnd.oci.image.manifest.v1+json';
+    $manifestlistct = 'application/vnd.oci.image.index.v1+json';
+  }
   my $accept = BSServer::header('Accept');
   if ($accept && $accept ne '*/*') {
     # check if the client accepts the content type
