@@ -256,9 +256,12 @@ sub manifest_exists_head {
   $content_type ||= $BSContar::mt_docker_manifest;
   my $maniid = BSContar::blobid($manifest);
   $tag = $maniid unless defined $tag;
+  my $accept_header = "Accept: $content_type, application/json";
+  $accept_header = "Accept: $BSContar::mt_docker_manifest, $BSContar::mt_docker_manifestlist, application/json" if $content_type eq $BSContar::mt_docker_manifest;
+  $accept_header = "Accept: $BSContar::mt_oci_manifest, $BSContar::mt_oci_index, application/json" if $content_type eq $BSContar::mt_oci_manifest;
   my $replyheaders;
   my $param = {
-    'headers' => [ "Accept: $content_type, application/json" ],
+    'headers' => [ $accept_header ],
     'uri' => "$registryserver/v2/$repository/manifests/$tag",
     'request' => 'HEAD',
     'authenticator' => $registry_authenticator,
@@ -296,9 +299,12 @@ sub manifest_exists {
 
   my $maniid = BSContar::blobid($manifest);
   $tag = $maniid unless defined $tag;
+  my $accept_header = "Accept: $content_type, application/json";
+  $accept_header = "Accept: $BSContar::mt_docker_manifest, $BSContar::mt_docker_manifestlist, application/json" if $content_type eq $BSContar::mt_docker_manifest;
+  $accept_header = "Accept: $BSContar::mt_oci_manifest, $BSContar::mt_oci_index, application/json" if $content_type eq $BSContar::mt_oci_manifest;
   my $replyheaders;
   my $param = {
-    'headers' => [ "Accept: $content_type, application/json" ],
+    'headers' => [ $accept_header ],
     'uri' => "$registryserver/v2/$repository/manifests/$tag",
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
