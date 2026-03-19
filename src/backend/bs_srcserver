@@ -783,22 +783,22 @@ sub addrev {
     $rev->{'time'} = $cgi->{'time'};
   }
 
-  my $acceptinfo;
-  if ($requestid) {
-    $acceptinfo = {};
-    $acceptinfo->{'osrcmd5'} = $rev_old->{'srcmd5'} if $rev_old->{'srcmd5'} ne 'empty';
-    if ($files_old->{'_link'}) {
-      # see if we can expand it
-      eval {
-	my %rev = %$rev_old;
-	my $xfiles = BSSrcServer::Link::handlelinks(\%rev, $files_old);
-	$acceptinfo->{'oxsrcmd5'} = $rev{'srcmd5'} if ref $xfiles;
-      };
-    }
+  my $vrev_old_expanded;
+  my $acceptinfo = {};
+  $acceptinfo->{'osrcmd5'} = $rev_old->{'srcmd5'} if $rev_old->{'srcmd5'} ne 'empty';
+  if ($files_old->{'_link'} && ($cgi->{'withacceptinfo'} || (!defined($cgi->{'vrev'}) && !$files->{'_link'}))) {
+    # see if we can expand it if we need the acceptinfo or this is a link->nolink change
+    eval {
+      my %rev = %$rev_old;
+      my $xfiles = BSSrcServer::Link::handlelinks(\%rev, $files_old);
+      $acceptinfo->{'oxsrcmd5'} = $rev{'srcmd5'} if ref $xfiles;
+      $vrev_old_expanded = $rev{'vrev'};
+    };
   }
+
   if ($packid eq '_project') {
     $rev = BSRevision::addrev_local($cgi, $projid, $packid, $rev);
-    if ($acceptinfo && $cgi->{'withacceptinfo'}) {
+    if ($cgi->{'withacceptinfo'}) {
       $acceptinfo->{'rev'} = $rev->{'rev'};
       $acceptinfo->{'srcmd5'} = $rev->{'srcmd5'};
       $rev->{'acceptinfo'} = $acceptinfo;
@@ -819,6 +819,7 @@ sub addrev {
         ($rev->{'version'} ne 'unknown' && $rev_old->{'version'} eq 'unknown')) {
       my $l_old = 0;
       $l_old = $1 if $rev_old->{'vrev'} =~ /(\d+)$/;
+      $l_old = $1 if !$files->{'_link'} && defined($vrev_old_expanded) && $vrev_old_expanded =~ /(\d+)$/ && $1 > $l_old;
       my $l_new = 0;
       $l_new = $1 if $rev->{'vrev'} =~ /(\d+)$/;
       $rev->{'vrev'} =~ s/\d+$/$l_old + 1/e if $l_old + 1 > $l_new;
@@ -829,7 +830,7 @@ sub addrev {
   $rev = BSRevision::addrev_local($cgi, $projid, $packid, $rev, $files);
 
   # update request acceptinfo
-  if ($acceptinfo && $cgi->{'withacceptinfo'}) {
+  if ($cgi->{'withacceptinfo'}) {
     $acceptinfo->{'rev'} = $rev->{'rev'};
     $acceptinfo->{'srcmd5'} = $rev->{'srcmd5'};
     if ($files->{'_link'}) {
@@ -5761,16 +5762,7 @@ sub pattern_key_to_data {
     splice(@p, 0, 2, "$p[0]$p[1]");
   }
   my $repository = shift(@p);
-  my $res;
-  if ($BSConfig::published_db_sqlite) {
-    my $location = join('/', @p, $filename);
-    my $prp_ext = "$project/$repository";
-    $prp_ext =~ s/:/:\//g;
-    $res = $db->getrecord($prp_ext, $location);
-  } else {
-    $res = $db->rawfetch($key);
-  }
-  $res ||= {};
+  my $res = $db->rawfetch($key) || {};
   $res->{'baseproject'} = $res->{'path'}->[-1]->{'project'} if $res->{'path'};
   $res->{'project'} = $project;
   $res->{'repository'} = $repository;
