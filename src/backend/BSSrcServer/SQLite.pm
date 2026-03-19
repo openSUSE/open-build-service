@@ -429,13 +429,23 @@ sub getrepoorigins {
   return \%binaryorigins;
 }
 
-sub getprojectkeys {
-  my ($db, $projid) = @_;
+sub getallprojects {
+  my ($db) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
-  if (!$projid) {
-    my $ary = $h->selectcol_arrayref("SELECT project FROM repoinfo") || die($h->errstr);
+  my $table = $db->{'table'};
+  if ($table eq 'scmsync' || $table eq 'linkinfo') {
+    my $path = $table eq 'linkinfo' ? 'sourceproject' : 'project';
+    my $ary = $h->selectcol_arrayref("SELECT $path FROM $table") || die($h->errstr);
     return sort(BSUtil::unify(@$ary));
   }
+  my $ary = $h->selectcol_arrayref("SELECT project FROM repoinfo") || die($h->errstr);
+  return sort(BSUtil::unify(@$ary));
+}
+
+sub getprojectkeys {
+  my ($db, $projid) = @_;
+  return getallprojects($db) unless defined $projid;	# hmm, 
+  my $h = $db->{'sqlite'} || connectdb($db);
   my $table = $db->{'table'};
   return map {"$projid/$_"} $db->getlinkpackages($projid) if $table eq 'linkinfo';
   return rawkeys($db, 'project', $projid) if $table eq 'repoinfo' || $table eq 'scmsync';
