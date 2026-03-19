@@ -453,15 +453,26 @@ sub getprojectkeys {
   return sort(@res);
 }
 
-sub getrecord {
+sub getpatterninfo  {
   my ($db, $prp_ext, $path) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
   my $prp_ext_id = prpext2id($h, $prp_ext);
   return undef unless $prp_ext_id;
   my $table = $db->{'table'};
-  return undef if $table eq 'binary';		# no json element in binary
   my @ary = $h->selectrow_array("SELECT $table.json FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.path = ? AND $table.path  = ?", undef, $prp_ext, $path);
   return $ary[0] ? JSON::XS::decode_json($ary[0]) : undef;
+}
+
+sub getbinaryinfo {
+  my ($db, $prp_ext, $path) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my $prp_ext_id = prpext2id($h, $prp_ext);
+  return undef unless $prp_ext_id;
+  my $table = $db->{'table'};
+  my @ary = $h->selectrow_array("SELECT $table.name,$table.package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.path = ? AND $table.path  = ?", undef, $prp_ext, $path);
+  my $binaryinfo = { 'name' => $ary[0] };
+  $binaryinfo->{'package'} = $ary[1] if defined $ary[1];
+  return $binaryinfo;
 }
 
 sub getlinkinfo {
@@ -569,10 +580,14 @@ sub rawfetch {
   }
   if ($table eq 'pattern') {
     return undef unless $key =~ /^(.+?(?<!:)\/.+?)(?<!:)\/(.*)$/;
-    return getrecord($db, $1, $2);
+    return getpatterninfo($db, $1, $2);
   }
   if ($table eq 'repoinfo') {
     return getrepoinfo($db, $key);
+  }
+  if ($table eq 'binary') {
+    return undef unless $key =~ /^(.+?(?<!:)\/.+?)(?<!:)\/(.*)$/;
+    return getbinaryinfo($db, $1, $2);
   }
   die("Cannot fetch data set for sqlite table $table\n");
 }

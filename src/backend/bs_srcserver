@@ -5762,16 +5762,7 @@ sub pattern_key_to_data {
     splice(@p, 0, 2, "$p[0]$p[1]");
   }
   my $repository = shift(@p);
-  my $res;
-  if ($BSConfig::published_db_sqlite) {
-    my $location = join('/', @p, $filename);
-    my $prp_ext = "$project/$repository";
-    $prp_ext =~ s/:/:\//g;
-    $res = $db->getrecord($prp_ext, $location);
-  } else {
-    $res = $db->rawfetch($key);
-  }
-  $res ||= {};
+  my $res = $db->rawfetch($key) || {};
   $res->{'baseproject'} = $res->{'path'}->[-1]->{'project'} if $res->{'path'};
   $res->{'project'} = $project;
   $res->{'repository'} = $repository;
