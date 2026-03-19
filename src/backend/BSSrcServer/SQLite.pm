@@ -444,7 +444,6 @@ sub getallprojects {
 
 sub getprojectkeys {
   my ($db, $projid) = @_;
-  return getallprojects($db) unless defined $projid;	# hmm, 
   my $h = $db->{'sqlite'} || connectdb($db);
   my $table = $db->{'table'};
   return map {"$projid/$_"} $db->getlinkpackages($projid) if $table eq 'linkinfo';

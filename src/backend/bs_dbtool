@@ -110,7 +110,11 @@ if ($cmd eq 'repoorigins') {
 if ($cmd eq 'projectkeys') {
   my @k;
   if ($BSConfig::published_db_sqlite) {
-    @k = $db->getprojectkeys($ARGV[0]);
+    if (@ARGV) {
+      @k = $db->getprojectkeys($ARGV[0]);
+    } else {
+      @k = $db->getallprojects();
+    }
   } else {
     die("the projectkeys command only works with sqlite\n");
   }
