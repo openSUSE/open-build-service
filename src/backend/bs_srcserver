@@ -5774,7 +5774,10 @@ sub pattern_key_to_data {
 sub published_binary_projectindexfunc {
   my ($db, $path, $value) = @_;
 
-  return $db->getprojectkeys($value) if $BSConfig::published_db_sqlite;
+  if ($BSConfig::published_db_sqlite) {
+    return $db->getallprojects() unless defined $value;
+    return $db->getprojectkeys($value);
+  }
 
   return findprojects() unless defined $value;
   my $proj = BSRevision::readproj_local($value);

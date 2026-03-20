@@ -159,7 +159,7 @@ my %tables = (
   'pattern' => { map {$_ => 1} qw {package name summary description type} },
   'repoinfo' => { map {$_ => 1} qw {project} },
   'linkinfo'=> { map {$_ => 1} qw {project package rev} },
-  'scmsync'=> { map {$_ => 1} qw {scmsync_repo scmsync_branch scmsync_trackingbranch} },
+  'scmsync'=> { map {$_ => 1} qw {project package scmsync_repo scmsync_branch scmsync_trackingbranch} },
 );
 
 ###########################################################################
@@ -429,16 +429,25 @@ sub getrepoorigins {
   return \%binaryorigins;
 }
 
+sub getallprojects {
+  my ($db) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my $table = $db->{'table'};
+  if ($table eq 'scmsync' || $table eq 'linkinfo') {
+    my $path = $table eq 'linkinfo' ? 'sourceproject' : 'project';
+    my $ary = $h->selectcol_arrayref("SELECT $path FROM $table") || die($h->errstr);
+    return sort(BSUtil::unify(@$ary));
+  }
+  my $ary = $h->selectcol_arrayref("SELECT project FROM repoinfo") || die($h->errstr);
+  return sort(BSUtil::unify(@$ary));
+}
+
 sub getprojectkeys {
   my ($db, $projid) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
-  if (!$projid) {
-    my $ary = $h->selectcol_arrayref("SELECT project FROM repoinfo") || die($h->errstr);
-    return sort(BSUtil::unify(@$ary));
-  }
   my $table = $db->{'table'};
   return map {"$projid/$_"} $db->getlinkpackages($projid) if $table eq 'linkinfo';
-  return rawkeys($db, 'project', $projid) if $table eq 'repoinfo';
+  return rawkeys($db, 'project', $projid) if $table eq 'repoinfo' || $table eq 'scmsync';
   my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.project = ?", [ $projid ]);
   my ($prp_ext_path, $bin_path, $package);
   $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
@@ -470,6 +479,7 @@ sub getbinaryinfo {
   return undef unless $prp_ext_id;
   my $table = $db->{'table'};
   my @ary = $h->selectrow_array("SELECT $table.name,$table.package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.path = ? AND $table.path  = ?", undef, $prp_ext, $path);
+  return undef unless @ary;
   my $binaryinfo = { 'name' => $ary[0] };
   $binaryinfo->{'package'} = $ary[1] if defined $ary[1];
   return $binaryinfo;
