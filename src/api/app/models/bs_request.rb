@@ -332,6 +332,30 @@ class BsRequest < ApplicationRecord
     bs_request_actions.first.target_package
   end
 
+  # Get the current local version of the source package for single-action submit
+  # requests if anitya distribution is enabled
+  def source_package_latest_local_version
+    return unless bs_request_actions.length == 1
+
+    bs_request_action = bs_request_actions.first
+    return unless bs_request_action.submit?
+    return if bs_request_action.source_project_object&.anitya_distribution_name.blank?
+
+    bs_request_action.source_package_object&.latest_local_version&.version
+  end
+
+  # Get the current local version of the target package for single-action submit
+  # requests if anitya distribution is enabled
+  def target_package_latest_local_version
+    return unless bs_request_actions.length == 1
+
+    bs_request_action = bs_request_actions.first
+    return unless bs_request_action.submit?
+    return if bs_request_action.target_project_object&.anitya_distribution_name.blank?
+
+    bs_request_action.target_package_object&.latest_local_version&.version
+  end
+
   def target_package_maintainers
     distinct_bs_request_actions = bs_request_actions.select(:target_project, :target_package).distinct
     distinct_bs_request_actions.flat_map do |action|
