@@ -148,13 +148,17 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
   def versions_text_for_users_in_labels_beta(record:, local_version:, upstream_version:)
     return if local_version.blank? && upstream_version.blank?
 
-    if upstream_version.blank?
-      release_monitoring_search_link(record, local_version)
-    elsif local_version == upstream_version
-      release_monitoring_package_link(record, local_version)
-    else
-      release_monitoring_package_link(record, "#{upstream_version} available")
-    end
+    link = if upstream_version.blank?
+             release_monitoring_search_link(record, local_version)
+           elsif local_version == upstream_version
+             release_monitoring_package_link(record, local_version)
+           else
+             release_monitoring_package_link(record, "#{upstream_version} available")
+           end
+
+    parenthesized_text = "(#{link})".html_safe # rubocop:disable Rails/OutputSafety
+
+    ActionController::Base.helpers.safe_join([local_version, parenthesized_text].compact, ' ')
   end
 
   def show_version_column?
