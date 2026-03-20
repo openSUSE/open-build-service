@@ -283,7 +283,7 @@ GEM
       childprocess (~> 5.0)
       logger (~> 1.6)
     lint_roller (1.1.0)
-    liquid (5.11.0)
+    liquid (5.12.0)
       bigdecimal
       strscan (>= 3.1.1)
     logger (1.7.0)
