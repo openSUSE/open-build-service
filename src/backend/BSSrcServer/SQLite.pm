@@ -201,10 +201,8 @@ sub binarypath2name {
 }
 
 sub updatedb_deleterepo {
-  my ($db, $prp) = @_;
+  my ($db, $prp_ext) = @_;
 
-  my $prp_ext = $prp;
-  $prp_ext =~ s/:/:\//g;
   my $h = $db->{'sqlite'} || connectdb($db);
 
   my $prp_ext_id = prpext2id($h, $prp_ext);
@@ -218,12 +216,9 @@ sub updatedb_deleterepo {
 }
 
 sub updatedb_repoinfo {
-  my ($db, $prp, $repoinfo) = @_;
+  my ($db, $prp_ext, $repoinfo) = @_;
 
-  return updatedb_deleterepo($db, $prp) unless $repoinfo;
-
-  my $prp_ext = $prp;
-  $prp_ext =~ s/:/:\//g;
+  return updatedb_deleterepo($db, $prp_ext) unless $repoinfo;
 
   my $h = $db->{'sqlite'} || connectdb($db);
   my $sh;
@@ -284,10 +279,7 @@ sub updatedb_repoinfo {
 }
 
 sub updatedb_patterninfo {
-  my ($db, $prp, $patterninfo) = @_;
-
-  my $prp_ext = $prp;
-  $prp_ext =~ s/:/:\//g;
+  my ($db, $prp_ext, $patterninfo) = @_;
 
   my $h = $db->{'sqlite'} || connectdb($db);
 
@@ -632,6 +624,7 @@ sub rawvalues {
   my ($db, $path, $hint, $hintval) = @_;
 
   my $table = $db->{'table'};
+  return getallprojects($db) if $path eq 'project' && ($table eq 'binary' || $table eq 'pattern');
   die("unsupported path for $table table: $path\n") unless $db->{'sqlite_cols'}->{$path};
 
   # get all values from a table column
@@ -701,6 +694,7 @@ sub rawkeys {
 
   my $table = $db->{'table'};
   return allkeys($db) unless defined $path;
+  return getprojectkeys($db, $value) if $path eq 'project' && ($table eq 'binary' || $table eq 'pattern');
   die("unsupported path for $table table: $path\n") unless $db->{'sqlite_cols'}->{$path};
 
   # get all keys for a table column

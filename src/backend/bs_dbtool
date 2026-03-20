@@ -230,7 +230,7 @@ if ($cmd eq 'convert') {
 	}
 	$patterninfo->{$path} = $pi;
       }
-      $ndb->updatedb_patterninfo($prp, $patterninfo);
+      $ndb->updatedb_patterninfo($prp_ext, $patterninfo);
     } elsif ($table eq 'binary') {
       my $repoinfo = $db->fetch($prp);
       if (!$repoinfo) {
@@ -238,7 +238,7 @@ if ($cmd eq 'convert') {
 	warn("could not fetch $bad[-1]\n");
 	next;
       }
-      $ndb->updatedb_repoinfo($prp, $repoinfo);
+      $ndb->updatedb_repoinfo($prp_ext, $repoinfo);
     }
 
     $done++;

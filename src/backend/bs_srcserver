@@ -5548,8 +5548,10 @@ sub search_published_updatedb {
     while (@$data) {
       my ($w, $k, $v) = splice(@$data, 0, 3);
       if ($w eq 'repoinfo') {
+        $k =~ s/:/:\//g;
         $db->updatedb_repoinfo($k, $v);
       } elsif ($w eq 'patterninfo') {
+        $k =~ s/:/:\//g;
         $db->updatedb_patterninfo($k, $v);
       } elsif ($w ne 'binary' && $w ne 'pattern') {
         die("bad data type: '$w'\n");
@@ -5775,8 +5777,8 @@ sub published_binary_projectindexfunc {
   my ($db, $path, $value) = @_;
 
   if ($BSConfig::published_db_sqlite) {
-    return $db->getallprojects() unless defined $value;
-    return $db->getprojectkeys($value);
+    return $db->rawvalues($path) unless defined $value;
+    return $db->rawkeys($path, $value);
   }
 
   return findprojects() unless defined $value;
