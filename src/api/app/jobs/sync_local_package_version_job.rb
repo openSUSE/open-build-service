@@ -1,8 +1,6 @@
 class SyncLocalPackageVersionJob < ApplicationJob
   queue_as :quick
 
-  include PackageVersionLabeler
-
   def perform(project_name, package_name: nil)
     project = Project.find_by_name(project_name)
     distribution_name = project.anitya_distribution_name
@@ -13,7 +11,7 @@ class SyncLocalPackageVersionJob < ApplicationJob
 
   def create_package_version_local(project_name:, package_name:)
     info = if package_name
-             Backend::Api::Sources::Package.files(project_name, package_name, view: :info, parse: 1)
+             Backend::Api::Sources::Package.files(project_name, package_name, view: :info, parse: 1, expand: 1)
            else
              Backend::Api::Sources::Project.packages(project_name, view: :info, parse: 1)
            end
@@ -24,7 +22,6 @@ class SyncLocalPackageVersionJob < ApplicationJob
 
       package_version_local = PackageVersionLocal.find_or_create_by(version: version, package: package)
       package_version_local.touch if package_version_local.persisted? # rubocop:disable Rails/SkipsModelValidations
-      update_package_version_labels(package_ids: [package.id])
     end
   end
 end
