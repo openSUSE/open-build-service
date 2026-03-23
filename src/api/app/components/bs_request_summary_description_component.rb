@@ -31,6 +31,13 @@ class BsRequestSummaryDescriptionComponent < ApplicationComponent
                 else
                   "#{'project'.pluralize(source_projects.count)} #{to_sentence(source_projects)}"
                 end
+
+    # rubocop:disable ViewComponent/AvoidGlobalState
+    if Flipper.enabled?(:package_version_tracking, User.session) && @bs_request.source_package_latest_local_version
+      container << " (#{bs_request.source_package_latest_local_version})"
+    end
+    # rubocop:enable ViewComponent/AvoidGlobalState
+
     return tag.span(sanitize(container)) if packages_count <= 3
 
     tag.span(sanitize(container), data: { bs_toggle: 'popover', bs_content: to_sentence(actions.map { |a| "#{a.source_project} / #{a.source_package}" }.uniq) })
@@ -46,6 +53,13 @@ class BsRequestSummaryDescriptionComponent < ApplicationComponent
                 else
                   "#{'project'.pluralize(target_projects.count)} #{to_sentence(target_projects)}"
                 end
+
+    # rubocop:disable ViewComponent/AvoidGlobalState
+    if Flipper.enabled?(:package_version_tracking, User.session) && @bs_request.target_package_latest_local_version
+      container << " (#{bs_request.target_package_latest_local_version})"
+    end
+    # rubocop:enable ViewComponent/AvoidGlobalState
+
     return tag.span(sanitize(container)) if actions.filter_map { |a| [a.target_project, a.target_package] }.uniq.count <= 1
 
     tag.span(sanitize(container), data: { bs_toggle: 'popover', bs_content: to_sentence(actions.map { |a| "#{a.target_project} / #{a.target_package}" }.uniq) })

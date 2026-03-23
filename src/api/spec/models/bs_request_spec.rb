@@ -719,4 +719,104 @@ RSpec.describe BsRequest, :vcr do
       end
     end
   end
+
+  describe '#source_package_latest_local_version' do
+    let(:bs_request) { BsRequest.new }
+    let(:action) { BsRequestActionSubmit.new }
+    let(:source_project) { instance_double(Project) }
+    let(:source_package) { instance_double(Package) }
+    let(:local_version) { instance_double(PackageVersionLocal, version: '1.0.0') }
+
+    before do
+      bs_request.bs_request_actions = [action]
+      allow(action).to receive_messages(source_project_object: source_project, source_package_object: source_package)
+    end
+
+    context 'when the request has multiple actions' do
+      before do
+        bs_request.bs_request_actions << BsRequestActionSubmit.new
+      end
+
+      it 'returns nil' do
+        expect(bs_request.source_package_latest_local_version).to be_nil
+      end
+    end
+
+    context 'when the action is not a submit action' do
+      let(:action) { BsRequestActionDelete.new }
+
+      it 'returns nil' do
+        expect(bs_request.source_package_latest_local_version).to be_nil
+      end
+    end
+
+    context 'when the action is a submit action' do
+      context 'when the source project does not have an anitya distribution name' do
+        before do
+          allow(source_project).to receive(:anitya_distribution_name).and_return(nil)
+        end
+
+        it 'returns nil' do
+          expect(bs_request.source_package_latest_local_version).to be_nil
+        end
+      end
+
+      context 'when the source project has an anitya distribution name' do
+        before do
+          allow(source_project).to receive(:anitya_distribution_name).and_return('openSUSE')
+        end
+
+        context 'when the source package has no latest local version' do
+          before do
+            allow(source_package).to receive(:latest_local_version).and_return(nil)
+          end
+
+          it 'returns nil' do
+            expect(bs_request.source_package_latest_local_version).to be_nil
+          end
+        end
+
+        context 'when the source package has a latest local version' do
+          before do
+            allow(source_package).to receive(:latest_local_version).and_return(local_version)
+          end
+
+          it 'returns the version' do
+            expect(bs_request.source_package_latest_local_version).to eq('1.0.0')
+          end
+        end
+      end
+    end
+  end
+
+  describe '#target_package_latest_local_version' do
+    let(:bs_request) { BsRequest.new }
+    let(:action) { BsRequestActionSubmit.new }
+    let(:target_project) { instance_double(Project) }
+    let(:target_package) { instance_double(Package) }
+    let(:local_version) { instance_double(PackageVersionLocal, version: '2.5.1') }
+
+    before do
+      bs_request.bs_request_actions = [action]
+      allow(action).to receive_messages(target_project_object: target_project, target_package_object: target_package)
+    end
+
+    context 'when the action is a submit action' do
+      context 'when the target project has an anitya distribution name' do
+        before do
+          allow(target_project).to receive(:anitya_distribution_name).and_return('openSUSE')
+        end
+
+        context 'when the target package has a latest local version' do
+          before do
+            allow(target_package).to receive(:latest_local_version).and_return(local_version)
+          end
+
+          it 'returns the version' do
+            expect(bs_request.target_package_latest_local_version).to eq('2.5.1')
+          end
+        end
+      end
+    end
+  end
 end
