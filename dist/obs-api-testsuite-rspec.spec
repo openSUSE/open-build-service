@@ -65,10 +65,10 @@ bin/rails assets:precompile
 
 export MARIADB_SSL_MODE=DISABLED
 export MARIADB_TLS_DISABLE_PEER_VERIFICATION=1
-bin/rspec -f d --exclude-pattern 'spec/db/**/*_spec.rb'
+bin/rspec -f d --exclude-pattern 'spec/db/**/*_spec.rb' --fail-fast
 
 # now migration tests (if they fail they create tons of follow up errors, so run them last)
-bin/rspec -f d -P 'spec/db/**/*_spec.rb'
+bin/rspec -f d -P 'spec/db/**/*_spec.rb' --fail-fast
 
 %install
 
