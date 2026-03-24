@@ -125,7 +125,7 @@ class Workflow # rubocop:disable Metrics/ClassLength
   # Execute only if labeled or unlabeled
   def label_matches_labels_filter?
     return true unless workflow_run.labeled_pull_request? || workflow_run.unlabeled_pull_request?
-    return true unless supported_filters.key?(:labels)
+    return false unless supported_filters.key?(:labels)
 
     labels_only = filters[:labels].fetch(:only, [])
     labels_ignore = filters[:labels].fetch(:ignore, [])
