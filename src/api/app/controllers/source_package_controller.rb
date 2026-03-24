@@ -18,7 +18,14 @@ class SourcePackageController < SourceController
       @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name)
     end
 
-    show_package_issues && return if params[:view] == 'issues'
+    case params[:view]
+    when 'issues'
+      show_package_issues
+      return
+    when 'versions'
+      show_package_versions
+      return
+    end
 
     path = request.path_info
     path += build_query_from_hash(params, %i[rev linkrev emptylink
@@ -146,6 +153,12 @@ class SourcePackageController < SourceController
     set_issues_defaults
     @tpkg.update_if_dirty
     render partial: 'package_issues'
+  end
+
+  def show_package_versions
+    raise NoLocalPackage, 'Versions can only be shown for local packages' unless @tpkg
+
+    render partial: 'package_versions', formats: [:xml]
   end
 
   def check_permissions_for_file

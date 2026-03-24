@@ -17,11 +17,12 @@ get:
           - issues
           - products
           - productrepositories
+          - versions
       description: |
         Specify which information about a package should be returned.
 
         * `info`: Show source version, md5sums and build description files, among other information.
-        * `cpio`, `getmultibuild`, `issues`, `products`, `productrepositories`:
+        * `cpio`, `getmultibuild`, `issues`, `products`, `productrepositories`, `versions`:
           See this [other endpoint](<#/Sources - Files/get_source__project_name___package_name_>) for details.
       example: info
     - in: query

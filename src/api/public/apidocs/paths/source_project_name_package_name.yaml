@@ -89,6 +89,7 @@ get:
           - issues
           - products
           - productrepositories
+          - versions
       description: |
         Specify which information about a package should be returned.
 
@@ -99,6 +100,7 @@ get:
         * `issues`: Show all tracked issues for this package.
         * `products`: Show all products of a package (works only on `_product` or `000product` packages).
         * `productrepositories`: Show all repositories used in product definitions (or a given product).
+        * `versions`: Show the current and upstream versions for the given package.
       example: issues
     - in: query
       name: withlinked
@@ -261,6 +263,13 @@ get:
                     <distrotarget arch="aarch64">openSUSE-Tumbleweed-aarch64</distrotarget>
                   </product>
                 </productrepositories>
+            With Parameter view=versions:
+              value: |
+                <?xml version="1.0" encoding="UTF-8"?>
+                <package project="home:Admin" name="efl">
+                  <version type="local">1.28.0</version>
+                  <version type="upstream">1.28.1</version>
+                </package>
         application/x-cpio:
           schema:
             type: string
