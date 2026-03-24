@@ -530,7 +530,6 @@ sub getscmsyncpackages {
   my ($db, $scmsync_repo, $scmsync_branch, $use_trackingbranch) = @_;
   my $branch_column = $use_trackingbranch ? 'scmsync_trackingbranch' : 'scmsync_branch';
   my $h = $db->{'sqlite'} || connectdb($db);
-  $scmsync_repo =~ s/\.git$//;
   $scmsync_repo = lc($scmsync_repo);
   my $sh;
   if (!defined($scmsync_branch)) {
