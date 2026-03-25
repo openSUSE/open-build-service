@@ -134,7 +134,6 @@ BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BS
 my $projectsdir = "$BSConfig::bsdir/projects";
 my $eventdir = "$BSConfig::bsdir/events";
 my $srcrep = "$BSConfig::bsdir/sources";
-my $treesdir = $BSConfig::nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrep;
 my $requestsdir = "$BSConfig::bsdir/requests";
 my $oldrequestsdir = "$BSConfig::bsdir/requests.old";
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
@@ -3737,17 +3736,10 @@ sub moveproject {
   rename("$projectsdir/$oprojid.xml", "$projectsdir/$projid.xml");
   rename("$projectsdir/$oprojid.pkg", "$projectsdir/$projid.pkg") if -e "$projectsdir/$oprojid.pkg";
   rename("$projectsdir/$oprojid.conf", "$projectsdir/$projid.conf") if -e "$projectsdir/$oprojid.conf";
-  if ($BSConfig::nosharedtrees && -e "$treesdir/$oprojid") {
-    # we can't rename the tress as we still want to allow access of the old files via the srcmd5
-    mkdir_p($uploaddir);
-    for my $packid (sort(ls("$treesdir/$oprojid"))) {
-      mkdir_p("$treesdir/$projid/$packid");
-      for my $tree (sort(ls("$treesdir/$oprojid/$packid"))) {
-	next if -e "$treesdir/$projid/$packid/$tree";
-	BSUtil::cp("$treesdir/$oprojid/$packid/$tree", "$uploaddir/$$", "$treesdir/$projid/$packid/$tree");
-      }
-    }
-  }
+
+  # make all trees available in the new project
+  # (we can't rename the trees as we still want to allow access of the old files via the srcmd5)
+  BSSrcrep::copyprojectrees($projid, $oprojid);
 
   # move entries in linkinfo database
   BSRevision::movelinkinfos($projid, $oprojid, BSSrcServer::LinkinfoDB::getlinkpackages($oprojid));

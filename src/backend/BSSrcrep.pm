@@ -386,6 +386,20 @@ sub copytree {
   }
 }
 
+sub copyprojectrees {
+  my ($projid, $oprojid) = @_;
+  return unless $BSConfig::nosharedtrees;
+  return unless -e "$treesdir/$oprojid";
+  mkdir_p($uploaddir);
+  for my $packid (sort(ls("$treesdir/$oprojid"))) {
+    mkdir_p("$treesdir/$projid/$packid");
+    for my $tree (sort(ls("$treesdir/$oprojid/$packid"))) {
+      next if -e "$treesdir/$projid/$packid/$tree";
+      BSUtil::cp("$treesdir/$oprojid/$packid/$tree", "$uploaddir/$$", "$treesdir/$projid/$packid/$tree");
+    }
+  }
+}
+
 #
 # special link handling
 # 
