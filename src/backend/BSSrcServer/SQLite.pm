@@ -158,7 +158,7 @@ my %tables = (
   'binary' => { map {$_ => 1} qw {package name} },
   'pattern' => { map {$_ => 1} qw {package name summary description type} },
   'repoinfo' => { map {$_ => 1} qw {project} },
-  'linkinfo'=> { map {$_ => 1} qw {project package rev} },
+  'linkinfo'=> { map {$_ => 1} qw {project package rev sourceproject sourcepackage} },
   'scmsync'=> { map {$_ => 1} qw {project package scmsync_repo scmsync_branch scmsync_trackingbranch} },
 );
 
@@ -421,25 +421,12 @@ sub getrepoorigins {
   return \%binaryorigins;
 }
 
-sub getallprojects {
-  my ($db) = @_;
-  my $h = $db->{'sqlite'} || connectdb($db);
-  my $table = $db->{'table'};
-  if ($table eq 'scmsync' || $table eq 'linkinfo') {
-    my $path = $table eq 'linkinfo' ? 'sourceproject' : 'project';
-    my $ary = $h->selectcol_arrayref("SELECT $path FROM $table") || die($h->errstr);
-    return sort(BSUtil::unify(@$ary));
-  }
-  my $ary = $h->selectcol_arrayref("SELECT project FROM repoinfo") || die($h->errstr);
-  return sort(BSUtil::unify(@$ary));
-}
-
 sub getprojectkeys {
   my ($db, $projid) = @_;
-  my $h = $db->{'sqlite'} || connectdb($db);
   my $table = $db->{'table'};
   return map {"$projid/$_"} $db->getlinkpackages($projid) if $table eq 'linkinfo';
-  return rawkeys($db, 'project', $projid) if $table eq 'repoinfo' || $table eq 'scmsync';
+  return rawkeys($db, 'project', $projid) if $table ne 'binary' && $table ne 'pattern';
+  my $h = $db->{'sqlite'} || connectdb($db);
   my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.project = ?", [ $projid ]);
   my ($prp_ext_path, $bin_path, $package);
   $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
@@ -497,7 +484,6 @@ sub getlinkpackages {
 sub getlocallinks {
   my ($db, $projid, $packid) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
-  my $sh = dbdo_bind($h, "SELECT sourcepackage FROM linkinfo WHERE project = ? AND package = ? AND sourceproject = ?", [ $projid ], [ $packid ] , [ $projid ]);
   my $ary = $h->selectcol_arrayref("SELECT sourcepackage FROM linkinfo WHERE project = ? AND package = ? AND sourceproject = ?", undef, $projid, $packid, $projid) || die($h->errstr);
   return sort(@$ary);
 }
@@ -624,8 +610,11 @@ sub rawvalues {
   my ($db, $path, $hint, $hintval) = @_;
 
   my $table = $db->{'table'};
-  return getallprojects($db) if $path eq 'project' && ($table eq 'binary' || $table eq 'pattern');
-  die("unsupported path for $table table: $path\n") unless $db->{'sqlite_cols'}->{$path};
+  if ($path eq 'project' && ($table eq 'binary' || $table eq 'pattern')) {
+    $table = 'repoinfo';
+  } else {
+    die("unsupported path for $table table: $path\n") unless $db->{'sqlite_cols'}->{$path};
+  }
 
   # get all values from a table column
   my $h = $db->{'sqlite'} || connectdb($db);
