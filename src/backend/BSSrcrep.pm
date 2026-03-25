@@ -365,10 +365,12 @@ sub copytree {
   return if !$BSConfig::nosharedtrees && $packid eq $opackid;
   my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
   return if -e "$treedir/$srcmd5-MD5SUMS";	# already known
-  my $files = lsfiles($oprojid, $opackid, $srcmd5);
-  die("cannot copy service errors\n") if $files->{'_serviceerror'} && keys(%$files) == 1;
   # first copy file content
-  copyfiles($projid, $packid, $oprojid, $opackid, $files);
+  if ($packid ne $opackid) {
+    my $files = lsfiles($oprojid, $opackid, $srcmd5);
+    die("cannot copy service errors\n") if $files->{'_serviceerror'} && keys(%$files) == 1;
+    copyfiles($projid, $packid, $oprojid, $opackid, $files);
+  }
   # then copy the tree data
   my $otreedir = $BSConfig::nosharedtrees ? "$treesdir/$oprojid/$opackid" : "$treesdir/$opackid";
   $otreedir = "$srcrep/$opackid" if $BSConfig::nosharedtrees == 2 && ! -e "$otreedir/$srcmd5-MD5SUMS";
@@ -378,6 +380,8 @@ sub copytree {
     mkdir_p($uploaddir);
     writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
   } else {
+    my $files = lsfiles($oprojid, $opackid, $srcmd5);
+    die("cannot copy service errors\n") if $files->{'_serviceerror'} && keys(%$files) == 1;
     addmeta($projid, $packid, $files);    # last resort...
   }
 }
