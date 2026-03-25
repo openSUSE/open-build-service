@@ -422,7 +422,7 @@ sub undelete_rev {
       updatelinkinfodb($projid, $packid, $nrev, lsrev($nrev));
     }
   } elsif ($revfileto =~ /\.mrev$/) {
-    BSRevision::extract_old_meta($projid, $packid, $nrev);
+    extract_old_meta($projid, $packid, $nrev);
   }
   return $nrev;
 }
@@ -449,7 +449,7 @@ sub delete_rev {
     BSUtil::appendstr($revfileto, $oldrev);
     close F;
     if ($packid ne '_project' && $revfilefrom =~ /\.rev$/) {
-      BSRevision::updatelinkinfodb($projid, $packid);
+      updatelinkinfodb($projid, $packid);
     }
   }
   unlink($revfilefrom);
