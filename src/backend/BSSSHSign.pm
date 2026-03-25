@@ -26,7 +26,6 @@ use MIME::Base64 ();
 use Digest::SHA ();
 
 use BSUtil;
-use BSConfiguration;
 
 use strict;
 
