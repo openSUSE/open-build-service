@@ -210,6 +210,12 @@ module Webui::RequestHelper
     (src_arch & tgt_arch).join(', ')
   end
 
+  def package_version(package)
+    return if !Flipper.enabled?(:package_version_tracking, User.session) || package.nil? || package.latest_local_version.nil?
+
+    "(#{package.latest_local_version.version})"
+  end
+
   private
 
   def action_type_icon(type)
