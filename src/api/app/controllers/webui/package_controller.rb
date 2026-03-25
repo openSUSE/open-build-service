@@ -429,7 +429,8 @@ class Webui::PackageController < Webui::WebuiController
       .permit(:title,
               :description,
               :url,
-              :report_bug_url)
+              :report_bug_url,
+              :anitya_ignore)
   end
 
   def set_file_details

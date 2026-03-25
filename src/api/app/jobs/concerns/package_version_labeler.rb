@@ -42,6 +42,11 @@ module PackageVersionLabeler
     version_template_ids = templates.values.map(&:id)
     current_labels = package.labels.select { |l| version_template_ids.include?(l.label_template_id) }
 
+    if package.anitya_ignore
+      package.labels.where(label_template_id: version_template_ids).delete_all
+      return
+    end
+
     # Only update if the current label is wrong
     return if current_labels.one? && current_labels.first.label_template_id == target_template.id
 

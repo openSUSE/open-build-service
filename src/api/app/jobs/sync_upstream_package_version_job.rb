@@ -22,6 +22,8 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
     PackageVersionUpstream.where(package_id: project.packages.ids).delete_all && return if distribution_name.blank?
 
     project.packages.each do |package|
+      next if package.anitya_ignore
+
       create_upstream_package_versions(package_name: package.name, distribution_name: distribution_name, package_ids: [package.id])
     end
 
@@ -29,10 +31,13 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
   end
 
   def create_for_all_projects_with_anitya_distribtion_name
-    package_and_distro_name_grouped_on_package_ids = Project.where.not(anitya_distribution_name: [nil, '']).joins(:packages).select('projects.anitya_distribution_name AS anitya_distribution_name',
-                                                                                                                                    'packages.name AS package_name',
-                                                                                                                                    'packages.id AS project_package_id',
-                                                                                                                                    'projects.id AS project_id').group_by do |s|
+    package_and_distro_name_grouped_on_package_ids = Project.where.not(anitya_distribution_name: [nil, ''])
+                                                            .joins(:packages).where(packages: { anitya_ignore: false })
+                                                            .select('projects.anitya_distribution_name AS anitya_distribution_name',
+                                                                    'packages.name AS package_name',
+                                                                    'packages.id AS project_package_id',
+                                                                    'projects.id AS project_id')
+                                                            .group_by do |s|
       [s.anitya_distribution_name, s.package_name]
     end
 
