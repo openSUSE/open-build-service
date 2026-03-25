@@ -187,7 +187,7 @@ RSpec.describe CommentPolicy do
   permissions :history? do
     let(:staff_user) { create(:staff_user) }
     let(:moderator) { create(:moderator) }
-    let(:comment_moderated) { create(:comment_project, commentable: project, moderated_at: DateTime.now.utc, moderator_id: moderator.id) }
+    let(:comment_moderated) { create(:comment_project, commentable: project, moderated_at: Time.zone.now, moderator_id: moderator.id) }
 
     before do
       Flipper.enable(:content_moderation)

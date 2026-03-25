@@ -13,9 +13,9 @@ class BsRequest
         @relation = BsRequest::FindFor::Project.new(@parameters, @relation).all
         @relation = BsRequest::FindFor::User.new(@parameters, @relation).all if user_login.present?
         @relation = BsRequest::FindFor::Group.new(@parameters, @relation).all if group_title.present?
-        created_at_from = DateTime.parse(@parameters['created_at_from']) if @parameters['created_at_from'].present?
+        created_at_from = Time.zone.parse(@parameters['created_at_from']) if @parameters['created_at_from'].present?
         # [see below] `created_at_to + 1.minute` is a workaround to include the upper limit of the date time range in the filter result set
-        created_at_to = DateTime.parse(@parameters['created_at_to']) + 1.minute if @parameters['created_at_to'].present?
+        created_at_to = Time.zone.parse(@parameters['created_at_to']) + 1.minute if @parameters['created_at_to'].present?
         @relation = @relation.where(created_at: (created_at_from..created_at_to))
         @relation = @relation.where(id: ids) if @parameters.key?('ids')
         @relation = @relation.do_search(search) if search.present?

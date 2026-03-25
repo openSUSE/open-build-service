@@ -51,7 +51,7 @@ class EventMailerTest < ActionMailer::TestCase
 
     # the default is reviewer groups get email, so check that adrian gets an email
     req = bs_requests(:submit_from_home_project)
-    travel_to(DateTime.new(2013, 8, 20, 12, 0, 0))
+    travel_to(Time.zone.parse('2013-08-20 12:00:00'))
     myid = req.number
     SendEventEmailsJob.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
