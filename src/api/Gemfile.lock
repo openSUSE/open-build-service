@@ -561,7 +561,7 @@ GEM
     temple (0.10.4)
     terminal-table (4.0.0)
       unicode-display_width (>= 1.1.1, < 4)
-    terser (1.2.6)
+    terser (1.2.7)
       execjs (>= 0.3.0, < 3)
     test-unit (3.7.7)
       power_assert
