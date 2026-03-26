@@ -126,6 +126,8 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
     local = record.latest_local_version&.version
     upstream = record.latest_upstream_version&.version
 
+    return local if record.anitya_ignore
+
     # for users in the labels beta program we show
     # different text, since the version state is indicated by labels
     if Flipper.enabled?(:labels, User.session)

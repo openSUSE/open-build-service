@@ -89,6 +89,7 @@ class Package < ApplicationRecord
 
   after_save :write_to_backend
   after_save :populate_to_sphinx, if: :needs_sphinx_update?
+  after_save :delete_upstream_versions, if: -> { anitya_ignore_previously_changed?(from: false, to: true) }
 
   after_rollback :reset_cache
 
@@ -1426,6 +1427,10 @@ class Package < ApplicationRecord
     elsif parsed_report_bug_url == parsed_instance_url
       errors.add(:report_bug_url, 'Local urls are not allowed')
     end
+  end
+
+  def delete_upstream_versions
+    PackageVersionUpstream.where(package: self).destroy_all
   end
 end
 # rubocop: enable Metrics/ClassLength
