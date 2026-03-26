@@ -24,6 +24,10 @@
         'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-versiontracking',
         target: '_blank',
         rel: 'noopener'
+  .mb-3.form-check
+    = form.label(:anitya_prerelease, 'Anitya Prerelease', class: 'form-check-label')
+    = form.check_box(:anitya_prerelease, class: 'form-check-input')
+    %small.text-muted Fetch upstream prerelease versions
   .mb-3
     = form.label(:description, 'Description:')
     = render WriteAndPreviewComponent.new(form: form, preview_message_url: project_preview_description_path,

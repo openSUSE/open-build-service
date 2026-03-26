@@ -22,7 +22,7 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
     PackageVersionUpstream.where(package_id: project.packages.ids).delete_all && return if distribution_name.blank?
 
     project.packages.each do |package|
-      create_upstream_package_versions(package_name: package.name, distribution_name: distribution_name, package_ids: [package.id])
+      create_upstream_package_versions(package_name: package.name, distribution_name: distribution_name, package_ids: [package.id], anitya_prerelease: project.anitya_prerelease)
     end
 
     project.update!(anitya_distribution_synced_at: Time.current)
@@ -32,13 +32,14 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
     package_and_distro_name_grouped_on_package_ids = Project.where.not(anitya_distribution_name: [nil, '']).joins(:packages).select('projects.anitya_distribution_name AS anitya_distribution_name',
                                                                                                                                     'packages.name AS package_name',
                                                                                                                                     'packages.id AS project_package_id',
-                                                                                                                                    'projects.id AS project_id').group_by do |s|
-      [s.anitya_distribution_name, s.package_name]
+                                                                                                                                    'projects.id AS project_id',
+                                                                                                                                    'projects.anitya_prerelease AS anitya_prerelease').group_by do |s|
+      [s.anitya_distribution_name, s.package_name, s.anitya_prerelease]
     end
 
-    package_and_distro_name_grouped_on_package_ids.each do |(distribution_name, package_name), projects|
+    package_and_distro_name_grouped_on_package_ids.each do |(distribution_name, package_name, anitya_prerelease), projects|
       package_ids = projects.map(&:project_package_id)
-      create_upstream_package_versions(package_name:, distribution_name:, package_ids:)
+      create_upstream_package_versions(package_name:, distribution_name:, package_ids:, anitya_prerelease:)
 
       Project.where(id: projects.map(&:project_id)).distinct.find_each do |project|
         project.update!(anitya_distribution_synced_at: Time.current)
@@ -46,13 +47,13 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
     end
   end
 
-  def create_upstream_package_versions(package_name:, distribution_name:, package_ids:)
+  def create_upstream_package_versions(package_name:, distribution_name:, package_ids:, anitya_prerelease:)
     response = fetch_upstream_package_info(package_name: package_name, distribution_name: distribution_name)
 
     # When we get empty result, we can’t rely on the past information we stored in the database anymore
     PackageVersionUpstream.where(package_id: package_ids).delete_all if response&.dig('total_items')&.zero?
 
-    upstream_version = extract_version(response)
+    upstream_version = extract_version(response, anitya_prerelease)
 
     upsert_package_versions(package_ids, upstream_version) if upstream_version.present?
     update_package_version_labels(package_ids: package_ids)
@@ -71,9 +72,9 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
     JSON.parse(response.body) if response.is_a?(Net::HTTPSuccess)
   end
 
-  def extract_version(response)
+  def extract_version(response, anitya_prerelease)
     return if response.nil?
 
-    response.dig('items', 0, 'stable_version')
+    response.dig('items', 0, anitya_prerelease ? 'version' : 'stable_version')
   end
 end
