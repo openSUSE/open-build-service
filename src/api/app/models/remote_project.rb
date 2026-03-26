@@ -60,6 +60,7 @@ end
 #  id                            :integer          not null, primary key
 #  anitya_distribution_name      :string(255)
 #  anitya_distribution_synced_at :datetime
+#  anitya_prerelease             :boolean          default(FALSE), not null
 #  comments_count                :integer          default(0), not null, indexed
 #  delta                         :boolean          default(TRUE), not null
 #  description                   :text(65535)
