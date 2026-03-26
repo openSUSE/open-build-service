@@ -1436,6 +1436,7 @@ end
 #
 #  id              :integer          not null, primary key
 #  activity_index  :float(24)        default(100.0)
+#  anitya_ignore   :boolean          default(FALSE), not null
 #  bcntsynctag     :string(255)
 #  comments_count  :integer          default(0), not null, indexed
 #  delta           :boolean          default(TRUE), not null
