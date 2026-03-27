@@ -2370,22 +2370,19 @@ sub publish {
   # Build repo by mixing all architectures.
   my @archs = @{$repo->{'arch'} || []};
 
-  if ($config->{'publishflags:archsync'}) {
-    my @bad;
-    my @same;
-    my $lastchange = 0;
+  if ($config->{'publishflags:archsync'} && @archs > 1) {
     my %as;
     for my $a (@archs) {
-      my $as = BSUtil::retrieve("$reporoot/$prp/$a/:repo/.archsync", 1) || {};
-      $lastchange = $as->{'lastchange'} if ($as->{'lastchange'} || 0) > $lastchange;
-      $as{$a} = $as;
+      $as{$a} = BSUtil::retrieve("$reporoot/$prp/$_/:repo/.archsync", 1) || {};
+      $as{$a}->{'lastchange'} ||= 0;
     }
+    my @as_lastchange = sort {$b->{'lastchange'} <=> $a->{'lastchange'}} map {$as{$_}} @archs;
+    my @bad;
     for my $a (@archs) {
       my $as = $as{$a};
-      push @bad, $a if !$as->{'lastchange'} || !$as->{'lastcheck'} || $as->{'lastcheck'} < $lastchange;
-      push @same, $a if $as->{'lastcheck'} && $as->{'lastcheck'} == $lastchange;
+      my $oas = $as_lastchange[0] == $as ? $as_lastchange[1] : $as_lastchange[0];
+      push @bad, $a if !$as->{'lastchange'} || !$as->{'lastcheck'} || $as->{'lastcheck'} <= $oas->{'lastchange'};
     }
-    push @bad, @same if @same > 1;
     if (@bad) {
       print "    delaying publishing as architectures ".join(',', @bad)." are not ready\n";
       for my $a (@bad) {
