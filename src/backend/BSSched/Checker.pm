@@ -757,7 +757,7 @@ sub emulate_depsort2 {
 sub expandandsort {
   my ($ctx) = @_;
 
-  $ctx->{'prpchecktime'} = time();	# package checking starts here
+  $ctx->{'prpcheckstart'} = time();	# package checking starts here
 
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};
@@ -1119,6 +1119,7 @@ sub checkpkgs {
   $ctx->{'building'} = \%building;
   $ctx->{'unfinished'} = \%unfinished;
   $ctx->{'cyclevel'} = {};
+  $ctx->{'prpcheckstart'} ||= time();	# just in case
 
   # now build cychash mapping packages to all other cycle members
   for my $cyc (@{$ctx->{'sccs'} || $ctx->{'cycles'} || []}) {
@@ -1400,7 +1401,7 @@ sub checkpkgs {
   }
 
   # package checking ends here
-  $ctx->{'prpchecktime'} = time() - $ctx->{'prpchecktime'};
+  $ctx->{'prpchecktime'} = time() - $ctx->{'prpcheckstart'};
 
   # send unblockedevents to other schedulers
   if ($ctx->{'sendunblockedevents'}) {
