@@ -25,8 +25,8 @@ RSpec.describe Webui::Projects::PulseController do
       subject { get :show, format: :html, params: { project_name: project.name, from: '1899-02-04', to: '2004-05-08' } }
 
       it 'assigns the correct date range' do
-        expect(controller.instance_variable_get(:@date_range_from)).to eq(DateTime.parse('1899-02-04').beginning_of_day)
-        expect(controller.instance_variable_get(:@date_range_to)).to eq(DateTime.parse('2004-05-08').end_of_day)
+        expect(controller.instance_variable_get(:@date_range_from)).to eq(Time.zone.parse('1899-02-04').beginning_of_day)
+        expect(controller.instance_variable_get(:@date_range_to)).to eq(Time.zone.parse('2004-05-08').end_of_day)
       end
     end
 

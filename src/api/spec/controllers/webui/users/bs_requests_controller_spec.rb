@@ -166,10 +166,10 @@ RSpec.describe Webui::Users::BsRequestsController do
 
       context 'and the created_at parameters are used' do
         before do
-          request_with_review.update(created_at: DateTime.parse('Mon, 10 Feb 2025 12:00:00'))
+          request_with_review.update(created_at: Time.zone.parse('Mon, 10 Feb 2025 12:00:00'))
         end
 
-        let(:context_params) { { created_at_from: DateTime.parse('Mon, 10 Feb 2025 00:00:00').to_s, created_at_to: DateTime.parse('Mon, 10 Feb 2025 23:59:00').to_s } }
+        let(:context_params) { { created_at_from: Time.zone.parse('Mon, 10 Feb 2025 00:00:00').to_s, created_at_to: Time.zone.parse('Mon, 10 Feb 2025 23:59:00').to_s } }
 
         it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
       end

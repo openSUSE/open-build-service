@@ -46,8 +46,8 @@ module Webui
         params[:to] ||= default_to.strftime('%Y-%m-%d')
 
         begin
-          @date_range_from = DateTime.parse(params[:from]).beginning_of_day
-          @date_range_to = DateTime.parse(params[:to]).end_of_day
+          @date_range_from = Time.zone.parse(params[:from]).beginning_of_day
+          @date_range_to = Time.zone.parse(params[:to]).end_of_day
         rescue ArgumentError
           flash.now[:error] = 'From or To dates are not in a valid format, using default time range'
           @date_range_from = default_from
