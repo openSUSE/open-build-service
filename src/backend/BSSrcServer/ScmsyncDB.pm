@@ -37,6 +37,7 @@ sub generate_scmsyncinfo {
   my $uri = URI->new($scmsyncurl);
   my $scmsync_repo = $uri->scheme.'://'.$uri->host.$uri->path;
   $scmsync_repo =~ s/\.git$//;
+  $scmsync_repo =~ s/^git\+//;
   my $scmsync_branch = $uri->fragment;
   my %params = $uri->query_form;
   my $scmsyncinfo = { 'scmsync_repo' => $scmsync_repo };
@@ -73,8 +74,10 @@ sub getscmsyncpackages {
   my ($scmsync_repo, $scmsync_branch, $use_trackingbranch) = @_;
   return () unless $BSConfig::source_db_sqlite;
   my $db = BSSrcServer::SQLite::opendb($sourcedb, 'scmsync');
-  $scmsync_repo =~ s/\.git$//;
-  return $db->getscmsyncpackages($scmsync_repo, $scmsync_branch, $use_trackingbranch);
+  # normalize the repo url
+  my $scmsyncinfo = generate_scmsyncinfo($scmsync_repo);
+  return unless $scmsyncinfo;
+  return $db->getscmsyncpackages($scmsyncinfo->{'scmsync_repo'}, $scmsync_branch, $use_trackingbranch);
 }
 
 sub getscmsyncurl {
