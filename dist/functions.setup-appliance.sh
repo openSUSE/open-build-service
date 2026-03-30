@@ -65,6 +65,7 @@ function check_server_cert {
           -key $backenddir/certs/server.key \
           -out $backenddir/certs/server.${FQHOSTNAME}.crt
 
+      enable_ssl_for_mariadb
       if [[ $? == 0 ]];then
         echo "Do not remove this file or new SSL CAs will get created." > $backenddir/certs/server.${FQHOSTNAME}.created
       fi
@@ -73,6 +74,17 @@ function check_server_cert {
       exit 1
     fi
   fi
+}
+###############################################################################
+function enable_ssl_for_mariadb() {      
+      [ -d /etc/mysql/ssl/ ] || mkdir -p /etc/mysql/ssl/
+      chmod 700 /etc/mysql/ssl/
+      cp /srv/obs/certs/server.${FQHOSTNAME}.crt /etc/mysql/ssl/server-cert.pem
+      cp /srv/obs/certs/server.${FQHOSTNAME}.crt /etc/mysql/ssl/ca-cert.pem
+      cp /srv/obs/certs/server.key /etc/mysql/ssl/server-key.pem
+      chown -R mysql:mysql /etc/mysql/ssl/
+      chmod 600 /etc/mysql/ssl/server-key.pem
+      perl -p -i -e 's;#\s*(ssl-(ca|cert|key)=.);$1;' /etc/my.cnf
 }
 ###############################################################################
 function create_selfsigned_certificate() {
