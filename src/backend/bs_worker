@@ -4217,7 +4217,7 @@ sub dobuild {
       'endtime' => $now,
     };
     $info->{'workerid'} = $workerid if defined $workerid;
-    for (qw{readytime srcmd5 verifymd5 rev vcs file buildtype}) {
+    for (qw{readytime srcmd5 verifymd5 rev vcs file buildtype jobid}) {
       $info->{$_} = $buildinfo->{$_} if $buildinfo->{$_};
     }
     $stats->{'info'} = $info;
