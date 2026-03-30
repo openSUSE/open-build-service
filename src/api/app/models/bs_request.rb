@@ -339,9 +339,15 @@ class BsRequest < ApplicationRecord
 
     bs_request_action = bs_request_actions.first
     return unless bs_request_action.submit?
-    return if bs_request_action.source_project_object&.anitya_distribution_name.blank?
 
-    bs_request_action.source_package_object&.latest_local_version&.version
+    begin
+      source_package = bs_request_action.source_project_object&.find_package(bs_request_action.source_package)
+    rescue Project::Errors::CycleError
+      return nil
+    end
+    return if source_package&.project&.anitya_distribution_name.blank?
+
+    source_package.latest_local_version&.version
   end
 
   # Get the current local version of the target package for single-action submit
@@ -351,9 +357,15 @@ class BsRequest < ApplicationRecord
 
     bs_request_action = bs_request_actions.first
     return unless bs_request_action.submit?
-    return if bs_request_action.target_project_object&.anitya_distribution_name.blank?
 
-    bs_request_action.target_package_object&.latest_local_version&.version
+    begin
+      target_package = bs_request_action.target_project_object&.find_package(bs_request_action.target_package)
+    rescue Project::Errors::CycleError
+      return nil
+    end
+    return if target_package&.project&.anitya_distribution_name.blank?
+
+    target_package.latest_local_version&.version
   end
 
   def target_package_maintainers
