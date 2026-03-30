@@ -39,7 +39,6 @@ use XML::Structured ':bytes';
 
 use Build;
 
-our $nosharedtrees;
 use BSConfig;
 use BSFileDB;
 use BSWatcher;
@@ -283,15 +282,11 @@ sub check_package_dir {
   }
 }
 
-$nosharedtrees = $BSConfig::nosharedtrees if defined($BSConfig::nosharedtrees);
-
 my $jobsroot  = "$BSConfig::bsdir/jobs";
 my $dbroot  = "$BSConfig::bsdir/db";
 my $buildroot  = "$BSConfig::bsdir/build";
 my $eventroot = "$BSConfig::bsdir/events";
 my $projectsdir = "$BSConfig::bsdir/projects";
-my $srcrepdir = "$BSConfig::bsdir/sources";
-my $treesdir = $nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
 my $workersroot = "$BSConfig::bsdir/workers";
 my $sourcedb = "$BSConfig::bsdir/db/source";
 my $requestsroot = "$BSConfig::bsdir/requests";

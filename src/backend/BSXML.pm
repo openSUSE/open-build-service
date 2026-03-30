@@ -677,6 +677,9 @@ our $buildinfo = [
 
 	'signflavor',   	# internal
 
+	'reprorepoid',   	# internal
+	'reprojobid',   	# internal
+
       [ 'preinstallimage' =>
 	    'project',
 	    'repository',
@@ -1165,6 +1168,7 @@ our $buildresultinfo = [
 	'readytime',
 	'starttime',
 	'endtime',
+	'jobid',	# for repro builds
 ];
 
 our $result = [

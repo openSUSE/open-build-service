@@ -28,7 +28,6 @@ use JSON::XS ();
 use MIME::Base64 ();
 
 use BSRPC ':https';
-use BSConfiguration;
 
 our $intoto_slsav_v01 = "https://slsa.dev/provenance/v0.1";
 our $intoto_slsav_v02 = "https://slsa.dev/provenance/v0.2";
