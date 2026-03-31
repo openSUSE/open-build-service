@@ -2373,7 +2373,7 @@ sub publish {
   if ($config->{'publishflags:archsync'} && @archs > 1) {
     my %as;
     for my $a (@archs) {
-      $as{$a} = BSUtil::retrieve("$reporoot/$prp/$_/:repo/.archsync", 1) || {};
+      $as{$a} = BSUtil::retrieve("$reporoot/$prp/$a/:repo/.archsync", 1) || {};
       $as{$a}->{'lastchange'} ||= 0;
     }
     my @as_lastchange = sort {$b->{'lastchange'} <=> $a->{'lastchange'}} map {$as{$_}} @archs;
