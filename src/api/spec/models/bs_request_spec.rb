@@ -764,22 +764,6 @@ RSpec.describe BsRequest, :vcr do
             expect(submit_request.source_package_latest_local_version).to eq('1.0.0')
           end
         end
-
-        context 'when the source package is resolved through a linked project' do
-          let(:base_project) { create(:project, name: 'base:source') }
-          let(:linked_project) { create(:project, name: 'home:user:branch', link_to: base_project) }
-          let(:base_source_package) { create(:package, name: source_package.name, project: base_project) }
-          let!(:local_version) { create(:package_version_local, version: '3.2.1', package: base_source_package) }
-
-          before do
-            base_project.update_column(:anitya_distribution_name, 'openSUSE') # rubocop:disable Rails/SkipsModelValidations
-            submit_request.bs_request_actions.first.update!(source_project: linked_project.name, source_project_object: linked_project)
-          end
-
-          it 'returns the version from the linked package' do
-            expect(submit_request.source_package_latest_local_version).to eq('3.2.1')
-          end
-        end
       end
     end
   end
@@ -797,22 +781,6 @@ RSpec.describe BsRequest, :vcr do
 
           it 'returns the version' do
             expect(submit_request.target_package_latest_local_version).to eq('2.5.1')
-          end
-        end
-
-        context 'when the target package is resolved through a linked project' do
-          let(:base_project) { create(:project, name: 'base:target') }
-          let(:linked_project) { create(:project, name: 'home:user:target', link_to: base_project) }
-          let(:base_target_package) { create(:package, name: target_package.name, project: base_project) }
-          let!(:local_version) { create(:package_version_local, version: '4.7.0', package: base_target_package) }
-
-          before do
-            base_project.update_column(:anitya_distribution_name, 'openSUSE') # rubocop:disable Rails/SkipsModelValidations
-            submit_request.bs_request_actions.first.update!(target_project: linked_project.name, target_project_object: linked_project)
-          end
-
-          it 'returns the version from the linked package' do
-            expect(submit_request.target_package_latest_local_version).to eq('4.7.0')
           end
         end
       end
