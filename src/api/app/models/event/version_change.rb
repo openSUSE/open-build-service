@@ -2,7 +2,7 @@ module Event
   class VersionChange < Base
     include EventObjectPackage
 
-    after_create :create_local_package_version
+    after_create :schedule_create_local_package_version_job
 
     self.message_bus_routing_key = 'package.version_change'
     self.description = 'Package changed its version'
@@ -14,10 +14,11 @@ module Event
       super
     end
 
-    def create_local_package_version
-      return unless (package = Package.find_by_project_and_name(payload['project'], payload['package']))
-      return unless (attribute_anitya_distribution = AttribType.find_by_namespace_and_name('OBS', 'AnityaDistribution'))
-      return if package.project.attribs.find_by_attrib_type_id(attribute_anitya_distribution.id).blank? && package.attribs.find_by_attrib_type_id(attribute_anitya_distribution.id).blank?
+    def schedule_create_local_package_version_job
+      package = Package.find_by_project_and_name(payload['project'], payload['package'])
+
+      return unless package
+      return if package.project.anitya_distribution_name.blank?
 
       CreateLocalPackageVersionJob.perform_later(package.id, payload['newversion'])
     end
