@@ -5,7 +5,7 @@ class StatusMessage < ApplicationRecord
 
   validates :severity, :message, presence: true
 
-  scope :announcements, -> { order(created_at: :desc).where(severity: 'announcement') }
+  scope :announcements, -> { where(severity: 'announcement') }
   scope :for_current_user, -> { where(communication_scope: communication_scopes_for_current_user) }
   scope :newest, -> { order(created_at: :desc) }
   scope :for_severity, ->(severity) { where(severity: severity) if severity.present? }
@@ -28,7 +28,7 @@ class StatusMessage < ApplicationRecord
   end
 
   def self.latest_for_current_user
-    announcement = StatusMessage.announcements.find_by(communication_scope: StatusMessage.communication_scopes_for_current_user)
+    announcement = StatusMessage.announcements.order(created_at: :desc).find_by(communication_scope: StatusMessage.communication_scopes_for_current_user)
     return nil unless announcement
     return nil if StatusMessageAcknowledgement.find_by(status_message: announcement, user: User.session)
 

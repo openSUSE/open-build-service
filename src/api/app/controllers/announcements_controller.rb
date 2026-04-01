@@ -5,7 +5,7 @@ class AnnouncementsController < ApplicationController
 
   # GET /announcements
   def index
-    @status_messages = StatusMessage.announcements
+    @status_messages = StatusMessage.announcements.order(created_at: :desc)
     @count = @status_messages.size
     authorize @status_messages
     render 'status_messages/index', formats: [:xml]
