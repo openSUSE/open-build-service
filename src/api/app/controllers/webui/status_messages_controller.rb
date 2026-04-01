@@ -6,7 +6,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   def index
     @severity, @communication_scope, @page = index_params.values_at(:severity, :communication_scope, :page)
-    @status_messages = StatusMessage.newest.includes(:user).for_severity(@severity).for_communication_scope(@communication_scope).page(@page)
+    @status_messages = StatusMessage.order(created_at: :desc).includes(:user).for_severity(@severity).for_communication_scope(@communication_scope).page(@page)
 
     respond_to do |format|
       format.html
