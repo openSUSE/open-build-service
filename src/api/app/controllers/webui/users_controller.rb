@@ -221,7 +221,7 @@ class Webui::UsersController < Webui::WebuiController
     return unless Flipper.enabled?(:content_moderation, User.session)
     return unless policy(@displayed_user).comment_index?
 
-    comments = @displayed_user.comments.includes(:project).newest_first
+    comments = @displayed_user.comments.includes(:project).order(created_at: :desc)
     params[:page] = comments.page(params[:page]).total_pages if comments.page(params[:page]).out_of_range?
     comments.page(params[:page])
   end
