@@ -283,6 +283,32 @@ sub killunwantedjobs {
   delete $ourjobs{$job2} unless %{$ourjobs{$job2} || {}};
 }
 
+=head2 writejob_repro - save a copy of the job for repro builds
+
+ TODO
+
+=cut
+
+sub writejob_repro {
+  my ($ctx, $binfo) = @_;
+  my $gctx = $ctx->{'gctx'};
+  # also write a copy of the job to the repro repo
+  my $rdst = "$gctx->{'reporoot'}/$binfo->{'project'}/$ctx->{'reprorepoid'}/$gctx->{'arch'}/$binfo->{'package'}";
+  mkdir_p($rdst);
+  # but save the old job if it matches the current result
+  my $dst = "$ctx->{'gdst'}/$binfo->{'package'}";
+  if (-s "$dst/_statistics") {
+    my $statistics  = readxml("$dst/_statistics", $BSXML::buildstatistics, 1) || {};
+    my $oldjobid = (($statistics->{'info'} || {})->{'jobid'} || '');
+    if ($oldjobid) {
+      my $oldjobxml = readstr("$rdst/.reprojob", 1);
+      writestr("$rdst/.reprojob.success.new", "$rdst/.reprojob.success", $oldjobxml) if $oldjobxml && Digest::MD5::md5_hex($oldjobxml) eq $oldjobid;
+    }
+  }
+  writexml("$rdst/.reprojob.new", "$rdst/.reprojob", $binfo, $BSXML::buildinfo);
+  $ctx->{'reprojob_written'} = 1;
+}
+
 =head2 writejob - write a new job to disc
 
 After writing the dispatcher will pick up the job and dispatch it
@@ -319,6 +345,7 @@ sub writejob {
   add_crossmarker($gctx, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
   $ourjobs{$1}->{$job} = 1 if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
   push @{$ctx->{'otherjobscache'}}, $job;
+  writejob_repro($ctx, $binfo) if $ctx->{'reprorepoid'};	# also write the job to the repro repo
 }
 
 =head2 find_otherjobs - find all jobs for the same build
@@ -475,6 +502,10 @@ sub jobfinished {
   my $jobdatadir = "$myjobsdir/$job:dir";
   if (! -d $jobdatadir) {
     print "  - $job has no data dir\n";
+    return;
+  }
+  if ($info->{'reprojobid'}) {
+    BSSched::BuildJob::Reproduciblecheck::jobfinished($ectx, $job, $info, $js);
     return;
   }
   # dispatch to specialized versions for aggregates and deltas
@@ -702,6 +733,7 @@ sub fakejobfinished {
     'job' => $job,
     %{$buildinfoskel || {}},
   };
+  local $ctx->{'reprorepoid'} = undef;	# disable reproducible job generation
   $ctx->writejob($job, $binfo);
   close(F);
   my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
@@ -1046,7 +1078,7 @@ sub create {
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $dobuildinfo = $ctx->{'dobuildinfo'};
 
-  if ($myjobsdir) {
+  if ($myjobsdir && $info->{'file'} ne '_reproduciblecheck') {
     if (-s "$myjobsdir/$jobprefix-$srcmd5") {
       add_crossmarker($gctx, $bconf->{'hostarch'}, "$jobprefix-$srcmd5") if $bconf->{'hostarch'};	# just in case...
       return ('scheduled', "$jobprefix-$srcmd5");
@@ -1181,7 +1213,7 @@ sub create {
   }
 
   # kill those ancient other jobs
-  kill_otherjobs($ctx, $jobprefix) if $myjobsdir;
+  kill_otherjobs($ctx, $jobprefix) if $myjobsdir && $info->{'file'} ne '_reproduciblecheck';
 
   # create bdep section
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
@@ -1282,6 +1314,10 @@ sub create {
       $binfo->{'signflavor'} = $signflavor if $signflavor;
     }
     $binfo->{'nouseforbuild'} = 1 if $info->{'nouseforbuild'};
+    if ($binfo->{'file'} eq '_reproduciblecheck' && $ctx->{'isreprorepo'}) {
+      $binfo->{'reprorepoid'} = $ctx->{'isreprorepo'};
+      $binfo->{'reprojobid'} = $srcmd5;
+    }
   }
   $ctx->writejob($job, $binfo, $reason);
 

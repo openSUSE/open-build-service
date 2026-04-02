@@ -1144,6 +1144,12 @@ eval {
     $ctx->unpreparepool();
     $ctx->free_caches();
 
+    if ($ctx->{'reprorepoid'} && ($ctx->{'reprojob_written'} || $lookattype ne 'low')) {
+      # look at reprorepo next
+      my $changed = $gctx->{"changed_med"};
+      $changed->{"$projid/$ctx->{'reprorepoid'}"} ||= 1;
+    }
+
     my $wasfinished = $gctx->{'prpfinished'}->{$prp};
 
     # clean up and free memory if we are finished

@@ -130,7 +130,7 @@ sub event_built {
     my $prp = "$info->{'project'}/$info->{'repository'}";
     BSRedisnotify::updatejobstatus("$prp/$myarch", $job) if $BSConfig::redisserver && !$info->{'packstatus_patched'};
   }
-  BSSched::BuildJob::purgejob($gctx, $job);
+  BSSched::BuildJob::purgejob($gctx, $job) unless $info->{'job_is_waiting'};
   close F;
 }
 

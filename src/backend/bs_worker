@@ -3804,9 +3804,13 @@ sub dobuild {
   my $stats = {};
   my $deltamode = $buildinfo->{'file'} eq '_delta' ? 1 : undef;
   my $ptfmode = $buildinfo->{'file'} eq '_ptf' ? 1 : undef;
+  my $reproduciblecheckmode = $buildinfo->{'file'} eq '_reproduciblecheck' ? 1 : undef;
   my $followupmode = $buildinfo->{'followupfile'};
   my $followupcopy = {};
   my $needsobspackage;
+
+  # hack to enable logfile appending
+  $followupmode = $buildinfo->{'followupfile'} = $buildinfo->{'file'} if $reproduciblecheckmode;
 
   my $helper = '';
   /^\Q$helperarch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$hostarch}};
@@ -3836,7 +3840,7 @@ sub dobuild {
   rm_rf($oldpkgdir) if -d $oldpkgdir;
 
   # create buildenv data
-  if (!$imagemode && !$followupmode && !$deltamode && !$ptfmode) {
+  if (!$imagemode && !$followupmode && !$deltamode && !$ptfmode && !$reproduciblecheckmode) {
     $buildinfo->{'outbuildinfo'} = {
       'project' => $projid,
       'package' => $packid,
@@ -3871,12 +3875,12 @@ sub dobuild {
       writestr("$srcdir/deltagen.spec", undef, $spec);
     }
     $buildinfo->{'file'} = 'deltagen.spec';
-  } elsif ($ptfmode) {
+  } elsif ($ptfmode || $reproduciblecheckmode) {
     getjobdata($buildinfo, $srcdir);
     print "packages, ";
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
-    $buildinfo->{'file'} = 'ptf.spec';
+    $buildinfo->{'file'} = $ptfmode ? 'ptf.spec' : 'reproduciblecheck.spec';
     @meta = split("\n", readstr("$srcdir/meta"));
   } elsif ($followupmode) {
     getfollowupsources($buildinfo, $srcdir);
@@ -3959,7 +3963,9 @@ sub dobuild {
   if (defined $buildinfo->{'config'}) {
     $config = $buildinfo->{'config'};
   } else {
-    $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
+    my $configrepoid = $repoid;
+    $configrepoid = $buildinfo->{'reprorepoid'} if $buildinfo->{'reprorepoid'} && !$reproduciblecheckmode;
+    $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$configrepoid", @configpath);
     $config = Build::combine_configs($config, "Macros:\n$buildinfo->{'modularity_macros'}") if $buildinfo->{'modularity_macros'};
   }
   $buildinfo->{'slsa_provenance_config'} = $config if $buildinfo->{'slsaprovenance'};
