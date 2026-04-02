@@ -7,13 +7,13 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>That Good Night</title>
+          <title>Recalled to Life</title>
           <description/>
           <person userid="maintainer" role="maintainer"/>
         </project>
     headers:
       X-Frontend-Start:
-      - '1773057649'
+      - '1775143220'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -32,16 +32,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>That Good Night</title>
+          <title>Recalled to Life</title>
           <description></description>
           <person userid="maintainer" role="maintainer"/>
         </project>
-  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=maintainer
@@ -49,12 +49,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>All Passion Spent</title>
-          <description>Eligendi veniam quam asperiores.</description>
+          <title>Rosemary Sutcliff</title>
+          <description>Aut ut placeat delectus.</description>
         </package>
     headers:
       X-Frontend-Start:
-      - '1773057649'
+      - '1775143220'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -73,15 +73,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>All Passion Spent</title>
-          <description>Eligendi veniam quam asperiores.</description>
+          <title>Rosemary Sutcliff</title>
+          <description>Aut ut placeat delectus.</description>
         </package>
-  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=maintainer
@@ -89,12 +89,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>It's a Battlefield</title>
+          <title>Look to Windward</title>
           <description/>
         </project>
     headers:
       X-Frontend-Start:
-      - '1773057649'
+      - '1775143220'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -113,57 +113,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '107'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>It's a Battlefield</title>
+          <title>Look to Windward</title>
           <description></description>
         </project>
-  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=maintainer
-    body:
-      encoding: UTF-8
-      string: |
-        <attributes>
-          <attribute name="ApprovedRequestSource" namespace="OBS"/>
-        </attributes>
-    headers:
-      X-Frontend-Start:
-      - '1773057649'
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '173'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="42">
-          <srcmd5>1442f47387628d375f6980c1563b843b</srcmd5>
-          <time>1773057649</time>
-          <user>maintainer</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=maintainer
@@ -171,12 +129,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Stranger in a Strange Land</title>
-          <description>Ipsam quia est odit.</description>
+          <title>Oh! To be in England</title>
+          <description>Voluptatem sint et optio.</description>
         </package>
     headers:
       X-Frontend-Start:
-      - '1773057649'
+      - '1775143220'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -195,15 +153,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Stranger in a Strange Land</title>
-          <description>Ipsam quia est odit.</description>
+          <title>Oh! To be in England</title>
+          <description>Voluptatem sint et optio.</description>
         </package>
-  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -212,7 +170,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1773057649'
+      - '1775143220'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -231,13 +189,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="source_package" rev="4" vrev="4" srcmd5="8b53de482ce91efae3d79dff891dc76e">
+          <entry name="_config" md5="d46eb2938e830f3ccc5805a5f89bde81" size="67" mtime="1775143209"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1775143208"/>
         </directory>
-  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:20 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -248,7 +208,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Frontend-Start:
-      - '1773057649'
+      - '1775143220'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -263,7 +223,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '328'
+      - '1127'
       Cache-Control:
       - no-cache
       Connection:
@@ -271,15 +231,35 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1d2d66e37ffce337361288aaa1a481e8">
-          <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        <sourcediff key="438ecb1ad2d50a4f445ee07367bbeb35">
+          <old project="target_project" package="target_package" rev="4" srcmd5="8a6f88f55cc8195e95bff606875421d2"/>
+          <new project="source_project" package="source_package" rev="4" srcmd5="8b53de482ce91efae3d79dff891dc76e"/>
           <files>
+            <file state="changed">
+              <old name="_config" md5="51fe29fee47e199e4bc0a68f3163762c" size="79"/>
+              <new name="_config" md5="d46eb2938e830f3ccc5805a5f89bde81" size="67"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Dignissimos impedit incidunt. Voluptas repudiandae sunt. Molestiae aut dolores.
+        \ No newline at end of file
+        +Aperiam harum voluptas. Id qui accusantium. Totam blanditiis quasi.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23"/>
+              <new name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -# This will be replaced
+        \ No newline at end of file
+        +# This is the new text
+        \ No newline at end of file
+        </diff>
+            </file>
           </files>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -288,7 +268,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1773057649'
+      - '1775143220'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -307,13 +287,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="target_package" rev="4" vrev="4" srcmd5="8a6f88f55cc8195e95bff606875421d2">
+          <entry name="_config" md5="51fe29fee47e199e4bc0a68f3163762c" size="79" mtime="1775143209"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1775143208"/>
         </directory>
-  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -322,7 +304,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1773057649'
+      - '1775143220'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -341,11 +323,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="target_package" rev="4" vrev="4" srcmd5="8a6f88f55cc8195e95bff606875421d2">
+          <entry name="_config" md5="51fe29fee47e199e4bc0a68f3163762c" size="79" mtime="1775143209"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1775143208"/>
         </directory>
-  recorded_at: Mon, 09 Mar 2026 12:00:49 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:20 GMT
 recorded_with: VCR 6.4.0
