@@ -1476,7 +1476,7 @@ sub checkpkgs {
   } else {
     unlink("$gdst/:packstatus.finished");
   }
-  BSRedisnotify::updateresult("$prp/$myarch", \%packstatus, \%packerror, \%building) if $BSConfig::redisserver;
+  BSRedisnotify::updateresult("$prp/$myarch", \%packstatus, \%packerror, \%building, $proj->{'scmsync'}, $proj->{'scminfo'}) if $BSConfig::redisserver;
 
   # write lastcheck file if we spent more than 2 minutes
   if ($ctx->{'prpchecktime'} > 2 * 60 && $ctx->{'nharder'} > 10 && %{$ctx->{'lastcheck'} || {}}) {
