@@ -295,7 +295,7 @@ sub writejob {
 
   # jay! ready for building, write status, reason, and job info
   my $gctx = $ctx->{'gctx'};
-  $binfo->{'job'} = $job if $job;
+  $binfo->{'job'} = $job;
   $binfo->{'readytime'} = time();
   if ($reason) {
     $binfo->{'reason'} = $reason->{'explain'};
@@ -334,6 +334,20 @@ sub find_otherjobs {
   my @otherjobs = grep {/^\Q$jobprefix\E-[0-9a-f]{32}$/} @{$ctx->{'otherjobscache'}};
   @otherjobs = BSUtil::unify(grep {-e "$myjobsdir/$_"} @otherjobs) if @otherjobs;
   return @otherjobs;
+}
+
+=head2 kill_otherjobs - find all jobs for the same build and kill them
+
+=cut
+
+sub kill_otherjobs {
+  my ($ctx, $jobprefix) = @_;
+  my $gctx = $ctx->{'gctx'};
+  my @otherjobs = find_otherjobs($ctx, $jobprefix);
+  for my $otherjob (@otherjobs) {
+    print "        killing old job $otherjob\n" if $ctx->{'verbose'};
+    killjob($gctx, $ctx->{'prp'}, $otherjob);
+  }
 }
 
 =head2 add_crossmarker - add a marker into a foreign jobdir
@@ -466,11 +480,11 @@ sub jobfinished {
   # dispatch to specialized versions for aggregates and deltas
   if ($info->{'file'} eq '_aggregate') {
     BSSched::BuildJob::Aggregate::jobfinished($ectx, $job, $info, $js);
-    return ;
+    return;
   }
   if ($info->{'file'} eq '_delta') {
     BSSched::BuildJob::DeltaRpm::jobfinished($ectx, $job, $info, $js);
-    return ;
+    return;
   }
 
   my $myarch = $gctx->{'arch'};
@@ -636,9 +650,8 @@ sub jobfinished {
 
   # write history file
   my $duration = 0;
-  $duration = $js->{'endtime'} - $js->{'starttime'} if $js->{'endtime'} && $js->{'starttime'};;
-  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $now, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}, 'duration' => $duration};
-  BSFileDB::fdb_add("$dst/history", $historylay, $h);
+  $duration = $js->{'endtime'} - $js->{'starttime'} if $js->{'endtime'} && $js->{'starttime'};
+  addsucceededhist($dst, $info, $now, $duration);
 
   # update relsync file (use relsync.merge if relsync is too big)
   if (((-s "$gdst/:relsync") || 0) < 8192 && ! -e "$gdst/:relsync.merge") {
@@ -741,6 +754,11 @@ sub fakejobfinished_nouseforbuild {
   }
   rename("$jobdatadir/meta", "$gdst/:meta/$packid");
   if ($code eq 'succeeded') {
+    my $now = time();
+    # fake job data
+    my $info = {
+      'versrel' => $pdata->{'versrel'}, 'bcnt' => 0, 'srcmd5' => $pdata->{'srcmd5'}, 'rev' => $pdata->{'rev'}, 'reason' => '',
+    };
     $bininfo ||= {};
     # fixup filename entries
     for (keys %$bininfo) {
@@ -765,8 +783,7 @@ sub fakejobfinished_nouseforbuild {
     BSSched::BuildResult::update_bininfo_merge($gdst, $packid, $bininfo);
     delete $bininfo->{'.bininfo'};
     # write history file
-    my $h = {'versrel' => $pdata->{'versrel'}, 'bcnt' => "0", 'time' => time(), 'srcmd5' => $pdata->{'srcmd5'}, 'rev' => $pdata->{'rev'}, 'reason' => "", 'duration' => "0"};
-    BSFileDB::fdb_add("$dst/history", $historylay, $h);
+    addsucceededhist($dst, $info, $now, 0);
   }
   BSUtil::cleandir($jobdatadir);
   rmdir($jobdatadir);
@@ -841,8 +858,20 @@ sub addjobhist {
   }
 }
 
+=head2 addsucceededhist - add a new entry succeeded history list
 
-=head2 nextbcnt - calculate the build counter for the next build
+ TODO: add description
+
+=cut
+
+sub addsucceededhist {
+  my ($dst, $info, $now, $duration) = @_;
+  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $now, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}, 'duration' => $duration};
+  BSFileDB::fdb_add("$dst/history", $historylay, $h);
+}
+
+
+=head2 nextbcnt - calculate the build counter for the next build by looking at the succeeded history
 
  TODO: add description
 
@@ -1152,13 +1181,7 @@ sub create {
   }
 
   # kill those ancient other jobs
-  if ($myjobsdir) {
-    my @otherjobs = find_otherjobs($ctx, $jobprefix);
-    for my $otherjob (@otherjobs) {
-      print "        killing old job $otherjob\n" if $ctx->{'verbose'};
-      killjob($gctx, $prp, $otherjob);
-    }
-  }
+  kill_otherjobs($ctx, $jobprefix) if $myjobsdir;
 
   # create bdep section
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
