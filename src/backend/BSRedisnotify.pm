@@ -38,13 +38,15 @@ sub addforwardjob {
 }
 
 sub updateresult {
-  my ($prpa, $packstatus, $packerror, $jobs) = @_;
+  my ($prpa, $packstatus, $packerror, $jobs, $scmsync, $scminfo) = @_;
   my @job = ('redis', 'updateresult', $prpa);
   for my $packid (sort keys %$packstatus) {
     my $code = $packstatus->{$packid};
     my $details = $code eq 'scheduled' ? $jobs->{$packid} : $packerror->{$packid};
     push @job, $packid, ($details ? "$code:$details" : $code);
   }
+  push @job, '_scmsync', "excluded:$scmsync" if $scmsync;
+  push @job, '_scminfo', "excluded:$scminfo" if $scmsync && $scminfo;
   addforwardjob(@job);
 }
 
