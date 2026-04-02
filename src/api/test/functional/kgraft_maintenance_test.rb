@@ -56,18 +56,18 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro2.0/_meta'
     assert_response :success
     assert_no_xml_tag tag: 'lock' # or our fixtures have changed
-    doc = REXML::Document.new(@response.body)
-    doc.elements['/project'].add_element 'lock'
-    doc.elements['/project/lock'].add_element 'enable'
-    put '/source/BaseDistro2.0/_meta', params: doc.to_s
+    doc = Nokogiri::XML(@response.body)
+    doc.at_xpath('/project').add_child(Nokogiri::XML::Node.new('lock', doc))
+    doc.at_xpath('/project/lock').add_child(Nokogiri::XML::Node.new('enable', doc))
+    put '/source/BaseDistro2.0/_meta', params: doc.root.to_xml
     assert_response :success
 
     # create maintenance incident for first kernel update
     post '/source', params: { cmd: 'createmaintenanceincident' }
     assert_response :success
     assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' })
-    data = REXML::Document.new(@response.body)
-    kernel_incident_project = data.elements['/status/data'].text
+    data = Nokogiri::XML(@response.body)
+    kernel_incident_project = data.at_xpath('/status/data')&.text
     kernel_incident_id = kernel_incident_project.gsub(/^My:Maintenance:/, '')
     # submit packages via mbranch
     post '/source', params: { cmd: 'branch', package: 'pack2', target_project: kernel_incident_project, add_repositories: 1 }
@@ -170,8 +170,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{id1}"
     assert_response :success
-    data = REXML::Document.new(@response.body)
-    incident_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    data = Nokogiri::XML(@response.body)
+    incident_project = data.at_xpath('/request/action/target')['project'].to_s
     incident_id = incident_project.gsub(/^My:Maintenance:/, '')
 
     # validate sources
@@ -282,10 +282,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/' + kernel_incident_project + '/_meta'
     assert_response :success
     assert_no_xml_tag tag: 'lock' # or our fixtures have changed
-    doc = REXML::Document.new(@response.body)
-    doc.elements['/project'].add_element 'lock'
-    doc.elements['/project/lock'].add_element 'enable'
-    put '/source/' + kernel_incident_project + '/_meta', params: doc.to_s
+    doc = Nokogiri::XML(@response.body)
+    doc.at_xpath('/project').add_child(Nokogiri::XML::Node.new('lock', doc))
+    doc.at_xpath('/project/lock').add_child(Nokogiri::XML::Node.new('enable', doc))
+    put '/source/' + kernel_incident_project + '/_meta', params: doc.root.to_xml
     assert_response :success
 
     # collect the job results

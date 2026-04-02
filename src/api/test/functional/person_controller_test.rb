@@ -215,16 +215,17 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     # change the xml data set that came as response body
     new_name = 'Thommy Cool'
     userinfo_xml = @response.body
-    doc = REXML::Document.new(userinfo_xml)
-    doc.elements['//realname'].text = new_name
-    doc.elements['//watchlist'].add_element 'project'
-    doc.elements['//project'].add_attribute(REXML::Attribute.new('name', 'home:tom'))
-    r = REXML::Element.new('globalrole')
-    r.text = 'Admin'
-    doc.elements['/person'].insert_after(doc.elements['//state'], r)
+    doc = Nokogiri::XML(userinfo_xml)
+    doc.at_xpath('//realname').content = new_name
+    project_node = Nokogiri::XML::Node.new('project', doc)
+    project_node['name'] = 'home:tom'
+    doc.at_xpath('//watchlist').add_child(project_node)
+    r = Nokogiri::XML::Node.new('globalrole', doc)
+    r.content = 'Admin'
+    doc.at_xpath('//state').add_next_sibling(r)
     # Write changed data back and validate result
     prepare_request_valid_user
-    put '/person/tom', params: doc.to_s
+    put '/person/tom', params: doc.root.to_xml
     assert_response :success
     get '/person/tom'
     assert_response :success
