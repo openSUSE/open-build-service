@@ -3,7 +3,7 @@ require 'browser_helper'
 RSpec.describe 'Comments with diff', :js, :vcr do
   let(:admin) { create(:admin_user, login: 'Admin') }
   let(:target_project) { create(:project, name: 'target_project') }
-  let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
+  let(:source_project) { create(:project, name: 'source_project') }
   let(:target_package) { create(:package_with_changes_file, name: 'package_a', project: target_project, changes_file_content: 'Different content then source package changes file!') }
   let(:source_package) do
     create(:package_with_changes_file,
