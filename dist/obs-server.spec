@@ -896,6 +896,7 @@ fi
 %{obs_backend_dir}/bs_dbtool
 %{obs_backend_dir}/modifyrpmheader
 %{obs_backend_dir}/obs-ptf.spec
+%{obs_backend_dir}/obs-reproduciblecheck.spec
 %{obs_backend_dir}/worker
 %{obs_backend_dir}/worker-deltagen.spec
 %config(noreplace) %{obs_backend_dir}/BSConfig.pm

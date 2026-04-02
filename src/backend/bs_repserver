@@ -2557,6 +2557,13 @@ sub putjob {
   } else {
     $jobstatus->{'code'} = 'finished';
   }
+
+  # no need to sign if we're just comparing binaries
+  if ($info->{'file'} eq '_reproduciblecheck') {
+    $jobstatus->{'code'} = 'finished';
+    unlink("$dir/.kiwitree_tosign");
+  }
+
   # write jobstatus and free lock
   writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
   updateredisjobstatus($arch, $job, $info, $jobstatus->{'code'});
