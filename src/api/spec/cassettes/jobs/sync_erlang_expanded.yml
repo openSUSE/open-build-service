@@ -1,0 +1,36 @@
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/openSUSE:Factory/erlang
+    body:
+      encoding: US-ASCII
+      string: ''
+  response:
+    status:
+      code: 200
+      message: OK
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="erlang">
+          <version>26.2.2</version>
+        </sourceinfo>
+  recorded_at: Thu, 11 Apr 2024 12:00:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/openSUSE:Factory
+    body:
+      encoding: US-ASCII
+      string: ''
+  response:
+    status:
+      code: 200
+      message: OK
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfolist>
+          <sourceinfo package="erlang"><version>26.2.2</version></sourceinfo>
+        </sourceinfolist>
+  recorded_at: Thu, 11 Apr 2024 12:00:00 GMT
+recorded_with: VCR 6.2.0
