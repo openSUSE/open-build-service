@@ -326,7 +326,7 @@ class BsRequestAction < ApplicationRecord
           end
         else
           sprj = Project.find_by_name(source_project)
-          reviews.push(sprj) if sprj && !User.session!.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource') && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
+          reviews.push(sprj) if sprj && !User.session!.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
         end
       end
     end
