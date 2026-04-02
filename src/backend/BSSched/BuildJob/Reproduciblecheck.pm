@@ -130,7 +130,7 @@ sub build_docompare {
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $jobdatadir = "$myjobsdir/$job:dir";
   return ('broken', 'jobdatadir is missing') unless -d $jobdatadir;
-  BSUtil::cp("$gctx->{'obssrcdir'}/obs-reproduciblecheck.spec", "$jobdatadir/reproduciblecheck.spec");
+  BSUtil::cp("$gctx->{'obssrcdir'}/templates/obs-reproduciblecheck.spec", "$jobdatadir/reproduciblecheck.spec");
   writestr("$jobdatadir/meta", undef, "$reprojobid  $packid\n");
   my $pdata_job = { 'srcmd5' => $reprojobid, 'buildtype' => 'reproduciblecheck' };
   my $info_job = { 'file' => '_reproduciblecheck', 'nouseforbuild' => 1 };

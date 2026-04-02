@@ -890,10 +890,8 @@ fi
 %{obs_backend_dir}/bs_notifyforward
 %{obs_backend_dir}/bs_dbtool
 %{obs_backend_dir}/modifyrpmheader
-%{obs_backend_dir}/obs-ptf.spec
-%{obs_backend_dir}/obs-reproduciblecheck.spec
+%{obs_backend_dir}/templates
 %{obs_backend_dir}/worker
-%{obs_backend_dir}/worker-deltagen.spec
 %config(noreplace) %{obs_backend_dir}/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
 # created via %%post, since rpm fails otherwise while switching from
