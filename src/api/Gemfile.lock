@@ -309,10 +309,10 @@ GEM
       minitest (>= 5.0.6)
     minitest-fail-fast (0.2.0)
       minitest (>= 5.0, < 7)
-    minitest-reporters (1.7.1)
+    minitest-reporters (1.8.0)
       ansi
       builder
-      minitest (>= 5.0)
+      minitest (>= 5.0, < 7)
       ruby-progressbar
     mocha (3.1.0)
       ruby2_keywords (>= 0.0.5)
