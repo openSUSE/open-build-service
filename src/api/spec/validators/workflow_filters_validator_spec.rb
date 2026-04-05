@@ -60,6 +60,33 @@ RSpec.describe WorkflowFiltersValidator do
       end
     end
 
+    context 'with branches filter as a string instead of a hash' do
+      let(:workflow_instructions) { { filters: { branches: 'master' } } }
+
+      it 'is not valid and has an error message' do
+        subject.valid?
+        expect(subject.errors.full_messages.to_sentence).to include("branches only supports a hash value with 'only' and/or 'ignore' keys")
+      end
+    end
+
+    context 'with branches/only filter value as a string instead of an array' do
+      let(:workflow_instructions) { { filters: { branches: { only: 'master' } } } }
+
+      it 'is not valid and has an error message' do
+        subject.valid?
+        expect(subject.errors.full_messages.to_sentence).to include('branches/only only supports an array value')
+      end
+    end
+
+    context 'with branches/ignore filter value as a string instead of an array' do
+      let(:workflow_instructions) { { filters: { branches: { ignore: 'main' } } } }
+
+      it 'is not valid and has an error message' do
+        subject.valid?
+        expect(subject.errors.full_messages.to_sentence).to include('branches/ignore only supports an array value')
+      end
+    end
+
     context 'with supported filters and filter values' do
       let(:workflow_instructions) { { filters: { event: 'something', branches: { only: [] } } } }
 

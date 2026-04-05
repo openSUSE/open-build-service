@@ -47,13 +47,29 @@ class WorkflowFiltersValidator < ActiveModel::Validator
       unsupported_filter_values = []
 
       @workflow_instructions[:filters].each do |filter, value|
+        next if Workflow::SUPPORTED_FILTERS.exclude?(filter.to_sym)
+
         if filter == :event
           @workflow.errors.add(:filter, 'event only supports a string value') unless value.is_a?(String)
         else
-          unsupported_filter_values << filter unless value.keys.all? { |filter_type| SUPPORTED_FILTER_VALUES.include?(filter_type.to_sym) }
+          validate_non_event_filter(filter, value, unsupported_filter_values)
         end
       end
       unsupported_filter_values
+    end
+  end
+
+  def validate_non_event_filter(filter, value, unsupported_filter_values)
+    unless value.is_a?(Hash)
+      @workflow.errors.add(:filter, "#{filter} only supports a hash value with 'only' and/or 'ignore' keys")
+      return
+    end
+
+    unsupported_filter_values << filter unless value.keys.all? { |filter_type| SUPPORTED_FILTER_VALUES.include?(filter_type.to_sym) }
+    value.each do |key, filter_value|
+      next unless SUPPORTED_FILTER_VALUES.include?(key.to_sym)
+
+      @workflow.errors.add(:filter, "#{filter}/#{key} only supports an array value") unless filter_value.is_a?(Array)
     end
   end
 end
