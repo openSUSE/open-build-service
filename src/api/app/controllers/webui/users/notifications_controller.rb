@@ -68,6 +68,14 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     render json: AutocompleteFinder::Project.new(relation, params[:term]).call.pluck(:name)
   end
 
+  def counts
+    count_for_notification_states
+
+    respond_to do |format|
+      format.turbo_stream { render 'counts' }
+    end
+  end
+
   def count_for_notification_types
     counted_notifications = {}
     # notifiable_type: 'Report', 'WorkflowRun', 'Decision', 'Comment', 'BsRequest', 'Group'
@@ -97,10 +105,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     count = nil
 
     case params[:notification_kind]
-    when 'all'
-      count = @notifications.count
-    when 'unread'
-      count = unread_notifications.count
     when 'incoming_requests'
       count = unread_notifications.for_incoming_requests(User.session).count
     when 'outgoing_requests'
@@ -108,6 +112,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     end
 
     render partial: 'counter', locals: { id: "count_#{params[:notification_kind]}", count: count }
+  end
+
+  def count_for_notification_states
+    @counts_for_all_notifications = @notifications.count
+    @counts_for_unread_notifications = unread_notifications.count
   end
 
   def count_for_unread

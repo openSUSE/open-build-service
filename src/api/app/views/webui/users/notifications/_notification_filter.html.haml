@@ -8,18 +8,17 @@
                                               aria: { expanded: 'true', controls: 'notification-filter-state' } }
         %b State
       .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-state
-        = render partial: 'radio_button', locals: { label: 'All',
-                                                    turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'all'),
-                                                    key: 'state[all]', name: 'state', value: 'all',
-                                                    checked: selected_filter[:state] == 'all' }
-        = render partial: 'radio_button', locals: { label: 'Unread',
-                                                    turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'unread'),
-                                                    key: 'state[unread]', name: 'state', value: 'unread',
-                                                    checked: selected_filter[:state] == 'unread' }
-        = render partial: 'radio_button', locals: { label: 'Read',
-                                                    turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'read'),
-                                                    key: 'state[read]', name: 'state', value: 'read',
-                                                    checked: selected_filter[:state] == 'read' }
+        = render partial: 'webui/shared/radio_button', locals: { label: 'All',
+                                                                 key: 'state[all]', name: 'state', value: 'all',
+                                                                 checked: selected_filter[:state] == 'all',
+                                                                 turbo_stream_counter_id: 'counts_for_all_notifications'}
+        = render partial: 'webui/shared/radio_button', locals: { label: 'Unread',
+                                                                 key: 'state[unread]', name: 'state', value: 'unread',
+                                                                 checked: selected_filter[:state] == 'unread',
+                                                                 turbo_stream_counter_id: 'counts_for_unread_notifications' }
+        = render partial: 'webui/shared/radio_button', locals: { label: 'Read',
+                                                                 key: 'state[read]', name: 'state', value: 'read',
+                                                                 checked: selected_filter[:state] == 'read' }
     .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-type' },
                                               aria: { expanded: 'true', controls: 'notification-filter-type' } }
@@ -191,4 +190,7 @@
     = link_to('Clear', my_notifications_path, class: 'btn btn-light border')
 
 - content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
+-# turbo frame used to trigger the turbo stream which updates the notification filter counters
+= turbo_frame_tag("notification_filter_counts_processor", src: url_for(controller_path: controller_path,
+                                                               action: 'counts', format: :turbo_stream))
 -# haml-lint:enable ViewLength

@@ -1,0 +1,6 @@
+<%= turbo_stream.update "counts_for_all_notifications" do %>
+  <span><%= @counts_for_all_notifications %></span>
+<% end %>
+<%= turbo_stream.update "counts_for_unread_notifications" do %>
+  <span><%= @counts_for_unread_notifications %></span>
+<% end %>
