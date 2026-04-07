@@ -1,4 +1,4 @@
-class ChangeIdToBigintDelayedJobs < ActiveRecord::Migration[6.1] # use your Rails version
+class ChangeIdToBigintDelayedJobs < ActiveRecord::Migration[7.2]
   def up
     safety_assured do
       change_column :delayed_jobs, :id, :bigint
