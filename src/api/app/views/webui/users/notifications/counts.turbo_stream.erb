@@ -14,3 +14,9 @@
     <span><%= count %></span>
   <% end %>
 <% end %>
+<%= turbo_stream.update "counts_for_incoming_requests_notifications" do %>
+  <span><%= @counts_for_incoming_requests_notifications %></span>
+<% end %>
+<%= turbo_stream.update "counts_for_outgoing_requests_notifications" do %>
+  <span><%= @counts_for_outgoing_requests_notifications %></span>
+<% end %>

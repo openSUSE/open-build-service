@@ -72,6 +72,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     count_for_notification_states
     count_for_notification_types
     count_for_event_types
+    count_for_requests_notifications
 
     respond_to do |format|
       format.turbo_stream { render 'counts' }
@@ -99,17 +100,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     end
   end
 
-  def count_for_notification_kinds
-    count = nil
-
-    case params[:notification_kind]
-    when 'incoming_requests'
-      count = unread_notifications.for_incoming_requests(User.session).count
-    when 'outgoing_requests'
-      count = unread_notifications.for_outgoing_requests(User.session).count
-    end
-
-    render partial: 'counter', locals: { id: "count_#{params[:notification_kind]}", count: count }
+  def count_for_requests_notifications
+    @counts_for_incoming_requests_notifications = unread_notifications.for_incoming_requests(User.session).count
+    @counts_for_outgoing_requests_notifications = unread_notifications.for_outgoing_requests(User.session).count
   end
 
   def count_for_notification_states
