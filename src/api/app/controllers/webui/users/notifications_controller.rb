@@ -70,6 +70,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def counts
     count_for_notification_states
+    count_for_notification_types
+    count_for_event_types
 
     respond_to do |format|
       format.turbo_stream { render 'counts' }
@@ -77,28 +79,24 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def count_for_notification_types
-    counted_notifications = {}
+    @counts_grouped_by_notification_type = {}
     # notifiable_type: 'Report', 'WorkflowRun', 'Decision', 'Comment', 'BsRequest', 'Group'
     counted_notifiable_types = unread_notifications.group(:notifiable_type).count
 
     NOTIFICATION_TYPES_KEY_MAP.each do |notifications_key, notification_types_key|
-      counted_notifications[notifications_key] = counted_notifiable_types[notification_types_key] || 0
+      @counts_grouped_by_notification_type[notifications_key] = counted_notifiable_types[notification_types_key] || 0
     end
-
-    render partial: 'counter', locals: { id: "count_#{params[:notification_type]}", count: counted_notifications[params[:notification_type].to_s] }
   end
 
   def count_for_event_types
-    counted_notifications = {}
+    @counts_grouped_by_event_type = {}
 
     # event_type: 'Event::RelationshipCreate', 'Event::RelationshipDelete', 'Event::BuildFail',
     counted_event_types = unread_notifications.group(:event_type).count
 
     EVENT_TYPES_KEY_MAP.each do |notifications_key, event_types_key|
-      counted_notifications[notifications_key] = counted_event_types[event_types_key] || 0
+      @counts_grouped_by_event_type[notifications_key] = counted_event_types[event_types_key] || 0
     end
-
-    render partial: 'counter', locals: { id: "count_#{params[:event_type]}", count: counted_notifications[params[:event_type].to_s] }
   end
 
   def count_for_notification_kinds
