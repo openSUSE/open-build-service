@@ -223,9 +223,9 @@ GEM
       activesupport (>= 5.1)
       haml (>= 4.0.6)
       railties (>= 5.1)
-    haml_lint (0.72.0)
+    haml_lint (0.73.0)
       haml (>= 5.0)
-      parallel (~> 1.10)
+      parallel (>= 1.10)
       rainbow
       rubocop (>= 1.0)
       sysexits (~> 1.1)
@@ -346,7 +346,7 @@ GEM
     paper_trail (17.0.0)
       activerecord (>= 7.1)
       request_store (~> 1.4)
-    parallel (1.27.0)
+    parallel (1.28.0)
     parser (3.3.11.1)
       ast (~> 2.4.1)
       racc
