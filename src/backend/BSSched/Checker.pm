@@ -845,8 +845,9 @@ sub expandandsort {
     }
 
     if ($ctx->{'isreprorepo'}) {
+      $buildtype = 'reproduciblecheck' if $buildtype ne 'aggregate' && $buildtype ne 'channel'  && $buildtype ne 'modulemd';
       $pkg2buildtype{$packid} = $buildtype;
-      $pkg2src{$packid} = $info->{'name'} || $packid;
+      $pkg2src{$packid} = '_reproduciblecheck';
       $pdeps{$packid} = [];
       next;
     }
@@ -1312,12 +1313,9 @@ sub checkpkgs {
       $packerror{$packid} = 'no recipe file';
       next;
     }
-    if ($ctx->{'isreprorepo'}) {
-      if ($handlers{$buildtype}) {
-        $packstatus{$packid} = 'excluded';
-        next;
-      }
-      $buildtype = 'reproduciblecheck';
+    if ($ctx->{'isreprorepo'} && $buildtype ne 'reproduciblecheck') {
+      $packstatus{$packid} = 'excluded';
+      next;
     }
     if ($buildtype eq 'modulemd') {
       $packstatus{$packid} = 'excluded';
