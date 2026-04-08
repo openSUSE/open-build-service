@@ -52,6 +52,8 @@ class Workflow # rubocop:disable Metrics/ClassLength
     return [] if workflow_steps.blank?
 
     @steps ||= workflow_steps.each_with_object([]) do |step_definition, steps_array|
+      next unless step_definition.is_a?(Hash)
+
       step_definition
         .select { |step_name, _| SUPPORTED_STEPS.key?(step_name) }
         .map { |step_name, step_instructions| initialize_step(step_name, step_instructions) }
@@ -112,12 +114,12 @@ class Workflow # rubocop:disable Metrics/ClassLength
   end
 
   def branch_matches_branches_only_filter?
-    branches_only = filters[:branches].fetch(:only, []).map(&:to_s)
+    branches_only = Array.wrap(filters[:branches].fetch(:only, [])).map(&:to_s)
     branches_only.present? && branches_only.include?(workflow_run.target_branch)
   end
 
   def branch_matches_branches_ignore_filter?
-    branches_ignore = filters[:branches].fetch(:ignore, []).map(&:to_s)
+    branches_ignore = Array.wrap(filters[:branches].fetch(:ignore, [])).map(&:to_s)
     branches_ignore.present? && branches_ignore.exclude?(workflow_run.target_branch)
   end
 

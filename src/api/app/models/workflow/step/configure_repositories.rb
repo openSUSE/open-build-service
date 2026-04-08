@@ -70,7 +70,8 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   end
 
   def validate_architectures
-    architectures = step_instructions[:repositories].map { |repository| repository.fetch(:architectures, []) }.flatten.uniq
+    repositories = Array.wrap(step_instructions[:repositories])
+    architectures = repositories.map { |repository| repository.fetch(:architectures, []) if repository.respond_to?(:fetch) }.flatten.compact.uniq
 
     # Store architectures to avoid fetching them again later in #call
     @supported_architectures = Architecture.where(name: architectures).to_a

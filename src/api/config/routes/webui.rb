@@ -369,6 +369,7 @@ resources :users, controller: 'webui/users', param: :login, constraints: cons do
   member do
     put 'censor'
     post 'change_password'
+    put 'admin_change_password', to: 'webui/users#admin_change_password'
     post 'rss_secret'
     get 'edit_account'
     post 'update_color_theme'
