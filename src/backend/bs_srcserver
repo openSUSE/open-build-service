@@ -1897,6 +1897,10 @@ sub getprojpack {
 		}
 	      }
 	    }
+	    if ($repoid =~ /._reproduciblecheck$/) {
+	      $rinfo->{'name'} = $rinfo->{'file'} = '_reproduciblecheck';
+	      next;
+	    }
 	    my $type = $conf->{'type'};
 	    if (!$type || $type eq 'UNDEFINED') {
 	      $rinfo->{'error'} = 'bad build configuration, no build type defined or detected';
