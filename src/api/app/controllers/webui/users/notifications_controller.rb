@@ -79,6 +79,12 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     end
   end
 
+  def count_for_unread
+    render partial: 'unread_counter', locals: { count: unread_notifications.count }
+  end
+
+  private
+
   def count_for_notification_types
     @counts_grouped_by_notification_type = {}
     # notifiable_type: 'Report', 'WorkflowRun', 'Decision', 'Comment', 'BsRequest', 'Group'
@@ -109,12 +115,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @counts_for_all_notifications = @notifications.count
     @counts_for_unread_notifications = unread_notifications.count
   end
-
-  def count_for_unread
-    render partial: 'unread_counter', locals: { count: unread_notifications.count }
-  end
-
-  private
 
   def unread_notifications
     @notifications.unread
