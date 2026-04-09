@@ -37,6 +37,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_preloaded_notifications, only: :index
   before_action :set_ordered_notifications, only: :index
   before_action :paginate_notifications, only: :index
+  after_action :invalidate_unread_count_cache, only: :update
 
   def index; end
 
@@ -84,7 +85,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def count_for_unread
-    render partial: 'unread_counter', locals: { count: unread_notifications.count }
+    render partial: 'unread_counter', locals: { count: unread_notifications_count }
   end
 
   private
@@ -117,11 +118,17 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def count_for_notification_states
     @counts_for_all_notifications = @notifications.count
-    @counts_for_unread_notifications = unread_notifications.count
+    @counts_for_unread_notifications = unread_notifications_count
   end
 
   def unread_notifications
     @notifications.unread
+  end
+
+  def unread_notifications_count
+    Rails.cache.fetch(Notification.unread_count_cache_key(User.session), expires_in: 1.hour) do
+      unread_notifications.count
+    end
   end
 
   def set_filter_kind
@@ -203,6 +210,12 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def send_notifications_information_rabbitmq(delivered, count)
     action = delivered ? 'read' : 'unread'
     RabbitmqBus.send_to_bus('metrics', "notification,action=#{action} value=#{count}") if count.positive?
+  end
+
+  # update_all skips model callbacks, so the cache invalidation that lives on Notification
+  # (after_save/after_destroy) never fires for this bulk path — invalidate explicitly here.
+  def invalidate_unread_count_cache
+    Rails.cache.delete(Notification.unread_count_cache_key(User.session))
   end
 
   def set_preloaded_notifications
