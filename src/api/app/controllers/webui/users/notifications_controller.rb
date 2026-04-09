@@ -53,7 +53,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       format.js do
         render partial: 'update', locals: {
           notifications: @notifications,
-          unread_notifications_count: unread_notifications.count,
           selected_filter: @selected_filter,
           total_count_notifications: @notifications.count,
           user: User.session
