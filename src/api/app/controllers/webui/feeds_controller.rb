@@ -6,7 +6,7 @@ class Webui::FeedsController < Webui::WebuiController
   before_action :set_timerange, only: [:commits]
 
   def news
-    @news = StatusMessage.newest.for_current_user.includes(:user).limit(5)
+    @news = StatusMessage.order(created_at: :desc).for_current_user.includes(:user).limit(5)
   end
 
   def latest_updates
