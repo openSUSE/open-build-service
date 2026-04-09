@@ -388,12 +388,10 @@ scope :my do
     collection do
       # We allow updating multiple notifications in a single HTTP request
       put :update
-      get :count_for_notification_types
-      get :count_for_event_types
-      get :count_for_notification_kinds
       get :count_for_unread
     end
   end
+  get 'my/notifications/counts' => 'webui/users/notifications#counts', constraints: cons
 
   resources :beta_features, only: [:index], controller: 'webui/users/beta_features', as: :my_beta_features
   resource :beta_feature, only: [:update], controller: 'webui/users/beta_features', as: :my_beta_feature
