@@ -4,7 +4,7 @@ RSpec.describe Webui::Groups::BsRequestsController do
     let(:user) { create(:confirmed_user) }
 
     context 'when the user has the request_index feature on' do
-      let(:source_project) { create(:project_with_package, :as_submission_source) }
+      let(:source_project) { create(:project_with_package) }
       let(:source_package) { source_project.packages.first }
       let(:target_project) { create(:project_with_package, name: 'a_target_project') }
       let(:target_package) { target_project.packages.first }
