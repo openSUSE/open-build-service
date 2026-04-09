@@ -8,16 +8,14 @@ class StatusHistoryRescalerJob < ApplicationJob
 
     keys = StatusHistory.distinct.pluck(:key)
     keys.each do |key|
-      StatusHistory.transaction do
-        # first rescale a month old
-        cleanup(key, 3600 * 12, 24 * 3600 * 30)
-        # now a week old
-        cleanup(key, 3600 * 6, 24 * 3600 * 7)
-        # now rescale yesterday
-        cleanup(key, 3600, 24 * 3600)
-        # 2h stuff
-        cleanup(key, 200, 3600 * 2)
-      end
+      # first rescale a month old
+      cleanup(key, 3600 * 12, 24 * 3600 * 30)
+      # now a week old
+      cleanup(key, 3600 * 6, 24 * 3600 * 7)
+      # now rescale yesterday
+      cleanup(key, 3600, 24 * 3600)
+      # 2h stuff
+      cleanup(key, 200, 3600 * 2)
     end
   end
 
