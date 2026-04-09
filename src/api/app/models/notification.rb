@@ -52,6 +52,10 @@ class Notification < ApplicationRecord
   paginates_per 30
   max_paginates_per 300
 
+  def self.policy_class
+    NotificationPolicy
+  end
+
   def event
     @event ||= event_type.constantize.new(event_payload)
   end
