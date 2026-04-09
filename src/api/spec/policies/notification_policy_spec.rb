@@ -1,4 +1,4 @@
-RSpec.describe NotificationCommentPolicy do
+RSpec.describe NotificationPolicy do
   subject { described_class }
 
   let(:user) { create(:confirmed_user) }
