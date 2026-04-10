@@ -801,13 +801,6 @@ Style/InverseMethods:
     - 'app/models/project.rb'
     - 'app/models/repository.rb'
 
-# Offense count: 3
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/MapJoin:
-  Exclude:
-    - 'app/models/event_subscription/find_for_event.rb'
-    - 'app/models/full_text_search.rb'
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:
