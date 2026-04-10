@@ -44,10 +44,10 @@ class Relationship < ApplicationRecord
   scope :groups, -> { where.not(group_id: nil) }
   scope :users, -> { where.not(user_id: nil) }
   scope :with_users_and_roles_query, lambda {
-    joins(:role, :user).order('roles.title, users.login')
+    joins(:role, :user)
   }
   scope :with_groups_and_roles_query, lambda {
-    joins(:role, :group).order('roles.title, groups.title')
+    joins(:role, :group)
   }
   scope :maintainers, lambda {
     where(role: Role.hashed['maintainer'])
@@ -129,11 +129,11 @@ class Relationship < ApplicationRecord
   end
 
   def self.with_users_and_roles
-    with_users_and_roles_query.pluck(:login, :title)
+    with_users_and_roles_query.order('roles.title, users.login').pluck(:login, :title)
   end
 
   def self.with_groups_and_roles
-    with_groups_and_roles_query.pluck('groups.title', 'roles.title')
+    with_groups_and_roles_query.order('roles.title, groups.title').pluck('groups.title', 'roles.title')
   end
 
   def create_relationship_delete_event
