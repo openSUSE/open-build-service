@@ -7,8 +7,8 @@ module PackageService
     validates :package, :template, :user, presence: true
 
     def self.templates
-      Project.package_templates.each_with_object({}) do |project, map|
-        map[project.title.presence || project.name] = project.packages.map { |p| [p.title.presence || p.name, "#{project.to_param}/#{p.to_param}"] }
+      Project.package_templates.to_h do |project|
+        [project.title.presence || project.name, project.packages.map { |p| [p.title.presence || p.name, "#{project.to_param}/#{p.to_param}"] }]
       end
     end
 

@@ -832,12 +832,6 @@ Style/OpenStructUse:
     - 'spec/controllers/webui/projects/project_configuration_controller_spec.rb'
     - 'spec/services/trigger_controller_service/token_extractor_spec.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/ReduceToHash:
-  Exclude:
-    - 'app/services/package_service/templater.rb'
-
 # Offense count: 80
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Mode.
