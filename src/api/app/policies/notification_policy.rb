@@ -1,4 +1,4 @@
-class NotificationCommentPolicy < ApplicationPolicy
+class NotificationPolicy < ApplicationPolicy
   def update?
     record.subscriber == user
   end
