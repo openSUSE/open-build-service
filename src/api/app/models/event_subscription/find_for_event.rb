@@ -16,9 +16,9 @@ class EventSubscription
         receivers_before_expand = event.send(:"#{receiver_role}s")
         next if receivers_before_expand.blank?
 
-        puts "Looking at #{receivers_before_expand.map(&:to_s).join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug
+        puts "Looking at #{receivers_before_expand.join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug
         receivers = expand_receivers(receivers_before_expand, channel)
-        puts "Looking at #{receivers.map(&:to_s).join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug && (receivers_before_expand - receivers).any?
+        puts "Looking at #{receivers.join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug && (receivers_before_expand - receivers).any?
 
         # Allow descendant events to also receive notifications if the subscription only covers the base class
         # This only supports 1 level of ancestry
