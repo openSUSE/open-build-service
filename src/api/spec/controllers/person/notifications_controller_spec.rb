@@ -96,16 +96,29 @@ RSpec.describe Person::NotificationsController do
     end
 
     context 'called by an authorized user' do
+      subject { put :update, params: { format: :xml, id: notification.id } }
+
+      let(:cache_key) { [user.id, 'unread_notification_count'] }
+
       before do
         login user
-        put :update, params: { format: :xml, id: notification.id }
       end
 
       it 'toggles the delivered attribute' do
+        subject
         expect(notification.reload.delivered).to be(true)
+        expect(response).to have_http_status(:success)
       end
 
-      it { expect(response).to have_http_status(:success) }
+      it 'clears the cache entry for the unread notification count' do
+        allow(Rails.cache).to receive(:delete).and_call_original
+        # Pre-fill the cache to be extra sure
+        Rails.cache.write(cache_key, 123)
+        subject
+        expect(Rails.cache).to have_received(:delete).with(cache_key)
+        # Verify the cache entry is gone
+        expect(Rails.cache.read(cache_key)).to be_nil
+      end
     end
 
     context "notification doesn't exist" do

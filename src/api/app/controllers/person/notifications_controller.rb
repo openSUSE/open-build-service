@@ -71,7 +71,7 @@ module Person
     end
 
     def invalidate_unread_count_cache
-      Rails.cache.delete("user_#{User.session.id}_unread_notification_count")
+      Rails.cache.delete([User.session.id, 'unread_notification_count'])
     end
   end
 end
