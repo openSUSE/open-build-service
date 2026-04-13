@@ -89,7 +89,7 @@ sub deletescmsync {
   return unless $BSConfig::source_db_sqlite;
   my $db = BSSrcServer::SQLite::opendb($sourcedb, 'scmsync');
   my @k;
-  @k = $db->rawkeys('project', $projid) if $BSConfig::redisserver && !defined($packid);
+  @k = grep {s/^\Q$projid\E\///} $db->rawkeys('project', $projid) if $BSConfig::redisserver && !defined($packid);
   $db->store_scmsyncinfo($projid, $packid, undef);
   if ($BSConfig::redisserver) {
     push @k, $packid if defined $packid;
