@@ -8,83 +8,81 @@
                                               aria: { expanded: 'true', controls: 'notification-filter-state' } }
         %b State
       .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-state
-        = render partial: 'radio_button', locals: { label: 'All',
-                                                    turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'all'),
-                                                    key: 'state[all]', name: 'state', value: 'all',
-                                                    checked: selected_filter[:state] == 'all' }
-        = render partial: 'radio_button', locals: { label: 'Unread',
-                                                    turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'unread'),
-                                                    key: 'state[unread]', name: 'state', value: 'unread',
-                                                    checked: selected_filter[:state] == 'unread' }
-        = render partial: 'radio_button', locals: { label: 'Read',
-                                                    turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'read'),
-                                                    key: 'state[read]', name: 'state', value: 'read',
-                                                    checked: selected_filter[:state] == 'read' }
+        = render partial: 'webui/shared/radio_button', locals: { label: 'All',
+                                                                 key: 'state[all]', name: 'state', value: 'all',
+                                                                 checked: selected_filter[:state] == 'all',
+                                                                 turbo_stream_counter_id: 'counts_for_all_notifications'}
+        = render partial: 'webui/shared/radio_button', locals: { label: 'Unread',
+                                                                 key: 'state[unread]', name: 'state', value: 'unread',
+                                                                 checked: selected_filter[:state] == 'unread',
+                                                                 turbo_stream_counter_id: 'counts_for_unread_notifications' }
+        = render partial: 'webui/shared/radio_button', locals: { label: 'Read',
+                                                                 key: 'state[read]', name: 'state', value: 'read',
+                                                                 checked: selected_filter[:state] == 'read' }
     .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-type' },
                                               aria: { expanded: 'true', controls: 'notification-filter-type' } }
         %b Type
         .selected-content.small.ms-1
       .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-type
-        = render partial: 'check_box', locals: { label: 'Comments',
-                                                 turbo_frame_path: count_for_notification_types_my_notifications_path(notification_type: 'comments'),
-                                                 key: 'kind[comments]', name: 'kind[]',
-                                                 value: 'comments', label_icon: 'fas fa-comments',
-                                                 checked: selected_filter[:kind]&.include?('comments') }
-        = render partial: 'check_box', locals: { label: 'Requests',
-                                                 turbo_frame_path: count_for_notification_types_my_notifications_path(notification_type: 'requests'),
-                                                 key: 'kind[requests]', name: 'kind[]', value: 'requests',
-                                                 label_icon: 'fas fa-code-pull-request',
-                                                 checked: selected_filter[:kind]&.include?('requests') }
-        = render partial: 'check_box', locals: { label: 'Roles Granted',
-                                                 turbo_frame_path: count_for_event_types_my_notifications_path(event_type: 'relationships_created'),
-                                                 key: 'kind[relationships_created]', name: 'kind[]', value: 'relationships_created',
-                                                 label_icon: 'fas fa-user-tag',
-                                                 checked: selected_filter[:kind]&.include?('relationships_created') }
-        = render partial: 'check_box', locals: { label: 'Roles Revoked',
-                                                 turbo_frame_path: count_for_event_types_my_notifications_path(event_type: 'relationships_deleted'),
-                                                 key: 'kind[relationships_deleted]', name: 'kind[]', value: 'relationships_deleted',
-                                                 label_icon: 'fas fa-user-tag',
-                                                 checked: selected_filter[:kind]&.include?('relationships_deleted') }
-        = render partial: 'check_box', locals: { label: 'Build Failures',
-                                                 turbo_frame_path: count_for_event_types_my_notifications_path(event_type: 'build_failures'),
-                                                 key: 'kind[build_failures]', name: 'kind[]', value: 'build_failures',
-                                                 label_icon: 'fas fa-xmark text-danger',
-                                                 checked: selected_filter[:kind]&.include?('build_failures') }
+        = render partial: 'webui/shared/check_box', locals: { label: 'Comments',
+                                                    key: 'kind[comments]', name: 'kind[]',
+                                                    value: 'comments', label_icon: 'fas fa-comments',
+                                                    checked: selected_filter[:kind]&.include?('comments'),
+                                                    turbo_stream_counter_id: 'counts_for_comments_notifications' }
+        = render partial: 'webui/shared/check_box', locals: { label: 'Requests',
+                                                    key: 'kind[requests]', name: 'kind[]', value: 'requests',
+                                                    label_icon: 'fas fa-code-pull-request',
+                                                    checked: selected_filter[:kind]&.include?('requests'),
+                                                    turbo_stream_counter_id: 'counts_for_requests_notifications' }
+        = render partial: 'webui/shared/check_box', locals: { label: 'Roles Granted',
+                                                    key: 'kind[relationships_created]', name: 'kind[]', value: 'relationships_created',
+                                                    label_icon: 'fas fa-user-tag',
+                                                    checked: selected_filter[:kind]&.include?('relationships_created'),
+                                                    turbo_stream_counter_id: 'counts_for_relationships_created_notifications' }
+        = render partial: 'webui/shared/check_box', locals: { label: 'Roles Revoked',
+                                                    key: 'kind[relationships_deleted]', name: 'kind[]', value: 'relationships_deleted',
+                                                    label_icon: 'fas fa-user-tag',
+                                                    checked: selected_filter[:kind]&.include?('relationships_deleted'),
+                                                    turbo_stream_counter_id: 'counts_for_relationships_deleted_notifications' }
+        = render partial: 'webui/shared/check_box', locals: { label: 'Build Failures',
+                                                    key: 'kind[build_failures]', name: 'kind[]', value: 'build_failures',
+                                                    label_icon: 'fas fa-xmark text-danger',
+                                                    checked: selected_filter[:kind]&.include?('build_failures'),
+                                                    turbo_stream_counter_id: 'counts_for_build_failures_notifications' }
         - if policy(Report.new).notify?
-          = render partial: 'check_box',
+          = render partial: 'webui/shared/check_box',
                             locals: { label: 'Reports',
-                                      turbo_frame_path: count_for_notification_types_my_notifications_path(notification_type: 'reports'),
                                       key: 'kind[reports]', name: 'kind[]', value: 'reports',
                                       label_icon: 'fas fa-flag',
-                                      checked: selected_filter[:kind]&.include?('reports') }
-        = render partial: 'check_box',
+                                      checked: selected_filter[:kind]&.include?('reports'),
+                                      turbo_stream_counter_id: 'counts_for_reports_notifications' }
+        = render partial: 'webui/shared/check_box',
                           locals: { label: 'Workflow Runs',
-                                    turbo_frame_path: count_for_notification_types_my_notifications_path(notification_type: 'workflow_runs'),
                                     key: 'kind[workflow_runs]', name: 'kind[]', value: 'workflow_runs',
                                     label_icon: 'fas fa-book-open',
-                                    checked: selected_filter[:kind]&.include?('workflow_runs') }
+                                    checked: selected_filter[:kind]&.include?('workflow_runs'),
+                                    turbo_stream_counter_id: 'counts_for_workflow_runs_notifications' }
         - if Flipper.enabled?(:content_moderation, User.session)
-          = render partial: 'check_box',
+          = render partial: 'webui/shared/check_box',
                             locals: { label: 'Appealed Decisions',
-                                      turbo_frame_path: count_for_notification_types_my_notifications_path(notification_type: 'appealed_decisions'),
                                       key: 'kind[appealed_decisions]', name: 'kind[]', value: 'appealed_decisions',
                                       label_icon: 'fas fa-hand',
-                                      checked: selected_filter[:kind]&.include?('appealed_decisions') }
-        = render partial: 'check_box',
+                                      checked: selected_filter[:kind]&.include?('appealed_decisions'),
+                                      turbo_stream_counter_id: 'counts_for_appealed_decisions_notifications' }
+        = render partial: 'webui/shared/check_box',
                           locals: { label: 'Groups Membership',
-                                    turbo_frame_path: count_for_notification_types_my_notifications_path(notification_type: 'member_on_groups'),
                                     key: 'kind[member_on_groups]', name: 'kind[]', value: 'member_on_groups',
                                     label_icon: 'fas fa-people-group',
-                                    checked: selected_filter[:kind]&.include?('member_on_groups') }
+                                    checked: selected_filter[:kind]&.include?('member_on_groups'),
+                                    turbo_stream_counter_id: 'counts_for_member_on_groups_notifications' }
         - if Flipper.enabled?(:package_version_tracking, User.session)
-          - updates_frame_path = count_for_event_types_my_notifications_path(event_type: 'upstream_package_version_changed')
-          = render partial: 'check_box',
+          = render partial: 'webui/shared/check_box',
                             locals: { label: 'Version Updates',
-                                      turbo_frame_path: updates_frame_path,
                                       key: 'kind[upstream_package_version_changed]', name: 'kind[]', value: 'upstream_package_version_changed',
                                       label_icon: 'fas fa-arrow-up',
-                                      checked: selected_filter[:kind]&.include?('upstream_package_version_changed') }
+                                      checked: selected_filter[:kind]&.include?('upstream_package_version_changed'),
+                                      turbo_stream_counter_id: 'counts_for_upstream_package_version_changed_notifications' }
 
     - if policy(Report.new).notify?
       .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
@@ -117,18 +115,18 @@
         .selected-content.small.ms-1
       .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-requests
         .dropdown-item-text
-          = render partial: 'check_box',
+          = render partial: 'webui/shared/check_box',
                             locals: { label: 'Incoming',
-                                      turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'incoming_requests'),
                                       key: 'kind[incoming_requests]', name: 'kind[]',
                                       value: 'incoming_requests',
-                                      checked: selected_filter[:kind]&.include?('incoming_requests') }
+                                      checked: selected_filter[:kind]&.include?('incoming_requests'),
+                                      turbo_stream_counter_id: 'counts_for_incoming_requests_notifications' }
         .dropdown-item-text
-          = render partial: 'check_box',
+          = render partial: 'webui/shared/check_box',
                             locals: { label: 'Outgoing',
-                                      turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'outgoing_requests'),
                                       key: 'kind[outgoing_requests]', name: 'kind[]', value: 'outgoing_requests',
-                                      checked: selected_filter[:kind]&.include?('outgoing_requests') }
+                                      checked: selected_filter[:kind]&.include?('outgoing_requests'),
+                                      turbo_stream_counter_id: 'counts_for_outgoing_requests_notifications' }
         - BsRequest::VALID_REQUEST_STATES.each do |request_state|
           .dropdown-item-text
             = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: request_state)),
@@ -191,4 +189,7 @@
     = link_to('Clear', my_notifications_path, class: 'btn btn-light border')
 
 - content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
+-# turbo frame used to trigger the turbo stream which updates the notification filter counters
+= turbo_frame_tag("notification_filter_counts_processor", src: url_for(controller_path: controller_path,
+                                                               action: 'counts', format: :turbo_stream))
 -# haml-lint:enable ViewLength

@@ -53,7 +53,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       format.js do
         render partial: 'update', locals: {
           notifications: @notifications,
-          unread_notifications_count: unread_notifications.count,
           selected_filter: @selected_filter,
           total_count_notifications: @notifications.count,
           user: User.session
@@ -68,46 +67,15 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     render json: AutocompleteFinder::Project.new(relation, params[:term]).call.pluck(:name)
   end
 
-  def count_for_notification_types
-    counted_notifications = {}
-    # notifiable_type: 'Report', 'WorkflowRun', 'Decision', 'Comment', 'BsRequest', 'Group'
-    counted_notifiable_types = unread_notifications.group(:notifiable_type).count
+  def counts
+    count_for_notification_states
+    count_for_notification_types
+    count_for_event_types
+    count_for_requests_notifications
 
-    NOTIFICATION_TYPES_KEY_MAP.each do |notifications_key, notification_types_key|
-      counted_notifications[notifications_key] = counted_notifiable_types[notification_types_key] || 0
+    respond_to do |format|
+      format.turbo_stream { render 'counts' }
     end
-
-    render partial: 'counter', locals: { id: "count_#{params[:notification_type]}", count: counted_notifications[params[:notification_type].to_s] }
-  end
-
-  def count_for_event_types
-    counted_notifications = {}
-
-    # event_type: 'Event::RelationshipCreate', 'Event::RelationshipDelete', 'Event::BuildFail',
-    counted_event_types = unread_notifications.group(:event_type).count
-
-    EVENT_TYPES_KEY_MAP.each do |notifications_key, event_types_key|
-      counted_notifications[notifications_key] = counted_event_types[event_types_key] || 0
-    end
-
-    render partial: 'counter', locals: { id: "count_#{params[:event_type]}", count: counted_notifications[params[:event_type].to_s] }
-  end
-
-  def count_for_notification_kinds
-    count = nil
-
-    case params[:notification_kind]
-    when 'all'
-      count = @notifications.count
-    when 'unread'
-      count = unread_notifications.count
-    when 'incoming_requests'
-      count = unread_notifications.for_incoming_requests(User.session).count
-    when 'outgoing_requests'
-      count = unread_notifications.for_outgoing_requests(User.session).count
-    end
-
-    render partial: 'counter', locals: { id: "count_#{params[:notification_kind]}", count: count }
   end
 
   def count_for_unread
@@ -115,6 +83,37 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   private
+
+  def count_for_notification_types
+    @counts_grouped_by_notification_type = {}
+    # notifiable_type: 'Report', 'WorkflowRun', 'Decision', 'Comment', 'BsRequest', 'Group'
+    counted_notifiable_types = unread_notifications.group(:notifiable_type).count
+
+    NOTIFICATION_TYPES_KEY_MAP.each do |notifications_key, notification_types_key|
+      @counts_grouped_by_notification_type[notifications_key] = counted_notifiable_types[notification_types_key] || 0
+    end
+  end
+
+  def count_for_event_types
+    @counts_grouped_by_event_type = {}
+
+    # event_type: 'Event::RelationshipCreate', 'Event::RelationshipDelete', 'Event::BuildFail',
+    counted_event_types = unread_notifications.group(:event_type).count
+
+    EVENT_TYPES_KEY_MAP.each do |notifications_key, event_types_key|
+      @counts_grouped_by_event_type[notifications_key] = counted_event_types[event_types_key] || 0
+    end
+  end
+
+  def count_for_requests_notifications
+    @counts_for_incoming_requests_notifications = unread_notifications.for_incoming_requests(User.session).count
+    @counts_for_outgoing_requests_notifications = unread_notifications.for_outgoing_requests(User.session).count
+  end
+
+  def count_for_notification_states
+    @counts_for_all_notifications = @notifications.count
+    @counts_for_unread_notifications = unread_notifications.count
+  end
 
   def unread_notifications
     @notifications.unread

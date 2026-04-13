@@ -1,7 +1,7 @@
 RSpec.describe Webui::RequestHelper do
   let(:target_package) { create(:package) }
   let(:target_project) { target_package.project }
-  let(:source_package) { create(:package, :as_submission_source) }
+  let(:source_package) { create(:package) }
 
   describe '#new_or_update' do
     context 'for submitting a new package' do

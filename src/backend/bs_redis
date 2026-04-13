@@ -139,6 +139,21 @@ my $lua_updatejobstatus_del = q{
   return 'OK'
 };
 
+my $lua_updatescmsync = q{
+  local oldrepo = redis.call('HGET', KEYS[1], 'repo')
+  if oldrepo then redis.call('SREM', KEYS[2] .. oldrepo, KEYS[1]) end
+  redis.call('HSET', KEYS[1], 'repo', ARGV[1], 'branch', ARGV[2], 'trackingbranch', ARGV[3]);
+  redis.call('SADD', KEYS[2] .. ARGV[1], KEYS[1])
+  return 'OK'
+};
+
+my $lua_updatescmsync_del = q{
+  local oldrepo = redis.call('HGET', KEYS[1], 'repo')
+  if oldrepo then redis.call('SREM', KEYS[2] .. oldrepo, KEYS[1]) end
+  redis.call('DEL', KEYS[1])
+  return 'OK'
+};
+
 my $red;	# the redis handle
 
 sub markdone {
@@ -181,6 +196,14 @@ sub forwarddata {
         unshift @line, 'EVAL', $lua_updatejobstatus_del, 1, "jobs.$prpa";
       } else {
         unshift @line, 'EVAL', $lua_updatejobstatus, 1, "jobs.$prpa";
+      }
+    } elsif ($cmd eq 'updatescmsync') {
+      if (!defined($line[0])) {
+        unshift @line, 'EVAL', $lua_updatescmsync_del, 2, "scmsync.$prpa", "scmsync_idx_repo.";
+      } else {
+	$line[1] = '' unless defined $line[1];
+	$line[2] = '' unless defined $line[2];
+        unshift @line, 'EVAL', $lua_updatescmsync, 2, "scmsync.$prpa", "scmsync_idx_repo.";
       }
     } else {
       die("unknown redis command '$cmd'\n");

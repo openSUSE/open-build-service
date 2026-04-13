@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_25_104222) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_03_144818) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -438,7 +438,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_25_104222) do
     t.index ["moderator_id"], name: "index_decisions_on_moderator_id"
   end
 
-  create_table "delayed_jobs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "delayed_jobs", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "priority", default: 0
     t.integer "attempts", default: 0
     t.text "handler", size: :medium, collation: "utf8mb4_bin"

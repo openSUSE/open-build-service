@@ -250,5 +250,18 @@ if ($cmd eq 'convert') {
   exit(0);
 }
 
+if ($cmd eq 'scmsync2redis') {
+  die("the scmsync2redis command only works with sqlite\n") unless $BSConfig::source_db_sqlite;
+  die("the scmsync2redis command only works the scmsync db\n") unless $table eq 'scmsync';
+  require BSSrcServer::ScmsyncDB;
+  for my $k ($db->keys()) {
+    print "  - $k\n";
+    my $scmsyncinfo = $db->fetch($k);
+    next unless defined(($scmsyncinfo || {})->{'scmsync_repo'});
+    BSSrcServer::ScmsyncDB::addredisjob('updatescmsync', $k, $scmsyncinfo->{'scmsync_repo'}, $scmsyncinfo->{'scmsync_branch'}, $scmsyncinfo->{'scmsync_trackingbranch'});
+  }
+  exit(0);
+}
+
 die("unknown command $cmd\n");
 

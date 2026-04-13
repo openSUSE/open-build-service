@@ -138,8 +138,8 @@ class AttributeTest < ActiveSupport::TestCase
     # store in a project
     @project = Project.create(name: 'GNOME18')
     assert_not_nil @project
-    @project.store_attribute_xml(xml)
     @project.store
+    @project.store_attribute_xml(xml)
 
     @p = Project.find_by_name('GNOME18')
     assert_not_nil @p

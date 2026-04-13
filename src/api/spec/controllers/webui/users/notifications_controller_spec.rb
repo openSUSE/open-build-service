@@ -134,7 +134,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context "when filtering by 'incoming_requests' param" do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:target_package) { create(:package) }
-      let(:source_package) { create(:package, :as_submission_source) }
+      let(:source_package) { create(:package) }
       let!(:relationship_package_user) { create(:relationship_package_user, user: user, package: target_package) }
 
       let!(:maintained_request) do
@@ -167,7 +167,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context "when filtering by 'outgoing_requests' param" do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:target_package) { create(:package) }
-      let(:source_package) { create(:package, :as_submission_source) }
+      let(:source_package) { create(:package) }
       let(:declined_bs_request) do
         create(:declined_bs_request,
                target_package: target_package,

@@ -289,17 +289,7 @@ RSpec.describe EventSubscription::FindForEvent do
       context 'when dealing with projects' do
         context 'and there is a subscription for the target user' do
           let(:event) { Event::RelationshipCreate.create(who: owner.login, user: user.login, project: project.name) }
-
-          before do
-            create(
-              :event_subscription,
-              eventtype: 'Event::RelationshipCreate',
-              receiver_role: 'any_role',
-              user: user,
-              group: nil,
-              channel: :web
-            )
-          end
+          let!(:event_subscription) { create(:event_subscription_relationship_create, channel: :web, user: user) }
 
           it 'includes the target user' do
             expect(subject.map(&:subscriber)).to include(user)
@@ -317,17 +307,7 @@ RSpec.describe EventSubscription::FindForEvent do
         context 'and there is a subscription for the group' do
           let(:user) { group.users.first }
           let(:event) { Event::RelationshipCreate.create(who: owner.login, group: group.title, project: project.name) }
-
-          before do
-            create(
-              :event_subscription,
-              eventtype: 'Event::RelationshipCreate',
-              receiver_role: 'any_role',
-              user: user,
-              group: nil,
-              channel: :web
-            )
-          end
+          let!(:event_subscription) { create(:event_subscription_relationship_create, channel: :web, user: user) }
 
           it 'includes the target group' do
             expect(subject.map(&:subscriber)).to include(group)
@@ -337,17 +317,7 @@ RSpec.describe EventSubscription::FindForEvent do
         context 'and there is a default subscription for RSS and a group becomes a role for the project' do
           let(:channel) { :rss }
           let(:event) { Event::RelationshipCreate.create(who: owner.login, group: group.title, project: project.name) }
-
-          before do
-            create(
-              :event_subscription,
-              eventtype: 'Event::RelationshipCreate',
-              receiver_role: 'any_role',
-              user: nil,
-              group: nil,
-              channel: :rss
-            )
-          end
+          let!(:event_subscription) { create(:event_subscription_relationship_create, channel: :rss, user: nil) }
 
           it 'does not create any subscription' do
             expect(subject).to be_empty
@@ -366,17 +336,7 @@ RSpec.describe EventSubscription::FindForEvent do
       context 'when dealing with packages' do
         context 'and there is a subscription for the target user' do
           let(:event) { Event::RelationshipCreate.create(who: owner.login, user: user.login, package: package.name) }
-
-          before do
-            create(
-              :event_subscription,
-              eventtype: 'Event::RelationshipCreate',
-              receiver_role: 'any_role',
-              user: user,
-              group: nil,
-              channel: :web
-            )
-          end
+          let!(:event_subscription) { create(:event_subscription_relationship_create, channel: :web, user: nil) }
 
           it 'includes the target user' do
             expect(subject.map(&:subscriber)).to include(user)
@@ -394,17 +354,7 @@ RSpec.describe EventSubscription::FindForEvent do
         context 'and there is a subscription for the group' do
           let(:user) { group.users.first }
           let(:event) { Event::RelationshipCreate.create(who: owner.login, group: group.title, package: package.name) }
-
-          before do
-            create(
-              :event_subscription,
-              eventtype: 'Event::RelationshipCreate',
-              receiver_role: 'any_role',
-              user: user,
-              group: nil,
-              channel: :web
-            )
-          end
+          let!(:event_subscription) { create(:event_subscription_relationship_create, channel: :web, user: user) }
 
           it 'includes the target group' do
             expect(subject.map(&:subscriber)).to include(group)
@@ -435,17 +385,7 @@ RSpec.describe EventSubscription::FindForEvent do
       context 'when dealing with projects' do
         context 'and there is a subscription for the target user' do
           let(:event) { Event::RelationshipDelete.create(who: owner.login, user: user.login, project: project.name) }
-
-          before do
-            create(
-              :event_subscription,
-              eventtype: 'Event::RelationshipDelete',
-              receiver_role: 'any_role',
-              user: user,
-              group: nil,
-              channel: :web
-            )
-          end
+          let!(:event_subscription) { create(:event_subscription_relationship_delete, channel: :web, user: user) }
 
           it 'includes the target user' do
             expect(subject.map(&:subscriber)).to include(user)
@@ -463,17 +403,7 @@ RSpec.describe EventSubscription::FindForEvent do
         context 'and there is a subscription for the group' do
           let(:user) { group.users.first }
           let(:event) { Event::RelationshipDelete.create(who: owner.login, group: group.title, project: project.name) }
-
-          before do
-            create(
-              :event_subscription,
-              eventtype: 'Event::RelationshipDelete',
-              receiver_role: 'any_role',
-              user: user,
-              group: nil,
-              channel: :web
-            )
-          end
+          let!(:event_subscription) { create(:event_subscription_relationship_delete, channel: :web, user: user) }
 
           it 'includes the target group' do
             expect(subject.map(&:subscriber)).to include(group)
@@ -493,17 +423,7 @@ RSpec.describe EventSubscription::FindForEvent do
       context 'when dealing with packages' do
         context 'and there is a subscription for the target user' do
           let(:event) { Event::RelationshipDelete.create(who: owner.login, user: user.login, package: package.name) }
-
-          before do
-            create(
-              :event_subscription,
-              eventtype: 'Event::RelationshipDelete',
-              receiver_role: 'any_role',
-              user: user,
-              group: nil,
-              channel: :web
-            )
-          end
+          let!(:event_subscription) { create(:event_subscription_relationship_delete, channel: :web, user: user) }
 
           it 'includes the target user' do
             expect(subject.map(&:subscriber)).to include(user)
@@ -521,17 +441,7 @@ RSpec.describe EventSubscription::FindForEvent do
         context 'and there is a subscription for the group' do
           let(:user) { group.users.first }
           let(:event) { Event::RelationshipDelete.create(who: owner.login, group: group.title, package: package.name) }
-
-          before do
-            create(
-              :event_subscription,
-              eventtype: 'Event::RelationshipDelete',
-              receiver_role: 'any_role',
-              user: user,
-              group: nil,
-              channel: :web
-            )
-          end
+          let!(:event_subscription) { create(:event_subscription_relationship_delete, channel: :web, user: user) }
 
           it 'includes the target group' do
             expect(subject.map(&:subscriber)).to include(group)
@@ -564,16 +474,7 @@ RSpec.describe EventSubscription::FindForEvent do
       end
 
       context 'when there is a subscription for the token executor' do
-        before do
-          create(
-            :event_subscription,
-            eventtype: 'Event::WorkflowRunFail',
-            receiver_role: 'token_executor',
-            user: owner,
-            group: nil,
-            channel: :web
-          )
-        end
+        let!(:event_subscription) { create(:event_subscription_workflow_run_fail, channel: :web, user: owner) }
 
         it 'includes the token executor' do
           expect(subject.map(&:subscriber)).to include(owner)
@@ -581,17 +482,10 @@ RSpec.describe EventSubscription::FindForEvent do
       end
 
       context 'when there is a subscription for the involved user' do
+        let!(:event_subscription) { create(:event_subscription_workflow_run_fail, channel: :web, receiver_role: 'token_member', user: user) }
+
         before do
           token.users << user
-
-          create(
-            :event_subscription,
-            eventtype: 'Event::WorkflowRunFail',
-            receiver_role: 'token_member',
-            user: user,
-            group: nil,
-            channel: :web
-          )
         end
 
         it 'includes the target user' do
@@ -600,17 +494,10 @@ RSpec.describe EventSubscription::FindForEvent do
       end
 
       context 'when there is a subscription for the involved group' do
+        let!(:event_subscription) { create(:event_subscription_workflow_run_fail, channel: :web, receiver_role: 'token_member', user: user) }
+
         before do
           token.groups << group
-
-          create(
-            :event_subscription,
-            eventtype: 'Event::WorkflowRunFail',
-            receiver_role: 'token_member',
-            user: user,
-            group: nil,
-            channel: :web
-          )
         end
 
         it "includes the member's group user" do

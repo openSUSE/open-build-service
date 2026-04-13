@@ -106,7 +106,6 @@ class Package < ApplicationRecord
     where.not(id: PackagesFinder.new.forbidden_packages)
   end
 
-  scope :order_by_name, -> { order('LOWER(name)') }
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
   scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }

@@ -7,10 +7,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>After Many a Summer Dies the Swan</title>
+          <title>Fair Stood the Wind for France</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1775143918'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -29,15 +31,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '124'
+      - '121'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>After Many a Summer Dies the Swan</title>
+          <title>Fair Stood the Wind for France</title>
           <description></description>
         </project>
-  recorded_at: Fri, 26 Sep 2025 13:02:09 GMT
+  recorded_at: Thu, 02 Apr 2026 15:31:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_a/_meta?user=Admin
@@ -45,10 +47,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_a" project="target_project">
-          <title>To a God Unknown</title>
-          <description>Et eligendi sapiente culpa.</description>
+          <title>Specimen Days</title>
+          <description>Officia in sit excepturi.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1775143918'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -67,15 +71,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="package_a" project="target_project">
-          <title>To a God Unknown</title>
-          <description>Et eligendi sapiente culpa.</description>
+          <title>Specimen Days</title>
+          <description>Officia in sit excepturi.</description>
         </package>
-  recorded_at: Fri, 26 Sep 2025 13:02:09 GMT
+  recorded_at: Thu, 02 Apr 2026 15:31:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_a/package_a.changes
@@ -83,6 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: Different content then source package changes file!
     headers:
+      X-Frontend-Start:
+      - '1775143918'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -108,12 +114,12 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>a884751bbd575d6295dc91ee6f64cd02</srcmd5>
           <version>unknown</version>
-          <time>1758891729</time>
+          <time>1775143918</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 26 Sep 2025 13:02:09 GMT
+  recorded_at: Thu, 02 Apr 2026 15:31:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=Admin
@@ -121,10 +127,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Cabbages and Kings</title>
+          <title>To Say Nothing of the Dog</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1775143918'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -143,55 +151,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '116'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Cabbages and Kings</title>
+          <title>To Say Nothing of the Dog</title>
           <description></description>
         </project>
-  recorded_at: Fri, 26 Sep 2025 13:02:09 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=Admin
-    body:
-      encoding: UTF-8
-      string: |
-        <attributes>
-          <attribute name="ApprovedRequestSource" namespace="OBS"/>
-        </attributes>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '168'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="78">
-          <srcmd5>d4175ec0d7367ba3f31fc7a13be43d82</srcmd5>
-          <time>1758891729</time>
-          <user>Admin</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Fri, 26 Sep 2025 13:02:09 GMT
+  recorded_at: Thu, 02 Apr 2026 15:31:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/package_a/_meta?user=Admin
@@ -199,10 +167,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_a" project="source_project">
-          <title>This Lime Tree Bower</title>
-          <description>Dolor ipsam est maxime.</description>
+          <title>The Road Less Traveled</title>
+          <description>Rerum saepe provident voluptate.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1775143918'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -221,15 +191,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <package name="package_a" project="source_project">
-          <title>This Lime Tree Bower</title>
-          <description>Dolor ipsam est maxime.</description>
+          <title>The Road Less Traveled</title>
+          <description>Rerum saepe provident voluptate.</description>
         </package>
-  recorded_at: Fri, 26 Sep 2025 13:02:09 GMT
+  recorded_at: Thu, 02 Apr 2026 15:31:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/package_a/package_a.changes
@@ -248,6 +218,8 @@ http_interactions:
         - Temporary hack
 
     headers:
+      X-Frontend-Start:
+      - '1775143918'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -273,12 +245,12 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>2b6f6ed344df3b6bb58fc09d16391f61</srcmd5>
           <version>unknown</version>
-          <time>1758891729</time>
+          <time>1775143918</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 26 Sep 2025 13:02:09 GMT
+  recorded_at: Thu, 02 Apr 2026 15:31:58 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -286,6 +258,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1775143918'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -309,9 +283,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_a" rev="1" vrev="1" srcmd5="2b6f6ed344df3b6bb58fc09d16391f61">
-          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1758891729"/>
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1775143918"/>
         </directory>
-  recorded_at: Fri, 26 Sep 2025 13:02:09 GMT
+  recorded_at: Thu, 02 Apr 2026 15:31:58 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -319,6 +293,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1775143919'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -342,9 +318,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_a" rev="1" vrev="1" srcmd5="2b6f6ed344df3b6bb58fc09d16391f61">
-          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1758891729"/>
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1775143918"/>
         </directory>
-  recorded_at: Fri, 26 Sep 2025 13:02:09 GMT
+  recorded_at: Thu, 02 Apr 2026 15:31:59 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/package_a?cmd=diff&expand=1&filelimit=10000&opackage=package_a&oproject=target_project&rev=2b6f6ed344df3b6bb58fc09d16391f61&tarlimit=10000&view=xml&withissues=1
@@ -354,6 +330,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1775143919'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -403,7 +381,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 26 Sep 2025 13:02:09 GMT
+  recorded_at: Thu, 02 Apr 2026 15:31:59 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_a
@@ -412,7 +390,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - d01a653f-4cdb-447f-b89f-69ed5a8c56e9
+      - e7fe19a1-6ce5-4427-9c85-b595dfe080db
+      X-Frontend-Start:
+      - '1775143920'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -436,9 +416,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_a" rev="1" vrev="1" srcmd5="a884751bbd575d6295dc91ee6f64cd02">
-          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1758891729"/>
+          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1775143918"/>
         </directory>
-  recorded_at: Fri, 26 Sep 2025 13:02:11 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -447,7 +427,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 6635cf4f-2b78-4f1b-800b-bb7eb19f0359
+      - 192e436c-4f18-4c1a-8eb6-47b0553d5664
+      X-Frontend-Start:
+      - '1775143920'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -471,9 +453,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_a" rev="1" vrev="1" srcmd5="2b6f6ed344df3b6bb58fc09d16391f61">
-          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1758891729"/>
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1775143918"/>
         </directory>
-  recorded_at: Fri, 26 Sep 2025 13:02:11 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:00 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/package_a?cacheonly=1&cmd=diff&expand=1&nodiff=1&opackage=package_a&oproject=target_project&rev=2b6f6ed344df3b6bb58fc09d16391f61&view=xml&withissues=1
@@ -484,7 +466,9 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - 6635cf4f-2b78-4f1b-800b-bb7eb19f0359
+      - 192e436c-4f18-4c1a-8eb6-47b0553d5664
+      X-Frontend-Start:
+      - '1775143920'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -519,7 +503,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 26 Sep 2025 13:02:11 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -528,7 +512,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 6635cf4f-2b78-4f1b-800b-bb7eb19f0359
+      - 192e436c-4f18-4c1a-8eb6-47b0553d5664
+      X-Frontend-Start:
+      - '1775143920'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -552,9 +538,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_a" rev="1" vrev="1" srcmd5="2b6f6ed344df3b6bb58fc09d16391f61">
-          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1758891729"/>
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1775143918"/>
         </directory>
-  recorded_at: Fri, 26 Sep 2025 13:02:11 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:00 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/package_a?cmd=diff&expand=1&filelimit=10000&opackage=package_a&oproject=target_project&rev=2b6f6ed344df3b6bb58fc09d16391f61&tarlimit=10000&view=xml&withissues=1
@@ -565,7 +551,9 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - 6635cf4f-2b78-4f1b-800b-bb7eb19f0359
+      - 192e436c-4f18-4c1a-8eb6-47b0553d5664
+      X-Frontend-Start:
+      - '1775143920'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -615,7 +603,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 26 Sep 2025 13:02:11 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_a
@@ -624,7 +612,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 6635cf4f-2b78-4f1b-800b-bb7eb19f0359
+      - 192e436c-4f18-4c1a-8eb6-47b0553d5664
+      X-Frontend-Start:
+      - '1775143920'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -648,9 +638,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_a" rev="1" vrev="1" srcmd5="a884751bbd575d6295dc91ee6f64cd02">
-          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1758891729"/>
+          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1775143918"/>
         </directory>
-  recorded_at: Fri, 26 Sep 2025 13:02:11 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_a
@@ -659,7 +649,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 6635cf4f-2b78-4f1b-800b-bb7eb19f0359
+      - 192e436c-4f18-4c1a-8eb6-47b0553d5664
+      X-Frontend-Start:
+      - '1775143920'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -683,9 +675,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_a" rev="1" vrev="1" srcmd5="a884751bbd575d6295dc91ee6f64cd02">
-          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1758891729"/>
+          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1775143918"/>
         </directory>
-  recorded_at: Fri, 26 Sep 2025 13:02:11 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_a
@@ -694,7 +686,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 6635cf4f-2b78-4f1b-800b-bb7eb19f0359
+      - 192e436c-4f18-4c1a-8eb6-47b0553d5664
+      X-Frontend-Start:
+      - '1775143920'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -718,9 +712,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_a" rev="1" vrev="1" srcmd5="a884751bbd575d6295dc91ee6f64cd02">
-          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1758891729"/>
+          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1775143918"/>
         </directory>
-  recorded_at: Fri, 26 Sep 2025 13:02:11 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_a
@@ -729,7 +723,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 6635cf4f-2b78-4f1b-800b-bb7eb19f0359
+      - 192e436c-4f18-4c1a-8eb6-47b0553d5664
+      X-Frontend-Start:
+      - '1775143920'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -753,9 +749,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_a" rev="1" vrev="1" srcmd5="a884751bbd575d6295dc91ee6f64cd02">
-          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1758891729"/>
+          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1775143918"/>
         </directory>
-  recorded_at: Fri, 26 Sep 2025 13:02:11 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:01 GMT
 - request:
     method: get
     uri: http://backend:5352/build/source_project/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
@@ -764,7 +760,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 5c2bcc75-9f4d-4ef6-9f4e-f616a38fc97c
+      - 0dbebc85-7545-448b-8e45-8fc721494864
+      X-Frontend-Start:
+      - '1775143921'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -789,7 +787,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 26 Sep 2025 13:02:13 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -798,7 +796,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - b2da6383-614a-41d6-9584-ef98f4537d38
+      - ee2270a3-2d06-4b8f-9014-f0b11a371598
+      X-Frontend-Start:
+      - '1775143922'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -822,9 +822,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_a" rev="1" vrev="1" srcmd5="2b6f6ed344df3b6bb58fc09d16391f61">
-          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1758891729"/>
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1775143918"/>
         </directory>
-  recorded_at: Fri, 26 Sep 2025 13:02:14 GMT
+  recorded_at: Thu, 02 Apr 2026 15:32:02 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/package_a?cmd=diff&expand=1&filelimit=10000&opackage=package_a&oproject=target_project&rev=2b6f6ed344df3b6bb58fc09d16391f61&tarlimit=10000&view=xml&withissues=1
@@ -835,7 +835,9 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - b2da6383-614a-41d6-9584-ef98f4537d38
+      - ee2270a3-2d06-4b8f-9014-f0b11a371598
+      X-Frontend-Start:
+      - '1775143922'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -885,5 +887,5 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 26 Sep 2025 13:02:14 GMT
-recorded_with: VCR 6.3.1
+  recorded_at: Thu, 02 Apr 2026 15:32:02 GMT
+recorded_with: VCR 6.4.0

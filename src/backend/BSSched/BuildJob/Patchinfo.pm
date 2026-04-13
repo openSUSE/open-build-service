@@ -396,7 +396,7 @@ sub build_ptf_job {
   }
   $patchinfo->{'version'} ||= 1;
   $patchinfo->{'description'} =~ s/\n+$//s if $patchinfo->{'description'};
-  my @ptfspec = split("\n", readstr("$obssrcdir/obs-ptf.spec"));
+  my @ptfspec = split("\n", readstr("$obssrcdir/templates/obs-ptf.spec"));
   for my $ptfline (splice @ptfspec) {
     $ptfline =~ s/\@patchinfo-(.*?)\@/$patchinfo->{$1}/ge;
     if ($ptfline =~ /\@(filtered-)?rpm-.*?\@/) {

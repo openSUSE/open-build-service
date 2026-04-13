@@ -19,7 +19,7 @@ namespace :dev do
         Report.create!(reportable: reportable, reporter: iggy, reason: 'Watch your language, please')
       end
 
-      source_project = create(:project, :as_submission_source, name: 'source_project')
+      source_project = create(:project, name: 'source_project')
       source_package = create(:package_with_files,
                               name: 'package_a',
                               project: source_project,

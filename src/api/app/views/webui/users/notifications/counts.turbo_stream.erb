@@ -1,0 +1,22 @@
+<%= turbo_stream.update "counts_for_all_notifications" do %>
+  <span><%= @counts_for_all_notifications %></span>
+<% end %>
+<%= turbo_stream.update "counts_for_unread_notifications" do %>
+  <span><%= @counts_for_unread_notifications %></span>
+<% end %>
+<% @counts_grouped_by_notification_type.each do |type, count| %>
+  <%= turbo_stream.update "counts_for_#{type}_notifications" do %>
+    <span><%= count %></span>
+  <% end %>
+<% end %>
+<% @counts_grouped_by_event_type.each do |event_type, count| %>
+  <%= turbo_stream.update "counts_for_#{event_type}_notifications" do %>
+    <span><%= count %></span>
+  <% end %>
+<% end %>
+<%= turbo_stream.update "counts_for_incoming_requests_notifications" do %>
+  <span><%= @counts_for_incoming_requests_notifications %></span>
+<% end %>
+<%= turbo_stream.update "counts_for_outgoing_requests_notifications" do %>
+  <span><%= @counts_for_outgoing_requests_notifications %></span>
+<% end %>

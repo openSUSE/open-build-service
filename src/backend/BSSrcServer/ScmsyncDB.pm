@@ -25,10 +25,25 @@ package BSSrcServer::ScmsyncDB;
 use strict;
 
 use BSConfiguration;
+use BSUtil;
 
 require BSSrcServer::SQLite if $BSConfig::source_db_sqlite;
 
 my $sourcedb = "$BSConfig::bsdir/db/source";
+my $redisdir = "$BSConfig::bsdir/events/redis";
+
+sub addredisjob {
+  my (@job) = @_;
+  s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @job;
+  my $job = join('|', @job)."\n";
+  my $file;
+  mkdir_p($redisdir) unless -d $redisdir;
+  BSUtil::lockopen($file, '>>', "$redisdir/queue");
+  my $oldlen = -s $file;
+  (syswrite($file, $job) || 0) == length($job) || die("redisdir/queue: $!\n");
+  close($file);
+  BSUtil::ping("$redisdir/.ping") unless $oldlen;
+}
 
 sub generate_scmsyncinfo {
   my ($scmsyncurl) = @_;
@@ -61,13 +76,26 @@ sub storescmsync {
   my $scmsyncinfo = eval { generate_scmsyncinfo($scmsyncurl) };
   my $db = BSSrcServer::SQLite::opendb($sourcedb, 'scmsync');
   $db->store_scmsyncinfo($projid, $packid, $scmsyncinfo);
+  if ($BSConfig::redisserver) {
+    if (defined(($scmsyncinfo || {})->{'scmsync_repo'})) {
+      addredisjob('updatescmsync', "$projid/$packid", $scmsyncinfo->{'scmsync_repo'}, $scmsyncinfo->{'scmsync_branch'}, $scmsyncinfo->{'scmsync_trackingbranch'});
+    } else {
+      addredisjob('updatescmsync', "$projid/$packid");
+    }
+  }
 }
 
 sub deletescmsync {
   my ($projid, $packid) = @_;
   return unless $BSConfig::source_db_sqlite;
   my $db = BSSrcServer::SQLite::opendb($sourcedb, 'scmsync');
+  my @k;
+  @k = $db->rawkeys('project', $projid) if $BSConfig::redisserver && !defined($packid);
   $db->store_scmsyncinfo($projid, $packid, undef);
+  if ($BSConfig::redisserver) {
+    push @k, $packid if defined $packid;
+    addredisjob('updatescmsync', "$projid/$_") for @k;
+  }
 }
 
 sub getscmsyncpackages {
