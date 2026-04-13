@@ -176,7 +176,7 @@ echo "echo Running ${COMMAND[@]} --outdir $INNEROUTDIR" >> "$MOUNTDIR/${INNERSCR
 
 if [ "$WITH_NET" != "1" ] ; then
   printlog "Using docker without network"
-  CONTAINER_NETWORK_OPT="--net=none"
+  CONTAINER_NETWORK_OPT="--network none"
 else
   printlog "Using docker with network"
   CONTAINER_NETWORK_OPT=`obs_admin --query-config container_network_opt`
