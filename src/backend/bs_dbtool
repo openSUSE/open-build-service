@@ -180,6 +180,25 @@ if ($cmd eq 'linkpackages') {
   exit(0);
 }
 
+if ($cmd eq 'convert' && $table eq 'scmsync') {
+  die("the scmsync redis conversion only works with sqlite\n") unless $BSConfig::source_db_sqlite;
+  require BSSrcServer::ScmsyncDB;
+  my @todo = $db->keys();
+  my $done = 0;
+  my $todo = @todo;
+  print "Converting $todo datasets\n";
+  for my $k (@todo) {
+    my $scmsyncinfo = $db->fetch($k);
+    if (defined(($scmsyncinfo || {})->{'scmsync_repo'})) {
+      BSSrcServer::ScmsyncDB::addredisjob('updatescmsync', $k, $scmsyncinfo->{'scmsync_repo'}, $scmsyncinfo->{'scmsync_branch'}, $scmsyncinfo->{'scmsync_trackingbranch'});
+    }
+    $done++;
+    print "$done/$todo\n" if $done % 10 == 0;
+  }
+  print "$todo/$todo\n";
+  exit(0);
+}
+
 if ($cmd eq 'convert') {
   require BSSrcServer::SQLite;
   $db = undef;
@@ -274,25 +293,6 @@ if ($cmd eq 'convert') {
     print "WARNING: could not fetch the following entries:\n";
     print "  - $_\n" for @bad;
   }
-  exit(0);
-}
-
-if ($cmd eq 'scmsync2redis') {
-  die("the scmsync2redis command only works with sqlite\n") unless $BSConfig::source_db_sqlite;
-  die("the scmsync2redis command only works the scmsync db\n") unless $table eq 'scmsync';
-  require BSSrcServer::ScmsyncDB;
-  my @todo = $db->keys();
-  my $done = 0;
-  my $todo = @todo;
-  for my $k (@todo) {
-    my $scmsyncinfo = $db->fetch($k);
-    if (defined(($scmsyncinfo || {})->{'scmsync_repo'})) {
-      BSSrcServer::ScmsyncDB::addredisjob('updatescmsync', $k, $scmsyncinfo->{'scmsync_repo'}, $scmsyncinfo->{'scmsync_branch'}, $scmsyncinfo->{'scmsync_trackingbranch'});
-    }
-    $done++;
-    print "$done/$todo\n" if $done % 10 == 0;
-  }
-  print "$todo/$todo\n";
   exit(0);
 }
 
