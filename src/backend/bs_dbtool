@@ -14,6 +14,31 @@ use BSDB;
 
 $Data::Dumper::Sortkeys = 1;
 
+sub BSSrcServer::Redis::opendb {
+  my ($table) = @_;
+  die("unsupported table: $table\n") unless $table eq 'result' || $table eq 'oldresult' || $table eq 'scmsync' || $table eq 'jobs';
+  require BSRedis;
+  die("No redis server configured\n") unless $BSConfig::redisserver;
+  die("Redis server must be of scheme redis[s]://<server>[:port]\n") unless $BSConfig::redisserver =~ /^(rediss?):\/\/(?:(?:([^\/\@:]+):)?([^\/\@]*)\@)?([^\/:]+)(?::(\d+))?$/;
+  my $red = BSRedis->new('server' => $4, 'port' => $5, 'user' => $2, 'password' => $3, 'tls' => ($1 eq 'rediss' ? 1 : 0));
+  return bless { 'red' => $red, 'table' => $table }, 'BSSrcServer::Redis';
+}
+
+sub BSSrcServer::Redis::keys {
+  my ($db, $path, $value, $lkeys) = @_;
+  die("unsupported operation\n") if defined $path;
+  my $table = $db->{'table'};
+  my $k = $db->{'red'}->run('KEYS', $table.'.*');
+  return sort(grep {s/^\Q$table\E\.//} @$k);
+}
+
+sub BSSrcServer::Redis::fetch {
+  my ($db, $key) = @_;
+  my $table = $db->{'table'};
+  my $r = $db->{'red'}->run('HGETALL', "$table.$key");
+  return { @$r };
+}
+
 if (@ARGV && $ARGV[0] eq '--old') {
   shift @ARGV;
   undef $BSConfig::published_db_sqlite;
@@ -54,6 +79,8 @@ if ($table eq 'linkinfo' || $table eq 'scmsync') {
     $db = BSDB::opendb($extrepodb, $table);
     $db->{'allkeyspath'} = 'name' if $table eq 'binary';
   }
+} elsif ($table eq 'result' || $table eq 'oldresult' || $table eq 'jobs' || $table eq 'scmsync.redis') {
+  $db = BSSrcServer::Redis::opendb($table eq 'scmsync.redis' ? 'scmsync' : $table);
 } else {
   die("unknown database table $table\n");
 }
@@ -77,11 +104,11 @@ if ($cmd eq 'fetch') {
 }
 
 if ($cmd eq 'repoinfo') {
-  my $repoinfo;
   my $prp = $ARGV[0];
+  my $prp_ext = $prp;
+  $prp_ext =~ s/:/:\//g;
+  my $repoinfo;
   if ($BSConfig::published_db_sqlite) {
-    my $prp_ext = $prp;
-    $prp_ext =~ s/:/:\//g;
     $repoinfo = $db->getrepoinfo($prp_ext);
   } else {
     $db = BSDB::opendb($extrepodb, 'repoinfo');
@@ -92,15 +119,15 @@ if ($cmd eq 'repoinfo') {
 }
 
 if ($cmd eq 'repoorigins') {
-  my $repoorigins;
   my $prp = $ARGV[0];
+  my $prp_ext = $prp;
+  $prp_ext =~ s/:/:\//g;
+  my $repoorigins;
   if ($BSConfig::published_db_sqlite) {
-    my $prp_ext = $prp;
-    $prp_ext =~ s/:/:\//g;
     $repoorigins = $db->getrepoorigins($prp_ext);
   } else {
     $db = BSDB::opendb($extrepodb, 'repoinfo');
-    my $repoinfo = $db->fetch($prp);
+    my $repoinfo = $db->fetch($prp) || {};
     $repoorigins = $repoinfo->{'binaryorigins'};
   }
   print Dumper($repoorigins);
@@ -153,6 +180,25 @@ if ($cmd eq 'linkpackages') {
   exit(0);
 }
 
+if ($cmd eq 'convert' && $table eq 'scmsync') {
+  die("the scmsync redis conversion only works with sqlite\n") unless $BSConfig::source_db_sqlite;
+  require BSSrcServer::ScmsyncDB;
+  my @todo = $db->keys();
+  my $done = 0;
+  my $todo = @todo;
+  print "Converting $todo datasets\n";
+  for my $k (@todo) {
+    my $scmsyncinfo = $db->fetch($k);
+    if (defined(($scmsyncinfo || {})->{'scmsync_repo'})) {
+      BSSrcServer::ScmsyncDB::addredisjob('updatescmsync', $k, $scmsyncinfo->{'scmsync_repo'}, $scmsyncinfo->{'scmsync_branch'}, $scmsyncinfo->{'scmsync_trackingbranch'});
+    }
+    $done++;
+    print "$done/$todo\n" if $done % 10 == 0;
+  }
+  print "$todo/$todo\n";
+  exit(0);
+}
+
 if ($cmd eq 'convert') {
   require BSSrcServer::SQLite;
   $db = undef;
@@ -195,7 +241,7 @@ if ($cmd eq 'convert') {
   my $todo = @todo;
 
   print "Converting $todo datasets\n";
-  
+
   if ($table eq 'linkinfo') {
     BSSrcServer::SQLite::init_sourcedb();
   } elsif ($table eq 'pattern' || $table eq 'binary') {
@@ -250,16 +296,44 @@ if ($cmd eq 'convert') {
   exit(0);
 }
 
-if ($cmd eq 'scmsync2redis') {
-  die("the scmsync2redis command only works with sqlite\n") unless $BSConfig::source_db_sqlite;
-  die("the scmsync2redis command only works the scmsync db\n") unless $table eq 'scmsync';
+if ($cmd eq 'deleteobsolete') {
+  die("the deleteobsolete command only works with the result/scmsync.redis db\n") unless $table eq 'result' || $table eq 'scmsync.redis';
+  require BSRevision;
   require BSSrcServer::ScmsyncDB;
+  my %projids;
   for my $k ($db->keys()) {
-    print "  - $k\n";
-    my $scmsyncinfo = $db->fetch($k);
-    next unless defined(($scmsyncinfo || {})->{'scmsync_repo'});
-    BSSrcServer::ScmsyncDB::addredisjob('updatescmsync', $k, $scmsyncinfo->{'scmsync_repo'}, $scmsyncinfo->{'scmsync_branch'}, $scmsyncinfo->{'scmsync_trackingbranch'});
+    my ($projid) = split('/', $k, 2);
+    push @{$projids{$projid}}, $k;
   }
+  my %correct;
+  if ($table eq 'scmsync.redis') {
+    my $ndb = BSSrcServer::SQLite::opendb($sourcedb, 'scmsync');
+    %correct = map {$_ => 1} $ndb->keys();
+  }
+  my $done = 0;
+  my $todo = keys %projids;
+  for my $projid (sort keys %projids) {
+    if ($table ne 'scmsync.redis') {
+      my $proj = BSRevision::readproj_local($projid, 1) || {};
+      my @prpas;
+      for my $repo (@{$proj->{'repository'} || []}) {
+        push @prpas, map {"$projid/$repo->{'name'}/$_"} @{$repo->{'arch'} || []};
+      }
+      %correct = map {$_ => 1} @prpas;
+    }
+    my @bad = grep {!$correct{$_}} @{$projids{$projid}};
+    if (@bad) {
+      printf "  deleting %d entries\n", scalar(@bad);
+      if ($table eq 'scmsync.redis') {
+        BSSrcServer::ScmsyncDB::addredisjob('updatescmsync', $_) for @bad;
+      } else {
+	BSSrcServer::ScmsyncDB::addredisjob('deleteresult', $_) for @bad;
+      }
+    }
+    $done++;
+    print "$done/$todo\n" if $done % 10 == 0;
+  }
+  print "$todo/$todo\n";
   exit(0);
 }
 
