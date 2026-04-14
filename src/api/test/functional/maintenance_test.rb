@@ -249,8 +249,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     get "/request/#{id1}"
     assert_response :success
-    data = REXML::Document.new(@response.body)
-    incident_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    data = Nokogiri::XML(@response.body)
+    incident_project = data.at_xpath('/request/action/target')['project'].to_s
 
     get "/source/#{incident_project}/kdelibs.BaseDistro2.0_LinkedUpdateProject"
     assert_response :success
@@ -322,8 +322,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     get "/request/#{id2}"
     assert_response :success
-    data = REXML::Document.new(@response.body)
-    incident_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    data = Nokogiri::XML(@response.body)
+    incident_project = data.at_xpath('/request/action/target')['project'].to_s
 
     get "/source/#{incident_project}/kdelibs.BaseDistro2.0_LinkedUpdateProject"
     assert_response :success
@@ -460,8 +460,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source', params: { cmd: 'createmaintenanceincident', noaccess: 1 }
     assert_response :success
     assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' })
-    data = REXML::Document.new(@response.body)
-    incident_project = data.elements['/status/data'].text
+    data = Nokogiri::XML(@response.body)
+    incident_project = data.at_xpath('/status/data')&.text
     assert_equal 'My:Maintenance:100', incident_project
 
     get '/source/ServicePack:Update/pack2/_meta'
@@ -757,8 +757,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     get "/request/#{id}"
     assert_response :success
-    data = REXML::Document.new(@response.body)
-    incident_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    data = Nokogiri::XML(@response.body)
+    incident_project = data.at_xpath('/request/action/target')['project'].to_s
     assert_not_equal incident_project, 'My:Maintenance'
 
     # validate cleanup
@@ -842,8 +842,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/Temp:Maintenance', params: { cmd: 'createmaintenanceincident' }
     assert_response :success
     assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' })
-    data = REXML::Document.new(@response.body)
-    incident_project = data.elements['/status/data'].text
+    data = Nokogiri::XML(@response.body)
+    incident_project = data.at_xpath('/status/data')&.text
     # incident_id=incident_project.gsub( /^Temp:Maintenance:/, "" )
     get "/source/#{incident_project}/_meta"
     assert_xml_tag(tag: 'project', attributes: { kind: 'maintenance_incident' })
@@ -856,8 +856,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/Temp:Maintenance?cmd=createmaintenanceincident&noaccess=1'
     assert_response :success
     assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' })
-    data = REXML::Document.new(@response.body)
-    incident_project2 = data.elements['/status/data'].text
+    data = Nokogiri::XML(@response.body)
+    incident_project2 = data.at_xpath('/status/data')&.text
     # incident_id2=incident_project2.gsub( /^Temp:Maintenance:/, "" )
     get "/source/#{incident_project2}/_meta"
     assert_xml_tag(parent: { tag: 'build' }, tag: 'disable', content: nil)
@@ -928,9 +928,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_king
     get '/source/My:Maintenance/_meta'
     assert_response :success
-    maintenance_project_meta = REXML::Document.new(@response.body)
-    maintenance_project_meta.elements['/project'].attributes['kind'] = 'maintenance'
-    put '/source/My:Maintenance/_meta', params: maintenance_project_meta.to_s
+    maintenance_project_meta = Nokogiri::XML(@response.body)
+    maintenance_project_meta.at_xpath('/project')['kind'] = 'maintenance'
+    put '/source/My:Maintenance/_meta', params: maintenance_project_meta.root.to_xml
     assert_response :success
 
     prepare_request_with_user('maintenance_coord', 'buildservice')
@@ -959,8 +959,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source', params: { cmd: 'createmaintenanceincident', noaccess: 1 }
     assert_response :success
     assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' })
-    data = REXML::Document.new(@response.body)
-    incident_project = data.elements['/status/data'].text
+    data = Nokogiri::XML(@response.body)
+    incident_project = data.at_xpath('/status/data')&.text
     incident_id = incident_project.gsub(/^My:Maintenance:/, '')
     get "/source/#{incident_project}/_meta"
     assert_response :success
@@ -1251,9 +1251,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # let's say the maintenance person wants to publish it now
     get "/source/#{incident_project}/_meta"
     assert_response :success
-    maintenance_project_meta = REXML::Document.new(@response.body)
-    maintenance_project_meta.elements['/project'].delete_element 'publish'
-    put "/source/#{incident_project}/_meta", params: maintenance_project_meta.to_s
+    maintenance_project_meta = Nokogiri::XML(@response.body)
+    maintenance_project_meta.at_xpath('/project/publish')&.remove
+    put "/source/#{incident_project}/_meta", params: maintenance_project_meta.root.to_xml
     assert_response :success
 
     # mess up patchinfo and try to create release request
@@ -1587,9 +1587,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'mtime'
     hashed = node = nil
     IO.popen("gunzip -cd #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-updateinfo.xml.gz") do |io|
-      node = REXML::Document.new(io.read)
+      node = Nokogiri::XML(io.read)
     end
-    assert_equal "My-oldname-#{Time.now.year}-1", node.elements['/updates/update/id'].first.to_s
+    assert_equal "My-oldname-#{Time.now.year}-1", node.at_xpath('/updates/update/id')&.text
     # verify meta data created by createrepo
     IO.popen("gunzip -cd #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-primary.xml.gz") do |io|
       hashed = Xmlhash.parse(io.read)
@@ -1966,9 +1966,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # remove release target
     get '/source/home:tom:branches:BaseDistro:Update/_meta'
     assert_response :success
-    pi = REXML::Document.new(@response.body)
-    pi.elements['//repository'].delete_element 'releasetarget'
-    put '/source/home:tom:branches:BaseDistro:Update/_meta', params: pi.to_s
+    pi = Nokogiri::XML(@response.body)
+    pi.at_xpath('//repository/releasetarget')&.remove
+    put '/source/home:tom:branches:BaseDistro:Update/_meta', params: pi.root.to_xml
     assert_response :success
 
     # Run without server side expansion
@@ -2003,11 +2003,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_tom
     get '/source/home:tom:branches:BaseDistro:Update/_meta'
     assert_response :success
-    meta = REXML::Document.new(@response.body)
-    meta.elements['//repository'].add_element 'releasetarget'
-    meta.elements['//releasetarget'].add_attribute(REXML::Attribute.new('project', 'BaseDistro:Update'))
-    meta.elements['//releasetarget'].add_attribute(REXML::Attribute.new('repository', 'BaseDistroUpdateProject_repo'))
-    put '/source/home:tom:branches:BaseDistro:Update/_meta', params: meta.to_s
+    meta = Nokogiri::XML(@response.body)
+    releasetarget = Nokogiri::XML::Node.new('releasetarget', meta)
+    releasetarget['project'] = 'BaseDistro:Update'
+    releasetarget['repository'] = 'BaseDistroUpdateProject_repo'
+    meta.at_xpath('//repository').add_child(releasetarget)
+    put '/source/home:tom:branches:BaseDistro:Update/_meta', params: meta.root.to_xml
     assert_response :success
 
     # retry
@@ -2044,14 +2045,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_tom
     get '/source/home:tom:branches:BaseDistro:Update/patchinfo/_patchinfo'
     assert_response :success
-    pi = REXML::Document.new(@response.body)
-    pi.elements['//summary'].text = 'My Summary'
-    put '/source/home:tom:branches:BaseDistro:Update/patchinfo/_patchinfo', params: pi.to_s
+    pi = Nokogiri::XML(@response.body)
+    pi.at_xpath('//summary').content = 'My Summary'
+    put '/source/home:tom:branches:BaseDistro:Update/patchinfo/_patchinfo', params: pi.root.to_xml
     assert_response :success
 
     # remove architecture
-    meta.elements['//repository'].delete_element 'arch'
-    put '/source/home:tom:branches:BaseDistro:Update/_meta', params: meta.to_s
+    meta.at_xpath('//repository/arch')&.remove
+    put '/source/home:tom:branches:BaseDistro:Update/_meta', params: meta.root.to_xml
     assert_response :success
 
     rq = '<request>
