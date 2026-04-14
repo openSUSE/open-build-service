@@ -1,8 +1,8 @@
 %li
   %i.fas.fa-sync-alt.text-info
   - if package.latest_upstream_version&.updated_at?
-    Upstream version info updated
+    Anitya distribution info updated
     = time_ago_in_words(package.latest_upstream_version&.updated_at)
     ago
   - else
-    Upstream version info not synced yet
+    Anitya distribution info not synced yet

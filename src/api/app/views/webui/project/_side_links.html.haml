@@ -49,7 +49,7 @@
     %li
       %i.fas.fa-sync-alt.text-info
       - if project.anitya_distribution_synced_at.present?
-        Anitya distribution info last synced
+        Anitya distribution info updated
         = time_ago_in_words(project.anitya_distribution_synced_at)
         ago
       - else
