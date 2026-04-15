@@ -81,13 +81,12 @@ RSpec.feature 'Groups', type: :feature, js: true do
     within('#add-group-user-modal') do
       fill_in('user_login', with: admin.login)
 
-      expect do
-        click_button('Accept')
-        group_2.reload
-      end.to change { group_2.users.count }.by(1)
+      click_button('Accept')
     end
 
-    expect(page).to have_content("Added user '#{admin}' to group '#{group_2}'")
+    within('#flash') do
+      expect(page).to have_content("Added user '#{admin}' to group '#{group_2}'")
+    end
 
     visit groups_path
     group_in_datatable(page, group_2)

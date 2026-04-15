@@ -20,7 +20,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
           post :create, params: params
         end
 
-        it { expect(flash[:success]).to .to match('Comment.*successfully') }
+        it { expect(flash[:success]).to match('Comment.*successfully') }
         it { expect(commentable.comments.first.body).to eq("This #{commentable.model_name.singular} is AWESOME!") }
       end
 
@@ -46,7 +46,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
         post :create, params: params
       end
 
-      it { expect(flash[:error]).to ends_with("Body can't be blank.") }
+      it { expect(flash[:error]).to ending_with("Body can't be blank.") }
       it { expect(package.comments.count).to eq(0) }
     end
 

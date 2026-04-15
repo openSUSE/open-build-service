@@ -51,7 +51,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it 'renders the index template' do
         skip_unless_bento
 
-        expect(response).to render_template('webui/project/index')
+        expect(response).to render_template('webui/project/list')
       end
     end
 
@@ -71,7 +71,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it 'renders the index template' do
         skip_unless_bento
 
-        expect(response).to render_template('webui/project/index')
+        expect(response).to render_template('webui/project/list')
       end
     end
 

@@ -26,7 +26,7 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
     check('Admin', allow_label_click: true)
     click_button('Update')
     within('#flash') do
-      expect(page).to have_text("Updated user '#{user.login}'.")
+      expect(page).to have_text("User data for user '#{user.login}' successfully updated.")
     end
   end
 
@@ -36,7 +36,7 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
     uncheck('Admin', allow_label_click: true)
     click_button('Update')
     within('#flash') do
-      expect(page).to have_text("Updated user '#{admin.login}'.")
+      expect(page).to have_text("User data for user '#{admin.login}' successfully updated.")
     end
   end
 end
