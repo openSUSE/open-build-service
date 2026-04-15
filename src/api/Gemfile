@@ -123,6 +123,7 @@ group :test do
   gem 'minitest-reporters'
   # for integration testing
   gem 'capybara'
+  gem 'rack_session_access'
   # for rspec like matchers
   gem 'capybara_minitest_spec'
   # to freeze time
