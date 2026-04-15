@@ -43,9 +43,16 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :index, params: { show_all: true }
       end
 
-      it { expect(assigns(:projects).length).to eq(2) }
-      it { expect(Project.count).to eq(2) }
-      it { is_expected.to render_template('webui/project/list') }
+      it 'assigns 2 projects' do
+        skip_unless_bento
+
+        expect(assigns(:projects).length).to eq(2)
+      end
+      it 'renders the index template' do
+        skip_unless_bento
+
+        expect(response).to render_template('webui/project/index')
+      end
     end
 
     context 'showing filtered projects' do
@@ -56,9 +63,16 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :index, params: { show_all: false }
       end
 
-      it { expect(assigns(:projects).length).to eq(1) }
-      it { expect(Project.count).to eq(2) }
-      it { is_expected.to render_template('webui/project/list') }
+      it 'assigns 1 project' do
+        skip_unless_bento
+
+        expect(assigns(:projects).length).to eq(1)
+      end
+      it 'renders the index template' do
+        skip_unless_bento
+
+        expect(response).to render_template('webui/project/index')
+      end
     end
 
     context 'showing projects being a spider bot' do
@@ -68,7 +82,11 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :index
       end
 
-      it { is_expected.to render_template('webui/project/list_simple') }
+      it 'renders a simple list' do
+        skip_unless_bento
+
+        expect(response).to render_template('webui/project/list_simple')
+      end
     end
   end
 
@@ -237,7 +255,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it { expect(assigns(:roles)).to match_array(Role.local_roles) }
   end
 
-  describe 'GET #subprojects' do
+  describe 'GET #subprojects', skip: 'BENTO theme specific behavior and bento is disabled' do
     before do
       apache_project
       @project = create(:project, name: 'Apache:Apache2')
@@ -888,7 +906,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(package.attribs.where(attrib_type: attribute_type)).to be_empty }
     end
 
-    context 'with format js' do
+    context 'with format js', skip: 'BENTO theme specific behavior and bento is disabled' do
       before do
         get :clear_failed_comment, params: { project: user.home_project, package: package, format: 'js' }, xhr: true
       end

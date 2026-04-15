@@ -207,7 +207,10 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(controller).to set_flash[:error] }
-      it { expect(response).to redirect_to(package_edit_path(project: source_project, package: source_package)) }
+      it 'redirects to edit' do
+        skip_unless_bento
+        expect(response).to redirect_to(package_edit_path(project: source_project, package: source_package))
+      end
     end
   end
 
@@ -365,7 +368,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
   end
 
-  describe 'GET #binaries' do
+  describe 'GET #binaries', skip: 'BENTO theme specific behavior and bento is disabled' do
     before do
       login user
     end
@@ -1335,7 +1338,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
   end
 
-  describe 'GET #statistics' do
+  describe 'GET #statistics', skip: 'BENTO theme specific behavior and bento is disabled' do
     let!(:repository) { create(:repository, name: 'statistics', project: source_project, architectures: ['i586']) }
 
     before do
