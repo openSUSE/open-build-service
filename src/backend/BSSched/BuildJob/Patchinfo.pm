@@ -711,16 +711,16 @@ sub build {
 
   # fetch defined issue trackers from src server. FIXME: cache this
   # XXX: this is not an async call!
-  my @references;
-  my $issue_trackers;
   my $param = {
     'uri' => "$BSConfig::srcserver/issue_trackers",
     'timeout' => 30,
   };
-  eval {
-    $issue_trackers = BSRPC::rpc($param, $BSXML::issue_trackers);
-  };
-  warn($@) if $@;
+  my $issue_trackers = eval { BSRPC::rpc($param, $BSXML::issue_trackers) };
+  if ($@) {
+    warn($@);
+    $broken ||= 'could not retrieve issue trackers';
+  }
+  my @references;
   if ($issue_trackers) {
     for my $b (@{$patchinfo->{'issue'} || []}) {
       my $it = (grep {$_->{'name'} eq $b->{'tracker'}} @{$issue_trackers->{'issue-tracker'} || []})[0];
