@@ -78,6 +78,7 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
     name = []
     name << link_to(record.name, package_show_path(package: record, project: @project))
     name << link_tag if record.package_kinds.any? { |package_kind| package_kind.kind == 'link' }
+    name << aggregate_tag if record.package_kinds.any? { |package_kind| package_kind.kind == 'aggregate' }
     safe_join(name, ' ')
   end
 
@@ -99,6 +100,15 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
       # Using String Concatenation changes the behavior of this line
       # rubocop:disable Style/StringConcatenation
       tag.i(class: 'fas fa-link') + ' Link'
+      # rubocop:enable Style/StringConcatenation
+    end
+  end
+
+  def aggregate_tag
+    tag.span(class: 'badge text-body border') do
+      # Using String Concatenation changes the behavior of this line
+      # rubocop:disable Style/StringConcatenation
+      tag.i(class: 'fas fa-link') + ' Aggregate'
       # rubocop:enable Style/StringConcatenation
     end
   end
