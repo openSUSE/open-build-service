@@ -4025,6 +4025,9 @@ sub dobuild {
   $buildinfo->{'provenance_disturl'} = $disturl if $disturl;
   $buildinfo->{'provenance_vcs'} = $vcs if $vcs;
 
+  my $njobs = $jobs;
+  $njobs = $bconf->{'buildflags:maxjobs'} if $njobs && $bconf->{'buildflags:maxjobs'} && $bconf->{'buildflags:maxjobs'} < $njobs;
+
   my @args;
   push @args, $helper if $helper;
 
@@ -4133,7 +4136,7 @@ sub dobuild {
   push @args, '--release', "$release" if defined $release;
   push @args, '--debug' if $buildinfo->{'debuginfo'};
   push @args, '--arch', $arch;
-  push @args, '--jobs', $jobs if $jobs;
+  push @args, '--jobs', $njobs if $njobs;
   push @args, '--ccache' if $useccache && $oldpkgdir;
   push @args, '--ccache-create-archive' if $useccache && $oldpkgdir;
   push @args, "--ccache-type=$ccachetype" if $useccache && $oldpkgdir && $ccachetype;
