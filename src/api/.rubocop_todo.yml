@@ -785,11 +785,6 @@ Style/FileOpen:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# Offense count: 321
-# This cop supports safe autocorrection (--autocorrect).
-Style/IfUnlessModifier:
-  Enabled: false
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:

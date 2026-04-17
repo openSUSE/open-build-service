@@ -140,9 +140,7 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
 
     # for users in the labels beta program we show
     # different text, since the version state is indicated by labels
-    if Flipper.enabled?(:labels, User.session)
-      return versions_text_for_users_in_labels_beta(record:, local_version: local, upstream_version: upstream)
-    end
+    return versions_text_for_users_in_labels_beta(record:, local_version: local, upstream_version: upstream) if Flipper.enabled?(:labels, User.session)
 
     link = if upstream.blank?
              release_monitoring_search_link(record, 'no upstream')
