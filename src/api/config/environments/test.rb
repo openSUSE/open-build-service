@@ -64,6 +64,8 @@ OBSApi::Application.configure do
   config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 950
 
   config.active_job.queue_adapter = :inline
+  # Access to rack session for feature specs
+  config.middleware.use(RackSessionAccess::Middleware)
 end
 
 CONFIG['response_schema_validation'] = true

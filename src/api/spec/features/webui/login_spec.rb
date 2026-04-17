@@ -5,24 +5,6 @@ RSpec.feature 'Login', type: :feature, js: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'proxy_user') }
   let(:admin) { create(:admin_user) }
 
-  scenario 'login with home project shows a link to it' do
-    login user
-    # TODO: Remove subheader when dropping old UI
-    within('#subheader, #personal-navigation') do
-      expect(page).to have_link('Home Project')
-    end
-  end
-
-  scenario 'login without home project shows a link to create it' do
-    login admin
-    user.home_project.destroy
-    login user
-    # TODO: Remove subheader when dropping old UI
-    within('#subheader, #personal-navigation') do
-      expect(page).to have_link('Create Home')
-    end
-  end
-
   scenario 'login via login page' do
     visit session_new_path
 
@@ -36,7 +18,7 @@ RSpec.feature 'Login', type: :feature, js: true do
   end
 
   scenario 'login via widget' do
-    visit root_path
+    visit users_path(user)
     click_link('Log In')
 
     within('div#login-form') do
@@ -49,7 +31,7 @@ RSpec.feature 'Login', type: :feature, js: true do
   end
 
   scenario 'login with wrong data' do
-    visit root_path
+    visit users_path(user)
     click_link('Log In')
 
     within('#login-form') do
@@ -64,6 +46,7 @@ RSpec.feature 'Login', type: :feature, js: true do
   scenario 'logout' do
     login(user)
 
+    visit users_path(user)
     # TODO: Remove subheader when dropping old UI
     within('#subheader, #personal-navigation') do
       click_link('Logout')

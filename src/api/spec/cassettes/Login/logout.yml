@@ -7,10 +7,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -27,27 +25,37 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '589'
+      - '1344'
     body:
       encoding: UTF-8
       string: |
-        <workerstatus clients="0">
-          <waiting arch="i586" jobs="1" />
-          <waiting arch="x86_64" jobs="0" />
-          <blocked arch="i586" jobs="0" />
-          <blocked arch="x86_64" jobs="0" />
-          <buildavg arch="i586" buildavg="1200" />
-          <buildavg arch="x86_64" buildavg="1200" />
+        <workerstatus clients="2">
+          <idle workerid="71be352a5d45:1" hostarch="x86_64"/>
+          <idle workerid="71be352a5d45:2" hostarch="x86_64"/>
+          <waiting arch="i586" jobs="0"/>
+          <waiting arch="x86_64" jobs="0"/>
+          <blocked arch="i586" jobs="0"/>
+          <blocked arch="x86_64" jobs="0"/>
+          <buildavg arch="i586" buildavg="1200"/>
+          <buildavg arch="x86_64" buildavg="1200"/>
           <partition>
-            <daemon type="scheduler" arch="i586" state="dead">
-              <queue high="0" med="0" low="3" next="0" />
+            <daemon type="srcserver" state="running" starttime="1776333010"/>
+            <daemon type="servicedispatch" state="running" starttime="1776333015"/>
+            <daemon type="service" state="running" starttime="1776333015"/>
+            <daemon type="clouduploadserver" state="running" starttime="1776333015"/>
+            <daemon type="clouduploadworker" state="running" starttime="1776333015"/>
+            <daemon type="scheduler" arch="i586" state="running" starttime="1776333016">
+              <queue high="0" med="0" low="0" next="0"/>
             </daemon>
-            <daemon type="scheduler" arch="x86_64" state="dead">
-              <queue high="0" med="0" low="6" next="0" />
+            <daemon type="scheduler" arch="x86_64" state="running" starttime="1776333016">
+              <queue high="0" med="0" low="0" next="0"/>
             </daemon>
-            <daemon type="publisher" state="dead" />
+            <daemon type="repserver" state="running" starttime="1776333013"/>
+            <daemon type="dispatcher" state="running" starttime="1776333015"/>
+            <daemon type="publisher" state="running" starttime="1776333016"/>
+            <daemon type="signer" state="running" starttime="1776333016"/>
           </partition>
         </workerstatus>
     http_version: 
-  recorded_at: Thu, 24 Mar 2016 15:17:20 GMT
-recorded_with: VCR 3.0.1
+  recorded_at: Thu, 16 Apr 2026 10:27:40 GMT
+recorded_with: VCR 5.0.0
