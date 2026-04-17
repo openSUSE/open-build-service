@@ -586,4 +586,29 @@ RSpec.describe User do
 
     it { expect(confirmed_user.bs_requests.pluck(:description)).to contain_exactly('incoming', 'outgoing', 'user_review', 'project_review', 'package_review') }
   end
+
+  describe 'global role assignment event' do
+    let(:non_admin_role) { create(:role) }
+
+    before do
+      User.session = admin_user
+    end
+
+    it 'creates a GlobalRoleAssigned event when an admin role is added' do
+      expect { user.roles << Role.where(title: 'Admin').last }.to change(Event::GlobalRoleAssigned, :count).by(1)
+
+      event = Event::GlobalRoleAssigned.last
+      expect(event.payload).to include(
+        'role' => 'Admin',
+        'user' => user.login,
+        'who' => admin_user.login
+      )
+    end
+
+    it 'does not create an event for non-global roles' do
+      expect do
+        user.roles << non_admin_role
+      end.not_to change(Event::GlobalRoleAssigned, :count)
+    end
+  end
 end
