@@ -26,6 +26,8 @@ ok(prepare_package(), 'Checking preparation of package');
 
 ok(commit_package(), 'Checking initial commit of package obs-testpackage');
 
+ok(search_package(), 'Checking if search via osc works');
+
 ok(wait_for_buildresults(), 'Checking if build succeeded');
 
 exit 0;
@@ -86,6 +88,14 @@ sub commit_package {
   print STDERR @output if $?;
   return !$?;
 }
+
+sub search_package {
+  my @output = `osc -H search -s obs-test`;
+  print STDERR @output if $?;
+  return !$?;
+}
+
+
 
 sub wait_for_buildresults {
 
