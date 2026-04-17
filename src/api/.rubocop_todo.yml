@@ -790,17 +790,6 @@ Style/FrozenStringLiteralComment:
 Style/IfUnlessModifier:
   Enabled: false
 
-# Offense count: 5
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: InverseMethods, InverseBlocks.
-Style/InverseMethods:
-  Exclude:
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/channel_binary.rb'
-    - 'app/models/concerns/has_attributes.rb'
-    - 'app/models/project.rb'
-    - 'app/models/repository.rb'
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:

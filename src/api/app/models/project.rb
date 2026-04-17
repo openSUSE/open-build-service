@@ -363,7 +363,7 @@ class Project < ApplicationRecord
 
           # try to remove the repository
           # but never remove the special repository named "deleted"
-          if !(repo == deleted_repository) && !User.possibly_nobody.can_modify?(project)
+          if repo != deleted_repository && !User.possibly_nobody.can_modify?(project)
             # permission check
             return { error: "No permission to remove a repository in project '#{project.name}'" }
           end
