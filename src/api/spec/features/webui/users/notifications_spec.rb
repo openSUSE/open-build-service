@@ -19,6 +19,8 @@ RSpec.describe 'User notifications', :js do
   describe 'when having notifications' do
     let!(:notification_for_projects_comment) { create(:notification_for_comment, :web_notification, :comment_for_package, subscriber: user) }
     let!(:another_notification_for_projects_comment) { create(:notification_for_comment, :web_notification, :comment_for_package, subscriber: user) }
+    let!(:notification_for_reports_comment) { create(:notification_for_comment, :web_notification, :comment_for_report, subscriber: user) }
+
     let(:notifiable) { notification_for_projects_comment.notifiable }
     let(:another_notifiable) { another_notification_for_projects_comment.notifiable }
     let(:project) { notifiable.commentable.project }
@@ -44,6 +46,7 @@ RSpec.describe 'User notifications', :js do
         visit my_notifications_path({ kind: 'comments' })
         toggle_checkbox("notification_ids_#{notification_for_projects_comment.id}")
         toggle_checkbox("notification_ids_#{another_notification_for_projects_comment.id}")
+        toggle_checkbox("notification_ids_#{notification_for_reports_comment.id}")
         click_button('read-button')
       end
 
@@ -100,27 +103,20 @@ RSpec.describe 'User notifications', :js do
     context 'when having less notifications than the maximum per page' do
       it { expect(page).to have_no_text("Mark all as 'Read'") }
     end
-  end
 
-  context 'when the notification is about a comment for report' do
-    let!(:notification) { create(:notification_for_comment, :web_notification, :comment_for_report, subscriber: user) }
+    context 'when the notification is about a comment for report' do
+      it 'contains a link pointing to the report' do
+        expect(page).to have_link('Comment on Report', href: "/reports/#{notification_for_reports_comment.notifiable.commentable_id}")
+      end
 
-    before do
-      login user
-      visit my_notifications_path
-    end
+      it 'mentions which user commented on the report' do
+        expect(page).to have_text("'#{notification_for_reports_comment.notifiable.user}' commented on Report ##{notification_for_reports_comment.notifiable.commentable_id}")
+      end
 
-    it 'contains a link pointing to the report' do
-      expect(page).to have_link('Comment on Report', href: "/reports/#{notification.notifiable.commentable_id}")
-    end
-
-    it 'mentions which user commented on the report' do
-      expect(page).to have_text("'#{notification.notifiable.user}' commented on Report ##{notification.notifiable.commentable_id}")
-    end
-
-    it 'contains the body of the comment' do
-      skip_on_mobile
-      expect(page).to have_text(notification.notifiable.body)
+      it 'contains the body of the comment' do
+        skip_on_mobile
+        expect(page).to have_text(notification_for_reports_comment.notifiable.body)
+      end
     end
   end
 
