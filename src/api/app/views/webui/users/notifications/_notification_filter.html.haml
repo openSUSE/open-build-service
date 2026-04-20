@@ -70,7 +70,13 @@
                                       label_icon: 'fas fa-hand',
                                       checked: selected_filter[:kind]&.include?('appealed_decisions'),
                                       turbo_stream_counter_id: 'counts_for_appealed_decisions_notifications' }
-        = render partial: 'webui/shared/check_box',
+          = render partial: 'webui/shared/check_box',
+                            locals: { label: 'Decisions',
+                                      key: 'kind[decisions]', name: 'kind[]', value: 'decisions',
+                                      label_icon: 'fas fa-clipboard-check',
+                                      checked: selected_filter[:kind]&.include?('decisions'),
+                                      turbo_stream_counter_id: 'counts_for_decisions_notifications' }
+          = render partial: 'webui/shared/check_box',
                           locals: { label: 'Groups Membership',
                                     key: 'kind[member_on_groups]', name: 'kind[]', value: 'member_on_groups',
                                     label_icon: 'fas fa-people-group',
