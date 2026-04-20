@@ -1185,6 +1185,8 @@ sub getfollowupsources {
   my $server = $buildinfo->{'reposerver'};
   my $res = getjobdata($buildinfo, $dir);
   die("no old sources in followup job\n") unless @$res;
+  $buildinfo->{'followup_slsa_provenance'} = readstr("$dir/_slsa_provenance.json", 1);
+  $buildinfo->{'followup_slsa_provenance_config'} = readstr("$dir/_slsa_provenance.config", 1);
   # need to get buildenv from old sources ;(
   $server = $buildinfo->{'srcserver'} || $srcserver;
   $res = BSRPC::rpc({
@@ -5007,7 +5009,10 @@ if ($ex == 0) {
   @send = grep {$_->{'name'} !~ /slsa_provenance.(?:json|config)$/} @send;
   if ($buildinfo->{'slsaprovenance'}) {
     my $slsa_provenance;
-    if (($buildinfo->{'slsa_provenance_version'} || '') eq 'v1') {
+    if ($buildinfo->{'followupfile'} && $buildinfo->{'followup_slsa_provenance'}) {
+      $slsa_provenance = $buildinfo->{'followup_slsa_provenance'};
+      $buildinfo->{'slsa_provenance_config'} = $buildinfo->{'followup_slsa_provenance_config'} if $buildinfo->{'followup_slsa_provenance_config'};
+    } elsif (($buildinfo->{'slsa_provenance_version'} || '') eq 'v1') {
       $slsa_provenance = generate_slsa_provenance_statement_v1($buildinfo, \@send);
     } else {
       $slsa_provenance = generate_slsa_provenance_statement_v02($buildinfo, \@send);
