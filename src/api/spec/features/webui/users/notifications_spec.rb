@@ -58,23 +58,19 @@ RSpec.describe 'User notifications', :js do
       before do
         project.notifications << notification_for_projects_comment
         project.notifications << another_notification_for_projects_comment
-        # need to load the page again in order to have the notifications
-        # visible
-        visit my_notifications_path
-      end
 
-      # rubocop:disable RSpec/ExampleLength
-      it 'shows all unread project notifications' do
+        visit my_notifications_path # Need to load the page again in order to have the notifications visible
+
         find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
-
         within('#notification-project-name-dropdown') do
           fill_in 'project[]', with: project.name
           find('button:has(i.fa-search)').click
         end
+      end
 
+      it 'shows all unread project notifications' do
         expect(page).to have_text(notification_for_projects_comment.notifiable.commentable_type)
       end
-      # rubocop:enable RSpec/ExampleLength
     end
 
     context 'when clicking on the request filter' do
@@ -85,23 +81,20 @@ RSpec.describe 'User notifications', :js do
       before do
         bs_request.notifications << notification_for_request
         bs_request.notifications << another_notification_for_request
-        # need to load the page again in order to have the notifications
-        # visible
-        visit my_notifications_path
-      end
 
-      # rubocop:disable RSpec/ExampleLength
-      it 'shows all unread request notifications' do
+        visit my_notifications_path # Need to load the page again in order to have the notifications visible
+
         find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
         within('#content-selector-filters') do
           within('#notification-filter-requests') do
             check('new')
           end
         end
+      end
 
+      it 'shows all unread request notifications' do
         expect(page).to have_text(notification_for_request.notifiable.number)
       end
-      # rubocop:enable RSpec/ExampleLength
     end
 
     context 'when having less notifications than the maximum per page' do
