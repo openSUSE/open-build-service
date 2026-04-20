@@ -16,6 +16,10 @@ module Event
     def event_object
       ::Decision.find_by(payload['decision_id'])
     end
+
+    def parameters_for_notification
+      super.merge(notifiable_type: 'Appeal', type: 'NotificationReport')
+    end
   end
 end
 
