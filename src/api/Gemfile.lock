@@ -585,7 +585,7 @@ GEM
     uri (1.1.1)
     useragent (0.16.11)
     vcr (6.4.0)
-    view_component (4.6.0)
+    view_component (4.7.0)
       actionview (>= 7.1.0)
       activesupport (>= 7.1.0)
       concurrent-ruby (~> 1)
