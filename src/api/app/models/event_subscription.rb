@@ -24,7 +24,8 @@ class EventSubscription < ApplicationRecord
     member: 'Member',
     assignee: 'Assignee',
     group_maintainer: 'Maintainer of the group',
-    develpackage_or_package_maintainer: 'Maintainer of the develpackage or the package'
+    develpackage_or_package_maintainer: 'Maintainer of the develpackage or the package',
+    admin_moderator_or_staff: 'User with the Admin, Staff or Moderator role'
   }.freeze
 
   enum :channel, {
@@ -53,7 +54,7 @@ class EventSubscription < ApplicationRecord
            project_watcher source_project_watcher target_project_watcher
            package_watcher target_package_watcher source_package_watcher request_watcher any_role
            moderator reporter offender token_executor token_member member assignee group_maintainer
-           develpackage_or_package_maintainer]
+           develpackage_or_package_maintainer admin_moderator_or_staff]
   }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
