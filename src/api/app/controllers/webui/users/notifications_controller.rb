@@ -16,7 +16,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   NOTIFICATION_TYPES_KEY_MAP = {
     'reports' => 'Report',
     'workflow_runs' => 'WorkflowRun',
-    'appealed_decisions' => 'Decision',
+    'appealed_decisions' => 'Appeal',
     'comments' => 'Comment',
     'requests' => 'BsRequest',
     'member_on_groups' => 'Group'
