@@ -251,7 +251,8 @@ class ApplicationController < ActionController::Base
       anonymous: !User.session,
       spider: spider_request?,
       interconnect: false,
-      interface: :api
+      interface: :api,
+      host: request.headers['Host'] || :unknown
     }
     if in_beta
       Flipper.preload_all.map(&:name).each do |feature_name|
