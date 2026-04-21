@@ -65,7 +65,7 @@
                                     turbo_stream_counter_id: 'counts_for_workflow_runs_notifications' }
         - if Flipper.enabled?(:content_moderation, User.session)
           = render partial: 'webui/shared/check_box',
-                            locals: { label: 'Appealed Decisions',
+                            locals: { label: 'Appeals',
                                       key: 'kind[appealed_decisions]', name: 'kind[]', value: 'appealed_decisions',
                                       label_icon: 'fas fa-hand',
                                       checked: selected_filter[:kind]&.include?('appealed_decisions'),
