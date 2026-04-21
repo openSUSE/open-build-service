@@ -24,7 +24,8 @@ module NotificationService
                         'Event::AssignmentCreate',
                         'Event::AssignmentDelete',
                         'Event::UpstreamPackageVersionChanged',
-                        'Event::TokenMembershipUpdate'].freeze
+                        'Event::TokenMembershipUpdate',
+                        'Event::GlobalRoleAssigned'].freeze
     CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
