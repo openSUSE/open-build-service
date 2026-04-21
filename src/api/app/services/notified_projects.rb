@@ -28,7 +28,7 @@ class NotifiedProjects
       [@notifiable.project]
     when 'Project'
       [@notifiable]
-    when 'Report', 'Decision', 'Appeal', 'WorkflowRun', 'Group', 'Token::Workflow'
+    when 'Report', 'Decision', 'Appeal', 'WorkflowRun', 'Group', 'Token::Workflow', 'User'
       []
     end
   end
