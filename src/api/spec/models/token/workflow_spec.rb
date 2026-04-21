@@ -1,8 +1,8 @@
 RSpec.describe Token::Workflow do
-  describe '#call' do
-    let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
-    let(:workflow_token) { create(:workflow_token, executor: token_user) }
+  let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+  let(:workflow_token) { create(:workflow_token, executor: token_user) }
 
+  describe '#call' do
     context 'with wrong SCM token' do
       let(:yaml_downloader) { instance_double(Workflows::YAMLDownloader) }
       let(:workflow_run) { create(:workflow_run, token: workflow_token, response_url: 'https://example.com') }
@@ -249,6 +249,26 @@ RSpec.describe Token::Workflow do
 
       it 'returns no validation errors' do
         expect { subject }.not_to(change(SCMStatusReport, :count))
+      end
+    end
+  end
+
+  describe 'token sharing' do
+    let(:other_user) { create(:confirmed_user, :with_home, login: 'Peter') }
+
+    context 'share with user' do
+      it 'creates an event' do
+        expect { workflow_token.users << other_user }.to change(Event::TokenMembershipUpdate, :count).by(1)
+      end
+    end
+
+    context 'unshare user' do
+      before do
+        workflow_token.users << other_user
+      end
+
+      it 'creates an event' do
+        expect { workflow_token.users.delete(other_user) }.to change(Event::TokenMembershipUpdate, :count).by(1)
       end
     end
   end
