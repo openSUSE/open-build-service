@@ -65,6 +65,7 @@ GEM
     autoprefixer-rails (9.6.0)
       execjs
     bcrypt (3.1.13)
+    bigdecimal (4.1.2)
     bootstrap (4.3.1)
       autoprefixer-rails (>= 9.1.0)
       popper_js (>= 1.14.3, < 2)
@@ -245,7 +246,8 @@ GEM
     momentjs-rails (2.20.1)
       railties (>= 3.1)
     mousetrap-rails (1.4.6)
-    mysql2 (0.5.2)
+    mysql2 (0.5.7)
+      bigdecimal
     nio4r (2.5.8)
     nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
