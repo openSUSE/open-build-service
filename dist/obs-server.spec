@@ -128,7 +128,7 @@ Recommends:     lvm2
 Recommends:     openslp-server
 Recommends:     obs-signd
 Recommends:     inst-source-utils
-Recommends:     perl-Diff-LibXDiff
+Recommends:     perl(Diff::LibXDiff)
 %else
 Requires:       dpkg
 Requires:       yum
@@ -448,7 +448,7 @@ export DESTDIR=$RPM_BUILD_ROOT
 
 export OBS_VERSION="%{version}"
 
-make install FILLUPDIR=%{_fillupdir} DESTDIR=%{buildroot} 
+make install FILLUPDIR=%{_fillupdir} DESTDIR=%{buildroot}
 if [ -f %{_sourcedir}/open-build-service.obsinfo ]; then
     sed -n -e 's/commit: \(.\+\)/\1/p' %{_sourcedir}/open-build-service.obsinfo > %{buildroot}/srv/www/obs/api/last_deploy
 else
