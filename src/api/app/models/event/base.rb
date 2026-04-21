@@ -24,7 +24,8 @@ module Event
          Event::Report, Event::Decision, Event::AppealCreated,
          Event::WorkflowRunFail,
          Event::AddedUserToGroup, Event::RemovedUserFromGroup,
-         Event::Assignment, Event::UpstreamPackageVersionChanged]
+         Event::Assignment, Event::UpstreamPackageVersionChanged,
+         Event::GlobalRoleAssigned]
       end
 
       def notification_feature_flag
