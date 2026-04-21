@@ -109,36 +109,6 @@ RSpec.describe 'User notifications', :js do
     end
   end
 
-  context 'when the notification is about a relationship with package' do
-    let(:package) { create(:package_with_maintainer, maintainer: user) }
-    let(:event_payload) { { package: package.name, project: package.project.name } }
-    let!(:notification) { create(:notification_for_project, :web_notification, :relationship_create_for_project, notifiable: package, event_payload: event_payload, subscriber: user) }
-
-    before do
-      login user
-      visit my_notifications_path
-    end
-
-    it 'renders the correct icon' do
-      expect(page).to have_css("i.fa-user-tag[title='Relationship notification']")
-    end
-  end
-
-  context 'when the notification is about a comment for project' do
-    let(:project) { create(:project, maintainer: user) }
-    let(:comment) { create(:comment, commentable: project) }
-    let!(:notification) { create(:notification_for_comment, :web_notification, :comment_for_project, notifiable: comment, subscriber: user) }
-
-    before do
-      login user
-      visit my_notifications_path
-    end
-
-    it 'renders the correct icon' do
-      expect(page).to have_css("i.fa-comments[title='Comment notification']")
-    end
-  end
-
   context 'when the notification is about a comment for report' do
     let!(:notification) { create(:notification_for_comment, :web_notification, :comment_for_report, subscriber: user) }
 

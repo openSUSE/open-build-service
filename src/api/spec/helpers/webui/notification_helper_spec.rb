@@ -31,16 +31,30 @@ RSpec.describe Webui::NotificationHelper do
   end
 
   describe '#notification_icon' do
-    context 'when the notification is about a request' do
-      let(:notification) { create(:notification_for_request, :request_created) }
+    subject { notification_icon(notification) }
 
-      it { expect(notification_icon(notification)).to include('fa-code-pull-request') }
+    context 'when the notification is about a comment for project' do
+      let(:notification) { create(:notification_for_comment, :comment_for_project) }
+
+      it { expect(subject).to have_css(".fa-comments[title='Comment notification']") }
     end
 
     context 'when the notification is about a relationship' do
       let(:notification) { create(:notification_for_project, :relationship_create_for_project) }
 
-      it { expect(notification_icon(notification)).to include('fa-user-tag') }
+      it { expect(subject).to include('fa-user-tag') }
+    end
+
+    context 'when the notification is about a relationship with package' do
+      let(:notification) { create(:notification_for_project, :relationship_create_for_project) }
+
+      it { expect(subject).to have_css(".fa-user-tag[title='Relationship notification']") }
+    end
+
+    context 'when the notification is about a request' do
+      let(:notification) { create(:notification_for_request, :request_created) }
+
+      it { expect(subject).to include('fa-code-pull-request') }
     end
   end
 
