@@ -14,7 +14,7 @@ module Event
     end
 
     def event_object
-      ::Decision.find_by(payload['decision_id'])
+      ::Decision.find(payload['decision_id'])
     end
 
     def parameters_for_notification
