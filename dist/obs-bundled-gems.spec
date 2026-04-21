@@ -140,12 +140,8 @@ rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/selenium-webdriver-*/lib/seleniu
 find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
 
 # fix interpreter in installed binaries
-for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/* \
-   %{buildroot}%_libdir/obs-api/ruby/*/gems/pry-*/lib/pry/helpers/documentation_helpers.rb \
-   %{buildroot}%_libdir/obs-api/ruby/*/gems/erubis-*/setup.rb \
-  ; do
-  sed -i -e 's,/usr/bin/env ruby$,/usr/bin/ruby.ruby2.7,' $bin
-  sed -i -e 's,/usr/bin/env ruby.ruby2.7,/usr/bin/ruby.ruby2.7,' $bin
+for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
+  sed -i -e 's,/usr/bin/env ruby.ruby3.4,/usr/bin/ruby.ruby3.4,' $bin
 done
 
 sed -i -e 's,^#!/usr/bin/ruby ,#!/usr/bin/ruby.ruby2.7 ,' \
