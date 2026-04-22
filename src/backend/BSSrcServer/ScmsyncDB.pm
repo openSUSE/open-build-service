@@ -34,6 +34,8 @@ my $redisdir = "$BSConfig::bsdir/events/redis";
 
 sub addredisjob {
   my (@job) = @_;
+  $job[3] = '' if @job > 3 && !defined($job[3]);
+  $job[4] = '' if @job > 4 && !defined($job[4]);
   s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @job;
   my $job = join('|', @job)."\n";
   my $file;
