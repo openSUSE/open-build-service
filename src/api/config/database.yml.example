@@ -16,9 +16,6 @@ production:
   timeout: 15
   pool: 30
   reconnect: true
-  # Remove the next 2 lines if you don't use self-signed certificate
-  ssl_verify_server_cert: false
-  ssl_mode: :required
 
 development:
   adapter: mysql2
