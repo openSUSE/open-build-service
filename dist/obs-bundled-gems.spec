@@ -58,6 +58,9 @@ BuildRequires:  rubygem-bundler
 BuildRequires:  openldap-devel
 %endif
 BuildRequires:  chrpath
+# use patched version of the ldap gem from devel:languages:ruby:extensions to make it work with ruby3.4
+BuildRequires:  %{rubygem ruby-ldap}
+Requires: %{rubygem ruby-ldap}
 PreReq: permissions
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
