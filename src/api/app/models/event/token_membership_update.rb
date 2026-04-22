@@ -1,6 +1,7 @@
 module Event
   class TokenMembershipUpdate < Base
     self.description = 'Share or unshare token with user or group'
+    self.notification_explanation = 'Receive a notification when the user or a group the user belongs to is added to or removed from a token.'
 
     payload_keys :token_id, :user_login, :group_title, :who, :action
 

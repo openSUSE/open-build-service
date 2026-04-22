@@ -25,7 +25,7 @@ module Event
          Event::WorkflowRunFail,
          Event::AddedUserToGroup, Event::RemovedUserFromGroup,
          Event::Assignment, Event::UpstreamPackageVersionChanged,
-         Event::GlobalRoleAssigned]
+         Event::GlobalRoleAssigned, Event::TokenMembershipUpdate]
       end
 
       def notification_feature_flag
