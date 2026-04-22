@@ -94,8 +94,6 @@ group :development, :production do
   gem 'rdoc'
   # to not rely on cron+rake
   gem 'clockwork', '>= 0.7'
-  # as interface to LDAP
-  gem 'ruby-ldap', require: false
   # to have better logs
   gem 'lograge'
 end
