@@ -13,12 +13,12 @@ module Event
       "Appeal to #{appeal.decision.reports.first.reportable&.class&.name || appeal.decision.reports.first.reportable_type} decision".squish
     end
 
-    def event_object
-      ::Decision.find_by(payload['decision_id'])
-    end
-
     def parameters_for_notification
       super.merge(notifiable_type: 'Appeal', type: 'NotificationReport')
+    end
+
+    def event_object
+      Appeal.find(payload['id'])
     end
   end
 end

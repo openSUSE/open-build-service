@@ -2,7 +2,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   include Webui::NotificationsFilter
 
   ALLOWED_FILTERS = %w[all comments requests incoming_requests outgoing_requests relationships_created relationships_deleted build_failures
-                       reports reviews workflow_runs appealed_decisions member_on_groups upstream_package_version_changed].freeze
+                       reports reviews workflow_runs appealed_decisions decisions member_on_groups upstream_package_version_changed].freeze
   ALLOWED_STATES = %w[all unread read].freeze
   ALLOWED_REPORT_FILTERS = %w[with_decision without_decision reportable_type].freeze
 
@@ -16,7 +16,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   NOTIFICATION_TYPES_KEY_MAP = {
     'reports' => 'Report',
     'workflow_runs' => 'WorkflowRun',
-    'appealed_decisions' => 'Decision',
+    'appealed_decisions' => 'Appeal',
+    'decisions' => 'Decision',
     'comments' => 'Comment',
     'requests' => 'BsRequest',
     'member_on_groups' => 'Group'

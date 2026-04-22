@@ -15,7 +15,7 @@ module Event
     end
 
     def event_object
-      ::Report.find_by(payload['report_last_id'])
+      ::Report.find(payload['report_last_id'])
     end
   end
 end

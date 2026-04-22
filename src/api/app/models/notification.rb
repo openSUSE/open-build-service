@@ -38,7 +38,8 @@ class Notification < ApplicationRecord
   scope :for_build_failures, -> { where(event_type: 'Event::BuildFail') }
   scope :for_reports, -> { where(notifiable_type: 'Report') }
   scope :for_workflow_runs, -> { where(notifiable_type: 'WorkflowRun') }
-  scope :for_appealed_decisions, -> { where(notifiable_type: 'Decision') }
+  scope :for_decisions, -> { where(notifiable_type: 'Decision') }
+  scope :for_appealed_decisions, -> { where(notifiable_type: 'Appeal') }
   scope :for_comments, -> { where(notifiable_type: 'Comment') }
   scope :for_requests, -> { where(notifiable_type: 'BsRequest') }
   scope :for_member_on_groups, -> { where(notifiable_type: 'Group') }
