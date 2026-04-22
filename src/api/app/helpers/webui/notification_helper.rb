@@ -9,7 +9,8 @@ module Webui::NotificationHelper
     'Package' => 'fa-archive',
     'Report' => 'fa-flag', 'Decision' => 'fa-clipboard-check',
     'Appeal' => 'fa-hand', 'WorkflowRun' => 'fa-book-open',
-    'Group' => 'fa-people-group', 'Token::Workflow' => 'fa-key'
+    'Group' => 'fa-people-group', 'Token::Workflow' => 'fa-key',
+    'User' => 'fa-crown'
   }.freeze
 
   NOTIFICATION_TITLE = {
