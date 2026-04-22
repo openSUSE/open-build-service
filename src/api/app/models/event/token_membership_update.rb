@@ -3,6 +3,14 @@ module Event
     self.description = 'Share or unshare token with user or group'
 
     payload_keys :token_id, :user_login, :group_title, :who, :action
+
+    receiver_roles :updated_token_member
+
+    def updated_token_members
+      return User.where(login: payload['user_login']) if payload['user_login'].present?
+
+      ::Group.find_by(title: payload['group_title'])&.users
+    end
   end
 end
 
