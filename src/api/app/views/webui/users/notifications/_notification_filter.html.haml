@@ -45,6 +45,12 @@
                                                     label_icon: 'fas fa-user-tag',
                                                     checked: selected_filter[:kind]&.include?('relationships_deleted'),
                                                     turbo_stream_counter_id: 'counts_for_relationships_deleted_notifications' }
+        - if policy(User.session).view_global_role_filter?
+          = render partial: 'webui/shared/check_box', locals: { label: 'Important Role Added',
+                                                                key: 'kind[important_roles_added]', name: 'kind[]', value: 'important_roles_added',
+                                                                label_icon: 'fas fa-crown',
+                                                                checked: selected_filter[:kind]&.include?('important_roles_added'),
+                                                                turbo_stream_counter_id: 'counts_for_important_roles_added_notifications' }
         = render partial: 'webui/shared/check_box', locals: { label: 'Build Failures',
                                                     key: 'kind[build_failures]', name: 'kind[]', value: 'build_failures',
                                                     label_icon: 'fas fa-xmark text-danger',

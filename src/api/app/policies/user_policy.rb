@@ -17,4 +17,8 @@ class UserPolicy < ApplicationPolicy
   def censor?
     user.admin? || user.moderator?
   end
+
+  def view_global_role_filter?
+    Role.global_roles.intersect?(user.roles.pluck(:title))
+  end
 end
