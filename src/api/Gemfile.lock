@@ -326,7 +326,7 @@ GEM
       rake (>= 0.8.7)
       thor (>= 0.19.0, < 2.0)
     rainbow (3.0.0)
-    rake (13.0.1)
+    rake (13.2.1)
     rantly (2.0.0)
     rbtree (0.4.6)
     rdoc (6.1.1)
@@ -541,6 +541,7 @@ DEPENDENCIES
   rails-controller-testing
   rails-timeago (~> 2.0)
   rails_tokeninput (>= 1.6.1.rc1)
+  rake (= 13.2.1)
   rantly
   rdoc
   redcarpet

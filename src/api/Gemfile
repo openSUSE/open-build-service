@@ -84,6 +84,8 @@ gem 'rails-timeago', '~> 2.0'
 gem 'deep_cloneable', '~> 2.4.0'
 # Server-side datatables
 gem 'ajax-datatables-rails'
+# set version of rake to the one used by ruby3.4
+gem 'rake', '13.2.1'
 
 group :development, :production do
   # to have the delayed job daemon
