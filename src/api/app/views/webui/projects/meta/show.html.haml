@@ -7,7 +7,9 @@
   = render(partial: 'webui/project/tabs', locals: { project: @project })
 
   .card-body
-    %h3= @pagetitle
+    %h3
+      = @pagetitle
+      = link_to_user_documentation('https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-concepts.html#sec.obs.concepts.project_metadata')
     - if User.possibly_nobody.can_modify?(@project)
       = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml',
         save: { url: project_meta_path(@project), method: :put,

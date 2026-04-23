@@ -38,3 +38,6 @@ en:
     attributes:
       staging/request_exclusion:
         bs_request_id: 'Request'
+
+  webui:
+    documentation_link_text: "Documentation ↗"

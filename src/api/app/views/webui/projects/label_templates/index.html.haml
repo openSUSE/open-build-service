@@ -3,7 +3,9 @@
   = render(partial: 'webui/project/tabs', locals: { project: @project })
 
   .card-body
-    %h3= @pagetitle
+    %h3
+      = @pagetitle
+      = link_to_user_documentation('https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-labels.html#id-1.2.8.9.7')
     %ul.list-unstyled
       - @label_templates.each do |label_template|
         %li.mb-2

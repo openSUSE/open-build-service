@@ -319,6 +319,12 @@ module Webui::WebuiHelper
     url = ::Configuration.contact_url || "mailto:#{::Configuration.admin_email}"
     link_to(name, url)
   end
+
+  def link_to_user_documentation(url)
+    tag.span(class: 'ms-2 small text-muted') do
+      link_to(t('webui.documentation_link_text'), url, target: '_blank', rel: 'noopener')
+    end
+  end
 end
 
 # rubocop:enable Metrics/ModuleLength

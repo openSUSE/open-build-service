@@ -215,4 +215,13 @@ RSpec.describe Webui::WebuiHelper do
       expect(valid_xml_id('10.2')).to eq('_10_2')
     end
   end
+
+  describe '#link_to_user_documentation' do
+    it 'returns a span with the correct link and attributes' do
+      result = link_to_user_documentation('https://example.com')
+
+      expect(result).to include('class="ms-2 small text-muted"', 'target="_blank"', 'rel="noopener"',
+                                'href="https://example.com"', 'Documentation')
+    end
+  end
 end
