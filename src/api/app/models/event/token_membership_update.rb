@@ -20,6 +20,10 @@ module Event
 
       group_users&.where&.not(login: payload['who'])
     end
+
+    def subject
+      'Token membership updated'
+    end
   end
 end
 
