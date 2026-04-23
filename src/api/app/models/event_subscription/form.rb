@@ -4,6 +4,7 @@ class EventSubscription
     EVENTS_IN_CONTENT_MODERATION_BETA = ['Event::Decision', 'Event::CommentForReport'].freeze
     # Event class name and correspoding beta feature name:
     EVENTS_IN_BETA = { Event::UpstreamPackageVersionChanged => :package_version_tracking }.freeze
+    EVENTS_FOR_IMPORTANT_USERS = ['Event::GlobalRoleAssigned'].freeze
 
     attr_reader :subscriber
 
@@ -14,7 +15,7 @@ class EventSubscription
     def subscriptions_by_event
       event_classes = Event::Base.notification_events - non_enabled_events
       event_classes.filter_map do |event_class|
-        EventSubscription::ForEventForm.new(event_class, subscriber).call if show_form_for_content_moderation_events?(event_class: event_class, subscriber: subscriber)
+        EventSubscription::ForEventForm.new(event_class, subscriber).call if show_event_form?(event_class: event_class, subscriber: subscriber)
       end
     end
 
@@ -48,7 +49,7 @@ class EventSubscription
       EventSubscription.find_or_initialize_by(opts)
     end
 
-    def show_form_for_content_moderation_events?(event_class:, subscriber:)
+    def show_event_form?(event_class:, subscriber:) # rubocop:disable Metrics/CyclomaticComplexity
       # There is no subscriber associated to "global" event subscriptions
       # which are set through the admin configuration interface.
       # Admin user should be able to configure all event subscription types,
@@ -56,6 +57,7 @@ class EventSubscription
       return true if subscriber.blank?
       return false if EVENTS_FOR_CONTENT_MODERATORS.include?(event_class.name) && !ReportPolicy.new(subscriber, Report).notify?
       return false if EVENTS_IN_CONTENT_MODERATION_BETA.include?(event_class.name) && !Flipper.enabled?(:content_moderation, subscriber)
+      return false if EVENTS_FOR_IMPORTANT_USERS.include?(event_class.name) && !subscriber.roles.exists?(Role.global)
 
       true
     end
