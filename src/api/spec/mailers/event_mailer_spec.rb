@@ -776,5 +776,28 @@ RSpec.describe EventMailer, :vcr do
         expect(mail.subject).to include("Upstream version changed for #{project.name}/#{package.name} to 4.9")
       end
     end
+
+    context 'for event of type Event::TokenMembershipUpdate' do
+      let(:token) { create(:workflow_token) }
+      let!(:subscription) { create(:event_subscription_token_membership_update, user: receiver) }
+      let(:mail) { EventMailer.with(subscribers: Event::TokenMembershipUpdate.last.subscribers, event: Event::TokenMembershipUpdate.last).notification_email.deliver_now }
+
+      before do
+        login(token.executor)
+        Event::TokenMembershipUpdate.create!(token_id: token.id, user_login: receiver.login, action: 'share')
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(receiver.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include('Token membership updated')
+      end
+    end
   end
 end
