@@ -30,6 +30,11 @@ properties:
   link:
     type: string
     example: 'http://www.opensuse.org/'
+  eol:
+    type: string
+    format: date
+    example: '2025-12-31'
+    description: End of life date for the distribution
   architecture:
     type: array
     example:
