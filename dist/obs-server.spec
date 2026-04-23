@@ -81,55 +81,28 @@ Requires:       ruby(abi) = %{__obs_ruby_abi_version}\
 %define obs_backend_data_dir /srv/obs
 %define obs_backend_dir /usr/lib/obs/server
 
-%if ! %{defined _restart_on_update_reload}
-%define _restart_on_update_reload() (\
-	test "$YAST_IS_RUNNING" = instsys && exit 0\
-	test -f /etc/sysconfig/services -a \\\
-	     -z "$DISABLE_RESTART_ON_UPDATE" && . /etc/sysconfig/services\
-	test "$DISABLE_RESTART_ON_UPDATE" = yes -o \\\
-	     "$DISABLE_RESTART_ON_UPDATE" = 1 && exit 0\
-	%{?*:/usr/bin/systemctl force-reload %{*}}\
-	) || : %{nil}
+%if ! %{defined service_del_postun_with_reload}
+%if 0%{?suse_version} < 1600
+%define reload_command force-reload
+%define reload_marker %{nil}
+%else
+%define reload_command set-property
+%define reload_marker Markers=+needs-reload
+%endif
 
-%define service_del_postun(fnr) \
-test -n "$FIRST_ARG" || FIRST_ARG="$1"						\
-if [ "$FIRST_ARG" -ge 1 ]; then							\
-	# Package upgrade, not uninstall					\
-	if [ -x /usr/bin/systemctl ]; then					\
-		/usr/bin/systemctl daemon-reload || :				\
-		%{expand:%%_restart_on_update%{-f:_force}%{!-f:%{-n:_never}}%{!-f:%{!-n:%{-r:_reload}}} %{?*}}  \
-	fi									\
-else # package uninstall							\
-	for service in %{?*} ; do						\
-		sysv_service="${service%.*}"					\
-		rm -f "/var/lib/systemd/migrated/$sysv_service" || :		\
-	done									\
-	if [ -x /usr/bin/systemctl ]; then					\
-		/usr/bin/systemctl daemon-reload || :				\
-	fi									\
-fi										\
+%define service_del_postun_with_reload()                                                \
+%{expand::%%service_del_postun_without_restart %{?**}}                                  \
+if [ -x /usr/bin/systemctl ]; then                                                      \
+        if [ $1 -ge 1 ]; then                                                           \
+                # Package upgrade, not uninstall                                        \
+                /usr/bin/systemctl %reload_command %{?*} %reload_marker || :            \
+        fi                                                                              \
+fi                                                                                      \
 %{nil}
-
 %endif
 
 %if ! %{defined _fillupdir}
   %define _fillupdir %{_localstatedir}/adm/fillup-templates
-%endif
-
-%if 0%{?suse_version} >= 1315
-%define reload_on_update() %{?nil:
-	test -n "$FIRST_ARG" || FIRST_ARG=$1
-	if test "$FIRST_ARG" -ge 1 ; then
-	   test -f /etc/sysconfig/services && . /etc/sysconfig/services
-	   if test "$YAST_IS_RUNNING" != "instsys" -a "$DISABLE_RESTART_ON_UPDATE" != yes ; then
-	      test -x /bin/systemctl && /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-	      for service in %{?*} ; do
-		 test -x /bin/systemctl && /bin/systemctl reload $service >/dev/null 2>&1 || :
-	      done
-	   fi
-	fi
-	%nil
-}
 %endif
 
 %global obs_api_support_scripts obs-api-support.target obs-clockwork.service obs-delayedjob-queue-consistency_check.service obs-delayedjob-queue-default.service obs-delayedjob-queue-issuetracking.service obs-delayedjob-queue-mailers.service obs-delayedjob-queue-project_log_rotate.service obs-delayedjob-queue-releasetracking.service obs-delayedjob-queue-staging.service obs-delayedjob-queue-scm.service obs-sphinx.service
@@ -713,34 +686,34 @@ if [ ! -e %{obs_backend_dir}/build ]; then
 fi
 
 %postun
-%service_del_postun -r obsscheduler.service
-%service_del_postun -r obssrcserver.service
-%service_del_postun -r obsrepserver.service
-%service_del_postun -r obspublisher.service
-%service_del_postun -r obssigner.service
-%service_del_postun -r obsservicedispatch.service
-%service_del_postun -r obssourcepublish.service
-%service_del_postun -r obsservice.service
-%service_del_postun -r obsdeltastore.service
-%service_del_postun -r obsdispatcher.service
-%service_del_postun -r obsdodup.service
-%service_del_postun -r obsgetbinariesproxy.service
-%service_del_postun -r obswarden.service
-%service_del_postun -r obsnotifyforward.service
-%service_del_postun -r obsredis.service
+%service_del_postun_with_reload obsscheduler.service
+%service_del_postun_with_reload obssrcserver.service
+%service_del_postun_with_reload obsrepserver.service
+%service_del_postun_with_reload obspublisher.service
+%service_del_postun_with_reload obssigner.service
+%service_del_postun_with_reload obsservicedispatch.service
+%service_del_postun_with_reload obssourcepublish.service
+%service_del_postun_with_reload obsservice.service
+%service_del_postun_with_reload obsdeltastore.service
+%service_del_postun_with_reload obsdispatcher.service
+%service_del_postun_with_reload obsdodup.service
+%service_del_postun_with_reload obsgetbinariesproxy.service
+%service_del_postun_with_reload obswarden.service
+%service_del_postun_with_reload obsnotifyforward.service
+%service_del_postun_with_reload obsredis.service
 # cleanup empty directory just in case
 rmdir %{obs_backend_data_dir} 2> /dev/null || :
 
 %postun -n obs-common
-# NOT used on purpose: restart_on_update obsstoragesetup
+# NO restart on purpose for obsstoragesetup
 # This is just run once on boot
-%service_del_postun -n obsstoragesetup.service
+%service_del_postun_without_restart obsstoragesetup.service
 
 %postun -n obs-worker
-# NOT used on purpose: restart_on_update obsworker
+# NO restart on purpose for obsworker
 # This can cause problems when building chroot
 # and bs_worker is anyway updating itself at runtime based on server code
-%service_del_postun -n obsworker.service
+%service_del_postun_without_restart obsworker.service
 
 %pre -n obs-api
 %service_add_pre %{obs_api_support_scripts}
@@ -810,9 +783,9 @@ if [ -e %{_rundir}/enable_obs-api-support.target ];then
 fi
 
 %postun -n obs-api
-%service_del_postun %{obs_api_support_scripts}
-%service_del_postun -r apache2
-%restart_on_update memcached
+%service_del_postun_with_restart %{obs_api_support_scripts}
+%service_del_postun_with_reload apache2
+%service_del_postun_with_restart memcached
 
 %files
 %defattr(-,root,root)
