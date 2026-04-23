@@ -2156,6 +2156,12 @@ our $keyinfo = [
     'keyinfo' =>
 	'project',
         $pubkeyinfo,
+      [ 'pending_pubkey' =>
+	  @{$pubkeyinfo}[1 .. $#{$pubkeyinfo}],
+      ],
+      [ 'previous_pubkey' =>
+	  @{$pubkeyinfo}[1 .. $#{$pubkeyinfo}],
+      ],
 	$certinfo,
 ];
 
