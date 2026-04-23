@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::Most tests => 5;
+use Test::Most tests => 6;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use File::Path qw(make_path remove_tree);
@@ -90,9 +90,12 @@ sub commit_package {
 }
 
 sub search_package {
-  my @output = `osc -H search -s obs-test`;
-  print STDERR @output if $?;
-  return !$?;
+  #my $output = `osc -H search -s obs-test`;
+  # FIXME: activate search after https://github.com/openSUSE/osc/issues/2120 has been fixed
+  my $output = `osc api /search/package?match=contains%28%40name%2C+%27obs-test%27%29+or+contains%28title%2C+%27obs-test%27%29+or+contains%28description%2C+%27obs-test%27%29`;
+  print STDERR $output if $?;
+  return 0 if $?;
+  return ($output =~ m#<package name="obs-testpackage" project="home:Admin">#) ? 1 : 0;
 }
 
 
