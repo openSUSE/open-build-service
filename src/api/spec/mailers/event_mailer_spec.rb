@@ -799,5 +799,31 @@ RSpec.describe EventMailer, :vcr do
         expect(mail.subject).to include('Token membership updated')
       end
     end
+
+    context 'for event of type Event::GlobalRoleAssigned' do
+      let(:user) { create(:confirmed_user) }
+      let(:admin_user) { create(:admin_user) }
+      let(:payload) { { role: 'Admin', who: admin_user.login, user: user.login } }
+      let!(:subscription) { create(:event_subscription_global_role_assigned, user: user) }
+      let(:event) { Event::GlobalRoleAssigned.last }
+      let(:mail) { EventMailer.with(subscribers: [user], event: event).notification_email.deliver_now }
+
+      before do
+        login(user)
+        Event::GlobalRoleAssigned.create!(payload)
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(user.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include(event.subject)
+      end
+    end
   end
 end
