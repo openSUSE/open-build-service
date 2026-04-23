@@ -44,8 +44,6 @@
 	%{?*:/usr/bin/systemctl force-reload %{*}}\
 	) || : %{nil}
 
-%define _restart_on_update_never() :
-
 %define service_del_postun(fnr) \
 test -n "$FIRST_ARG" || FIRST_ARG="$1"						\
 if [ "$FIRST_ARG" -ge 1 ]; then							\
@@ -98,7 +96,7 @@ Release:        0
 Url:            http://www.openbuildservice.org
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
-BuildRequires:  python-devel
+BuildRequires:  python3-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
@@ -106,16 +104,20 @@ BuildRequires:  python-devel
 BuildRequires:  /usr/bin/xmllint
 BuildRequires:  openssl
 BuildRequires:  perl-BSSolv >= 0.36
-BuildRequires:  perl-Compress-Zlib
-BuildRequires:  perl-Diff-LibXDiff
-BuildRequires:  perl-File-Sync >= 0.10
-BuildRequires:  perl-JSON-XS
-BuildRequires:  perl-Net-SSLeay
-BuildRequires:  perl-Socket-MsgHdr
-BuildRequires:  perl-TimeDate
-BuildRequires:  perl-XML-Parser
-BuildRequires:  perl-XML-Simple
-BuildRequires:  perl-YAML-LibYAML
+BuildRequires:  perl(Compress::Zlib)
+BuildRequires:  perl(DBD::SQLite)
+BuildRequires:  perl(Date::Format)
+BuildRequires:  perl(Devel::Cover)
+BuildRequires:  perl(Diff::LibXDiff)
+BuildRequires:  perl(File::Sync) >= 0.10
+BuildRequires:  perl(JSON::XS)
+BuildRequires:  perl(Net::SSLeay)
+BuildRequires:  perl(Socket::MsgHdr)
+BuildRequires:  perl(Test::Simple) > 1
+BuildRequires:  perl(URI)
+BuildRequires:  perl(XML::Parser)
+BuildRequires:  perl(XML::Simple)
+BuildRequires:  perl(YAML::LibYAML)
 BuildRequires:  procps
 BuildRequires:  timezone
 BuildRequires:  perl(Devel::Cover)
@@ -140,7 +142,10 @@ BuildRequires:  xz
 
 %if 0%{?suse_version:1}
 BuildRequires:  fdupes
-PreReq:         %insserv_prereq permissions pwdutils
+PreReq:         permissions pwdutils
+%if 0%{?suse_version} < 1600
+PreReq:         %insserv_prereq
+%endif
 %endif
 
 %if 0%{?suse_version:1}
@@ -156,14 +161,21 @@ Requires:       dpkg
 Requires:       yum
 Requires:       yum-metadata-parser
 %endif
-Requires:       perl-Compress-Zlib
-Requires:       perl-File-Sync >= 0.10
-Requires:       perl-JSON-XS
-Requires:       perl-Net-SSLeay
-Requires:       perl-Socket-MsgHdr
-Requires:       perl-XML-Parser
-Requires:       perl-XML-Simple
-Requires:       perl-YAML-LibYAML
+Requires:  perl-BSSolv >= 0.36
+Requires:  perl(Compress::Zlib)
+Requires:  perl(DBD::SQLite)
+Requires:  perl(Date::Format)
+Requires:  perl(Devel::Cover)
+Requires:  perl(Diff::LibXDiff)
+Requires:  perl(File::Sync) >= 0.10
+Requires:  perl(JSON::XS)
+Requires:  perl(Net::SSLeay)
+Requires:  perl(Socket::MsgHdr)
+Requires:  perl(Test::Simple) > 1
+Requires:  perl(URI)
+Requires:  perl(XML::Parser)
+Requires:  perl(XML::Simple)
+Requires:  perl(YAML::LibYAML)
 Requires:       user(obsrun)
 Requires:       user(obsservicerun)
 # zstd is esp for Arch Linux
@@ -176,7 +188,7 @@ Provides:       obs-source_service = %version
 
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
-%if 0%{?suse_version} >= 1550
+%if 0%{?suse_version} >= 1550 && 0%{?suse_version} < 1600
 Requires:       insserv-compat
 %endif
 
@@ -198,9 +210,9 @@ calculates the need for new build jobs and distributes it.
 Requires(pre):  obs-common
 Requires:       cpio
 Requires:       curl
-Requires:       perl-Compress-Zlib
-Requires:       perl-TimeDate
-Requires:       perl-XML-Parser
+Requires:  perl(Compress::Zlib)
+Requires:  perl(TimeDate)
+Requires:  perl(XML::Parser)
 Requires:       screen
 # for build script
 Requires:       psmisc
@@ -217,7 +229,7 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
 Recommends:     powerpc32
-%if 0%{?suse_version} >= 1550
+%if 0%{?suse_version} >= 1550 && 0%{?suse_version} < 1600
 Requires:       insserv-compat
 %endif
 
@@ -267,6 +279,8 @@ BuildRequires:  curl
 BuildRequires:  netcfg
 # write down dependencies for production
 BuildRequires:  obs-api-testsuite-deps
+BuildConflicts: ruby3.4
+BuildConflicts: ruby3.4-rubygem-gem2rpm
 Requires:       ghostscript-fonts-std
 Requires:       obs-api-deps = %{version}
 Requires:       obs-bundled-gems = %{version}
@@ -424,8 +438,12 @@ find -name .keep -o -name .gitignore | xargs rm -rf
 export DESTDIR=$RPM_BUILD_ROOT
 
 pushd src/api
+%if 0%{suse_version} >= 1600
+# SLFO hack only
+sed -i 's|bin/rake assets:precompile|BUNDLE_IGNORE_CONFIG=1 BUNDLE_PATH="%_libdir/obs-api" GEM_HOME="%_libdir/obs-api/ruby/2.7.0" bin/rake assets:precompile|g' Makefile
+%endif
 # configure to the bundled gems
-bundle --local --path %_libdir/obs-api/
+bundle --local --path /usr/lib64/obs-api/
 rm -rf vendor/cache/*
 popd
 
@@ -455,7 +473,8 @@ export DESTDIR=$RPM_BUILD_ROOT
 %endif
 
 export OBS_VERSION="%{version}"
-DESTDIR=%{buildroot} make install FILLUPDIR=%{_fillupdir}
+
+make install FILLUPDIR=%{_fillupdir} DESTDIR=%{buildroot} 
 if [ -f %{_sourcedir}/open-build-service.obsinfo ]; then
     sed -n -e 's/commit: \(.\+\)/\1/p' %{_sourcedir}/open-build-service.obsinfo > %{buildroot}/srv/www/obs/api/last_deploy
 else
@@ -499,6 +518,10 @@ install -m 0644 dist/system-user-obsservicerun.conf %{buildroot}%{_sysusersdir}/
 install -m 0644 dist/system-user-obsapidelayed.conf %{buildroot}%{_sysusersdir}/
 %endif
 
+%if 0%{suse_version} >= 1600
+# SLFO hack only
+echo 'GEM_HOME: "%_libdir/obs-api/ruby/2.7.0/gems/"' >> %buildroot/srv/www/obs/api/.bundle/config
+%endif
 
 %check
 %if 0%{?disable_obs_test_suite}
@@ -705,7 +728,11 @@ fi
 
 %post -n obs-common
 %service_add_post obsstoragesetup.service
+%if 0%{?suse_version} >= 1600
+%{fillup_only -n obs-server}
+%else
 %{fillup_and_insserv -n obs-server}
+%endif
 
 %post -n obs-api
 if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/config/database.yml ]; then
@@ -730,7 +757,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/dat
 touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
-%restart_on_update memcached
 %service_add_post %{obs_api_support_scripts}
 # We need to touch the last_deploy file in the post hook
 # to update the timestamp which we use to display the
@@ -754,8 +780,10 @@ if [ -e %{_rundir}/enable_obs-api-support.target ];then
 fi
 
 %postun -n obs-api
+%if 0%{?suse_version} < 1600
 %insserv_cleanup
-%service_del_postun %{obs_api_support_scripts}
+%endif
+%service_del_postun -n %{obs_api_support_scripts}
 %service_del_postun -r apache2
 
 %files
@@ -985,6 +1013,7 @@ usermod -a -G docker obsservicerun
 %ghost /srv/www/obs/api/log/lastevents.access.log
 %ghost /srv/www/obs/api/log/production.log
 %ghost %attr(0640,root,www) %secret_key_file
+%dir /srv/www
 
 %files -n obs-common
 %defattr(-,root,root)
@@ -993,6 +1022,7 @@ usermod -a -G docker obsservicerun
 %{_unitdir}/obsstoragesetup.service
 /usr/sbin/obsstoragesetup
 /usr/sbin/rcobsstoragesetup
+%dir /etc/cron.d
 
 %files -n obs-utils
 %defattr(-,root,root)

@@ -1,0 +1,20 @@
+#
+# Open Build Service 2.10.32
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+
+Updates
+=======
+
+ * Support for Leap-16.0 and SLES-16.0 as server system added
+
+ * Updated perl-BSSolv dependency library
+

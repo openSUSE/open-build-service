@@ -41,8 +41,9 @@ BuildRequires:  make
 BuildRequires:  mysql-devel
 BuildRequires:  nodejs
 BuildRequires:  openldap2-devel
-BuildRequires:  python-devel
+BuildRequires:  python3-devel
 BuildRequires:  ruby2.7-devel
+BuildConflicts: ruby3.4-rubygem-gem2rpm
 BuildRequires:  chrpath
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -98,6 +99,7 @@ export GEM_HOME=~/.gems
 bundle config build.ffi --enable-system-libffi
 bundle config build.nokogiri --use-system-libraries
 bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
+bundle config build.mysql2 --with-cflags='%{optflags} -Wno-return-type'
 bundle config force_ruby_platform true
 
 bundle --local --path %{buildroot}%_libdir/obs-api/
@@ -138,9 +140,18 @@ rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/selenium-webdriver-*/lib/seleniu
 find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
 
 # fix interpreter in installed binaries
-for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
+for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/* \
+   %{buildroot}%_libdir/obs-api/ruby/*/gems/pry-*/lib/pry/helpers/documentation_helpers.rb \
+   %{buildroot}%_libdir/obs-api/ruby/*/gems/erubis-*/setup.rb \
+  ; do
+  sed -i -e 's,/usr/bin/env ruby$,/usr/bin/ruby.ruby2.7,' $bin
   sed -i -e 's,/usr/bin/env ruby.ruby2.7,/usr/bin/ruby.ruby2.7,' $bin
 done
+
+sed -i -e 's,^#!/usr/bin/ruby ,#!/usr/bin/ruby.ruby2.7 ,' \
+  %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/bin/ruby_parse_extract_error \
+  %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/bin/ruby_parse \
+  %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/tools/munge.rb
 
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts
 find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read file; do
