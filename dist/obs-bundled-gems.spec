@@ -171,21 +171,11 @@ find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
 find %{buildroot}%_libdir/obs-api -name .cvsignore | xargs rm -rf
 
 # use the ruby interpreter set by this spec file in all installed ruby scripts
-for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
-  sed -i -e '1!b;s,^#!.*/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-  sed -i -e '1!b;s,^#!.*/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-done
-for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/*; do
-  # Some gems have subdirectories inside bin, so we skip them
-  if [[ -f $bin ]]; then
-    sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-    sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+find %{buildroot}%_libdir/obs-api/ruby/ -type f | while read bin; do
+  # Only attempt to edit if the file is a text file and has a ruby shebang
+  if head -n 1 "$bin" | grep -qE '^#!(.*/bin/ruby|.*/bin/env ruby)'; then
+    sed -i -e "1s|^#!.*ruby.*$|#!%{__obs_ruby_interpreter}|" "$bin"
   fi
-done
-# And here process those binaries in subdirectories
-for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/linux/*; do
-  sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-  sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
 done
 
 sed -i -e 's,^#!/usr/bin/ruby ,#!/usr/bin/ruby.ruby2.7 ,' \
