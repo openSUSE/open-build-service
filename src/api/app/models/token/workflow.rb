@@ -7,12 +7,16 @@ class Token::Workflow < Token
                           foreign_key: :token_id,
                           association_foreign_key: :user_id,
                           dependent: :destroy,
+                          after_add: ->(token, user) { Event::TokenMembershipUpdate.create(token_id: token.id, user_login: user.login, who: User.session&.login, action: 'share') },
+                          after_remove: ->(token, user) { Event::TokenMembershipUpdate.create(token_id: token.id, user_login: user.login, who: User.session&.login, action: 'unshare') },
                           inverse_of: :users
   has_and_belongs_to_many :groups,
                           join_table: :workflow_token_groups,
                           foreign_key: :token_id,
                           association_foreign_key: :group_id,
                           dependent: :destroy,
+                          after_add: ->(token, group) { Event::TokenMembershipUpdate.create(token_id: token.id, group_title: group.title, who: User.session&.login, action: 'share') },
+                          after_remove: ->(token, group) { Event::TokenMembershipUpdate.create(token_id: token.id, group_title: group.title, who: User.session&.login, action: 'unshare') },
                           inverse_of: :groups
 
   validates :scm_token, presence: true
