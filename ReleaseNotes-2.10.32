@@ -15,6 +15,20 @@ Updates
 =======
 
  * Support for Leap-16.0 and SLES-16.0 as server system added
-
  * Updated perl-BSSolv dependency library
 
+=======
+Bugfixes
+========
+
+Frontend:
+ * Update rack RubyGem to version 2.2.23
+   - [CVE-2026-34763] Root directory disclosure via unescaped regex interpolation in Rack::Directory.
+   - [CVE-2026-34230] Avoid O(n^2) algorithm in Rack::Utils.select_best_encoding which could lead to denial of service.
+   - [CVE-2026-26961] Raise error for multipart requests with multiple boundary parameters.
+   - [CVE-2026-34786] Rack::Static header_rules bypass via URL-encoded path mismatch.
+   - [CVE-2026-34831] Content-Length mismatch in Rack::Files error responses.
+   - [CVE-2026-34826] Multipart byte range processing allows denial of service via excessive overlapping ranges.
+   - [CVE-2026-34830] Rack::Sendfile header-based X-Accel-Mapping regex injection enables unauthorized X-Accel-Redirect.
+   - [CVE-2026-34785] Rack::Static prefix matching can expose unintended files under the static root.
+   - [CVE-2026-34829] Multipart parsing without Content-Length header allows unbounded chunked file uploads.
