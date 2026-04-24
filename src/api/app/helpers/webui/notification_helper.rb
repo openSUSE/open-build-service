@@ -9,14 +9,15 @@ module Webui::NotificationHelper
     'Package' => 'fa-archive',
     'Report' => 'fa-flag', 'Decision' => 'fa-clipboard-check',
     'Appeal' => 'fa-hand', 'WorkflowRun' => 'fa-book-open',
-    'Group' => 'fa-people-group'
+    'Group' => 'fa-people-group', 'Token::Workflow' => 'fa-key'
   }.freeze
 
   NOTIFICATION_TITLE = {
     'BsRequest' => 'Request notification', 'Comment' => 'Comment notification',
     'Package' => 'Package notification', 'Report' => 'Report notification',
     'Decision' => 'Report decision', 'Appeal' => 'Decision appeal',
-    'WorkflowRun' => 'Workflow run', 'Group' => 'Group members changed'
+    'WorkflowRun' => 'Workflow run', 'Group' => 'Group members changed',
+    'Token::Workflow' => 'Token membership update'
   }.freeze
 
   def truncate_to_first_new_line(text)

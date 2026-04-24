@@ -23,7 +23,8 @@ module NotificationService
                         'Event::RemovedUserFromGroup',
                         'Event::AssignmentCreate',
                         'Event::AssignmentDelete',
-                        'Event::UpstreamPackageVersionChanged'].freeze
+                        'Event::UpstreamPackageVersionChanged',
+                        'Event::TokenMembershipUpdate'].freeze
     CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
@@ -34,7 +35,8 @@ module NotificationService
       'Decision' => ::Decision,
       'WorkflowRun' => ::WorkflowRun,
       'Appeal' => ::Appeal,
-      'Group' => ::Group
+      'Group' => ::Group,
+      'Token::Workflow' => ::Token::Workflow
     }.freeze
     ALLOWED_CHANNELS = {
       web: NotificationService::WebChannel,

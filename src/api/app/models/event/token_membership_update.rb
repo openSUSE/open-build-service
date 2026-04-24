@@ -7,10 +7,18 @@ module Event
 
     receiver_roles :updated_token_member
 
+    def parameters_for_notification
+      super.merge(notifiable_type: 'Token::Workflow',
+                  notifiable_id: payload['token_id'],
+                  type: 'NotificationTokenWorkflow')
+    end
+
     def updated_token_members
       return User.where(login: payload['user_login']) if payload['user_login'].present?
 
-      ::Group.find_by(title: payload['group_title'])&.users
+      group_users = ::Group.find_by(title: payload['group_title'])&.users
+
+      group_users&.where&.not(login: payload['who'])
     end
   end
 end

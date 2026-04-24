@@ -157,5 +157,13 @@ FactoryBot.define do
       user
       group { nil }
     end
+
+    factory :event_subscription_token_membership_update do
+      eventtype { 'Event::TokenMembershipUpdate' }
+      receiver_role { 'updated_token_member' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
   end
 end

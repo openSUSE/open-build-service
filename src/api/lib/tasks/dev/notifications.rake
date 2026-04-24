@@ -90,6 +90,15 @@ namespace :dev do
         project.update(anitya_distribution_name: 'openSUSE')
         # Ends up creating an event (Event::UpstreamPackageVersion)
         create(:package_version_upstream, package: admin_package)
+
+        # Token Membership Update
+        create(:event_subscription_token_membership_update, channel: :web, user: admin)
+        workflow_token = create(:workflow_token, executor: iggy, description: Faker::Book.title)
+        workflow_token.users << admin # The user Admin is added to a token of user Iggy
+
+        workflow_token2 = create(:workflow_token, executor: iggy, description: Faker::Book.title)
+        workflow_token2.users << admin
+        workflow_token2.users.delete(admin) # The user Admin is removed from a token of user Iggy
       end
 
       # Process notifications immediately to see them in the web UI
