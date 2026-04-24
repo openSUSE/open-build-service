@@ -6,3 +6,4 @@
 
 %p
   Check the details about this #{link_to('Workflow Run', token_workflow_run_url(event['token_id'], event['id'], only_path: false, host: @host)) }.
+= render partial: 'event_mailer/footer', locals: { event: event, receiver_role: receiver_role, event_type: event_type }

@@ -1,0 +1,4 @@
+- if receiver_role.present?
+  %hr
+  %p.text-muted
+    = build_subscription_reason_text(event_type: event_type, receiver_role: receiver_role, event_payload: event)

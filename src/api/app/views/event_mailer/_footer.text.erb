@@ -1,0 +1,5 @@
+<% if receiver_role.present? %>
+
+---
+<%= build_subscription_reason_text(event_type: event_type, receiver_role: receiver_role, event_payload: event) %>
+<% end %>

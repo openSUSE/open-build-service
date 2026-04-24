@@ -9,3 +9,4 @@ The upstream version of package
       )
     ) %>
 has changed to <%= event['upstream_version'] %>
+<%= render partial: 'event_mailer/footer', locals: { event: event, receiver_role: receiver_role, event_type: event_type } %>

@@ -18,3 +18,4 @@ To DECLINE the request:
 
 To REVOKE the request:
    osc request revoke <%= event['number']%> --message="retracted because ..., sorry / thx / see better version ..."
+<%= render partial: 'event_mailer/footer', locals: { event: event, receiver_role: receiver_role, event_type: event_type } %>
