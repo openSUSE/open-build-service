@@ -9,3 +9,4 @@ Check out the package for editing:
 Last lines of build log:
 <%= event['faillog'] %>
 <% end %>
+<%= render partial: 'event_mailer/footer', locals: { event: event, receiver_role: receiver_role, event_type: event_type } %>

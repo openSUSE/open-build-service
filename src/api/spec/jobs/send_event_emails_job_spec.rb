@@ -30,7 +30,7 @@ RSpec.describe SendEventEmailsJob do
       end
 
       it 'sends each email to a single subscriber' do
-        recipients = ActionMailer::Base.deliveries.map { |mail| mail.to }.flatten
+        recipients = ActionMailer::Base.deliveries.map(&:to).flatten
         expect(recipients).to contain_exactly(user.email, group1.email)
       end
 

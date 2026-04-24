@@ -1,5 +1,6 @@
 class Notification < ApplicationRecord
   include NotificationFilterable
+  include NotificationReasonable
 
   MAX_RSS_ITEMS_PER_USER = 10
   MAX_RSS_ITEMS_PER_GROUP = 10

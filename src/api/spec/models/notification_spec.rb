@@ -112,6 +112,82 @@ RSpec.describe Notification do
     end
   end
 
+  describe '#build_subscription_reason_text' do
+    subject { notification.build_subscription_reason_text(event_type: event_type, receiver_role: receiver_role, event_payload: event_payload) }
+
+    let(:notification) { build(:notification, event_type: event_type, subscription_receiver_role: receiver_role, event_payload: event_payload) }
+
+    context 'when the role is maintainer and event is a build failure on a package' do
+      let(:event_type) { 'Event::BuildFail' }
+      let(:receiver_role) { 'maintainer' }
+      let(:event_payload) { { 'project' => 'home:foo', 'package' => 'obs-server' } }
+
+      it 'includes the event type label' do
+        expect(subject).to include('Build Failure')
+      end
+
+      it 'includes the role label' do
+        expect(subject).to include('Maintainer')
+      end
+
+      it 'includes the package name' do
+        expect(subject).to include('home:foo/obs-server')
+      end
+    end
+
+    context 'when the role is maintainer but the payload has only a project (no package)' do
+      let(:event_type) { 'Event::RelationshipCreate' }
+      let(:receiver_role) { 'maintainer' }
+      let(:event_payload) { { 'project' => 'home:foo' } }
+
+      it 'falls back to the project name' do
+        expect(subject).to include('home:foo')
+      end
+
+      it 'does not include a slash' do
+        expect(subject).not_to include('home:foo/')
+      end
+    end
+
+    context 'when the role is project_watcher' do
+      let(:event_type) { 'Event::CommentForProject' }
+      let(:receiver_role) { 'project_watcher' }
+      let(:event_payload) { { 'project' => 'home:foo', 'comment_body' => 'hi' } }
+
+      it 'includes the role label' do
+        expect(subject).to include('Watching the project')
+      end
+
+      it 'includes the project name' do
+        expect(subject).to include('home:foo')
+      end
+    end
+
+    context 'when the role is reviewer on a request' do
+      let(:event_type) { 'Event::ReviewWanted' }
+      let(:receiver_role) { 'reviewer' }
+      let(:event_payload) { { 'number' => 42 } }
+
+      it 'includes the role label' do
+        expect(subject).to include('Reviewer')
+      end
+
+      it 'includes the request number' do
+        expect(subject).to include('42')
+      end
+    end
+
+    context 'when the role is moderator (no specific object)' do
+      let(:event_type) { 'Event::ReportForUser' }
+      let(:receiver_role) { 'moderator' }
+      let(:event_payload) { { 'reportable_type' => 'User' } }
+
+      it 'includes the role label' do
+        expect(subject).to include('moderator')
+      end
+    end
+  end
+
   describe 'Instrumentation' do
     let!(:test_user) { create(:confirmed_user, login: 'foo') }
     let!(:web_notification) { create(:notification_for_request, :web_notification, subscriber: test_user) }

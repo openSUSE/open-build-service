@@ -55,6 +55,11 @@
       .row.d-none.d-md-block.ps-4
         .col
           %p.mt-3.mb-0= render_without_markdown(truncate_to_first_new_line(notification.excerpt))
+      .row.ps-sm-4.mt-1
+        .col
+          %small.text-muted= build_subscription_reason_text(event_type: notification.event_type,
+                                                            receiver_role: notification.subscription_receiver_role,
+                                                            event_payload: notification.event_payload)
       - if Flipper.enabled?(:labels, User.session) && notification.labelable? && notification.notifiable&.labels
         .row.d-none.d-md-block.mt-3.ps-4
           .col

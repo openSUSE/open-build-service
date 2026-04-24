@@ -6,3 +6,4 @@
   = link_to("#{event['project_name']}", project_show_url(event['project_name'],
                                                          anchor: 'comments-list',
                                                          only_path: false, host: @host))
+= render partial: 'event_mailer/footer', locals: { event: event, receiver_role: receiver_role, event_type: event_type }

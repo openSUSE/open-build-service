@@ -20,3 +20,4 @@ Request description:
 <%= event['description'] %>
 
 <%= render partial: 'event_mailer/actions', locals: { event: event } -%>
+<%= render partial: 'event_mailer/footer', locals: { event: event, receiver_role: receiver_role, event_type: event_type } %>

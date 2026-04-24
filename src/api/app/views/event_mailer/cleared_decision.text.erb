@@ -3,3 +3,4 @@
 <%= event['reason'] %>
 
 <%= link_to_reportables(report_id: event['report_last_id'], reportable_type: event['reportable_type'], host: @host) %>
+<%= render partial: 'event_mailer/footer', locals: { event: event, receiver_role: receiver_role, event_type: event_type } %>

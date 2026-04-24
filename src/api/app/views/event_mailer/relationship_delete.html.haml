@@ -5,3 +5,4 @@
           link_to(event['project'], project_users_url(event['project'], only_path: false, host: @host))
         end
 #{event['who']} removed #{event_relationship_recipient(event)} as #{event['role']} of #{url}.
+= render partial: 'event_mailer/footer', locals: { event: event, receiver_role: receiver_role, event_type: event_type }

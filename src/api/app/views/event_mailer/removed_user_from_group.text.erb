@@ -1,1 +1,2 @@
 <%= "'#{event['member']}' got removed from group '#{event['group']}'" %>
+<%= render partial: 'event_mailer/footer', locals: { event: event, receiver_role: receiver_role, event_type: event_type } %>

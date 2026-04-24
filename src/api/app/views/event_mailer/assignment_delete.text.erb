@@ -3,3 +3,4 @@
 -%>
 <%= "#{event['who']} unassigned #{event_relationship_recipient(event)} from #{package}" %>
 Visit <%= url %>.
+<%= render partial: 'event_mailer/footer', locals: { event: event, receiver_role: receiver_role, event_type: event_type } %>
