@@ -64,6 +64,54 @@ RSpec.describe Notification do
     end
   end
 
+  describe '.for_package_name' do
+    let(:package) { create(:package) }
+
+    context 'when the notifiable is a Package directly' do
+      let!(:notification) { create(:notification_for_package, :build_failure, notifiable: package) }
+
+      it 'includes the notification' do
+        expect(Notification.for_package_name(package.name)).to include(notification)
+      end
+    end
+
+    context 'when the notifiable is a Comment on the Package' do
+      let(:comment) { create(:comment_package, commentable: package) }
+      let!(:notification) { create(:notification_for_comment, :comment_for_package, notifiable: comment) }
+
+      it 'includes the notification' do
+        expect(Notification.for_package_name(package.name)).to include(notification)
+      end
+    end
+
+    context 'when the notifiable is a BsRequest with a matching source package' do
+      let(:bs_request) { create(:bs_request_with_submit_action, target_package: package.name, source_package: package.name) }
+      let!(:notification) { create(:notification_for_request, :request_created, notifiable: bs_request) }
+
+      it 'includes the notification' do
+        expect(Notification.for_package_name(package.name)).to include(notification)
+      end
+    end
+
+    context 'when the notifiable is a Report about the Package' do
+      let(:report) { create(:report, reportable: package) }
+      let!(:notification) { create(:notification_for_report, :report_for_user, notifiable: report) }
+
+      it 'includes the notification' do
+        expect(Notification.for_package_name(package.name)).to include(notification)
+      end
+    end
+
+    context 'when no notification matches the package name' do
+      let(:other_package) { create(:package) }
+      let!(:notification) { create(:notification_for_package, :build_failure, notifiable: other_package) }
+
+      it 'does not include the notification' do
+        expect(Notification.for_package_name(package.name)).not_to include(notification)
+      end
+    end
+  end
+
   describe 'Instrumentation' do
     let!(:test_user) { create(:confirmed_user, login: 'foo') }
     let!(:web_notification) { create(:notification_for_request, :web_notification, subscriber: test_user) }
