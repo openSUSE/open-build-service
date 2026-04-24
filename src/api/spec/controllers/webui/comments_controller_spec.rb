@@ -20,7 +20,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
           post :create, params: params
         end
 
-        it { expect(flash[:success]).to eq('Comment was successfully created.') }
+        it { expect(flash[:success]).to eq('Comment created successfully.') }
         it { expect(commentable.comments.first.body).to eq("This #{commentable.model_name.singular} is AWESOME!") }
       end
 
@@ -46,7 +46,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
         post :create, params: params
       end
 
-      it { expect(flash[:error]).to eq("Comment can't be saved: Body can't be blank.") }
+      it { expect(flash[:error]).to eq("Failed to create comment: Body can't be blank.") }
       it { expect(package.comments.count).to eq(0) }
     end
 

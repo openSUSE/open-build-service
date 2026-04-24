@@ -82,3 +82,6 @@ require 'support/migration'
 
 # support rabbitmq
 require 'support/rabbitmq'
+
+# bento vs. bootstrap support
+require 'support/bento_detection'
