@@ -200,9 +200,9 @@ sub set_repo_state {
       $newstate->{'scminfo'} = $proj->{'scminfo'} if $proj->{'scminfo'};
     }
   }
-  unlink("$gdst/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
   mkdir_p($gdst) unless -d $gdst;
   BSUtil::store("$gdst/.:schedulerstate", "$gdst/:schedulerstate", $newstate) unless BSUtil::identical($oldstate, $newstate);
+  unlink("$gdst/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
 }
 
 =head2 wipe - delete this repo
