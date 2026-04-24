@@ -19,23 +19,24 @@ class SendEventEmailsJob < ApplicationJob
 
   private
 
-  def send_email(subscribers, event)
+  def send_email(subscriptions, event)
     return if event.involves_hidden_project?
-    return if subscribers.empty?
 
-    email = EventMailer.with(subscribers: subscribers, event: event).notification_email
-    email.deliver_now
-  rescue StandardError => e
-    Airbrake.notify(e, event_id: event.id, email: email.inspect)
-  ensure
+    subscriptions.each do |subscription|
+      email = EventMailer.with(subscribers: [subscription.subscriber], receiver_role: subscription.receiver_role, event: event).notification_email
+      email.deliver_now
+    rescue StandardError => e
+      Airbrake.notify(e, event_id: event.id, email: email.inspect)
+    end
     event.update(mails_sent: true)
   end
 
   def event_subscribers(event:)
+    subscriptions = event.subscriptions
     if event.is_a?(Event::Report)
-      event.subscribers.select { |subscriber| ReportPolicy.new(subscriber, Report).notify? }
+      subscriptions.select { |subscription| ReportPolicy.new(subscription.subscriber, Report).notify? }
     else
-      event.subscribers
+      subscriptions
     end
   end
 end

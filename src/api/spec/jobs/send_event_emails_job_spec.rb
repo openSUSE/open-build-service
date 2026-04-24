@@ -25,11 +25,19 @@ RSpec.describe SendEventEmailsJob do
 
       before { described_class.new.perform }
 
-      it 'sends an email to the subscribers' do
-        email = ActionMailer::Base.deliveries.first
+      it 'sends one email per subscriber' do
+        expect(ActionMailer::Base.deliveries.count).to eq(2)
+      end
 
-        expect(email.to).to contain_exactly(user.email, group1.email)
-        expect(email.subject).to include('New comment')
+      it 'sends each email to a single subscriber' do
+        recipients = ActionMailer::Base.deliveries.map { |mail| mail.to }.flatten
+        expect(recipients).to contain_exactly(user.email, group1.email)
+      end
+
+      it 'sends emails with the correct subject' do
+        ActionMailer::Base.deliveries.each do |email|
+          expect(email.subject).to include('New comment')
+        end
       end
 
       it "does not create a rss notification if the user doesn't have a rss secret" do
