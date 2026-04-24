@@ -116,35 +116,6 @@ class Package < ApplicationRecord
 
   scope :dirty_backend_packages, -> { left_outer_joins(:backend_package).where(backend_package: { package_id: nil }) }
 
-  scope :with_web_notification_for, ->(user) { where(notifications: { web: true, subscriber_id: user }) }
-
-  scope :for_notifications_on_packages, lambda { |user|
-    # Finds packages via the direct notification relationship
-    via_package = joins('INNER JOIN notifications ON notifications.notifiable_id = packages.id AND notifications.notifiable_type = "Package"')
-                  .with_web_notification_for(user)
-    # Finds packages via the associated request target
-    via_target_request = joins('INNER JOIN bs_request_actions ON bs_request_actions.target_package_id = packages.id ' \
-                               'INNER JOIN bs_requests ON bs_request_actions.bs_request_id = bs_requests.id ' \
-                               'INNER JOIN notifications ON notifications.notifiable_id = bs_requests.id AND notifications.notifiable_type = "BsRequest"')
-                         .with_web_notification_for(user)
-    # Finds packages via the associated request source
-    via_source_request = joins('INNER JOIN bs_request_actions ON bs_request_actions.source_package_id = packages.id ' \
-                               'INNER JOIN bs_requests ON bs_request_actions.bs_request_id = bs_requests.id ' \
-                               'INNER JOIN notifications ON notifications.notifiable_id = bs_requests.id AND notifications.notifiable_type = "BsRequest"')
-                         .with_web_notification_for(user)
-    # Finds packages via the comments on those packages
-    via_comment = joins('INNER JOIN comments ON comments.commentable_id = packages.id AND comments.commentable_type = "Package" ' \
-                        'INNER JOIN notifications ON notifications.notifiable_id = comments.id AND notifications.notifiable_type = "Comment"')
-                  .with_web_notification_for(user)
-    # Finds packages via the reports on those packages
-    via_report = joins('INNER JOIN reports ON reports.reportable_id = packages.id AND reports.reportable_type = "Package" ' \
-                       'INNER JOIN notifications ON notifications.notifiable_id = reports.id AND notifications.notifiable_type = "Report"')
-                 .with_web_notification_for(user)
-    subquery_sql = [via_package, via_target_request, via_source_request, via_comment, via_report]
-                   .map { |q| q.select(:id).to_sql }.join(' UNION ')
-    where("packages.id IN (#{subquery_sql})")
-  }
-
   validates :name, presence: true, length: { maximum: 200 }
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }

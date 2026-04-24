@@ -249,7 +249,7 @@
       "check_name": "CrossSiteScripting",
       "message": "Unescaped model attribute",
       "file": "app/views/webui/package/_file.html.haml",
-      "line": 13,
+      "line": 12,
       "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
       "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :order => (\"-#{(Unresolved Model).new[\"mtime\"]}\"))",
       "render_path": [
@@ -406,29 +406,6 @@
       "confidence": "Weak",
       "cwe_id": [
         79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "77d798991feb8ec2d31472d6079c0c22f22570e38fcbd3482b7c0020655b1c90",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/models/package.rb",
-      "line": 145,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "where(\"packages.id IN (#{[joins(\"INNER JOIN notifications ON notifications.notifiable_id = packages.id AND notifications.notifiable_type = \\\"Package\\\"\").with_web_notification_for(user), joins(\"INNER JOIN bs_request_actions ON bs_request_actions.target_package_id = packages.id INNER JOIN bs_requests ON bs_request_actions.bs_request_id = bs_requests.id INNER JOIN notifications ON notifications.notifiable_id = bs_requests.id AND notifications.notifiable_type = \\\"BsRequest\\\"\").with_web_notification_for(user), joins(\"INNER JOIN bs_request_actions ON bs_request_actions.source_package_id = packages.id INNER JOIN bs_requests ON bs_request_actions.bs_request_id = bs_requests.id INNER JOIN notifications ON notifications.notifiable_id = bs_requests.id AND notifications.notifiable_type = \\\"BsRequest\\\"\").with_web_notification_for(user), joins(\"INNER JOIN comments ON comments.commentable_id = packages.id AND comments.commentable_type = \\\"Package\\\" INNER JOIN notifications ON notifications.notifiable_id = comments.id AND notifications.notifiable_type = \\\"Comment\\\"\").with_web_notification_for(user), joins(\"INNER JOIN reports ON reports.reportable_id = packages.id AND reports.reportable_type = \\\"Package\\\" INNER JOIN notifications ON notifications.notifiable_id = reports.id AND notifications.notifiable_type = \\\"Report\\\"\").with_web_notification_for(user)].map do\n q.select(:id).to_sql\n end.join(\" UNION \")})\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Package",
-        "method": "for_notifications_on_packages"
-      },
-      "user_input": "[joins(\"INNER JOIN notifications ON notifications.notifiable_id = packages.id AND notifications.notifiable_type = \\\"Package\\\"\").with_web_notification_for(user), joins(\"INNER JOIN bs_request_actions ON bs_request_actions.target_package_id = packages.id INNER JOIN bs_requests ON bs_request_actions.bs_request_id = bs_requests.id INNER JOIN notifications ON notifications.notifiable_id = bs_requests.id AND notifications.notifiable_type = \\\"BsRequest\\\"\").with_web_notification_for(user), joins(\"INNER JOIN bs_request_actions ON bs_request_actions.source_package_id = packages.id INNER JOIN bs_requests ON bs_request_actions.bs_request_id = bs_requests.id INNER JOIN notifications ON notifications.notifiable_id = bs_requests.id AND notifications.notifiable_type = \\\"BsRequest\\\"\").with_web_notification_for(user), joins(\"INNER JOIN comments ON comments.commentable_id = packages.id AND comments.commentable_type = \\\"Package\\\" INNER JOIN notifications ON notifications.notifiable_id = comments.id AND notifications.notifiable_type = \\\"Comment\\\"\").with_web_notification_for(user), joins(\"INNER JOIN reports ON reports.reportable_id = packages.id AND reports.reportable_type = \\\"Package\\\" INNER JOIN notifications ON notifications.notifiable_id = reports.id AND notifications.notifiable_type = \\\"Report\\\"\").with_web_notification_for(user)].map do\n q.select(:id).to_sql\n end.join(\" UNION \")",
-      "confidence": "Medium",
-      "cwe_id": [
-        89
       ],
       "note": ""
     },
@@ -642,7 +619,7 @@
           "type": "controller",
           "class": "Webui::ProjectController",
           "method": "buildresult",
-          "line": 232,
+          "line": 224,
           "file": "app/controllers/webui/project_controller.rb",
           "rendered": {
             "name": "webui/project/_buildstatus",
@@ -742,7 +719,7 @@
           "type": "controller",
           "class": "Webui::RequestController",
           "method": "beta_show",
-          "line": 51,
+          "line": 50,
           "file": "app/controllers/webui/request_controller.rb",
           "rendered": {
             "name": "webui/request/beta_show",
