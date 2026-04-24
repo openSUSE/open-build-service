@@ -31,7 +31,7 @@ class NotificationPackage < Notification
     when 'Event::RelationshipDelete'
       "Removed as #{event_payload['role']} of a package"
     when 'Event::BuildFail'
-      "Package #{event_payload['package']} on #{event_payload['project']} project failed to build against #{event_payload['repository']} / #{event_payload['arch']}"
+      "#{event_payload['project']}/#{event_payload['package']} failed to build"
     when 'Event::UpstreamPackageVersionChanged'
       "New upstream version for #{event_payload['package']}"
     end

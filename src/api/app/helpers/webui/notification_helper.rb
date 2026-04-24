@@ -41,6 +41,8 @@ module Webui::NotificationHelper
 
   def description(notification)
     case notification.event_type
+    when 'Event::BuildFail'
+      description_for_build_failure(notification)
     when 'Event::ReportForUser'
       description_for_user_report(notification)
     when 'Event::ReportForComment'
@@ -67,6 +69,16 @@ module Webui::NotificationHelper
   end
 
   private
+
+  def description_for_build_failure(notification)
+    payload = notification.event_payload
+
+    safe_join([
+                content_tag(:div, "Package: #{payload['project']} / #{payload['package']}"),
+                content_tag(:div, "Repository: #{payload['repository']} / #{payload['arch']}"),
+                content_tag(:div, "Build Reason: #{payload['reason']}")
+              ])
+  end
 
   def number_of_hidden_avatars(avatar_objects)
     [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
