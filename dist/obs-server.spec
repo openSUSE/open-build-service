@@ -414,7 +414,7 @@ pushd src/api
 %if 0%{suse_version} >= 1600
 # SLFO hack only
 ### we most NOT user %_libdir since we are noarch (/usr/lib), but rubgems come a from an arch package
-sed -i 's|bin/rake assets:precompile|BUNDLE_IGNORE_CONFIG=1 BUNDLE_PATH="/usr/lib64/obs-api" GEM_HOME="/usr/lib64/obs-api/ruby/2.7.0" bin/rake assets:precompile|g' Makefile
+sed -i 's|bin/rake assets:precompile|BUNDLE_IGNORE_CONFIG=1 BUNDLE_PATH="/usr/lib64/obs-api" GEM_HOME="/usr/lib64/obs-api/ruby/3.4.0" bin/rake assets:precompile|g' Makefile
 %endif
 # configure to the bundled gems
 bundle --local --path /usr/lib64/obs-api/
@@ -494,7 +494,7 @@ install -m 0644 dist/system-user-obsapidelayed.conf %{buildroot}%{_sysusersdir}/
 
 %if 0%{suse_version} >= 1600
 # SLFO hack only
-echo 'GEM_HOME: "/usr/lib64/obs-api/ruby/2.7.0/gems/"' >> %buildroot/srv/www/obs/api/.bundle/config
+echo 'GEM_HOME: "/usr/lib64/obs-api/ruby/3.4.0/gems/"' >> %buildroot/srv/www/obs/api/.bundle/config
 %endif
 
 %check

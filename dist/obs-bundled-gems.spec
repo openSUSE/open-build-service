@@ -178,11 +178,6 @@ find %{buildroot}%_libdir/obs-api/ruby/ -type f | while read bin; do
   fi
 done
 
-sed -i -e 's,^#!/usr/bin/ruby ,#!/usr/bin/ruby.ruby2.7 ,' \
-  %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/bin/ruby_parse_extract_error \
-  %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/bin/ruby_parse \
-  %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/tools/munge.rb
-
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts
 find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read file; do
   chmod a-x $file
