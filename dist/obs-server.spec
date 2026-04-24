@@ -34,57 +34,28 @@
 %define obs_backend_data_dir /srv/obs
 %define obs_backend_dir /usr/lib/obs/server
 
-%if ! %{defined _restart_on_update_reload}
-%define _restart_on_update_reload() (\
-	test "$YAST_IS_RUNNING" = instsys && exit 0\
-	test -f /etc/sysconfig/services -a \\\
-	     -z "$DISABLE_RESTART_ON_UPDATE" && . /etc/sysconfig/services\
-	test "$DISABLE_RESTART_ON_UPDATE" = yes -o \\\
-	     "$DISABLE_RESTART_ON_UPDATE" = 1 && exit 0\
-	%{?*:/usr/bin/systemctl force-reload %{*}}\
-	) || : %{nil}
+%if ! %{defined service_del_postun_with_reload}
+%if 0%{?suse_version} < 1600
+%define reload_command force-reload
+%define reload_marker %{nil}
+%else
+%define reload_command set-property
+%define reload_marker Markers=+needs-reload
+%endif
 
-%define _restart_on_update_never() :
-
-%define service_del_postun(fnr) \
-test -n "$FIRST_ARG" || FIRST_ARG="$1"						\
-if [ "$FIRST_ARG" -ge 1 ]; then							\
-	# Package upgrade, not uninstall					\
-	if [ -x /usr/bin/systemctl ]; then					\
-		/usr/bin/systemctl daemon-reload || :				\
-		%{expand:%%_restart_on_update%{-f:_force}%{!-f:%{-n:_never}}%{!-f:%{!-n:%{-r:_reload}}} %{?*}}  \
-	fi									\
-else # package uninstall							\
-	for service in %{?*} ; do						\
-		sysv_service="${service%.*}"					\
-		rm -f "/var/lib/systemd/migrated/$sysv_service" || :		\
-	done									\
-	if [ -x /usr/bin/systemctl ]; then					\
-		/usr/bin/systemctl daemon-reload || :				\
-	fi									\
-fi										\
+%define service_del_postun_with_reload()                                                \
+%{expand::%%service_del_postun_without_restart %{?**}}                                  \
+if [ -x /usr/bin/systemctl ]; then                                                      \
+        if [ $1 -ge 1 ]; then                                                           \
+                # Package upgrade, not uninstall                                        \
+                /usr/bin/systemctl %reload_command %{?*} %reload_marker || :            \
+        fi                                                                              \
+fi                                                                                      \
 %{nil}
-
 %endif
 
 %if ! %{defined _fillupdir}
   %define _fillupdir %{_localstatedir}/adm/fillup-templates
-%endif
-
-%if 0%{?suse_version} >= 1315
-%define reload_on_update() %{?nil:
-	test -n "$FIRST_ARG" || FIRST_ARG=$1
-	if test "$FIRST_ARG" -ge 1 ; then
-	   test -f /etc/sysconfig/services && . /etc/sysconfig/services
-	   if test "$YAST_IS_RUNNING" != "instsys" -a "$DISABLE_RESTART_ON_UPDATE" != yes ; then
-	      test -x /bin/systemctl && /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-	      for service in %{?*} ; do
-		 test -x /bin/systemctl && /bin/systemctl reload $service >/dev/null 2>&1 || :
-	      done
-	   fi
-	fi
-	%nil
-}
 %endif
 
 %global obs_api_support_scripts obs-api-support.target obs-clockwork.service obs-delayedjob-queue-consistency_check.service obs-delayedjob-queue-default.service obs-delayedjob-queue-issuetracking.service obs-delayedjob-queue-mailers.service obs-delayedjob-queue-project_log_rotate.service obs-delayedjob-queue-releasetracking.service obs-delayedjob-queue-staging.service obs-sphinx.service
@@ -98,7 +69,7 @@ Release:        0
 Url:            http://www.openbuildservice.org
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
-BuildRequires:  python-devel
+BuildRequires:  python3-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
@@ -106,16 +77,20 @@ BuildRequires:  python-devel
 BuildRequires:  /usr/bin/xmllint
 BuildRequires:  openssl
 BuildRequires:  perl-BSSolv >= 0.36
-BuildRequires:  perl-Compress-Zlib
-BuildRequires:  perl-Diff-LibXDiff
-BuildRequires:  perl-File-Sync >= 0.10
-BuildRequires:  perl-JSON-XS
-BuildRequires:  perl-Net-SSLeay
-BuildRequires:  perl-Socket-MsgHdr
-BuildRequires:  perl-TimeDate
-BuildRequires:  perl-XML-Parser
-BuildRequires:  perl-XML-Simple
-BuildRequires:  perl-YAML-LibYAML
+BuildRequires:  perl(Compress::Zlib)
+BuildRequires:  perl(DBD::SQLite)
+BuildRequires:  perl(Date::Format)
+BuildRequires:  perl(Devel::Cover)
+BuildRequires:  perl(Diff::LibXDiff)
+BuildRequires:  perl(File::Sync) >= 0.10
+BuildRequires:  perl(JSON::XS)
+BuildRequires:  perl(Net::SSLeay)
+BuildRequires:  perl(Socket::MsgHdr)
+BuildRequires:  perl(Test::Simple) > 1
+BuildRequires:  perl(URI)
+BuildRequires:  perl(XML::Parser)
+BuildRequires:  perl(XML::Simple)
+BuildRequires:  perl(YAML::LibYAML)
 BuildRequires:  procps
 BuildRequires:  timezone
 BuildRequires:  perl(Devel::Cover)
@@ -140,7 +115,10 @@ BuildRequires:  xz
 
 %if 0%{?suse_version:1}
 BuildRequires:  fdupes
-PreReq:         %insserv_prereq permissions pwdutils
+PreReq:         permissions pwdutils
+%if 0%{?suse_version} < 1600
+PreReq:         %insserv_prereq
+%endif
 %endif
 
 %if 0%{?suse_version:1}
@@ -156,14 +134,21 @@ Requires:       dpkg
 Requires:       yum
 Requires:       yum-metadata-parser
 %endif
-Requires:       perl-Compress-Zlib
-Requires:       perl-File-Sync >= 0.10
-Requires:       perl-JSON-XS
-Requires:       perl-Net-SSLeay
-Requires:       perl-Socket-MsgHdr
-Requires:       perl-XML-Parser
-Requires:       perl-XML-Simple
-Requires:       perl-YAML-LibYAML
+Requires:  perl-BSSolv >= 0.36
+Requires:  perl(Compress::Zlib)
+Requires:  perl(DBD::SQLite)
+Requires:  perl(Date::Format)
+Requires:  perl(Devel::Cover)
+Requires:  perl(Diff::LibXDiff)
+Requires:  perl(File::Sync) >= 0.10
+Requires:  perl(JSON::XS)
+Requires:  perl(Net::SSLeay)
+Requires:  perl(Socket::MsgHdr)
+Requires:  perl(Test::Simple) > 1
+Requires:  perl(URI)
+Requires:  perl(XML::Parser)
+Requires:  perl(XML::Simple)
+Requires:  perl(YAML::LibYAML)
 Requires:       user(obsrun)
 Requires:       user(obsservicerun)
 # zstd is esp for Arch Linux
@@ -176,7 +161,7 @@ Provides:       obs-source_service = %version
 
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
-%if 0%{?suse_version} >= 1550
+%if 0%{?suse_version} >= 1550 && 0%{?suse_version} < 1600
 Requires:       insserv-compat
 %endif
 
@@ -198,9 +183,9 @@ calculates the need for new build jobs and distributes it.
 Requires(pre):  obs-common
 Requires:       cpio
 Requires:       curl
-Requires:       perl-Compress-Zlib
-Requires:       perl-TimeDate
-Requires:       perl-XML-Parser
+Requires:  perl(Compress::Zlib)
+Requires:  perl(TimeDate)
+Requires:  perl(XML::Parser)
 Requires:       screen
 # for build script
 Requires:       psmisc
@@ -217,7 +202,7 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
 Recommends:     powerpc32
-%if 0%{?suse_version} >= 1550
+%if 0%{?suse_version} >= 1550 && 0%{?suse_version} < 1600
 Requires:       insserv-compat
 %endif
 
@@ -267,6 +252,8 @@ BuildRequires:  curl
 BuildRequires:  netcfg
 # write down dependencies for production
 BuildRequires:  obs-api-testsuite-deps
+BuildConflicts: ruby3.4
+BuildConflicts: ruby3.4-rubygem-gem2rpm
 Requires:       ghostscript-fonts-std
 Requires:       obs-api-deps = %{version}
 Requires:       obs-bundled-gems = %{version}
@@ -424,8 +411,13 @@ find -name .keep -o -name .gitignore | xargs rm -rf
 export DESTDIR=$RPM_BUILD_ROOT
 
 pushd src/api
+%if 0%{suse_version} >= 1600
+# SLFO hack only
+### we most NOT user %_libdir since we are noarch (/usr/lib), but rubgems come a from an arch package
+sed -i 's|bin/rake assets:precompile|BUNDLE_IGNORE_CONFIG=1 BUNDLE_PATH="/usr/lib64/obs-api" GEM_HOME="/usr/lib64/obs-api/ruby/2.7.0" bin/rake assets:precompile|g' Makefile
+%endif
 # configure to the bundled gems
-bundle --local --path %_libdir/obs-api/
+bundle --local --path /usr/lib64/obs-api/
 rm -rf vendor/cache/*
 popd
 
@@ -455,7 +447,8 @@ export DESTDIR=$RPM_BUILD_ROOT
 %endif
 
 export OBS_VERSION="%{version}"
-DESTDIR=%{buildroot} make install FILLUPDIR=%{_fillupdir}
+
+make install FILLUPDIR=%{_fillupdir} DESTDIR=%{buildroot} 
 if [ -f %{_sourcedir}/open-build-service.obsinfo ]; then
     sed -n -e 's/commit: \(.\+\)/\1/p' %{_sourcedir}/open-build-service.obsinfo > %{buildroot}/srv/www/obs/api/last_deploy
 else
@@ -499,6 +492,10 @@ install -m 0644 dist/system-user-obsservicerun.conf %{buildroot}%{_sysusersdir}/
 install -m 0644 dist/system-user-obsapidelayed.conf %{buildroot}%{_sysusersdir}/
 %endif
 
+%if 0%{suse_version} >= 1600
+# SLFO hack only
+echo 'GEM_HOME: "/usr/lib64/obs-api/ruby/2.7.0/gems/"' >> %buildroot/srv/www/obs/api/.bundle/config
+%endif
 
 %check
 %if 0%{?disable_obs_test_suite}
@@ -654,35 +651,38 @@ if [ ! -e %{obs_backend_dir}/build ]; then
 fi
 
 %postun
-%service_del_postun -r obsscheduler.service
-%service_del_postun -r obssrcserver.service
-%service_del_postun -r obsrepserver.service
-%service_del_postun -r obspublisher.service
-%service_del_postun -r obssigner.service
-%service_del_postun -r obsservicedispatch.service
-%service_del_postun -r obsservice.service
-%service_del_postun -r obsdeltastore.service
-%service_del_postun -r obsdispatcher.service
-%service_del_postun -r obsdodup.service
-%service_del_postun -r obsgetbinariesproxy.service
-%service_del_postun -r obswarden.service
-%service_del_postun -r obsnotifyforward.service
-%service_del_postun -r obsredis.service
+%service_del_postun_with_reload obsscheduler.service
+%service_del_postun_with_reload obssrcserver.service
+%service_del_postun_with_reload obsrepserver.service
+%service_del_postun_with_reload obspublisher.service
+%service_del_postun_with_reload obssigner.service
+%service_del_postun_with_reload obsservicedispatch.service
+%service_del_postun_with_reload obssourcepublish.service
+%service_del_postun_with_reload obsservice.service
+%service_del_postun_with_reload obsdeltastore.service
+%service_del_postun_with_reload obsdispatcher.service
+%service_del_postun_with_reload obsdodup.service
+%service_del_postun_with_reload obsgetbinariesproxy.service
+%service_del_postun_with_reload obswarden.service
+%service_del_postun_with_reload obsnotifyforward.service
+%service_del_postun_with_reload obsredis.service
 # cleanup empty directory just in case
 rmdir /srv/obs 2> /dev/null || :
 
 %postun -n obs-common
-%service_del_postun -n obsstoragesetup.service
+# NO restart on purpose for obsstoragesetup
+# This is just run once on boot
+%service_del_postun_without_restart obsstoragesetup.service
 
 %postun -n obs-worker
-# NOT used on purpose: restart_on_update obsworker
+# NO restart on purpose for obsworker
 # This can cause problems when building chroot
 # and bs_worker is anyway updating itself at runtime based on server code
-%service_del_postun -r obsworker.service
+%service_del_postun_without_restart obsworker.service
 
 %postun -n obs-cloud-uploader
-%service_del_postun -r obsclouduploadworker.service
-%service_del_postun -r obsclouduploadserver.service
+%service_del_postun_with_reload obsclouduploadworker.service
+%service_del_postun_with_reload obsclouduploadserver.service
 
 %verifyscript -n obs-server
 %verify_permissions
@@ -705,7 +705,11 @@ fi
 
 %post -n obs-common
 %service_add_post obsstoragesetup.service
+%if 0%{?suse_version} >= 1600
+%{fillup_only -n obs-server}
+%else
 %{fillup_and_insserv -n obs-server}
+%endif
 
 %post -n obs-api
 if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/config/database.yml ]; then
@@ -730,7 +734,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/dat
 touch /srv/www/obs/api/log/production.log
 chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
-%restart_on_update memcached
 %service_add_post %{obs_api_support_scripts}
 # We need to touch the last_deploy file in the post hook
 # to update the timestamp which we use to display the
@@ -754,9 +757,12 @@ if [ -e %{_rundir}/enable_obs-api-support.target ];then
 fi
 
 %postun -n obs-api
+%if 0%{?suse_version} < 1600
 %insserv_cleanup
-%service_del_postun %{obs_api_support_scripts}
-%service_del_postun -r apache2
+%endif
+%service_del_postun_with_restart %{obs_api_support_scripts}
+%service_del_postun_with_reload apache2
+%service_del_postun_with_restart memcached
 
 %files
 %defattr(-,root,root)
@@ -985,6 +991,7 @@ usermod -a -G docker obsservicerun
 %ghost /srv/www/obs/api/log/lastevents.access.log
 %ghost /srv/www/obs/api/log/production.log
 %ghost %attr(0640,root,www) %secret_key_file
+%dir /srv/www
 
 %files -n obs-common
 %defattr(-,root,root)
@@ -993,6 +1000,7 @@ usermod -a -G docker obsservicerun
 %{_unitdir}/obsstoragesetup.service
 /usr/sbin/obsstoragesetup
 /usr/sbin/rcobsstoragesetup
+%dir /etc/cron.d
 
 %files -n obs-utils
 %defattr(-,root,root)
