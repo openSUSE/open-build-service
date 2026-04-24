@@ -89,6 +89,12 @@
                                       label_icon: 'fas fa-arrow-up',
                                       checked: selected_filter[:kind]&.include?('upstream_package_version_changed'),
                                       turbo_stream_counter_id: 'counts_for_upstream_package_version_changed_notifications' }
+        = render partial: 'webui/shared/check_box',
+                          locals: { label: 'Token Membership Updates',
+                                    key: 'kind[token_membership_update]', name: 'kind[]', value: 'token_membership_update',
+                                    label_icon: 'fas fa-key',
+                                    checked: selected_filter[:kind]&.include?('token_membership_update'),
+                                    turbo_stream_counter_id: 'counts_for_token_membership_update_notifications' }
 
     - if policy(Report.new).notify?
       .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change

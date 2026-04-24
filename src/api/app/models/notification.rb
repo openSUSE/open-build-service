@@ -46,6 +46,7 @@ class Notification < ApplicationRecord
   scope :for_requests, -> { where(notifiable_type: 'BsRequest') }
   scope :for_member_on_groups, -> { where(notifiable_type: 'Group') }
   scope :for_upstream_package_version_changed, -> { where(event_type: 'Event::UpstreamPackageVersionChanged') }
+  scope :for_token_membership_update, -> { where(notifiable_type: 'Token::Workflow') }
 
   scope :stale, -> { where(created_at: ...(CONFIG['notifications_lifetime'] ||= 365).days.ago) }
 
