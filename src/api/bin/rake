@@ -1,4 +1,5 @@
-#!/usr/bin/ruby.ruby2.7
+#!/usr/bin/ruby.ruby3.4
+
 # frozen_string_literal: true
 
 #

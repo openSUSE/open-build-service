@@ -128,7 +128,7 @@ Recommends:     lvm2
 Recommends:     openslp-server
 Recommends:     obs-signd
 Recommends:     inst-source-utils
-Recommends:     perl-Diff-LibXDiff
+Recommends:     perl(Diff::LibXDiff)
 %else
 Requires:       dpkg
 Requires:       yum
@@ -241,11 +241,11 @@ Requires:       user(wwwrun)
 # For apache
 Requires:       apache2
 Requires:       apache2-mod_xforward
-Requires:       ruby2.7-rubygem-passenger
+Requires:       rubygem-passenger
 Requires:       rubygem-passenger-apache2
 Conflicts:      memcached < 1.4
 
-Requires:       ruby(abi) = 2.7.0
+Requires:       ruby(abi) = 3.4.0
 # for test suite:
 BuildRequires:  createrepo_c
 BuildRequires:  curl
@@ -414,7 +414,7 @@ pushd src/api
 %if 0%{suse_version} >= 1600
 # SLFO hack only
 ### we most NOT user %_libdir since we are noarch (/usr/lib), but rubgems come a from an arch package
-sed -i 's|bin/rake assets:precompile|BUNDLE_IGNORE_CONFIG=1 BUNDLE_PATH="/usr/lib64/obs-api" GEM_HOME="/usr/lib64/obs-api/ruby/2.7.0" bin/rake assets:precompile|g' Makefile
+sed -i 's|bin/rake assets:precompile|BUNDLE_IGNORE_CONFIG=1 BUNDLE_PATH="/usr/lib64/obs-api" GEM_HOME="/usr/lib64/obs-api/ruby/3.4.0" bin/rake assets:precompile|g' Makefile
 %endif
 # configure to the bundled gems
 bundle --local --path /usr/lib64/obs-api/
@@ -448,7 +448,7 @@ export DESTDIR=$RPM_BUILD_ROOT
 
 export OBS_VERSION="%{version}"
 
-make install FILLUPDIR=%{_fillupdir} DESTDIR=%{buildroot} 
+make install FILLUPDIR=%{_fillupdir} DESTDIR=%{buildroot}
 if [ -f %{_sourcedir}/open-build-service.obsinfo ]; then
     sed -n -e 's/commit: \(.\+\)/\1/p' %{_sourcedir}/open-build-service.obsinfo > %{buildroot}/srv/www/obs/api/last_deploy
 else
@@ -494,7 +494,7 @@ install -m 0644 dist/system-user-obsapidelayed.conf %{buildroot}%{_sysusersdir}/
 
 %if 0%{suse_version} >= 1600
 # SLFO hack only
-echo 'GEM_HOME: "/usr/lib64/obs-api/ruby/2.7.0/gems/"' >> %buildroot/srv/www/obs/api/.bundle/config
+echo 'GEM_HOME: "/usr/lib64/obs-api/ruby/3.4.0/gems/"' >> %buildroot/srv/www/obs/api/.bundle/config
 %endif
 
 %check

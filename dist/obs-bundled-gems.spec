@@ -15,8 +15,14 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-%define rack_version 2.2.22
-%define rake_version 13.0.1
+%if 0%{?suse_version}
+%define __obs_ruby_interpreter /usr/bin/ruby.ruby3.4
+%define rack_version %(%{__obs_ruby_interpreter} -r rack -e "puts Rack::RELEASE")
+%define rake_version %(%{__obs_ruby_interpreter} -r rake -e "puts Rake::VERSION")
+%define ruby_abi_version %(%{__obs_ruby_interpreter} -r rbconfig -e 'print RbConfig::CONFIG["ruby_version"]')
+%else
+%define __obs_ruby_interpreter /usr/bin/ruby
+%endif
 
 Name:           obs-bundled-gems
 Version:        2.10~pre
@@ -34,17 +40,28 @@ BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  glibc-devel
 BuildRequires:  libtool
+BuildRequires:  libffi-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  libxslt-devel
-BuildRequires:  libffi-devel
+BuildRequires:  libyaml-devel
 BuildRequires:  make
 BuildRequires:  mysql-devel
 BuildRequires:  nodejs
+%if 0%{?suse_version}
+BuildRequires:  ruby3.4-devel
 BuildRequires:  openldap2-devel
-BuildRequires:  python3-devel
-BuildRequires:  ruby2.7-devel
-BuildConflicts: ruby3.4-rubygem-gem2rpm
+# For comparing package/bundle versions with make test_rack
+BuildRequires:  rubygem(ruby:3.4.0:rack)
+%else
+BuildRequires:  ruby-devel
+BuildRequires:  rubygem-bundler
+BuildRequires:  openldap-devel
+%endif
 BuildRequires:  chrpath
+# use patched version of the ldap gem from devel:languages:ruby:extensions to make it work with ruby3.4
+BuildRequires:  %{rubygem ruby-ldap}
+Requires: %{rubygem ruby-ldap}
+PreReq: permissions
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
@@ -55,14 +72,24 @@ to make it easier to deploy the obs-server package.
 %package -n obs-api-deps
 Summary:        Holding dependencies required to run the OBS frontend
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version}
 Requires:       build >= 20170315
+%else
+Requires:       obs-build
+%endif
 Requires:       memcached >= 1.4
 Requires:       mysql
 Requires:       obs-bundled-gems = %{version}
 Requires:       sphinx >= 2.1.8
 Requires:       perl(GD)
-Requires:       rubygem(ruby:2.7.0:rack) = %{rack_version}
-
+%if 0%{?suse_version}
+Requires:       rubygem(ruby:3.4.0:rack) = %{rack_version}
+Requires:       rubygem(ruby:3.4.0:rake) = %{rake_version}
+%else
+Requires:       rubygem-bundler
+Requires:       rubygem-rake
+Requires:       rubygem-rack
+%endif
 %description -n obs-api-deps
 To simplify splitting the test suite packages off the main package,
 this package is just a meta package used to run and build obs-api
@@ -73,7 +100,9 @@ this package is just a meta package used to run and build obs-api
 %package -n obs-api-testsuite-deps
 Summary:        Holding dependencies required to run frontend test suites
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version}
 Requires:       inst-source-utils
+%endif
 Requires:       nodejs
 Requires:       obs-api-deps = %{version}
 
@@ -98,30 +127,33 @@ pushd %{_sourcedir}/open-build-service-*/src/api
 export GEM_HOME=~/.gems
 bundle config build.ffi --enable-system-libffi
 bundle config build.nokogiri --use-system-libraries
+bundle config build.sassc --disable-march-tune-native
 bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
 bundle config build.mysql2 --with-cflags='%{optflags} -Wno-return-type'
 bundle config force_ruby_platform true
+bundle config set path %{buildroot}%_libdir/obs-api/
 
-bundle --local --path %{buildroot}%_libdir/obs-api/
+bundle install --local
 popd
 
-# Make sure rake and rack in Gemfile.lock match the versions from the
-# rubygem-rack and ruby2.7 packages
-# otherwise Passenger wont start the app
+%if 0%{?suse_version}
+pushd %{_sourcedir}/open-build-service-*/src/api
+# test that the rack/rake bundle versions are matching the system versions
+make test_rack
+make test_rake
+popd
+%endif
 
-test -f %{buildroot}%_libdir/obs-api/ruby/2.7.0/gems/rack-%{rack_version}/rack.gemspec
-test -f %{buildroot}%_libdir/obs-api/ruby/2.7.0/gems/rake-%{rake_version}/rake.gemspec
-
+pushd %{_sourcedir}/open-build-service-*/dist
 # run gem clean up script
-/usr/lib/rpm/gem_build_cleanup.sh %{buildroot}%_libdir/obs-api/ruby/*/
-
-# work around sassc bug - and install libsass
-sassc_dir=$(ls -1d %{buildroot}%_libdir/obs-api/ruby/2.7.0/gems/sassc-2*)
-install -D -m 755 $sassc_dir/ext/libsass/lib/libsass.so $sassc_dir/lib
-sed -i -e 's,/ext/libsass,,' $sassc_dir/lib/sassc/native.rb
+chmod 755 gem_build_cleanup.sh
+./gem_build_cleanup.sh  %{buildroot}%_libdir/obs-api/ruby/*/
+popd
 
 # Remove sources of extensions, we don't need them
+%if 0%{?suse_version}
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/*/ext/
+%endif
 
 # remove binaries with invalid interpreters
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/diff-lcs-*/bin
@@ -130,28 +162,21 @@ rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/diff-lcs-*/bin
 # and often cause errors / warning in rpmlint
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/*/spec/
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/*/test/
-# we do not verify signing of the gem
-rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/mousetrap-rails-*/gem-public_cert.pem
 
 # remove prebuilt binaries causing broken dependencies
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/selenium-webdriver-*/lib/selenium/webdriver/firefox/native
 
 # remove all gitignore files to fix rpmlint version-control-internal-file
 find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
+find %{buildroot}%_libdir/obs-api -name .cvsignore | xargs rm -rf
 
-# fix interpreter in installed binaries
-for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/* \
-   %{buildroot}%_libdir/obs-api/ruby/*/gems/pry-*/lib/pry/helpers/documentation_helpers.rb \
-   %{buildroot}%_libdir/obs-api/ruby/*/gems/erubis-*/setup.rb \
-  ; do
-  sed -i -e 's,/usr/bin/env ruby$,/usr/bin/ruby.ruby2.7,' $bin
-  sed -i -e 's,/usr/bin/env ruby.ruby2.7,/usr/bin/ruby.ruby2.7,' $bin
+# use the ruby interpreter set by this spec file in all installed ruby scripts
+find %{buildroot}%_libdir/obs-api/ruby/ -type f | while read bin; do
+  # Only attempt to edit if the file is a text file and has a ruby shebang
+  if head -n 1 "$bin" | grep -qE '^#!(.*/bin/ruby|.*/bin/env ruby)'; then
+    sed -i -e "1s|^#!.*ruby.*$|#!%{__obs_ruby_interpreter}|" "$bin"
+  fi
 done
-
-sed -i -e 's,^#!/usr/bin/ruby ,#!/usr/bin/ruby.ruby2.7 ,' \
-  %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/bin/ruby_parse_extract_error \
-  %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/bin/ruby_parse \
-  %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/tools/munge.rb
 
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts
 find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read file; do
@@ -162,7 +187,11 @@ done
 chrpath -d %{buildroot}%_libdir/obs-api/ruby/*/extensions/*/*/mysql2-*/mysql2/mysql2.so || true
 chrpath -d %{buildroot}%_libdir/obs-api/ruby/*/gems/mysql2-*/lib/mysql2/mysql2.so || true
 
+# fix E: permissions-world-writable for gemspec files
+chmod 0644 %{buildroot}%_libdir/obs-api/ruby/*/specifications/*.gemspec || true
+
 %files
+%defattr(-,root,root,755)
 %_libdir/obs-api
 
 %changelog
