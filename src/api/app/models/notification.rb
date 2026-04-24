@@ -1,6 +1,4 @@
 class Notification < ApplicationRecord
-  include NotificationFilterable
-
   MAX_RSS_ITEMS_PER_USER = 10
   MAX_RSS_ITEMS_PER_GROUP = 10
   THRESHOLD_TO_RECOMMEND_NOTIFICATION_MANAGEMENT = 300
@@ -47,6 +45,9 @@ class Notification < ApplicationRecord
   scope :for_member_on_groups, -> { where(notifiable_type: 'Group') }
   scope :for_upstream_package_version_changed, -> { where(event_type: 'Event::UpstreamPackageVersionChanged') }
 
+  scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
+  scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
+  scope :for_request_state, ->(request_state) { joins(:bs_request).where(bs_request: { state: request_state }) }
   scope :stale, -> { where(created_at: ...(CONFIG['notifications_lifetime'] ||= 365).days.ago) }
 
   paginates_per 30
