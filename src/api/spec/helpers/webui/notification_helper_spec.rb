@@ -59,6 +59,36 @@ RSpec.describe Webui::NotificationHelper do
   end
 
   describe '#description' do
+    context 'when the notification is about a build failure' do
+      let(:package) { create(:package) }
+      let(:notification) do
+        create(
+          :notification_for_package,
+          :build_failure,
+          notifiable: package,
+          event_payload: {
+            project: 'OBS:Server:Unstable',
+            package: 'obs-server',
+            repository: 'openSUSE_Factory_zSystems',
+            arch: 's390x',
+            reason: 'source change'
+          }
+        )
+      end
+
+      it 'contains the package detail' do
+        expect(description(notification)).to include('Package: OBS:Server:Unstable / obs-server')
+      end
+
+      it 'contains the repository detail' do
+        expect(description(notification)).to include('Repository: openSUSE_Factory_zSystems / s390x')
+      end
+
+      it 'contains the reason detail' do
+        expect(description(notification)).to include('Build Reason: source change')
+      end
+    end
+
     context 'when the notification is about a report for user' do
       let(:spammer) { create(:confirmed_user, login: 'trouble_maker') }
       let(:report_for_user) { create(:report, reportable: spammer, reason: 'This is a spammer!') }
