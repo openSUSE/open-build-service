@@ -7,14 +7,21 @@ module Event
     receiver_roles :admin_moderator_or_staff
 
     def admin_moderator_or_staffs
-      case payload['role']
-      when 'Admin'
-        User.admins
-      when 'Moderator'
-        User.moderators.or(User.admins).uniq
-      when 'Staff'
-        User.staff.or(User.admins).uniq
-      end
+      users = case payload['role']
+              when 'Admin'
+                User.admins
+              when 'Staff'
+                User.admins.or(User.staff)
+              when 'Moderator'
+                User.admins.or(User.moderators)
+              end
+      users.where.not(login: payload['who']).uniq if users
+    end
+
+    def parameters_for_notification
+      super.merge({ notifiable_type: 'User',
+                    notifiable_id: ::User.find_by(login: payload['user']).id,
+                    type: 'NotificationUser' })
     end
   end
 end

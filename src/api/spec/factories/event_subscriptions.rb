@@ -165,5 +165,13 @@ FactoryBot.define do
       user
       group { nil }
     end
+
+    factory :event_subscription_global_role_assigned do
+      eventtype { 'Event::GlobalRoleAssigned' }
+      receiver_role { 'admin_moderator_or_staff' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
   end
 end
