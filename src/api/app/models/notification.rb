@@ -50,6 +50,7 @@ class Notification < ApplicationRecord
   scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
   scope :for_request_state, ->(request_state) { joins(:bs_request).where(bs_request: { state: request_state }) }
   scope :stale, -> { where(created_at: ...(CONFIG['notifications_lifetime'] ||= 365).days.ago) }
+  scope :for_important_roles_added, -> { where(notifiable_type: 'User') }
 
   paginates_per 30
   max_paginates_per 300

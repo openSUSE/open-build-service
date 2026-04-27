@@ -22,6 +22,7 @@ module Webui::NotificationsFilter
     relations_kind << notifications.for_member_on_groups if filter_kind.include?('member_on_groups')
     relations_kind << notifications.for_upstream_package_version_changed if filter_kind.include?('upstream_package_version_changed')
     relations_kind << notifications.for_token_membership_update if filter_kind.include?('token_membership_update')
+    relations_kind << notifications.for_important_roles_added if filter_kind.include?('important_roles_added')
 
     notifications = notifications.merge(relations_kind.inject(:or)) unless relations_kind.empty?
     notifications

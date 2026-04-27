@@ -2,7 +2,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   include Webui::NotificationsFilter
 
   ALLOWED_FILTERS = %w[all comments requests incoming_requests outgoing_requests relationships_created relationships_deleted build_failures
-                       reports reviews workflow_runs appealed_decisions decisions member_on_groups upstream_package_version_changed token_membership_update].freeze
+                       reports reviews workflow_runs appealed_decisions decisions member_on_groups upstream_package_version_changed token_membership_update
+                       important_roles_added].freeze
   ALLOWED_STATES = %w[all unread read].freeze
   ALLOWED_REPORT_FILTERS = %w[with_decision without_decision reportable_type].freeze
 
@@ -21,7 +22,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     'decisions' => 'Decision',
     'comments' => 'Comment',
     'requests' => 'BsRequest',
-    'member_on_groups' => 'Group'
+    'member_on_groups' => 'Group',
+    'important_roles_added' => 'User'
   }.freeze
 
   before_action :require_login
