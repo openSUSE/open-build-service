@@ -569,7 +569,7 @@ GEM
     thor (1.5.0)
     tilt (2.7.0)
     timeout (0.6.1)
-    toml-rb (4.1.0)
+    toml-rb (4.2.0)
       citrus (~> 3.0, > 3.0)
       racc (~> 1.7)
     tsort (0.2.0)
