@@ -1,0 +1,11 @@
+%p
+  - token_description = Token::Workflow.find(event['token_id']).description
+  - recipient = event['user_login'].present? ? 'you' : "group '#{event['group_title']}'"
+  The user #{event['who']}
+  - if event['action'] == 'share'
+    shared token '#{token_description}' with #{recipient}.
+  - else
+    removed #{recipient} from token '#{token_description}'.
+- if event['action'] == 'share'
+  %p
+    = link_to("View Token '#{token_description}'", token_url(event['token_id'], only_path: false, host: @host))
