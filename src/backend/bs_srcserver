@@ -1668,6 +1668,10 @@ sub getprojpack {
 	# a buildinfo query
 	my $mb = BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, $cgi->{'ignoredisable'} ? 0 : 1);
 	unshift @packages, map {"$packid:$_"} @{$mb->{'flavor'} || $mb->{'package'} || []} if $mb;
+	if ($mb && defined($mb->{'buildemptyflavor'}) && $mb->{'buildemptyflavor'} eq 'false') {
+	  $pinfo->{'error'} = 'excluded';
+	  next;
+	}
 
 	if ($packid eq '_pattern') {
 	  $jinfo->{'patternmd5'} = $pinfo->{'srcmd5'};

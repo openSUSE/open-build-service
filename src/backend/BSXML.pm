@@ -2121,6 +2121,7 @@ our $publishedpath = [
 
 our $multibuild = [
     'multibuild' =>
+	'buildemptyflavor',
       [ 'package' ],	# obsolete
       [ 'flavor' ],
 ];
