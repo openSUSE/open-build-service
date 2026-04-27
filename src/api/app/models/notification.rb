@@ -44,6 +44,7 @@ class Notification < ApplicationRecord
   scope :for_requests, -> { where(notifiable_type: 'BsRequest') }
   scope :for_member_on_groups, -> { where(notifiable_type: 'Group') }
   scope :for_upstream_package_version_changed, -> { where(event_type: 'Event::UpstreamPackageVersionChanged') }
+  scope :for_token_membership_update, -> { where(notifiable_type: 'Token::Workflow') }
 
   scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
   scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
