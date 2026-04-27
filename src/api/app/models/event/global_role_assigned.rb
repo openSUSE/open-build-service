@@ -23,5 +23,9 @@ module Event
                     notifiable_id: ::User.find_by(login: payload['user']).id,
                     type: 'NotificationUser' })
     end
+
+    def subject
+      "#{payload['role']} role assigned to #{payload['user']}"
+    end
   end
 end

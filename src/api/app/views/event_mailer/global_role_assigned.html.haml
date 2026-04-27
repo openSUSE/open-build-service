@@ -1,0 +1,4 @@
+= link_to(event['who'], user_url(event['who'], only_path: false, host: @host))
+has assigned
+= "'#{event['role']}' role to"
+= link_to(event['user'], user_url(event['user'], only_path: false, host: @host))
