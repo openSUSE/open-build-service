@@ -4,6 +4,7 @@
 BASE_DIR=$PWD
 TEMP_DIR=$BASE_DIR/tmp
 MYSQL_BASEDIR=$TEMP_DIR/mysql/
+MYSQL_FILES_DIR=$TEMP_DIR/mysql-files/
 MYSQL_DATADIR=$MYSQL_BASEDIR/data
 MYSQL_EXTRA_CONF=$TEMP_DIR/my.cnf.add
 MYSQL_SOCKET_DIR=`mktemp -d`
@@ -34,10 +35,10 @@ EOF
 ### do testing now
 
 rm -rf $MYSQL_DATADIR $MYSQL_SOCKET
-mkdir -p $MYSQL_BASEDIR
-chown -R $MYSQLD_USER $MYSQL_BASEDIR
-mysql_install_db --user=$MYSQLD_USER --datadir=$MYSQL_DATADIR --auth-root-authentication-method=socket --auth-root-socket-user=$MYSQLD_USER --defaults-extra-file=$MYSQL_EXTRA_CONF
-$MYSQL_SERVER --defaults-extra-file=$MYSQL_EXTRA_CONF --user=$MYSQLD_USER --datadir=$MYSQL_DATADIR --skip-networking --socket=$MYSQL_SOCKET --pid-file=$TEMP_DIR/mysqld.pid &
+mkdir -p $MYSQL_BASEDIR $MYSQL_FILES_DIR
+chown -R $MYSQLD_USER $MYSQL_BASEDIR $MYSQL_FILES_DIR
+mysql_install_db --user=$MYSQLD_USER --datadir=$MYSQL_DATADIR --auth-root-authentication-method=socket --auth-root-socket-user=$MYSQLD_USER --no-defaults
+$MYSQL_SERVER --defaults-extra-file=$MYSQL_EXTRA_CONF --user=$MYSQLD_USER --datadir=$MYSQL_DATADIR --skip-networking --socket=$MYSQL_SOCKET --pid-file=$TEMP_DIR/mysqld.pid --secure-file-priv=$MYSQL_FILES_DIR &
 sleep 2
 ##################### api
 
