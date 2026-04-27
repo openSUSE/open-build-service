@@ -26,6 +26,7 @@ use strict;
 
 use BSConfiguration;
 use BSUtil;
+use BSFileQueue;
 
 require BSSrcServer::SQLite if $BSConfig::source_db_sqlite;
 
@@ -36,15 +37,9 @@ sub addredisjob {
   my (@job) = @_;
   $job[3] = '' if @job > 3 && !defined($job[3]);
   $job[4] = '' if @job > 4 && !defined($job[4]);
-  s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @job;
-  my $job = join('|', @job)."\n";
-  my $file;
   mkdir_p($redisdir) unless -d $redisdir;
-  BSUtil::lockopen($file, '>>', "$redisdir/queue");
-  my $oldlen = -s $file;
-  (syswrite($file, $job) || 0) == length($job) || die("redisdir/queue: $!\n");
-  close($file);
-  BSUtil::ping("$redisdir/.ping") unless $oldlen;
+  my $needping = BSFileQueue::add("$redisdir/queue", @job);
+  BSUtil::ping("$redisdir/.ping") if $needping;
 }
 
 sub generate_scmsyncinfo {

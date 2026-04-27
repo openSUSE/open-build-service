@@ -47,6 +47,7 @@ use BSHTTP;
 use BSServer;
 use BSUtil;
 use BSFileDB;
+use BSFileQueue;
 use BSXML;
 use BSProductXML;
 use BSVerify;
@@ -7363,16 +7364,8 @@ sub add_redis_notifications {
   my ($payload) = @_;
   my $redisdir = "$eventdir/redis";
   mkdir_p($redisdir) unless -d $redisdir;
-  my $fd;
-  BSUtil::lockopen($fd, '>>', "$redisdir/queue");
-  my $oldsize = -s $fd;
-  for my $d (@$payload) {
-    s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @$d;
-    my $line = join('|', @$d)."\n";
-    (syswrite($fd, $line) || 0) == length($line) || die("syswrite: $!\n");
-  }
-  close($fd);
-  BSUtil::ping("$redisdir/.ping") unless $oldsize > 0;
+  my $needping = BSFileQueue::add("$redisdir/queue", @$payload);
+  BSUtil::ping("$redisdir/.ping") if $needping;
 }
 
 sub external_notification_redis_dispatch {
