@@ -7479,7 +7479,10 @@ sub external_notification_sourcepublish {
 
     my $evname = "${projid}::${packid}::${md5}";
     my $ev = { 'type' => "sourcepublish", 'project' => $projid, 'package' => $packid, 'srcmd5' => $md5 };
-    $ev->{'included'} = \@included if @included;
+    if (@included) {
+      $ev->{'included'} = \@included;
+      $evname .= "::".Digest::MD5::md5_hex(BSUtil::tostorable(\@included));
+    }
     writexml("$sourcepublishdir/.$evname$$", "$sourcepublishdir/$evname", $ev, $BSXML::event);
   }
   BSUtil::ping("$sourcepublishdir/.ping");
