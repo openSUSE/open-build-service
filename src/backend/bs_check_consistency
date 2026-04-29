@@ -594,7 +594,8 @@ if (-d "$buildroot" && $check_build) {
 		  }
 		} elsif (-d "$pra/$prap") {
 		  if ($prap eq ":logfiles.fail"
-			|| $prap eq ":logfiles.success") {
+			|| $prap eq ":logfiles.success"
+			|| $prap eq ":reproduciblecheck.fail") {
 			# fine, probably no need to check
 		  } elsif ($prap eq ":meta") {
 		    next unless $do_check_meta;

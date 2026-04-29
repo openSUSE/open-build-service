@@ -15,6 +15,7 @@ reproduciblecheck
 %build
 cd %_sourcedir
 odir="%_topdir/OTHER"
+resultfile="$odir/reproduciblecheck.log"
 mkdir -p "$odir"
 
 mkdir -p a b
@@ -27,6 +28,7 @@ for f in b_* ; do
   test -e "$f" && cp -a "$f" "b/${f#b_}"
   test -e "$f" && mv "$f" "$odir/${f#b_}"
 done
+rm -f "$resultfile"
 
 fail=
 for f in a/* ; do
@@ -34,15 +36,18 @@ for f in a/* ; do
   f="${f#a/}"
   if ! test -e "b/$f" ; then
     echo "$f: missing in directory 'b'"
+    echo "MISS $f" >> "$resultfile"
     fail=1
   else
     test "$f" = "${f%.rpm}" || rpm --delsign "a/$f"
     test "$f" = "${f%.rpm}" || rpm --delsign "b/$f"
     if ! cmp -s "a/$f" "b/$f" ; then
       echo "$f: not identical"
+      echo "FAIL $f" >> "$resultfile"
       fail=1
     else
       echo "$f: ok"
+      echo "PASS $f" >> "$resultfile"
     fi
   fi
 done
@@ -53,16 +58,20 @@ for f in b/* ; do
   f="${f#b/}"
   if ! test -e "a/$f" ; then
     echo "$f: missing in directory 'a'"
+    echo "MISS $f" >> "$resultfile"
     fail=1
   fi
 done
 
 echo
+echo >> "$resultfile"
 if test -z "$fail" ; then
-  echo "Result: OK"
-  echo "----------"
+  echo "Result: PASS" >> "$resultfile"
+  echo "result: PASS"
+  echo "------------"
 else
-  echo "Result: FAIL"
+  echo "Result: FAIL" >> "$resultfile"
+  echo "result: FAIL"
   echo "------------"
 fi
 
