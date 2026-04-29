@@ -35,6 +35,13 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
       end
     end
 
+    updates = step_instructions.slice(:rebuild, :linkedbuild).compact
+    if updates.any?
+      target_project.repositories.each do |repo|
+        repo.update!(updates)
+      end
+    end
+
     # We have to store the changes on the backend
     target_project.store(comment: "Added the following repositories to the project: #{step_instructions[:repositories].pluck(:name).compact.to_sentence}",
                          login: @token.executor.login)
