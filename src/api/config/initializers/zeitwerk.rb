@@ -1,9 +1,11 @@
 Rails.autoloaders.each do |autoloader|
   autoloader.inflector = Zeitwerk::Inflector.new
   autoloader.inflector.inflect(
+    'api_error' => 'APIError',
     'api_matcher' => 'APIMatcher',
     'cve_parser' => 'CVEParser',
     'gitea_api' => 'GiteaAPI',
+    'haml-lint' => 'HamlLint',
     'meta_xml_validator' => 'MetaXMLValidator',
     'obs_quality_categories_finder' => 'OBSQualityCategoriesFinder',
     'opensuse_upstream_tarball_url_finder' => 'OpenSUSEUpstreamTarballURLFinder',

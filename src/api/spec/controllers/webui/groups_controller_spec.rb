@@ -154,9 +154,13 @@ RSpec.describe Webui::GroupsController do
       context 'when the email is empty' do
         let(:email) { nil }
 
-        it 'updates the email' do
+        it 'updates the email' do # rubocop:disable RSpec/ExampleLength
           expect(flash[:success]).to eq('Group email successfully updated')
-          expect(group.reload.email).to be_empty
+          if NextRails.next?
+            expect(group.reload.email).to be_nil
+          else
+            expect(group.reload.email).to be_empty
+          end
         end
       end
 

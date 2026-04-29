@@ -15,6 +15,8 @@ abort('The Rails environment is running in production mode!') if Rails.env.produ
 require 'rspec/rails'
 # for pundit policy
 require 'pundit/rspec'
+# for NextRails
+require 'next_rails'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here.

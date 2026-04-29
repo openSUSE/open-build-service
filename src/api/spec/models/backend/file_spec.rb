@@ -254,7 +254,12 @@ RSpec.describe Backend::File, :vcr do
 
     it { expect(Backend::File.query_from_list({})).to be_empty }
     it { expect(Backend::File.query_from_list(hash)).to eq('?a=1&b=2') }
-    it { expect(Backend::File.query_from_list(hash_with_nil_values)).to eq('?a=1&b=2&c=&d=6') }
+
+    if NextRails.next?
+      it { expect(Backend::File.query_from_list(hash_with_nil_values)).to eq('?a=1&b=2&c&d=6') }
+    else
+      it { expect(Backend::File.query_from_list(hash_with_nil_values)).to eq('?a=1&b=2&c=&d=6') }
+    end
     it { expect(Backend::File.query_from_list(hash, key_list)).to eq('?a=1') }
   end
 end
