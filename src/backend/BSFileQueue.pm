@@ -30,17 +30,25 @@ use Fcntl qw(:DEFAULT :flock);
 
 use BSUtil;
 
-sub add {
-  my ($fn, @r) = @_;
-  die unless $r[0];
-  s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @r;
-  my $line = join('|', @r)."\n";
+sub add_multiple {
+  my ($fn, @mr) = @_;
   my $fd;
   BSUtil::lockopen($fd, '>>', $fn);
   my $oldlen = -s $fd;
-  (syswrite($fd, $line) || 0) == length($line) || die("syswrite $fn: $!\n");
+  while (@mr) {
+    my @r = @{shift @mr};
+    die unless $r[0];
+    s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @r;
+    my $line = join('|', @r)."\n";
+    (syswrite($fd, $line) || 0) == length($line) || die("syswrite $fn: $!\n");
+  }
   close($fd);
   return $oldlen ? 0 : 1;
+}
+
+sub add {
+  my ($fn, @r) = @_;
+  return add_multiple($fn, \@r);
 }
 
 sub openqueue {
