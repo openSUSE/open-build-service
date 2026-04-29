@@ -317,6 +317,23 @@ sub jobfinished {
   # write meta file
   my $meta = "$jobdatadir/meta";
   writestr($meta, undef, "$reprojobid  $packid\n");
+
+  my $checkresult;
+  my $checklog = "$jobdatadir/reproduciblecheck.log";
+  if (-e $checklog) {
+    my $fd;
+    my $log = "\n";
+    if (open($fd, '<', $checklog)) {
+      sysseek($fd, -4096, 2);
+      sysread($fd, $log, 4096, 1);
+      close($fd);
+    }
+    $checkresult = $1 if $log =~ /\nResult:\s+(\S+)/;
+  }
+  if (!defined($checkresult)) {
+    BSUtil::appendstr("$jobdatadir/logfile", "\ncould not parse reproduciblecheck.log\n");
+    $code = 'failed';
+  }
   
   # update packstatus so that it doesn't fall back to scheduled
   BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, $code, $job);
@@ -344,6 +361,16 @@ sub jobfinished {
 
   my $jobhist = BSSched::BuildJob::makejobhist($info, $status, $js, 'succeeded');
   BSSched::BuildJob::addbuildstats($jobdatadir, $dst, $jobhist) if -e "$jobdatadir/_statistics";
+
+  # save reproduciblecheck.log if not PASS
+  if (uc($checkresult) ne 'PASS') {
+    mkdir_p("$gdst/:reproduciblecheck.fail");
+    unlink("$jobdatadir/reproduciblecheck.dup");
+    link("$jobdatadir/reproduciblecheck.log", "$jobdatadir/reproduciblecheck.dup");
+    rename("$jobdatadir/reproduciblecheck.dup", "$gdst/:reproduciblecheck.fail/$packid");
+  } else {
+    unlink("$gdst/:reproduciblecheck.fail/$packid");
+  }
 
   # update build result directory and full tree
   my $dstcache = $ectx->{'dstcache'};
