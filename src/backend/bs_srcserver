@@ -7364,7 +7364,7 @@ sub add_redis_notifications {
   my ($payload) = @_;
   my $redisdir = "$eventdir/redis";
   mkdir_p($redisdir) unless -d $redisdir;
-  my $needping = BSFileQueue::add("$redisdir/queue", @$payload);
+  my $needping = BSFileQueue::add_multiple("$redisdir/queue", @$payload);
   BSUtil::ping("$redisdir/.ping") if $needping;
 }
 
