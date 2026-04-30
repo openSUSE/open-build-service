@@ -319,27 +319,29 @@ sub jobfinished {
   writestr($meta, undef, "$reprojobid  $packid\n");
 
   my $checkresult;
-  my $checklog = "$jobdatadir/reproduciblecheck.log";
-  if (-e $checklog) {
-    my $fd;
-    my $log = "\n";
-    if (open($fd, '<', $checklog)) {
-      sysseek($fd, -4096, 2);
-      sysread($fd, $log, 4096, 1);
-      close($fd);
+  if ($code eq 'succeeded') {
+    my $checklog = "$jobdatadir/reproduciblecheck.log";
+    if (-e $checklog) {
+      my $fd;
+      my $log = "\n";
+      if (open($fd, '<', $checklog)) {
+	sysseek($fd, -4096, 2);
+	sysread($fd, $log, 4096, 1);
+	close($fd);
+      }
+      $checkresult = uc($1) if $log =~ /\nResult:\s+(\S+)/;
     }
-    $checkresult = $1 if $log =~ /\nResult:\s+(\S+)/;
-  }
-  if (!defined($checkresult)) {
-    BSUtil::appendstr("$jobdatadir/logfile", "\ncould not parse reproduciblecheck.log\n");
-    $code = 'failed';
+    if (!defined($checkresult)) {
+      BSUtil::appendstr("$jobdatadir/logfile", "\nERROR: could not parse reproduciblecheck.log\n");
+      $code = 'failed';
+    }
   }
   
   # update packstatus so that it doesn't fall back to scheduled
   BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, $code, $job);
   $info->{'packstatus_patched'} = 1; 
 
-  if ($code eq 'failed') {
+  if ($code ne 'succeeded') {
     print "  - $job: build failed\n";
     link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
     rename("$jobdatadir/logfile", "$dst/logfile");
@@ -363,7 +365,7 @@ sub jobfinished {
   BSSched::BuildJob::addbuildstats($jobdatadir, $dst, $jobhist) if -e "$jobdatadir/_statistics";
 
   # save reproduciblecheck.log if not PASS
-  if (uc($checkresult) ne 'PASS') {
+  if ($checkresult ne 'PASS') {
     mkdir_p("$gdst/:reproduciblecheck.fail");
     unlink("$jobdatadir/reproduciblecheck.dup");
     link("$jobdatadir/reproduciblecheck.log", "$jobdatadir/reproduciblecheck.dup");
