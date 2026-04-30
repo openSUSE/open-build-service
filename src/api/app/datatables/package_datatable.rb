@@ -86,8 +86,9 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
     return nil unless labels.any?
 
     list = labels.map do |label|
-      tag.a(href: '#', class: 'label-filter mb-1', data: { label: label.name, label_id: label.id }) do
-        tag.span(label.name, class: "badge label-#{label.id}")
+      label_template = label.label_template
+      tag.a(href: '#', class: 'label-filter mb-1', data: { label: label_template.name, label_id: label_template.id }) do
+        tag.span(label_template.name, class: "badge label-#{label_template.id}")
       end
     end
     safe_join(list, ' ')
