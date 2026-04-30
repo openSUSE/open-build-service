@@ -217,7 +217,8 @@ class Webui::WebuiController < ActionController::Base
       anonymous: !User.session,
       spider: @spider_bot,
       interconnect: false,
-      interface: :webui
+      interface: :webui,
+      host: request.headers['Host'] || :unknown
     }
     if in_beta
       Flipper.preload_all.map(&:name).each do |feature_name|
