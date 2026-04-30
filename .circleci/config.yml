@@ -3,8 +3,6 @@ version: 2.0
 images:
   - &common_frontend_config
     user: frontend
-    environment:
-      NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
 
   - &mariadb
     image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/mariadb:210
@@ -33,7 +31,12 @@ aliases:
   - &install_dependencies
     name: install dependencies
     command: |
-      cd ./src/api && bundle install --jobs=4 --retry=3
+      cd ./src/api
+      bundle config build.ffi --enable-system-libffi
+      bundle config build.nokogiri --use-system-libraries
+      bundle config build.nio4r --with-cflags='-Wno-return-type'
+      bundle config build.mysql2 --with-cflags='-Wno-return-type'
+      bundle install --jobs=4 --retry=3
 
   - &wait_for_database
     name: Wait for DB
