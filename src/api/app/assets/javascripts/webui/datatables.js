@@ -48,6 +48,7 @@ function initializeRemoteDatatable(cssSelector, params) {
 function labelFiltering() {
   var table = $('#packages-table').DataTable();
   var labelColumn = table.column('labels:name');
+  var labelClear = $('#label-clear');
   var labelFilter = $('#label-filter');
   var labelFilterBadge = $('#label-filter .badge');
   $('.obs-dataTable').parent().on('click', '.label-filter', function(e) {
@@ -56,6 +57,7 @@ function labelFiltering() {
     var label = e.target.parentElement.dataset.label;
     var labelId = e.target.parentElement.dataset.labelId;
     labelFilter.addClass('d-none');
+    labelClear.addClass('d-none');
 
     if (label === labelColumn.search())
       labelColumn.search('').draw();
@@ -64,6 +66,7 @@ function labelFiltering() {
 
     if (labelColumn.search() !== '') {
       labelFilter.removeClass('d-none');
+      labelClear.removeClass('d-none');
       labelFilterBadge.removeClass();
       labelFilterBadge.addClass(['badge', `label-${labelId}`]);
       labelFilterBadge.html(label);
