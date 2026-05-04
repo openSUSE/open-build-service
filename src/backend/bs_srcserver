@@ -4548,6 +4548,7 @@ sub getresult {
   push @args, 'withstats' if $view{'stats'};
   push @args, 'withinfo' if $view{'info'};
   push @args, 'withversrel' if $view{'versrel'};
+  push @args, 'withreproduciblecheck' if $view{'reproduciblecheck'};
   push @args, 'summary' if $view{'summary'} && !$view{'status'};
   eval {
     $ps = BSWatcher::rpc("$reposerver/_result", $BSXML::resultlist, @args);
@@ -4564,6 +4565,11 @@ sub getresult {
       my %sum;
       for my $pp (@{$p->{'status'} || []}) {
         $sum{$pp->{'code'}}++ if $pp->{'code'};
+      }
+      if ($view{'reproduciblecheck'}) {
+	for my $pp (grep {$_->{'reproduciblecheck'}} @{$p->{'status'} || []}) {
+          $sum{'reproduciblecheck_failed'}++ if $pp->{'reproduciblecheck'} eq 'failed';
+	}
       }
       my @sum = grep {exists $sum{$_}} @order;
       push @sum, grep {!$order{$_}} sort keys %sum;

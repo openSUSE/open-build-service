@@ -3052,6 +3052,8 @@ sub getresult {
     }
     $state .= "$schedulerstate\0\0";
     fixpackstatus($prpa, $ps, \%buildingjobs, %code ? \%code : undef) unless $cgi->{'lastbuild'};
+    my $reprocheck_failed;
+    my $withreproduciblecheck = $cgi->{'withreproduciblecheck'} && $repoid =~ /._reproduciblecheck$/ ? 1 : 0;
     for my $packid (sort(keys %{$ps->{'packstatus'} || {}})) {
       my $code = $ps->{'packstatus'}->{$packid};
       if ($cgi->{'lastbuild'}) {
@@ -3075,6 +3077,20 @@ sub getresult {
 	  $s->{'versrel'} = $history->{'versrel'} if $history->{'versrel'};
         }
         push @{$sl->{'status'}}, $s;
+      }
+      if ($withreproduciblecheck) {
+	my $reprocode;
+	if ($code eq 'succeeded') {
+	  $reprocheck_failed ||= { map {$_ => 1} ls("$reporoot/$prpa/:reproduciblecheck.failed") };
+	  $reprocode = $reprocheck_failed->{$packid} ? 'failed' : 'succeeded';
+	}
+	if ($reprocode) {
+	  if ($cgi->{'summary'}) {
+	    $sum{'repoduciblecheck_failed'}++ if $reprocode eq 'failed';
+	  } else {
+	    $sl->{'status'}->{'reproduciblecheck'} = $reprocode;
+	  }
+	}
       }
       if ($cgi->{'withbinarylist'}) {
 	my @b;
@@ -4725,7 +4741,7 @@ my $dispatches = [
   'PUT:/configuration' => \&putconfiguration,
   '/configuration' => \&getconfiguration,
 
-  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? withinfo:bool? summary:bool? withversrel:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? withinfo:bool? withreproduciblecheck:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/_jobhistory $prpa+ package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory_project,
   'POST:/_command $cmd: $prpa+ package* code:* lastbuild:bool? sysrq:? allarch:bool?' => \&docommand,
 
@@ -4740,7 +4756,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? nosource:bool? module* withccache:bool?' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? withfilelist:bool? module*' => \&getbinary,
-  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? withinfo:bool? summary:bool? withversrel:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? withinfo:bool? withreproduciblecheck:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? now:num? module* withannotation:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module* withevr:bool?' => \&getbinaryversions,
 ];
