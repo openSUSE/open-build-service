@@ -75,7 +75,7 @@ RSpec.describe 'Projects', :js, :vcr do
       desktop? ? click_link('Create Subproject') : click_menu_link('Actions', 'Create Subproject')
       fill_in 'project_name', with: 'coolstuff'
       click_button('Accept')
-      expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
+      expect(page).to have_text("Project '#{user.home_project_name}:coolstuff' was created successfully")
 
       expect(page).to have_current_path(project_show_path(project: "#{user.home_project_name}:coolstuff"))
       expect(find_by_id('project-title').text).to start_with("#{user.home_project_name}:coolstuff")
@@ -95,7 +95,7 @@ RSpec.describe 'Projects', :js, :vcr do
       desktop? ? click_link('Unlock Project') : click_menu_link('Actions', 'Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Accept')
-      expect(page).to have_content('Successfully unlocked project')
+      expect(page).to have_text('Successfully unlocked project')
 
       visit project_show_path(project: locked_project.name)
       expect(page).to have_text(locked_project.name)
@@ -108,7 +108,7 @@ RSpec.describe 'Projects', :js, :vcr do
       desktop? ? click_link('Unlock Project') : click_menu_link('Actions', 'Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Accept')
-      expect(page).to have_content("Project can't be unlocked")
+      expect(page).to have_text("Project can't be unlocked")
 
       visit project_show_path(project: locked_project.name)
       expect(page).to have_text('is locked')

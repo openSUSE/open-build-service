@@ -26,7 +26,7 @@ RSpec.describe "User's admin edit page", :js, :vcr do
     check('Admin')
     click_button('Update')
 
-    expect(page).to have_content('successfully updated')
+    expect(page).to have_text('successfully updated')
     expect(user).to be_admin
   end
 
@@ -35,7 +35,7 @@ RSpec.describe "User's admin edit page", :js, :vcr do
     uncheck('Admin')
     click_button('Update')
 
-    expect(page).to have_content('Requires admin privileges')
+    expect(page).to have_text('Requires admin privileges')
     expect(admin).not_to be_admin
   end
 end

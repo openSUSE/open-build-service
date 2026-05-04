@@ -22,7 +22,7 @@ RSpec.describe 'Groups', :js do
       group_in_datatable(page, group)
     end
 
-    expect(page).to have_content('1 of 1 (2 records)')
+    expect(page).to have_text('1 of 1 (2 records)')
   end
 
   it 'visit group show page' do
@@ -30,9 +30,9 @@ RSpec.describe 'Groups', :js do
 
     # TODO: Remove this line if the dropdown is changed to a scrollable tab
     find('.nav-link.dropdown-toggle').click if mobile?
-    expect(page).to have_content('Incoming Reviews')
-    expect(page).to have_content('Incoming Requests')
-    expect(page).to have_content('All Requests')
+    expect(page).to have_text('Incoming Reviews')
+    expect(page).to have_text('Incoming Requests')
+    expect(page).to have_text('All Requests')
     find_by_id('group-members-tab').click
 
     expect(page).to have_link('Add Member')
@@ -51,7 +51,7 @@ RSpec.describe 'Groups', :js do
 
     click_button('Create')
 
-    expect(page).to have_content("Group '#{new_group_title}' successfully created.")
+    expect(page).to have_text("Group '#{new_group_title}' successfully created.")
     group_in_datatable(page, Group.find_by(title: new_group_title))
     expect(Group.where(title: new_group_title)).to exist
   end
@@ -64,7 +64,7 @@ RSpec.describe 'Groups', :js do
     end
     click_button('Remove')
 
-    expect(page).to have_content("Removed user '#{admin}' from group '#{group1}'")
+    expect(page).to have_text("Removed user '#{admin}' from group '#{group1}'")
     expect(group1.reload.users.pluck(:login)).to contain_exactly(user1.login)
   end
 
@@ -75,7 +75,7 @@ RSpec.describe 'Groups', :js do
       check('Maintainer')
     end
 
-    expect(page).to have_content("Gave maintainer rights to '#{admin}'")
+    expect(page).to have_text("Gave maintainer rights to '#{admin}'")
   end
 
   it 'add a group member' do
@@ -87,7 +87,7 @@ RSpec.describe 'Groups', :js do
     end
     click_button('Accept')
 
-    expect(page).to have_content("Added user '#{admin}' to group '#{group2}'")
+    expect(page).to have_text("Added user '#{admin}' to group '#{group2}'")
     expect(group2.users.pluck(:login)).to contain_exactly(admin.login)
 
     visit groups_path

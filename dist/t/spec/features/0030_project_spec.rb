@@ -15,7 +15,7 @@ RSpec.describe 'Project', type: :feature do
       click_link('Create Your Home Project')
     end
     click_button('Accept')
-    expect(page).to have_content("Project 'home:Admin' was created successfully")
+    expect(page).to have_text("Project 'home:Admin' was created successfully")
   end
 
   it 'is able to add repositories' do
@@ -26,9 +26,9 @@ RSpec.describe 'Project', type: :feature do
         end
         click_link('Repositories')
         click_link('Add from a Distribution')
-        break unless have_content('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
+        break unless have_text('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
 
-        break if have_content('Add Repositories to home:Admin')
+        break if have_text('Add Repositories to home:Admin')
 
         sleep 10
       end
