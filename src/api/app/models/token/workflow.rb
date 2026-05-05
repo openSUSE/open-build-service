@@ -19,11 +19,15 @@ class Token::Workflow < Token
                           after_remove: ->(token, group) { Event::TokenMembershipUpdate.create(token_id: token.id, group_title: group.title, who: User.session&.login, action: 'unshare') },
                           inverse_of: :groups
 
+  attr_writer :reason
+
   validates :scm_token, presence: true
   # Either a url referring to the worklflow configuration file or a filepath to the config inside the
   # SCM repository has to be provided
   validates :workflow_configuration_path, presence: true, unless: -> { workflow_configuration_url.present? }
   validates :workflow_configuration_url, presence: true, unless: -> { workflow_configuration_path.present? }
+
+  after_save :state_change_event, if: :enabled_previously_changed?
 
   def call(options)
     set_triggered_at
@@ -84,6 +88,10 @@ class Token::Workflow < Token
 
       error_messages.flatten
     end
+  end
+
+  def state_change_event
+    Event::TokenStateChange.create(id: workflow_runs.last&.id, token_id: id, reason: @reason, enabled: enabled)
   end
 end
 
