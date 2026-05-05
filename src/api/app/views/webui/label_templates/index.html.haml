@@ -4,7 +4,13 @@
 
   .card-body
     %h3= @pagetitle
-    %p Define instance wide Label Templates used for labeling projects.
+    %p
+      Global label templates that you make available for projects across this OBS instance.
+      Project maintainers can apply these labels to projects, and users can search for projects by label.
+      = link_to 'Read more in the Labels documentation',
+                'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-labels',
+                target: '_blank',
+                rel: 'noopener'
     %ul.list-unstyled
       - @label_templates.each do |label_template|
         %li.mb-2
