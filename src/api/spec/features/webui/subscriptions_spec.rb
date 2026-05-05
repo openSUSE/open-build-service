@@ -6,7 +6,7 @@ RSpec.describe 'Subscriptions', :js do
       login user
       visit path
 
-      expect(page).to have_content(title)
+      expect(page).to have_text(title)
       notification_field = find('.card-body h5', text: 'Package failed to build').sibling('.list-group')
       %w[maintainer bugowner reader project_watcher].each do |role|
         subscription_by_role = notification_field.find(".#{role}")

@@ -14,7 +14,7 @@ RSpec.describe 'Authentication', type: :feature do
       fill_in 'pwd_confirmation', with: 'opensuse'
       click_button('Sign Up')
     end
-    expect(page).to have_content("The account 'test_user' is now active.")
+    expect(page).to have_text("The account 'test_user' is now active.")
     expect(page).to have_link('top-navigation-profile-dropdown')
   end
 

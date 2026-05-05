@@ -19,7 +19,7 @@ RSpec.describe 'Package', type: :feature do
     fill_in 'package_title', with: 'hello_world'
     fill_in 'message_body', with: 'hello_world'
     click_button('Create')
-    expect(page).to have_content("Package 'hello_world' was created successfully")
+    expect(page).to have_text("Package 'hello_world' was created successfully")
   end
 
   it 'is able to upload files' do
@@ -28,7 +28,7 @@ RSpec.describe 'Package', type: :feature do
     end
     click_link('hello_world')
     attach_file('files', File.expand_path('../fixtures/hello_world.spec', __dir__), make_visible: true)
-    expect(page).to have_content('hello_world.spec have been successfully saved.')
+    expect(page).to have_text('hello_world.spec have been successfully saved.')
   end
 
   it 'is able to branch' do
@@ -41,7 +41,7 @@ RSpec.describe 'Package', type: :feature do
     find_field('linked_package', disabled: true).click if has_field?('linked_package', disabled: true)
     fill_in 'linked_package', with: 'build'
     click_button('Branch')
-    expect(page).to have_content('build.spec')
+    expect(page).to have_text('build.spec')
   end
 
   it 'is able to delete' do
@@ -52,9 +52,9 @@ RSpec.describe 'Package', type: :feature do
       click_link('build')
     end
     click_link('Delete Package')
-    expect(page).to have_content('Do you really want to delete this package?')
+    expect(page).to have_text('Do you really want to delete this package?')
     click_button('Delete')
-    expect(page).to have_content('Package was successfully removed.')
+    expect(page).to have_text('Package was successfully removed.')
   end
 
   it 'is able to successfully build' do

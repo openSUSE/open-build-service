@@ -8,7 +8,7 @@ RSpec.describe 'Interconnects', :js, :vcr do
 
     click_button('Connect', match: :first)
 
-    expect(page).to have_content("Project 'openSUSE.org' was successfully created.")
+    expect(page).to have_text("Project 'openSUSE.org' was successfully created.")
     expect(RemoteProject.exists?(name: 'openSUSE.org')).to be true
   end
 
@@ -24,7 +24,7 @@ RSpec.describe 'Interconnects', :js, :vcr do
     fill_in 'project_description', with: 'This instance can be used to access resources from packman.'
 
     click_button('Accept')
-    expect(page).to have_content("Project 'custom_packman' was successfully created.")
+    expect(page).to have_text("Project 'custom_packman' was successfully created.")
     expect(page).to have_current_path(project_show_path(project: 'custom_packman'))
   end
 end
