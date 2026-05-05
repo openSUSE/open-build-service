@@ -38,7 +38,7 @@ aliases:
 
   - &wait_for_database
     name: Wait for DB
-    command: mysqladmin ping -h db
+    command: mariadb-admin --ssl-verify-server-cert=false --user=root --password=opensuse -h db ping
 
   - &init_git_submodule
     name: Init submodule
