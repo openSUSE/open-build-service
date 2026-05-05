@@ -16,8 +16,6 @@ images:
   - &frontend_minitest
     image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/frontend-minitest:210
     <<: *common_frontend_config
-    environment:
-      EAGER_LOAD: 1
 
   - &frontend_base
     image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/frontend-base:210
@@ -122,6 +120,8 @@ jobs:
     docker:
       - <<: *frontend_features
       - <<: *mariadb
+    environment:
+      MARIADB_TLS_DISABLE_PEER_VERIFICATION: 1
     steps:
       - attach_workspace:
          at: .
@@ -170,6 +170,9 @@ jobs:
     docker:
       - <<: *frontend_minitest
       - <<: *mariadb
+    environment:
+      MARIADB_TLS_DISABLE_PEER_VERIFICATION: 1
+      EAGER_LOAD: 1
     steps:
       - attach_workspace:
          at: .
@@ -206,6 +209,8 @@ jobs:
     docker:
       - <<: *frontend_base
       - <<: *mariadb
+    environment:
+      MARIADB_TLS_DISABLE_PEER_VERIFICATION: 1
     steps:
       - attach_workspace:
          at: .
@@ -225,6 +230,8 @@ jobs:
     docker:
       - <<: *frontend_minitest
       - <<: *mariadb
+    environment:
+      MARIADB_TLS_DISABLE_PEER_VERIFICATION: 1
     steps:
       - attach_workspace:
          at: .
@@ -278,6 +285,8 @@ jobs:
     docker:
       - <<: *frontend_features
       - <<: *mariadb
+    environment:
+      MARIADB_TLS_DISABLE_PEER_VERIFICATION: 1
     steps:
       - attach_workspace:
          at: .
@@ -313,7 +322,6 @@ jobs:
       - <<: *store_capybara_artifacts
       - store_test_results:
           path: /home/frontend/feature
-
 
 workflows:
   version: 2
