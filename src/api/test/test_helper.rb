@@ -36,7 +36,6 @@ require 'minitest/unit'
 require 'webmock/minitest'
 
 require_relative 'node_matcher'
-require_relative '../lib/obsapi/test_sphinx'
 
 require 'test/unit/assertions'
 require 'mocha/setup'
@@ -49,6 +48,9 @@ Capybara.register_driver :rack_test do |app|
 end
 
 WebMock.disable_net_connect!(allow_localhost: true)
+
+# work around https://github.com/pat/thinking-sphinx/issues/981
+ThinkingSphinx::Callbacks.suspend!
 
 unless File.exist?('/proc')
   print 'ERROR: proc file system not mounted, aborting'

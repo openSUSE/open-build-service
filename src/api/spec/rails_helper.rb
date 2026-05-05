@@ -49,6 +49,10 @@ RSpec.configure do |config|
       Bullet.end_request
     end
   end
+  # work around https://github.com/pat/thinking-sphinx/issues/981
+  config.before(:suite) do
+    ThinkingSphinx::Callbacks.suspend!
+  end
 end
 
 # support fixtures
