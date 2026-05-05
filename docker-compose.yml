@@ -4,12 +4,12 @@ services:
     image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/mariadb:210
     ports:
       - "3306:3306"
-    command: /usr/lib/mysql/mysql-systemd-helper start
+    command: /usr/libexec/mysql/mysql-systemd-helper start
   cache:
     image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/memcached:210
     ports:
       - "11211:11211"
-    command: /usr/sbin/memcached -u memcached
+    command: /usr/bin/memcached -u memcached
   backend:
     image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/backend:210
     volumes:
