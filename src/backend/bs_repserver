@@ -3081,14 +3081,14 @@ sub getresult {
       if ($withreproduciblecheck) {
 	my $reprocode;
 	if ($code eq 'succeeded') {
-	  $reprocheck_failed ||= { map {$_ => 1} ls("$reporoot/$prpa/:reproduciblecheck.failed") };
+	  $reprocheck_failed ||= { map {$_ => 1} ls("$reporoot/$prpa/:reproduciblecheck.fail") };
 	  $reprocode = $reprocheck_failed->{$packid} ? 'failed' : 'succeeded';
 	}
 	if ($reprocode) {
 	  if ($cgi->{'summary'}) {
 	    $sum{'repoduciblecheck_failed'}++ if $reprocode eq 'failed';
 	  } else {
-	    $sl->{'status'}->{'reproduciblecheck'} = $reprocode;
+	    $sl->{'status'}->[-1]->{'reproduciblecheck'} = $reprocode;
 	  }
 	}
       }

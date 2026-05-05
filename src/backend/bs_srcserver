@@ -4505,7 +4505,8 @@ sub getresult {
   my %repoidfilter = map {$_ => 1} @{$cgi->{'repository'} || []};
   my %archfilter = map {$_ => 1} @{$cgi->{'arch'} || []};
   my %view = map {$_ => 1} @{$cgi->{'view'} || ['status']};
-  $view{'status'} = 1 if $view{'versrel'};
+  $view{'status'} = 1 if $view{'versrel'} || $view{'info'};
+  $view{'status'} = 1 if $view{'reproduciblecheck'} && !$view{'summary'};
   my %code = map {$_ => 1} @{$cgi->{'code'} || []};
 
   if ($cgi->{'repository'}) {
