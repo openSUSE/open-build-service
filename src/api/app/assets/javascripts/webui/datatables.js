@@ -8,7 +8,7 @@
 //= require datatables/extensions/FixedColumns/dataTables.fixedColumns
 
 var DEFAULT_DT_PARAMS = {
-  language: { 
+  language: {
     search: '', searchPlaceholder: "Search...",
     zeroRecords: "Nothing found",
     infoEmpty: "No records available",
@@ -45,8 +45,8 @@ function initializeRemoteDatatable(cssSelector, params) {
   $(cssSelector).dataTable(newParams);
 }
 
-function labelFiltering() {
-  var table = $('#packages-table').DataTable();
+function labelFiltering(tableId) {
+  var table = $(tableId).DataTable();
   var labelColumn = table.column('labels:name');
   var labelClear = $('#label-clear');
   var labelFilter = $('#label-filter');
@@ -58,7 +58,6 @@ function labelFiltering() {
     var labelId = e.target.parentElement.dataset.labelId;
     labelFilter.addClass('d-none');
     labelClear.addClass('d-none');
-
     if (label === labelColumn.search())
       labelColumn.search('').draw();
     else
