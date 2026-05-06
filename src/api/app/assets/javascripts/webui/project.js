@@ -48,7 +48,7 @@ function initializeProjectDatatableLabelBeta() {
       }, "responsive" : true,
       "columns": [
         { "data": "name" },
-        { "data": "labels"},
+        { "data": "labels", "name": "labels", "orderable": false},
         { "data": "title" }
       ], "dom": "ftpi"
     }

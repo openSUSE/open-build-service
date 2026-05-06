@@ -43,6 +43,12 @@ class Webui::ProjectController < Webui::WebuiController
                          .references(:label_globals, :label_template_global).filtered_for_list.distinct
                 end
 
+    if Flipper.enabled?(:labels, User.session)
+      @label_global_templates = @projects.flat_map do |project|
+        project.label_globals.map(&:label_template_global)
+      end.compact.uniq
+    end
+
     respond_to do |format|
       format.html do
         render :index,
