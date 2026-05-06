@@ -33,12 +33,22 @@ class Webui::ProjectController < Webui::WebuiController
                                               remove_target_request edit_comment edit_comment_form preview_description]
 
   def index
+    @projects = if show_all?
+                  Project.left_joins(label_globals: [:label_template_global])
+                         .includes(label_globals: [:label_template_global])
+                         .references(:label_globals, :label_template_global).distinct
+                else
+                  Project.left_joins(label_globals: [:label_template_global])
+                         .includes(label_globals: [:label_template_global])
+                         .references(:label_globals, :label_template_global).filtered_for_list.distinct
+                end
+
     respond_to do |format|
       format.html do
         render :index,
                locals: { important_projects: Project.very_important_projects_with_categories }
       end
-      format.json { render json: ProjectDatatable.new(params, view_context: view_context, show_all: show_all?) }
+      format.json { render json: ProjectDatatable.new(params, view_context: view_context, projects: @projects) }
     end
   end
 

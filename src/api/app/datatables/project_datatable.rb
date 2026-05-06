@@ -13,25 +13,9 @@ class ProjectDatatable < Datatable
     }
   end
 
-  def show_all
-    @show_all ||= options[:show_all]
-  end
-
-  def projects
-    @projects ||= options[:projects]
-  end
-
   # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
-    if projects
-      projects.left_joins(label_globals: [:label_template_global]).references(:label_globals, :label_template_global).distinct
-    elsif show_all
-      Project.left_joins(label_globals: [:label_template_global]).references(:label_globals,
-                                                                             :label_template_global).distinct
-    else
-      Project.left_joins(label_globals: [:label_template_global]).references(:label_globals,
-                                                                             :label_template_global).filtered_for_list.distinct
-    end
+    options[:projects]
   end
   # rubocop:enable Naming/AccessorMethodName
 
