@@ -34,9 +34,7 @@ class Assignment < ApplicationRecord
   def assignee_has_required_role_to_be_assigned?
     return false if assignee.nil?
 
-    (package.relationships.joins(:role).where(roles: { title: %w[maintainer bugowner reviewer] }).where(user_id: assignee) +
-     package.project.relationships.joins(:role).where(roles: { title: %w[maintainer bugowner reviewer] }).where(user_id: assignee))
-      .any?
+    Pundit.policy(assignee, self).package_role?
   end
 
   def trigger_event_on_creation
