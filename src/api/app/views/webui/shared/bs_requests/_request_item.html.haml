@@ -19,7 +19,7 @@
         = render BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'mb-auto')
       - if Flipper.enabled?(:labels, User.session) && bs_request.labels
         .mb-1
-          = render partial: 'webui/shared/label', collection: bs_request.labels, as: :label
+          = render partial: 'webui/shared/label_clickable', collection: bs_request.labels, locals: { form: form }, as: :label
       .mb-1
         = render BsRequestSummaryDescriptionComponent.new(bs_request:)
         .mb-2.request-index-description.text-truncate

@@ -103,6 +103,15 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     return if params[:labels]&.compact_blank.blank?
 
     @selected_filter['labels'] = params[:labels].compact_blank
+
+    # Count occurence of label filter values
+    counts = @selected_filter['labels'].tally
+    # Select only the elements where the count is exactly 1, to allow toggling the label filters.
+    # If it occurs more then once it means it got submitted again which should toggle it.
+    @selected_filter['labels'] = @selected_filter['labels'].select { |element| counts[element] == 1 }
+
+    return if @selected_filter['labels'].blank?
+
     @bs_requests = @bs_requests.joins(labels: :label_template).where(label_templates: { name: @selected_filter['labels'] })
   end
 
