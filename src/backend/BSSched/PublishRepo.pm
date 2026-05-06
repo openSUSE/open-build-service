@@ -313,7 +313,7 @@ sub prpfinished {
       if ($nosourceaccess) {
         next if $bin =~ /\.(?:no)?src\.rpm$/;
         next if $bin =~ /-debug(:?info|source).*\.rpm$/;
-        next if $debian && ($bin !~ /\.deb$/);
+        next if $debian && ($bin !~ /\.d?deb$/);
       }
       if ($seen_binary) {
         if ($bin =~ /(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
