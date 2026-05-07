@@ -15,7 +15,8 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files template_data]
+                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files template_data
+                                       autocomplete_users]
 
   before_action :check_scmsync, only: %i[requests revisions statistics users]
 
@@ -23,7 +24,7 @@ class Webui::PackageController < Webui::WebuiController
                                        branch_diff_info rdiff remove
                                        save_person save_group remove_role view_file
                                        buildresult rpmlint_result rpmlint_log rpmlint_summary files
-                                       users template_data]
+                                       users template_data autocomplete_users]
   # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :lints_list, only: %i[rpmlint_summary]
 
@@ -159,6 +160,18 @@ class Webui::PackageController < Webui::WebuiController
       authorize @current_notification, :update?, policy_class: NotificationPolicy
     end
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
+  end
+
+  def autocomplete_users
+    roles = %w[maintainer bugowner reviewer]
+    user_ids = @package.relationships.joins(:role).where(roles: { title: roles }).pluck(:user_id)
+    user_ids << @project.relationships.joins(:role).where(roles: { title: roles }).pluck(:user_id)
+    user_ids = user_ids.flatten.uniq
+    render json: User.where(id: user_ids)
+                 .starting_with(params[:term])
+                     .order(Arel.sql('length(login)'), :login)
+                     .limit(50)
+                     .pluck(:login)
   end
 
   # TODO: Remove this once request_index beta is rolled out

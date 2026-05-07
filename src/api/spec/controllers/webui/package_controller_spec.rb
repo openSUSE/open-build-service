@@ -636,4 +636,28 @@ RSpec.describe Webui::PackageController, :vcr do
       it { expect(response).to have_http_status(:forbidden) }
     end
   end
+
+  describe 'GET #automplete_users' do
+    let(:package) { create(:package, project: target_project) }
+    let(:relationship_user) { create(:confirmed_user, login: 'test_user') }
+    let!(:relationship) { create(:relationship_project_user, project: target_project, user: relationship_user) }
+
+    context 'returns users with relationship association' do
+      before do
+        login(admin)
+        get :autocomplete_users, params: { project: target_project, package: package, term: 'te' }
+      end
+
+      it { expect(response.parsed_body).to eql([relationship_user.login]) }
+    end
+
+    context 'does not return user without relationship association' do
+      before do
+        login(admin)
+        get :autocomplete_users, params: { project: target_project, package: package, term: user.login }
+      end
+
+      it { expect(response.parsed_body).to eql([]) }
+    end
+  end
 end

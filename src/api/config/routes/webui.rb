@@ -71,6 +71,7 @@ controller 'webui/package' do
     get 'package/edit/:project/:package' => :edit, constraints: cons, as: 'edit_package'
     patch 'package/update' => :update, constraints: cons
     get 'package/autocomplete' => :autocomplete
+    get 'package/autocomplete_users/:project/:package' => :autocomplete_users, constraints: cons, as: 'package_autocomplete_users'
   end
 end
 

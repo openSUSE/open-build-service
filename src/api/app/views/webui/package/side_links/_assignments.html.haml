@@ -21,6 +21,6 @@
           = hidden_field_tag(:package_id, package.id)
           .col-auto
             = render partial: 'webui/shared/search_box', locals: { html_id: 'assignments_search', html_name: 'assignee', required: false,
-          data: { source: autocomplete_users_path }, button: { type: 'submit' }, placeholder: 'Assign to' }
+          data: { source: package_autocomplete_users_path(project, package) }, button: { type: 'submit' }, placeholder: 'Assign to' }
           .col-auto
             = submit_tag 'Assign', class: 'btn btn-sm btn-secondary'
