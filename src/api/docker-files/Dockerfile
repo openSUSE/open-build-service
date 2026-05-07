@@ -32,8 +32,7 @@ WORKDIR /obs/src/api
 # Configure our bundle
 RUN bundle config build.ffi --enable-system-libffi; \
     bundle config build.nokogiri --use-system-libraries; \
-    bundle config build.nio4r --with-cflags='-Wno-return-type'; \
-    bundle config build.mysql2 --with-cflags='-Wno-return-type'
+    bundle config build.nio4r --with-cflags='-Wno-return-type'
 
 # Refresh our bundle
 RUN bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
