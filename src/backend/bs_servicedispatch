@@ -92,8 +92,13 @@ sub runservice_obsscm {
   push @send, { 'name' => '_service', 'data' => BSSrcServer::Service::generate_obs_scm_bridge_service($data) };
   my $files = {};
   my $error = BSSrcServer::Service::doservicerpc($rev, $files, \@send, 1);
-  return 'retry' if $error && $error =~ /\nTRANSIENT ERROR:[^\n]+\z/s;
-  BSSrcServer::Service::addrev_service($rev, $servicemark, $files, $error);
+  return 'retry' if $error && $error =~ /^Transient error/;		# from the service dispatch
+  return 'retry' if $error && $error =~ /\nTRANSIENT ERROR:[^\n]+\z/s;	# from the service run itself
+  eval { BSSrcServer::Service::addrev_service($rev, $servicemark, $files, $error) };
+  if ($@) {
+    return 'retry' if $@ =~ /^Transient error/;				# could not send result to src server
+    die($@);
+  }
   return $error ? 'failed' : 'succeeded';
 }
 
@@ -143,6 +148,8 @@ sub runservice {
   push @send, map {BSRevision::revcpiofile($rev, $_, $oldfiles->{$_})} grep {!$sendfiles->{$_}} sort(keys %$oldfiles);
 
   my $error = BSSrcServer::Service::doservicerpc($rev, $files, \@send);
+  return 'retry' if $error && $error =~ /^Transient error/;		# from the service dispatch
+  return 'retry' if $error && $error =~ /\nTRANSIENT ERROR:[^\n]+\z/s;	# from the service run itself
   BSSrcServer::Service::addrev_service($rev, $servicemark, $files, $error, $lxservicemd5);
   return $error ? 'failed' : 'succeeded';
 }
