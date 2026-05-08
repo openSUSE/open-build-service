@@ -1,4 +1,6 @@
 class ProjectDatatable < Datatable
+  include Webui::ColorHelper
+
   def_delegator :@view, :link_to
   def_delegator :@view, :project_show_path
   def_delegator :@view, :category_badge
@@ -13,25 +15,9 @@ class ProjectDatatable < Datatable
     }
   end
 
-  def show_all
-    @show_all ||= options[:show_all]
-  end
-
-  def projects
-    @projects ||= options[:projects]
-  end
-
   # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
-    if projects
-      projects.left_joins(label_globals: [:label_template_global]).references(:label_globals, :label_template_global).distinct
-    elsif show_all
-      Project.left_joins(label_globals: [:label_template_global]).references(:label_globals,
-                                                                             :label_template_global).distinct
-    else
-      Project.left_joins(label_globals: [:label_template_global]).references(:label_globals,
-                                                                             :label_template_global).filtered_for_list.distinct
-    end
+    options[:projects]
   end
   # rubocop:enable Naming/AccessorMethodName
 
@@ -48,7 +34,13 @@ class ProjectDatatable < Datatable
   def labels_list(labels)
     return nil unless labels.any?
 
-    list = labels.map { |label| tag.span(label.name, class: "badge label-#{label.id}", style: "color: #{ApplicationController.helpers.contrast_text(label.color)}; background-color: #{label.color};") }
+    list = labels.map do |label|
+      label_template = label.label_template
+      tag.a(href: '#', class: 'label-filter mb-1', data: { label: label_template.name, label_id: label_template.id }) do
+        tag.span(label_template.name, class: "badge label-#{label_template.id}",
+                                      style: "color: #{contrast_text(label_template.color)}; background-color: #{label_template.color};")
+      end
+    end
     safe_join(list, ' ')
   end
 end

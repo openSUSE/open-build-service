@@ -21,6 +21,21 @@
                   #{title}
   .card-body
     %h3= @pagetitle
+    - if Flipper.enabled?(:labels, User.session)
+      .mb-2
+        Filters:
+        .dropdown.d-inline
+          %button.btn.btn-sm.btn-outline-primary.dropdown-toggle{ type: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false' }
+            Labels
+            %span.d-none#label-filter
+              %span.badge
+          .dropdown-menu
+            - @label_global_templates.each do |template|
+              .py-1.px-2
+                %span.label-filter{ role: 'button', data: { label: template.name, label_id: template.id } }
+                  = render partial: 'webui/shared/label', locals: { label: template }
+        %span.d-none#label-clear{ data: { label: '' } }
+          = link_to('Clear filters', '#', id: 'label-clear', class: 'label-filter btn btn-sm btn-primary')
     %ul.list-inline
       %li.list-inline-item.me-3
         = link_to('#', class: 'toggle-projects') do
@@ -33,21 +48,22 @@
             = link_to(new_project_path, class: 'nav-link', title: 'Create Project') do
               %i.fas.fa-fw.me-2.fa-plus-circle
               %span.nav-item-name Create Project
-
-    %table.responsive.table.table-sm.table-bordered.table-hover.w-100#projects-datatable{ data: { source: projects_path(format: :json),
-                                                                                                  all: 'false' } }
-      %thead
-        %tr
-          %th Name
-          - if Flipper.enabled?(:labels, User.session)
-            %th Labels
-          %th Title
-      %tbody
+    .obs-dataTable
+      %table.responsive.table.table-sm.table-bordered.table-hover.w-100#projects-datatable{ data: { source: projects_path(format: :json),
+                                                                                                    all: 'false' } }
+        %thead
+          %tr
+            %th Name
+            - if Flipper.enabled?(:labels, User.session)
+              %th Labels
+            %th Title
+        %tbody
 
 - content_for :ready_function do
   - if Flipper.enabled?(:labels, User.session)
     :plain
       initializeProjectDatatableLabelBeta();
+      labelFiltering('#projects-datatable');
   - else
     :plain
       initializeProjectDatatable();
