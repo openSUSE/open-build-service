@@ -101,8 +101,8 @@
                                                               checked: selected_filter[:priorities]&.include?(priority.to_s) }
 
   .mt-2.mb-2.accordion-item.border-0
-    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-project-name' },
-                                                       aria: { expanded: 'true', controls: 'request-filter-project-name' } }
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-labels' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-labels' } }
       %b Labels
       %span.ms-1
         = render partial: 'webui/shared/info_popover',
