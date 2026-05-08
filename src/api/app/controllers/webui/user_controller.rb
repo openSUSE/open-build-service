@@ -42,6 +42,7 @@ class Webui::UserController < Webui::WebuiController
 
   def save
     @displayed_user = User.find_by_login!(params[:user][:login])
+    was_admin = User.admin_session?
 
     unless User.admin_session?
       if User.session! != @displayed_user || !@configuration.accounts_editable?(@displayed_user)
@@ -67,7 +68,11 @@ class Webui::UserController < Webui::WebuiController
       flash[:error] = "Couldn't update user: #{e.message}."
     end
 
-    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
+    if was_admin && User.session.roles.exclude?(Role.find_by(title: 'Admin')) # can't use User.is_admin? as it's memoized...
+      redirect_to(action: 'show', user: @displayed_user)
+    else
+      redirect_back(fallback_location: { action: 'show', user: @displayed_user })
+    end
   end
 
   def edit
