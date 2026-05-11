@@ -38,6 +38,6 @@
               %p There are no requests available
             - else
               %span.ms-3= page_entries_info(bs_requests, entry_name: 'request')
-          = render partial: 'webui/shared/bs_requests/request_item', collection: bs_requests, as: :bs_request
+          = render partial: 'webui/shared/bs_requests/request_item', collection: bs_requests, locals: { form: form }, as: :bs_request
           = paginate bs_requests, views_prefix: 'webui'
   = form.submit(nil, class: 'd-none')

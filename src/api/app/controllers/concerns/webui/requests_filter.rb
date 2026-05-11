@@ -100,10 +100,22 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
   end
 
   def filter_labels
-    return if params[:labels]&.compact_blank.blank?
+    incoming_label_filters = Array(params[:labels]).compact_blank
+    return if incoming_label_filters.blank?
 
-    @selected_filter['labels'] = params[:labels].compact_blank
-    @bs_requests = @bs_requests.joins(labels: :label_template).where(label_templates: { name: @selected_filter['labels'] })
+    # Allow toggling the label filter: Keep labels that appear an odd number of times
+    # This handles 1 click (add), 2 clicks (remove), 3 clicks (add), etc.
+    @selected_filter['labels'] = incoming_label_filters.tally.select { |_, count| count.odd? }.keys
+
+    return if @selected_filter['labels'].blank?
+
+    # Match bs_request records containing AT LEAST all selected labels
+    target_labels = @selected_filter['labels']
+    @bs_requests = @bs_requests
+                   .joins(labels: :label_template)
+                   .where(label_templates: { name: target_labels })
+                   .group('bs_requests.id')
+                   .having('COUNT(DISTINCT label_templates.name) = ?', target_labels.size)
   end
 
   def filter_search_text
