@@ -4523,7 +4523,9 @@ sub getresult {
   }
   my @prpas;
   for my $repo (@{$proj->{'repository'} || []}) {
-    next if %repoidfilter && !$repoidfilter{$repo->{'name'}};
+    my $needrepro;
+    $needrepro = 1 if $view{'reproduciblecheck'} && $repo->{'name'} =~ /^(.+)_reproduciblecheck$/ && $repoidfilter{$1};
+    next if %repoidfilter && !$repoidfilter{$repo->{'name'}} && !$needrepro;
     my @archs = @{$repo->{'arch'} || []};
     @archs = grep {$archfilter{$_}} @archs if %archfilter;
     push @prpas, map {"$projid/$repo->{'name'}/$_"} @archs;
@@ -4559,6 +4561,9 @@ sub getresult {
     $ps = {};
   }
   return if $BSStdServer::isajax && !defined($ps);
+  if ($view{'reproduciblecheck'} && %repoidfilter && $ps->{'result'}) {
+    $ps->{'result'} = [ grep {$repoidfilter{$_->{'repository'}}} @{$ps->{'result'}}];
+  }
   if ($view{'summary'} && $view{'status'}) {
     my @order = ('succeeded', 'failed', 'unresolvable', 'broken', 'scheduled');
     my %order = map {$_ => 1} @order;
@@ -4578,9 +4583,7 @@ sub getresult {
     }
   }
   if (!$view{'status'}) {
-    for my $p (@{$ps->{'result'} || []}) {
-      delete $p->{'status'};
-    }
+    delete $_->{'status'} for @{$ps->{'result'} || []};
   }
   return ($ps, $BSXML::resultlist);
 }

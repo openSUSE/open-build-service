@@ -3027,7 +3027,21 @@ sub getresult {
   my %code = map {$_ => 1} @{$cgi->{'code'} || []};
   my %buildingjobs;
   my %lastpublished;
-  for my $prpa (@$prpas) {
+  # if we want reproduciblecheck data, we look at those repos first so
+  # we can put the result in the original repo as well
+  my %prpas_repro;
+  my %prpas_reprocodes;
+  if ($cgi->{'withreproduciblecheck'}) {
+    for my $prpa (@$prpas) {
+      my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+      $prpas_repro{$prpa} = undef if $repoid =~ /._reproduciblecheck$/;
+    }
+  }
+  for my $prpa (keys %prpas_repro, @$prpas) {
+    if ($prpas_repro{$prpa}) {
+      push @$r, delete $prpas_repro{$prpa};
+      next;
+    }
     my %sum;
     my ($projid, $repoid, $arch) = split('/', $prpa, 3);
     $state .= "$prpa\0\0";
@@ -3078,18 +3092,24 @@ sub getresult {
         }
         push @{$sl->{'status'}}, $s;
       }
+      my $reprocode;
       if ($withreproduciblecheck) {
-	my $reprocode;
 	if ($code eq 'succeeded') {
 	  $reprocheck_failed ||= { map {$_ => 1} ls("$reporoot/$prpa/:reproduciblecheck.fail") };
 	  $reprocode = $reprocheck_failed->{$packid} ? 'failed' : 'succeeded';
+	  $prpas_reprocodes{$prpa}->{$packid} = $reprocode;
+	} else {
+	  $prpas_reprocodes{$prpa}->{$packid} = $code;
 	}
-	if ($reprocode) {
-	  if ($cgi->{'summary'}) {
-	    $sum{'repoduciblecheck_failed'}++ if $reprocode eq 'failed';
-	  } else {
-	    $sl->{'status'}->[-1]->{'reproduciblecheck'} = $reprocode;
-	  }
+      } elsif ($cgi->{'withreproduciblecheck'}) {
+	my $prpa_repro = "$projid/${repoid}_reproduciblecheck/$arch";
+	$reprocode = ($prpas_reprocodes{$prpa_repro} || {})->{$packid};
+      }
+      if ($reprocode) {
+        if ($cgi->{'summary'}) {
+	  $sum{'repoduciblecheck_failed'}++ if $reprocode eq 'failed';
+        } else {
+	  $sl->{'status'}->[-1]->{'reproduciblecheck'} = $reprocode;
 	}
       }
       if ($cgi->{'withbinarylist'}) {
@@ -3143,6 +3163,10 @@ sub getresult {
       }
       $stats->{'lastpublished'} = $lastpublished{$prp} if $lastpublished{$prp};
       $sl->{'stats'} = $stats;
+    }
+    if (exists $prpas_repro{$prpa}) {
+      $prpas_repro{$prpa} = $sl;
+      next;
     }
     push @$r, $sl;
   }
