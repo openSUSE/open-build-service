@@ -831,7 +831,7 @@ sub fakejobfinished_nouseforbuild {
 =cut
 
 sub patchpackstatus {
-  my ($gctx, $prp, $packid, $code, $job) = @_;
+  my ($gctx, $prp, $packid, $code, $job, $rediscode) = @_;
 
   my $reporoot = $gctx->{'reporoot'};
   my $myarch = $gctx->{'arch'};
@@ -840,7 +840,7 @@ sub patchpackstatus {
   BSUtil::appendstr("$gdst/:packstatus.finished", "$code $packid\n");
   # touch mtime to make watchers see a change
   utime(time, time, "$gdst/:packstatus");
-  BSRedisnotify::updateoneresult("$prp/$myarch", $packid, "finished:$code", $job) if $BSConfig::redisserver;
+  BSRedisnotify::updateoneresult("$prp/$myarch", $packid, $rediscode || "finished:$code", $job) if $BSConfig::redisserver;
 }
 
 sub addbuildstats {
