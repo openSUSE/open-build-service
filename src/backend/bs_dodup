@@ -256,6 +256,14 @@ sub getsslfingerprint {
   return $master->{'sslfingerprint'};	# mirror is master
 }
 
+sub mkdodcookie {
+  my ($doddata, $url, $content) = @_;
+  my $cookie = "$url\n";
+  $cookie .= "archfilter=$doddata->{'archfilter'}\n" if $doddata->{'archfilter'};
+  $cookie .= $content if defined $content;
+  return Digest::MD5::md5_hex($cookie);
+}
+
 sub dod_susetags {
   my ($doddata, $cookie, $file) = @_;
   my $url = $doddata->{'url'};
@@ -264,7 +272,7 @@ sub dod_susetags {
   my $datadir = 'suse';
   $url .= '/' unless $url =~ /\/$/;
   my $content = fetch("${url}content", $sslfingerprint, $timeout_small);
-  my $newcookie = Digest::MD5::md5_hex("$url\n$content");
+  my $newcookie = mkdodcookie($doddata, $url, $content);
   return undef if ($cookie || '') eq $newcookie;
   mastercheck($doddata, 'content', $content);
   signaturecheck($doddata, "${url}content.asc", $sslfingerprint, $content);
@@ -288,7 +296,7 @@ sub dod_rpmmd {
   my $sslfingerprint = getsslfingerprint($doddata);
   $url .= '/' unless $url =~ /\/$/;
   my $repomd = fetch("${url}repodata/repomd.xml", $sslfingerprint, $timeout_small);
-  my $newcookie = Digest::MD5::md5_hex("$url\n$repomd");
+  my $newcookie = mkdodcookie($doddata, $url, $repomd);
   return undef if ($cookie || '') eq $newcookie;
   mastercheck($doddata, 'repodata/repomd.xml', $repomd);
   signaturecheck($doddata, "${url}repodata/repomd.xml.asc", $sslfingerprint, $repomd);
@@ -327,7 +335,7 @@ sub dod_deb {
   my ($baseurl, $url, $components) = Build::Debrepo::parserepourl($doddata->{'url'});
   my $sslfingerprint = getsslfingerprint($doddata);
   my $release = fetch("${url}Release", $sslfingerprint, $timeout_small);
-  my $newcookie = Digest::MD5::md5_hex("$baseurl\n".join(',',@$components)."\n$release");
+  my $newcookie = mkdodcookie($doddata, $baseurl, join(',',@$components)."\n$release");
   return undef if ($cookie || '') eq $newcookie;
   mastercheck($doddata, 'Release', $release);
   signaturecheck($doddata, "${url}Release.gpg", $sslfingerprint, $release, 1);
@@ -368,7 +376,7 @@ sub dod_arch {
   my $reponame = $1;
   my $r = fetch("${url}$reponame.db", $sslfingerprint, $timeout_large, $file, 1);
   die unless $r->{'md5'};
-  my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
+  my $newcookie = mkdodcookie($doddata, $url, $r->{'md5'});
   return undef if ($cookie || '') eq $newcookie;
   return ($newcookie, $url);
 }
@@ -400,7 +408,7 @@ sub dod_apk {
   my $r = fetch("${url}APKINDEX.tar.gz", $sslfingerprint, $timeout_large, $file, 1);
   die unless $r->{'md5'};
   dod_apk_sigverify($file, $doddata->{'pubkey'}) if $doddata->{'pubkey'};
-  my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
+  my $newcookie = mkdodcookie($doddata, $url, $r->{'md5'});
   return undef if ($cookie || '') eq $newcookie;
   return ($newcookie, $url);
 }
@@ -412,7 +420,7 @@ sub dod_mdk {
   $url .= '/' unless $url =~ /\/$/;
   my $r = fetch("${url}media_info/synthesis.hdlist.cz", $sslfingerprint, $timeout_large, $file, 1);
   die unless $r->{'md5'};
-  my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
+  my $newcookie = mkdodcookie($doddata, $url, $r->{'md5'});
   return undef if ($cookie || '') eq $newcookie;
   uncompress($file, 'synthesis.hdlist.cz');
   return ($newcookie, $url);
