@@ -1474,7 +1474,20 @@ sub checkpkgs {
   } else {
     unlink("$gdst/:packstatus.finished");
   }
-  BSRedisnotify::updateresult("$prp/$myarch", \%packstatus, \%packerror, \%building, $proj->{'scmsync'}, $proj->{'scminfo'}) if $BSConfig::redisserver;
+  if ($BSConfig::redisserver) {
+    my ($redispackstatus, $redispackerror);
+    if ($repoid =~ /\.reproduciblecheck$/) {
+      for (grep {($packstatus{$_} || '') eq 'succeeded'} ls("$gdst/:reproduciblecheck.fail")) {
+	$redispackstatus ||= { %packstatus };	# clone for modification
+	$redispackerror ||= { %packerror};	# clone for modification
+	$redispackstatus->{$_} = 'failed';
+	$redispackerror->{$_} = 'reproduciblecheck failed';
+      }
+    }
+    $redispackstatus ||= \%packstatus;
+    $redispackerror ||= \%packerror;
+    BSRedisnotify::updateresult("$prp/$myarch", $redispackstatus, $redispackerror, \%building, $proj->{'scmsync'}, $proj->{'scminfo'});
+  }
 
   # write lastcheck file if we spent more than 2 minutes
   if ($ctx->{'prpchecktime'} > 2 * 60 && $ctx->{'nharder'} > 10 && %{$ctx->{'lastcheck'} || {}}) {

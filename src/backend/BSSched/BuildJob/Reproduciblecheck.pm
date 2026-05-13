@@ -256,7 +256,7 @@ sub jobfinished {
   if (!$jobxml || Digest::MD5::md5_hex($jobxml) ne $info->{'reprojobid'}) {
     print "$job: repro job is obsolete\n";
     $changed->{$prp} ||= 1;
-    BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, $code, $job);
+    BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, $code, $job, 'finished');
     $info->{'packstatus_patched'} = 1; 
     return;
   }
@@ -273,7 +273,7 @@ sub jobfinished {
     }
     $changed->{$prp} ||= 1;
     # update packstatus so that it doesn't fall back to scheduled
-    BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, $code, $job);
+    BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, $code, $job, 'finished');
     $info->{'packstatus_patched'} = 1; 
     return;
   }
@@ -338,7 +338,9 @@ sub jobfinished {
   }
   
   # update packstatus so that it doesn't fall back to scheduled
-  BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, $code, $job);
+  my $rediscode;
+  $rediscode = 'finished:failed' if $code eq 'succeeded' && $checkresult ne 'PASS';
+  BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, $code, $job, $rediscode);
   $info->{'packstatus_patched'} = 1; 
 
   if ($code ne 'succeeded') {
