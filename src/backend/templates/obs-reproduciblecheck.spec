@@ -67,13 +67,16 @@ echo
 echo >> "$resultfile"
 if test -z "$fail" ; then
   echo "Result: PASS" >> "$resultfile"
-  echo "result: PASS"
-  echo "------------"
 else
   echo "Result: FAIL" >> "$resultfile"
-  echo "result: FAIL"
-  echo "------------"
 fi
+
+set +x
+echo
+echo "Reproduciblecheck Result"
+echo "------------------------"
+cat "$resultfile"
+echo
 
 %changelog
 

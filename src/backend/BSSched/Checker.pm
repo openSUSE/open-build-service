@@ -1476,7 +1476,7 @@ sub checkpkgs {
   }
   if ($BSConfig::redisserver) {
     my ($redispackstatus, $redispackerror);
-    if ($repoid =~ /\.reproduciblecheck$/) {
+    if ($repoid =~ /._reproduciblecheck$/) {
       for (grep {($packstatus{$_} || '') eq 'succeeded'} ls("$gdst/:reproduciblecheck.fail")) {
 	$redispackstatus ||= { %packstatus };	# clone for modification
 	$redispackerror ||= { %packerror};	# clone for modification
