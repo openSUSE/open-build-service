@@ -189,7 +189,7 @@ GEM
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
     ffi (1.17.4)
-    flipper (1.4.1)
+    flipper (1.4.2)
       concurrent-ruby (< 2)
     flipper-active_record (1.4.1)
       activerecord (>= 4.2, < 9)
