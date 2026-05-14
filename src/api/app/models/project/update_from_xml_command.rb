@@ -248,6 +248,8 @@ class Project
 
         raise SaveError, "Project '#{release_target['project']}' does not exist." unless project
 
+        raise SaveError, 'Using same repository as release target element is not allowed' if release_target['project'] == self.project.name && repository == xml_hash['name']
+
         raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'" if project.defines_remote_instance?
 
         target_repo = Repository.find_by_project_and_name(project.name, repository)
