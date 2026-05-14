@@ -1,6 +1,11 @@
 require 'xmlhash'
 
 class PersonController < ApplicationController
+  # Empty values are kept as a truthy alias for backwards compatibility. They are
+  # marked as deprecated through the `Deprecation` response header.
+  ALLOWED_CONFIRMED_VALUES = ['', '0', '1', 'false', 'true'].freeze
+  TRUTHY_CONFIRMED_VALUES = ['', '1', 'true'].freeze
+
   validate_action grouplist: { method: :get, response: :directory }
   validate_action register: { method: :put, response: :status }
   validate_action register: { method: :post, response: :status }
@@ -14,7 +19,7 @@ class PersonController < ApplicationController
   def show
     @list = if params[:prefix]
               User.where('login LIKE ?', "#{params[:prefix]}%")
-            elsif params[:confirmed]
+            elsif confirmed_filter?
               User.confirmed
             else
               User.not_deleted
@@ -203,6 +208,20 @@ class PersonController < ApplicationController
   end
 
   private
+
+  def confirmed_filter?
+    return false unless params.key?(:confirmed)
+
+    value = params[:confirmed].to_s
+    unless ALLOWED_CONFIRMED_VALUES.include?(value)
+      raise InvalidParameterError,
+            "The 'confirmed' parameter only accepts '1', '0', 'true' or 'false', got '#{value}'."
+    end
+
+    response.headers['Deprecation'] = 'true' if value.empty?
+
+    TRUTHY_CONFIRMED_VALUES.include?(value)
+  end
 
   def set_user
     @user = User.find_by(login: params[:login])
