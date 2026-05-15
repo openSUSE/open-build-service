@@ -23,7 +23,7 @@ class CannedResponse < ApplicationRecord
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :user, optional: false
   belongs_to :project, optional: true
-
+  belongs_to :package, optional: true
   #### Callbacks macros: before_save, after_save, etc.
 
   #### Scopes (first the default_scope macro if is used)
@@ -51,15 +51,18 @@ end
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  project_id    :integer          indexed
+#  package_id    :integer          indexed
 #  user_id       :integer          not null, indexed
 #
 # Indexes
 #
 #  index_canned_responses_on_project_id  (project_id)
+#  index_canned_responses_on_package_id  (package_id)
 #  index_canned_responses_on_user_id     (user_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (project_id => projects.id) ON DELETE => nullify
+#  fk_rails_...  (package_id => packages.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
