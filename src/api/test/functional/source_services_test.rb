@@ -421,9 +421,9 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # find out the md5sum of _service file
     get '/source/home:tom/service'
     assert_response :success
-    doc = REXML::Document.new(@response.body)
-    md5sum_service = doc.elements["//entry[@name='_service']"].attributes['md5']
-    md5sum_spec = doc.elements["//entry[@name='pack.spec']"].attributes['md5']
+    doc = Nokogiri::XML(@response.body)
+    md5sum_service = doc.at_xpath("//entry[@name='_service']")['md5']
+    md5sum_spec = doc.at_xpath("//entry[@name='pack.spec']")['md5']
 
     # do a commit to trigger the service
     put '/source/home:tom/service/filename?rev=repository', params: 'CONTENT'

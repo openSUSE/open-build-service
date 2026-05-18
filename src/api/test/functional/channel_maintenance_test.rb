@@ -132,8 +132,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     get "/request/#{id1}"
     assert_response :success
-    data = REXML::Document.new(@response.body)
-    incident_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    data = Nokogiri::XML(@response.body)
+    incident_project = data.at_xpath('/request/action/target')['project'].to_s
     assert_not_equal incident_project, 'My:Maintenance'
 
     # test build and publish flags
@@ -243,8 +243,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     get "/request/#{id2}"
     assert_response :success
-    data = REXML::Document.new(@response.body)
-    maintenance_not_new_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    data = Nokogiri::XML(@response.body)
+    maintenance_not_new_project = data.at_xpath('/request/action/target')['project'].to_s
     assert_equal incident_project, maintenance_not_new_project
 
     # try to do it again
@@ -260,8 +260,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     get "/request/#{id2}"
     assert_response :success
-    data = REXML::Document.new(@response.body)
-    maintenance_not_new_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    data = Nokogiri::XML(@response.body)
+    maintenance_not_new_project = data.at_xpath('/request/action/target')['project'].to_s
     assert_equal incident_project, maintenance_not_new_project
 
     # validate releasename
@@ -374,8 +374,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{id3}"
     assert_response :success
-    data = REXML::Document.new(@response.body)
-    maintenance_yet_another_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    data = Nokogiri::XML(@response.body)
+    maintenance_yet_another_project = data.at_xpath('/request/action/target')['project'].to_s
     # no cleanup
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.linked.BaseDistro2.0_LinkedUpdateProject'
     assert_response :success
@@ -893,8 +893,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{reqid2}"
     assert_response :success
-    data = REXML::Document.new(@response.body)
-    ontopof_update_incident_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    data = Nokogiri::XML(@response.body)
+    ontopof_update_incident_project = data.at_xpath('/request/action/target')['project'].to_s
     get "/source/#{ontopof_update_incident_project}"
     assert_response :success
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2.BaseDistro2.0_LinkedUpdateProject' })

@@ -1403,12 +1403,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_meta'
     assert_response :success
     orig_project_meta = @response.body
-    doc = REXML::Document.new(@response.body)
-    rt = doc.elements['/project/repository'].add_element 'releasetarget'
-    rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
-    rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
-    rt.add_attribute(REXML::Attribute.new('trigger', 'manual'))
-    put '/source/home:Iggy/_meta', params: doc.to_s
+    doc = Nokogiri::XML(@response.body)
+    rt = Nokogiri::XML::Node.new('releasetarget', doc)
+    rt['project'] = 'home:adrian:RT'
+    rt['repository'] = 'rt'
+    rt['trigger'] = 'manual'
+    doc.at_xpath('/project/repository').add_child(rt)
+    put '/source/home:Iggy/_meta', params: doc.root.to_xml
     assert_response :success
 
     # create request

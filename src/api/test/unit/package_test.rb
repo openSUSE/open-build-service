@@ -20,15 +20,15 @@ class PackageTest < ActiveSupport::TestCase
     xml_string = @package.to_axml
 
     # check the results
-    xml = REXML::Document.new(xml_string)
-    assert_equal 1, xml.root.get_elements('/package/build').size
-    assert_equal 2, xml.root.get_elements('/package/build/*').size
+    xml = Nokogiri::XML(xml_string)
+    assert_equal 1, xml.xpath('/package/build').size
+    assert_equal 2, xml.xpath('/package/build/*').size
 
-    assert_equal 1, xml.root.get_elements('/package/publish').size
-    assert_equal 1, xml.root.get_elements('/package/publish/*').size
+    assert_equal 1, xml.xpath('/package/publish').size
+    assert_equal 1, xml.xpath('/package/publish/*').size
 
-    assert_equal 1, xml.root.get_elements('/package/debuginfo').size
-    assert_equal 1, xml.root.get_elements('/package/debuginfo/*').size
+    assert_equal 1, xml.xpath('/package/debuginfo').size
+    assert_equal 1, xml.xpath('/package/debuginfo/*').size
   end
 
   def test_add_new_flags_from_xml

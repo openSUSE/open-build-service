@@ -667,12 +667,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # Change description
     xml = @response.body
     new_desc = 'Changed description 2'
-    doc = REXML::Document.new(xml)
-    d = doc.elements['//description']
-    d.text = new_desc
+    doc = Nokogiri::XML(xml)
+    d = doc.at_xpath('//description')
+    d.content = new_desc
 
     # Write changed data back
-    put url_for(controller: :source_project_meta, action: :update, project: project), params: doc.to_s
+    put url_for(controller: :source_project_meta, action: :update, project: project), params: doc.root.to_xml
     assert_response response2
     assert_xml_tag(tag2)
 
@@ -691,12 +691,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     xml = @response.body
-    doc = REXML::Document.new(xml)
+    doc = Nokogiri::XML(xml)
     # change name to kde5:
-    d = doc.elements['/project']
-    d.delete_attribute('name')
-    d.add_attribute('name', 'kde5')
-    put url_for(controller: :source_project_meta, action: :update, project: 'kde5'), params: doc.to_s
+    d = doc.at_xpath('/project')
+    d.remove_attribute('name')
+    d['name'] = 'kde5'
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde5'), params: doc.root.to_xml
     assert_response(:success, '--> king was not allowed to create a project')
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
@@ -722,21 +722,21 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     xml = @response.body
-    olddoc = REXML::Document.new(xml)
-    doc = REXML::Document.new(xml)
+    olddoc = Nokogiri::XML(xml)
+    doc = Nokogiri::XML(xml)
     # Write corrupt data back
-    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.to_s + '</xml>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde4'), params: doc.root.to_xml + '</xml>'
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'validation_failed' }
 
     login_king
     # write to illegal location:
-    put url_for(controller: :source_project_meta, action: :update, project: '$hash'), params: doc.to_s
+    put url_for(controller: :source_project_meta, action: :update, project: '$hash'), params: doc.root.to_xml
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_project_name' }
 
     # must not create a project with different pathname and name in _meta.xml:
-    put url_for(controller: :source_project_meta, action: :update, project: 'kde5'), params: doc.to_s
+    put url_for(controller: :source_project_meta, action: :update, project: 'kde5'), params: doc.root.to_xml
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'project_name_mismatch' }
     # TODO: referenced repository names must exist
@@ -744,7 +744,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # verify data is unchanged:
     get url_for(controller: :source_project_meta, action: :show, project: 'kde4')
     assert_response :success
-    assert_equal(olddoc.to_s, REXML::Document.new(@response.body).to_s)
+    assert_equal(olddoc.root.to_xml, Nokogiri::XML(@response.body).root.to_xml)
   end
 
   def test_remove_myself_from_home_project_and_readd
@@ -754,11 +754,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get url_for(controller: :source_project_meta, action: :show, project: 'home:fred')
     assert_response :success
     xml = @response.body
-    doc = REXML::Document.new(xml)
+    doc = Nokogiri::XML(xml)
 
     # drop myself (fred)
-    doc.elements['/project'].delete_element 'person'
-    put url_for(controller: :source_project_meta, action: :update, project: 'home:fred'), params: doc.to_s
+    doc.at_xpath('/project/person')&.remove
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:fred'), params: doc.root.to_xml
     assert_response :success
 
     # no person inside anymore
@@ -781,10 +781,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # lock project
     get '/source/home:Iggy/_meta'
     assert_response :success
-    doc = REXML::Document.new(@response.body)
-    doc.elements['/project'].add_element 'lock'
-    doc.elements['/project/lock'].add_element 'enable'
-    put '/source/home:Iggy/_meta', params: doc.to_s
+    doc = Nokogiri::XML(@response.body)
+    doc.at_xpath('/project').add_child(Nokogiri::XML::Node.new('lock', doc))
+    doc.at_xpath('/project/lock').add_child(Nokogiri::XML::Node.new('enable', doc))
+    put '/source/home:Iggy/_meta', params: doc.root.to_xml
     assert_response :success
     get '/source/home:Iggy/_meta'
     assert_response :success
@@ -796,8 +796,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
     delete '/source/home:Iggy/TestLinkPack'
     assert_response :forbidden
-    doc.elements['/project/description'].text = 'new text'
-    put '/source/home:Iggy/_meta', params: doc.to_s
+    doc.at_xpath('/project/description').content = 'new text'
+    put '/source/home:Iggy/_meta', params: doc.root.to_xml
     assert_response :forbidden
     put '/source/home:Iggy/TestLinkPack/_link', params: ''
     assert_response :forbidden
@@ -832,9 +832,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'missing_parameter' }
 
     # unlock does not work via meta data anymore
-    doc.elements['/project/lock'].delete_element 'enable'
-    doc.elements['/project/lock'].add_element 'disable'
-    put '/source/home:Iggy/_meta', params: doc.to_s
+    doc.at_xpath('/project/lock/enable')&.remove
+    doc.at_xpath('/project/lock').add_child(Nokogiri::XML::Node.new('disable', doc))
+    put '/source/home:Iggy/_meta', params: doc.root.to_xml
     assert_response :forbidden
 
     # check unlock command
@@ -885,10 +885,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # lock package
     get '/source/home:Iggy/TestLinkPack/_meta'
     assert_response :success
-    doc = REXML::Document.new(@response.body)
-    doc.elements['/package'].add_element 'lock'
-    doc.elements['/package/lock'].add_element 'enable'
-    put '/source/home:Iggy/TestLinkPack/_meta', params: doc.to_s
+    doc = Nokogiri::XML(@response.body)
+    doc.at_xpath('/package').add_child(Nokogiri::XML::Node.new('lock', doc))
+    doc.at_xpath('/package/lock').add_child(Nokogiri::XML::Node.new('enable', doc))
+    put '/source/home:Iggy/TestLinkPack/_meta', params: doc.root.to_xml
     assert_response :success
     get '/source/home:Iggy/TestLinkPack/_meta'
     assert_response :success
@@ -898,16 +898,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # modifications are not allowed anymore
     delete '/source/home:Iggy/TestLinkPack'
     assert_response :forbidden
-    doc.elements['/package/description'].text = 'new text'
-    put '/source/home:Iggy/TestLinkPack/_meta', params: doc.to_s
+    doc.at_xpath('/package/description').content = 'new text'
+    put '/source/home:Iggy/TestLinkPack/_meta', params: doc.root.to_xml
     assert_response :forbidden
     put '/source/home:Iggy/TestLinkPack/_link', params: ''
     assert_response :forbidden
 
     # make package read-writable is not working via meta
-    doc.elements['/package/lock'].delete_element 'enable'
-    doc.elements['/package/lock'].add_element 'disable'
-    put '/source/home:Iggy/TestLinkPack/_meta', params: doc.to_s
+    doc.at_xpath('/package/lock/enable')&.remove
+    doc.at_xpath('/package/lock').add_child(Nokogiri::XML::Node.new('disable', doc))
+    put '/source/home:Iggy/TestLinkPack/_meta', params: doc.root.to_xml
     assert_response :forbidden
 
     # try to unlock without comment
@@ -935,28 +935,28 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # Change description
     xml = @response.body
     new_desc = 'Changed description 4'
-    olddoc = REXML::Document.new(xml)
-    doc = REXML::Document.new(xml)
-    d = doc.elements['//description']
-    d.text = new_desc
+    olddoc = Nokogiri::XML(xml)
+    doc = Nokogiri::XML(xml)
+    d = doc.at_xpath('//description')
+    d.content = new_desc
 
     # Write changed data back
-    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs'), params: doc.root.to_xml
     assert_response :forbidden
 
     # verify data is unchanged:
     get url_for(controller: :source_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
     assert_response :success
-    assert_equal(olddoc.to_s, REXML::Document.new(@response.body).to_s)
+    assert_equal(olddoc.root.to_xml, Nokogiri::XML(@response.body).root.to_xml)
 
     # try to trick api via non matching xml attributes
-    doc.root.attributes['project'] = 'kde4'
-    put url_for(controller: :source_package_meta, action: :update, project: 'home:tom', package: 'kdelibs'), params: doc.to_s
+    doc.root['project'] = 'kde4'
+    put url_for(controller: :source_package_meta, action: :update, project: 'home:tom', package: 'kdelibs'), params: doc.root.to_xml
     assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'project_name_mismatch' })
-    doc.root.attributes['project'] = nil
-    doc.root.attributes['name'] = 'none'
-    put url_for(controller: :source_package_meta, action: :update, project: 'home:tom', package: 'kdelibs'), params: doc.to_s
+    doc.root['project'] = nil
+    doc.root['name'] = 'none'
+    put url_for(controller: :source_package_meta, action: :update, project: 'home:tom', package: 'kdelibs'), params: doc.root.to_xml
     assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'package_name_mismatch' })
   end
@@ -988,23 +988,23 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # Change description
     xml = @response.body
     new_desc = 'Changed description 3'
-    doc = REXML::Document.new(xml)
-    d = doc.elements['//description']
-    d.text = new_desc
+    doc = Nokogiri::XML(xml)
+    d = doc.at_xpath('//description')
+    d.content = new_desc
 
     # Write changed data back
-    put url_for(controller: :source_package_meta, action: :update, project: project, package: package), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: project, package: package), params: doc.root.to_xml
     assert_response response2 # (:success, "--> Was not able to update kdelibs _meta")
     assert_xml_tag tag2 # ( :tag => "status", :attributes => { :code => "ok"} )
 
     # Get data again and check that it is the changed data
     get url_for(controller: :source_package_meta, action: :show, project: project, package: package)
-    newdoc = REXML::Document.new(@response.body)
-    d = newdoc.elements['//description']
+    newdoc = Nokogiri::XML(@response.body)
+    d = newdoc.at_xpath('//description')
     # ignore updated change
-    newdoc.root.attributes['updated'] = doc.root.attributes['updated']
-    assert_equal new_desc, d.text if match
-    assert_equal doc.to_s, newdoc.to_s if match
+    newdoc.root['updated'] = doc.root['updated']
+    assert_equal new_desc, d&.text if match
+    assert_equal doc.root.to_xml, newdoc.root.to_xml if match
   end
 
   private :do_change_package_meta_test
@@ -1087,29 +1087,29 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     # change name to kdelibs2
     xml = @response.body
-    doc = REXML::Document.new(xml)
-    d = doc.elements['/package']
-    d.delete_attribute('name')
-    d.add_attribute('name', 'kdelibs2')
-    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs2'), params: doc.to_s
+    doc = Nokogiri::XML(xml)
+    d = doc.at_xpath('/package')
+    d.remove_attribute('name')
+    d['name'] = 'kdelibs2'
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs2'), params: doc.root.to_xml
     assert_response :success
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
     # do not allow to create it with invalid name
-    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs3'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs3'), params: doc.root.to_xml
     assert_response :bad_request
 
     # Get data again and check that the maintainer was added
     get url_for(controller: :source_package_meta, action: :show, project: 'kde4', package: 'kdelibs2')
     assert_response :success
-    newdoc = REXML::Document.new(@response.body)
-    d = newdoc.elements['/package']
-    assert_equal(d.attribute('name').value, 'kdelibs2', 'Project name was not set to kdelibs2')
+    newdoc = Nokogiri::XML(@response.body)
+    d = newdoc.at_xpath('/package')
+    assert_equal(d['name'], 'kdelibs2', 'Project name was not set to kdelibs2')
 
     # check for lacking permission to create a package
     login_tom
-    d.delete_attribute('name')
-    d.add_attribute('name', 'kdelibs3')
-    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs3'), params: newdoc.to_s
+    d.remove_attribute('name')
+    d['name'] = 'kdelibs3'
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs3'), params: newdoc.root.to_xml
     assert_response :forbidden
     assert_xml_tag(tag: 'status', attributes: { code: 'update_project_not_authorized' })
 
@@ -1393,11 +1393,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
       return
     end
     xml = @response.body
-    doc = REXML::Document.new(xml)
-    d = doc.elements['/package']
-    b = d.add_element 'build'
-    b.add_element 'enable'
-    put url_for(controller: :source_package_meta, action: :update, project: project, package: package), params: doc.to_s
+    doc = Nokogiri::XML(xml)
+    d = doc.at_xpath('/package')
+    b = Nokogiri::XML::Node.new('build', doc)
+    d.add_child(b)
+    b.add_child(Nokogiri::XML::Node.new('enable', doc))
+    put url_for(controller: :source_package_meta, action: :update, project: project, package: package), params: doc.root.to_xml
     assert_response response2
     assert_xml_tag(tag2)
 
@@ -1469,26 +1470,26 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     xml = @response.body
-    olddoc = REXML::Document.new(xml)
-    doc = REXML::Document.new(xml)
+    olddoc = Nokogiri::XML(xml)
+    doc = Nokogiri::XML(xml)
     # Write corrupt data back
-    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs'), params: doc.to_s + '</xml>'
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs'), params: doc.root.to_xml + '</xml>'
     assert_response :bad_request
 
     login_king
     # write to illegal location:
-    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: '.'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: '.'), params: doc.root.to_xml
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_package_name' }
 
     # must not create a package with different pathname and name in _meta.xml:
-    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs2000'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs2000'), params: doc.root.to_xml
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'package_name_mismatch' }
     # verify data is unchanged:
     get url_for(controller: :source_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
     assert_response :success
-    assert_equal(olddoc.to_s, REXML::Document.new(@response.body).to_s)
+    assert_equal(olddoc.root.to_xml, Nokogiri::XML(@response.body).root.to_xml)
   end
 
   def test_read_file
@@ -2650,14 +2651,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_meta'
     assert_response :success
     orig_project_meta = @response.body
-    doc = REXML::Document.new(@response.body)
-    person = doc.elements['/project'].add_element 'person'
-    person.add_attribute(REXML::Attribute.new('userid', 'adrian'))
-    person.add_attribute(REXML::Attribute.new('role', 'maintainer'))
-    rt = doc.elements['/project/repository'].add_element 'releasetarget'
-    rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
-    rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
-    put '/source/home:Iggy/_meta', params: doc.to_s
+    doc = Nokogiri::XML(@response.body)
+    person = Nokogiri::XML::Node.new('person', doc)
+    person['userid'] = 'adrian'
+    person['role'] = 'maintainer'
+    doc.at_xpath('/project').add_child(person)
+    rt = Nokogiri::XML::Node.new('releasetarget', doc)
+    rt['project'] = 'home:adrian:RT'
+    rt['repository'] = 'rt'
+    doc.at_xpath('/project/repository').add_child(rt)
+    put '/source/home:Iggy/_meta', params: doc.root.to_xml
     assert_response :success
 
     # try to release with incorrect trigger
@@ -2669,8 +2672,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # add correct trigger
     login_Iggy
-    rt.add_attribute(REXML::Attribute.new('trigger', 'manual'))
-    put '/source/home:Iggy/_meta', params: doc.to_s
+    rt['trigger'] = 'manual'
+    put '/source/home:Iggy/_meta', params: doc.root.to_xml
     assert_response :success
 
     # this user is not allowed
@@ -2691,8 +2694,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' }
 
     # create target_project
-    doc.root.attributes['name'] = 'home:Iggy:TEST'
-    put '/source/home:Iggy:TEST/_meta', params: doc.to_s
+    doc.root['name'] = 'home:Iggy:TEST'
+    put '/source/home:Iggy:TEST/_meta', params: doc.root.to_xml
     assert_response :success
 
     # limit source via attribute, none allowed
@@ -2891,11 +2894,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_meta'
     assert_response :success
     orig_project_meta = @response.body
-    doc = REXML::Document.new(@response.body)
-    rt = doc.elements['/project/repository'].add_element 'releasetarget'
-    rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
-    rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
-    put '/source/home:Iggy/_meta', params: doc.to_s
+    doc = Nokogiri::XML(@response.body)
+    rt = Nokogiri::XML::Node.new('releasetarget', doc)
+    rt['project'] = 'home:adrian:RT'
+    rt['repository'] = 'rt'
+    doc.at_xpath('/project/repository').add_child(rt)
+    put '/source/home:Iggy/_meta', params: doc.root.to_xml
     assert_response :success
     post '/source/home:Iggy/TestPack?cmd=branch&target_project=home:Iggy&target_package=TestPackBranch'
     assert_response :success
@@ -2911,8 +2915,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # add correct trigger
     login_Iggy
-    rt.add_attribute(REXML::Attribute.new('trigger', 'manual'))
-    put '/source/home:Iggy/_meta', params: doc.to_s
+    rt['trigger'] = 'manual'
+    put '/source/home:Iggy/_meta', params: doc.root.to_xml
     assert_response :success
 
     # this user is not allowed
@@ -3012,17 +3016,18 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_meta'
     assert_response :success
     orig_project_meta = @response.body
-    doc = REXML::Document.new(@response.body)
-    rt = doc.elements['/project/repository'].add_element 'releasetarget'
-    rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
-    rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
-    put '/source/home:Iggy/_meta', params: doc.to_s
+    doc = Nokogiri::XML(@response.body)
+    rt = Nokogiri::XML::Node.new('releasetarget', doc)
+    rt['project'] = 'home:adrian:RT'
+    rt['repository'] = 'rt'
+    doc.at_xpath('/project/repository').add_child(rt)
+    put '/source/home:Iggy/_meta', params: doc.root.to_xml
     assert_response :success
 
     # add correct trigger
     login_Iggy
-    rt.add_attribute(REXML::Attribute.new('trigger', 'manual'))
-    put '/source/home:Iggy/_meta', params: doc.to_s
+    rt['trigger'] = 'manual'
+    put '/source/home:Iggy/_meta', params: doc.root.to_xml
     assert_response :success
 
     # release for real

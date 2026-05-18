@@ -76,8 +76,8 @@ def inject_build_job(project, package, repo, arch, extrabinary = nil)
   IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
     jobid = io.readlines.first.chomp
   end
-  data = REXML::Document.new(File.new(jobfile))
-  verifymd5 = data.elements['/buildinfo/verifymd5'].text
+  data = Nokogiri::XML(File.open(jobfile))
+  verifymd5 = data.at_xpath('/buildinfo/verifymd5')&.text
   f = File.open("#{jobfile}:status", 'w')
 
   output = '<jobstatus code="building">' \
