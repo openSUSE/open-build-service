@@ -59,6 +59,12 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
   end
 
   def canned_response_params
-    params.require(:canned_response).permit(:title, :content, :decision_type)
+    if params[:canned_response][:package].present?
+      params[:canned_response][:package_id] = Package.find_by_project_and_name(params[:canned_response][:project], params[:canned_response][:package])&.id
+    elsif params[:canned_response][:project].present?
+      params[:canned_response][:project_id] = Project.find_by_name(params[:canned_response][:project])&.id
+    end
+
+    params.require(:canned_response).except(:project, :package).permit(:title, :content, :decision_type, :package_id, :project_id)
   end
 end

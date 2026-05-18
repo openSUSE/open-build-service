@@ -19,6 +19,16 @@
                 = render(CardComponent.new) do |component|
                   .canned-response-card-text.mb-2
                     = render partial: 'webui/shared/collapsible_text', locals: { text: canned_response.content, render_markdown: true }
+                  - if canned_response.package
+                    .mb-2
+                      %strong Package:
+                      = link_to(package_show_path(canned_response.package.project, canned_response.package)) do
+                        #{canned_response.package.project}/#{canned_response.package}
+                  - elsif canned_response.project
+                    .mb-2
+                      %strong Project:
+                      = link_to(project_show_path(canned_response.project)) do
+                        #{canned_response.project}
 
                   - component.with_header do
                     = canned_response.title
@@ -85,6 +95,21 @@
                 = f.label :decision_type, "Choose 'cleared' or 'favored' if this is a decision's reason"
                 - types = CannedResponse.decision_types.keys.to_h { |t| [t.humanize, t] }
                 = f.select(:decision_type, types, { include_blank: 'none', selected: nil }, class: 'form-select')
+            .mb-3
+              = render partial: 'webui/shared/search_box',
+                       locals: { html_id: "canned_response_project",
+                                 html_name: "canned_response[project]",
+                                 label: 'Project:',
+                                 required: false,
+                                 data: { source: autocomplete_projects_path } }
+            .mb-3
+              = render partial: 'webui/shared/search_box',
+                       locals: { html_id: "canned_response_package",
+                                 html_name: "canned_response[package]",
+                                 label: 'Package:',
+                                 required: false,
+                                 disabled: true,
+                                 data: { source: autocomplete_packages_path } }
             = f.submit 'Create', class: 'btn btn-primary'
             = button_tag('Cancel', type: 'reset', class: 'btn btn-light',
                          data: { 'bs-toggle': 'modal', 'bs-target': '#create-canned-response-modal' })
