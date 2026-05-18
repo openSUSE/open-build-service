@@ -1,0 +1,309 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 7caeff8e-bd82-4964-9400-e48fefcc8053
+      X-Frontend-Start:
+      - '1779285971'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'ball' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '136'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'ball' does not exist</summary>
+          <details>404 package 'ball' does not exist</details>
+        </status>
+  recorded_at: Wed, 20 May 2026 14:06:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 7caeff8e-bd82-4964-9400-e48fefcc8053
+      X-Frontend-Start:
+      - '1779285971'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'ball' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '136'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'ball' does not exist</summary>
+          <details>404 package 'ball' does not exist</details>
+        </status>
+  recorded_at: Wed, 20 May 2026 14:06:11 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/ball?cacheonly=1&cmd=diff&expand=1&nodiff=1&orev=0&rev=&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 7caeff8e-bd82-4964-9400-e48fefcc8053
+      X-Frontend-Start:
+      - '1779285971'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: revision is empty
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '69'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>revision is empty</summary>
+        </status>
+  recorded_at: Wed, 20 May 2026 14:06:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/source_project/_result?lastbuild=0&locallink=1&multibuild=1&package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - c79c4ef9-d791-4bb3-ae2e-498fffdb377b
+      X-Frontend-Start:
+      - '1779285973'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: unknown package 'ball'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '122'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>unknown package 'ball'</summary>
+          <details>404 unknown package 'ball'</details>
+        </status>
+  recorded_at: Wed, 20 May 2026 14:06:13 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - '097c4a33-32dd-465c-9597-3e896a4c2923'
+      X-Frontend-Start:
+      - '1779285974'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'ball' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '136'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'ball' does not exist</summary>
+          <details>404 package 'ball' does not exist</details>
+        </status>
+  recorded_at: Wed, 20 May 2026 14:06:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - '097c4a33-32dd-465c-9597-3e896a4c2923'
+      X-Frontend-Start:
+      - '1779285974'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'ball' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '136'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'ball' does not exist</summary>
+          <details>404 package 'ball' does not exist</details>
+        </status>
+  recorded_at: Wed, 20 May 2026 14:06:14 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/ball?cacheonly=1&cmd=diff&expand=1&nodiff=1&orev=0&rev=&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - '097c4a33-32dd-465c-9597-3e896a4c2923'
+      X-Frontend-Start:
+      - '1779285974'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: revision is empty
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '69'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>revision is empty</summary>
+        </status>
+  recorded_at: Wed, 20 May 2026 14:06:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/source_project/_result?lastbuild=0&locallink=1&multibuild=1&package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 1e00dcaf-986c-41fd-811f-eb4b5c4d7a43
+      X-Frontend-Start:
+      - '1779285975'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: unknown package 'ball'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '122'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>unknown package 'ball'</summary>
+          <details>404 unknown package 'ball'</details>
+        </status>
+  recorded_at: Wed, 20 May 2026 14:06:15 GMT
+recorded_with: VCR 6.4.0
