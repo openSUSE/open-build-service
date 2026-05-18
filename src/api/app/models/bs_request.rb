@@ -389,7 +389,7 @@ class BsRequest < ApplicationRecord
   end
 
   def to_param
-    number
+    number.to_s
   end
 
   def render_xml(opts = {})
