@@ -143,6 +143,8 @@ group :test do
   gem 'rspec_junit_formatter'
   # to test rabbitmq support
   gem 'bunny-mock'
+  # to retry failing examples
+  gem 'rspec-rebound'
 end
 
 group :development, :test do
