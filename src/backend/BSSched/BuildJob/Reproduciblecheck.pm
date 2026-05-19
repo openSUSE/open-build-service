@@ -366,7 +366,12 @@ sub jobfinished {
   my $jobhist = BSSched::BuildJob::makejobhist($info, $status, $js, 'succeeded');
   BSSched::BuildJob::addbuildstats($jobdatadir, $dst, $jobhist) if -e "$jobdatadir/_statistics";
 
-  # save reproduciblecheck.log if not PASS
+  # make reproduciblecheck.log available in the original repo
+  unlink("$jobdatadir/reproduciblecheck.dup");
+  link("$jobdatadir/reproduciblecheck.log", "$jobdatadir/reproduciblecheck.dup");
+  rename("$jobdatadir/reproduciblecheck.dup", "$origdst/reproduciblecheck.log");
+  
+  # save reproduciblecheck.log to :reproduciblecheck.fail if not PASS
   if ($checkresult ne 'PASS') {
     mkdir_p("$gdst/:reproduciblecheck.fail");
     unlink("$jobdatadir/reproduciblecheck.dup");
