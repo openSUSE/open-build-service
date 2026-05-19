@@ -627,7 +627,6 @@ class BsRequestAction < ApplicationRecord
   def check_action_permission!(skip_source = nil)
     # find objects if specified or report error
     role = nil
-    sprj = nil
     if person_name
       # validate user object
       User.not_deleted.find_by!(login: person_name)
@@ -641,8 +640,20 @@ class BsRequestAction < ApplicationRecord
       role = Role.find_by_title!(self.role)
     end
 
+    sprj = nil
     sprj = check_action_permission_source! unless skip_source
-    tprj = check_action_permission_target!
+
+    tprj = nil
+    tprj = Project.get_by_name(target_project) if target_project # read authorization
+
+    set_source_and_target_associations # FIXME: those check_ methods are validations...
+    check_target_project_obs_reject_requests_attribute
+    check_target_project_maintenance_release_attribute
+    check_target_project_scmsync
+
+    check_target_package_read_access
+    check_target_package_obs_reject_requests_attribute
+    check_target_package_scmsync
 
     # Type specific checks
     if %i[delete add_role set_bugowner].include?(action_type)
@@ -940,49 +951,54 @@ class BsRequestAction < ApplicationRecord
     sprj
   end
 
-  def check_action_permission_target!
-    return unless target_project
+  def check_target_project_maintenance_release_attribute
+    nil # only checked in BsRequestActionSubmit...
+  end
 
-    tprj = Project.get_by_name(target_project)
-    if tprj.is_a?(Project)
-      if tprj.maintenance_release? && action_type == :submit &&
-         !tprj.find_attribute('OBS', 'AllowSubmitToMaintenanceRelease')
-        raise SubmitRequestRejected, "The target project #{target_project} is a maintenance release project, " \
-                                     'a submit self is not possible, please use the maintenance workflow instead.'
-      end
+  def check_target_project_scmsync
+    return unless target_project_object
+    return if target_project_object.scmsync.blank?
 
-      if tprj.scmsync.present?
-        raise RequestRejected,
-              "The target project #{target_project} is managed in an external SCM: #{tprj.scmsync}"
-      end
+    raise RequestRejected, "The target project #{target_project} is managed in an external SCM: #{target_project_object.scmsync}"
+  end
 
-      a = tprj.find_attribute('OBS', 'RejectRequests')
-      if a && a.values.first && (a.values.length < 2 || a.values.find_by_value(action_type))
-        raise RequestRejected,
-              "The target project #{target_project} is not accepting requests because: #{a.values.first.value}"
-      end
-    end
-    if target_package
-      if Package.exists_by_project_and_name(target_project, target_package) ||
-         action_type.in?(%i[delete change_devel add_role set_bugowner])
-        tpkg = Package.get_by_project_and_name(target_project, target_package)
-      end
+  def check_target_project_obs_reject_requests_attribute
+    return unless target_project_object
 
-      if defined?(tpkg) && tpkg
-        if tpkg.scmsync.present?
-          raise RequestRejected,
-                "The target package #{target_project} #{target_package} is managed in an external SCM: #{tpkg.scmsync}"
-        end
+    obs_reject_requests_attribute = target_project_object.find_attribute('OBS', 'RejectRequests')
+    return unless obs_reject_requests_attribute
+    return unless obs_reject_requests_attribute.values.first
+    # FIXME: What's the significance of only one value? How do you reject only one action_type?
+    return unless obs_reject_requests_attribute.values.length < 2 || obs_reject_requests_attribute.values.find_by_value(action_type)
 
-        a = tpkg.find_attribute('OBS', 'RejectRequests')
-        if a && a.values.first && (a.values.length < 2 || a.values.find_by_value(action_type))
-          raise RequestRejected, "The target package #{target_project} / #{target_package} is not accepting " \
-                                 "requests because: #{a.values.first.value}"
-        end
-      end
-    end
+    raise RequestRejected, "The target project #{target_project} is not accepting requests because: #{obs_reject_requests_attribute.values.first.value}"
+  end
 
-    tprj
+  def check_target_package_read_access
+    return unless target_project && target_package
+    return unless Package.exists_by_project_and_name(target_project, target_package) || action_type.in?(%i[delete change_devel add_role set_bugowner])
+
+    Package.get_by_project_and_name(target_project, target_package)
+  end
+
+  def check_target_package_obs_reject_requests_attribute
+    return unless target_package_object
+
+    obs_reject_requests_attribute = target_package_object.find_attribute('OBS', 'RejectRequests')
+    return unless obs_reject_requests_attribute
+    return unless obs_reject_requests_attribute.values.first
+    # FIXME: What's the significance of only one value? How do you reject only one action_type?
+    return unless obs_reject_requests_attribute.values.length < 2 || obs_reject_requests_attribute.values.find_by_value(action_type)
+
+    raise RequestRejected, "The target package #{target_project} / #{target_package} is not accepting requests because: #{obs_reject_requests_attribute.values.first.value}"
+  end
+
+  def check_target_package_scmsync
+    return unless target_package_object
+    return if target_package_object.scmsync.blank?
+    return if action_type.in?(%i[delete change_devel add_role set_bugowner])
+
+    raise RequestRejected, "The target package #{target_project} #{target_package} is managed in an external SCM: #{tpkg.scmsync}"
   end
 
   def check_permissions!
