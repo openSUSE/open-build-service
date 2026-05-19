@@ -25,7 +25,9 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
 
     check('Admin', allow_label_click: true)
     click_button('Update')
-    expect(user.is_admin?).to be(true)
+    within('#flash') do
+      expect(page).to have_text("User data for user '#{user.login}' successfully updated.")
+    end
   end
 
   scenario 'remove admin rights from user' do
@@ -33,6 +35,8 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
     visit user_edit_path(user: admin.login)
     uncheck('Admin', allow_label_click: true)
     click_button('Update')
-    expect(admin.is_admin?).to be(false)
+    within('#flash') do
+      expect(page).to have_text("User data for user '#{admin.login}' successfully updated.")
+    end
   end
 end

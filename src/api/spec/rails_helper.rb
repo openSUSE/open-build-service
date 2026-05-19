@@ -49,6 +49,10 @@ RSpec.configure do |config|
       Bullet.end_request
     end
   end
+  # work around https://github.com/pat/thinking-sphinx/issues/981
+  config.before(:suite) do
+    ThinkingSphinx::Callbacks.suspend!
+  end
 end
 
 # support fixtures
@@ -82,3 +86,6 @@ require 'support/migration'
 
 # support rabbitmq
 require 'support/rabbitmq'
+
+# bento vs. bootstrap support
+require 'support/bento_detection'

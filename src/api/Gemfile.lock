@@ -287,7 +287,7 @@ GEM
     pundit (2.0.1)
       activesupport (>= 3.0.0)
     racc (1.6.1)
-    rack (2.2.22)
+    rack (2.2.23)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails (5.2.8.1)
@@ -356,6 +356,8 @@ GEM
       rspec-expectations (~> 3.8.0)
       rspec-mocks (~> 3.8.0)
       rspec-support (~> 3.8.0)
+    rspec-rebound (0.2.1)
+      rspec-core (~> 3.3)
     rspec-support (3.8.2)
     rspec_junit_formatter (0.4.1)
       rspec-core (>= 2, < 4, != 2.12.0)
@@ -547,6 +549,7 @@ DEPENDENCIES
   responders (~> 3.0)
   rspec
   rspec-rails
+  rspec-rebound
   rspec_junit_formatter
   rubocop
   rubocop-performance
