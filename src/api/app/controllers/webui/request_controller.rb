@@ -37,7 +37,7 @@ class Webui::RequestController < Webui::WebuiController
     @is_target_maintainer = @bs_request.target_maintainer?(User.session)
     @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session).reject(&:staging_project?)
     @history_elements = @bs_request.history_elements.includes(:user)
-    @request_reviews = @bs_request.reviews.includes(%i[user group]).for_non_staging_projects(@target_project)
+    @request_reviews = @bs_request.reviews.includes(:group).for_non_staging_projects(@target_project)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = @bs_request.target_package_maintainers
