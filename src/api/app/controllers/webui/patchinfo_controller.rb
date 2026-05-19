@@ -32,10 +32,16 @@ class Webui::PatchinfoController < Webui::WebuiController
   def create
     authorize @project, :update?, policy_class: ProjectPolicy
 
-    if !@project.exists_package?('patchinfo') && !Patchinfo.new.create_patchinfo(@project.name, nil)
-      flash[:error] = 'Error creating patchinfo'
+    begin
+      if !@project.exists_package?('patchinfo') && !Patchinfo.new.create_patchinfo(@project.name, nil)
+        flash[:error] = 'Error creating patchinfo'
+        redirect_to(controller: 'project', action: 'show', project: @project) && return
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:error] = e.record.errors.full_messages.to_sentence
       redirect_to(controller: 'project', action: 'show', project: @project) && return
     end
+
     @package = @project.packages.find_by_name('patchinfo')
     unless @package.patchinfo
       flash[:error] = "Patchinfo not found for #{elide(params[:project])}"
