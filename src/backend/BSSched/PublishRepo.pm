@@ -59,6 +59,10 @@ my $default_publishfilter;
 my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
+my %publish_ignore = map {$_ => 1} qw{
+  history logfile meta status reason rpmlint.log reproduciblecheck.log
+  _ccache.tar _statistics _buildenv _channel _slsa_provenance.json _slsa_provenance.config 
+};
 
 =head1 NAME
 
@@ -286,7 +290,7 @@ sub prpfinished {
     next if $all{'.preinstallimage'};
     my $debian = grep {/\.dsc$/} @all;
     my $nosourceaccess = $all{'.nosourceaccess'};
-    @all = grep {$_ ne '_ccache.tar' && $_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne '_buildenv' && $_ ne '_channel' && $_ ne '_slsa_provenance.json' && $_ ne '_slsa_provenance.config' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
+    @all = grep {!$publish_ignore{$_} && !/^\./} @all;
     @all = grep {!/slsa_provenance\.json$/} @all;
     my $noorphanedsrcrpms = $bconf && $bconf->{'publishflags:noorphanedsrcrpms'} ? 1: 0;
     if ($noorphanedsrcrpms) {
