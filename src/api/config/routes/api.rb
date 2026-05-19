@@ -193,6 +193,7 @@ controller :public do
   get 'public/source/:project/_config' => :project_file, constraints: cons
   get 'public/source/:project/_keyinfo' => :project_file, constraints: cons
   get 'public/source/:project/_pubkey' => :project_file, constraints: cons
+  get 'public/source/:project/_pubkeys' => :project_file, constraints: cons
   get 'public/source/:project/:package' => :package_index, constraints: cons
   get 'public/source/:project/:package/_meta' => :package_meta, constraints: cons
   get 'public/source/:project/:package/:filename' => :source_file, constraints: cons
@@ -247,6 +248,7 @@ controller :source_project do
   get 'source/:project' => :show, constraints: cons
   delete 'source/:project' => :delete, constraints: cons
   get 'source/:project/_pubkey' => :show_pubkey, constraints: cons
+  get 'source/:project/_pubkeys' => :show_pubkeys, constraints: cons
   delete 'source/:project/_pubkey' => :delete_pubkey, constraints: cons
 end
 
