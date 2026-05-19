@@ -8,7 +8,7 @@ class MaintainedProjectDatatable < Datatable
   def initialize(params, opts = {})
     @project = opts[:project]
     @current_user = opts[:current_user]
-    @policy_update = ProjectPolicy.new(@current_user, @project).update?
+    @policy_update = ProjectPolicy.new(@current_user, @project).update_meta?
     super
   end
 
