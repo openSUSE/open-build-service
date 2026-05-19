@@ -25,3 +25,6 @@ rebuild:
         package: obs-server
   filters:
     event: push
+    branches:
+      only:
+        - 2.10
