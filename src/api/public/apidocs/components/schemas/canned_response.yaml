@@ -1,0 +1,27 @@
+type: object
+properties:
+  id:
+    type: integer
+    xml:
+      attribute: true
+  title:
+    type: string
+  content:
+    type: string
+  user:
+    type: string
+  decision_type:
+    type: string
+    enum:
+      - cleared
+      - favored
+      - favored_with_comment_moderation
+      - favored_with_delete_request
+      - favored_with_user_deletion
+      - favored_with_user_commenting_restriction
+  created_at:
+    type: string
+  updated_at:
+    type: string
+xml:
+  name: canned_response

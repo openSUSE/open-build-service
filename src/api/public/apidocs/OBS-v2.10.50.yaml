@@ -9,6 +9,7 @@ tags:
   - name: Attribute Namespaces
   - name: Attributes
   - name: Build
+  - name: Canned Responses
   - name: Comments
   - name: Configuration
   - name: Distributions
@@ -162,6 +163,12 @@ paths:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/{file_name}?view=fileinfo:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name_view_fileinfo.yaml'
+
+  # Canned Responses
+  /canned_responses:
+    $ref: 'paths/canned_responses.yaml'
+  /canned_responses/{id}:
+    $ref: 'paths/canned_responses_id.yaml'
 
   /comment/{comment_id}:
     $ref: 'paths/comment_comment_id.yaml'
