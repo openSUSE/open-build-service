@@ -408,6 +408,9 @@ scope :labels do
   end
 end
 
+### /canned_responses
+resources :canned_responses, only: %i[index show create update destroy]
+
 ### /label_templates
 resources :label_templates, only: %i[index create update destroy], constraints: cons
 
