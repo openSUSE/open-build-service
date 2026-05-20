@@ -230,7 +230,7 @@ function adapt_worker_jobs {
   rm -f $backenddir/workers/*/* 2> /dev/null
   # create repo directory or apache fails when nothing got published
   mkdir -p $backenddir/repos
-  chown obsrun.obsrun $backenddir/repos
+  chown obsrun:obsrun $backenddir/repos
 }
 ###############################################################################
 function prepare_database_setup {
@@ -272,7 +272,7 @@ function prepare_database_setup {
   fi
 
   logline "Setting ownership of '$backenddir' obsrun"
-  chown obsrun.obsrun $backenddir
+  chown obsrun:obsrun $backenddir
 
   logline "Setting up rails environment"
   for cmd in $RAKE_COMMANDS
@@ -376,7 +376,7 @@ function relink_server_cert {
 ###############################################################################
 function fix_permissions {
   cd $apidir
-  chown -R wwwrun.www $apidir/log
+  chown -R wwwrun:www $apidir/log
 }
 
 ###############################################################################
@@ -447,8 +447,8 @@ function check_recommended_backend_services {
   RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner obssignd obsservicedispatch"
 
   for srv in $RECOMMENDED_SERVICES;do
-    STATE=$(chkconfig $srv|awk '{print $2}')
-    if [[ $STATE != on ]];then
+    STATE=$(systemctl is-enabled $srv)
+    if [[ $STATE != enabled ]];then
       ask "Service $srv is not enabled. Would you like to enable it? [Yn]" "y"
       case $rv in
         y|yes|Y|YES)
@@ -472,8 +472,8 @@ function check_optional_backend_services {
   OPTIONAL_SERVICES="obswarden obsapisetup obsstoragesetup obsworker obsservice"
 
   for srv in $OPTIONAL_SERVICES;do
-    STATE=$(chkconfig $srv|awk '{print $2}')
-    if [[ $STATE != on ]];then
+    STATE=$(systemctl is-enabled $srv)
+    if [[ $STATE != enabled ]];then
       ask "Service $srv is not enabled. Would you like to enable it? [yN]" $DEFAULT_ANSWER
       case $rv in
         y|yes|Y|YES)
