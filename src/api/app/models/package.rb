@@ -70,7 +70,7 @@ class Package < ApplicationRecord
   has_one :assignment, dependent: :destroy
   has_one :assignee, through: :assignment
   has_one :assigner, through: :assignment
-
+  has_many :canned_responses, dependent: :nullify
   accepts_nested_attributes_for :labels, allow_destroy: true
 
   after_create :backfill_bs_request_actions
