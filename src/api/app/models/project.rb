@@ -94,6 +94,7 @@ class Project < ApplicationRecord
   has_many :label_globals, dependent: :destroy
   accepts_nested_attributes_for :label_globals, allow_destroy: true
   has_many :assignments, through: :packages
+  has_many :canned_responses, dependent: :nullify
 
   default_scope { where.not('projects.id' => Relationship.forbidden_project_ids) }
 
