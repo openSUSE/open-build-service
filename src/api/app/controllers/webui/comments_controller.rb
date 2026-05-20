@@ -141,7 +141,8 @@ class Webui::CommentsController < Webui::WebuiController
   end
 
   def set_commented
-    @commentable_type = [Project, Package, BsRequest, BsRequestActionSubmit, Report].find { |klass| klass.name == params[:commentable_type] }
+    commentable_types = [Project, Package, BsRequest, BsRequestActionSubmit, BsRequestActionRelease, Report]
+    @commentable_type = commentable_types.find { |klass| klass.name == params[:commentable_type] }
     @commented = @commentable_type&.find_by(id: params[:commentable_id])
     return if @commentable_type.present?
 
