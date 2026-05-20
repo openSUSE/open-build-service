@@ -56,6 +56,16 @@ RSpec.describe Comment do
     }
   end
 
+  describe '#outdated?' do
+    it 'returns false when the commentable cannot compare revisions' do
+      release_action = build(:bs_request_action_release)
+      comment = build(:comment, commentable: release_action, diff_file_index: 0,
+                                source_rev: 'source_revision', target_rev: 'target_revision')
+
+      expect(comment).not_to be_outdated
+    end
+  end
+
   describe 'blank_or_destroy' do
     context 'without children' do
       before do
