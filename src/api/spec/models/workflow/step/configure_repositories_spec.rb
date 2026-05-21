@@ -17,6 +17,8 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
     let(:step_instructions) do
       {
         project: 'OBS:Server:Unstable',
+        rebuild: 'local',
+        linkedbuild: 'all',
         repositories:
           [
             {
@@ -80,6 +82,12 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
 
         it 'overwrites previously configured architectures with those in the step instructions' do
           expect(configured_architectures.map(&:name)).to eq(%w[x86_64 ppc])
+        end
+
+        it 'configures rebuild and linkedbuild strategies' do
+          expect(configured_repositories).to contain_exactly(
+            have_attributes(name: 'openSUSE_Tumbleweed', rebuild: 'local', linkedbuild: 'all')
+          )
         end
       end
 
