@@ -1,19 +1,11 @@
 class RabbitmqBus
-  cattr_accessor :connection, :exchange, :failed
+  cattr_accessor :connection, :exchange
 
-  def self.send_to_bus(channel, data)
-    channel = "#{Configuration.amqp_namespace}.#{channel}"
-    publish(channel, data)
-  rescue Bunny::Exception => e
-    Rails.logger.error "Publishing to AMQP failed, automatic recovery too: #{e.message}"
-    Airbrake.notify(e)
-  end
-
-  def self.publish(event_routing_key, event_payload)
+  def self.send_to_bus(routing_key, payload)
     return unless CONFIG['amqp_options']
 
     start_connection
-    wrapped_exchange.publish(event_payload, routing_key: event_routing_key)
+    wrapped_exchange.publish(payload, routing_key: "#{Configuration.amqp_namespace}.#{routing_key}")
   end
 
   # Start one connection, channel and exchange per rails process
