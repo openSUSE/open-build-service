@@ -1055,6 +1055,12 @@ class BsRequest < ApplicationRecord
     bs_request_actions.any?(&:involves_hidden_project?)
   end
 
+  def canned_responses
+    package_ids = bs_request_actions.pluck(:source_package_id, :target_package_id).flatten.uniq
+    CannedResponse.where(package_id: package_ids)
+  end
+
+
   private
 
   # returns true if we have reached a state that we can't get out anymore
