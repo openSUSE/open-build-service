@@ -692,6 +692,8 @@ sub restartexit {
     waituntilgone("$runfile.restart");
     exit(0);
   }
+  # startup, if we still have an exit file now, it is stale
+  unlink "$runfile.exit";
 }
 
 sub xsystem {
