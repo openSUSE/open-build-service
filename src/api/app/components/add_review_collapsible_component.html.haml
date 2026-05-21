@@ -8,7 +8,10 @@
       %li.list-group-item
         = form_tag(request_modify_review_path) do
           = hidden_field_tag('review_id')
-          .mb-3
+          .mb-3{ data: { 'canned-controller': '' } }
+            - if Flipper.enabled?(:canned_responses, User.session)
+              .d-flex.justify-content-end
+                = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
             = text_area_tag('comment', '', rows: 4, class: 'w-100 form-control', placeholder: 'Please comment on your decision')
           .mb-3
             .form-check
