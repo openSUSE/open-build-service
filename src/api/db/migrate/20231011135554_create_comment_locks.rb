@@ -9,6 +9,10 @@ class CreateCommentLocks < ActiveRecord::Migration[7.0]
     end
 
     add_index :comment_locks, %i[commentable_type commentable_id], unique: true
-    add_foreign_key :comment_locks, :users, column: :moderator_id
+    safety_assured do
+      execute 'SET SESSION foreign_key_checks = 0'
+      add_foreign_key :comment_locks, :users, column: :moderator_id
+      execute 'SET SESSION foreign_key_checks = 1'
+    end
   end
 end
