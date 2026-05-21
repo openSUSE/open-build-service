@@ -11,6 +11,7 @@ module Person
     before_action :set_filter_state, only: :index
     before_action :set_notifications, only: :index
     before_action :set_notification, only: :update
+    after_action :invalidate_unread_count_cache, only: :update
 
     # GET /my/notifications
     def index
@@ -67,6 +68,10 @@ module Person
     def set_filter_state
       @filter_state = params[:state] || 'unread'
       raise FilterNotSupportedError if @filter_state.present? && ALLOWED_STATES.exclude?(@filter_state)
+    end
+
+    def invalidate_unread_count_cache
+      Rails.cache.delete([User.session.id, 'unread_notification_count'])
     end
   end
 end
