@@ -4,7 +4,7 @@ class RabbitmqBus
   def self.send_to_bus(routing_key, payload)
     return unless CONFIG['amqp_options']
 
-    start_connection
+    self.connection ||= Bunny.new(CONFIG['amqp_options'].try(:symbolize_keys))
     wrapped_exchange.publish(payload, routing_key: "#{Configuration.amqp_namespace}.#{routing_key}")
   end
 
@@ -24,12 +24,4 @@ class RabbitmqBus
                       # :nocov:
                     end
   end
-
-  # this function is skipped in tests by putting a BunnyMock in self.connection
-  def self.start_connection
-    # :nocov:
-    self.connection ||= Bunny.new(CONFIG['amqp_options'].try(:symbolize_keys))
-    # :nocov:
-  end
-  private_class_method :start_connection
 end
