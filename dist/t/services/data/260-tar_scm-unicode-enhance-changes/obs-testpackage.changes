@@ -1,0 +1,12 @@
+-------------------------------------------------------------------
+Sun Dec 02 10:10:08 UTC 2018 - opensuse-packaging@opensuse.org
+
+- Update to version 0.0.5:
+  * füfüfü
+  * changed Source in spec from xz to gz
+  * test
+  * fixed typo in spec
+  * fixed version in spec
+  * fixed 'Source:' to include version
+  * added Makefile and spec file
+

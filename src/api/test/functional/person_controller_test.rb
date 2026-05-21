@@ -71,7 +71,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   def test_userinfo_with_broken_auth_header
     prepare_request_invalid_user
     get '/person/tom'
-    assert_select 'status[code] > summary', /^Unknown user '[^']+' or invalid password$/
+    assert_select 'status[code] > summary', /^Authentication Required$/
 
     assert_response :unauthorized
   end
@@ -322,7 +322,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'owner', attributes: { userid: 'adrian' }
 
-    lost_guy = User.find_by_login!('lost_guy')
+    lost_guy = User.not_deleted.find_by!(login: 'lost_guy')
     assert_equal 'subaccount', lost_guy[:state]
     assert_equal 'confirmed', lost_guy.state
 

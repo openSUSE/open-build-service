@@ -1,0 +1,10 @@
+description: OK. The request has succeeded.
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/reports.yaml'
+    example: |
+      <reports>
+        <report id="1" reportable_id="3" reportable_type="Comment" category="First" created_at="2025-12-12 11:48:11 UTC" updated_at="2025-12-16 14:08:19 UTC">Behave properly, please!</report>
+        <report id="2" reportable_id="10" reportable_type="Package" category="Second" created_at="2025-12-12 11:48:11 UTC" updated_at="2025-12-12 11:48:12 UTC">Watch your language, please</report>
+      </reports>

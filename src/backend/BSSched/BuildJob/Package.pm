@@ -19,12 +19,14 @@ use strict;
 use warnings;
 
 use Digest::MD5 ();
+
+use BSOBS;
 use Build;		# for get_deps
 use BSBuild;		# for add_meta
 use BSSolv;		# for add_meta/gen_meta
 use BSSched::BuildJob;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 =head1 NAME
@@ -90,7 +92,11 @@ sub check {
 
   # check for localdep repos
   if (exists($pdata->{'originproject'})) {
-    if ($repo->{'linkedbuild'} && $repo->{'linkedbuild'} eq 'localdep') {
+    my $linkedbuild = $repo->{'linkedbuild'} || 'off';
+    if ($linkedbuild eq 'alldirect_or_localdep') {
+      $linkedbuild = 'localdep' unless grep {$_->{'project'} eq $pdata->{'originproject'}} @{$ctx->{'proj'}->{'link'} || []};
+    }
+    if ($linkedbuild eq 'localdep') {
       if (!grep {$depislocal->{$_}} @$edeps) {
         return ('excluded', 'project link, only depends on non-local packages');
       }

@@ -19,32 +19,28 @@ package BSRedisnotify;
 
 use BSConfiguration;
 use BSUtil;
+use BSFileQueue;
 
 my $eventdir = "$BSConfig::bsdir/events";
 
 my $notifyforwarddir = "$eventdir/notifyforward";
 
 sub addforwardjob {
-  my (@job) = @_;
-  s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @job;
-  my $job = join('|', @job)."\n";
-  my $file;
   mkdir_p($notifyforwarddir) unless -d $notifyforwarddir;
-  BSUtil::lockopen($file, '>>', "$notifyforwarddir/queue");
-  my $oldlen = -s $file;
-  (syswrite($file, $job) || 0) == length($job) || die("notifyforward/queue: $!\n");
-  close($file);
-  BSUtil::ping("$notifyforwarddir/.ping") unless $oldlen;
+  my $needping = BSFileQueue::add("$notifyforwarddir/queue", @_);
+  BSUtil::ping("$notifyforwarddir/.ping") if $needping;
 }
 
 sub updateresult {
-  my ($prpa, $packstatus, $packerror, $jobs) = @_;
+  my ($prpa, $packstatus, $packerror, $jobs, $scmsync, $scminfo) = @_;
   my @job = ('redis', 'updateresult', $prpa);
   for my $packid (sort keys %$packstatus) {
     my $code = $packstatus->{$packid};
     my $details = $code eq 'scheduled' ? $jobs->{$packid} : $packerror->{$packid};
     push @job, $packid, ($details ? "$code:$details" : $code);
   }
+  push @job, '_scmsync', "excluded:$scmsync" if $scmsync;
+  push @job, '_scminfo', "excluded:$scminfo" if $scmsync && $scminfo;
   addforwardjob(@job);
 }
 

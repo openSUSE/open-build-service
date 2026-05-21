@@ -1,7 +1,10 @@
 module Webui
   module Packages
     class BadgeController < Webui::WebuiController
+      include ScmsyncChecker
+
       before_action :set_project
+      before_action :check_scmsync
       before_action :set_package
 
       def show
@@ -12,6 +15,8 @@ module Webui
         badge = Badge.new(params[:type], results)
         send_data(badge.xml, type: 'image/svg+xml', disposition: 'inline')
       end
+
+      private
 
       # discard results with excluded and disabled status
       # discard disabled with possible previous failed results

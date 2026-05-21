@@ -23,7 +23,7 @@ module Clockwork
   end
 
   every(30.seconds, 'refresh workerstatus') do
-    Rails.cache.write('workerstatus', Backend::Api::BuildResults::Worker.status)
+    Rails.cache.write('workerstatus', Backend::Api::Worker.status)
     # this should be fast, so don't delay
     WorkerStatus.new.save
   end
@@ -89,5 +89,14 @@ module Clockwork
   # check for new breakages between api and backend due to dull code
   every(1.week, 'consistency check', at: 'Sunday 03:00') do
     Old::ConsistencyCheckJob.perform_later
+  end
+
+  # Expire assignments after 24h
+  every(1.day, 'expire assignments') do
+    ExpireAssignmentsJob.perform_later
+  end
+
+  every(12.hours, 'update package upstream version') do
+    SyncUpstreamPackageVersionJob.perform_later
   end
 end

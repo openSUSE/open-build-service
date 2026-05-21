@@ -18,10 +18,6 @@ namespace :dev do
     RakeSupport.copy_example_file('config/options.yml')
     puts 'Copying thinking sphinx example...'
     RakeSupport.copy_example_file('config/thinking_sphinx.yml')
-
-    puts 'Setting up the cloud uploader'
-    RakeSupport.copy_example_file('../../dist/aws_credentials')
-    RakeSupport.copy_example_file('../../dist/ec2utils.conf')
   end
 
   task development_environment: :environment do
@@ -46,10 +42,24 @@ namespace :dev do
   task :bootstrap, [:old_test_suite] => %i[prepare environment] do |_t, args|
     args.with_defaults(old_test_suite: false)
 
-    begin
-      Rake::Task['db:version'].invoke
-    rescue StandardError
-      puts 'Creating and seeding the database...'
+    database_exists = false
+
+    puts 'Checking if database exists...'
+    if RailsVersion.is_7_2?
+      # Since Rails 7.2 `Rake::Task['db:version'].invoke` does not raise exception anymore if the database does not exist.
+      # So we need to check if the database exists before running the task.
+      database_exists = true if ActiveRecord::Base.connection.database_exists?
+    else
+      begin
+        Rake::Task['db:version'].invoke
+        database_exists = true
+      rescue StandardError
+        nil
+      end
+    end
+
+    unless database_exists
+      puts 'Database does not exist. Creating and seeding the database...'
       Rake::Task['db:setup'].invoke
       if args.old_test_suite
         puts 'Old test suite. Loading fixtures...'
@@ -84,8 +94,10 @@ namespace :dev do
     task create: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
+
       require 'active_support/testing/time_helpers'
       include ActiveSupport::Testing::TimeHelpers
+
       require 'tasks/dev/test_data/maintenance'
       include TestData::Maintenance
 
@@ -209,11 +221,11 @@ namespace :dev do
       User.session = iggy
       req.addreview(by_user: admin.login, comment: 'is this really fine?')
 
+      User.session = admin
       create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
       create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
 
-      Configuration.download_url = 'https://download.opensuse.org'
-      Configuration.save
+      Configuration.update(download_url: 'https://download.opensuse.org', enforce_project_keys: true)
 
       # Other special projects and packages
       create(:project, name: 'linked_project', link_to: home_admin)
@@ -247,11 +259,21 @@ namespace :dev do
       # Create a request with a delete request action
       Rake::Task['dev:requests:request_with_delete_action'].invoke
 
+      # Create a request with a release action
+      Rake::Task['dev:requests:request_with_release_action'].invoke
+
+      # Create a request that can be forwarded to a devel package
+      Rake::Task['dev:requests:forwardable_request'].invoke
+
       # Create news
       Rake::Task['dev:news:data'].invoke
 
       # Create notifications by running the `dev:notifications:data` task two times
       Rake::Task['dev:notifications:data'].invoke(2)
+      Rake::Task['dev:assignments'].invoke
+
+      # Create a templates project with packages
+      Rake::Task['dev:templates:create'].invoke
     end
 
     desc 'Create more data'

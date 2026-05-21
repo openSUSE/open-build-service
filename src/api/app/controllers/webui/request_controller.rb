@@ -6,48 +6,63 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
   before_action :require_login,
-                except: %i[show beta_show sourcediff diff request_action request_action_changes inline_comment build_results rpm_lint changes mentioned_issues]
+                except: %i[show beta_show sourcediff diff request_action request_action_changes request_action_details inline_comment build_results
+                           changes changes_diff mentioned_issues complete_build_results]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
-                only: %i[changerequest show beta_show request_action request_action_changes inline_comment build_results rpm_lint
-                         changes mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment beta_show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results request_action_changes],
-                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+                only: %i[changerequest show beta_show request_action request_action_changes request_action_details inline_comment build_results
+                         changes changes_diff mentioned_issues chart_build_results complete_build_results]
+  before_action :set_actions, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues chart_build_results complete_build_results
+                                       request_action_changes request_action_details],
+                              if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
   before_action :set_actions_deprecated, only: [:show]
-  before_action :set_action, only: %i[inline_comment beta_show build_results rpm_lint changes mentioned_issues],
-                             if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
-                                                    if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_superseded_request, only: %i[show beta_show request_action request_action_changes build_results rpm_lint changes mentioned_issues]
+  before_action :set_action, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues request_action_details request_action_changes],
+                             if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
+  before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results changes changes_diff mentioned_issues],
+                                                    if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
+  before_action :set_superseded_request, only: %i[show beta_show request_action request_action_changes build_results changes changes_diff mentioned_issues]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_request_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
-                                       if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :cache_diff_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
-                                  if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :check_beta_user_redirect, only: %i[beta_show build_results rpm_lint changes mentioned_issues]
+  before_action :prepare_request_data, only: %i[beta_show build_results changes mentioned_issues],
+                                       if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
+  before_action :prepare_request_header_data, only: %i[beta_show build_results changes mentioned_issues],
+                                              if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
+  before_action :cache_diff_data, only: %i[changes request_action_changes],
+                                  if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
+  before_action :check_beta_user_redirect, only: %i[beta_show build_results changes mentioned_issues changes_diff]
 
   after_action :verify_authorized, only: [:create]
 
   def beta_show
-    @current_notification = handle_notification
+    @is_target_maintainer = @bs_request.target_maintainer?(User.session)
+    @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session).reject(&:staging_project?)
     @history_elements = @bs_request.history_elements.includes(:user)
+    @request_reviews = @bs_request.reviews.includes(:user, group: :users).for_non_staging_projects(@target_project)
+
+    # retrieve a list of all package maintainers that are assigned to at least one target package
+    @package_maintainers = @bs_request.target_package_maintainers
+    # retrieve a list of all project maintainers
+    @project_maintainers = @target_project&.maintainers || []
+    # search for a project, where the user is not a package maintainer but a project maintainer and show
+    # a hint if that package has some package maintainers (issue#1970)
+    @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
+
     @active_tab = 'conversation'
   end
 
   # TODO: Remove this once request_show_redesign is rolled out
   def show
-    redirect_to request_beta_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) if Flipper.enabled?(:request_show_redesign, User.session)
+    redirect_to request_beta_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
     @diff_limit = params[:full_diff] ? 0 : nil
     @is_author = @bs_request.creator == User.possibly_nobody.login
 
-    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
+    @is_target_maintainer = @bs_request.target_maintainer?(User.session)
     @can_handle_request = @bs_request.state.in?(%i[new review declined]) && (@is_target_maintainer || @is_author)
 
     @history = @bs_request.history_elements.includes(:user)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = target_package_maintainers
+    @package_maintainers = @bs_request.target_package_maintainers
 
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
@@ -86,7 +101,7 @@ class Webui::RequestController < Webui::WebuiController
       redirect_to request_show_path(@bs_request.number)
       return
     # FIXME: Use validations in the model instead of raising whenever something is wrong
-    rescue BsRequestAction::MissingAction
+    rescue MaintenanceHelper::MissingAction
       flash[:error] = 'Unable to submit, sources are unchanged'
     rescue Project::Errors::UnknownObjectError
       flash[:error] = "Unable to submit. The project '#{elide(params[:project_name])}' was not found"
@@ -168,7 +183,10 @@ class Webui::RequestController < Webui::WebuiController
     if @action[:diff_not_cached]
       bs_request_action = BsRequestAction.find(@action[:id])
       job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
-      BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
+      return if job.positive?
+
+      priority = User.session.present? ? -10 : 0
+      BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(bs_request_action)
     end
 
     respond_to do |format|
@@ -179,13 +197,13 @@ class Webui::RequestController < Webui::WebuiController
   def request_action_changes
     return head :unauthorized unless @actions
 
-    @action = @actions.where(id: params['id'].to_i).first
-
-    cache_diff_data
-
     respond_to do |format|
       format.js
     end
+  end
+
+  def request_action_details
+    render partial: 'webui/request/request_action_details', locals: { action: @action }
   end
 
   def sourcediff
@@ -199,11 +217,16 @@ class Webui::RequestController < Webui::WebuiController
     changestate = (%w[accepted commented declined revoked new] & params.keys).last
 
     if changestate == 'commented'
-
       build_new_comment(@bs_request, body: params[:reason])
-
+      if @comment.save
+        flash[:success] = 'Comment created successfully.'
+      else
+        flash[:error] = "Failed to create comment: #{@comment.errors.full_messages.to_sentence}."
+      end
     elsif change_state(changestate, params)
       # TODO: Make this work for each submit action individually
+
+      # This is how we try to make the submitter a maintainer while using the legacy request show page
       if params[:add_submitter_as_maintainer_0] # rubocop:disable Naming/VariableNumber
         if changestate == 'accepted'
           # split into project and package
@@ -220,7 +243,27 @@ class Webui::RequestController < Webui::WebuiController
           flash[:error] = 'Will not add maintainer for not accepted requests'
         end
       end
-      accept_request if changestate == 'accepted'
+
+      # This is how we try to make the submitter a maintainer while using the beta request show page
+      if changestate == 'accepted'
+        if params[:accepted] == 'Accept and make maintainer'
+          @bs_request.bs_request_actions.where(type: :submit).find_each do |action|
+            target = action.target_package_object
+            target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
+          end
+        elsif params[:accepted] == 'Accept, make maintainer and forward'
+          @bs_request.bs_request_actions.where(type: :submit).find_each do |action|
+            target = action.target_package_object
+            target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
+            action.forward.each do |fwd|
+              forward_request_to(fwd[:project], fwd[:package])
+            end
+          end
+        end
+
+        forward_requests
+        flash[:success] = "Request #{params[:number]} accepted"
+      end
     end
     redirect_to(request_show_path(params[:number]))
   end
@@ -292,20 +335,29 @@ class Webui::RequestController < Webui::WebuiController
     @buildable = @action.source_package || @project
   end
 
-  def rpm_lint
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.rpm_lint
-
-    @active_tab = 'rpm_lint'
-    @ajax_data = {}
-    @ajax_data['project'] = @action.source_project if @action.source_project
-    @ajax_data['package'] = @action.source_package if @action.source_package
-    @ajax_data['is_staged_request'] = true if @staging_project.present?
+  def changes
+    @active_tab = 'changes'
   end
 
-  def changes
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.changes
-
-    @active_tab = 'changes'
+  def changes_diff
+    filename = params[:filename]
+    sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, file: filename, filelimit: 0, tarlimit: 0 }.compact).first
+    source_rev = sourcediff.dig('new', 'srcmd5')
+    if @action.source_package_object&.file_exists?(filename, { rev: source_rev, expand: 1 }.compact)
+      source_file = project_package_file_path(@action.source_project_object, @action.source_package_object, filename, rev: source_rev, expand: 1)
+    end
+    target_rev = sourcediff.dig('old', 'srcmd5')
+    if @action.target_package_object&.file_exists?(filename, { rev: target_rev, expand: 1 }.compact)
+      target_file = project_package_file_path(@action.target_project_object, @action.target_package_object, filename, rev: target_rev, expand: 1)
+    end
+    render partial: 'webui/request/changes_diff', formats: [:html],
+           locals: { commentable: @action,
+                     diff: sourcediff.dig('files', filename, 'diff', '_content'),
+                     file_index: params[:file_index], source_file: source_file,
+                     target_file: target_file, source_rev: source_rev, target_rev: target_rev,
+                     shown_lines: sourcediff.dig('files', filename, 'diff', 'shown'),
+                     total_lines: sourcediff.dig('files', filename, 'diff', 'lines'),
+                     commented_lines: (params[:commented_lines] || []).map(&:to_i) }
   end
 
   def mentioned_issues
@@ -315,12 +367,35 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def chart_build_results
-    render partial: 'webui/request/chart_build_results', locals: { chart_build_results_data: build_results_data }
+    # a bs_request with a lot of bs_request_actions can cause performance issues on the backend, we need to skip those
+    return if @actions.count > BsRequest::MAX_ACTIONS_TO_RENDER_BUILD_RESULTS
+
+    important_repoarch = RepositoryArchitecture.joins(:repository, :architecture).where(repository: Repository.where(project: @actions.pluck(:source_project_id)),
+                                                                                        important: true).pluck([
+                                                                                                                 'repositories.name', 'architectures.name'
+                                                                                                               ])
+    count = 0
+    chart_build_results_data = build_results_data.filter_map do |build_result|
+      if important_repoarch.present? && important_repoarch.exclude?([build_result[:repository], build_result[:architecture]])
+        count += 1
+        next
+      end
+
+      build_result
+    end
+
+    render partial: 'webui/request/chart_build_results', locals: { chart_build_results_data: chart_build_results_data, omitted: count }
   end
 
   def complete_build_results
     filters = params.keys - %w[controller action number]
     render partial: 'webui/request/beta_show_tabs/build_status', locals: { build_results_data: build_results_data, bs_request_number: @bs_request.number, filters: filters }
+  end
+
+  def autocomplete_reviewers
+    users = User.where(['lower(login) like lower(?)', "#{params[:term]}%"]).order(Arel.sql('length(login)'), :login).pluck(:login)
+    groups = Group.where(['lower(title) like lower(?)', "#{params[:term]}%"]).order(Arel.sql('length(title)'), :title).pluck(:title)
+    render json: [users, groups].flatten
   end
 
   private
@@ -330,7 +405,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def check_beta_user_redirect
-    redirect_to request_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) unless Flipper.enabled?(:request_show_redesign, User.session)
+    redirect_to request_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) unless Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
   end
 
   def addreview_opts
@@ -352,9 +427,11 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def any_project_maintained_by_current_user?
-    projects = @actions.select(:target_project).distinct.pluck(:target_project)
-    maintainer_role = Role.find_by_title('maintainer')
-    projects.any? { |project| Project.find_by_name(project).user_has_role?(User.possibly_nobody, maintainer_role) }
+    projects = Project.where(name: @actions.select(:target_project)).distinct
+    user = User.possibly_nobody
+    maintainers_relationship = Relationship.maintainers.where(project: projects)
+
+    maintainers_relationship.where(user: user).or(maintainers_relationship.where(group: [user.groups.unscope(:order)])).any?
   end
 
   def new_state
@@ -372,19 +449,11 @@ class Webui::RequestController < Webui::WebuiController
     @diff_to_superseded = @bs_request.superseding.find_by(number: @diff_to_superseded_id)
     return if @diff_to_superseded
 
-    flash[:error] = "Request #{@diff_to_superseded_id} does not exist or is not superseded by request #{@bs_request.number}."
-    nil
+    flash.now[:error] = "Request #{@diff_to_superseded_id} does not exist or is not superseded by request #{@bs_request.number}."
   end
 
   def require_request
     @bs_request = BsRequest.find_by!(number: params[:number])
-  end
-
-  def target_package_maintainers
-    distinct_bs_request_actions = @actions.select(:target_project, :target_package).distinct
-    distinct_bs_request_actions.flat_map do |action|
-      Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
-    end.compact.uniq
   end
 
   def change_state(newstate, params)
@@ -412,18 +481,25 @@ class Webui::RequestController < Webui::WebuiController
     false
   end
 
-  def accept_request
-    flash[:success] = "Request #{params[:number]} accepted"
+  def forward_requests
+    # Forward the requests when using the beta request show page
+    if params[:accepted] == 'Accept and forward'
+      @bs_request.bs_request_actions.where(type: :submit).find_each do |action|
+        action.forward.each do |fwd|
+          forward_request_to(fwd[:project], fwd[:package])
+        end
+      end
+    end
 
-    # Check if we have to forward this request to other projects / packages
+    # Check if we have to forward this request to other projects / packages when using the legacy request show page
     params.keys.grep(/^forward.*/).each do |fwd|
-      forward_request_to(fwd)
+      # split off 'forward_' and split into project and package
+      target_project, target_package = params[fwd].split('_#_')
+      forward_request_to(target_project, target_package)
     end
   end
 
-  def forward_request_to(fwd)
-    # split off 'forward_' and split into project and package
-    tgt_prj, tgt_pkg = params[fwd].split('_#_')
+  def forward_request_to(tgt_prj, tgt_pkg)
     begin
       forwarded_request = @bs_request.forward_to(project: tgt_prj, package: tgt_pkg, options: params.slice(:description))
     rescue APIError, ActiveRecord::RecordInvalid => e
@@ -451,7 +527,7 @@ class Webui::RequestController < Webui::WebuiController
     opt['target_project'] = params[:project]
     opt['target_package'] = params[:package]
     opt['source_project'] = params[:devel_project]
-    opt['source_package'] = params[:devel_package] || params[:package]
+    opt['source_package'] = (params[:devel_package] || params[:package]) if params[:devel_project].present?
     opt['target_repository'] = params[:repository]
     opt['person_name'] = params[:user] if params[:user].present?
     opt['group_name'] = params[:group] if params[:group].present?
@@ -500,7 +576,7 @@ class Webui::RequestController < Webui::WebuiController
 
     if staging_review.for_project?
       staging_project = {
-        name: staging_review.project.name[target_project.name.length + 1..],
+        name: staging_review.project.name[(target_project.name.length + 1)..],
         url: staging_workflow_staging_project_path(target_project.name, staging_review.project.name)
       }
     end
@@ -512,45 +588,39 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def cache_diff_data
-    return unless @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded })
+    @tarlimit = params[:tarlimit]
+    @diff_not_cached = @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded, tarlimit: @tarlimit }.compact)
+    return unless @diff_not_cached
 
     job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
-    BsRequestActionWebuiInfosJob.perform_later(@action) if job.zero?
+    return if job.positive?
+
+    priority = User.session.present? ? -10 : 0
+    BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(@action, tarlimit: @tarlimit)
   end
 
+  # Shared data used in multiple views (request conversation, request build results, etc)
   def prepare_request_data
-    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
-    @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session).reject(&:staging_project?)
-
-    # Handling request actions
     @action ||= @actions.first
+    @target_project = Project.find_by_name(@bs_request.target_project_name)
+
+    # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
+    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded,
+                                         cacheonly: 1,
+                                         nodiff: 1 })
+                     .reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
+    # Handling build results
+    @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
+  end
+
+  def prepare_request_header_data
+    @current_notification = handle_notification
     action_index = @actions.index(@action)
     if action_index
       @prev_action = @actions[action_index - 1] unless action_index.zero?
       @next_action = @actions[action_index + 1] if action_index + 1 < @actions.length
     end
-
-    target_project = Project.find_by_name(@bs_request.target_project_name)
-    @request_reviews = @bs_request.reviews.includes(%i[user group]).for_non_staging_projects(target_project)
-    @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
-
-    # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
-    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1 }).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
-
-    # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = target_package_maintainers
-
-    # retrieve a list of all project maintainers
-    @project_maintainers = target_project&.maintainers || []
-
-    # search for a project, where the user is not a package maintainer but a project maintainer and show
-    # a hint if that package has some package maintainers (issue#1970)
-    @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
-
-    # Handling build results
-    @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
-
-    @current_notification = handle_notification
+    @staging_status = staging_status(@bs_request, @target_project) if Staging::Workflow.find_by(project: @target_project)
   end
 
   def set_influxdb_data_request_actions

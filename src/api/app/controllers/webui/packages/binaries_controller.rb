@@ -1,7 +1,7 @@
 module Webui
   module Packages
     class BinariesController < Webui::WebuiController
-      include Webui::Packages::BinariesHelper
+      include ScmsyncChecker
 
       # TODO: Keep in sync with Build::query in backend/build/Build.pm.
       #       Regexp.new('\.iso$') would be Build::Kiwi::queryiso which isn't implemented yet...
@@ -10,17 +10,19 @@ module Webui
                                  Regexp.new('\.pkg\.tar(?:\.gz|\.xz|\.zst)?$'),
                                  Regexp.new('\.arch$')].freeze
 
+      before_action :require_login, except: [:index]
       before_action :set_project
+      before_action :check_scmsync
       before_action :set_package
+      before_action :set_multibuild_flavor
       before_action :set_repository
-      before_action :set_architecture, only: %i[show dependency filelist]
+      before_action :set_architecture, only: %i[show dependency filelist dependencies]
       before_action :set_dependant_project, only: :dependency
       before_action :set_dependant_repository, only: :dependency
-      before_action :set_filename, only: %i[show dependency filelist]
+      before_action :set_filename, only: %i[show dependency filelist dependencies]
 
       prepend_before_action :lockout_spiders
 
-      before_action :require_login, except: [:index]
       after_action :verify_authorized, only: [:destroy]
 
       def index
@@ -38,8 +40,7 @@ module Webui
               build_results_set[:binaries] << { filename: binary['filename'],
                                                 size: binary['size'],
                                                 links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
-                                                         download_url: download_url_for_binary(architecture_name: result['arch'], file_name: binary['filename']),
-                                                         cloud_upload?: uploadable?(binary['filename'], result['arch']) } }
+                                                         download_url: download_url_for_binary(architecture_name: result['arch'], file_name: binary['filename']) } }
             end
           end
           @buildresults << build_results_set
@@ -50,7 +51,8 @@ module Webui
       end
 
       def show
-        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename)
+        # Use basic fileinfo for initial page load; dependencies are loaded lazily via Turbo Frame
+        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo(@project.name, @package_name, @repository.name, @architecture.name, @filename)
         raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
         respond_to do |format|
@@ -59,6 +61,11 @@ module Webui
           end
           format.any { redirect_to download_url_for_binary(architecture_name: @architecture.name, file_name: @filename) }
         end
+      end
+
+      def dependencies
+        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename)
+        raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
       end
 
       def dependency
@@ -117,10 +124,14 @@ module Webui
         @filename = File.basename(params[:binary_filename] || params[:filename])
       end
 
+      def set_multibuild_flavor
+        @multibuild_flavor = Package.multibuild_flavor(@package_name) if @package_name.present?
+      end
+
       # Get an URL to a binary produced by the build.
       # In the published repo for everyone, in the backend directly only for logged in users.
       def download_url_for_binary(architecture_name:, file_name:)
-        if publishing_enabled(architecture_name: architecture_name)
+        if publishing_enabled?(architecture_name: architecture_name)
           published_url = Backend::Api::BuildResults::Binaries.download_url_for_file(@project.name, @repository.name, @package_name, architecture_name, file_name)
           return published_url if published_url
         end
@@ -128,7 +139,7 @@ module Webui
         "/build/#{@project.name}/#{@repository.name}/#{architecture_name}/#{@package_name}/#{file_name}" if User.session
       end
 
-      def publishing_enabled(architecture_name:)
+      def publishing_enabled?(architecture_name:)
         if @project == @package.project
           @package.enabled_for?('publish', @repository.name, architecture_name)
         else

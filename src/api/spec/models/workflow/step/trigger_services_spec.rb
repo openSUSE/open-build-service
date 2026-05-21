@@ -1,8 +1,8 @@
 RSpec.describe Workflow::Step::TriggerServices do
   subject do
     described_class.new(step_instructions: step_instructions,
-                        scm_webhook: scm_webhook,
-                        token: token)
+                        token: token,
+                        workflow_run: workflow_run)
   end
 
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
@@ -11,16 +11,10 @@ RSpec.describe Workflow::Step::TriggerServices do
   let(:package) { create(:package, name: 'hello_world', project: project) }
 
   let(:step_instructions) { { package: package.name, project: project.name } }
+  let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
-  let(:scm_webhook) do
-    SCMWebhook.new(payload: {
-                     scm: 'github',
-                     event: 'pull_request',
-                     action: 'opened',
-                     pr_number: 1,
-                     source_repository_full_name: 'reponame',
-                     commit_sha: '123'
-                   })
+  let(:workflow_run) do
+    create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload)
   end
 
   describe '#call' do

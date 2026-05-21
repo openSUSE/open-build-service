@@ -1,0 +1,10 @@
+- parameters = { project: action.target_project, request_action_id: action.id, notification_id: current_notification }
+
+%p
+  You might want to
+  = link_to(roles_link(action, parameters)) do
+    check the current roles
+  of
+  %span<
+    = project_or_package_text(action.target_project, action.target_package)
+    \.

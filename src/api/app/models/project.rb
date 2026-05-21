@@ -17,25 +17,23 @@ class Project < ApplicationRecord
   TYPES = %w[standard maintenance maintenance_incident
              maintenance_release].freeze
 
-  after_initialize :init
+  after_initialize :init_defaults
+  after_create :backfill_bs_request_actions
+
   before_destroy :cleanup_before_destroy, prepend: true
   after_destroy_commit :delete_on_backend
 
   after_destroy :delete_from_sphinx
   after_save :discard_cache
-  after_save :populate_to_sphinx
+  after_save :populate_to_sphinx, if: :needs_sphinx_update?
 
+  after_save :sync_upstream_package_version, :sync_local_package_version, if: -> { saved_change_to_anitya_distribution_name? }
   after_rollback :reset_cache
   after_rollback :discard_cache
 
-  serialize :required_checks, Array
-  attr_accessor :commit_opts, :commit_user
+  serialize :required_checks, type: Array
 
-  after_initialize do
-    @commit_opts = {}
-    # might be nil - in this case we rely on the caller to set it
-    @commit_user = User.session
-  end
+  attr_accessor :commit_opts, :commit_user
 
   has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, inverse_of: :project do
@@ -60,7 +58,7 @@ class Project < ApplicationRecord
   has_many :target_repositories, through: :release_targets
   has_many :path_elements, through: :repositories
   has_many :linked_repositories, through: :path_elements, source: :link, foreign_key: :repository_id
-  has_many :repository_architectures, -> { order('position') }, through: :repositories
+  has_many :repository_architectures, -> { order(:position) }, through: :repositories
 
   has_many :watched_items, as: :watchable, dependent: :destroy
 
@@ -81,20 +79,27 @@ class Project < ApplicationRecord
 
   has_many :reviews, dependent: :nullify
 
-  has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_project_id'
+  has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_project_id', dependent: :nullify
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
+
+  has_many :source_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'source_project_id', dependent: :nullify
+  has_many :source_of_bs_requests, through: :source_of_bs_request_actions, source: :bs_request
 
   has_one :staging, class_name: 'Staging::Workflow', inverse_of: :project, dependent: :destroy
 
   has_many :notified_projects, dependent: :destroy
   has_many :notifications, through: :notified_projects
   has_many :reports, as: :reportable, dependent: :nullify
-  has_many :label_templates
+  has_many :label_templates, dependent: :destroy
+  has_many :label_globals, dependent: :destroy
+  accepts_nested_attributes_for :label_globals, allow_destroy: true
+  has_many :assignments, through: :packages
+  has_many :canned_responses, dependent: :nullify
 
   default_scope { where.not('projects.id' => Relationship.forbidden_project_ids) }
 
   scope :filtered_for_list, lambda {
-    where.not('name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
+    where.not('projects.name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
 
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
@@ -105,13 +110,17 @@ class Project < ApplicationRecord
   scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
   scope :related_to_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id }) }
+  scope :with_package_templates, -> { joins(attribs: [{ attrib_type: [:attrib_namespace] }]).where(attribs: { attrib_types: { name: 'PackageTemplates', attrib_namespaces: { name: 'OBS' } } }) }
 
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: { case_sensitive: true }
   validates :title, length: { maximum: 250 }
   validates :report_bug_url, length: { maximum: 8192 }
   validate :valid_name
-
+  validates :anitya_distribution_name, length: { maximum: 200 }
   validates :kind, inclusion: { in: TYPES }
+  validates :anitya_distribution_name,
+            inclusion: { in: ->(_project) { Project.values_for_anitya_distributions }, message: '%{value} is not a valid Anitya distribution' },
+            allow_blank: true
 
   class << self
     def home?(name)
@@ -169,37 +178,11 @@ class Project < ApplicationRecord
     end
 
     def image_templates
-      ProjectsWithImageTemplatesFinder.new.call + remote_image_templates
+      ProjectsWithImageTemplatesFinder.new.call + RemoteProject.image_templates
     end
 
-    def remote_image_templates
-      result = []
-      Project.remote.each do |project|
-        body = load_from_remote(project, '/image_templates.xml')
-        next if body.blank?
-
-        Xmlhash.parse(body).elements('image_template_project').each do |image_template_project|
-          result << remote_image_template_from_xml(project, image_template_project)
-        end
-      end
-      result
-    end
-
-    def load_from_remote(project, path)
-      Rails.cache.fetch("remote_image_templates_#{project.id}", expires_in: 1.hour) do
-        Project::RemoteURL.load(project, path)
-      end
-    end
-
-    def remote_image_template_from_xml(remote_project, image_template_project)
-      # We don't store the project and packages objects because they're fetched from remote instances and stored in cache
-      project = Project.new(name: "#{remote_project.name}:#{image_template_project['name']}")
-      image_template_project.elements('image_template_package').each do |image_template_package|
-        project.packages.new(name: image_template_package['name'].presence,
-                             title: image_template_package['title'].presence,
-                             description: image_template_package['description'].presence)
-      end
-      project
+    def package_templates
+      Project.with_package_templates + RemoteProject.package_templates
     end
 
     def deleted_instance
@@ -212,7 +195,7 @@ class Project < ApplicationRecord
       project
     end
 
-    def is_remote_project?(name, skip_access: false)
+    def remote_project?(name, skip_access: false)
       lpro = find_remote_project(name, skip_access: skip_access)
 
       lpro && lpro[0].defines_remote_instance?
@@ -227,18 +210,13 @@ class Project < ApplicationRecord
     #   - an instance of Project
     #   - a string for a Project from an interconnect
     #   - UnknownObjectError or ReadAccessError exceptions
-    def get_by_name(name, include_all_packages: false)
+    def get_by_name(name)
       dbp = find_by_name(name, skip_check_access: true)
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
         return "#{dbp.name}:#{remote_name}" if dbp
 
         raise Project::Errors::UnknownObjectError, "Project not found: #{name}"
-      end
-      if include_all_packages
-        Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
-          raise ReadAccessError, name unless pkg.project.check_access?
-        end
       end
 
       raise ReadAccessError, name unless dbp.check_access?
@@ -304,28 +282,20 @@ class Project < ApplicationRecord
       projects
     end
 
-    def source_path(project, file = nil, opts = {})
-      path = "/source/#{project}"
-      path = Addressable::URI.escape(path)
-      path += "/#{ERB::Util.url_encode(file)}" if file.present?
-      path += "?#{opts.to_query}" if opts.present?
-      path
-    end
-
     def validate_remote_permissions(request_data)
       return {} if User.admin_session?
 
       # either OBS interconnect or repository "download on demand" feature used
       if request_data.key?('remoteurl') ||
          request_data.key?('remoteproject') ||
-         has_dod_elements?(request_data['repository'])
+         dod_elements?(request_data['repository'])
         return { error: 'Admin rights are required to change projects using remote resources' }
       end
 
       {}
     end
 
-    def has_dod_elements?(request_data)
+    def dod_elements?(request_data)
       case request_data
       when Array
         request_data.any? { |r| r['download'] }
@@ -342,10 +312,7 @@ class Project < ApplicationRecord
           target_project_name = element.value('project')
           if target_project_name != project_name
             begin
-              target_project = Project.get_by_name(target_project_name)
-              # user can access tprj, but backend would refuse to take binaries from there
-              return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" } if target_project.instance_of?(Project) &&
-                                                                                                                                                         target_project.disabled_for?('access', nil, nil)
+              Project.get_by_name(target_project_name)
             rescue Project::Errors::UnknownObjectError
               return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
             end
@@ -397,7 +364,7 @@ class Project < ApplicationRecord
 
           # try to remove the repository
           # but never remove the special repository named "deleted"
-          if !(repo == deleted_repository) && !User.possibly_nobody.can_modify?(project)
+          if repo != deleted_repository && !User.possibly_nobody.can_modify?(project)
             # permission check
             return { error: "No permission to remove a repository in project '#{project.name}'" }
           end
@@ -419,15 +386,23 @@ class Project < ApplicationRecord
         [p.name, p.title, p.categories]
       end
     end
-    # class_methods
-  end
 
-  def init
-    # We often use select in a query which would raise a MissingAttributeError
-    # if the kind attribute hasn't been included in the select clause.
-    # Therefore it's necessary to check self.has_attribute? :kind
-    self.kind ||= 'standard' if has_attribute?(:kind)
-    @config = nil
+    def values_for_anitya_distributions
+      distributions = Rails.cache.read('anitya_distributions')
+      return distributions[:names] if distributions.present? && distributions[:created_at] > 12.hours.ago
+
+      url = URI('https://release-monitoring.org/api/distro/names')
+      begin
+        response = Net::HTTP.get(url)
+        results = JSON.parse(response)['distro'].sort
+        Rails.cache.write('anitya_distributions', { names: results, created_at: Time.current })
+
+        results
+      rescue StandardError
+        distributions.present? ? distributions[:names] : []
+      end
+    end
+    # class_methods
   end
 
   def config
@@ -445,7 +420,7 @@ class Project < ApplicationRecord
     # simple check for involvement --> involved users can access project.id, User.session!
     relationships.groups.includes(:group).any? do |grouprel|
       # check if User.session! belongs to group.
-      User.session!.is_in_group?(grouprel.group)
+      User.session!.in_group?(grouprel.group)
     end
   end
 
@@ -454,7 +429,7 @@ class Project < ApplicationRecord
   end
 
   def subprojects
-    Project.where('name like ?', "#{name}:%")
+    Project.where('projects.name like ?', "#{name}:%")
   end
 
   def siblingprojects
@@ -525,11 +500,9 @@ class Project < ApplicationRecord
     end
   end
 
-  def find_repos(sym)
+  def find_repos(sym, &)
     repositories.each do |repo|
-      repo.send(sym).each do |lrep|
-        yield lrep
-      end
+      repo.send(sym).each(&)
     end
   end
 
@@ -608,11 +581,11 @@ class Project < ApplicationRecord
     user.can_modify?(self, ignore_lock)
   end
 
-  def is_locked?
-    @is_locked ||= flags.exists?(flag: 'lock', status: 'enable')
+  def locked?
+    @locked ||= flags.exists?(flag: 'lock', status: 'enable')
   end
 
-  def is_unreleased?
+  def unreleased?
     # returns true if NONE of the defined release targets are used
     repositories.includes(:release_targets).find_each do |repo|
       repo.release_targets.each do |rt|
@@ -622,8 +595,8 @@ class Project < ApplicationRecord
     true
   end
 
-  def is_standard?
-    self.kind == 'standard'
+  def standard?
+    kind == 'standard'
   end
 
   def defines_remote_instance?
@@ -662,14 +635,14 @@ class Project < ApplicationRecord
     end
 
     # do not allow to remove maintenance master projects if there are incident projects
-    return unless is_maintenance?
+    return unless maintenance?
     return unless MaintenanceIncident.find_by_maintenance_db_project_id(id)
 
     raise DeleteError, 'This maintenance project has incident projects and can therefore not be deleted.'
   end
 
   def can_be_unlocked?(with_exception: true)
-    if is_maintenance_incident?
+    if maintenance_incident?
       requests = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
       maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name })
       if maintenance_release_requests.exists?
@@ -860,7 +833,7 @@ class Project < ApplicationRecord
     trepo.save
 
     trigger = nil # no trigger is set by default
-    trigger = 'maintenance' if is_maintenance_incident?
+    trigger = 'maintenance' if maintenance_incident?
 
     return if add_target_repos.empty?
 
@@ -890,7 +863,7 @@ class Project < ApplicationRecord
       next if skip_repos.include?(repo.name)
 
       repo_name = opts[:extend_names] ? repo.extended_name : repo.name
-      next if repo.is_local_channel?
+      next if repo.local_channel?
 
       pkg_to_enable.enable_for_repository(repo_name) if pkg_to_enable
       next if repositories.find_by_name(repo_name)
@@ -909,14 +882,14 @@ class Project < ApplicationRecord
       next if skip_repos.include?(repo.name)
 
       # copy target repository when operating on a channel
-      targets = repo.release_targets if pkg_to_enable && pkg_to_enable.is_channel?
+      targets = repo.release_targets if pkg_to_enable && pkg_to_enable.channel?
       # base is a maintenance incident, take its target instead (kgraft case)
-      targets = repo.release_targets if repo.project.is_maintenance_incident?
+      targets = repo.release_targets if repo.project.maintenance_incident?
 
       target_repos = []
       target_repos = targets.map(&:target_repository) if targets
       # or branch from official release project? release to it ...
-      target_repos = [repo] if repo.project.is_maintenance_release?
+      target_repos = [repo] if repo.project.maintenance_release?
 
       update_project = repo.project.update_instance_or_self
       if update_project != repo.project
@@ -927,7 +900,7 @@ class Project < ApplicationRecord
       trepo = repositories.find_by_name(repo_name)
       unless trepo
         # channel case
-        next unless is_maintenance_incident?
+        next unless maintenance_incident?
 
         trepo = repositories.create(name: repo_name)
       end
@@ -936,7 +909,7 @@ class Project < ApplicationRecord
 
     branch_copy_flags(project)
 
-    return unless pkg_to_enable.is_channel?
+    return unless pkg_to_enable && pkg_to_enable.channel?
 
     # explicit call for a channel package, so create the repos for it
     pkg_to_enable.channels.each do |channel|
@@ -960,7 +933,7 @@ class Project < ApplicationRecord
       if repository == 'images'
         path_elements = remote_project_meta.xpath("//repository[@name='images']/path")
 
-        new_configuration = source_file('_config')
+        new_configuration = Backend::Api::Sources::Project.configuration(name)
         unless /^Type:/.match?(new_configuration)
           new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
           Backend::Api::Sources::Project.write_configuration(name, new_configuration)
@@ -1012,17 +985,17 @@ class Project < ApplicationRecord
             # of my repositories?
             repositories.joins(:path_elements).where('path_elements.repository_id': ipe.link, 'path_elements.kind': path_kind).find_each do |my_repo|
               next if my_repo == repo # do not add my self
-              next if repo.path_elements.where(link: my_repo).count.positive?
+              next if repo.path_elements.where(link: my_repo).any?
 
               elements = repo.path_elements.where(position: ipe.position, kind: path_kind)
-              if elements.count.zero?
+              if elements.none?
                 new_path = repo.path_elements.create(link: my_repo, position: ipe.position, kind: path_kind)
                 cycle_detection[new_path.id]
               else
                 PathElement.update(elements.first.id, position: ipe.position, link: my_repo, kind: path_kind)
               end
               cycle_detection[elements.first.id] = true
-              if elements.count > 1
+              if elements.many?
                 # note: we don't enforce a unique entry by position atm....
                 repo.path_elements.where('position = ipe.position AND kind = ? AND NOT id = ?', [path_kind, elements.first.id]).delete_all
               end
@@ -1122,7 +1095,7 @@ class Project < ApplicationRecord
 
   after_save do
     Rails.cache.delete "bsrequest_repos_map-#{name}"
-    @is_locked = nil
+    @locked = nil
   end
 
   def valid_name
@@ -1162,24 +1135,25 @@ class Project < ApplicationRecord
       BsRequest.where(id: BsRequestAction.bs_request_ids_by_source_projects(name)).or(
         BsRequest.where(id: Review.bs_request_ids_of_involved_projects(id))
       )
-    ).where(state: :review).distinct.order(priority: :asc, id: :desc).pluck(:number)
+    ).where(state: :review).distinct.pluck(:number)
 
-    targets = BsRequest.with_involved_projects(id)
-                       .or(BsRequest.from_source_project(name))
-                       .where(state: :new).with_actions
+    targets = BsRequest.joins(:bs_request_actions)
+                       .to_project(name)
+                       .or(BsRequest.from_project(name))
+                       .where(state: :new)
                        .pluck(:number)
 
-    incidents = BsRequest.with_involved_projects(id)
-                         .or(BsRequest.from_source_project(name))
+    incidents = BsRequest.to_project(name)
+                         .or(BsRequest.from_project(name))
                          .where(state: :new)
-                         .with_types(:maintenance_incident)
+                         .with_action_types(:maintenance_incident)
                          .pluck(:number)
 
-    maintenance_release = if is_maintenance?
-                            BsRequest.with_target_subprojects("#{name}:%")
-                                     .or(BsRequest.with_source_subprojects("#{name}:%"))
+    maintenance_release = if maintenance?
+                            BsRequest.to_project("#{name}:%")
+                                     .or(BsRequest.from_project("#{name}:%"))
                                      .where(state: :new)
-                                     .with_types(:maintenance_release)
+                                     .with_action_types(:maintenance_release)
                                      .pluck(:number)
                           else
                             []
@@ -1190,10 +1164,10 @@ class Project < ApplicationRecord
 
   # for the clockworkd - called delayed
   def update_packages_if_dirty
-    PackagesFinder.new(packages).dirty_backend_packages.each(&:update_if_dirty)
+    packages.dirty_backend_packages.each(&:update_if_dirty)
   end
 
-  def lock(comment = nil)
+  def command_lock(comment = nil)
     transaction do
       f = flags.find_by_flag_and_status('lock', 'disable')
       flags.delete(f) if f
@@ -1208,7 +1182,7 @@ class Project < ApplicationRecord
       flags.delete(delete_flag)
 
       # maintenance incidents need special treatment when unlocking
-      reopen_release_targets if is_maintenance_incident?
+      reopen_release_targets if maintenance_incident?
 
       store(comment: comment)
     end
@@ -1253,7 +1227,7 @@ class Project < ApplicationRecord
       end
     end
 
-    return unless repositories.count.positive?
+    return unless repositories.any?
 
     # ensure higher build numbers for re-release
     Backend::Api::Build::Project.wipe_binaries(name)
@@ -1283,17 +1257,9 @@ class Project < ApplicationRecord
     packages.joins(:flags).where(flags: { flag: :build, status: 'enable', repo: release_targets.select(:name) })
   end
 
-  def source_path(file = nil, opts = {})
-    Project.source_path(name, file, opts)
-  end
-
-  def source_file(file, opts = {})
-    Backend::Connection.get(source_path(file, opts)).body
-  end
-
   # FIXME: will be cleaned up after implementing FATE #308899
   def prepend_kiwi_config
-    new_configuration = source_file('_config')
+    new_configuration = Backend::Api::Sources::Project.configuration(name)
     return if /^Type:/.match?(new_configuration)
 
     new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
@@ -1314,7 +1280,7 @@ class Project < ApplicationRecord
     result
   end
 
-  def has_remote_repositories?
+  def remote_repositories?
     DownloadRepository.exists?(repository_id: repositories.select(:id))
   end
 
@@ -1392,7 +1358,33 @@ class Project < ApplicationRecord
     relationships.bugowners_with_email.pluck(:email)
   end
 
+  # Returns an ActiveRecord::Relation with all BsRequest that the project is somehow involved in
+  def bs_requests
+    review_ids = Review.where(project_id: id)
+                       .pluck(:bs_request_id)
+
+    action_ids = BsRequestAction.where(target_project_id: id)
+                                .or(BsRequestAction.where(source_project_id: id))
+                                .pluck(:bs_request_id)
+
+    all_ids = (review_ids + action_ids).compact.uniq
+
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids).distinct
+  end
+
   private
+
+  def init_defaults
+    # We often use select in a query which would raise a MissingAttributeError
+    # if the kind attribute hasn't been included in the select clause.
+    # Therefore it's necessary to check self.has_attribute? :kind
+    self.kind ||= 'standard' if has_attribute?(:kind)
+    @config = nil
+
+    @commit_opts = {}
+    # might be nil - in this case we rely on the caller to set it
+    @commit_user = User.session
+  end
 
   def bsrequest_repos_map(project)
     Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
@@ -1461,6 +1453,16 @@ class Project < ApplicationRecord
     Relationship.discard_cache
   end
 
+  def backfill_bs_request_actions
+    # rubocop:disable Rails/SkipsModelValidations
+    # Source project
+    BsRequestAction.where(source_project: name).update_all(source_project_id: id)
+
+    # Target project
+    BsRequestAction.where(target_project: name).update_all(target_project_id: id)
+    # rubocop:enable Rails/SkipsModelValidations
+  end
+
   def status_reports(checkables)
     checkables = checkables.select { |checkable| checkable.required_checks.present? }
     return [] if checkables.empty?
@@ -1486,12 +1488,28 @@ class Project < ApplicationRecord
     combined_status_reports.map(&:missing_checks).flatten
   end
 
+  def needs_sphinx_update?
+    return true if previously_new_record?
+
+    relevant_columns = %w[name title description]
+
+    saved_changes.keys.intersect?(relevant_columns)
+  end
+
   def populate_to_sphinx
     PopulateToSphinxJob.perform_later(id: id, model_name: :project)
   end
 
   def delete_from_sphinx
     DeleteFromSphinxJob.perform_later(id, self.class)
+  end
+
+  def sync_upstream_package_version
+    SyncUpstreamPackageVersionJob.perform_later(project_name: name)
+  end
+
+  def sync_local_package_version
+    SyncLocalPackageVersionJob.perform_later(name)
   end
 end
 
@@ -1501,26 +1519,30 @@ end
 #
 # Table name: projects
 #
-#  id                  :integer          not null, primary key
-#  delta               :boolean          default(TRUE), not null
-#  description         :text(65535)
-#  kind                :string           default("standard")
-#  name                :string(200)      not null, indexed
-#  remoteproject       :string(255)
-#  remoteurl           :string(255)
-#  report_bug_url      :string(8192)
-#  required_checks     :string(255)
-#  scmsync             :text(65535)
-#  title               :string(255)
-#  url                 :string(255)
-#  created_at          :datetime
-#  updated_at          :datetime
-#  develproject_id     :integer          indexed
-#  staging_workflow_id :integer          indexed
+#  id                            :integer          not null, primary key
+#  anitya_distribution_name      :string(255)
+#  anitya_distribution_synced_at :datetime
+#  comments_count                :integer          default(0), not null, indexed
+#  delta                         :boolean          default(TRUE), not null
+#  description                   :text(65535)
+#  kind                          :string           default("standard")
+#  name                          :string(200)      not null, uniquely indexed
+#  remoteproject                 :string(255)
+#  remoteurl                     :string(255)
+#  report_bug_url                :string(8192)
+#  required_checks               :string(255)
+#  scmsync                       :text(65535)
+#  title                         :string(255)
+#  url                           :string(255)
+#  created_at                    :datetime
+#  updated_at                    :datetime
+#  develproject_id               :integer          indexed
+#  staging_workflow_id           :integer          indexed
 #
 # Indexes
 #
 #  devel_project_id_index                 (develproject_id)
+#  index_projects_on_comments_count       (comments_count)
 #  index_projects_on_staging_workflow_id  (staging_workflow_id)
 #  projects_name_index                    (name) UNIQUE
 #

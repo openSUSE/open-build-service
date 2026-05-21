@@ -425,11 +425,62 @@ RSpec.describe Webui::PackageController, :vcr do
     end
 
     it { expect(response).to have_http_status(:success) }
-    it { expect(assigns(:repo_list)).to include(['openSUSE_Leap_42.1', 'openSUSE_Leap_42_1']) }
-    it { expect(assigns(:repo_list)).not_to include(%w[images images]) }
-    it { expect(assigns(:repo_list)).not_to include(%w[openSUSE_Tumbleweed openSUSE_Tumbleweed]) }
-    it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).to include('x86_64') }
-    it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).not_to include('armv7l') }
+    it { expect(response).to render_template(partial: '_rpmlint_result') }
+  end
+
+  describe '#rpmlint_summary' do
+    let(:fake_build_result) do
+      <<-XML
+        <resultlist state="eb0459ee3b000176bb3944a67b7c44fa">
+          <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="building" state="building">
+            <status package="my_package" code="succeeded" />
+          </result>
+          <result project="home:tom" repository="openSUSE_Tumbleweed" arch="x86_64" code="building" state="building">
+            <status package="my_package" code="excluded" />
+          </result>
+        </resultlist>
+      XML
+    end
+
+    before do
+      allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_result)
+      allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log)
+        .with(source_project.name, source_package.name, 'openSUSE_Tumbleweed', 'i586')
+        .and_return("test_package.i586: W: description-shorter-than-summary\ntest_package.src: W: description-shorter-than-summary")
+    end
+
+    context 'without filters' do
+      before do
+        get :rpmlint_summary, params: { package: source_package, project: source_project }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(response).to render_template(partial: '_rpmlint_summary') }
+    end
+
+    context 'with filters applied' do
+      render_views
+
+      context 'when there is data' do
+        subject do
+          get :rpmlint_summary, params: { package: source_package, project: source_project, filters: filters }
+        end
+
+        let(:filters) { %w[repo_openSUSE_Tumbleweed arch_i586] }
+
+        it { expect(subject.body).to include('description-shorter-than-summary') }
+      end
+
+      context 'when there is no data for the applied filters' do
+        subject do
+          get :rpmlint_summary, params: { package: source_package, project: source_project, filters: filters }
+        end
+
+        let(:filters) { %w[repo_openSUSE_Tumbleweed arch_x86_64] }
+
+        it { expect(subject.body).to include('No lints found') }
+      end
+    end
   end
 
   describe 'GET #rpmlint_log' do
@@ -583,6 +634,30 @@ RSpec.describe Webui::PackageController, :vcr do
       let(:source_package) { create(:package, name: 'admins_package', project: source_project) }
 
       it { expect(response).to have_http_status(:forbidden) }
+    end
+  end
+
+  describe 'GET #automplete_users' do
+    let(:package) { create(:package, project: target_project) }
+    let(:relationship_user) { create(:confirmed_user, login: 'test_user') }
+    let!(:relationship) { create(:relationship_project_user, project: target_project, user: relationship_user) }
+
+    context 'returns users with relationship association' do
+      before do
+        login(admin)
+        get :autocomplete_users, params: { project: target_project, package: package, term: 'te' }
+      end
+
+      it { expect(response.parsed_body).to eql([relationship_user.login]) }
+    end
+
+    context 'does not return user without relationship association' do
+      before do
+        login(admin)
+        get :autocomplete_users, params: { project: target_project, package: package, term: user.login }
+      end
+
+      it { expect(response.parsed_body).to eql([]) }
     end
   end
 end

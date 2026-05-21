@@ -105,3 +105,11 @@ RequestId:
   required: true
   description: Id of the choosen request.
   example: 743
+RequestNumber:
+  in: path
+  name: request_number
+  schema:
+    type: integer
+  required: true
+  description: Number of the choosen request.
+  example: 743

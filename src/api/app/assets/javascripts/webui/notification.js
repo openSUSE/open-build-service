@@ -1,5 +1,7 @@
+/* exported handleNotificationCheckboxSelection */
+
 function setSelectAllCheckbox() {
-  $('#select-all-notifications').change(function() {
+  $(document).on('change', '#select-all-notifications', function() {
     var checkboxes = $(this).closest('form').find('input[type=checkbox]');
     checkboxes.prop('checked', $(this).is(':checked'));
   });
@@ -24,10 +26,10 @@ function setCheckboxCounterAndSubmitButton() {
   }
 }
 
-function handleNotificationCheckboxSelection() { // jshint ignore:line
+function handleNotificationCheckboxSelection() {
   setCheckboxCounterAndSubmitButton();
   setSelectAllCheckbox();
-  $('input[type="checkbox"]').change(function() {
+  $(document).on('change', 'input[type="checkbox"]', function() {
     setCheckboxCounterAndSubmitButton();
   });
 }

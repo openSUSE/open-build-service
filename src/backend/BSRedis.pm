@@ -57,7 +57,11 @@ sub connect {
   BSRPC::setup_ssl_client($sock, $self, $self->{'server'}) if $self->{'tls'};
   $self->{'sock'} = $sock;
   $self->{'buf'} = '';
-  $self->run('AUTH', $self->{'password'}) if defined $self->{'password'};
+  if (defined $self->{'password'}) {
+    my @auth = $self->{'password'};
+    unshift @auth, $self->{'user'} if defined $self->{'user'};
+    $self->run('AUTH', @auth);
+  }
 }
 
 sub quit {

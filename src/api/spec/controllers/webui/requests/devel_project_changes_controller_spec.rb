@@ -3,7 +3,7 @@ RSpec.describe Webui::Requests::DevelProjectChangesController do
   let(:devel_project) { create(:project, name: 'devel:project') }
   let(:devel_package) { create(:package_with_file, name: 'goal', project: devel_project) }
   let(:project) { submitter.home_project }
-  let(:package) { create(:package, :as_submission_source, name: 'goal', project: project, develpackage: devel_package) }
+  let(:package) { create(:package, name: 'goal', project: project, develpackage: devel_package) }
 
   before do
     login(submitter)

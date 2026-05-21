@@ -127,6 +127,40 @@ FactoryBot.define do
                                status: SCMStatusReport.statuses[:fail])
       end
     end
+
+    trait :pull_request_labeled do
+      hook_event { 'pull_request' }
+      hook_action { 'labeled' }
+      generic_event_type { 'pull_request' }
+      event_source_name { '1' }
+      request_headers do
+        <<~END_OF_HEADERS
+          HTTP_X_GITHUB_EVENT: pull_request
+          HTTP_X_GITHUB_HOOK_ID: 12345
+          HTTP_X_GITHUB_DELIVERY: b4a6d950-110b-11ee-9095-943f7b2ddd1c
+        END_OF_HEADERS
+      end
+      request_payload do
+        File.read('spec/fixtures/files/request_payload_github_pull_request_labeled.json')
+      end
+    end
+  end
+
+  trait :pull_request_unlabeled do
+    hook_event { 'pull_request' }
+    hook_action { 'unlabeled' }
+    generic_event_type { 'pull_request' }
+    event_source_name { '1' }
+    request_headers do
+      <<~END_OF_HEADERS
+        HTTP_X_GITHUB_EVENT: pull_request
+        HTTP_X_GITHUB_HOOK_ID: 12345
+        HTTP_X_GITHUB_DELIVERY: b4a6d950-110b-11ee-9095-943f7b2ddd1c
+      END_OF_HEADERS
+    end
+    request_payload do
+      File.read('spec/fixtures/files/request_payload_github_pull_request_unlabeled.json')
+    end
   end
 
   # GitLab

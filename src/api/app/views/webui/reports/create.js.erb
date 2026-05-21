@@ -4,5 +4,5 @@ $('#flash').html("<%= escape_javascript(render(partial: 'layouts/webui/flash'))%
 hideReportButton("#<%= @link_id %>");
 showYouReportedMessage("#<%= @link_id %>", "<%= @report.reportable_type %>",
                        "<%= @report.reportable_id %>",
-                       "<%= escape_javascript(render ReportsNoticeComponent.new(reportable: @report.reportable, user: @user)) %>");
+                       "<%= escape_javascript(render ReportsNoticeComponent.new(reportable: @report.reportable, user: @reporter)) %>");
 collectReportModalsAndSetValues();

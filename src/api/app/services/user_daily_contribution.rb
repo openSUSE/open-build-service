@@ -29,7 +29,7 @@ class UserDailyContribution
                  .where('date(reviews.created_at) = ?', date)
                  .joins(:bs_request)
                  .group('bs_requests.number')
-                 .order('count_id DESC, bs_requests_number')
+                 .order(count_id: :desc, bs_requests_number: :asc)
                  .count(:id)
   end
 

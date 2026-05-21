@@ -2,6 +2,10 @@ module RescueHandler
   extend ActiveSupport::Concern
 
   included do
+    rescue_from ActionController::ParameterMissing do |exception|
+      render_error status: 400, errorcode: 'missing_parameter', message: exception.message
+    end
+
     rescue_from ActiveRecord::RecordInvalid do |exception|
       render_error status: 400, errorcode: 'invalid_record', message: exception.record.errors.full_messages.join('\n')
     end

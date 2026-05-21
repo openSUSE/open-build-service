@@ -16,7 +16,7 @@ class MakeUserAnAdminTask
 
         UserAdminRights.new(user).toggle!
 
-        admin_rights = user.is_admin? ? 'has' : 'does not have'
+        admin_rights = user.admin? ? 'has' : 'does not have'
 
         puts "User '#{login}' #{admin_rights} admin rights from now on"
 

@@ -6,12 +6,12 @@
     %h3 Search for packages or projects:
     .d-flex.justify-content-center
       = form_tag(search_path, method: :get, class: 'my-3 w-75') do
-        .mb-3.input-group
-          = text_field_tag('search_text', params[:search_text], placeholder: 'Search', autofocus: true,
-                           required: true, minlength: 2, class: 'form-control rounded', id: 'search_input')
-          %button.btn.btn-primary.ms-1{ type: 'submit', title: 'Search' }
-            %i.fa.fa-search
-
+        .mb-3
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'search_input',
+                                                                value: params[:search_text],
+                                                                html_name: 'search_text', required: true,
+                                                                minlength: 2, autofocus: true,
+                                                                button: { type: 'submit', class: 'btn-primary' } }
         = render(partial: 'search_for')
         = render(partial: 'advanced_search', locals: { attrib_type_list: @attrib_type_list,
                                                          issue_tracker_list: @issue_tracker_list,

@@ -9,7 +9,7 @@ namespace :dev do
       Rake::Task['dev:lint:js'].invoke
     end
 
-    desc 'Run the haml linter'
+    desc 'Run the database_consistency linter'
     task :database_consistency do
       puts "\nRunning database_consistency in src/api...\n"
       sh 'database_consistency -c .database_consistency.todo.yml'

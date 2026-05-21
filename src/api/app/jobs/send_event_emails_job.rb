@@ -15,7 +15,6 @@ class SendEventEmailsJob < ApplicationJob
       # Email channel again...
       send_email(subscribers, event)
     end
-    true
   end
 
   private
@@ -33,8 +32,7 @@ class SendEventEmailsJob < ApplicationJob
   end
 
   def event_subscribers(event:)
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    if event.is_a?(Event::CreateReport) || event.is_a?(Event::Report)
+    if event.is_a?(Event::Report)
       event.subscribers.select { |subscriber| ReportPolicy.new(subscriber, Report).notify? }
     else
       event.subscribers

@@ -2,16 +2,15 @@ class TriggerController < ApplicationController
   include Triggerable
   include Trigger::Errors
 
-  # Authentication happens with tokens, so extracting the user is not required
-  skip_before_action :extract_user
-  # Authentication happens with tokens, so no login is required
-  skip_before_action :require_login
+  # Authentication happens via tokens, so no login is required
+  skip_before_action :extract_user, :require_login, :check_anonymous_access
   # SCMs like GitLab/GitHub send data as parameters which are not strings (e.g.: GitHub - PR number is a integer, GitLab - project is a hash)
   # Other SCMs might also do this, so we're not validating parameters.
   skip_before_action :validate_params
 
   before_action :set_token
   before_action :validate_parameters_by_token
+  before_action :check_token_enabled
   before_action :set_project_name
   before_action :set_package_name
   # From Triggerable
@@ -26,10 +25,10 @@ class TriggerController < ApplicationController
   def create
     authorize @token, :trigger?
 
-    opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch],
+    opts = { project: @project, package: @package, multibuild_flavor: @multibuild_flavor,
+             repository: params[:repository], arch: params[:arch],
              targetproject: params[:targetproject], targetrepository: params[:targetrepository],
-             filter_source_repository: params[:filter_source_repository] }
-    opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
+             filter_source_repository: params[:filter_source_repository] }.compact
     @token.executor.run_as { @token.call(opts) }
 
     render_ok
@@ -54,6 +53,12 @@ class TriggerController < ApplicationController
 
   private
 
+  # AUTHENTICATION
+  def set_token
+    @token = ::TriggerControllerService::TokenExtractor.new(request).call
+    raise InvalidToken, 'No valid token found' unless @token
+  end
+
   def validate_parameters_by_token
     case @token.type
     when 'Token::Workflow'
@@ -69,10 +74,8 @@ class TriggerController < ApplicationController
     raise MissingParameterError
   end
 
-  # AUTHENTICATION
-  def set_token
-    @token = ::TriggerControllerService::TokenExtractor.new(request).call
-    raise InvalidToken, 'No valid token found' unless @token
+  def check_token_enabled
+    raise Trigger::Errors::NotEnabledToken, 'This token is not enabled.' unless @token.enabled
   end
 
   def pundit_user

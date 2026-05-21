@@ -18,13 +18,14 @@ package BSSched::BuildJob::Import;
 use strict;
 use warnings;
 
+use BSOBS;
 use BSUtil;
 use BSXML;
 use BSSched::BuildResult;
 use BSSched::EventSource::Directory; # for sendimportevent
 my $exportcnt = 0;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 =head1 NAME
@@ -143,16 +144,13 @@ sub jobfinished {
   @all = map {"$jobdatadir/$_"} @all;
   my $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid} || {};
   print "  - $prp: $packid imported from $importarch\n";
-  my $useforbuildenabled = 1;
-  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, undef, $importarch);
-  $changed->{$prp} = 2 if $useforbuildenabled;
-  my $repounchanged = $gctx->{'repounchanged'};
-  delete $repounchanged->{$prp} if $useforbuildenabled;
-  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
+
+  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, undef, $importarch);
   $changed->{$prp} ||= 1;
+  $changed->{$prp} = 2 if $changed_full;
+  my $repounchanged = $gctx->{'repounchanged'};
+  delete $repounchanged->{$prp} if $changed_full;
+  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
   unlink("$gdst/:repodone");
 }
 

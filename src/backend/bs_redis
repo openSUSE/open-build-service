@@ -34,6 +34,7 @@ use Time::HiRes;
 
 use BSConfiguration;
 use BSUtil;
+use BSFileQueue;
 use BSRedis ':tls';
 
 use strict;
@@ -88,22 +89,23 @@ sub check_exitrestart {
 }
 
 my $lua_deleteresult = q{
-  redis.call('DEL', KEYS[1], KEYS[2])
-  return 'OK'
-};
-
-my $lua_updateresult_empty = q{
-  redis.call('DEL', KEYS[1], KEYS[2])
+  redis.call('DEL', KEYS[1], KEYS[2], KEYS[3])
   return 'OK'
 };
 
 my $lua_updateresult = q{
   local pkgs = {}
   local details = {}
+  local olddetails = {}
   local i = 1 ; while 1 do
     local pkg = ARGV[i]
     if not pkg then break end
     local detail = ARGV[i + 1]
+    if detail:sub(1,9) == "scheduled" or detail:sub(1,7) == "blocked" then
+      local olddetail = redis.call('HGET', KEYS[1], pkg)
+      if olddetail and olddetail:sub(1,9) ~= "scheduled" and olddetail:sub(1,7) ~= "blocked" then redis.call('HSET', KEYS[3], pkg, olddetail) end
+      olddetails[pkg] = true
+    end
     redis.call('HSET', KEYS[1], pkg, detail)
     pkgs[pkg] = true
     details[detail] = true
@@ -115,14 +117,16 @@ my $lua_updateresult = q{
   for _,k in ipairs(redis.call('HKEYS', KEYS[2])) do
     if not details[k] then redis.call('HDEL', KEYS[2], k) end
   end
+  for _,k in ipairs(redis.call('HKEYS', KEYS[3])) do
+    if not olddetails[k] then redis.call('HDEL', KEYS[3], k) end
+  end
   return 'OK'
 };
 
 my $lua_updateoneresult = q{
   redis.call('HSET', KEYS[1], ARGV[1], ARGV[2])
-  if ARGV[3] then
-    redis.call('HDEL', KEYS[2], ARGV[3])
-  end
+  if ARGV[2]:sub(1,9) ~= "scheduled" and ARGV[2]:sub(1,7) ~= "blocked" then redis.call('HDEL', KEYS[3], ARGV[1]) end
+  if ARGV[3] then redis.call('HDEL', KEYS[2], ARGV[3]) end
   return 'OK'
 };
 
@@ -136,57 +140,71 @@ my $lua_updatejobstatus_del = q{
   return 'OK'
 };
 
-my $red;	# the redis handle
+my $lua_updatescmsync = q{
+  local oldrepo = redis.call('HGET', KEYS[1], 'repo')
+  if oldrepo then redis.call('SREM', KEYS[2] .. oldrepo, KEYS[1]) end
+  redis.call('HSET', KEYS[1], 'repo', ARGV[1], 'branch', ARGV[2], 'trackingbranch', ARGV[3]);
+  redis.call('SADD', KEYS[2] .. ARGV[1], KEYS[1])
+  return 'OK'
+};
 
-sub markdone {
-  my ($markfd, $markoff) = @_;
-  defined(sysseek($markfd, $markoff, Fcntl::SEEK_SET)) || die("sysseek $markoff: $!\n");
-  syswrite($markfd, "|", 1) == 1 || die("syswrite: $!\n");
-}
+my $lua_updatescmsync_del = q{
+  local oldrepo = redis.call('HGET', KEYS[1], 'repo')
+  if oldrepo then redis.call('SREM', KEYS[2] .. oldrepo, KEYS[1]) end
+  redis.call('DEL', KEYS[1])
+  return 'OK'
+};
+
+my $red;	# the redis handle
 
 sub forwarddata {
   my ($fd) = @_;
-  my $markfd;
-  open($markfd, '+<', "$myeventdir/queue.send") || die("$myeventdir/queue.send: $!\n");
-  my $markoff = 0;
+  my $markfd = BSFileQueue::openmark("$myeventdir/queue.send");
+  my $off = 0;
   my $cnt = 0;
-  while (<$fd>) {
-    my $len = length($_);
-    die("bad line\n") unless chop($_) eq "\n";
-    my @line = split('\|', $_);
-    if (!@line || !$line[0]) {
-      $markoff += $len;		# empty or marked as done
+  while (1) {
+    my ($len, @line) = BSFileQueue::getnext($fd);
+    last unless defined $len;
+    if (!@line) {
+      $off += $len;		# empty or marked as done
       next;
     }
-    s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @line;
     my $cmd = shift @line;
     my $prpa = shift @line;
     die unless $prpa;
     if ($cmd eq 'deleteresult') {
-      unshift @line, 'EVAL', $lua_deleteresult, 2, "result.$prpa", "jobs.$prpa";
+      unshift @line, 'EVAL', $lua_deleteresult, 3, "result.$prpa", "jobs.$prpa", "oldresult.$prpa";
     } elsif ($cmd eq 'updateresult') {
       die("odd number of arguments in $cmd\n") if scalar(@line) % 2;
       if (@line) {
-        unshift @line, 'EVAL', $lua_updateresult, 2, "result.$prpa", "jobs.$prpa";
+        unshift @line, 'EVAL', $lua_updateresult, 3, "result.$prpa", "jobs.$prpa", "oldresult.$prpa";
       } else {
-        unshift @line, 'EVAL', $lua_updateresult_empty, 2, "result.$prpa", "jobs.$prpa";
+        unshift @line, 'EVAL', $lua_deleteresult, 3, "result.$prpa", "jobs.$prpa", "oldresult.$prpa";
       }
     } elsif ($cmd eq 'updateoneresult') {
-      unshift @line, 'EVAL', $lua_updateoneresult, 2, "result.$prpa", "jobs.$prpa";
+      unshift @line, 'EVAL', $lua_updateoneresult, 3, "result.$prpa", "jobs.$prpa", "oldresult.$prpa";
     } elsif ($cmd eq 'updatejobstatus') {
       if (@line == 1) {
         unshift @line, 'EVAL', $lua_updatejobstatus_del, 1, "jobs.$prpa";
       } else {
         unshift @line, 'EVAL', $lua_updatejobstatus, 1, "jobs.$prpa";
       }
+    } elsif ($cmd eq 'updatescmsync') {
+      if (!defined($line[0])) {
+        unshift @line, 'EVAL', $lua_updatescmsync_del, 2, "scmsync.$prpa", "scmsync_idx_repo.";
+      } else {
+	$line[1] = '' unless defined $line[1];
+	$line[2] = '' unless defined $line[2];
+        unshift @line, 'EVAL', $lua_updatescmsync, 2, "scmsync.$prpa", "scmsync_idx_repo.";
+      }
     } else {
       die("unknown redis command '$cmd'\n");
     }
     #print "RUN @line\n";
     $red->run(@line);
-    markdone($markfd, $markoff);
+    BSFileQueue::markdone($markfd, $off);
     $cnt++;
-    $markoff += $len;
+    $off += $len;
   }
   close $markfd;
   print "sent $cnt redis notifications\n";
@@ -195,10 +213,8 @@ sub forwarddata {
 my $noprogress;
 
 sub doforward {
-  my ($fd) = @_;
-  eval {
-    forwarddata($fd);
-  };
+  my $fd = BSFileQueue::openqueue("$myeventdir/queue.send");
+  eval { forwarddata($fd) };
   if ($@) {
     warn($@);
     close($fd);
@@ -249,15 +265,13 @@ BSUtil::openping(\*PING, "$myeventdir/.ping");
 my $retry;
 
 die("No redis server configured\n") unless $BSConfig::redisserver;
-die("Redis server must be of scheme redis[s]://<server>[:port]\n") unless $BSConfig::redisserver =~ /^(rediss?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?$/;
+die("Redis server must be of scheme redis[s]://<server>[:port]\n") unless $BSConfig::redisserver =~ /^(rediss?):\/\/(?:(?:([^\/\@:]+):)?([^\/\@]*)\@)?([^\/:]+)(?::(\d+))?$/;
 
-$red = BSRedis->new('server' => $3, 'port' => $4, 'password' => $2, 'tls' => ($1 eq 'rediss' ? 1 : 0));
+$red = BSRedis->new('server' => $4, 'port' => $5, 'user' => $2, 'password' => $3, 'tls' => ($1 eq 'rediss' ? 1 : 0)); 
 
 if (-e "$myeventdir/queue.send") {
   print "resuming transmission of old data\n";
-  my $file;
-  BSUtil::lockopen($file, '<', "$myeventdir/queue.send");
-  $retry = doforward($file);
+  $retry = doforward();
 }
 
 while (1) {
@@ -272,17 +286,12 @@ while (1) {
   }
   BSUtil::drainping(\*PING);
   if (-e "$myeventdir/queue.send") {
-    my $file;
-    BSUtil::lockopen($file, '<', "$myeventdir/queue.send");
-    $retry = doforward($file);
+    $retry = doforward();
     next if $retry;
   }
   if (-e "$myeventdir/queue") {
-    my $file;
-    BSUtil::lockopen($file, '<', "$myeventdir/queue");
-    die if -e "$myeventdir/queue.send";
-    rename("$myeventdir/queue", "$myeventdir/queue.send") || die("rename $myeventdir/queue $myeventdir/queue.send: $!\n");
-    $retry = doforward($file);
+    BSFileQueue::renamequeue("$myeventdir/queue", "$myeventdir/queue.send");
+    $retry = doforward();
     Time::HiRes::sleep(.5);
   } else {
     print "waiting for an event...\n";

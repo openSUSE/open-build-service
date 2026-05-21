@@ -90,6 +90,11 @@
           </element>
         </optional>
         <optional>
+          <element name="blocked_in_product"> 
+            <empty/>
+          </element>
+        </optional>
+        <optional>
           <element name="embargo_date">
             <text/>
           </element>

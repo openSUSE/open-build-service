@@ -1,0 +1,22 @@
+= turbo_frame_tag "action-#{action.id}-details" do
+  - details = action.commit_details
+  - if details
+    - if details.key?('comment') && details['comment'].instance_of?(String)
+      %p.mt-0.mb-0.fw-normal
+        = details['comment'].truncate(50)
+      %p.mb-0.mt-0.small
+        = action.name
+    - else
+      %p.mt-0.mb-0.fw-normal
+        = action.name
+    %span.float-end.ms-5
+      = details['rev']
+  - else
+    = render partial: 'webui/request/request_action_details_basic', locals: { action: action }
+
+  = render partial: 'webui/request/request_action_details_description', locals: { action: action }
+  - if details
+    %p.mb-0.mt-0.small
+      by
+      = details['user']
+      = render TimeComponent.new(time: Time.zone.at(details['time'].to_i))

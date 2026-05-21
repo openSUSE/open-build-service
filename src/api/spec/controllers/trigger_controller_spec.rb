@@ -37,6 +37,39 @@ RSpec.describe TriggerController do
 
       it { expect(subject).to have_http_status(:success) }
     end
+
+    context 'token is not enabled' do
+      subject { post :rebuild, params: { project: project.name, format: :xml } }
+
+      let(:token) { create(:rebuild_token, enabled: false, executor: user) }
+
+      it { expect(subject).to have_http_status(:forbidden) }
+      it { expect(subject.body).to include('This token is not enabled.') }
+    end
+
+    context 'with package multibuild flavor' do
+      subject { post :rebuild, params: { project: project.name, package: multibuild_flavor, format: :xml } }
+
+      let(:multibuild_flavor) { "#{package.name}:test" }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:rebuild).with(project.name, multibuild_flavor, {}).and_return("<status code=\"ok\" />\n")
+      end
+
+      it { expect(subject).to have_http_status(:success) }
+    end
+
+    context 'with project that links to remote and multibuild flavor' do
+      subject { post :rebuild, params: { project: project.name, package: 'hans:franz', format: :xml } }
+
+      let(:project) { create(:project, name: 'project', maintainer: user, scmsync: 'https://github.com/hennevogel/scmsync-project.git') }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:rebuild).with(project.name, 'hans:franz', {}).and_return("<status code=\"ok\" />\n")
+      end
+
+      it { expect(subject).to have_http_status(:success) }
+    end
   end
 
   describe '#release', :vcr do
@@ -56,16 +89,13 @@ RSpec.describe TriggerController do
       project
     end
     let(:source_package) { source_project.packages.first }
-    let(:backend_url) do
-      '/build/target_project/target_repository/x86_64/source_package' \
-        '?cmd=copy&oproject=source_project&opackage=source_package&orepository=source_repository' \
-        '&resign=1&multibuild=1'
-    end
 
     # Mock the cmd=copy HTTP request. Mocking Token::Release/MaintenanceHelper is just too hard...
     before do
-      allow(Backend::Connection).to receive(:post).and_call_original
-      allow(Backend::Connection).to receive(:post).with(backend_url).and_return("<status code=\"ok\" />\n")
+      allow(Backend::Api::BuildResults::Binaries).to receive(:copy)
+        .with('target_project', 'target_repository', 'x86_64', 'source_package',
+              { multibuild: '1', opackage: 'source_package', oproject: 'source_project', orepository: 'source_repository', resign: '1' })
+        .and_return("<status code=\"ok\" />\n")
     end
 
     context 'with token.package' do
@@ -86,12 +116,6 @@ RSpec.describe TriggerController do
 
     context 'with project parameter' do
       subject { post :release, params: { project: source_project.name, format: :xml } }
-
-      let(:backend_url) do
-        '/build/target_project/target_repository/x86_64/source_package' \
-          '?cmd=copy&oproject=source_project&orepository=source_repository' \
-          '&resign=1&multibuild=1'
-      end
 
       it { expect(subject).to have_http_status(:success) }
     end

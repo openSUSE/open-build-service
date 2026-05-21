@@ -1,12 +1,15 @@
 require 'builder'
 
 class Webui::PatchinfoController < Webui::WebuiController
+  include ScmsyncChecker
   include Webui::PackageHelper
-  before_action :set_project
-  before_action :set_binaries, except: %i[show destroy new_tracker]
-  before_action :require_package, except: %i[create new_tracker]
-  before_action :require_exists, except: %i[create new_tracker]
+
   before_action :require_login, except: [:show]
+  before_action :set_project
+  before_action :check_scmsync
+  before_action :set_binaries, except: %i[show destroy new_tracker]
+  before_action :set_package, except: %i[create new_tracker]
+  before_action :require_exists, except: %i[create new_tracker]
   before_action :set_patchinfo, only: %i[show edit]
 
   rescue_from Package::UnknownObjectError do
@@ -48,7 +51,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       xml = @patchinfo.to_xml(@project, @package)
       begin
         Package.verify_file!(@package, '_patchinfo', xml)
-        Backend::Api::Sources::Package.write_patchinfo(@package.project.name, @package.name, User.session.login, xml)
+        Backend::Api::Sources::Package.write_patchinfo(@package.project.name, @package.name, User.session&.login, xml)
         @package.sources_changed(wait_for_update: true) # wait for indexing for special files
       rescue APIError, Timeout::Error => e
         flash[:error] = "patchinfo is invalid: #{e.message}"
@@ -90,7 +93,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   def new_tracker
     # collection with all informations of the new issues
     issue_collection = []
-    error = ''
+    error = +''
     invalid_format = ''
     # params[:issues] = list of new issues to add
     params[:issues] ||= []

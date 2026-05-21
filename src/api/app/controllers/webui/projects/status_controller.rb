@@ -107,7 +107,7 @@ module Webui
         return unless currentpack['firstfail'] || currentpack['failedcomment'] || currentpack['upstream_version'] ||
                       !currentpack['problems'].empty? || !currentpack['requests_from'].empty? || !currentpack['requests_to'].empty?
 
-        return if @limit_to_old && !(currentpack['upstream_version'])
+        return if @limit_to_old && !currentpack['upstream_version']
 
         @packages << currentpack
       end
@@ -150,7 +150,7 @@ module Webui
       end
 
       def status_filter_packages
-        filter_for_user = User.find_by_login!(@filter_for_user) if @filter_for_user.present?
+        filter_for_user = User.not_deleted.find_by!(login: @filter_for_user) if @filter_for_user.present?
         current_develproject = @filter || @all_projects
         @develprojects = {}
         packages_to_filter_for = nil

@@ -27,14 +27,13 @@ BEGIN {
   unshift @INC,  "$wd";
 }
 
-use POSIX;
-use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Getopt::Long ();
 use Time::HiRes;
 
 use BSConfiguration;
 use BSRPC ':https';
+use BSFileQueue;
 use BSUtil;
 
 use strict;
@@ -45,6 +44,7 @@ my $eventdir = "$bsdir/events";
 
 
 my $myeventdir = "$eventdir/notifyforward";
+my $runname = 'bs_notifyforward';
 
 sub parse_options {
   my %opts;
@@ -72,25 +72,19 @@ Options:
 }
 
 sub check_exitrestart {
-  if (-e "$rundir/bs_notifyforward.exit") {
+  if (-e "$rundir/$runname.exit") {
     close(RUNLOCK);
-    unlink("$rundir/bs_notifyforward.exit");
+    unlink("$rundir/$runname.exit");
     BSUtil::printlog("exiting...");
     exit(0);
   }
-  if (-e "$rundir/bs_notifyforward.restart") {
+  if (-e "$rundir/$runname.restart") {
     close(RUNLOCK);
-    unlink("$rundir/bs_notifyforward.restart");
+    unlink("$rundir/$runname.restart");
     BSUtil::printlog("restarting...");
     exec($0, @ARGV);
     die("$0: $!\n");
   }
-}
-
-sub markdone {
-  my ($markfd, $markoff) = @_;
-  defined(sysseek($markfd, $markoff, Fcntl::SEEK_SET)) || die("sysseek $markoff: $!\n");
-  syswrite($markfd, "|", 1) == 1 || die("syswrite: $!\n");
 }
 
 my $redis_keepalive = {};
@@ -111,7 +105,7 @@ sub forwardredis {
     %$redis_keepalive = ();
     die($@);
   }
-  markdone($markfd, $_) for @$markoffs;
+  BSFileQueue::markdone($markfd, $_) for @$markoffs;
   if ($redis_keepalive->{'count'}) {
     print "forwarded ".@$markoffs." redis notifications (keepalive count $redis_keepalive->{'count'})\n";
   } else {
@@ -122,22 +116,19 @@ sub forwardredis {
 sub forwarddata {
   my ($fd) = @_;
 
-  my $markfd;
-  open($markfd, '+<', "$myeventdir/queue.send") || die("$myeventdir/queue.send: $!\n");
-  my $markoff = 0;
+  my $markfd = BSFileQueue::openmark("$myeventdir/queue.send");
+  my $off = 0;
 
   my @redisdata;
   my @redismarkoffs;
 
-  while (<$fd>) {
-    my $len = length($_);
-    die("bad line\n") unless chop($_) eq "\n";
-    my @line = split('\|', $_);
-    if (!@line || !$line[0]) {
-	$markoff += $len;	# empty or marked as done
-	next;
+  while (1) {
+    my ($len, @line) = BSFileQueue::getnext($fd);
+    last unless defined $len;
+    if (!@line) {
+      $off += $len;	# empty or marked as done
+      next;
     }
-    s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @line;
     my $type = shift @line;
 
     # batch redis notifications into chunks of 32 updates
@@ -148,8 +139,8 @@ sub forwarddata {
     }
     if ($type eq 'redis') {
       push @redisdata, \@line;
-      push @redismarkoffs, $markoff;
-      $markoff += $len;
+      push @redismarkoffs, $off;
+      $off += $len;
       next;
     }
 
@@ -160,9 +151,9 @@ sub forwarddata {
       'timeout' => 300,
     };
     BSRPC::rpc($param, undef, @line);
-    markdone($markfd, $markoff);
+    BSFileQueue::markdone($markfd, $off);
     print "forwarded a $type notification\n";
-    $markoff += $len;
+    $off += $len;
   }
 
   forwardredis(\@redisdata, $markfd, \@redismarkoffs) if @redisdata;
@@ -172,10 +163,8 @@ sub forwarddata {
 my $noprogress;
 
 sub doforward {
-  my ($fd) = @_;
-  eval {
-    forwarddata($fd);
-  };
+  my $fd = BSFileQueue::openqueue("$myeventdir/queue.send");
+  eval { forwarddata($fd) };
   if ($@) {
     warn($@);
     close($fd);
@@ -204,29 +193,20 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($options, 'notifyforward', "$rundir/bs_notifyforward", "$myeventdir/.ping");
-BSUtil::printlog("starting build service notifyforward");
+BSUtil::restartexit($options, 'notifyforward', "$rundir/$runname", "$myeventdir/.ping");
 
 mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/bs_notifyforward.lock") || die("$rundir/bs_notifyforward.lock: $!\n");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("notifyforward is already running!\n");
-utime undef, undef, "$rundir/bs_notifyforward.lock";
+BSUtil::openrunlock(\*RUNLOCK, "$rundir/$runname", 'notifyforward');
+BSUtil::printlog("starting build service notifyforward");
 
 mkdir_p($myeventdir);
-if (! -p "$myeventdir/.ping") {
-  POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
-  chmod(0666, "$myeventdir/.ping");
-}
-
-sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
+BSUtil::openping(\*PING, "$myeventdir/.ping");
 
 my $retry;
 
 if (-e "$myeventdir/queue.send") {
   print "resuming transmission of old data\n";
-  my $file;
-  BSUtil::lockopen($file, '<', "$myeventdir/queue.send");
-  $retry = doforward($file);
+  $retry = doforward();
 }
 
 while (1) {
@@ -241,17 +221,12 @@ while (1) {
   }
   BSUtil::drainping(\*PING);
   if (-e "$myeventdir/queue.send") {
-    my $file;
-    BSUtil::lockopen($file, '<', "$myeventdir/queue.send");
-    $retry = doforward($file);
+    $retry = doforward();
     next if $retry;
   }
   if (-e "$myeventdir/queue") {
-    my $file;
-    BSUtil::lockopen($file, '<', "$myeventdir/queue");
-    die if -e "$myeventdir/queue.send";
-    rename("$myeventdir/queue", "$myeventdir/queue.send") || die("rename $myeventdir/queue $myeventdir/queue.send: $!\n");
-    $retry = doforward($file);
+    BSFileQueue::renamequeue("$myeventdir/queue", "$myeventdir/queue.send");
+    $retry = doforward();
     Time::HiRes::sleep(.5);
   } else {
     print "waiting for an event...\n";

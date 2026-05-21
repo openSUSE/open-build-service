@@ -8,18 +8,18 @@
     = form_for(@patchinfo, url: patchinfo_path(project: @project, package: @package), method: :put, html: { id: 'patchinfo' }) do |form|
       = form.hidden_field(:name)
       .mb-3.col-md-8.col-lg-4
-        = render partial: 'webui/shared/autocomplete', locals: { html_id: 'patchinfo[packager]', label: 'Packager', value: @patchinfo.packager,
+        = render partial: 'webui/shared/search_box', locals: { html_id: 'patchinfo[packager]', label: 'Packager', value: @patchinfo.packager,
                                                                  data: { source: autocomplete_users_path } }
       .mb-3.col-md-6
         = form.label(:summary) do
           Summary
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
           %small.form-text Summarize the changes (minimum 10 characters)
         = form.text_area(:summary, required: true, class: 'form-control', minlength: 10)
       .mb-3.col-md-6
         = form.label(:description) do
           Description
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
           %small.form-text Fully describe the changes (minimum 50 characters)
         = form.text_area(:description, required: true, rows: 8, class: 'form-control', minlength: 50)
       .mb-3.col-sm-6.col-md-2

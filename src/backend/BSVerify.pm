@@ -206,7 +206,7 @@ sub verify_prpa {
 
 sub verify_resultview {
   my $view = $_[0];
-  die("unknown view parameter: '$view'\n") if $view ne 'summary' && $view ne 'status' && $view ne 'binarylist' && $view ne 'stats' && $view ne 'versrel';
+  die("unknown view parameter: '$view'\n") if $view ne 'summary' && $view ne 'status' && $view ne 'binarylist' && $view ne 'stats' && $view ne 'versrel' && $view ne 'info' && $view ne 'reproduciblecheck';
 }
 
 sub verify_workerid {
@@ -356,10 +356,19 @@ sub verify_link {
 
 sub verify_aggregatelist {
   my ($al) = @_;
+  if (defined($al->{'resign'})) {
+    my $resign = $al->{'resign'};
+    die("'resign' attribute must be boolean\n") unless $resign eq 'true' || $resign eq 'false' || $resign eq '0' || $resign eq '1';
+  }
   for my $a (@{$al->{'aggregate'} || []}) {
-    verify_projid($a->{'project'});
+    verify_projid($a->{'project'}) if exists $a->{'project'};
+    verify_arch($a->{'arch'}) if exists $a->{'arch'};
+    verify_arch($a->{'sourcearch'}) if exists $a->{'sourcearch'};
     if (defined($a->{'nosources'})) {
       die("'nosources' element must be empty\n") if $a->{'nosources'} ne '';
+    }
+    if (defined($a->{'noupdateinfo'})) {
+      die("'noupdateinfo' element must be empty\n") if $a->{'noupdateinfo'} ne '';
     }
     for my $p (@{$a->{'package'} || []}) {
       next if ($p || '') eq '_repository';

@@ -31,7 +31,7 @@ RSpec.describe 'BsRequest', '#embargo_date' do
     end
 
     context 'with multiple embargo attributes' do
-      let(:embargo_date) { Time.zone.parse('2024-12-24 18:30 CET') }
+      let(:embargo_date) { 1.week.from_now.change({ hour: 18, min: 30, sec: 0 }) }
       let(:embargo_date_value) { build(:attrib_value, value: embargo_date.to_s) }
       let(:other_source_project) { create(:embargo_date_attrib, project: create(:project), values: [embargo_date_value]).project }
       let(:other_source_package) { create(:package, project: other_source_project) }

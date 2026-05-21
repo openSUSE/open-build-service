@@ -7,10 +7,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>An Acceptable Time</title>
+          <title>A Farewell to Arms</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1775143208'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -34,10 +36,10 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>An Acceptable Time</title>
+          <title>A Farewell to Arms</title>
           <description></description>
         </project>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=user_2
@@ -45,10 +47,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Where Angels Fear to Tread</title>
-          <description>Suscipit dolorum et quasi.</description>
+          <title>Time of our Darkness</title>
+          <description>Iste et exercitationem veniam.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1775143208'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -67,23 +71,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Where Angels Fear to Tread</title>
-          <description>Suscipit dolorum et quasi.</description>
+          <title>Time of our Darkness</title>
+          <description>Iste et exercitationem veniam.</description>
         </package>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_config
     body:
       encoding: UTF-8
-      string: Ex dolorum tempore. Suscipit molestiae temporibus. Dolores voluptates
-        ut.
+      string: Perferendis rerum temporibus. Molestias est ut. Asperiores in non.
     headers:
+      X-Frontend-Start:
+      - '1775143208'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -107,14 +112,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>f8c1e09a99ff76baa26c37eabdf6f536</srcmd5>
+          <srcmd5>cc425f4de5afdae707c336a75cde133b</srcmd5>
           <version>unknown</version>
-          <time>1677507608</time>
+          <time>1775143208</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/somefile.txt
@@ -122,6 +127,8 @@ http_interactions:
       encoding: UTF-8
       string: "# This will be replaced"
     headers:
+      X-Frontend-Start:
+      - '1775143208'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -145,14 +152,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>ebc86f6255a922722f8196cb2d18f527</srcmd5>
+          <srcmd5>c48aa6180e3c2123e18c09b492b98f67</srcmd5>
           <version>unknown</version>
-          <time>1677507608</time>
+          <time>1775143208</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=user_3
@@ -160,10 +167,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>The Sun Also Rises</title>
+          <title>A Swiftly Tilting Planet</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1775143208'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -182,55 +191,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '115'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>The Sun Also Rises</title>
+          <title>A Swiftly Tilting Planet</title>
           <description></description>
         </project>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_3
-    body:
-      encoding: UTF-8
-      string: |
-        <attributes>
-          <attribute name="ApprovedRequestSource" namespace="OBS"/>
-        </attributes>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '169'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="49">
-          <srcmd5>7fe7ac9f5de53ba7111f6fb2f8ec3682</srcmd5>
-          <time>1677507608</time>
-          <user>user_3</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=user_4
@@ -238,10 +207,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Far-Distant Oxus</title>
-          <description>Sit voluptas et vel.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Optio in esse eligendi.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1775143208'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -260,22 +231,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Far-Distant Oxus</title>
-          <description>Sit voluptas et vel.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Optio in esse eligendi.</description>
         </package>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_config
     body:
       encoding: UTF-8
-      string: Magnam et reprehenderit. Odio sunt eos. Nobis qui minus.
+      string: Quia et officiis. Illo autem reiciendis. Sit ad eaque.
     headers:
+      X-Frontend-Start:
+      - '1775143208'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -299,14 +272,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>177cccb784b479ae308db6da9394f327</srcmd5>
+          <srcmd5>470dcb2d9b9d50444c46da50822c91be</srcmd5>
           <version>unknown</version>
-          <time>1677507608</time>
+          <time>1775143208</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/somefile.txt
@@ -314,6 +287,8 @@ http_interactions:
       encoding: UTF-8
       string: "# This is the new text"
     headers:
+      X-Frontend-Start:
+      - '1775143208'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -337,14 +312,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>19425b4672e907e5d7436b3d3a7a76e9</srcmd5>
+          <srcmd5>cb90f25010c8d2505e592013d4d0dd06</srcmd5>
           <version>unknown</version>
-          <time>1677507608</time>
+          <time>1775143208</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -352,6 +327,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1775143209'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -374,11 +351,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="2" vrev="2" srcmd5="19425b4672e907e5d7436b3d3a7a76e9">
-          <entry name="_config" md5="10ab7efe9d336c98366e85ddbf7aa929" size="56" mtime="1677507608"/>
-          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1677507608"/>
+        <directory name="source_package" rev="2" vrev="2" srcmd5="cb90f25010c8d2505e592013d4d0dd06">
+          <entry name="_config" md5="ad4457559bdbb5e4f1d2ba0b50c934c6" size="54" mtime="1775143208"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1775143208"/>
         </directory>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:09 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -388,6 +365,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1775143209'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -406,21 +385,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '1110'
+      - '1101'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="bb5e45f62e406b841ae2d399b1c3e3a1">
-          <old project="target_project" package="target_package" rev="2" srcmd5="ebc86f6255a922722f8196cb2d18f527"/>
-          <new project="source_project" package="source_package" rev="2" srcmd5="19425b4672e907e5d7436b3d3a7a76e9"/>
+        <sourcediff key="1b6daa56e3353020000d11df4db0041b">
+          <old project="target_project" package="target_package" rev="2" srcmd5="c48aa6180e3c2123e18c09b492b98f67"/>
+          <new project="source_project" package="source_package" rev="2" srcmd5="cb90f25010c8d2505e592013d4d0dd06"/>
           <files>
             <file state="changed">
-              <old name="_config" md5="1d40e41758e1c1d395dbd948bf00f61b" size="73"/>
-              <new name="_config" md5="10ab7efe9d336c98366e85ddbf7aa929" size="56"/>
+              <old name="_config" md5="51c4a594149478c189d0a73675a07943" size="66"/>
+              <new name="_config" md5="ad4457559bdbb5e4f1d2ba0b50c934c6" size="54"/>
               <diff lines="5">@@ -1,1 +1,1 @@
-        -Ex dolorum tempore. Suscipit molestiae temporibus. Dolores voluptates ut.
+        -Perferendis rerum temporibus. Molestias est ut. Asperiores in non.
         \ No newline at end of file
-        +Magnam et reprehenderit. Odio sunt eos. Nobis qui minus.
+        +Quia et officiis. Illo autem reiciendis. Sit ad eaque.
         \ No newline at end of file
         </diff>
             </file>
@@ -438,7 +417,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -446,6 +425,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1775143209'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -468,11 +449,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="2" vrev="2" srcmd5="19425b4672e907e5d7436b3d3a7a76e9">
-          <entry name="_config" md5="10ab7efe9d336c98366e85ddbf7aa929" size="56" mtime="1677507608"/>
-          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1677507608"/>
+        <directory name="source_package" rev="2" vrev="2" srcmd5="cb90f25010c8d2505e592013d4d0dd06">
+          <entry name="_config" md5="ad4457559bdbb5e4f1d2ba0b50c934c6" size="54" mtime="1775143208"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1775143208"/>
         </directory>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:09 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -482,6 +463,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1775143209'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -496,7 +479,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '1110'
+      - '1101'
       Cache-Control:
       - no-cache
       Connection:
@@ -504,17 +487,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="bb5e45f62e406b841ae2d399b1c3e3a1">
-          <old project="target_project" package="target_package" rev="2" srcmd5="ebc86f6255a922722f8196cb2d18f527"/>
-          <new project="source_project" package="source_package" rev="2" srcmd5="19425b4672e907e5d7436b3d3a7a76e9"/>
+        <sourcediff key="1b6daa56e3353020000d11df4db0041b">
+          <old project="target_project" package="target_package" rev="2" srcmd5="c48aa6180e3c2123e18c09b492b98f67"/>
+          <new project="source_project" package="source_package" rev="2" srcmd5="cb90f25010c8d2505e592013d4d0dd06"/>
           <files>
             <file state="changed">
-              <old name="_config" md5="1d40e41758e1c1d395dbd948bf00f61b" size="73"/>
-              <new name="_config" md5="10ab7efe9d336c98366e85ddbf7aa929" size="56"/>
+              <old name="_config" md5="51c4a594149478c189d0a73675a07943" size="66"/>
+              <new name="_config" md5="ad4457559bdbb5e4f1d2ba0b50c934c6" size="54"/>
               <diff lines="5">@@ -1,1 +1,1 @@
-        -Ex dolorum tempore. Suscipit molestiae temporibus. Dolores voluptates ut.
+        -Perferendis rerum temporibus. Molestias est ut. Asperiores in non.
         \ No newline at end of file
-        +Magnam et reprehenderit. Odio sunt eos. Nobis qui minus.
+        +Quia et officiis. Illo autem reiciendis. Sit ad eaque.
         \ No newline at end of file
         </diff>
             </file>
@@ -532,7 +515,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
+  recorded_at: Thu, 02 Apr 2026 15:20:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -540,6 +523,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1775143209'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -562,9 +547,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="2" vrev="2" srcmd5="ebc86f6255a922722f8196cb2d18f527">
-          <entry name="_config" md5="1d40e41758e1c1d395dbd948bf00f61b" size="73" mtime="1677507608"/>
-          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1677507608"/>
+        <directory name="target_package" rev="2" vrev="2" srcmd5="c48aa6180e3c2123e18c09b492b98f67">
+          <entry name="_config" md5="51c4a594149478c189d0a73675a07943" size="66" mtime="1775143208"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1775143208"/>
         </directory>
-  recorded_at: Mon, 27 Feb 2023 14:20:08 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Thu, 02 Apr 2026 15:20:09 GMT
+recorded_with: VCR 6.4.0

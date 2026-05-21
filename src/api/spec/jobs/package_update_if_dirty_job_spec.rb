@@ -7,7 +7,7 @@ RSpec.describe PackageUpdateIfDirtyJob, :vcr do
     let!(:project) { create(:project, name: 'apache') }
     let!(:package) { create(:package_with_file, name: 'mod_ssl', project: project) }
 
-    it 'creates a BackendPackge for the Package' do
+    it 'creates a BackendPackage for the Package' do
       expect { subject }.to change(BackendPackage, :count).by(1)
     end
   end

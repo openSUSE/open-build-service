@@ -107,9 +107,8 @@ module Webui
         @staging_workflow = @project.staging
         return if @staging_workflow
 
-        redirect_back_or_to root_path
         flash[:error] = 'Staging project not found'
-        nil
+        redirect_back_or_to root_path
       end
     end
   end

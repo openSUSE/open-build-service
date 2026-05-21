@@ -1,6 +1,6 @@
 RSpec.describe Backend::ConnectionHelper do
   let(:backend_api_fake_class) do
-    extended_class = double('Fake Class with ParsePackageDiff')
+    extended_class = Class.new
     extended_class.extend(Backend::ConnectionHelper)
     extended_class
   end

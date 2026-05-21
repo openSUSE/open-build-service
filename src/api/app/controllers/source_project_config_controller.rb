@@ -1,13 +1,14 @@
 class SourceProjectConfigController < SourceController
-  # GET /source/:project/_config
+  before_action :require_valid_project_name
   before_action :ensure_project_exist, only: %i[show update]
 
+  # GET /source/:project/_config
   def show
     config = get_config(@project)
 
     sliced_params = slice_and_permit(params, [:rev])
 
-    return if forward_from_backend(config.full_path(sliced_params))
+    return if forward_from_backend?(config.full_path(sliced_params))
 
     content = config.content(sliced_params)
 

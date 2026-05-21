@@ -4,6 +4,7 @@ class SourceProjectMetaController < SourceController
   validate_action update: { request: :project, response: :status }
   validate_action show: { response: :project }
 
+  before_action :require_valid_project_name
   before_action :set_request_data, only: [:update]
   before_action :require_project_name, only: [:update]
 
@@ -43,11 +44,11 @@ class SourceProjectMetaController < SourceController
     if project.is_a?(Project)
       # project exists, change it
       unless User.session.can_modify?(project)
-        if project.is_locked?
+        if project.locked?
           logger.debug "no permission to modify LOCKED project #{project.name}"
           raise ChangeProjectNoPermission, "The project #{project.name} is locked"
         end
-        logger.debug "user #{user.login} has no permission to modify project #{project.name}"
+        logger.debug "user #{User.session.login} has no permission to modify project #{project.name}"
         raise ChangeProjectNoPermission, 'no permission to change project'
       end
     else
@@ -113,7 +114,6 @@ class SourceProjectMetaController < SourceController
   private
 
   def require_project_name
-    required_parameters :project
     @project_name = params[:project]
   end
 end

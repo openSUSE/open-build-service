@@ -1,0 +1,7 @@
+<services>
+  <service name="tar_scm">
+    <param name="scm">git</param>
+    <param name="version">0.0.0</param>
+    <param name="url">https://github.com/openSUSE/obs-testpackage</param>
+  </service>
+</services>

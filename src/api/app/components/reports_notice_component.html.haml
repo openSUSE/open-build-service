@@ -2,7 +2,7 @@
 - if by_user?
   %span.text-warning
     You reported this #{reportable_name}.
-- else
+- if !by_user? || @user.moderator?
   %span.text-warning
     This #{reportable_name} has
     = link_to report_amount, '#', class: 'link-warning text-decoration-underline',

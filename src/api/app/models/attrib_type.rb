@@ -15,14 +15,16 @@ class AttribType < ApplicationRecord
   belongs_to :attrib_namespace
 
   has_many :attribs, dependent: :destroy
-  has_many :default_values, -> { order('position ASC') }, class_name: 'AttribDefaultValue', dependent: :delete_all
+  has_many :default_values, -> { order(:position) }, class_name: 'AttribDefaultValue', dependent: :delete_all
   has_many :allowed_values, class_name: 'AttribAllowedValue', dependent: :delete_all
   has_many :attrib_type_modifiable_bies, class_name: 'AttribTypeModifiableBy', dependent: :delete_all
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
-  validates :name, presence: true
+  validates :name, presence: true, uniqueness: { scope: :attrib_namespace_id }
+  validates :description, length: { maximum: 255 }
+  validates :type, length: { maximum: 255 }
 
   #### Class methods using self. (public and then private)
   def self.find_by_name!(name)
@@ -124,7 +126,7 @@ class AttribType < ApplicationRecord
     raise "attribute type '#{node.name}' modifiable_by element has no valid rules set" if node['user'].blank? && node['group'].blank? && node['role'].blank?
 
     new_rule = {}
-    new_rule[:user] = User.find_by_login!(node['user']) if node['user']
+    new_rule[:user] = User.not_deleted.find_by!(login: node['user']) if node['user']
     new_rule[:group] = Group.find_by_title!(node['group']) if node['group']
     new_rule[:role] = Role.find_by_title!(node['role']) if node['role']
     attrib_type_modifiable_bies << AttribTypeModifiableBy.new(new_rule)
@@ -150,11 +152,11 @@ end
 #
 #  id                  :integer          not null, primary key
 #  description         :string(255)
-#  issue_list          :boolean          default(FALSE)
-#  name                :string(255)      not null, indexed => [attrib_namespace_id], indexed
+#  issue_list          :boolean          default(FALSE), not null
+#  name                :string(255)      not null, uniquely indexed => [attrib_namespace_id], indexed
 #  type                :string(255)
 #  value_count         :integer
-#  attrib_namespace_id :integer          not null, indexed => [name]
+#  attrib_namespace_id :integer          not null, uniquely indexed => [name]
 #
 # Indexes
 #

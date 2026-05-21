@@ -2,11 +2,10 @@
 class NotificationReport < Notification
   def description
     case event_type
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage'
-      "'#{notifiable.user.login}' created a report for a #{event_payload['reportable_type'].downcase}. This is the reason:"
+    when 'Event::ReportForProject', 'Event::ReportForPackage'
+      "'#{notifiable.reporter.login}' created a report for a #{event_payload['reportable_type'].downcase}. This is the reason:"
     when 'Event::ReportForRequest'
-      "'#{notifiable.user.login}' created a report for a request. This is the reason:"
+      "'#{notifiable.reporter.login}' created a report for a request. This is the reason:"
     when 'Event::FavoredDecision'
       "'#{notifiable.moderator.login}' decided to favor the report. This is the reason:"
     when 'Event::ClearedDecision'
@@ -23,11 +22,11 @@ class NotificationReport < Notification
   def avatar_objects
     case event_type
     when 'Event::ReportForComment', 'Event::ReportForPackage', 'Event::ReportForProject', 'Event::ReportForUser', 'Event::ReportForRequest'
-      [User.find_by(login: event_payload['reporter'])].compact
+      User.where(login: event_payload['reporter'])
     when 'Event::FavoredDecision', 'Event::ClearedDecision'
-      [User.find(event_payload['moderator_id'])].compact
+      User.where(id: event_payload['moderator_id'])
     when 'Event::AppealCreated'
-      [User.find(event_payload['appellant_id'])].compact
+      User.where(id: event_payload['appellant_id'])
     end
   end
 
@@ -43,7 +42,7 @@ class NotificationReport < Notification
       event_type.constantize.notification_link_text(event_payload)
     when 'Event::ReportForRequest'
       "Report for Request ##{notifiable.reportable.number}"
-    when 'Event::CreateReport', 'Event::ReportForUser'
+    when 'Event::ReportForUser'
       "Report for a #{event_payload['reportable_type']}"
     when 'Event::FavoredDecision'
       "Favored #{notifiable.reports.first.reportable&.class&.name} Report".squish
@@ -59,31 +58,17 @@ class NotificationReport < Notification
   # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
   # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
   def link_path
-    case event_type
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport'
-      reportable = notifiable.reportable
-      link_for_reportables(reportable)
-    when 'Event::ReportForComment'
-      # Do not have a link for deleted comments
-      Comment.exists?(event_payload['reportable_id']) && path_to_commentables_on_reports(event_payload: event_payload, notification_id: id)
-    when 'Event::ReportForProject', 'Event::ReportForPackage'
-      event_type.constantize.notification_link_path(self)
-    when 'Event::ReportForUser'
-      Rails.application.routes.url_helpers.user_path(accused, notification_id: id) if !accused.is_deleted? || User.session!.is_admin?
-    when 'Event::ReportForRequest'
-      bs_request = notifiable.reportable
-      Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: id)
-    when 'Event::ClearedDecision', 'Event::FavoredDecision'
+    if event_type.starts_with?('Event::ReportFor')
+      Rails.application.routes.url_helpers.report_path(event_payload['id'])
+    elsif ['Event::ClearedDecision', 'Event::FavoredDecision'].include?(event_type)
       reportable = notifiable.reports.first.reportable
       link_for_reportables(reportable)
-    when 'Event::AppealCreated'
+    elsif event_type == 'Event::AppealCreated'
       Rails.application.routes.url_helpers.appeal_path(notifiable, notification_id: id)
     end
   end
 
   #
-  # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes.
   # This method is also used by 'Event::ClearedDecision' and 'Event::FavoredDecision', this need to
   # be adapted
   def link_for_reportables(reportable)
@@ -110,7 +95,7 @@ class NotificationReport < Notification
       Rails.application.routes.url_helpers.request_show_path(commentable.number, notification_id: id, anchor: 'comments-list')
     when BsRequestAction
       Rails.application.routes.url_helpers.request_show_path(number: commentable.bs_request.number, request_action_id: commentable.id,
-                                                             notification_id: id, anchor: 'tab-pane-changes')
+                                                             notification_id: id, anchor: 'comments-list')
     when Package
       Rails.application.routes.url_helpers.package_show_path(package: commentable,
                                                              project: commentable.project,
@@ -118,26 +103,6 @@ class NotificationReport < Notification
                                                              anchor: 'comments-list')
     when Project
       Rails.application.routes.url_helpers.project_show_path(commentable, notification_id: id, anchor: 'comments-list')
-    end
-  end
-
-  def path_to_commentables_on_reports(event_payload:, notification_id:)
-    case event_payload['commentable_type']
-    when 'BsRequest'
-      Rails.application.routes.url_helpers.request_show_path(event_payload['bs_request_number'],
-                                                             notification_id: notification_id, anchor: 'comments-list')
-    when 'BsRequestAction'
-      Rails.application.routes.url_helpers.request_show_path(number: event_payload['bs_request_number'],
-                                                             request_action_id: event_payload['bs_request_action_id'],
-                                                             notification_id: notification_id, anchor: 'tab-pane-changes')
-    when 'Package'
-      Rails.application.routes.url_helpers.package_show_path(package: event_payload['package_name'],
-                                                             project: event_payload['project_name'],
-                                                             notification_id: notification_id,
-                                                             anchor: 'comments-list')
-    when 'Project'
-      Rails.application.routes.url_helpers.project_show_path(event_payload['project_name'], notification_id: notification_id,
-                                                                                            anchor: 'comments-list')
     end
   end
 end
@@ -150,7 +115,7 @@ end
 #  bs_request_oldstate        :string(255)
 #  bs_request_state           :string(255)
 #  delivered                  :boolean          default(FALSE), indexed
-#  event_payload              :text(65535)      not null
+#  event_payload              :text(16777215)   not null
 #  event_type                 :string(255)      not null, indexed
 #  last_seen_at               :datetime
 #  notifiable_type            :string(255)      indexed => [notifiable_id]

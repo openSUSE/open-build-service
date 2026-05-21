@@ -10,10 +10,10 @@
             = select_tag(:review_type, options_for_select([%w[User review-user], %w[Group review-group]], 'review-user'), class: 'form-select')
 
           .hideable.review-user
-            = render partial: 'webui/shared/autocomplete', locals: { html_id: 'user', label: 'User:', required: true,
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'user', label: 'User:', required: true,
                                                                      data: { source: autocomplete_users_path } }
           .hideable.review-group.d-none
-            = render partial: 'webui/shared/autocomplete', locals: { html_id: 'group', label: 'Group:', required: true,
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'group', label: 'Group:', required: true,
                                                                      data: { source: autocomplete_groups_path } }
           .mb-3
             For:
@@ -34,7 +34,7 @@
                 = hidden_field_tag('package', package)
           .mb-3
             = label_tag(:description, 'Description:')
-            %abbr.text-danger{ title: 'required' } *
+            = render partial: 'webui/shared/required_label_mark'
             ~ text_area_tag(:description, nil, size: '40x3', class: 'form-control', required: true)
 
         .modal-footer

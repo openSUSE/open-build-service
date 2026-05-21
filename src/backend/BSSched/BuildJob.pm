@@ -283,6 +283,32 @@ sub killunwantedjobs {
   delete $ourjobs{$job2} unless %{$ourjobs{$job2} || {}};
 }
 
+=head2 writejob_repro - save a copy of the job for repro builds
+
+ TODO
+
+=cut
+
+sub writejob_repro {
+  my ($ctx, $binfo) = @_;
+  my $gctx = $ctx->{'gctx'};
+  # also write a copy of the job to the repro repo
+  my $rdst = "$gctx->{'reporoot'}/$binfo->{'project'}/$ctx->{'reprorepoid'}/$gctx->{'arch'}/$binfo->{'package'}";
+  mkdir_p($rdst);
+  # but save the old job if it matches the current result
+  my $dst = "$ctx->{'gdst'}/$binfo->{'package'}";
+  if (-s "$dst/_statistics") {
+    my $statistics  = readxml("$dst/_statistics", $BSXML::buildstatistics, 1) || {};
+    my $oldjobid = (($statistics->{'info'} || {})->{'jobid'} || '');
+    if ($oldjobid) {
+      my $oldjobxml = readstr("$rdst/.reprojob", 1);
+      writestr("$rdst/.reprojob.success.new", "$rdst/.reprojob.success", $oldjobxml) if $oldjobxml && Digest::MD5::md5_hex($oldjobxml) eq $oldjobid;
+    }
+  }
+  writexml("$rdst/.reprojob.new", "$rdst/.reprojob", $binfo, $BSXML::buildinfo);
+  $ctx->{'reprojob_written'} = 1;
+}
+
 =head2 writejob - write a new job to disc
 
 After writing the dispatcher will pick up the job and dispatch it
@@ -295,7 +321,7 @@ sub writejob {
 
   # jay! ready for building, write status, reason, and job info
   my $gctx = $ctx->{'gctx'};
-  $binfo->{'job'} = $job if $job;
+  $binfo->{'job'} = $job;
   $binfo->{'readytime'} = time();
   if ($reason) {
     $binfo->{'reason'} = $reason->{'explain'};
@@ -319,6 +345,7 @@ sub writejob {
   add_crossmarker($gctx, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
   $ourjobs{$1}->{$job} = 1 if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
   push @{$ctx->{'otherjobscache'}}, $job;
+  writejob_repro($ctx, $binfo) if $ctx->{'reprorepoid'};	# also write the job to the repro repo
 }
 
 =head2 find_otherjobs - find all jobs for the same build
@@ -334,6 +361,20 @@ sub find_otherjobs {
   my @otherjobs = grep {/^\Q$jobprefix\E-[0-9a-f]{32}$/} @{$ctx->{'otherjobscache'}};
   @otherjobs = BSUtil::unify(grep {-e "$myjobsdir/$_"} @otherjobs) if @otherjobs;
   return @otherjobs;
+}
+
+=head2 kill_otherjobs - find all jobs for the same build and kill them
+
+=cut
+
+sub kill_otherjobs {
+  my ($ctx, $jobprefix) = @_;
+  my $gctx = $ctx->{'gctx'};
+  my @otherjobs = find_otherjobs($ctx, $jobprefix);
+  for my $otherjob (@otherjobs) {
+    print "        killing old job $otherjob\n" if $ctx->{'verbose'};
+    killjob($gctx, $ctx->{'prp'}, $otherjob);
+  }
 }
 
 =head2 add_crossmarker - add a marker into a foreign jobdir
@@ -463,14 +504,18 @@ sub jobfinished {
     print "  - $job has no data dir\n";
     return;
   }
+  if ($info->{'reprojobid'}) {
+    BSSched::BuildJob::Reproduciblecheck::jobfinished($ectx, $job, $info, $js);
+    return;
+  }
   # dispatch to specialized versions for aggregates and deltas
   if ($info->{'file'} eq '_aggregate') {
     BSSched::BuildJob::Aggregate::jobfinished($ectx, $job, $info, $js);
-    return ;
+    return;
   }
   if ($info->{'file'} eq '_delta') {
     BSSched::BuildJob::DeltaRpm::jobfinished($ectx, $job, $info, $js);
-    return ;
+    return;
   }
 
   my $myarch = $gctx->{'arch'};
@@ -564,6 +609,22 @@ sub jobfinished {
     $status->{'status'} = 'succeeded';
     writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
     $changed->{$prp} ||= 1;     # package is no longer blocking
+    # update the .nouseforbuild status if it changed
+    my $oldnouseforbuild = -e "$dst/.nouseforbuild" ? 1 : 0;
+    if ($oldnouseforbuild != ($info->{'nouseforbuild'} ? 1 : 0)) {
+      print "updateing nouseforbuild flag\n";
+      unlink("$dst/.nouseforbuild");
+      BSUtil::touch("$dst/.nouseforbuild") if $info->{'nouseforbuild'};
+      my $dstcache = $ectx->{'dstcache'};
+      # recreate bininfo to pick up the change
+      unlink("$dst/.bininfo");
+      my $bininfo = read_bininfo($dst, 1);
+      BSSched::BuildResult::update_bininfo_merge($gdst, $packid, $bininfo, $dstcache);
+      # integrate into :full
+      BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $dstcache);
+      $changed->{$prp} = 2;
+      delete $gctx->{'repounchanged'}->{$prp};
+    }
     return;
   }
   if ($code eq 'failed') {
@@ -594,21 +655,21 @@ sub jobfinished {
   mkdir_p("$gdst/:logfiles.success");
   mkdir_p("$gdst/:logfiles.fail");
 
+  unlink("$jobdatadir/.nouseforbuild");
+  BSUtil::touch("$jobdatadir/.nouseforbuild") if $info->{'nouseforbuild'};
   unlink("$jobdatadir/.preinstallimage");
   BSUtil::touch("$jobdatadir/.preinstallimage") if $info->{'file'} eq '_preinstallimage';
   my $jobhist = makejobhist($info, $status, $js, 'succeeded');
-  addbuildstats($jobdatadir, $dst, $jobhist) if ($all{'_statistics'});
-  my $useforbuildenabled = 1;
-  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+  addbuildstats($jobdatadir, $dst, $jobhist) if $all{'_statistics'};
+
+  # update build result directory and full tree
   my $dstcache = $ectx->{'dstcache'};
-  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, $dstcache);
-  $changed->{$prp} = 2 if $useforbuildenabled;
-  my $repounchanged = $gctx->{'repounchanged'};
-  delete $repounchanged->{$prp} if $useforbuildenabled;
-  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
+  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $dstcache);
   $changed->{$prp} ||= 1;
+  $changed->{$prp} = 2 if $changed_full;
+  my $repounchanged = $gctx->{'repounchanged'};
+  delete $repounchanged->{$prp} if $changed_full;
+  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
 
   # save meta file
   rename($meta, "$gdst/:meta/$packid") if $meta;
@@ -620,9 +681,8 @@ sub jobfinished {
 
   # write history file
   my $duration = 0;
-  $duration = $js->{'endtime'} - $js->{'starttime'} if $js->{'endtime'} && $js->{'starttime'};;
-  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $now, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}, 'duration' => $duration};
-  BSFileDB::fdb_add("$dst/history", $historylay, $h);
+  $duration = $js->{'endtime'} - $js->{'starttime'} if $js->{'endtime'} && $js->{'starttime'};
+  addsucceededhist($dst, $info, $now, $duration);
 
   # update relsync file (use relsync.merge if relsync is too big)
   if (((-s "$gdst/:relsync") || 0) < 8192 && ! -e "$gdst/:relsync.merge") {
@@ -673,7 +733,8 @@ sub fakejobfinished {
     'job' => $job,
     %{$buildinfoskel || {}},
   };
-  writejob($ctx, $job, $binfo);
+  local $ctx->{'reprorepoid'} = undef;	# disable reproducible job generation
+  $ctx->writejob($job, $binfo);
   close(F);
   my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
   if ($needsign) {
@@ -704,7 +765,7 @@ sub fakejobfinished_nouseforbuild {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
-  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+  my $gdst = $ctx->{'gdst'};
   my $dst = "$gdst/$packid";
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $jobdatadir = "$myjobsdir/$job:dir";
@@ -725,6 +786,11 @@ sub fakejobfinished_nouseforbuild {
   }
   rename("$jobdatadir/meta", "$gdst/:meta/$packid");
   if ($code eq 'succeeded') {
+    my $now = time();
+    # fake job data
+    my $info = {
+      'versrel' => $pdata->{'versrel'}, 'bcnt' => 0, 'srcmd5' => $pdata->{'srcmd5'}, 'rev' => $pdata->{'rev'}, 'reason' => '',
+    };
     $bininfo ||= {};
     # fixup filename entries
     for (keys %$bininfo) {
@@ -749,8 +815,7 @@ sub fakejobfinished_nouseforbuild {
     BSSched::BuildResult::update_bininfo_merge($gdst, $packid, $bininfo);
     delete $bininfo->{'.bininfo'};
     # write history file
-    my $h = {'versrel' => $pdata->{'versrel'}, 'bcnt' => "0", 'time' => time(), 'srcmd5' => $pdata->{'srcmd5'}, 'rev' => $pdata->{'rev'}, 'reason' => "", 'duration' => "0"};
-    BSFileDB::fdb_add("$dst/history", $historylay, $h);
+    addsucceededhist($dst, $info, $now, 0);
   }
   BSUtil::cleandir($jobdatadir);
   rmdir($jobdatadir);
@@ -766,7 +831,7 @@ sub fakejobfinished_nouseforbuild {
 =cut
 
 sub patchpackstatus {
-  my ($gctx, $prp, $packid, $code, $job) = @_;
+  my ($gctx, $prp, $packid, $code, $job, $rediscode) = @_;
 
   my $reporoot = $gctx->{'reporoot'};
   my $myarch = $gctx->{'arch'};
@@ -775,13 +840,14 @@ sub patchpackstatus {
   BSUtil::appendstr("$gdst/:packstatus.finished", "$code $packid\n");
   # touch mtime to make watchers see a change
   utime(time, time, "$gdst/:packstatus");
-  BSRedisnotify::updateoneresult("$prp/$myarch", $packid, "finished:$code", $job) if $BSConfig::redisserver;
+  BSRedisnotify::updateoneresult("$prp/$myarch", $packid, $rediscode || "finished:$code", $job) if $BSConfig::redisserver;
 }
-
 
 sub addbuildstats {
   my ($jobdatadir, $dst, $jobhist) = @_;
   my $bstat = readxml("$jobdatadir/_statistics", $BSXML::buildstatistics, 1) || {};
+  delete $bstat->{'info'};	# drop extra info
+  return unless %$bstat;
   my $data = flat_hash({ 'stats' => $jobhist, 'stats_buildstatistics' => $bstat });
   BSFileDB::fdb_add("$dst/.stats", $BSXML::buildstatslay, $data);
 }
@@ -824,8 +890,20 @@ sub addjobhist {
   }
 }
 
+=head2 addsucceededhist - add a new entry succeeded history list
 
-=head2 nextbcnt - calculate the build counter for the next build
+ TODO: add description
+
+=cut
+
+sub addsucceededhist {
+  my ($dst, $info, $now, $duration) = @_;
+  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $now, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}, 'duration' => $duration};
+  BSFileDB::fdb_add("$dst/history", $historylay, $h);
+}
+
+
+=head2 nextbcnt - calculate the build counter for the next build by looking at the succeeded history
 
  TODO: add description
 
@@ -918,11 +996,10 @@ sub create_jobdata {
     }
     $binfo->{'release'} = "$release.$bcnt" if $ctx->{'dobuildinfo'} && !defined($binfo->{'release'});
   }
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid};
+  my $proj = $ctx->{'proj'};
   my $debuginfo = $bconf->{'debuginfo'};
-  $debuginfo = BSUtil::enabled($repoid, $proj->{'debuginfo'}, $debuginfo, $myarch);
-  $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
+  $debuginfo = BSUtil::enabled($repoid, $proj->{'debuginfo'}, $debuginfo, $myarch) if $proj->{'debuginfo'};
+  $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch) if $pdata->{'debuginfo'};
   $binfo->{'debuginfo'} = 1 if $debuginfo;
   if ($ctx->{'modularity_label'}) {
     my $distindex = $ctx->{'modularity_distindex'} || $binfo->{'bcnt'} || 1;
@@ -993,8 +1070,7 @@ sub create {
   my $repoid = $ctx->{'repository'};
   my $bconf = $ctx->{'conf'};
   my $gdst = $ctx->{'gdst'};
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid};
+  my $proj = $ctx->{'proj'};
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $verifymd5 = $pdata->{'verifymd5'} || $srcmd5;
@@ -1002,7 +1078,7 @@ sub create {
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $dobuildinfo = $ctx->{'dobuildinfo'};
 
-  if ($myjobsdir) {
+  if ($myjobsdir && $info->{'file'} ne '_reproduciblecheck') {
     if (-s "$myjobsdir/$jobprefix-$srcmd5") {
       add_crossmarker($gctx, $bconf->{'hostarch'}, "$jobprefix-$srcmd5") if $bconf->{'hostarch'};	# just in case...
       return ('scheduled', "$jobprefix-$srcmd5");
@@ -1137,13 +1213,7 @@ sub create {
   }
 
   # kill those ancient other jobs
-  if ($myjobsdir) {
-    my @otherjobs = find_otherjobs($ctx, $jobprefix);
-    for my $otherjob (@otherjobs) {
-      print "        killing old job $otherjob\n" if $ctx->{'verbose'};
-      killjob($gctx, $prp, $otherjob);
-    }
-  }
+  kill_otherjobs($ctx, $jobprefix) if $myjobsdir && $info->{'file'} ne '_reproduciblecheck';
 
   # create bdep section
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
@@ -1237,9 +1307,17 @@ sub create {
 	$binfo->{'slsadownloadurl'} = $BSConfig::api_url;
       }
     }
-    my $signflavor = $BSConfig::sign_flavor ? $bconf->{'buildflags:signflavor'} : undef;
-    return ('broken', "illegal sign flavor '$signflavor'") if $signflavor && !grep {$_ eq $signflavor} @$BSConfig::sign_flavor;
-    $binfo->{'signflavor'} = $signflavor if $signflavor;
+    if ($BSConfig::sign_flavor) {
+      my $signflavor = $ctx->{'override_signflavor'} || $bconf->{'buildflags:signflavor'};
+      return ('broken', "illegal sign flavor '$signflavor'") if $signflavor && !grep {$_ eq $signflavor} @$BSConfig::sign_flavor;
+      $signflavor = '_buildenv' if ($pdata->{'hasbuildenv'} || $info->{'hasbuildenv'}) && !$pdata->{'buildenv'};
+      $binfo->{'signflavor'} = $signflavor if $signflavor;
+    }
+    $binfo->{'nouseforbuild'} = 1 if $info->{'nouseforbuild'};
+    if ($binfo->{'file'} eq '_reproduciblecheck' && $ctx->{'isreprorepo'}) {
+      $binfo->{'reprorepoid'} = $ctx->{'isreprorepo'};
+      $binfo->{'reprojobid'} = $srcmd5;
+    }
   }
   $ctx->writejob($job, $binfo, $reason);
 
@@ -1342,7 +1420,7 @@ sub metacheck {
     return ('scheduled', [ @$data, { 'explain' => 'retrying bad build' } ]);
   }
   if (join('\n', @meta) eq join('\n', @$new_meta)) {
-    if (($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker' || $buildtype eq 'productcompose') && $ctx->{'relsynctrigger'}->{$packid}) {
+    if ($ctx->{'relsynctrigger'}->{$packid} && $buildtype ne 'patchinfo' && $buildtype ne 'aggregate' && $buildtype ne 'channel' && $buildtype ne 'preinstallimage') {
       if ($ctx->{'verbose'}) {
         print "      - $packid ($buildtype)\n";
         print "        rebuild counter sync\n";
@@ -1354,7 +1432,7 @@ sub metacheck {
     return ('done');
   }
   my $repo = $ctx->{'repo'};
-  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker') {
+  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker' || $buildtype eq 'productcompose') {
     my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
     if ($rebuildmethod eq 'local') {
       #print "      - $packid ($buildtype)\n";
@@ -1432,7 +1510,8 @@ sub diffsortedmd5 {
 
 sub createextrapool {
   my ($ctx, $bconf, $prps, $unorderedrepos, $prios, $arch) = @_;
-  my $pool = $ctx->newpool($bconf);
+  my $pool = eval { $ctx->newpool($bconf) };
+  return (undef, 'extra pool creation failed') unless $pool;
   my $delayed = '';
   for my $prp (@{$prps || []}) {
     return (undef, "repository '$prp' is unavailable") if !$ctx->checkprpaccess($prp);

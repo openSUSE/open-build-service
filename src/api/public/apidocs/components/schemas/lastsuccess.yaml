@@ -1,0 +1,26 @@
+type: object
+properties:
+  repository:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          xml:
+            attribute: true
+        arch:
+          type: array
+          items:
+            type: object
+            properties:
+              arch:
+                type: string
+                xml:
+                  attribute: true
+              result:
+                type: string
+                xml:
+                  attribute: true
+xml:
+  name: status

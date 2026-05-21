@@ -28,6 +28,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     post '/source/home:tom:BaseDistro:SP1/pack1', params: { cmd: 'branch', target_project: 'home:tom:Branch', newinstance: 1, extend_package_names: 1 }
     assert_response :success
+    assert_xml_tag tag: 'data', attributes: { name: 'project' }, content: 'home:tom:BaseDistro:SP1'
+
+    # Deprecated return parameter `sourceproject` stays for compatibility. To be removed in 3.0
     assert_xml_tag tag: 'data', attributes: { name: 'sourceproject' }, content: 'home:tom:BaseDistro:SP1'
 
     get '/source/home:tom:Branch/pack1.home_tom_BaseDistro_SP1/_link'
@@ -55,12 +58,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # need write permission in maintained project...
-    put '/source/home:tom:maintenance/_meta', params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="BaseDistro"/></maintenance> </project>'
+    put '/source/home:tom:maintenance/_meta',
+        params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="BaseDistro"/></maintenance> </project>'
     assert_response :forbidden
     assert_xml_tag tag: 'summary', content: 'No write access to maintained project BaseDistro'
 
     # create one ...
-    put '/source/home:tom:maintenance/_meta', params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="home:tom"/></maintenance> </project>'
+    put '/source/home:tom:maintenance/_meta',
+        params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="home:tom"/></maintenance> </project>'
     assert_response :success
     get '/source/home:tom:maintenance/_meta'
     assert_response :success
@@ -360,6 +365,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_tom
     post '/source', params: { cmd: 'branch', package: 'kdelibs' }
     assert_response :success
+    assert_xml_tag tag: 'data', attributes: { name: 'target_project' }, content: 'home:tom:branches:OBS_Maintained:kdelibs'
+    assert_xml_tag tag: 'data', attributes: { name: 'target_package' }, content: 'kdelibs.kde4'
+    assert_xml_tag tag: 'data', attributes: { name: 'project' }, content: 'ServicePack'
+    assert_xml_tag tag: 'data', attributes: { name: 'package' }, content: 'kdelibs'
+
+    # Deprecated return parameters stay for compatibility. To be removed in 3.0
     assert_xml_tag tag: 'data', attributes: { name: 'targetproject' }, content: 'home:tom:branches:OBS_Maintained:kdelibs'
     assert_xml_tag tag: 'data', attributes: { name: 'targetpackage' }, content: 'kdelibs.kde4'
     assert_xml_tag tag: 'data', attributes: { name: 'sourceproject' }, content: 'ServicePack'
@@ -871,10 +882,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_tom
     post '/source/BaseDistro2.0/pack2', params: { cmd: 'branch', target_package: 'DUMMY_package', extend_package_names: '1' }
     assert_response :success
+    assert_xml_tag(tag: 'data', attributes: { name: 'project' }, content: 'BaseDistro2.0:LinkedUpdateProject')
+    assert_xml_tag(tag: 'data', attributes: { name: 'package' }, content: 'pack2')
+    assert_xml_tag(tag: 'data', attributes: { name: 'target_project' }, content: 'home:tom:branches:BaseDistro2.0:LinkedUpdateProject')
+    assert_xml_tag(tag: 'data', attributes: { name: 'target_package' }, content: 'DUMMY_package.BaseDistro2.0_LinkedUpdateProject')
+
+    # Deprecated return parameters stay for compatibility. To be removed in 3.0
     assert_xml_tag(tag: 'data', attributes: { name: 'sourceproject' }, content: 'BaseDistro2.0:LinkedUpdateProject')
     assert_xml_tag(tag: 'data', attributes: { name: 'sourcepackage' }, content: 'pack2')
     assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' }, content: 'home:tom:branches:BaseDistro2.0:LinkedUpdateProject')
     assert_xml_tag(tag: 'data', attributes: { name: 'targetpackage' }, content: 'DUMMY_package.BaseDistro2.0_LinkedUpdateProject')
+
     get '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
     assert_xml_tag(tag: 'entry', attributes: { name: 'DUMMY_package.BaseDistro2.0_LinkedUpdateProject' })
@@ -1222,7 +1240,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, tag: 'id', content: nil
     assert_xml_tag tag: 'reference', attributes: { href: 'https://bugzilla.novell.com/show_bug.cgi?id=1042', id: '1042', type: 'bugzilla' }
     assert_xml_tag tag: 'reference', attributes: { href: 'https://bugzilla.novell.com/show_bug.cgi?id=4201', id: '4201', type: 'bugzilla' }
-    assert_xml_tag tag: 'reference', attributes: { href: 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0815', id: 'CVE-2009-0815', type: 'cve' }
+    assert_xml_tag tag: 'reference', attributes: { href: 'https://www.cve.org/CVERecord?id=CVE-2009-0815', id: 'CVE-2009-0815', type: 'cve' }
     assert_no_xml_tag tag: 'reference', attributes: { href: 'https://bugzilla.novell.com/show_bug.cgi?id=' }
     assert_no_xml_tag tag: 'reference', attributes: { id: '' }
     # check updateinfo
@@ -1434,7 +1452,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'status', attributes: { code: 'under_embargo' })
 
     # use the special form, no time specified
-    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.year}-#{Time.now.month}-#{Time.now.day}</value></attribute></attributes>"
+    post "/source/#{incident_project}/_attribute",
+         params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.year}-#{Time.now.month}-#{Time.now.day}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response :bad_request
@@ -1698,7 +1717,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'releasetarget', attributes: { trigger: 'maintenance' }
 
     # create a service pack on top of it
-    put '/source/BaseDistro2.0:ServicePack1/_meta', params: '<project name="BaseDistro2.0:ServicePack1"> <title/><description/><link project="BaseDistro2.0:LinkedUpdateProject" vrevmode="extend"/></project>'
+    put '/source/BaseDistro2.0:ServicePack1/_meta',
+        params: '<project name="BaseDistro2.0:ServicePack1"> <title/><description/><link project="BaseDistro2.0:LinkedUpdateProject" vrevmode="extend"/></project>'
     assert_response :success
     # get current vrev
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'

@@ -18,9 +18,10 @@ OBSApi::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
   config.cache_classes = true
 
-  # We set eager loading to true in CI
-  # to run with the same configuration as in production
-  config.eager_load = ENV.fetch('EAGER_LOAD', '0') == '1'
+  # Eager loading loads your whole application. When running a single test locally,
+  # this probably isn't necessary. It's a good idea to do in a continuous integration
+  # system, or in some way before deploying your code.
+  config.eager_load = ENV["CI"].present?
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local = true
@@ -33,7 +34,7 @@ OBSApi::Application.configure do
   }
 
   # Raise exceptions instead of rendering exception templates.
-  # config.action_dispatch.show_exceptions = false
+  # config.action_dispatch.show_exceptions = :none
 
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
@@ -78,12 +79,8 @@ OBSApi::Application.configure do
   config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 950
 
   config.active_job.queue_adapter = :inline
-
-  # Raises error for missing translations.
-  # config.i18n.raise_on_missing_translations = true
-
-  # Annotate rendered view with file names.
-  # config.action_view.annotate_rendered_view_with_filenames = true
+  # Access to rack session for feature specs
+  config.middleware.use RackSessionAccess::Middleware
 end
 # rubocop:enable Metrics/BlockLength
 
@@ -97,7 +94,6 @@ CONFIG['global_write_through'] = false
 CONFIG['frontend_host'] = 'localhost'
 CONFIG['frontend_port'] = 3203
 CONFIG['frontend_protocol'] = 'http'
-CONFIG['frontend_ldap_mode'] = :off
 
 if ENV['RUNNING_MINITEST']
   CONFIG['source_host'] = 'localhost'
@@ -125,6 +121,3 @@ CONFIG['sponsors'] = [
     url: '#'
   )
 ]
-
-# Making sure that Backend::Logger.info is fully executed to catch potential errors
-CONFIG['extended_backend_log'] = true

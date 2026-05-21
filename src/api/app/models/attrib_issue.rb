@@ -10,8 +10,8 @@ end
 # Table name: attrib_issues
 #
 #  id        :integer          not null, primary key
-#  attrib_id :integer          not null, indexed => [issue_id]
-#  issue_id  :integer          not null, indexed => [attrib_id], indexed
+#  attrib_id :integer          not null, uniquely indexed => [issue_id]
+#  issue_id  :integer          not null, uniquely indexed => [attrib_id], indexed
 #
 # Indexes
 #

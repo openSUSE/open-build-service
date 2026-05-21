@@ -1,0 +1,71 @@
+get:
+  summary: List all reports.
+  description: |
+    List all reports created by a user.
+    If the user is an admin, a staff member or a moderator, list all reports.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: reportable_type
+      schema:
+        type: string
+        enum:
+        - Comment
+        - Package
+        - Project
+        - User
+        - BsRequest
+      description: Filter by type of reportable.
+    - in: query
+      name: decided
+      schema:
+        type: string
+        enum:
+        - true
+        - 1
+        - false
+        - 0
+      description: Filter by decided status.
+    - in: query
+      name: limit
+      schema:
+        type: integer
+      description: Limit returned results to the value of this parameter. Used together with the `offset` parameter to paginate results.
+    - in: query
+      name: offset
+      schema:
+        type: integer
+      description: Start list of returned results from the value of this parameter. Used together with the `limit` parameter to paginate results.
+  responses:
+    '200':
+      $ref: '../components/responses/reports.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Reports
+
+post:
+  summary: Create a report.
+  description: Create a report.
+  security:
+    - basic_authentication: []
+  requestBody:
+    description: |
+      Report definition.
+
+      XML Schema used for body validation: [report.rng](../schema/report.rng)
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/report.yaml'
+        example: |
+          <report reportable_id="3" reportable_type="Comment" category="Important">Behave properly, please!</report>
+
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Reports

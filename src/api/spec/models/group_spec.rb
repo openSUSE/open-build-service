@@ -31,7 +31,7 @@ RSpec.describe Group do
       end
 
       context 'with user _nobody_' do
-        let(:members) { create(:user_nobody).login }
+        let(:members) { User.find_nobody!.login }
 
         it 'does not add the user' do
           expect(subject).to be_falsey
@@ -52,7 +52,7 @@ RSpec.describe Group do
         it 'errors and does not change users' do
           expect(subject).to be_falsey
           expect(group.users).to eq([user])
-          expect(group.errors.full_messages).to eq(["Couldn't find User with login = Foobar"])
+          expect(group.errors.full_messages).to eq(["Couldn't find User"])
         end
       end
 
@@ -62,9 +62,36 @@ RSpec.describe Group do
         it 'errors and does not change users' do
           expect(subject).to be_falsey
           expect(group.users).to eq([user])
-          expect(group.errors.full_messages).to eq(["Couldn't find User with login = Foobar"])
+          expect(group.errors.full_messages).to eq(["Couldn't find User"])
         end
       end
     end
+  end
+
+  describe '#involved_projects' do
+    let!(:involved_project) { create(:project, maintainer: group) }
+
+    it { expect(group.involved_projects).to contain_exactly(involved_project) }
+  end
+
+  describe '#involved_packages' do
+    let!(:involved_package) { create(:package_with_maintainer, maintainer: group) }
+    let!(:involved_project) { create(:project_with_package, package_name: 'blah', maintainer: group) }
+
+    it { expect(group.involved_packages).to contain_exactly(involved_package) }
+  end
+
+  describe '#bs_requests' do
+    let(:involved_project) { create(:project, maintainer: group) }
+    let!(:incoming_request) { create(:bs_request_with_submit_action, target_project: involved_project, description: 'incoming') }
+    let!(:outgoing_request) { create(:bs_request_with_submit_action, source_project: involved_project, description: 'outgoing') }
+    let!(:request_with_group_review) { create(:delete_bs_request, target_project: create(:project), review_by_group: group, description: 'group_review') }
+    let!(:request_with_project_review) { create(:delete_bs_request, target_project: create(:project), review_by_project: involved_project, description: 'project_review') }
+    let!(:request_with_package_review) do
+      create(:delete_bs_request, target_project: create(:project), review_by_package: create(:package_with_maintainer, maintainer: group), description: 'package_review')
+    end
+    let!(:unrelated_request) { create(:bs_request_with_submit_action, source_project: create(:project), description: 'unrelated') }
+
+    it { expect(group.bs_requests.pluck(:description)).to contain_exactly('incoming', 'outgoing', 'group_review', 'project_review', 'package_review') }
   end
 end

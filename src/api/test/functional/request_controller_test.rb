@@ -51,21 +51,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  def test_invalid_command
-    post '/request?cmd=INVALID'
-    assert_response :unauthorized
-    login_king
-    post '/request?cmd=INVALID', params: '<request>
-                                            <action type="submit">
-                                              <source project="project1" package="package1" />
-                                              <target project="project2" package="package2" />
-                                            </action>
-                                            <description>Description</description>
-                                          </request>'
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_command' })
-  end
-
   def test_get_requests_collection
     login_king
     get '/request', params: { view: 'collection', reviewstates: 'accepted' }
@@ -339,7 +324,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_equal(node.elements('state').first.value('when'), node.elements('history').last.value('when'), 'Current state is has NOT same time as last history item')
     oldhistory = nil
     node.elements('history') do |h|
-      assert((h.value('when') > oldhistory.value('when')), 'Current history is not newer than the former history') unless h
+      assert(h.value('when') > oldhistory.value('when'), 'Current history is not newer than the former history') unless h
       oldhistory = h
     end
 
@@ -705,7 +690,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # now try as webui if we get a different error
     post '/request?cmd=create', params: load_backend_file('request/add_role'), headers: { 'HTTP_USER_AGENT' => 'obs-webui-something' }
-    assert_xml_tag tag: 'status', attributes: { code: 'anonymous_user' }
+    assert_xml_tag tag: 'status', attributes: { code: 'authentication_required' }
     assert_response :unauthorized
   end
 
@@ -1573,7 +1558,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_match(/No Submits/, @response.body)
     assert_xml_tag tag: 'status', attributes: { code: 'request_rejected' }
     # but it works when blocking only for others
-    post '/source/home:Iggy/_attribute', params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Submits welcome</value> <value>delete</value> <value>set_bugowner</value> </attribute> </attributes>"
+    post '/source/home:Iggy/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Submits welcome</value> <value>delete</value> <value>set_bugowner</value> </attribute> </attributes>"
     assert_response :success
     post '/request?cmd=create', params: rq
     assert_response :success
@@ -1779,7 +1765,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post '/request?cmd=create', params: req
     assert_response :unauthorized
-    assert_select 'status[code] > summary', /Authentication required/
+    assert_select 'status[code] > summary', /Authentication Required/
 
     # create request by non-maintainer => validate created review item
     login_tom
@@ -3054,7 +3040,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     req = load_backend_file(backend_file)
     post '/request?cmd=create', params: req
     assert_response :unauthorized
-    assert_select 'status[code] > summary', /Authentication required/
+    assert_select 'status[code] > summary', /Authentication Required/
     prepare_request_with_user(user, pass)
     post '/request?cmd=create', params: req
   end
@@ -3297,7 +3283,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     meta = "<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:Iggy:todo', package: 'realfun'), params: meta
+    put url_for(controller: :source_package_meta, action: :update, project: 'home:Iggy:todo', package: 'realfun'), params: meta
     assert_response :success
 
     login_tom
@@ -3378,7 +3364,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     meta = "<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:Iggy:todo', package: 'realfun'), params: meta
+    put url_for(controller: :source_package_meta, action: :update, project: 'home:Iggy:todo', package: 'realfun'), params: meta
     assert_response :success
 
     login_tom
@@ -3449,7 +3435,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # old admins can do that
     delete "/request/#{id}"
     assert_response :forbidden
-    assert_xml_tag tag: 'summary', content: 'Requires admin privileges'
+    assert_xml_tag tag: 'status', attributes: { code: 'admin_required' }
 
     login_king
     delete "/request/#{id}"
@@ -3551,7 +3537,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
-    assert_not BsRequest.find_by_number(id).is_target_maintainer?(User.session), 'tom is not target maintainer'
+    assert_not BsRequest.find_by_number(id).target_maintainer?(User.session), 'tom is not target maintainer'
   end
 
   def test_cleanup_from_home

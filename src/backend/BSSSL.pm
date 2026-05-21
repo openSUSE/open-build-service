@@ -245,16 +245,14 @@ sub CLOSE {
     untie($sslr->[1]);
     close($sslr->[1]);
   } else {
-    Net::SSLeay::free($sslr->[0]);
-    undef $sslr->[0];
+    Net::SSLeay::free(splice(@$sslr, 0, 1, undef));
   }
   undef $sslr->[1];
 }
 
 sub UNTIE {
   my ($sslr) = @_;
-  Net::SSLeay::free($sslr->[0]);
-  undef $sslr->[0];
+  Net::SSLeay::free(splice(@$sslr, 0, 1, undef));
 }
 
 sub DESTROY {

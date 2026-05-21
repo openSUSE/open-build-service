@@ -2,6 +2,7 @@
 class Service
   include ActiveModel::Model
   include Package::Errors
+
   class InvalidParameter < APIError; end
 
   attr_accessor :package
@@ -64,7 +65,7 @@ class Service
 
     begin
       Backend::Api::Sources::Package.wait_service(project.name, package.name)
-      Backend::Api::Sources::Package.merge_service(project.name, package.name, User.session!.login)
+      Backend::Api::Sources::Package.merge_service(project.name, package.name, User.session&.login)
     rescue Backend::Error, Timeout::Error => e
       Rails.logger.debug { "Error while executing backend command: #{e.message}" }
     end
@@ -84,17 +85,17 @@ class Service
 
     if document.xpath('//services/service').empty?
       begin
-        Backend::Api::Sources::Package.delete_file(project.name, package.name, '_service')
+        Backend::Api::Sources::File.delete(project.name, package.name, '_service')
       rescue Backend::NotFoundError
         # to be ignored, if it's gone, it's gone
       end
     else
-      Backend::Api::Sources::Package.write_file(project.name, package.name, '_service', document.root.to_xml,
-                                                comment: 'Modified via webui', user: User.session!.login)
+      Backend::Api::Sources::File.write(project.name, package.name, '_service', document.root.to_xml,
+                                        comment: 'Modified via webui', user: User.session!.login)
       service_package = Package.get_by_project_and_name(project.name, package.name, follow_project_links: false)
       return false unless User.session!.can_modify?(service_package)
 
-      Backend::Api::Sources::Package.trigger_services(service_package.project.name, service_package.name, User.session!.login)
+      Backend::Api::Sources::Package.trigger_services(service_package.project.name, service_package.name, User.session&.login)
       service_package.sources_changed
     end
     true

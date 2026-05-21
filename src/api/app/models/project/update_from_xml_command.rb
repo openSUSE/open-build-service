@@ -1,6 +1,7 @@
 class Project
   class UpdateFromXmlCommand
     include Project::Errors
+
     attr_reader :project
 
     def initialize(project)
@@ -11,12 +12,12 @@ class Project
       project.check_write_access!
 
       # check for raising read access permissions, which can't get ensured atm
-      raise ForbiddenError if !(project.new_record? || project.disabled_for?('access', nil, nil)) && (FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?)
-      raise ForbiddenError if !(project.new_record? || project.disabled_for?('sourceaccess', nil, nil)) && (FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.admin_session?)
+      raise ForbiddenError if !(project.new_record? || project.disabled_for?('access', nil, nil)) && FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
+      raise ForbiddenError if !(project.new_record? || project.disabled_for?('sourceaccess', nil, nil)) && FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.admin_session?
 
       new_record = project.new_record?
-      if ::Configuration.default_access_disabled == true && !new_record && (project.disabled_for?('access', nil,
-                                                                                                  nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?)
+      if ::Configuration.default_access_disabled == true && !new_record && project.disabled_for?('access', nil,
+                                                                                                 nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
         raise ForbiddenError
       end
 
@@ -45,6 +46,11 @@ class Project
       project.update_relationships_from_xml(xmlhash)
 
       update_repositories(xmlhash, force)
+
+      return if project.scmsync.blank?
+
+      project.revoke_requests
+      project.cleanup_packages
     end
 
     private

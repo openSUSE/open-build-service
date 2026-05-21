@@ -2,10 +2,6 @@ module MultibuildPackage
   extend ActiveSupport::Concern
 
   class_methods do
-    def valid_multibuild_name?(name)
-      valid_name?(name, allow_multibuild: true)
-    end
-
     def striping_multibuild_suffix(name)
       # exception for package names used to have a collon
       return name if name.start_with?('_patchinfo:', '_product:')

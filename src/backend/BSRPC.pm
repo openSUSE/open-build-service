@@ -38,6 +38,7 @@ our $logtimeout;
 our $autoheaders;
 our $dnscachettl = 3600;
 our $authenticator;
+our $logrequests;
 
 our $ssl_keyfile;
 our $ssl_certfile;
@@ -165,6 +166,7 @@ sub createreq {
   }
   push @xhdrs, map {"Cookie: $_"} getcookies($cookiestore, $uri) if $cookiestore && %$cookiestore;
   my $req = "$act $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
+  print "$act $path\n" if $logrequests;
   return ($proto, $host, $port, $req, $proxytunnel);
 }
 
@@ -560,6 +562,19 @@ sub rpc {
         my %myparam = (%$param, 'authenticator_norecurse' => 1);
         $myparam{'headers'} = [ grep {!/^authorization:/i} @{$myparam{'headers'} || []} ];
         push @{$myparam{'headers'}}, "Authorization: $auth";
+        return rpc(\%myparam, $xmlargs, @args);
+      }
+    }
+    if ($status =~ /^429[^\d]/ && $param->{'toomanyrequests'}) {
+      my $sleep = 60;
+      $sleep = $1 if $headers{'retry-after'} && $headers{'retry-after'} =~ /^\s*(\d+)\s*$/;
+      $sleep = 10 if $sleep < 10;
+      $sleep = $param->{'toomanyrequests'}->($param, $sleep) if ref($param->{'toomanyrequests'}) eq 'CODE';
+      if ((!$param->{'timeout'} || $sleep < $param->{'timeout'}) && (ref($param->{'toomanyrequests'}) || $sleep < $param->{'toomanyrequests'})) {
+	close $sock;
+	sleep($sleep);
+	my %myparam = %$param;
+	$myparam{'toomanyrequests'} -= $sleep unless ref($myparam{'toomanyrequests'});
         return rpc(\%myparam, $xmlargs, @args);
       }
     }

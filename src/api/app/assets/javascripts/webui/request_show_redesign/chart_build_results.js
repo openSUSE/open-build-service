@@ -14,7 +14,7 @@ function updateChartBuildResults() {
   });
 }
 
-function linkBuildSummaryChartToBuildResultsTab() { // jshint ignore:line
+function linkBuildSummaryChartToBuildResultsTab() {
   var buildResultSummaryChart = Chartkick.charts['build-summary-chart'].getChartObject();
 
   // If the mouse hovers a data point, let the cursor tell the user it is clickable

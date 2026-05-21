@@ -11,7 +11,7 @@ module Webui::ProjectHelper
   def format_seconds(secs)
     secs = Integer(secs)
     if secs < 3600
-      format('0:%02d', (secs / 60))
+      format('0:%02d', secs / 60)
     else
       hours = secs / 3600
       secs -= hours * 3600
@@ -23,7 +23,7 @@ module Webui::ProjectHelper
     return '' if package.blank?
 
     btime = @timings[package][0]
-    link_to(h(package), controller: '/webui/package', action: :show, project: @project, package: package) + ' ' + format_seconds(btime)
+    safe_join([link_to(h(package), controller: '/webui/package', action: :show, project: @project, package: package), ' ', format_seconds(btime)])
   end
 
   def show_package_actions?
@@ -31,18 +31,14 @@ module Webui::ProjectHelper
     return false if @project.scmsync.present?
     return false if @project.defines_remote_instance?
     return false if @is_incident_project && @packages.present? &&
-                    @has_patchinfo && @open_release_requests.empty?
+                    @project.patchinfos.exists? && @open_release_requests.empty?
 
     true
   end
 
-  def can_be_released?(project, packages, open_release_requests, has_patchinfo)
-    !project.defines_remote_instance? && project.is_maintenance_incident? && packages.present? && has_patchinfo && open_release_requests.blank?
-  end
-
-  def project_labels(project, &block)
+  def project_labels(project, &)
     project.label_templates.includes([:labels]).find_each do |label_template|
-      label_template.labels.each(&block)
+      label_template.labels.each(&)
     end
   end
 end

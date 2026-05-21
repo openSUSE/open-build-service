@@ -34,7 +34,7 @@
 
 - content_for :ready_function do
   :plain
-    initializeUserConfigurationDatatable("#{Configuration.ldap_enabled?}");
+    initializeUserConfigurationDatatable();
     $('#delete-user-modal').on('show.bs.modal', function (event) {
       var link = $(event.relatedTarget);
       $(this).find('.user-login').text(link.data('user-login'));

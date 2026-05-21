@@ -11,6 +11,7 @@
 */
 
 @import 'codemirror';
+@import 'editor-colors';
 @import 'bootstrap_variables/breakpoints';
 @import 'bootstrap_variables/colors';
 @import 'bootstrap_variables/spacers';
@@ -55,7 +56,6 @@
 @import 'search';
 @import 'monitor';
 @import 'project-monitor';
-@import 'cloud_upload';
 @import 'grid';
 @import 'sponsors';
 @import 'layout';
@@ -64,7 +64,6 @@
 @import 'notification_toolbar';
 @import 'sidebar-collapsible';
 @import 'user_profile';
-@import 'long-text';
 @import 'workflow_runs';
 @import 'watchlist';
 @import 'timeline';
@@ -74,7 +73,11 @@
 @import 'tokens';
 @import 'subscriptions';
 @import 'build-log';
+@import 'content-selector-filters';
 @import 'mixin';
+@import 'blame';
+@import 'canned-responses';
+@import 'rpmlint';
 
 html {
     overflow-y: scroll !important;

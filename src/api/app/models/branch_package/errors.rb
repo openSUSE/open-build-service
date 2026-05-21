@@ -11,6 +11,10 @@ module BranchPackage::Errors
     setup 403
   end
 
+  class BranchRejected < APIError
+    setup 403
+  end
+
   class CanNotBranchPackageNotFound < APIError
     setup 404
   end

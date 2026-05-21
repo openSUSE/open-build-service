@@ -18,7 +18,7 @@ class GroupsUser < ApplicationRecord
   def validate_duplicates
     return unless GroupsUser.find_by(user: user, group: group)
 
-    errors.add(:user, 'User already has this group')
+    errors.add(:user, "#{user.login} belongs to this group already")
   end
 end
 
@@ -30,8 +30,8 @@ end
 #  email      :boolean          default(TRUE)
 #  web        :boolean          default(TRUE)
 #  created_at :datetime
-#  group_id   :integer          default(0), not null, indexed => [user_id]
-#  user_id    :integer          default(0), not null, indexed => [group_id], indexed
+#  group_id   :integer          default(0), not null, uniquely indexed => [user_id]
+#  user_id    :integer          default(0), not null, uniquely indexed => [group_id], indexed
 #
 # Indexes
 #

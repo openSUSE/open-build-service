@@ -5,6 +5,7 @@ RSpec.describe ReportToSCMJob do
   let(:package) { create(:package, name: 'package_1', project: project) }
   let(:repository) { create(:repository, name: 'repository_1', project: project) }
   let(:event) { Event::BuildSuccess.create({ project: project.name, package: package.name, repository: repository.name, reason: 'foo' }) }
+  let(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token) }
   let(:event_subscription) do
     EventSubscription.create(token: token,
                              user: user,
@@ -12,7 +13,8 @@ RSpec.describe ReportToSCMJob do
                              receiver_role: 'reader',
                              payload: { scm: 'github' },
                              eventtype: 'Event::BuildSuccess',
-                             channel: :scm)
+                             channel: :scm,
+                             workflow_run_id: workflow_run.id)
   end
 
   shared_examples 'not reporting to the SCM' do
@@ -30,19 +32,6 @@ RSpec.describe ReportToSCMJob do
     end
   end
 
-  shared_examples 'the job performed' do
-    it 'job return value is true' do
-      allow_any_instance_of(Octokit::Client).to receive(:create_status) # rubocop:disable RSpec/AnyInstance
-      expect(subject).to be_truthy
-    end
-  end
-
-  shared_examples 'the job did not perform' do
-    it 'job return value is false' do
-      expect(subject).to be_falsey
-    end
-  end
-
   describe '#perform' do
     subject { described_class.perform_now(event.id) }
 
@@ -53,7 +42,6 @@ RSpec.describe ReportToSCMJob do
       end
 
       it_behaves_like 'reports to the SCM'
-      it_behaves_like 'the job performed'
     end
 
     context 'when using a non-allowed event' do
@@ -67,7 +55,6 @@ RSpec.describe ReportToSCMJob do
       end
 
       it_behaves_like 'not reporting to the SCM'
-      it_behaves_like 'the job did not perform'
     end
 
     context 'when the event is for some other project than the subscribed one' do
@@ -79,7 +66,6 @@ RSpec.describe ReportToSCMJob do
       end
 
       it_behaves_like 'not reporting to the SCM'
-      it_behaves_like 'the job did not perform'
     end
 
     context 'when the event is for some other package than the subscribed one' do
@@ -91,7 +77,6 @@ RSpec.describe ReportToSCMJob do
       end
 
       it_behaves_like 'not reporting to the SCM'
-      it_behaves_like 'the job did not perform'
     end
 
     context 'when the reporting raises an error' do

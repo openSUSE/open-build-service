@@ -171,17 +171,17 @@ RSpec.describe Package, :vcr do
     end
   end
 
-  describe '#has_icon?' do
+  describe '#icon?' do
     it 'returns true if the icon exist' do
       if CONFIG['global_write_through']
         Backend::Connection.put("/source/#{CGI.escape(package_with_file.project.name)}/#{CGI.escape(package_with_file.name)}/_icon",
                                 Faker::Lorem.paragraph)
       end
-      expect(package_with_file.has_icon?).to be(true)
+      expect(package_with_file.icon?).to be(true)
     end
 
     it 'returns false if the icon does not exist' do
-      expect(package.has_icon?).to be(false)
+      expect(package.icon?).to be(false)
     end
   end
 
@@ -315,10 +315,10 @@ RSpec.describe Package, :vcr do
     end
   end
 
-  describe '#source_path' do
-    it { expect(package_with_file.source_path).to eq('/source/home:tom/package_with_files') }
-    it { expect(package_with_file.source_path('icon')).to eq('/source/home:tom/package_with_files/icon') }
-    it { expect(package_with_file.source_path('icon', format: :html)).to eq('/source/home:tom/package_with_files/icon?format=html') }
+  describe '.source_path' do
+    it { expect(Package.source_path(package_with_file.project.name, package_with_file.name)).to                        eq('/source/home:tom/package_with_files') }
+    it { expect(Package.source_path(package_with_file.project.name, package_with_file.name, 'icon')).to                eq('/source/home:tom/package_with_files/icon') }
+    it { expect(Package.source_path(package_with_file.project.name, package_with_file.name, 'icon', format: :html)).to eq('/source/home:tom/package_with_files/icon?format=html') }
   end
 
   describe '.what_depends_on' do
@@ -548,7 +548,7 @@ RSpec.describe Package, :vcr do
     let!(:project) { create(:project, name: 'apache') }
     let!(:package) { create(:package_with_file, name: 'mod_ssl', project: project) }
 
-    it 'creates a BackendPackge for the Package' do
+    it 'creates a BackendPackage for the Package' do
       expect { subject }.to change(BackendPackage, :count).by(1)
     end
   end
@@ -733,10 +733,31 @@ RSpec.describe Package, :vcr do
         </package>
       XML_DATA2
     end
+    let(:valid_meta_with_devel) do
+      <<~XML_DATA3
+        <package name="test_package" project="home:tom">
+          <title/>
+          <description/>
+          <devel project="#{devel_package.project.name}" package="#{devel_package.name}" />
+        </package>
+      XML_DATA3
+    end
+    let(:devel_package) { create(:package, name: 'test_package') }
 
     it "doesn't crash on duplicated flags" do
       package.update_from_xml(Xmlhash.parse(invalid_meta_xml))
       expect(package.render_xml).to eq(corrected_meta_xml)
+    end
+
+    it 'sets the develpackage' do
+      package.update_from_xml(Xmlhash.parse(valid_meta_with_devel))
+      expect(package.develpackage).to eql(devel_package)
+    end
+
+    it 'removes the develpackage' do
+      package.update(develpackage: devel_package)
+      package.update_from_xml(Xmlhash.parse(corrected_meta_xml))
+      expect(package.develpackage).to be_nil
     end
   end
 
@@ -796,6 +817,12 @@ RSpec.describe Package, :vcr do
       it { expect(package.errors).to be_empty }
     end
 
+    context 'url is external and has a path' do
+      let(:package) { build(:package, report_bug_url: 'https://example.com/issues') }
+
+      it { expect(package.errors).to be_empty }
+    end
+
     context 'url is relative' do
       let(:package) { build(:package, report_bug_url: '/about') }
 
@@ -813,5 +840,15 @@ RSpec.describe Package, :vcr do
 
       it { expect(package.errors[:report_bug_url]).to eql(['Local urls are not allowed']) }
     end
+  end
+
+  describe '#bs_requests' do
+    let(:package) { create(:package) }
+    let!(:incoming_request) { create(:bs_request_with_submit_action, target_package: package) }
+    let!(:outgoing_request) { create(:bs_request_with_submit_action, source_package: package) }
+    let!(:request_with_review) { create(:delete_bs_request, target_project: create(:project), review_by_package: package) }
+    let!(:unrelated_request) { create(:bs_request_with_submit_action, target_package: create(:package)) }
+
+    it { expect(package.bs_requests).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
   end
 end

@@ -60,15 +60,15 @@ RSpec.describe Project, :vcr do
     end
   end
 
-  describe '#has_distribution' do
+  describe '#distribution?' do
     context 'remote distribution' do
       let(:remote_distribution) { create(:repository, name: 'snapshot', remote_project_name: 'openSUSE:Factory', project: remote_project) }
       let(:other_remote_distribution) { create(:repository, name: 'standard', remote_project_name: 'openSUSE:Leap:42.1', project: remote_project) }
       let(:repository) { create(:repository, name: 'openSUSE_Tumbleweed', project: project) }
       let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: remote_distribution.id, position: 1) }
 
-      it { expect(project.has_distribution('openSUSE.org:openSUSE:Factory', 'snapshot')).to be(true) }
-      it { expect(project.has_distribution('openSUSE.org:openSUSE:Leap:42.1', 'standard')).to be(false) }
+      it { expect(project.distribution?('openSUSE.org:openSUSE:Factory', 'snapshot')).to be(true) }
+      it { expect(project.distribution?('openSUSE.org:openSUSE:Leap:42.1', 'standard')).to be(false) }
     end
 
     context 'local distribution' do
@@ -78,14 +78,14 @@ RSpec.describe Project, :vcr do
         let(:repository) { create(:repository, name: 'Base_repo2', project: project) }
         let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: distribution_repository.id, position: 1) }
 
-        it { expect(project.has_distribution('BaseDistro2.0', 'BaseDistro2_repo')).to be(true) }
+        it { expect(project.distribution?('BaseDistro2.0', 'BaseDistro2_repo')).to be(true) }
       end
 
       context 'with not linked distribution' do
         let(:not_linked_distribution) { create(:project, name: 'BaseDistro') }
         let!(:not_linked_distribution_repository) { create(:repository, name: 'BaseDistro_repo', project: not_linked_distribution) }
 
-        it { expect(project.has_distribution('BaseDistro', 'BaseDistro_repo')).to be(false) }
+        it { expect(project.distribution?('BaseDistro', 'BaseDistro_repo')).to be(false) }
       end
 
       context 'with linked distribution but wrong query' do
@@ -94,8 +94,8 @@ RSpec.describe Project, :vcr do
         let(:other_repository) { create(:repository, name: 'Base_repo3', project: project) }
         let!(:path_element) { create(:path_element, parent_id: other_repository.id, repository_id: other_distribution_repository.id, position: 1) }
 
-        it { expect(project.has_distribution('BaseDistro3.0', 'standard')).to be(false) }
-        it { expect(project.has_distribution('BaseDistro4.0', 'BaseDistro3_repo')).to be(false) }
+        it { expect(project.distribution?('BaseDistro3.0', 'standard')).to be(false) }
+        it { expect(project.distribution?('BaseDistro4.0', 'BaseDistro3_repo')).to be(false) }
       end
     end
   end
@@ -115,11 +115,12 @@ RSpec.describe Project, :vcr do
 
   describe '#branch_remote_repositories' do
     let(:branch_remote_repositories) { project.branch_remote_repositories("#{remote_project}:#{project}") }
+    let(:meta_project_file) { instance_double(ProjectMetaFile) }
 
     before do
       logout
-      meta_project_file_mock = double('meta', content: remote_meta_xml)
-      allow(ProjectMetaFile).to receive(:new).and_return(meta_project_file_mock)
+      allow(ProjectMetaFile).to receive(:new).and_return(meta_project_file)
+      allow(meta_project_file).to receive(:content).and_return(remote_meta_xml)
     end
 
     context 'normal project' do
@@ -256,7 +257,7 @@ RSpec.describe Project, :vcr do
       it 'has ::' do
         property_of do
           string = sized(1) { string(/[a-zA-Z0-9\-+]/) } + sized(range(1, 199)) { string(/[-+\w.:]/) }
-          index = range(0, (string.length - 2))
+          index = range(0, string.length - 2)
           string[index] = string[index + 1] = ':'
           string
         end.check do |string|
@@ -353,7 +354,7 @@ RSpec.describe Project, :vcr do
       end
 
       it 'does include targets' do
-        expect(subject[:targets]).to eq([incident, other_target, target].pluck(:number))
+        expect(subject[:targets]).to match_array([incident, other_target, target].pluck(:number))
       end
 
       it 'does include incidents' do
@@ -380,7 +381,7 @@ RSpec.describe Project, :vcr do
         let(:package) { create(:package, project: subproject) }
 
         it 'does include maintenance_release' do
-          expect(subject[:maintenance_release]).to eq([other_release.number, release.number])
+          expect(subject[:maintenance_release]).to contain_exactly(other_release.number, release.number)
         end
       end
     end
@@ -661,7 +662,7 @@ RSpec.describe Project, :vcr do
     end
 
     it 'erases all enable flags shadowed' do
-      expect(new_xml['build']['enable'].to_s).to eq('{"arch"=>"i586"}')
+      expect(new_xml['build']['enable']).to eq({ 'arch' => 'i586' })
     end
 
     it 'updates basics' do
@@ -761,6 +762,45 @@ RSpec.describe Project, :vcr do
     end
   end
 
+  describe '#values_for_anitya_distributions' do
+    let(:api_url) { 'https://release-monitoring.org/api/distro/names' }
+    let(:distro_names) { { 'distro' => %w[Arch Fedora openSUSE] } }
+
+    before do
+      Rails.cache.clear
+    end
+
+    context 'when cache is fresh (less than 12 hours old)' do
+      it 'returns cached names and does not call the API' do
+        Rails.cache.write('anitya_distributions', { names: ['openSUSE'], created_at: 1.hour.ago })
+        expect(Project.values_for_anitya_distributions).to eq(['openSUSE'])
+      end
+    end
+
+    context 'when cache is stale (older than 12 hours)' do
+      it 'fetches new data from the API and updates the cache' do
+        Rails.cache.write('anitya_distributions', { names: ['OldDistro'], created_at: 13.hours.ago })
+        stub_request(:get, api_url).to_return(body: distro_names.to_json)
+
+        expect(Project.values_for_anitya_distributions).to eq(%w[Arch Fedora openSUSE])
+      end
+    end
+
+    context 'when the API call fails' do
+      it 'falls back to the stale cache data' do
+        Rails.cache.write('anitya_distributions', { names: ['OldDistro'], created_at: 13.hours.ago })
+        stub_request(:get, api_url).to_return(status: 500)
+
+        expect(Project.values_for_anitya_distributions).to eq(['OldDistro'])
+      end
+
+      it 'returns an empty array if no cache exists and API fails' do
+        stub_request(:get, api_url).to_timeout
+        expect(Project.values_for_anitya_distributions).to eq([])
+      end
+    end
+  end
+
   describe '#expand_maintained_projects' do
     subject { maintenance_project.expand_maintained_projects }
 
@@ -811,5 +851,15 @@ RSpec.describe Project, :vcr do
     it { expect(Project.find_remote_project('hans:wurst')).to be_nil }
     it { expect(Project.find_remote_project('hans:wurst:leber')).to eq([project, 'leber']) }
     it { expect(Project.find_remote_project('hans:wurst:leber:salami')).to eq([project, 'leber:salami']) }
+  end
+
+  describe '#bs_requests' do
+    let(:project) { create(:project) }
+    let!(:incoming_request) { create(:bs_request_with_submit_action, source_project: project) }
+    let!(:outgoing_request) { create(:bs_request_with_submit_action, target_project: project) }
+    let!(:request_with_review) { create(:delete_bs_request, target_project: create(:project), review_by_project: project) }
+    let!(:unrelated_request) { create(:bs_request_with_submit_action, source_project: create(:project)) }
+
+    it { expect(project.bs_requests).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
   end
 end

@@ -1,9 +1,15 @@
 RSpec.describe RpmlintLogParser, type: :service do
-  subject { described_class.new(content: content).call }
+  subject { described_class.new(content).call }
 
   describe '#call' do
     context 'empty file' do
       let(:content) { '' }
+
+      it { expect(subject).to have_attributes(errors: {}, badness: {}, warnings: {}, info: {}) }
+    end
+
+    context 'when the log file does not exist' do
+      let(:content) { nil }
 
       it { expect(subject).to have_attributes(errors: {}, badness: {}, warnings: {}, info: {}) }
     end

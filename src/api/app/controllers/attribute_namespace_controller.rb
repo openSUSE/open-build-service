@@ -1,6 +1,4 @@
 class AttributeNamespaceController < ApplicationController
-  include ValidationHelper
-
   validate_action index: { method: :get, response: :directory }
   validate_action show: { method: :get, response: :attribute_namespace_meta }
   validate_action delete: { method: :delete, response: :status }

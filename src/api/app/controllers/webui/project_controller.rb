@@ -26,25 +26,41 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :check_ajax, only: %i[buildresult edit_comment_form]
 
-  after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_incidents autocomplete_packages
+  after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_staging_projects
+                                              autocomplete_incidents autocomplete_packages autocomplete_anitya_distributions
                                               autocomplete_repositories users subprojects new show
                                               buildresult requests monitor new_release_request
                                               remove_target_request edit_comment edit_comment_form preview_description]
 
   def index
+    @projects = if show_all?
+                  Project.left_joins(label_globals: [:label_template_global])
+                         .includes(label_globals: [:label_template_global])
+                         .references(:label_globals, :label_template_global).distinct
+                else
+                  Project.left_joins(label_globals: [:label_template_global])
+                         .includes(label_globals: [:label_template_global])
+                         .references(:label_globals, :label_template_global).filtered_for_list.distinct
+                end
+
+    if Flipper.enabled?(:labels, User.session)
+      @label_global_templates = @projects.flat_map do |project|
+        project.label_globals.map(&:label_template_global)
+      end.compact.uniq
+    end
+
     respond_to do |format|
       format.html do
         render :index,
                locals: { important_projects: Project.very_important_projects_with_categories }
       end
-      format.json { render json: ProjectDatatable.new(params, view_context: view_context, show_all: show_all?) }
+      format.json { render json: ProjectDatatable.new(params, view_context: view_context, projects: @projects) }
     end
   end
 
   def show
     @release_targets = @project.release_targets
 
-    @has_patchinfo = @project.patchinfos.exists?
     @comments = @project.comments
     @comment = Comment.new
     @current_notification = handle_notification
@@ -138,6 +154,10 @@ class Webui::ProjectController < Webui::WebuiController
     render json: Project.autocomplete(params[:term], params[:local]).not_maintenance_incident.pluck(:name)
   end
 
+  def autocomplete_staging_projects
+    render json: Project.autocomplete(params[:term]).where.not(staging_workflow_id: nil).pluck(:name)
+  end
+
   def autocomplete_incidents
     render json: Project.autocomplete(params[:term]).maintenance_incident.pluck(:name)
   end
@@ -155,13 +175,21 @@ class Webui::ProjectController < Webui::WebuiController
     render json: @project.repositories.order(:name).pluck(:name)
   end
 
+  def autocomplete_anitya_distributions
+    search_term = params[:term].downcase
+    results = Project.values_for_anitya_distributions.compact.select do |dist|
+      dist.downcase.include?(search_term)
+    end
+    render json: results
+  end
+
   def users
     @users = @project.users
     @groups = @project.groups
     @roles = Role.local_roles
     if User.session && params[:notification_id]
       @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationCommentPolicy
+      authorize @current_notification, :update?, policy_class: NotificationPolicy
     end
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
   end
@@ -222,8 +250,9 @@ class Webui::ProjectController < Webui::WebuiController
                                              collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
   end
 
+  # TODO: Remove this once request_index beta is rolled out
   def requests
-    redirect_to project_requests_beta_path(@project, involvement: 'incoming', state: %w[new review]) if Flipper.enabled?(:request_index, User.session)
+    redirect_to(projects_requests_path(@project)) if Flipper.enabled?(:request_index, User.session)
 
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
@@ -417,7 +446,8 @@ class Webui::ProjectController < Webui::WebuiController
       :source_protection,
       :disable_publishing,
       :url,
-      :report_bug_url
+      :report_bug_url,
+      :anitya_distribution_name
     )
   end
 
@@ -437,18 +467,10 @@ class Webui::ProjectController < Webui::WebuiController
 
     reqs = @project.open_requests
     @requests = (reqs[:reviews] + reqs[:targets] + reqs[:incidents] + reqs[:maintenance_release]).sort!.uniq
-    @incoming_requests_size = OpenRequestsFinder.new(BsRequest, @project.name).incoming_requests(reqs.values.sum).count
-    @outgoing_requests_size = OpenRequestsFinder.new(BsRequest, @project.name).outgoing_requests(reqs.values.sum).count
+    @incoming_requests_size = OpenRequestsFinder.new(BsRequest, @project.name).incoming_requests(@requests).count
+    @outgoing_requests_size = OpenRequestsFinder.new(BsRequest, @project.name).outgoing_requests(@requests).count
 
     @nr_of_problem_packages = @project.number_of_build_problems
-  end
-
-  def require_maintenance_project
-    unless @is_maintenance_project
-      redirect_back_or_to({ action: 'show', project: @project })
-      return false
-    end
-    true
   end
 
   ################################### Helper methods ###################################
@@ -459,13 +481,13 @@ class Webui::ProjectController < Webui::WebuiController
       @project_maintenance_project = pm.maintenance_project.name
     end
 
-    @is_maintenance_project = @project.is_maintenance?
+    @is_maintenance_project = @project.maintenance?
     if @is_maintenance_project
       @open_maintenance_incidents = @project.maintenance_incidents.distinct.order('projects.name').pluck('projects.name')
 
       @maintained_projects = @project.maintained_project_names
     end
-    @is_incident_project = @project.is_maintenance_incident?
+    @is_incident_project = @project.maintenance_incident?
     return unless @is_incident_project
 
     @open_release_requests = BsRequest::FindFor::Query.new(project: @project.name,

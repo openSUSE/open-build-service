@@ -1,10 +1,17 @@
 RSpec.describe Workflow::Step do
   describe '#target_package_name' do
-    subject { described_class.new(step_instructions: step_instructions, scm_webhook: scm_webhook).send(:target_package_name) }
+    subject { described_class.new(step_instructions: step_instructions, workflow_run: workflow_run).send(:target_package_name) }
+
+    let(:workflow_run) do
+      create(:workflow_run, scm_vendor: scm_vendor, hook_event: hook_event, request_payload: request_payload)
+    end
+
+    let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
     context 'for a pull request_event when target_package is in the step instructions' do
       let(:step_instructions) { { target_package: 'hello_world' } }
-      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'pull_request' }) }
+      let(:hook_event) { 'pull_request' }
+      let(:scm_vendor) { 'github' }
 
       it 'returns the value of target_package' do
         expect(subject).to eq('hello_world')
@@ -13,7 +20,8 @@ RSpec.describe Workflow::Step do
 
     context 'for a pull request_event when target_package is not in the step instructions' do
       let(:step_instructions) { { source_package: 'package123' } }
-      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'pull_request' }) }
+      let(:hook_event) { 'pull_request' }
+      let(:scm_vendor) { 'github' }
 
       it 'returns the name of the source package' do
         expect(subject).to eq('package123')
@@ -22,7 +30,18 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a commit when target_package is in the step instructions' do
       let(:step_instructions) { { target_package: 'hello_world' } }
-      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/heads/main', commit_sha: '456' }) }
+      let(:hook_event) { 'push' }
+      let(:scm_vendor) { 'github' }
+
+      let(:request_payload) do
+        {
+          ref: 'refs/heads/main',
+          after: '456',
+          repository: {
+            full_name: 'openSUSE/open-build-service'
+          }
+        }.to_json
+      end
 
       it 'returns the value of target_package with the commit SHA as a suffix' do
         expect(subject).to eq('hello_world-456')
@@ -31,7 +50,18 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a commit when target_package is not in the step instructions' do
       let(:step_instructions) { { source_package: 'package123' } }
-      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/heads/main', commit_sha: '456' }) }
+      let(:hook_event) { 'push' }
+      let(:scm_vendor) { 'github' }
+
+      let(:request_payload) do
+        {
+          ref: 'refs/heads/main',
+          after: '456',
+          repository: {
+            full_name: 'openSUSE/open-build-service'
+          }
+        }.to_json
+      end
 
       it 'returns the name of the source package with the commit SHA as a suffix' do
         expect(subject).to eq('package123-456')
@@ -40,7 +70,18 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a tag when target_package is in the step instructions' do
       let(:step_instructions) { { target_package: 'hello_world' } }
-      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/tags/release_abc', tag_name: 'release_abc' }) }
+      let(:hook_event) { 'push' }
+      let(:scm_vendor) { 'github' }
+
+      let(:request_payload) do
+        {
+          ref: 'refs/tags/release_abc',
+          after: '456',
+          repository: {
+            full_name: 'openSUSE/open-build-service'
+          }
+        }.to_json
+      end
 
       it 'returns the value of target_package with the tag name as a suffix' do
         expect(subject).to eq('hello_world-release_abc')
@@ -49,7 +90,18 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a tag when target_package is not in the step instructions' do
       let(:step_instructions) { { source_package: 'package123' } }
-      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/tags/release_abc', tag_name: 'release_abc' }) }
+      let(:hook_event) { 'push' }
+      let(:scm_vendor) { 'github' }
+
+      let(:request_payload) do
+        {
+          ref: 'refs/tags/release_abc',
+          after: '456',
+          repository: {
+            full_name: 'openSUSE/open-build-service'
+          }
+        }.to_json
+      end
 
       it 'returns the name of the source package with the tag name as a suffix' do
         expect(subject).to eq('package123-release_abc')
@@ -59,8 +111,14 @@ RSpec.describe Workflow::Step do
 
   describe '#target_project_name' do
     subject do
-      step.new(step_instructions: step_instructions, scm_webhook: scm_webhook).target_project_name
+      step.new(step_instructions: step_instructions, workflow_run: workflow_run).target_project_name
     end
+
+    let(:workflow_run) do
+      create(:workflow_run, scm_vendor: scm_vendor, hook_event: hook_event, hook_action: hook_action, request_payload: request_payload)
+    end
+    let(:hook_action) { 'opened' }
+    let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
     let(:step) do
       Class.new(described_class) do
@@ -91,56 +149,42 @@ RSpec.describe Workflow::Step do
           ]
       }
     end
-    let(:scm_webhook) { SCMWebhook.new(payload: payload) }
-
-    context 'for an unsupported event' do
-      let(:payload) do
-        {
-          scm: 'github',
-          event: 'unsupported'
-        }
-      end
-
-      it { is_expected.to be_nil }
-    end
 
     context 'for a pull request webhook event' do
       context 'from GitHub' do
-        let(:payload) do
-          {
-            scm: 'github',
-            event: 'pull_request',
-            pr_number: 1,
-            target_repository_full_name: 'openSUSE/repo123'
-          }
-        end
+        let(:hook_event) { 'pull_request' }
+        let(:scm_vendor) { 'github' }
 
         it { is_expected.to eq('OBS:Server:Unstable:openSUSE:repo123:PR-1') }
       end
 
       context 'from GitLab' do
-        let(:payload) do
-          {
-            scm: 'gitlab',
-            event: 'Merge Request Hook',
-            pr_number: 1,
-            target_repository_full_name: 'openSUSE/repo123'
-          }
-        end
+        let(:hook_event) { 'Merge Request Hook' }
+        let(:scm_vendor) { 'gitlab' }
+        let(:hook_action) { 'open' }
 
-        it { is_expected.to eq('OBS:Server:Unstable:openSUSE:repo123:PR-1') }
+        let(:request_payload) { file_fixture('request_payload_gitlab_pull_request_opened.json').read }
+
+        it { is_expected.to eq('OBS:Server:Unstable:gitlabhq:gitlab-test:PR-1') }
       end
     end
 
     context 'with a push webhook event for a commit' do
       context 'from GitHub' do
-        let(:payload) { { scm: 'github', event: 'push', ref: 'refs/heads/branch_123' } }
+        let(:hook_event) { 'push' }
+        let(:scm_vendor) { 'github' }
+        let(:request_payload) do
+          {
+            ref: 'refs/heads/branch_123'
+          }.to_json
+        end
 
         it { is_expected.to eq('OBS:Server:Unstable') }
       end
 
       context 'from GitLab' do
-        let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
+        let(:hook_event) { 'Push Hook' }
+        let(:scm_vendor) { 'gitlab' }
 
         it { is_expected.to eq('OBS:Server:Unstable') }
       end
@@ -148,13 +192,20 @@ RSpec.describe Workflow::Step do
 
     context 'with a push webhook event for a tag' do
       context 'from GitHub' do
-        let(:payload) { { scm: 'github', event: 'push', ref: 'refs/tags/release_abc' } }
+        let(:hook_event) { 'push' }
+        let(:scm_vendor) { 'github' }
+        let(:request_payload) do
+          {
+            ref: 'refs/tags/release_abc'
+          }.to_json
+        end
 
         it { is_expected.to eq('OBS:Server:Unstable') }
       end
 
       context 'from GitLab' do
-        let(:payload) { { scm: 'gitlab', event: 'Tag Push Hook' } }
+        let(:hook_event) { 'Tag Push Hook' }
+        let(:scm_vendor) { 'gitlab' }
 
         it { is_expected.to eq('OBS:Server:Unstable') }
       end

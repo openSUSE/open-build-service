@@ -46,7 +46,8 @@ class Buildresult
   STATUS_CATEGORIES_MAP = {
     succeeded: STATUS_CATEGORIES[0],
     failed: STATUS_CATEGORIES[1],
-    unresolvable: STATUS_CATEGORIES[1],
+    processing: STATUS_CATEGORIES[2],
+    unresolvable: STATUS_CATEGORIES[3],
     broken: STATUS_CATEGORIES[1],
     blocked: STATUS_CATEGORIES[3],
     scheduled: STATUS_CATEGORIES[2],
@@ -84,6 +85,10 @@ class Buildresult
 
   def self.avail_status_values
     AVAIL_STATUS_VALUES.keys.map(&:to_s)
+  end
+
+  def self.default_status_filter_values
+    avail_status_values - %w[disabled excluded unknown]
   end
 
   def self.final_status?(status)

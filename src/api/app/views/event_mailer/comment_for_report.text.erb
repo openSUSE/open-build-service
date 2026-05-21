@@ -1,0 +1,5 @@
+<%= event['commenter'].realname %> wrote in report #<%= event['report_id'] %>:
+
+<%= event['comment_body'] %>
+
+View Comment at <%= report_url(event['report_id'], anchor: "comment-#{event['id']}", only_path: false, host: @host) %>

@@ -1,6 +1,4 @@
 class GroupController < ApplicationController
-  include ValidationHelper
-
   validate_action groupinfo: { method: :get, response: :group }
   validate_action groupinfo: { method: :put, request: :group, response: :status }
   validate_action groupinfo: { method: :delete, response: :status }
@@ -26,11 +24,12 @@ class GroupController < ApplicationController
 
   def index
     if params[:login]
-      user = User.find_by_login!(params[:login])
+      user = User.not_deleted.find_by!(login: params[:login])
       @list = user.groups
     else
       @list = Group.all
     end
+    @list = @list.order(:title)
     @list = @list.where('title LIKE ?', "#{params[:prefix]}%") if params[:prefix].present?
   end
 
@@ -70,7 +69,7 @@ class GroupController < ApplicationController
     group = Group.find_by_title!(CGI.unescape(params[:title]))
     authorize group, :update?
 
-    user = User.find_by_login!(params[:userid]) if params[:userid]
+    user = User.not_deleted.find_by!(login: params[:userid]) if params[:userid]
 
     case params[:cmd]
     when 'add_user'
@@ -79,8 +78,6 @@ class GroupController < ApplicationController
       group.remove_user(user, user_session_login: User.session.login)
     when 'set_email'
       group.update!(email: params[:email])
-    else
-      raise UnknownCommandError, 'cmd must be set to add_user or remove_user'
     end
 
     render_ok

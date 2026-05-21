@@ -1,6 +1,7 @@
 module Event
   class CommentForRequest < Request
     include CommentEvent
+
     self.message_bus_routing_key = 'request.comment'
     self.description = 'New comment for request created'
     payload_keys :request_number, :diff_file_index, :diff_line_number

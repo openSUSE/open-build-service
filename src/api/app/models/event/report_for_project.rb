@@ -10,7 +10,10 @@ module Event
     end
 
     def self.notification_link_path(notification)
-      Rails.application.routes.url_helpers.project_show_path(notification.event_payload['project_name'], notification_id: notification.id) if Project.exists_by_name(notification.event_payload['project_name'])
+      return unless Project.exists_by_name(notification.event_payload['project_name'])
+
+      Rails.application.routes.url_helpers.project_show_path(notification.event_payload['project_name'],
+                                                             notification_id: notification.id)
     end
 
     def self.notification_link_text(payload)

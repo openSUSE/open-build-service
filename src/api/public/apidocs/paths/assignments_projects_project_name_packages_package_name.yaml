@@ -1,0 +1,76 @@
+post:
+  summary: Assign a user to a package
+  description: |
+    **(Unstable)** Assign a user to a package.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  requestBody:
+    description: |
+      Assign XML. Specify a user in the `assignee` XML element to assign a user to a package.
+
+      Passing an empty request body will result in assigning the API logged in user to a package.
+
+      XML Schema used for body validation: [assignment.rng](../schema/assignment.rng)
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/assignment.yaml'
+        example:
+          assignee: Iggy
+          assigner: Admin
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Assignment Already Exists:
+              description: The package is already assigned to a user.
+              value:
+                code: invalid_assignment
+                summary: Package has already been taken
+            Not Confirmed Assignee:
+              description: The assignee is not in a confirmed stated (deleted, locked, unconfirmed).
+              value:
+                code: invalid_assignment
+                summary: Assignee must be in confirmed state
+            XML Validation Failed:
+              description: The XML is not valid.
+              value:
+                code: validation_failed
+                summary: "assignment validation error: 1:0: ERROR: Expecting element assignment, got request"
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Assignments
+
+delete:
+  summary: Unassign the assignee of a package.
+  description: |
+    **(Unstable)** Unassign the assignee of a package.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Assignments

@@ -9,9 +9,9 @@ end
 # Table name: product_update_repositories
 #
 #  id             :integer          not null, primary key
-#  arch_filter_id :integer          indexed, indexed => [product_id, repository_id]
-#  product_id     :integer          indexed, indexed => [repository_id, arch_filter_id]
-#  repository_id  :integer          indexed => [product_id, arch_filter_id], indexed
+#  arch_filter_id :integer          indexed, uniquely indexed => [product_id, repository_id]
+#  product_id     :integer          indexed, uniquely indexed => [repository_id, arch_filter_id]
+#  repository_id  :integer          uniquely indexed => [product_id, arch_filter_id], indexed
 #
 # Indexes
 #

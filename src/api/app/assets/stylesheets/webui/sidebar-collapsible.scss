@@ -29,12 +29,12 @@
     overflow-x: hidden;
   }
   & a {
-    color: $gray-100;
+    color: $custom-gray-100;
     width: $left-navigation-width;
     white-space: normal !important;
     border-left: 5px solid transparent;
     &:hover {
-      border-left-color: $menu-hover-color;
+      border-left-color: tint-color($green, 10%);
       i { filter: none; }
     }
     transition: none;

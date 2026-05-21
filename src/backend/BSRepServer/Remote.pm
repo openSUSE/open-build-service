@@ -89,12 +89,24 @@ sub read_gbininfo_remote {
 
   my ($projid, $repoid, $arch) = split('/', $prpa, 3);
   print "fetching remote project binary state for $prpa\n";
+  if ($remoteproj->{'partition'}) {
+    my $param = {
+      'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
+      'timeout' => 200,
+    };
+    my $gbininfo = eval { BSRPC::rpc($param, \&BSUtil::fromstorable, 'view=gbininfo') };
+    if ($@) {
+      return {} if $@ =~ /^404/;
+      die($@);
+    }
+    return $gbininfo;
+  }
   my $param = {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
     'timeout' => 200,
     'proxy' => $proxy,
   };
-  my $packagebinarylist = eval { BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions") };
+  my $packagebinarylist = eval { BSRPC::rpc($param, $BSXML::packagebinaryversionlist, 'view=binaryversions') };
   if ($@) {
     return {} if $@ =~ /^404/;
     die($@);

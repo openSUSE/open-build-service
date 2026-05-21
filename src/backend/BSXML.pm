@@ -197,6 +197,7 @@ our $packinfo = [
 	    'nodbgpkgs',	# kiwi
 	    'nosrcpkgs',	# kiwi
 	    'nativebuild',	# cross build: native
+	    'nouseforbuild',
 	    'hasbuildenv',
 	    'bcntsynctag',
 	 [[ 'path' =>
@@ -225,12 +226,17 @@ our $linked = [
 
 our $aggregatelist = [
     'aggregatelist' =>
+      'resign',
      [[ 'aggregate' =>
 	    'project',
+	    'arch',
+	    'sourcearch',
 	    [],
             'nosources',
+            'noupdateinfo',
 	  [ 'package' ],
 	  [ 'binary' ],
+	  [ 'binaryarch' ],
 	 [[ 'repository' =>
 		'target',
 		'source',
@@ -269,6 +275,7 @@ our $patchinfo = [
             'retracted',
             'stopped',
             'seperate_build_arch', # for builds on each scheduler arch
+	    'blocked_in_product',
 	    'embargo_date',
             'zypp_restart_needed',
             'reboot_needed',
@@ -324,6 +331,12 @@ our $modulemd = [
      ]],
 ];
 
+our $projectlink = [
+    'link' =>
+	'project',
+	'vrevmode',
+];
+
 our $projpack = [
     'projpack' =>
     'repoid',
@@ -336,10 +349,7 @@ our $projpack = [
 	    'description',
 	    'config',
 	    'patternmd5',
-	 [[ 'link' =>
-		'project',
-		'vrevmode',
-	 ]],
+	  [ $projectlink ],
 	    'remoteurl',
 	    'remoteproject',
 	    'scmsync',
@@ -369,6 +379,7 @@ our $projpack = [
 		@flags,
 		'bcntsynctag',
 		'hasbuildenv',
+		'hasbigdep',
 	 ]],
 	    'missingpackages',
      ]],
@@ -382,6 +393,7 @@ our $projpack = [
 	    'partition',
 	    'proto',	# project data not included
 	     [],
+	  [ $projectlink ],
 	    'config',
 	    @flags,
 	    @roles,
@@ -592,6 +604,7 @@ our $buildinfo = [
 	'logidlelimit',	# internal
 	'logsizelimit',	# internal
 	'genbuildreqs',	# internal
+	'nouseforbuild',	# internal
       [ 'obsgendiff' =>
 	    'project',
 	    'repository',
@@ -644,7 +657,8 @@ our $buildinfo = [
      ]],
 	'containerannotation',	# temporary hack
 	'expanddebug',
-	'followupfile',	# for two-stage builds
+	'followupfile',	# for multi-stage builds
+	'followupsteps',# for multi-stage builds, to avoid loops
 	'masterdispatched',	# dispatched through a master dispatcher
 	'nounchanged',	# do not check for "unchanged" builds
       [ 'module' ],	# list of modules to use
@@ -662,6 +676,9 @@ our $buildinfo = [
 	'slsabuilder',   	# internal
 
 	'signflavor',   	# internal
+
+	'reprorepoid',   	# internal
+	'reprojobid',   	# internal
 
       [ 'preinstallimage' =>
 	    'project',
@@ -714,7 +731,8 @@ our $buildstatus = [
 	'status',	# obsolete, now code
 	'error',	# obsolete, now details
 	'dirty',	# marked for re-scheduling
-	'versrel',	# for withversrel result call
+	'versrel',	# for versrel result call
+	'reproduciblecheck',	# for reproduciblecheck result call
 	[],
 	'details',
 
@@ -1063,6 +1081,7 @@ our $ajaxjob = [
 
 our $ajaxstatus = [
     'ajaxstatus' =>
+	'aidx',
 	'starttime',
 	'pid',
 	'ev',
@@ -1086,6 +1105,11 @@ our $ajaxstatus = [
       [ 'joblist' =>
 	  [ $ajaxjob ],
       ],
+];
+
+our $ajaxstatuslist = [
+    'ajaxstatuslist' =>
+	[ $ajaxstatus ],
 ];
 
 our $serverstatus = [
@@ -1130,6 +1154,24 @@ our $schedulerstats = [
 	'lastpublished',
 ];
 
+our $buildresultinfo = [
+    'info' =>
+	'package',	# only in result query
+	[],
+	'workerid',
+	'hostarch',
+	'srcmd5',
+	'verifymd5',
+	'rev',
+	'vcs',
+	'file',
+	'buildtype',
+	'readytime',
+	'starttime',
+	'endtime',
+	'jobid',	# for repro builds
+];
+
 our $result = [
     'result' =>
 	'project',
@@ -1144,6 +1186,7 @@ our $result = [
 	'scminfo',
       [ $buildstatus ],
       [ $binarylist ],
+      [ $buildresultinfo ],
         $summary,
 	$schedulerstats,
 ];
@@ -1286,6 +1329,7 @@ our $binary_id = [
 	'baseproject',
 	'type',
 	'downloadurl',
+	'scmsyncurl',
 ];
 
 our $pattern_id = [
@@ -1649,9 +1693,10 @@ our $updateinfoitem = [
 		    'release',
 		    'arch',
 		    'src',
-		    'supportstatus',	# extension
-		    'superseded_by',    # extension
-		    'embargo_date',     # extension
+		    # extensions for OBS internal only
+		    'embargo_date',
+		    'supportstatus',
+		    'superseded_by',
 		    [],
 		    'filename',
 		  [ 'sum' =>	# obsolete?
@@ -1664,7 +1709,9 @@ our $updateinfoitem = [
 	     ]],
 	 ]],
       ],
-	'patchinforef',			# extension, "project/package"
+        # extensions
+	'patchinforef',		# "project/package"
+	'blocked_in_product',   # filter in product builds
 ];
 
 our $updateinfo = [
@@ -1918,6 +1965,7 @@ our $buildstatistics = [
 	    'cachehits',
 	    'preinstallimage',
       ],
+	$buildresultinfo,
 ];
 
 # This array is an outcome of following perl snippet
@@ -2124,6 +2172,7 @@ our $binannotation = [
 	'buildhost',
 	'disturl',
 	'binaryid',
+      [ 'installed' ],		# installed packages in containers
 	'registry_refname',	# in DoD containers
 	'registry_digest',	# in DoD containers
 	'registry_fatdigest',	# in DoD containers
@@ -2149,34 +2198,6 @@ our $availablebinaries = [
 	  [ 'arch' ],
 	  [ 'name' ],
     ]],
-];
-
-our $clouduploadjob = [
-    'clouduploadjob' =>
-	'name',
-	[],
-	'state',		# created, receiving, scheduled, uploading, succeeded, waiting, failed
-	'details',		# error messages, upload result string
-	'progress',		# percentage completed
-	'try',			# retry count
-	'created',		# when was this job created
-
-	'user',			# who did this
-	'target',		# where to upload to
-
-	'project',
-	'repository',
-	'package',
-	'arch',
-	'filename',		# what to upload
-	'size',
-
-	'pid',		# internal
-];
-
-our $clouduploadjoblist = [
-    'clouduploadjoblist' =>
-      [ $clouduploadjob ],
 ];
 
 our $regrepoowner = [

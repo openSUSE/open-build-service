@@ -1,6 +1,7 @@
 class BsRequestActionSubmit < BsRequestAction
   #### Includes and extends
   include BsRequestAction::Differ
+  include MaintenanceHelper
 
   #### Constants
 
@@ -14,12 +15,15 @@ class BsRequestActionSubmit < BsRequestAction
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
+  validates :source_project, :source_package, :target_project, presence: true
+  validates :group_name, :person_name, :role, :target_releaseproject, :target_repository, absence: true
+
   #### Class methods using self. (public and then private)
   #### To define class methods as private use private_class_method
   #### private
 
   #### Instance methods (public and then protected/private)
-  def is_submit?
+  def submit?
     true
   end
 
@@ -57,13 +61,8 @@ class BsRequestActionSubmit < BsRequestAction
         check_action_permission!(skip_source: true) if initialize_devel_package
         # new package, base container on source container
         newxml = Xmlhash.parse(Backend::Api::Sources::Package.meta(source_project, source_package))
-        newxml['name'] = self.target_package
-        newxml['devel'] = nil
-        target_package = target_project.packages.new(name: newxml['name'])
-        target_package.update_from_xml(newxml)
-        target_package.flags.destroy_all
-        target_package.remove_all_persons
-        target_package.remove_all_groups
+        target_package = target_project.packages.new(name: self.target_package)
+        target_package.assign_attributes_from_from_xml(newxml)
         target_package.scmsync = nil
         if initialize_devel_package
           target_package.develpackage = Package.find_by_project_and_name(source_project, source_package)
@@ -86,12 +85,15 @@ class BsRequestActionSubmit < BsRequestAction
       cp_params[:keeplink] = 1
     end
     response = Backend::Api::Sources::Package.copy(self.target_project, self.target_package,
-                                                   source_project, source_package, User.session!.login, cp_params)
+                                                   source_project, source_package, User.session&.login, cp_params)
     result = Xmlhash.parse(response)
 
     fill_acceptinfo(result['acceptinfo'])
 
+    target_package.commit_opts = { no_backend_write: 1 }
     target_package.sources_changed
+
+    source_package_object&.assignment&.destroy
 
     # cleanup source project
     if relink_source && sourceupdate != 'noupdate'
@@ -100,7 +102,7 @@ class BsRequestActionSubmit < BsRequestAction
         # re-create it via branch , but keep current content...
         options = { comment: "initialized devel package after accepting #{bs_request.number}",
                     requestid: bs_request.number, keepcontent: 1, noservice: 1 }
-        Backend::Api::Sources::Package.branch(self.target_project, self.target_package, source_project, source_package, User.session!.login, options)
+        Backend::Api::Sources::Package.branch(self.target_project, self.target_package, source_project, source_package, User.session&.login, options)
       end
     elsif sourceupdate == 'cleanup'
       source_cleanup
@@ -143,13 +145,9 @@ class BsRequestActionSubmit < BsRequestAction
     "Submit #{source_package}"
   end
 
-  def target_package_object
-    @target_package_object ||= Package.find_by_project_and_name(target_project, target_package)
-  end
-
-  def creator_is_target_maintainer
+  def creator_is_target_maintainer?
     request_creator = User.find_by_login(bs_request.creator)
-    request_creator.has_local_role?(Role.hashed['maintainer'], target_package_object)
+    request_creator.local_role?(Role.hashed['maintainer'], target_package_object)
   end
 
   def forward
@@ -171,11 +169,13 @@ class BsRequestActionSubmit < BsRequestAction
   end
 
   def source_srcmd5
-    source_package_object&.dir_hash({ rev: source_rev }.compact)&.[]('srcmd5')
+    backend_package = source_package_object&.dir_hash({ rev: source_rev }.compact)
+    backend_package&.[]('linkinfo')&.[]('xsrcmd5') || backend_package&.[]('srcmd5')
   end
 
   def target_srcmd5
-    target_package_object&.dir_hash&.[]('srcmd5')
+    backend_package = target_package_object&.dir_hash&.[]('srcmd5')
+    backend_package&.[]('linkinfo')&.[]('xsrcmd5') || backend_package&.[]('srcmd5')
   end
 
   #### Alias of methods
@@ -186,6 +186,7 @@ end
 # Table name: bs_request_actions
 #
 #  id                    :integer          not null, primary key
+#  comments_count        :integer          default(0), not null, indexed
 #  group_name            :string(255)
 #  makeoriginolder       :boolean          default(FALSE)
 #  person_name           :string(255)
@@ -198,10 +199,12 @@ end
 #  target_project        :string(255)      indexed
 #  target_releaseproject :string(255)
 #  target_repository     :string(255)
-#  type                  :string(255)
+#  type                  :string(255)      indexed
 #  updatelink            :boolean          default(FALSE)
 #  created_at            :datetime
 #  bs_request_id         :integer          indexed, indexed => [target_package_id], indexed => [target_project_id]
+#  source_package_id     :integer          indexed
+#  source_project_id     :integer          indexed
 #  target_package_id     :integer          indexed => [bs_request_id], indexed
 #  target_project_id     :integer          indexed => [bs_request_id], indexed
 #
@@ -210,12 +213,16 @@ end
 #  bs_request_id                                                    (bs_request_id)
 #  index_bs_request_actions_on_bs_request_id_and_target_package_id  (bs_request_id,target_package_id)
 #  index_bs_request_actions_on_bs_request_id_and_target_project_id  (bs_request_id,target_project_id)
+#  index_bs_request_actions_on_comments_count                       (comments_count)
 #  index_bs_request_actions_on_source_package                       (source_package)
+#  index_bs_request_actions_on_source_package_id                    (source_package_id)
 #  index_bs_request_actions_on_source_project                       (source_project)
+#  index_bs_request_actions_on_source_project_id                    (source_project_id)
 #  index_bs_request_actions_on_target_package                       (target_package)
 #  index_bs_request_actions_on_target_package_id                    (target_package_id)
 #  index_bs_request_actions_on_target_project                       (target_project)
 #  index_bs_request_actions_on_target_project_id                    (target_project_id)
+#  index_bs_request_actions_on_type                                 (type)
 #
 # Foreign Keys
 #

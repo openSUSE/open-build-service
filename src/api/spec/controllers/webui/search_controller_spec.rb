@@ -23,7 +23,7 @@ RSpec.describe Webui::SearchController, :vcr do
 
     it 'assigns results' do
       collection = file_fixture('owner_search_collection.xml').read
-      stub_request(:post, "#{CONFIG['source_url']}/search/published/binary/id?match=(@name='package'%20and%20(@project='home:Iggy'))").and_return(body: collection)
+      stub_request(:get, "#{CONFIG['source_url']}/published?view=collection&name=package&project=home:Iggy").and_return(body: collection)
       get :owner, params: { search_text: 'package', owner: 1 }
       expect(assigns(:results)[0].users).to eq('maintainer' => [user])
     end
@@ -44,12 +44,13 @@ RSpec.describe Webui::SearchController, :vcr do
       it { expect(response).to have_http_status(:success) }
     end
 
-    context 'request number when string starts with a #' do
-      before do
-        get :index, params: { search_text: '#1' }
+    context 'request number shortcuts' do
+      ['#1', '1', '# 1', 'rq#1', 'rq 1', 'rq1', 'request 1', 'request#1', 'request1'].each do |text|
+        it "redirects to request show for '#{text}'" do
+          get :index, params: { search_text: text }
+          expect(response).to redirect_to(controller: :request, action: :show, number: 1)
+        end
       end
-
-      it { is_expected.to redirect_to(controller: :request, action: :show, number: 1) }
     end
 
     context 'with search_text starting with obs://' do

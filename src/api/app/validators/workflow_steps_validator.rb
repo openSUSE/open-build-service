@@ -45,7 +45,7 @@ class WorkflowStepsValidator < ActiveModel::Validator
   end
 
   def invalid_steps_error_message
-    "with errors:\n" +
-      invalid_steps.map { |step| "#{Workflow::SUPPORTED_STEPS.key(step.class)} - #{step.errors.full_messages.to_sentence}" }.flatten.to_sentence
+    step_errors = invalid_steps.map { |step| "#{Workflow::SUPPORTED_STEPS.key(step.class)} - #{step.errors.full_messages.to_sentence}" }.flatten.to_sentence
+    "with errors:\n#{step_errors}"
   end
 end

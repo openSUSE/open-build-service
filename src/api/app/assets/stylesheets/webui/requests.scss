@@ -70,8 +70,17 @@
   max-width: calc(100% - 2.5rem)
 }
 
-#requests-filter-desktop, #requests-filter-search-text {
+#filter-desktop, #requests-filter-search-text {
   &.sticky-top { top: $top-navigation-height; }
+}
+
+#request-accept-buttons-dropdown-menu {
+  width: 35rem;
+}
+
+#request-header-actions-list {
+  max-height: 12rem;
+  overflow-y: scroll;
 }
 
 @include media-breakpoint-up(sm) {
@@ -93,21 +102,20 @@
     order: 2;
   }
 
-  #requests-filter-desktop {
-    .collapse {
-      display: block !important;
-    }
+  #decision-buttons-row {
+    display: flex;
+    justify-content: space-between;
   }
 }
 
 @include media-breakpoint-between(xs, md) {
-  #requests-filter-desktop {
+  #filter-desktop {
     &.sticky-top { top: $top-navigation-height; }
     height: $top-navigation-height;
     // To not overlap with the notification action bar
     z-index: calc(#{$zindex-sticky} + 1);
 
-    #filters {
+    #content-selector-filters {
       max-height: 100vw;
       overflow: auto;
     }
@@ -117,8 +125,8 @@
   }
 
   @media (orientation: landscape) {
-    #requests-filter-desktop {
-      #filters { max-height: 20vw; }
+    #filter-desktop {
+      #content-selector-filters { max-height: 20vw; }
     }
   }
 }

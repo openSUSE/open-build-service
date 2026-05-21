@@ -1,9 +1,9 @@
 module Webui
   module Projects
     class MaintenanceIncidentsController < WebuiController
-      before_action :set_project, only: [:index]
-      before_action :lockout_spiders, only: [:index]
       before_action :require_login, only: [:create]
+      before_action :lockout_spiders, only: [:index]
+      before_action :set_project, only: [:index]
 
       after_action :verify_authorized, except: [:index]
 

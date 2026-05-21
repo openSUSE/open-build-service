@@ -19,7 +19,7 @@ module Backend
         # Writes the content in xml for attributes
         # @return [String]
         def self.write_attributes(project_name, package_name, user_login, content)
-          params = { meta: 1, user: user_login }
+          params = { meta: 1, user: user_login }.compact
           http_put(['/source/:project/:package/_attribute', project_name, package_name || '_project'],
                    data: content, params: params)
         end
@@ -28,7 +28,14 @@ module Backend
         # @param options [Hash] Parameters to pass to the backend.
         # @return [String]
         def self.files(project_name, package_name, options = {})
-          http_get(['/source/:project/:package', project_name, package_name], params: options, accepted: %i[expand rev view])
+          accepted = %i[rev linkrev emptylink deleted expand view extension lastworking withlinked meta product parse repository arch]
+          http_get(['/source/:project/:package', project_name, package_name], params: options, accepted: accepted)
+        end
+
+        # Returns a file list of the products for a package
+        # @return [String]
+        def self.products(project_name, package_name)
+          http_get(['/source/:project/:package', project_name, package_name], defaults: { view: :products })
         end
 
         # Returns the revisions (mrev) list for a package
@@ -41,8 +48,14 @@ module Backend
 
         # Returns the meta file from a package
         # @return [String]
-        def self.meta(project_name, package_name)
-          http_get(['/source/:project/:package/_meta', project_name, package_name])
+        def self.meta(project_name, package_name, options = {})
+          http_get(['/source/:project/:package/_meta', project_name, package_name], params: options.compact, accepted: %i[deleted meta rev view])
+        end
+
+        # Writes a Package meta
+        # @return [String]
+        def self.write_meta(project_name, package_name, content, options = {})
+          http_put(['/source/:project/:package/_meta', project_name, package_name], data: content, params: options, accepted: %i[user comment requestid])
         end
 
         # Returns the content of the _service file (if present)
@@ -63,7 +76,7 @@ module Backend
         # Writes the patchinfo
         # @return [String]
         def self.write_patchinfo(project_name, package_name, user_login, content, comment = nil)
-          params = { user: user_login }
+          params = { user: user_login }.compact
           params[:comment] = comment if comment
           http_put(['/source/:project/:package/_patchinfo', project_name, package_name], data: content, params: params)
         end
@@ -77,7 +90,7 @@ module Backend
         # Runs the command mergeservice for that project/package
         # @return [String]
         def self.merge_service(project_name, package_name, user_login)
-          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :mergeservice, user: user_login })
+          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :mergeservice, user: user_login }.compact)
         end
 
         # Copy a package into another project
@@ -87,15 +100,20 @@ module Backend
         # @return [String]
         def self.copy(target_project_name, target_package_name, source_project_name, source_package_name, user_login, options = {})
           http_post(['/source/:project/:package', target_project_name, target_package_name],
-                    defaults: { cmd: :copy, oproject: source_project_name, opackage: source_package_name, user: user_login },
-                    params: options, accepted: %i[orev keeplink expand comment requestid withacceptinfo dontupdatesource noservice])
+                    defaults: { cmd: :copy, oproject: source_project_name, opackage: source_package_name, user: user_login }.compact,
+                    params: options, accepted: %i[orev keeplink expand comment requestid withacceptinfo dontupdatesource noservice instantiate vrevbump withvrev freezelink])
         end
 
         # Branch a package into another project
         def self.branch(target_project, target_package, source_project, source_package, user, options = {})
           http_post(['/source/:project/:package', source_project, source_package],
-                    defaults: { cmd: :branch, oproject: target_project, opackage: target_package, user: user },
-                    params: options, accepted: %i[keepcontent comment requestid noservice])
+                    defaults: { cmd: :branch, oproject: target_project, opackage: target_package, user: user }.compact,
+                    params: options, accepted: %i[comment extendvrev keepcontent missingok noservice olinkrev orev requestid])
+        end
+
+        # Convert a link into a branch
+        def self.linktobranch(project, package, options = {})
+          http_post(['/source/:project/:package', project, package], defaults: { cmd: :linktobranch }, params: options, accepted: %i[user linkrev rev])
         end
 
         # Returns the link information of a package
@@ -105,8 +123,10 @@ module Backend
 
         # Writes the link information of a package
         # @return [String]
-        def self.write_link(project_name, package_name, user_login, content)
-          http_put(['/source/:project/:package/_link', project_name, package_name], data: content, params: { user: user_login })
+        def self.write_link(project_name, package_name, user_login, content, options = {})
+          accepted = %i[rev comment]
+          http_put(['/source/:project/:package/_link', project_name, package_name],
+                   data: content, params: options, defaults: { user: user_login }, accepted: accepted)
         end
 
         # Returns the source diff as UTF-8 encoded string
@@ -120,8 +140,16 @@ module Backend
         # @option options [String] :filelimit Sets the maximum lines of the diff which will be returned (0 = all lines)
         # @return [String]
         def self.source_diff(project_name, package_name, options = {})
-          accepted = %i[rev orev opackage oproject linkrev olinkrev expand filelimit tarlimit withissues view cacheonly nodiff]
+          accepted = %i[rev orev opackage oproject linkrev olinkrev expand filelimit tarlimit onlyissues withissues view cacheonly nodiff file]
           diff = http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff }, params: options, accepted: accepted)
+          diff.valid_encoding? ? diff : diff.encode('UTF-8', 'binary', invalid: :replace, undef: :replace)
+        end
+
+        # Returns the link diff as UTF-8 encoded string
+        # @return [String]
+        def self.link_diff(project_name, package_name, options = {})
+          accepted = %i[linkrev onlyissues view]
+          diff = http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :linkdiff }, params: options, accepted: accepted)
           diff.valid_encoding? ? diff : diff.encode('UTF-8', 'binary', invalid: :replace, undef: :replace)
         end
 
@@ -134,32 +162,22 @@ module Backend
                                                        params: options.compact, accepted: %i[repository arch])
         end
 
-        # Returns the content of the source file
-        # @return [String]
-        def self.file(project_name, package_name, file_name)
-          http_get(['/source/:project/:package/:filename', project_name, package_name, file_name])
-        end
-
-        # Writes the content of the source file
-        # @return [String]
-        def self.write_file(project_name, package_name, file_name, content = '', params = {})
-          http_put(['/source/:project/:package/:filename', project_name, package_name, file_name], data: content, params: params)
-        end
-
         # Writes source filelist to the package
         # @return [String]
         def self.write_filelist(project_name, package_name, filelist, params = {})
-          http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :commitfilelist }, data: filelist, params: params)
+          http_post(['/source/:project/:package', project_name, package_name],
+                    defaults: { cmd: :commitfilelist }, data: filelist, params: params, accepted: %i[user comment rev noservice requestid])
         end
 
         # Deletes the package and all the source files inside
-        def self.delete(project_name, package_name)
-          http_delete(['/source/:project/:package', project_name, package_name])
+        def self.delete(project_name, package_name, options = {})
+          http_delete(['/source/:project/:package', project_name, package_name], params: options, accepted: %i[user comment requestid])
         end
 
-        # Deletes a package source file
-        def self.delete_file(project_name, package_name, filename)
-          http_delete(['/source/:project/:package/:filename', project_name, package_name, filename])
+        # Undeletes the package
+        def self.undelete(project_name, package_name, options = {})
+          http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :undelete },
+                                                                               params: options, accepted: %i[user comment time])
         end
       end
     end

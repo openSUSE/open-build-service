@@ -1,6 +1,6 @@
 class CannedResponsesDropdownComponent < ApplicationComponent
   def initialize(canned_responses)
-    super
+    super()
 
     @canned_responses = canned_responses
     @canned_responses_by_type = canned_responses_by_type

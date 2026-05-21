@@ -6,7 +6,7 @@ class ChartComponent < ApplicationComponent
   MINIMUM_BUILD_RESULTS = 12
 
   def initialize(raw_data:)
-    super
+    super()
 
     @raw_data = raw_data.reject { |result| Buildresult.new(result[:status]).refused_status? }
   end
@@ -41,6 +41,10 @@ class ChartComponent < ApplicationComponent
 
   def distinct_repositories
     raw_data.pluck(:repository).to_set
+  end
+
+  def distinct_package_names
+    raw_data.pluck(:package_name).to_set
   end
 
   def status_color(status)

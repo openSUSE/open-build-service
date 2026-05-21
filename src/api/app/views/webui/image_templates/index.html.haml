@@ -7,7 +7,7 @@
     .mb-3
       - first_template = nil
       - @projects.each do |project|
-        - remote = Project.is_remote_project?(project.name)
+        - remote = Project.remote_project?(project.name)
         .row
           .col-12.fw-bold
             = link_to_if(!remote, title_or_name(project), project_show_path(project))
@@ -40,7 +40,7 @@
           = hidden_field_tag 'add_repositories_rebuild', 'copy'
           = hidden_field_tag 'current_revision', true
           = label_tag(:target_package, 'Name your appliance')
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
           = text_field_tag(:target_package, first_template, class: 'form-control', required: true)
           %small.text-muted (Maximum of 200 characters, no blank, /, :, - or ; characters)
         = submit_tag('Create appliance', class: 'btn btn-sm btn-primary px-4', disabled: User.session ? nil : true,

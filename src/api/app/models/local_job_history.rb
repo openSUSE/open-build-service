@@ -1,5 +1,6 @@
 class LocalJobHistory
   include ActiveModel::Model
+
   attr_accessor :repository,
                 :arch,
                 :package,

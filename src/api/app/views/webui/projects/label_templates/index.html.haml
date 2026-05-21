@@ -4,6 +4,12 @@
 
   .card-body
     %h3= @pagetitle
+    %p
+      Label templates that you can apply to this projects packages and requests to this project.
+      = link_to 'Read more in the Labels documentation',
+                'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-labels',
+                target: '_blank',
+                rel: 'noopener'
     %ul.list-unstyled
       - @label_templates.each do |label_template|
         %li.mb-2

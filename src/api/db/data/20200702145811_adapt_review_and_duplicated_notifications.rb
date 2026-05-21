@@ -21,7 +21,7 @@ class AdaptReviewAndDuplicatedNotifications < ActiveRecord::Migration[6.0]
   # only keep the latest comment and request notifications related to the same notifiable and subscriber
   def remove_outdated_notifications
     Notification.find_each do |notification|
-      next if delete_notification_without_notifiable(notification)
+      next if delete_notification_without_notifiable?(notification)
 
       notifications = outdated_notifications(notification)
 
@@ -50,7 +50,7 @@ class AdaptReviewAndDuplicatedNotifications < ActiveRecord::Migration[6.0]
   end
 
   # make sure the notifiable exist, otherwise delete the notification since it refers to nothing
-  def delete_notification_without_notifiable(notification)
+  def delete_notification_without_notifiable?(notification)
     return false if notification.notifiable
 
     notification.destroy

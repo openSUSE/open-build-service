@@ -7,6 +7,8 @@ class BsRequestActionChangeDevel < BsRequestAction
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
+  validates :source_project, :source_package, :target_project, :target_package, presence: true
+  validates :group_name, :person_name, :role, :source_rev, :sourceupdate, :target_releaseproject, :target_repository, absence: true
 
   #### Class methods using self. (public and then private)
   def self.sti_name
@@ -46,6 +48,7 @@ end
 # Table name: bs_request_actions
 #
 #  id                    :integer          not null, primary key
+#  comments_count        :integer          default(0), not null, indexed
 #  group_name            :string(255)
 #  makeoriginolder       :boolean          default(FALSE)
 #  person_name           :string(255)
@@ -58,10 +61,12 @@ end
 #  target_project        :string(255)      indexed
 #  target_releaseproject :string(255)
 #  target_repository     :string(255)
-#  type                  :string(255)
+#  type                  :string(255)      indexed
 #  updatelink            :boolean          default(FALSE)
 #  created_at            :datetime
 #  bs_request_id         :integer          indexed, indexed => [target_package_id], indexed => [target_project_id]
+#  source_package_id     :integer          indexed
+#  source_project_id     :integer          indexed
 #  target_package_id     :integer          indexed => [bs_request_id], indexed
 #  target_project_id     :integer          indexed => [bs_request_id], indexed
 #
@@ -70,12 +75,16 @@ end
 #  bs_request_id                                                    (bs_request_id)
 #  index_bs_request_actions_on_bs_request_id_and_target_package_id  (bs_request_id,target_package_id)
 #  index_bs_request_actions_on_bs_request_id_and_target_project_id  (bs_request_id,target_project_id)
+#  index_bs_request_actions_on_comments_count                       (comments_count)
 #  index_bs_request_actions_on_source_package                       (source_package)
+#  index_bs_request_actions_on_source_package_id                    (source_package_id)
 #  index_bs_request_actions_on_source_project                       (source_project)
+#  index_bs_request_actions_on_source_project_id                    (source_project_id)
 #  index_bs_request_actions_on_target_package                       (target_package)
 #  index_bs_request_actions_on_target_package_id                    (target_package_id)
 #  index_bs_request_actions_on_target_project                       (target_project)
 #  index_bs_request_actions_on_target_project_id                    (target_project_id)
+#  index_bs_request_actions_on_type                                 (type)
 #
 # Foreign Keys
 #

@@ -176,7 +176,7 @@ sub check {
       return ('unresolvable', 'weird result of container expansion') unless $p;
 
       # generate bdep entry
-      my $cbdep = {'name' => $cdeps[0], 'noinstall' => 1, 'p' => $p};
+      my $cbdep = {'name' => $cdep, 'noinstall' => 1, 'p' => $p};
       my $cprp = $cpool->pkg2reponame($p);
       push @cmeta, $cpool->pkg2pkgid($p) . "  $cprp/$cdep";
       ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2) if $cprp;

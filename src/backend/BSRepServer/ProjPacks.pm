@@ -135,17 +135,29 @@ sub getconfig {
   }
   my $projpacks = $gctx->{'projpacks'};
   my $remoteprojs = $gctx->{'remoteprojs'};
+  my ($old_is_this_project, $old_is_in_project) = (-1, -1);
+  my $config_init = $config;
   for my $prp (reverse @$path) {
     my ($p, $r) = split('/', $prp, 2);
     my $proj = $remoteprojs->{$p} || $projpacks->{$p} || {};
     my $c = $proj->{'config'};
     next unless defined $c;
+    if ("\n$c" =~ /^(.*?)\nFromScratch:/si && $1 !~ /\n[ \t]*[^\s#]/) {
+      ($old_is_this_project, $old_is_in_project, $config) = (-1, -1, $config_init);
+    }
     $config .= "\n### from $p\n";
     $config .= "%define _repository $r\n";
+    my $new_is_this_project = $p eq $projid ? 1 : 0; 
+    my $new_is_in_project = $new_is_this_project || substr($projid, 0, length($p) + 1) eq "$p:" ? 1 : 0;
+    $config .= "%define _is_this_project $new_is_this_project\n" if $new_is_this_project ne $old_is_this_project;
+    $config .= "%define _is_in_project $new_is_in_project\n" if $new_is_in_project ne $old_is_in_project;
+    ($old_is_this_project, $old_is_in_project) = ($new_is_this_project, $new_is_in_project);
+    $config .= "#!!line $p:0\n";
+
     # get rid of the Macros sections
-    my $s1 = '^\s*macros:\s*$.*?^\s*:macros\s*$';
+    my $s1 = '^[ \t]*macros:[ \t]*$(.*?)^[ \t]*:macros[ \t]*$';
     my $s2 = '^\s*macros:\s*$.*\Z';
-    $c =~ s/$s1//gmsi;
+    $c =~ s/$s1/$1 =~ tr!\n!!cdr/gmsie;		# keep newlines
     $c =~ s/$s2//gmsi;
     $config .= $c;
   }

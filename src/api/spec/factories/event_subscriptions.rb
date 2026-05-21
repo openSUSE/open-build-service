@@ -32,6 +32,14 @@ FactoryBot.define do
       group { nil }
     end
 
+    factory :event_subscription_comment_for_report do
+      eventtype { 'Event::CommentForReport' }
+      receiver_role { 'commenter' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
     factory :event_subscription_comment_for_request_without_subscriber do
       eventtype { 'Event::CommentForRequest' }
       receiver_role { 'commenter' }
@@ -78,57 +86,16 @@ FactoryBot.define do
       group { nil }
     end
 
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    factory :event_subscription_create_report do
-      eventtype { 'Event::CreateReport' }
+    factory :event_subscription_report do
+      eventtype { 'Event::Report' }
       receiver_role { 'moderator' }
       channel { :instant_email }
       user
       group { nil }
     end
 
-    factory :event_subscription_report_for_project do
-      eventtype { 'Event::ReportForProject' }
-      receiver_role { 'moderator' }
-      channel { :instant_email }
-      user
-      group { nil }
-    end
-
-    factory :event_subscription_report_for_package do
-      eventtype { 'Event::ReportForPackage' }
-      receiver_role { 'moderator' }
-      channel { :instant_email }
-      user
-      group { nil }
-    end
-
-    factory :event_subscription_report_for_comment do
-      eventtype { 'Event::ReportForComment' }
-      receiver_role { 'moderator' }
-      channel { :instant_email }
-      user
-      group { nil }
-    end
-
-    factory :event_subscription_report_for_user do
-      eventtype { 'Event::ReportForUser' }
-      receiver_role { 'moderator' }
-      channel { :instant_email }
-      user
-      group { nil }
-    end
-
-    factory :event_subscription_cleared_decision do
-      eventtype { 'Event::ClearedDecision' }
-      receiver_role { 'reporter' }
-      channel { :instant_email }
-      user
-      group { nil }
-    end
-
-    factory :event_subscription_favored_decision do
-      eventtype { 'Event::FavoredDecision' }
+    factory :event_subscription_decision do
+      eventtype { 'Event::Decision' }
       receiver_role { 'reporter' } # or 'offender'
       channel { :instant_email }
       user
@@ -145,6 +112,14 @@ FactoryBot.define do
 
     factory :event_subscription_workflow_run_fail do
       eventtype { 'Event::WorkflowRunFail' }
+      receiver_role { 'token_executor' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
+    factory :event_subscription_token_enabled do
+      eventtype { 'Event::TokenStateChange' }
       receiver_role { 'token_executor' }
       channel { :instant_email }
       user
@@ -170,6 +145,38 @@ FactoryBot.define do
     factory :event_subscription_removed_user_from_group do
       eventtype { 'Event::RemovedUserFromGroup' }
       receiver_role { 'member' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
+    factory :event_subscription_assignment do
+      eventtype { 'Event::Assignment' }
+      receiver_role { 'assignee' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
+    factory :event_subscription_upstream_version do
+      eventtype { 'Event::UpstreamPackageVersionChanged' }
+      receiver_role { 'develpackage_or_package_maintainer' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
+    factory :event_subscription_token_membership_update do
+      eventtype { 'Event::TokenMembershipUpdate' }
+      receiver_role { 'updated_token_member' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
+    factory :event_subscription_global_role_assigned do
+      eventtype { 'Event::GlobalRoleAssigned' }
+      receiver_role { 'admin_moderator_or_staff' }
       channel { :instant_email }
       user
       group { nil }

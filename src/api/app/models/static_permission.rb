@@ -24,7 +24,7 @@ end
 # Table name: static_permissions
 #
 #  id    :integer          not null, primary key
-#  title :string(200)      default(""), not null, indexed
+#  title :string(200)      default(""), not null, uniquely indexed
 #
 # Indexes
 #

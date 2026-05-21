@@ -1,6 +1,50 @@
 {
   "ignored_warnings": [
     {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "041277f7166762df2905deb13e2ca9649222a41687e6596e0404d2abf05a92dd",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/staging/projects/_checks.html.haml",
+      "line": 2,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_class(true, \"me-2 fas\", icon_for_checks(Project.find_by!(:name => params[:workflow_project]).staging.staging_projects.find_by(:name => params[:project_name]).checks, Project.find_by!(:name => params[:workflow_project]).staging.staging_projects.find_by(:name => params[:project_name]).missing_checks))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::Staging::ProjectsController",
+          "method": "show",
+          "line": 25,
+          "file": "app/controllers/webui/staging/projects_controller.rb",
+          "rendered": {
+            "name": "webui/staging/projects/show",
+            "file": "app/views/webui/staging/projects/show.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/staging/projects/show",
+          "line": 34,
+          "file": "app/views/webui/staging/projects/show.html.haml",
+          "rendered": {
+            "name": "webui/staging/projects/_checks",
+            "file": "app/views/webui/staging/projects/_checks.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/staging/projects/_checks"
+      },
+      "user_input": "Project.find_by!(:name => params[:workflow_project]).staging",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "07f8d71eb8b9abab529bf25541bf548b743abf3972b69850d6cb0cdeab75fa7c",
@@ -20,6 +64,60 @@
       "confidence": "Medium",
       "cwe_id": [
         89
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "1361633ed1646ba84241883487c1ab8b83a3d9941eca64eb1a17d027dcc79e9b",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/shared/_info_popover.haml",
+      "line": 4,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :\"bs-placement\" => \"top\", :\"bs-toggle\" => \"popover\", :\"bs-html\" => \"true\", :\"bs-content\" => render(:partial => \"system_status_legend\", :locals => ({ :building_workers => Rails.cache.fetch(\"workerstatus_hash\", :expires_in => 10.minutes) do\n Xmlhash.parse(WorkerStatus.hidden.to_xml)\n end.elements(\"building\").length, :overall_workers => Rails.cache.fetch(\"workerstatus_hash\", :expires_in => 10.minutes) do\n Xmlhash.parse(WorkerStatus.hidden.to_xml)\n end[\"clients\"], :waiting_packages => (0 + waiting[\"jobs\"].to_i), :host_title => ::Configuration.fetch[\"title\"], :system_stats => (Rails.cache.fetch(\"system_stats_hash\", :expires_in => 30.minutes) do\n { :projects => Project.count, :packages => Package.count, :repositories => Repository.count, :users => User.count }\n end) })))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::MainController",
+          "method": "index",
+          "line": 21,
+          "file": "app/controllers/webui/main_controller.rb",
+          "rendered": {
+            "name": "webui/main/index",
+            "file": "app/views/webui/main/index.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/main/index",
+          "line": 12,
+          "file": "app/views/webui/main/index.html.haml",
+          "rendered": {
+            "name": "webui/main/_system_status",
+            "file": "app/views/webui/main/_system_status.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/main/_system_status",
+          "line": 13,
+          "file": "app/views/webui/main/_system_status.html.haml",
+          "rendered": {
+            "name": "webui/shared/_info_popover",
+            "file": "app/views/webui/shared/_info_popover.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/shared/_info_popover"
+      },
+      "user_input": "WorkerStatus.hidden.to_xml",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
       ],
       "note": ""
     },
@@ -47,25 +145,133 @@
       "note": ""
     },
     {
-      "warning_type": "HTTP Verb Confusion",
-      "warning_code": 118,
-      "fingerprint": "2c16c8157cc5cf3ad60108affab7855b813e308bffa7de8b2f67f7b1dfc63fe7",
-      "check_name": "VerbConfusion",
-      "message": "Potential HTTP verb confusion. `HEAD` is routed like `GET` but `request.get?` will return `false`",
-      "file": "app/controllers/build_controller.rb",
-      "line": 15,
-      "link": "https://brakemanscanner.org/docs/warning_types/http_verb_confusion/",
-      "code": "if request.get? then\n  pass_to_backend\n  return\nend",
-      "render_path": null,
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "29b9aab3d2e57065465c4379f4eeb9479f880bfb2ee720aab8dfbe64acec92a5",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/user/_activity.html.haml",
+      "line": 22,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_class(true, activity_classname(UserYearlyContribution.new(((User.not_deleted.find_by!(:login => ((params[:login] or params[:user_login]))) or User.find_by_login((params[:login] or params[:user_login]))) or User.possibly_nobody), ((Time.zone.today - 52.weeks) - ((Time.zone.today - 52.weeks).cwday - 1))).call.fetch(((((Time.zone.today - 52.weeks) - ((Time.zone.today - 52.weeks).cwday - 1)) + (week_number * 7)) + week_day), 0), contributions_percentiles(UserYearlyContribution.new(((User.not_deleted.find_by!(:login => ((params[:login] or params[:user_login]))) or User.find_by_login((params[:login] or params[:user_login]))) or User.possibly_nobody), ((Time.zone.today - 52.weeks) - ((Time.zone.today - 52.weeks).cwday - 1))).call.values)))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::UsersController",
+          "method": "show",
+          "line": 37,
+          "file": "app/controllers/webui/users_controller.rb",
+          "rendered": {
+            "name": "webui/users/show",
+            "file": "app/views/webui/users/show.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/users/show",
+          "line": 23,
+          "file": "app/views/webui/users/show.html.haml",
+          "rendered": {
+            "name": "webui/user/_involvement_and_activity",
+            "file": "app/views/webui/user/_involvement_and_activity.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/user/_involvement_and_activity",
+          "line": 35,
+          "file": "app/views/webui/user/_involvement_and_activity.html.haml",
+          "rendered": {
+            "name": "webui/user/_activity",
+            "file": "app/views/webui/user/_activity.html.haml"
+          }
+        }
+      ],
       "location": {
-        "type": "method",
-        "class": "BuildController",
-        "method": "index"
+        "type": "template",
+        "template": "webui/user/_activity"
       },
-      "user_input": "request.get?",
+      "user_input": "User.not_deleted.find_by!(:login => ((params[:login] or params[:user_login])))",
       "confidence": "Weak",
       "cwe_id": [
-        352
+        79
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "2c6126d37baaef6ed0e6f9f17bf054de4dd75cb9324aed24701af25d896abc69",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/staging/projects/_checks.html.haml",
+      "line": 16,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_class(true, \"fas\", icon_for_check((Unresolved Model).new))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::Staging::ProjectsController",
+          "method": "show",
+          "line": 25,
+          "file": "app/controllers/webui/staging/projects_controller.rb",
+          "rendered": {
+            "name": "webui/staging/projects/show",
+            "file": "app/views/webui/staging/projects/show.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/staging/projects/show",
+          "line": 34,
+          "file": "app/views/webui/staging/projects/show.html.haml",
+          "rendered": {
+            "name": "webui/staging/projects/_checks",
+            "file": "app/views/webui/staging/projects/_checks.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/staging/projects/_checks"
+      },
+      "user_input": "(Unresolved Model).new",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "32a87f5aa78708e6eb506c8652b583a5ab3f76c882dcac669cd4feb30639d40a",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/package/_file.html.haml",
+      "line": 12,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :order => (\"-#{(Unresolved Model).new[\"mtime\"]}\"))",
+      "render_path": [
+        {
+          "type": "template",
+          "name": "webui/package/_files_view",
+          "line": 17,
+          "file": "app/views/webui/package/_files_view.html.haml",
+          "rendered": {
+            "name": "webui/package/_file",
+            "file": "app/views/webui/package/_file.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/package/_file"
+      },
+      "user_input": "(Unresolved Model).new[\"mtime\"]",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
       ],
       "note": ""
     },
@@ -160,27 +366,48 @@
       "note": ""
     },
     {
-      "warning_type": "Weak Cryptography",
-      "warning_code": 126,
-      "fingerprint": "755ce94e0c9b9218dcd5ca3c2d9dca58acdcb61c7484cd76abe3b283749ab48d",
-      "check_name": "WeakRSAKey",
-      "message": "Use of padding mode PKCS1 (default if not specified), which is known to be insecure. Use OAEP instead",
-      "file": "app/models/cloud/azure/configuration.rb",
-      "line": 32,
-      "link": "https://brakemanscanner.org/docs/warning_types/weak_cryptography/",
-      "code": "OpenSSL::PKey::RSA.new(::Backend::Api::Cloud.public_key).public_encrypt(application_key)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Cloud::Azure::Configuration",
-        "method": "encrypt_credentials"
-      },
-      "user_input": null,
-      "confidence": "High",
-      "cwe_id": [
-        780
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "64ac8eb6c9c40c44b441d2e574dcfa260baf867223e58b5654167b5f551dabaa",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/shared/user_or_groups_roles/_index.html.haml",
+      "line": 15,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", \"project\" => ::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, \"save-user\" => project_save_person_url, \"remove\" => project_remove_role_url, \"save-group\" => project_save_group_path, \"package\" => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true).name)",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::PackageController",
+          "method": "users",
+          "line": 162,
+          "file": "app/controllers/webui/package_controller.rb",
+          "rendered": {
+            "name": "webui/package/users",
+            "file": "app/views/webui/package/users.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/package/users",
+          "line": 6,
+          "file": "app/views/webui/package/users.html.haml",
+          "rendered": {
+            "name": "webui/shared/user_or_groups_roles/_index",
+            "file": "app/views/webui/shared/user_or_groups_roles/_index.html.haml"
+          }
+        }
       ],
-      "note": "We track this with a comment in the code"
+      "location": {
+        "type": "template",
+        "template": "webui/shared/user_or_groups_roles/_index"
+      },
+      "user_input": "::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
     },
     {
       "warning_type": "SQL Injection",
@@ -200,29 +427,6 @@
       },
       "user_input": "Package.activity_algorithm",
       "confidence": "High",
-      "cwe_id": [
-        89
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "94746cf90cb4bf2270637c214b44324775f12e71b6d07fabb1939f3a3641cd65",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/controllers/source_controller.rb",
-      "line": 426,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "@project.lock(params[:comment])",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "SourceController",
-        "method": "project_command_lock"
-      },
-      "user_input": "params[:comment]",
-      "confidence": "Medium",
       "cwe_id": [
         89
       ],
@@ -275,6 +479,108 @@
       "note": ""
     },
     {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "c1b89d88e47a066ac25ba2a3d0e5b4a1d7040b9b51afae34affdb7d701dac1a6",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/package/_rpmlint_result.html.haml",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :project => ::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, :package => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true).name)",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::PackageController",
+          "method": "rpmlint_result",
+          "line": 316,
+          "file": "app/controllers/webui/package_controller.rb",
+          "rendered": {
+            "name": "webui/package/_rpmlint_result",
+            "file": "app/views/webui/package/_rpmlint_result.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/package/_rpmlint_result"
+      },
+      "user_input": "::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "c3cdcdad958f89ab5351c660dc9718914496dfd942530bc617a20557d74a4012",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/package/rdiff.html.haml",
+      "line": 18,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :package => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::PackageController",
+          "method": "rdiff",
+          "line": 221,
+          "file": "app/controllers/webui/package_controller.rb",
+          "rendered": {
+            "name": "webui/package/rdiff",
+            "file": "app/views/webui/package/rdiff.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/package/rdiff"
+      },
+      "user_input": "Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true)",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "c3cdcdad958f89ab5351c660dc9718914496dfd942530bc617a20557d74a4012",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/package/rdiff.html.haml",
+      "line": 20,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :package => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::PackageController",
+          "method": "rdiff",
+          "line": 221,
+          "file": "app/controllers/webui/package_controller.rb",
+          "rendered": {
+            "name": "webui/package/rdiff",
+            "file": "app/views/webui/package/rdiff.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/package/rdiff"
+      },
+      "user_input": "Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true)",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "Denial of Service",
       "warning_code": 76,
       "fingerprint": "c410bfcfeaf52e9e80268fef41296155b8571fc5b4ed7ad78fc2a2ff1e662f92",
@@ -295,6 +601,40 @@
       "cwe_id": [
         20,
         185
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "cc22f4e269dc27cb215adb737fb4a3d6e0e05f20294c13f5c4ed2028c7187e08",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/project/_buildstatus.html.haml",
+      "line": 27,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_class(true, \"collapse\", \"collapse-project-#{(Unresolved Model).new.tr(\".\", \"_\")}#{if repository_expanded?(params.fetch(:collapsedRepositories, {}), (Unresolved Model).new.tr(\".\", \"_\")) then\n  \" show\"\nelse\n  \"\"\nend}\")",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::ProjectController",
+          "method": "buildresult",
+          "line": 224,
+          "file": "app/controllers/webui/project_controller.rb",
+          "rendered": {
+            "name": "webui/project/_buildstatus",
+            "file": "app/views/webui/project/_buildstatus.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/project/_buildstatus"
+      },
+      "user_input": "(Unresolved Model).new.tr(\".\", \"_\")",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
       ],
       "note": ""
     },
@@ -365,29 +705,93 @@
       "note": ""
     },
     {
-      "warning_type": "Weak Cryptography",
-      "warning_code": 126,
-      "fingerprint": "ec674f4041072ac82eea957a8afc26031d83bf38b56e128c898130ebf903b2f8",
-      "check_name": "WeakRSAKey",
-      "message": "Use of padding mode PKCS1 (default if not specified), which is known to be insecure. Use OAEP instead",
-      "file": "app/models/cloud/azure/configuration.rb",
-      "line": 31,
-      "link": "https://brakemanscanner.org/docs/warning_types/weak_cryptography/",
-      "code": "OpenSSL::PKey::RSA.new(::Backend::Api::Cloud.public_key).public_encrypt(application_id)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Cloud::Azure::Configuration",
-        "method": "encrypt_credentials"
-      },
-      "user_input": null,
-      "confidence": "High",
-      "cwe_id": [
-        780
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "e3619f234f977eb7c864ec9a7528d0a8571e50a570ece0db9e189e66c3816176",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/request/_request_header.html.haml",
+      "line": 35,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_class(true, \"text-nowrap\", \"text-bg-#{BsRequestStateBadgeComponent.new(:state => BsRequest.find_by!(:number => params[:number]).state, :css_class => \"ms-2\").decode_state_color}\")",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::RequestController",
+          "method": "beta_show",
+          "line": 50,
+          "file": "app/controllers/webui/request_controller.rb",
+          "rendered": {
+            "name": "webui/request/beta_show",
+            "file": "app/views/webui/request/beta_show.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/request/beta_show",
+          "line": 9,
+          "file": "app/views/webui/request/beta_show.html.haml",
+          "rendered": {
+            "name": "webui/request/_request_header",
+            "file": "app/views/webui/request/_request_header.html.haml"
+          }
+        }
       ],
-      "note": "We track this with a comment in the code"
+      "location": {
+        "type": "template",
+        "template": "webui/request/_request_header"
+      },
+      "user_input": "BsRequest.find_by!(:number => params[:number]).state",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "faaef8211bbc25be8d5a10b458e757782cbe3665335e0ebac9b4f7a52a90de17",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/package/_revision_diff_detail.html.haml",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :package => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::PackageController",
+          "method": "rdiff",
+          "line": 221,
+          "file": "app/controllers/webui/package_controller.rb",
+          "rendered": {
+            "name": "webui/package/rdiff",
+            "file": "app/views/webui/package/rdiff.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/package/rdiff",
+          "line": 38,
+          "file": "app/views/webui/package/rdiff.html.haml",
+          "rendered": {
+            "name": "webui/package/_revision_diff_detail",
+            "file": "app/views/webui/package/_revision_diff_detail.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/package/_revision_diff_detail"
+      },
+      "user_input": "Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true)",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
     }
   ],
-  "updated": "2024-07-18 14:14:29 +0000",
-  "brakeman_version": "5.4.0"
+  "brakeman_version": "7.1.1"
 }

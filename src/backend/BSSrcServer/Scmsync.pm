@@ -21,6 +21,7 @@ use Digest::MD5 ();
 use BSConfiguration;
 use BSUtil;
 use BSRevision;
+use BSSrcrep;
 use BSCpio;
 use BSVerify;
 use BSXML;
@@ -41,6 +42,14 @@ our $addrev = sub { die("BSSrcServer::Scmsync::addrev not implemented\n") };
 #
 # low level helpers
 #
+
+sub setserviceerror {
+  my ($projid, $packid, $error) = @_;
+  return if $BSConfig::old_style_services;	# sorry
+  my $servicemark = Digest::MD5::md5_hex("obsscm/$projid/$packid");	# copied from genservicemark_obsscm in Service.pm
+  BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $error);
+}
+
 sub deletepackage {
   my ($cgi, $projid, $packid) = @_;
   local $cgi->{'comment'} = $cgi->{'comment'} || 'package was deleted';
@@ -52,7 +61,9 @@ sub deletepackage {
   # now do the real delete of the package
   BSRevision::delete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.rev", "$projectsdir/$projid.pkg/$packid.rev.del");
   BSRevision::delete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.mrev", "$projectsdir/$projid.pkg/$packid.mrev.del");
-  # get rid of the generated product packages as well
+  # get rid of the generated product packages as well?
+  # update db
+  BSSrcServer::ScmsyncDB::deletescmsync($projid, $packid);
 }
 
 sub undeletepackage {
@@ -62,6 +73,7 @@ sub undeletepackage {
   if (-s "$projectsdir/$projid.pkg/$packid.rev.del") {
     BSRevision::undelete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.rev.del", "$projectsdir/$projid.pkg/$packid.rev");
   }
+  # we'll always call putpackage next so we don't have to update the scmsyncdb here
 }
 
 sub putpackage {
@@ -70,6 +82,17 @@ sub putpackage {
   mkdir_p($uploaddir);
   writexml("$uploaddir/$$.2", undef, $pack, $BSXML::pack);
   BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta' ]);
+  BSSrcServer::ScmsyncDB::storescmsync($projid, $packid, $pack->{'scmsync'});
+}
+
+sub putlocallink {
+  my ($cgi, $projid, $packid, $linkxml) = @_;
+  local $cgi->{'comment'} = $cgi->{'comment'} || 'update _link';
+  mkdir_p($uploaddir);
+  writestr("$uploaddir/sync_locallink$$", undef, $linkxml);
+  my $files = {};
+  $files->{'_link'} = BSSrcrep::addfile($projid, $packid, "$uploaddir/sync_locallink$$", '_link');
+  $addrev->($cgi, $projid, $packid, $files);
 }
 
 sub putconfig {
@@ -96,7 +119,7 @@ sub putprojectinfo {
 # sync functions
 #
 sub sync_locallink {
-  my ($cgi, $projid, $packid, $link) = @_;
+  my ($cgi, $projid, $packid, $link, $locked) = @_;
   my $files;
   eval {
     my $lastrev = BSRevision::getrev_local($projid, $packid);
@@ -104,23 +127,29 @@ sub sync_locallink {
   };
   my $linkxml = BSUtil::toxml($link, $BSXML::link);
   return if $files && scalar(keys %$files) == 1 && $files->{'_link'} eq Digest::MD5::md5_hex($linkxml);
-  local $cgi->{'comment'} = $cgi->{'comment'} || 'update _link';
-  mkdir_p($uploaddir);
-  writestr("$uploaddir/sync_locallink$$", undef, $linkxml);
-  $files = {};
-  $files->{'_link'} = BSSrcrep::addfile($projid, $packid, "$uploaddir/sync_locallink$$", '_link');
+  die("cannot update link of locked package\n") if $locked;
   print "scmsync: update _link in $projid/$packid\n";
-  $addrev->($cgi, $projid, $packid, $files);
+  putlocallink($cgi, $projid, $packid, $linkxml);
 }
 
 sub sync_package {
   my ($cgi, $projid, $packid, $pack, $info, $link) = @_;
 
+  my $oldpack = BSRevision::readpack_local($projid, $packid, 1);
+  my $locked;
+  $locked = 1 if $oldpack && $oldpack->{'lock'} && $oldpack->{'lock'}->{'enable'};
+
   if (!$pack) {
     return unless -e "$projectsdir/$projid.pkg/$packid.xml";
     print "scmsync: delete $projid/$packid\n";
-    eval { deletepackage($cgi, $projid, $packid) };
-    warn($@) if $@;
+    eval {
+      die("cannot delete locked package\n") if $locked;
+      deletepackage($cgi, $projid, $packid);
+    };
+    if ($@) {
+      warn("sync $packid: $@");
+      setserviceerror($projid, $packid, $@);
+    }
     $notify_repservers->('package', $projid, $packid);
     $notify->("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'}, "requestid" => $cgi->{'requestid'} });
     return;
@@ -130,15 +159,21 @@ sub sync_package {
   if (! -e "$projectsdir/$projid.pkg/$packid.xml" && -e "$projectsdir/$projid.pkg/$packid.rev.del") {
     print "scmsync: undelete $projid/$packid\n";
     eval { undeletepackage($cgi, $projid, $packid) };
-    warn($@) if $@;
+    warn("sync $packid: $@");
     $notify->("SRCSRV_UNDELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'} });
     $undeleted = 1;
   }
-  my $oldpack = BSRevision::readpack_local($projid, $packid, 1);
 
   if ($undeleted || !$oldpack || !BSUtil::identical($pack, $oldpack, $pack->{'scmsync'} ? { 'url' => 1 } : undef)) {
     print "scmsync: update $projid/$packid\n";
-    putpackage($cgi, $projid, $packid, $pack);
+    eval {
+      die("cannot update locked package\n") if $locked;
+      putpackage($cgi, $projid, $packid, $pack);
+    };
+    if ($@) {
+      warn("sync $packid: $@");
+      setserviceerror($projid, $packid, $@);
+    }
     my %except = map {$_ => 1} qw{title description devel person group url};
     if ($undeleted || !BSUtil::identical($oldpack, $pack, \%except)) {
       $notify_repservers->('package', $projid, $packid);
@@ -146,20 +181,28 @@ sub sync_package {
     $notify->($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
   }
 
-  if ($link) {
-    sync_locallink($cgi, $projid, $packid, $link);
-    return;
+  if ($link && !$pack->{'scmsync'}) {
+    eval { sync_locallink($cgi, $projid, $packid, $link, $locked) };
+    if ($@) {
+      warn("sync $packid: $@");
+      setserviceerror($projid, $packid, $@);
+    }
   }
 
-  my $needtrigger;
-  $needtrigger = 1 if $pack->{'scmsync'} && (!$oldpack || $undeleted || $oldpack->{'scmsync'} ne $pack->{'scmsync'});
-  if ($pack->{'scmsync'} && !$needtrigger && $info) {
-    my $lastrev = eval { BSRevision::getrev_local($projid, $packid) };
-    $needtrigger = 1 if $lastrev && $lastrev->{'comment'} && $lastrev->{'comment'} =~ /\[info=([0-9a-f]{1,128})\]$/ && $info ne $1;
-  }
-  if ($needtrigger) {
-    print "scmsync: trigger $projid/$packid\n";
-    $runservice->($cgi, $projid, $packid, $pack->{'scmsync'}, $pack->{'url'});
+  if ($pack->{'scmsync'}) {
+    my $needtrigger;
+    $needtrigger = 1 if !$oldpack || $undeleted || ($oldpack->{'scmsync'} || '') ne $pack->{'scmsync'};
+    if (!$needtrigger && $info) {
+      my $lastrev = eval { BSRevision::getrev_local($projid, $packid) };
+      if ($lastrev && $lastrev->{'comment'} && $lastrev->{'comment'} =~ /\[info=([0-9a-f]{1,128})\]$/) {
+        my $l = length($1) < length($info) ? length($1) : length($info);
+        $needtrigger = 1 if substr($info, 0, $l) ne substr($1, 0, $l);
+      }
+    }
+    if ($needtrigger) {
+      print "scmsync: trigger $projid/$packid\n";
+      $runservice->($cgi, $projid, $packid, $pack->{'scmsync'}, $pack->{'url'});
+    }
   }
 }
 
@@ -284,7 +327,7 @@ sub sync_project {
     }
   }
   sync_config($cgi, $projid, $config, $info) if defined $config;
-  sync_projectinfo($cgi, $projid, $info) if $info;
+  sync_projectinfo($cgi, $projid, $info) if $info || ! -e "$projectsdir/$projid.pkg/_project.rev";
 
   $notify_repservers->('resumeproject', $projid, undef, 'suspend for scmsync');
 

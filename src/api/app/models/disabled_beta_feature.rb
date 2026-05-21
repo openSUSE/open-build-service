@@ -14,10 +14,10 @@ end
 # Table name: disabled_beta_features
 #
 #  id         :integer          not null, primary key
-#  name       :string(255)      not null, indexed => [user_id]
+#  name       :string(255)      not null, uniquely indexed => [user_id]
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  user_id    :integer          indexed => [name]
+#  user_id    :integer          uniquely indexed => [name]
 #
 # Indexes
 #

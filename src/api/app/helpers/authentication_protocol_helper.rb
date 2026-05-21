@@ -1,8 +1,4 @@
 module AuthenticationProtocolHelper
-  def kerberos_mode?
-    CONFIG['kerberos_mode']
-  end
-
   def can_sign_up?
     return CONFIG['proxy_auth_register_page'].present? if ::Configuration.proxy_auth_mode_enabled?
 
@@ -10,7 +6,6 @@ module AuthenticationProtocolHelper
   end
 
   def can_register?
-    return false if kerberos_mode?
     return true if User.admin_session?
 
     begin
@@ -26,6 +21,14 @@ module AuthenticationProtocolHelper
       { url: CONFIG['proxy_auth_login_page'], options: { method: :post, enctype: 'application/x-www-form-urlencoded' } }
     else
       { url: session_path, options: { method: :post } }
+    end
+  end
+
+  def log_out_url
+    if ::Configuration.proxy_auth_mode_enabled?
+      CONFIG['proxy_auth_logout_page']
+    else
+      reset_session_path
     end
   end
 

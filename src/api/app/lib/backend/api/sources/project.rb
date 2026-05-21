@@ -17,7 +17,7 @@ module Backend
         # Writes the xml for attributes
         # @return [String]
         def self.write_attributes(project_name, user_login, content)
-          params = { meta: 1, user: user_login }
+          params = { meta: 1, user: user_login }.compact
           http_put(['/source/:project/_project/_attribute', project_name], data: content, params: params)
         end
 
@@ -41,6 +41,12 @@ module Backend
           http_put(['/source/:project/_meta', project_name], data: meta, params: options, accepted: %i[user comment requestid lowprio])
         end
 
+        # Returns the configuration of a project
+        # @return [String]
+        def self.configuration(project_name)
+          http_get(['/source/:project/_config', project_name])
+        end
+
         # Writes a Project configuration
         # @return [String]
         def self.write_configuration(project_name, configuration)
@@ -53,10 +59,44 @@ module Backend
           http_get(['/source/:project/_keyinfo', project_name], params: { withsslcert: 1, donotcreatecert: 1 })
         end
 
+        # Returns the pubkey file for the project
+        # @return [String]
+        def self.pubkey(project_name, options = {})
+          http_get(['/source/:project/_pubkey', project_name], params: options, accepted: %i[rev])
+        end
+
+        # Deletes the pubkey file for the project
+        # @return [String]
+        def self.delete_pubkey(project_name, options = {})
+          http_delete(['/source/:project/_pubkey', project_name], params: options, accepted: %i[user comment meta])
+        end
+
         # Returns the patchinfo for the project
         # @return [String]
         def self.patchinfo(project_name)
           http_get(['/source/:project/_patchinfo', project_name])
+        end
+
+        # Copy an entire project
+        def self.copy(project_name, options = {})
+          http_post(['/source/:project', project_name],
+                    defaults: { cmd: :copy }, params: options,
+                    accepted: %i[user comment oproject withbinaries withhistory makeolder makeoriginolder noservice resign])
+        end
+
+        # Create a key for a project
+        def self.createkey(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :createkey }, params: options, accepted: %i[user comment])
+        end
+
+        # Extend a key for a project
+        def self.extendkey(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :extendkey }, params: options, accepted: %i[user comment days])
+        end
+
+        # Freeze a project link
+        def self.freezelink(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :freezelink }, params: options, accepted: %i[user comment requestid])
         end
 
         # Moves the source project to the target
@@ -68,13 +108,13 @@ module Backend
         # Commits the request for the project
         def self.commit(project_name, user_login, options = {})
           http_post(['/source/:project/_project', project_name],
-                    defaults: { cmd: :commit, user: user_login },
+                    defaults: { cmd: :commit, user: user_login }.compact,
                     params: options, accepted: %i[requestid rev comment])
         end
 
         # Returns the list of packages inside the project
-        def self.packages(project_name)
-          http_get(['/source/:project', project_name])
+        def self.packages(project_name, options = {})
+          http_get(['/source/:project', project_name], params: options, accepted: %i[view parse])
         end
 
         # Returns the list of projects

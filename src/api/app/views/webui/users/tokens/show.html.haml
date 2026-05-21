@@ -5,6 +5,9 @@
   .card-body
     %h3.mb-3
       = @pagetitle
+      - unless @token.enabled
+        .fas.fa-ban.text-danger
+        %span.text-warning Disabled
 
     .row
       .col-12.col-md-10.col-lg-8
@@ -46,6 +49,15 @@
                 = link_to(@token.executor.login, user_path(@token.executor))
 
         - if @token.type == 'Token::Workflow'
+          - if (unique_repository = @token.workflow_runs.where.not(response_url: nil).first)
+            .row
+              .col
+                .mb-3
+                  %label.fw-bold
+                    Workflow Repository:
+                  %span
+                    = link_to unique_repository.repository_full_name, unique_repository.repository_url
+
           .row
             .col
               .mb-3

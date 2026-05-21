@@ -1,0 +1,19 @@
+:ruby
+  if viewed_object == 'User'
+    info_text = "<p>Filter the requests by how you are involved in them:</p>
+                 <p><b>To: </b>The request is using any of the projects/packages you are involved in as target</p>
+                 <p><b>From: </b>The request is using any of the projects/packages you are involved in as source</p>
+                 <p><b>Review: </b>You or any of the projects/packages you are involved in is requested to review</p>"
+  elsif viewed_object == 'the Group'
+    info_text = "<p>Filter the requests by how the groups is involved in them:</p>
+                 <p><b>To: </b>The request is using any of the projects/packages the group is involved in as target</p>
+                 <p><b>From: </b>The request is using any of the projects/packages the group is involved in as source</p>
+                 <p><b>Review: </b>You or any of the projects/packages the group is involved in is requested to review</p>"
+  else
+    info_text = "<p>Filter the requests by how this project/package is involved in them:</p>
+                 <p><b>To: </b>The request is using this project/package as target</p>
+                 <p><b>From: </b>The request is using this project/package as source</p>
+                 <p><b>Review: </b>This project/package is requested to review</p>"
+  end
+
+= render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: info_text }

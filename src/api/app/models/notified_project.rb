@@ -11,8 +11,8 @@ end
 #
 #  id              :bigint           not null, primary key
 #  created_at      :datetime         not null
-#  notification_id :bigint           not null, indexed, indexed => [project_id]
-#  project_id      :integer          not null, indexed => [notification_id], indexed
+#  notification_id :bigint           not null, indexed, uniquely indexed => [project_id]
+#  project_id      :integer          not null, uniquely indexed => [notification_id], indexed
 #
 # Indexes
 #

@@ -3,7 +3,7 @@ class ReportsModalComponentPreview < ViewComponent::Preview
   def user_reportable_as_admin
     reportable = User.last
     User.where.not(id: User.admins).take(3).each do |user|
-      Report.new(reportable:, user:).save!
+      Report.new(reportable:, reporter: user).save!
     end
     render(ReportsNoticeComponent.new(reportable:, user: User.admins.first))
   end
@@ -12,7 +12,7 @@ class ReportsModalComponentPreview < ViewComponent::Preview
   def comment_reportable_as_admin
     reportable = Comment.last
     User.where.not(id: User.admins).take(3).each do |user|
-      Report.new(reportable:, user:).save!
+      Report.new(reportable:, reporter: user).save!
     end
     render(ReportsNoticeComponent.new(reportable:, user: User.admins.first))
   end

@@ -6,17 +6,19 @@ module Webui::NotificationHelper
 
   NOTIFICATION_ICON = {
     'BsRequest' => 'fa-code-pull-request', 'Comment' => 'fa-comments',
-    'Package' => 'fa-xmark text-danger',
+    'Package' => 'fa-archive',
     'Report' => 'fa-flag', 'Decision' => 'fa-clipboard-check',
     'Appeal' => 'fa-hand', 'WorkflowRun' => 'fa-book-open',
-    'Group' => 'fa-people-group'
+    'Group' => 'fa-people-group', 'Token::Workflow' => 'fa-key',
+    'User' => 'fa-crown'
   }.freeze
 
   NOTIFICATION_TITLE = {
     'BsRequest' => 'Request notification', 'Comment' => 'Comment notification',
     'Package' => 'Package notification', 'Report' => 'Report notification',
     'Decision' => 'Report decision', 'Appeal' => 'Decision appeal',
-    'WorkflowRun' => 'Workflow run', 'Group' => 'Group members changed'
+    'WorkflowRun' => 'Workflow run', 'Group' => 'Group members changed',
+    'Token::Workflow' => 'Token membership update'
   }.freeze
 
   def truncate_to_first_new_line(text)
@@ -27,32 +29,11 @@ module Webui::NotificationHelper
     text.truncate(truncation_index)
   end
 
-  def avatars(notification)
-    capture do
-      tag.ul(class: 'list-inline d-flex flex-row-reverse avatars m-0') do
-        hidden_avatars(notification)
-
-        avatars_to_display(notification.avatar_objects).each do |avatar_object|
-          concat(
-            tag.li(class: 'list-inline-item') do
-              case avatar_object.class.name
-              when 'User', 'Group'
-                render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
-              when 'Package'
-                tag.span(class: 'fa fa-archive text-warning rounded-circle bg-body-secondary border simulated-avatar', title: "Package #{avatar_object.project}/#{avatar_object}")
-              when 'Project'
-                tag.span(class: 'fa fa-cubes text-secondary rounded-circle bg-body-secondary border simulated-avatar', title: "Project #{avatar_object}")
-              end
-            end
-          )
-        end
-      end
-    end
-  end
-
   def notification_icon(notification)
     if notification.event_type.in?(['Event::RelationshipCreate', 'Event::RelationshipDelete'])
       tag.i(class: %w[fas fa-user-tag], title: 'Relationship notification')
+    elsif notification.event_type.in?(['Event::BuildFail'])
+      tag.i(class: %w[fas fa-xmark text-danger])
     elsif NOTIFICATION_ICON[notification.notifiable_type].present?
       tag.i(class: ['fas', NOTIFICATION_ICON[notification.notifiable_type]], title: NOTIFICATION_TITLE[notification.notifiable_type])
     end
@@ -60,6 +41,8 @@ module Webui::NotificationHelper
 
   def description(notification)
     case notification.event_type
+    when 'Event::BuildFail'
+      description_for_build_failure(notification)
     when 'Event::ReportForUser'
       description_for_user_report(notification)
     when 'Event::ReportForComment'
@@ -69,20 +52,14 @@ module Webui::NotificationHelper
     end
   end
 
-  private
-
-  def number_of_hidden_avatars(avatar_objects)
-    [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
-  end
-
-  def hidden_avatars(notification)
-    return unless number_of_hidden_avatars(notification.avatar_objects).positive?
+  def hidden_avatars(avatar_objects)
+    return unless number_of_hidden_avatars(avatar_objects).positive?
 
     concat(
       tag.li(class: 'list-inline-item') do
-        tag.span(number_of_hidden_avatars(notification.avatar_objects).to_s,
+        tag.span(number_of_hidden_avatars(avatar_objects).to_s,
                  class: 'rounded-circle bg-body-secondary border avatars-counter',
-                 title: "#{number_of_hidden_avatars(notification.avatar_objects)} more users involved")
+                 title: "#{number_of_hidden_avatars(avatar_objects)} more users involved")
       end
     )
   end
@@ -91,8 +68,24 @@ module Webui::NotificationHelper
     avatar_objects.first(MAXIMUM_DISPLAYED_AVATARS).reverse
   end
 
+  private
+
+  def description_for_build_failure(notification)
+    payload = notification.event_payload
+
+    safe_join([
+                content_tag(:div, "Package: #{payload['project']} / #{payload['package']}"),
+                content_tag(:div, "Repository: #{payload['repository']} / #{payload['arch']}"),
+                content_tag(:div, "Build Reason: #{payload['reason']}")
+              ])
+  end
+
+  def number_of_hidden_avatars(avatar_objects)
+    [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
+  end
+
   def description_for_user_report(notification)
-    reporter = notification.notifiable.user
+    reporter = notification.notifiable.reporter
     accused = notification.notifiable.reportable
     reports_on_comments = count_reports_on_comments(accused) if accused
     reports_on_user = count_reports_on_user(accused) if accused
@@ -101,7 +94,7 @@ module Webui::NotificationHelper
   end
 
   def description_for_comment_report(notification)
-    reporter = notification.notifiable.user
+    reporter = notification.notifiable.reporter
     accused = notification.notifiable.reportable&.user
     reports_on_user = count_reports_on_user(accused) if accused
     reports_on_comments = count_reports_on_comments(accused) if accused

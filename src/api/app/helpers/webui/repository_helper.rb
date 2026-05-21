@@ -29,7 +29,7 @@ module Webui::RepositoryHelper
         link_to('javascript:;', title: title(flag, is_flag_set_by_user), class: 'flag-popup', data: data) do
           tag.span(class: 'text-nowrap current_flag_state') do
             tag.i(nil, class: icon_class(flag, is_flag_set_by_user)) +
-              (tag.i(nil, class: 'fas fa-circle text-gray-500 text-40p-size') if is_flag_set_by_user)
+              (tag.i(nil, class: 'fas fa-circle text-custom-gray-500 text-40p-size') if is_flag_set_by_user)
           end
         end
     end

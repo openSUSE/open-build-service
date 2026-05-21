@@ -13,11 +13,13 @@
     - if review.for_user?
       = user_with_realname_and_icon(review.by_user, short: true, no_icon: true)
     - elsif review.for_group?
-      = link_to(review.by_group, group_path(Group.find_by(title: review.by_group)))
+      - modal_id = "review-group-members-#{review.id}-modal"
+      = link_to(review.by_group, '#', role: 'button', data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}" })
+      = render partial: 'webui/request/beta_show_tabs/review_group_members_modal', locals: { review:, modal_id: }
     - elsif review.for_package?
       = project_or_package_link(project: review.by_project, package: review.by_package, short: true)
     - elsif review.for_project?
       = project_or_package_link(project: review.by_project, short: true)
-    - if (review.accepted? || review.declined?) && !review.for_user?
+    - if (review.accepted? || review.declined?) && review.reviewer && !review.for_user?
       by
       = link_to(review.reviewer, user_path(User.find_by(login: review.reviewer)))

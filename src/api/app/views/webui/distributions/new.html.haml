@@ -29,7 +29,7 @@
                       \:
                     - variants.each do |variant|
                       = form_tag(toggle_project_distributions_path, remote: true, id: "distribution-#{variant.id}-form") do
-                        - checked = @project.has_distribution(variant.project, variant.repository) ? 'checked' : nil
+                        - checked = @project.distribution?(variant.project, variant.repository) ? 'checked' : nil
                         = render partial: 'variant', object: variant, locals: { checked: checked }
 - content_for :ready_function do
   toggleDistribution();

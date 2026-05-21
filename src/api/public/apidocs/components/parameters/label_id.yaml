@@ -1,0 +1,7 @@
+in: path
+name: label_id
+schema:
+  type: integer
+required: true
+description: Id of the label.
+example: 42

@@ -28,12 +28,14 @@ get:
           - issues
           - productlist
           - verboseproductlist
+          - versions
       description: |
         Specify which sections should be included in the packages list.
 
         * `issues`: Show all tracked issues for all the packages.
         * `productlist`: Show all contained products.
         * `verboseproductlist`: List all contained products with detailed information about the product.
+        * `versions`: List local and upstream versions for all the packages.
 
         Example of a result when `issues` is selected:
         ```
@@ -99,6 +101,24 @@ get:
             <version>20230108</version>
           </product>
         </productlist>
+        ```
+
+        Example of a result when `versions` is selected:
+        ```
+        <project name="openSUSE:Factory">
+          <package project="openSUSE:Factory" name="apache2">
+            <version type="local">2.4.43</version>
+            <version type="upstream">2.4.66</version>
+          </package>
+          <package project="openSUSE:Factory" name="000package">
+            <version type="local">2.71.82</version>
+            <version type="upstream"/>
+          </package>
+          <package project="openSUSE:Factory" name="package_a">
+            <version type="local"/>
+            <version type="upstream">3.14.15</version>
+          </package>
+        </project>
         ```
   responses:
     '200':

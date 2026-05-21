@@ -130,7 +130,7 @@ module HasRelationships
     end
 
     def find!(id)
-      User.find_by_login!(id)
+      User.not_deleted.find_by!(login: id)
     end
   end
 
@@ -161,12 +161,7 @@ module HasRelationships
       group = Group.find_by_title(id)
       return group if group
 
-      # check with LDAP
-      raise SaveError, "unknown group '#{id}'" unless CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-      raise SaveError, "unknown group '#{id}' on LDAP server" if UserLdapStrategy.find_group_with_ldap(id).blank?
-
-      logger.debug "Find and Create group '#{id}' from LDAP"
-      Group.create!(title: id)
+      raise SaveError, "unknown group '#{id}'"
     end
   end
 

@@ -1,6 +1,6 @@
 class AttribValue < ApplicationRecord
   acts_as_list scope: :attrib
-  belongs_to :attrib, optional: true
+  belongs_to :attrib, optional: false
 
   after_initialize :set_default_value
   before_validation :universal_newlines
@@ -46,5 +46,5 @@ end
 #
 # Foreign Keys
 #
-#  attrib_values_ibfk_1  (attrib_id => attribs.id)
+#  fk_rails_...  (attrib_id => attribs.id) ON DELETE => cascade
 #

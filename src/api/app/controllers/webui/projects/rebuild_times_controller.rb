@@ -98,7 +98,7 @@ module Webui
 
       def set_packages
         @packages = []
-        @project.packages.order_by_name.pluck(:name, :updated_at).each do |p|
+        @project.packages.pluck(:name, :updated_at).each do |p|
           @packages << [p[0], p[1].to_i.to_s] # convert Time to epoch ts and then to string
         end
         @ipackages = @project.expand_all_packages.find_all { |ip| @packages.pluck(0).exclude?(ip[0]) }

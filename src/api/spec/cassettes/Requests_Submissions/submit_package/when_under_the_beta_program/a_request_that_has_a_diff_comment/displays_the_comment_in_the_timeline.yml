@@ -738,4 +738,156 @@ http_interactions:
 
 '
   recorded_at: Tue, 19 Mar 2024 13:45:51 GMT
-recorded_with: VCR 6.2.0
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>Lilies of the Field</title>
+          <description>Labore ut distinctio voluptatibus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home mr_receiver' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:mr_receiver' does not exist</summary>
+          <details>404 project 'home:mr_receiver' does not exist</details>
+        </status>
+  recorded_at: Mon, 19 May 2025 10:04:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>Cover Her Face</title>
+          <description>Similique dolore et modi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home mr_receiver' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:mr_receiver' does not exist</summary>
+          <details>404 project 'home:mr_receiver' does not exist</details>
+        </status>
+  recorded_at: Mon, 19 May 2025 10:11:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>Many Waters</title>
+          <description>Porro hic unde voluptatum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home mr_receiver' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:mr_receiver' does not exist</summary>
+          <details>404 project 'home:mr_receiver' does not exist</details>
+        </status>
+  recorded_at: Mon, 19 May 2025 10:12:56 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?cacheonly=1&cmd=diff&expand=1&nodiff=1&opackage=Quebec&oproject=home:mr_receiver&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - fc4ab92f-0fcd-445d-a896-58ddbec13b7f
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home madam_submitter' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:madam_submitter' does not exist</summary>
+          <details>404 project 'home:madam_submitter' does not exist</details>
+        </status>
+  recorded_at: Mon, 19 May 2025 10:14:57 GMT
+recorded_with: VCR 6.3.1

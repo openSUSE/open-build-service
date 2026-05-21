@@ -12,6 +12,19 @@
       = form.label(:report_bug_url, 'Report Bug URL:')
       = form.url_field(:report_bug_url, class: 'form-control')
   .mb-3
+    = render partial: 'webui/shared/search_box', locals: { html_id: 'anitya_distribution_search',
+                                                           html_name: 'project[anitya_distribution_name]',
+                                                           label: 'Anitya Distribution Name:',
+                                                           data: { source: autocomplete_anitya_distributions_path },
+                                                           required: false,
+                                                           value: project.anitya_distribution_name }
+    .form-text.text-muted
+      Check the
+      = link_to 'Version Tracking Guide',
+        'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-versiontracking',
+        target: '_blank',
+        rel: 'noopener'
+  .mb-3
     = form.label(:description, 'Description:')
     = render WriteAndPreviewComponent.new(form: form, preview_message_url: project_preview_description_path,
                                         message_body_param: 'project[description]',

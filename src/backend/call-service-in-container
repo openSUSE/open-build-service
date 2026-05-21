@@ -91,7 +91,8 @@ case "$COMMAND" in
   */obs_scm_bridge)
     USE_SERVICE_CONFIG="scm-bridge"
     SCM_COMMAND=1
-    WITH_NET="1"
+    WITH_NET=1
+    SHARE_CA_CERTIFICATES=1
   ;;
 esac
 
@@ -160,6 +161,9 @@ echo "export OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL=\"$OBS_SERVICE_BUNDLE_GEMS_MIRRO
 echo "export OBS_SERVICE_DAEMON=\"$OBS_SERVICE_DAEMON\""                                   >> "$MOUNTDIR/$INNERSCRIPT"
 echo "export OBS_SERVICE_USER=\"$OBS_SERVICE_USER\""                                       >> "$MOUNTDIR/$INNERSCRIPT"
 echo "export OBS_SERVICE_PASS=\"$OBS_SERVICE_PASS\""                                       >> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_PROJECT=\"$OBS_SERVICE_PROJECT\""                                 >> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_PACKAGE=\"$OBS_SERVICE_PACKAGE\""                                 >> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_NAME=\"$OBS_NAME\""                                                       >> "$MOUNTDIR/$INNERSCRIPT"
 echo "cd $INNERSRCDIR"                                                                     >> "$MOUNTDIR/$INNERSCRIPT"
 echo -n "${INNERSCRIPT}.command"                                                           >> "$MOUNTDIR/$INNERSCRIPT"
 
@@ -172,13 +176,15 @@ echo "echo Running ${COMMAND[@]} --outdir $INNEROUTDIR" >> "$MOUNTDIR/${INNERSCR
 
 if [ "$WITH_NET" != "1" ] ; then
   printlog "Using docker without network"
-  CONTAINER_OPTS_NET="--net=none"
+  CONTAINER_NETWORK_OPT="--network none"
 else
   printlog "Using docker with network"
+  CONTAINER_NETWORK_OPT=`obs_admin --query-config container_network_opt`
 fi
 
 CONTAINER_VOLUMES="-v $OUTEROUTDIR:$INNEROUTDIR -v $OUTERSRCDIR:$INNERSRCDIR -v $OUTERHOMEDIR:$INNERHOMEDIR -v $MOUNTDIR$INNERSCRIPTDIR:$INNERSCRIPTDIR:ro"
 [ -n "$USE_SERVICE_CONFIG" ] && CONTAINER_VOLUMES="$CONTAINER_VOLUMES -v /etc/obs/services/$USE_SERVICE_CONFIG:/etc/obs/services/$USE_SERVICE_CONFIG:ro"
+[ -n "$SHARE_CA_CERTIFICATES" ] && CONTAINER_VOLUMES="$CONTAINER_VOLUMES -v /var/lib/ca-certificates:/var/lib/ca-certificates:ro"
 JAILED=""
 
 if [ $SCM_COMMAND -eq 1 ];then
@@ -213,7 +219,7 @@ fi
 trap "cleanup_container timeout" 15
 
 # run jailed process
-CONTAINER_RUN_CMD="podman run $CONTAINER_ROOT_OPT --userns keep-id $CONTAINER_OPTS_NET $LINK --rm --name $CONTAINER_ID $CONTAINER_CUSTOM_OPT $CONTAINER_VOLUMES $DEBUG_OPTIONS $CONTAINER_IMAGE $INNERSCRIPT"
+CONTAINER_RUN_CMD="podman run $CONTAINER_ROOT_OPT --userns keep-id $CONTAINER_NETWORK_OPT $LINK --rm --name $CONTAINER_ID $CONTAINER_CUSTOM_OPT $CONTAINER_VOLUMES $DEBUG_OPTIONS $CONTAINER_IMAGE $INNERSCRIPT"
 printlog "CONTAINER_RUN_CMD: '$CONTAINER_RUN_CMD'"
 CMD_OUT=$(${CONTAINER_RUN_CMD} 2>&1)
 RET_ERR=$?

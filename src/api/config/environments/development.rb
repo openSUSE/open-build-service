@@ -36,13 +36,12 @@ OBSApi::Application.configure do
   config.action_controller.perform_caching = true
 
   # Use memcache for cache/session storage
-  if CONFIG['memcached_host']
-    config.cache_store = :mem_cache_store, CONFIG['memcached_host']
-    config.session_store = :mem_cache_store, CONFIG['memcached_host']
-  else
-    config.cache_store = :mem_cache_store
-    config.session_store = :mem_cache_store
-  end
+  config.cache_store = if CONFIG['memcached_host']
+                         [:mem_cache_store, CONFIG['memcached_host']]
+                       else
+                         :mem_cache_store
+                       end
+  config.session_store :cache_store
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
@@ -105,7 +104,6 @@ OBSApi::Application.configure do
   # config.action_cable.disable_request_forgery_protection = true
 end
 
-CONFIG['extended_backend_log'] = true
 CONFIG['response_schema_validation'] = true
 
 CONFIG['frontend_host'] = 'localhost'

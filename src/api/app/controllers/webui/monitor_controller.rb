@@ -6,6 +6,8 @@ class Webui::MonitorController < Webui::WebuiController
 
   DEFAULT_SEARCH_RANGE = 24
 
+  HOURS_IN_ONE_YEAR = 8760
+
   def index
     if request.post? && !params[:project].nil? && Project.valid_name?(params[:project])
       redirect_to project: params[:project]
@@ -75,8 +77,6 @@ class Webui::MonitorController < Webui::WebuiController
   def old; end
 
   private
-
-  HOURS_IN_ONE_YEAR = 8760
 
   def status_history(key, range)
     user_range = [HOURS_IN_ONE_YEAR, range.to_i].min

@@ -1,6 +1,7 @@
 class LabelTemplatePolicy < ApplicationPolicy
   def index?
     return false unless Flipper.enabled?(:labels, @user)
+    return true if @user.admin?
     return false unless record.project.maintainers.include?(@user)
 
     true

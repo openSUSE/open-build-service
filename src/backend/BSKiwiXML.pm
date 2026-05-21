@@ -293,16 +293,22 @@ our $kiwidesc = [
 		    'addarch',
 		    'removearch',
 		    'onlyarch',
+		    'version',
 	     ]],
 	  ],
 	 [[ 'repopackages' =>
 	     [[ 'repopackage' =>
 		'name',
 		'addarch', 'arch', 'baselibs_arch', 
-		'forcearch','removearch', 'onlyarch', 'source', 'script', 'medium', 'module', 'priority'
+		'forcearch','removearch', 'onlyarch', 'version', 'source', 'script', 'medium', 'module', 'priority'
 	     ]],
 	 ]],
-	  [ 'driverupdate' => 
+	  [ 'driverupdate' =>
+	     [],
+             'moduleorder',
+             [[ 'config' =>
+                'key', 'value'
+             ]],
 	     [[ 'target' =>
 		'arch',
 		'_content'

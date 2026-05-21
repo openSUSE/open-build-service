@@ -1,5 +1,5 @@
-- if !project.is_maintenance_incident? && release_targets.present?
+- if !project.maintenance_incident? && release_targets.present?
   %li.nav-item
     = link_to(new_project_maintenance_incident_request_path(project), class: 'nav-link', title: 'Submit as Update') do
-      %i.fas.fa-share-square.fa-lg.me-2
+      %i.fas.fa-share-square.fa-fw.me-2
       %span.nav-item-name Submit as Update

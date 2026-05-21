@@ -5,12 +5,14 @@ require 'api_error'
 
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
+
   protect_from_forgery
 
   include ActionController::ImplicitRender
   include ActionController::MimeResponds
   include FlipperFeature
 
+  include Authenticator
   include RescueHandler
   include RescueAuthorizationHandler
   include SetCurrentRequestDetails
@@ -20,13 +22,8 @@ class ApplicationController < ActionController::Base
 
   @skip_validation = false
 
-  # Each request starts out with the nobody user set.
-  before_action :set_nobody
-
   before_action :add_api_version
 
-  # skip the filter for the user stuff
-  before_action :extract_user
   before_action :set_influxdb_data
   before_action :shutup_rails
   before_action :validate_params
@@ -35,28 +32,13 @@ class ApplicationController < ActionController::Base
   before_action :validate_xml_request
   after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
 
-  delegate :extract_user,
-           :extract_user_public,
-           :require_login,
-           :require_admin,
-           to: :authenticator
-
-  def authenticator
-    @authenticator ||= Authenticator.new(request, session, response)
-  end
-
   def pundit_user
     User.session
   end
 
+  # FIXME: This is only a helper class for User authorization. This should happen in User.
   def permissions
-    authenticator.user_permissions
-  end
-
-  # TODO: There are currently two ways of accessing the logged in user: User.curent and user
-  #       We should pick only one of them to use.
-  def user
-    authenticator.http_user
+    @user_permissions ||= Suse::Permission.new(User.possibly_nobody)
   end
 
   # Method for mapping actions in a controller to (XML) schemas based on request
@@ -95,32 +77,16 @@ class ApplicationController < ActionController::Base
       next if key == 'xmlhash' # perfectly fine
       raise InvalidParameterError, "Parameter #{key} has non String class #{value.class}" unless value.is_a?(String)
     end
-    true
-  end
-
-  def require_valid_project_name
-    required_parameters :project
-    valid_project_name!(params[:project])
-    # important because otherwise the filter chain is stopped
-    true
   end
 
   def require_scmsync_host_check
     scm_cookie = request.env['HTTP_X_SCM_BRIDGE_COOKIE']
     raise MissingParameterError, 'X-SCM_BRIDGE_COOKIE is not set' if scm_cookie.blank?
-    raise MissingParameterError, 'Incorrect scm bridge cookie' if scm_cookie != (CONFIG['scm_bridge_cookie']).to_s
+    raise MissingParameterError, 'Incorrect scm bridge cookie' if scm_cookie != CONFIG['scm_bridge_cookie'].to_s
   end
 
   def add_api_version
-    response.headers['X-Opensuse-APIVersion'] = (CONFIG['version']).to_s
-  end
-
-  def require_parameter!(parameter)
-    raise MissingParameterError, "Required Parameter #{parameter} missing" unless params.include?(parameter.to_s)
-  end
-
-  def required_parameters(*parameters)
-    parameters.each { |parameter| require_parameter!(parameter) }
+    response.headers['X-Opensuse-APIVersion'] = CONFIG['version'].to_s
   end
 
   def gather_exception_defaults(opt)
@@ -139,13 +105,7 @@ class ApplicationController < ActionController::Base
                 400
               end
 
-    if @status == 401 && !response.headers['WWW-Authenticate']
-      response.headers['WWW-Authenticate'] = if CONFIG['kerberos_mode']
-                                               'Negotiate'
-                                             else
-                                               'basic realm="API login"'
-                                             end
-    end
+    response.headers['WWW-Authenticate'] = 'basic realm="API login"' if @status == 401 && !response.headers['WWW-Authenticate']
     if @status == 404
       @summary ||= 'Not found'
       @errorcode ||= 'not_found'
@@ -259,19 +219,47 @@ class ApplicationController < ActionController::Base
 
   private
 
+  # A before_action to demand authentication
+  def require_login
+    return if User.session
+
+    render_error status: 401, errorcode: 'authentication_required', message: 'Authentication Required'
+  end
+
+  # A before_action to demand the Admin role
+  def require_admin
+    return if User.possibly_nobody.admin?
+
+    render_error status: 403, errorcode: 'admin_required', message: 'Admin Privileges Required'
+  end
+
   def shutup_rails
     Rails.cache.silence! unless Rails.env.development?
   end
 
-  def set_nobody
-    User.session = User.find_nobody!
+  def spider_request?
+    return request.bot? if Rails.env.production?
+
+    false
   end
 
   def set_influxdb_data
-    InfluxDB::Rails.current.tags = {
-      beta: User.possibly_nobody.in_beta?,
+    in_beta = User.possibly_nobody.in_beta?
+
+    tags = {
+      beta: in_beta,
       anonymous: !User.session,
-      interface: :api
+      spider: spider_request?,
+      interconnect: false,
+      interface: :api,
+      host: request.headers['Host'] || :unknown
     }
+    if in_beta
+      Flipper.preload_all.map(&:name).each do |feature_name|
+        tags[:"beta_#{feature_name}"] = Flipper.enabled?(feature_name.to_sym, User.possibly_nobody)
+      end
+    end
+
+    InfluxDB::Rails.current.tags = tags
   end
 end

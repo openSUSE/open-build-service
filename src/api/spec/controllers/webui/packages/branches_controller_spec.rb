@@ -79,7 +79,7 @@ RSpec.describe Webui::Packages::BranchesController, :vcr do
       end
     end
 
-    context 'with currrent revision parameter' do
+    context 'with current revision parameter' do
       let(:source_package) { create(:package_with_revisions, name: 'package_with_revisions', project: source_project, revision_count: 4) }
       let(:url) { "#{CONFIG['source_url']}/source/#{source_package.project}/#{source_package}?expand=1&rev=2" }
       let(:current_revision) do

@@ -8,13 +8,26 @@ module GiteaAPI
       HTTP_FORBIDDEN_CODE = 403
       HTTP_NOT_FOUND_CODE = 404
 
-      GiteaApiError = Class.new(StandardError)
-      BadRequestError = Class.new(GiteaApiError)
-      UnauthorizedError = Class.new(GiteaApiError)
-      ForbiddenError = Class.new(GiteaApiError)
-      NotFoundError = Class.new(GiteaApiError)
-      ConnectionError = Class.new(GiteaApiError)
-      ApiError = Class.new(GiteaApiError)
+      class GiteaApiError < StandardError
+      end
+
+      class BadRequestError < GiteaApiError
+      end
+
+      class UnauthorizedError < GiteaApiError
+      end
+
+      class ForbiddenError < GiteaApiError
+      end
+
+      class NotFoundError < GiteaApiError
+      end
+
+      class ConnectionError < GiteaApiError
+      end
+
+      class ApiError < GiteaApiError
+      end
 
       def initialize(api_endpoint:, token:)
         @api_endpoint = "#{api_endpoint}/api/v1/"

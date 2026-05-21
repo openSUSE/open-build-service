@@ -6,7 +6,7 @@ class Workflow::Step::SetFlags < Workflow::Step
   validate :validate_flags
 
   def call
-    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
+    return if workflow_run.closed_merged_pull_request? || workflow_run.reopened_pull_request? || workflow_run.unlabeled_pull_request?
     return unless valid?
 
     set_flags
@@ -50,6 +50,7 @@ class Workflow::Step::SetFlags < Workflow::Step
   end
 
   def validate_flags
+    return if flags.blank?
     return if flags.all? { |flag| (REQUIRED_FLAG_KEYS - flag.keys).empty? }
 
     required_flag_keys_sentence ||= REQUIRED_FLAG_KEYS.map { |key| "'#{key}'" }.to_sentence
@@ -58,29 +59,12 @@ class Workflow::Step::SetFlags < Workflow::Step
 
   # TODO: Totally duplicated from Workflow::Step. Remove the duplication by using a service instead for all steps depending on this method.
   def target_project_name(project_name:)
-    return project_name if scm_webhook.push_event? || scm_webhook.tag_push_event?
+    return project_name if workflow_run.push_event? || workflow_run.tag_push_event?
 
-    return nil unless scm_webhook.pull_request_event?
+    return nil unless workflow_run.pull_request_event?
 
-    pr_subproject_name = scm_webhook.payload[:target_repository_full_name]&.tr('/', ':')
+    pr_subproject_name = workflow_run.target_repository_full_name&.tr('/', ':')
 
-    "#{project_name}:#{pr_subproject_name}:PR-#{scm_webhook.payload[:pr_number]}"
-  end
-
-  # TODO: Totally duplicated from Workflow::Step. Remove the duplication by using a service instead for all steps depending on this method.
-  def target_package_name(package_name:, short_commit_sha: false)
-    case
-    when scm_webhook.pull_request_event?
-      package_name
-    when scm_webhook.push_event?
-      commit_sha = scm_webhook.payload[:commit_sha]
-      if short_commit_sha
-        "#{package_name}-#{commit_sha.slice(0, SHORT_COMMIT_SHA_LENGTH)}"
-      else
-        "#{package_name}-#{commit_sha}"
-      end
-    when scm_webhook.tag_push_event?
-      "#{package_name}-#{scm_webhook.payload[:tag_name]}"
-    end
+    "#{project_name}:#{pr_subproject_name}:PR-#{workflow_run.pr_number}"
   end
 end

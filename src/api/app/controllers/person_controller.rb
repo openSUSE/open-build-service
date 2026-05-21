@@ -5,10 +5,11 @@ class PersonController < ApplicationController
   validate_action register: { method: :put, response: :status }
   validate_action register: { method: :post, response: :status }
 
-  skip_before_action :extract_user, only: %i[command register]
-  skip_before_action :require_login, only: %i[command register]
-
+  # We are signing up people, can't require them to login
+  skip_before_action :extract_user, :require_login, :check_anonymous_access, only: %i[command register]
   before_action :set_user, only: %i[post_userinfo change_my_password watchlist put_watchlist]
+  before_action :user_permission_check, only: [:post_userinfo]
+  before_action :require_admin, only: [:post_userinfo], if: -> { %w[delete lock].include?(params[:cmd]) }
 
   def show
     @list = if params[:prefix]
@@ -21,15 +22,11 @@ class PersonController < ApplicationController
   end
 
   def command
-    if params[:cmd] == 'register'
-      internal_register
-      return
-    end
-    raise UnknownCommandError, "Allowed command is 'register'"
+    internal_register
   end
 
   def userinfo
-    user = User.find_by_login!(params[:login])
+    user = User.not_deleted.find_by!(login: params[:login])
 
     if user == User.session
       logger.debug "Generating user info for logged in user #{User.session.login}"
@@ -41,12 +38,6 @@ class PersonController < ApplicationController
   end
 
   def post_userinfo
-    authorize @user, :update?
-
-    login = params[:login]
-    # just for permission checking
-    User.find_by_login!(login)
-
     if params[:cmd] == 'change_password'
       login ||= User.session.login
       password = request.raw_post.to_s.chomp
@@ -60,18 +51,14 @@ class PersonController < ApplicationController
       return
     end
     if params[:cmd] == 'lock'
-      return unless require_admin
-
-      user = User.find_by_login!(params[:login])
+      user = User.not_deleted.find_by!(login: params[:login])
       user.lock!
       render_ok
       return
     end
     if params[:cmd] == 'delete'
       # maybe we should allow the users to delete themself?
-      return unless require_admin
-
-      user = User.find_by_login!(params[:login])
+      user = User.not_deleted.find_by!(login: params[:login])
       user.delete!
       render_ok
       return
@@ -83,7 +70,7 @@ class PersonController < ApplicationController
     login = params[:login]
     user = User.find_by_login(login) if login
 
-    unless ::Configuration.accounts_editable?(user)
+    unless ::Configuration.accounts_editable?
       render_error(status: 403, errorcode: 'change_userinfo_no_permission',
                    message: "no permission to change userinfo for user #{user.login}")
       return
@@ -117,7 +104,7 @@ class PersonController < ApplicationController
 
       if xml['owner']
         user.state = :subaccount
-        user.owner = User.find_by_login!(xml['owner']['userid'])
+        user.owner = User.not_deleted.find_by!(login: xml['owner']['userid'])
         if user.owner.owner
           render_error(status: 400, errorcode: 'subaccount_chaining',
                        message: "A subaccount can not be assigned to subaccount #{user.owner.login}") && return
@@ -158,7 +145,7 @@ class PersonController < ApplicationController
   end
 
   def grouplist
-    user = User.find_by_login!(params[:login])
+    user = User.not_deleted.find_by!(login: params[:login])
     @list = user.list_groups
   end
 
@@ -171,15 +158,6 @@ class PersonController < ApplicationController
   end
 
   def internal_register
-    if ::Configuration.ldap_enabled?
-      render_error(
-        status: 403,
-        errorcode: 'permission_denied',
-        message: 'User accounts can not be registered via OBS when in LDAP mode. Please refer to your LDAP server to create new users.'
-      )
-      return
-    end
-
     xml = REXML::Document.new(request.raw_post)
 
     logger.debug("register XML: #{request.raw_post}")
@@ -230,6 +208,14 @@ class PersonController < ApplicationController
     @user = User.find_by(login: params[:login])
   end
 
+  def user_permission_check
+    authorize @user, :update?
+
+    login = params[:login]
+    # just for permission checking
+    User.not_deleted.find_by!(login: login)
+  end
+
   def update_watchlist(user, xml)
     if xml.get('watchlist').empty?
       projects = [xml.get('project')].flatten
@@ -268,7 +254,7 @@ class PersonController < ApplicationController
     end
 
     # change password to LDAP if LDAP is enabled
-    unless ::Configuration.passwords_changable?(User.session)
+    unless ::Configuration.passwords_changable?
       render_error status: 404, errorcode: 'change_passwd_failure',
                    message: 'LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it.'
       return

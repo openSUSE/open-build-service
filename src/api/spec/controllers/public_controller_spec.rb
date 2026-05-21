@@ -116,7 +116,7 @@ RSpec.describe PublicController, :vcr do
 
     it { expect(response).to have_http_status(:success) }
     it { expect(a_request(:get, %r{.*/source/public_controller_project/_config})).to have_been_made }
-    it { expect(response.body).to eq(project.source_file('_config')) }
+    it { expect(response.body).to eq(Backend::Api::Sources::Project.configuration(project.name)) }
   end
 
   describe 'GET #package_index' do

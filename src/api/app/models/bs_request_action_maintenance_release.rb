@@ -1,6 +1,8 @@
 class BsRequestActionMaintenanceRelease < BsRequestAction
   #### Includes and extends
   include BsRequestAction::Differ
+  include MaintenanceHelper
+
   #### Constants
 
   #### Self config
@@ -9,10 +11,13 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   #### Associations macros (Belongs to, Has one, Has many)
   before_create :sanity_check!
+  before_create :check_limit_release_source_project
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
+  validates :source_project, :source_package, :target_project, presence: true
+  validates :group_name, :person_name, :role, :target_releaseproject, absence: true
 
   #### Class methods using self. (public and then private)
   def self.sti_name
@@ -22,7 +27,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   #### To define class methods as private use private_class_method
   #### private
   #### Instance methods (public and then protected/private)
-  def is_maintenance_release?
+  def maintenance_release?
     true
   end
 
@@ -41,7 +46,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     opts[:projectCommit][target_project] = source_project
 
     # lock project when last package is released
-    return if pkg.project.is_locked?
+    return if pkg.project.locked?
 
     f = pkg.project.flags.find_by_flag_and_status('lock', 'disable')
     pkg.project.flags.delete(f) if f # remove possible existing disable lock flag
@@ -59,7 +64,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         comment: "Releasing from project #{sprj}"
       }
       commit_params[:comment] += " the update #{opts[:updateinfoIDs].join(', ')}" if opts[:updateinfoIDs]
-      Backend::Api::Sources::Project.commit(tprj, User.session!.login, commit_params)
+      Backend::Api::Sources::Project.commit(tprj, User.session&.login, commit_params)
 
       next if cleaned_projects[sprj]
 
@@ -71,6 +76,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def check_permissions!
     sanity_check!
+    check_limit_release_source_project
 
     # check for open release requests with same target, the binaries can't get merged automatically
     # either exact target package match or with same prefix (when using the incident extension)
@@ -90,7 +96,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # run search
     open_ids = rel.select('bs_requests').pluck(:number)
     open_ids.delete(bs_request.number) if bs_request
-    if open_ids.count.positive?
+    if open_ids.any?
       msg = "The following open requests have the same target #{target_project} / #{tpkgprefix}: " + open_ids.join(', ')
       raise OpenReleaseRequests, msg
     end
@@ -122,7 +128,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   def create_post_permissions_hook
     spkg = Package.find_by_project_and_name(source_project, source_package)
     # we avoid patchinfo's to be able to complete meta data about the update
-    return if spkg.is_patchinfo?
+    return if spkg.patchinfo?
 
     return if spkg.enabled_for?('lock', nil, nil)
 
@@ -135,7 +141,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def minimum_priority
     spkg = Package.find_by_project_and_name(source_project, source_package)
-    return unless spkg && spkg.is_patchinfo?
+    return unless spkg && spkg.patchinfo?
 
     pi = Xmlhash.parse(spkg.patchinfo.document.to_xml)
     pi['rating']
@@ -164,6 +170,14 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     end
   end
 
+  def check_limit_release_source_project
+    attrib = target_project_object&.attribs&.find_by(attrib_type: AttribType.find_by_namespace_and_name('OBS', 'LimitReleaseSourceProject'))
+    return if attrib.blank?
+    return if attrib.values.pluck(:value).include?(source_project)
+
+    raise OutsideLimitReleaseSourceProject, 'Source project is not listed in OBS:LimitReleaseSourceProject attribute'
+  end
+
   # Delaying removal of published repositories for accepted maintenance release requests,
   # gives some margin to the automated maintenance tests to be finished.
   def maintenance_release_cleanup(project_name)
@@ -180,6 +194,7 @@ end
 # Table name: bs_request_actions
 #
 #  id                    :integer          not null, primary key
+#  comments_count        :integer          default(0), not null, indexed
 #  group_name            :string(255)
 #  makeoriginolder       :boolean          default(FALSE)
 #  person_name           :string(255)
@@ -192,10 +207,12 @@ end
 #  target_project        :string(255)      indexed
 #  target_releaseproject :string(255)
 #  target_repository     :string(255)
-#  type                  :string(255)
+#  type                  :string(255)      indexed
 #  updatelink            :boolean          default(FALSE)
 #  created_at            :datetime
 #  bs_request_id         :integer          indexed, indexed => [target_package_id], indexed => [target_project_id]
+#  source_package_id     :integer          indexed
+#  source_project_id     :integer          indexed
 #  target_package_id     :integer          indexed => [bs_request_id], indexed
 #  target_project_id     :integer          indexed => [bs_request_id], indexed
 #
@@ -204,12 +221,16 @@ end
 #  bs_request_id                                                    (bs_request_id)
 #  index_bs_request_actions_on_bs_request_id_and_target_package_id  (bs_request_id,target_package_id)
 #  index_bs_request_actions_on_bs_request_id_and_target_project_id  (bs_request_id,target_project_id)
+#  index_bs_request_actions_on_comments_count                       (comments_count)
 #  index_bs_request_actions_on_source_package                       (source_package)
+#  index_bs_request_actions_on_source_package_id                    (source_package_id)
 #  index_bs_request_actions_on_source_project                       (source_project)
+#  index_bs_request_actions_on_source_project_id                    (source_project_id)
 #  index_bs_request_actions_on_target_package                       (target_package)
 #  index_bs_request_actions_on_target_package_id                    (target_package_id)
 #  index_bs_request_actions_on_target_project                       (target_project)
 #  index_bs_request_actions_on_target_project_id                    (target_project_id)
+#  index_bs_request_actions_on_type                                 (type)
 #
 # Foreign Keys
 #

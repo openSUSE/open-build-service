@@ -18,7 +18,11 @@ module Webui::NotificationsFilter
     relations_kind << notifications.for_reports if filter_kind.include?('reports')
     relations_kind << notifications.for_workflow_runs if filter_kind.include?('workflow_runs')
     relations_kind << notifications.for_appealed_decisions if filter_kind.include?('appealed_decisions')
+    relations_kind << notifications.for_decisions if filter_kind.include?('decisions')
     relations_kind << notifications.for_member_on_groups if filter_kind.include?('member_on_groups')
+    relations_kind << notifications.for_upstream_package_version_changed if filter_kind.include?('upstream_package_version_changed')
+    relations_kind << notifications.for_token_membership_update if filter_kind.include?('token_membership_update')
+    relations_kind << notifications.for_important_roles_added if filter_kind.include?('important_roles_added')
 
     notifications = notifications.merge(relations_kind.inject(:or)) unless relations_kind.empty?
     notifications
@@ -70,12 +74,8 @@ module Webui::NotificationsFilter
     notifications = notifications.for_reports
 
     relations_report_decision = []
-    if filter_report_decision.include?('with_decision')
-      relations_report_decision << notifications.where.not(notifiable_id: Report.without_decision.select(:id))
-    end
-    if filter_report_decision.include?('without_decision')
-      relations_report_decision << notifications.where(notifiable_id: Report.without_decision.select(:id))
-    end
+    relations_report_decision << notifications.where.not(notifiable_id: Report.without_decision.select(:id)) if filter_report_decision.include?('with_decision')
+    relations_report_decision << notifications.where(notifiable_id: Report.without_decision.select(:id)) if filter_report_decision.include?('without_decision')
 
     notifications.merge(relations_report_decision.inject(:or))
   end
@@ -89,5 +89,15 @@ module Webui::NotificationsFilter
 
     notifications = notifications.for_reports
     notifications.merge(relations_reportable_type.inject(:or))
+  end
+
+  def filter_notifications_by_labels(notifications, filter_label)
+    return notifications if filter_label.blank?
+
+    labelled_bs_requests = BsRequest.joins(labels: :label_template).where(label_templates: { name: filter_label })
+    labelled_packages = Package.joins(labels: :label_template).where(label_templates: { name: filter_label })
+    request_notifications = notifications.where(notifiable_type: 'BsRequest', notifiable_id: labelled_bs_requests)
+    package_notifications = notifications.where(notifiable_type: 'Package', notifiable_id: labelled_packages)
+    request_notifications.or(package_notifications)
   end
 end

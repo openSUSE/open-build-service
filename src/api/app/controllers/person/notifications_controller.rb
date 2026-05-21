@@ -4,7 +4,7 @@ module Person
     include Webui::NotificationsFilter
 
     ALLOWED_FILTERS = %w[all comments requests incoming_requests outgoing_requests relationships_created relationships_deleted build_failures
-                         reports reviews workflow_runs appealed_decisions member_on_groups].freeze
+                         reports reviews workflow_runs appealed_decisions decisions member_on_groups].freeze
     ALLOWED_STATES = %w[unread read].freeze
 
     before_action :set_filter_kind, only: :index
@@ -15,7 +15,7 @@ module Person
     # GET /my/notifications
     def index
       @notifications_count = @notifications.count
-      @paged_notifications = @notifications.page(params[:page])
+      @paged_notifications = @notifications.order(created_at: :desc).page(params[:page])
 
       params[:page] = @paged_notifications.total_pages if @paged_notifications.out_of_range?
       params[:show_maximum] ? show_maximum(@notifications) : @paged_notifications

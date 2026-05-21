@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="cameron" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/test-project/_meta?user=cameron
@@ -47,7 +47,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="test-project">
-          <title>For a Breath I Tarry</title>
+          <title>The Moving Toyshop</title>
           <description/>
           <person userid="cameron" role="maintainer"/>
         </project>
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <project name="test-project">
-          <title>For a Breath I Tarry</title>
+          <title>The Moving Toyshop</title>
           <description></description>
           <person userid="cameron" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/test-project/test-package/_meta?user=cameron
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test-package" project="test-project">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+          <title>Look to Windward</title>
+          <description>Tenetur sed qui occaecati.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,15 +109,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="test-package" project="test-project">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+          <title>Look to Windward</title>
+          <description>Tenetur sed qui occaecati.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:22 GMT
 - request:
     method: post
     uri: http://backend:5352/source/test-project/test-package?cmd=waitservice
@@ -151,7 +151,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:22 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22test-package%22%20and%20linkinfo/@project=%22test-project%22%20and%20@project=%22test-project%22)
@@ -185,354 +185,18 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/_meta?user=cameron
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/_meta?user=cameron
     body:
       encoding: UTF-8
       string: |
-        <project name="test-project:iggy:test-project:PR-1">
+        <project name="test-project:openSUSE:repo123:PR-1">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <url>http://github.com/something</url>
           <person userid="cameron" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '276'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="test-project:iggy:test-project:PR-1">
-          <title>Branch project for package test-package</title>
-          <description>This project was created for package test-package via attribute OBS:Maintained</description>
-          <person userid="cameron" role="maintainer"/>
-        </project>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_meta?user=cameron
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '176'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
-        </package>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=branch&noservice=1&opackage=test-package&oproject=test-project&user=cameron
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '209'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="33" vrev="33">
-          <srcmd5>411c6fd260778a3381a135e5cc0c1797</srcmd5>
-          <version>unknown</version>
-          <time>1690970785</time>
-          <user>cameron</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_meta?user=cameron
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '176'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
-        </package>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '430'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="test-package" rev="33" vrev="33" srcmd5="411c6fd260778a3381a135e5cc0c1797">
-          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1690960191"/>
-        </directory>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?view=info
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '333'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourceinfo package="test-package" rev="33" vrev="33" srcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
-          <error>bad build configuration, no build type defined or detected</error>
-          <linked project="test-project" package="test-package"/>
-        </sourceinfo>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '430'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="test-package" rev="33" vrev="33" srcmd5="411c6fd260778a3381a135e5cc0c1797">
-          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1690960191"/>
-        </directory>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '357'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="ad107bbdef7bd5625871bfcf3028d727">
-          <old project="test-project:iggy:test-project:PR-1" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="33" srcmd5="411c6fd260778a3381a135e5cc0c1797"/>
-          <files/>
-          <issues>
-          </issues>
-        </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '372'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="75acdc9a055abb30e7578c938e4901fc">
-          <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="6dee1c1851207b12d4c251e1946048c7" srcmd5="6dee1c1851207b12d4c251e1946048c7"/>
-          <files/>
-        </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/_meta?user=cameron
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="test-project:iggy:test-project:PR-1">
-          <title>Branch project for package test-package</title>
-          <description>This project was created for package test-package via attribute OBS:Maintained</description>
-          <person userid="cameron" role="maintainer"/>
-          <publish>
-            <disable/>
-          </publish>
         </project>
     headers:
       Accept-Encoding:
@@ -557,62 +221,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="test-project:iggy:test-project:PR-1">
+        <project name="test-project:openSUSE:repo123:PR-1">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <url>http://github.com/something</url>
           <person userid="cameron" role="maintainer"/>
-          <publish>
-            <disable/>
-          </publish>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_branch_request?comment=Updated%20_branch_request%20file%20via%20SCM/CI%20Workflow%20run&user=cameron
-    body:
-      encoding: UTF-8
-      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":null},"sha":null}}}'
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '209'
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package/_meta?user=cameron
     body:
       encoding: UTF-8
       string: |
-        <revision rev="34" vrev="34">
-          <srcmd5>ecaed09bd00635972ad5b7008a349eef</srcmd5>
-          <version>unknown</version>
-          <time>1690970786</time>
-          <user>cameron</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_meta?user=cameron
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+        <package name="test-package" project="test-project:openSUSE:repo123:PR-1">
+          <title>Look to Windward</title>
+          <description>Tenetur sed qui occaecati.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -637,14 +261,92 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+        <package name="test-package" project="test-project:openSUSE:repo123:PR-1">
+          <title>Look to Windward</title>
+          <description>Tenetur sed qui occaecati.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package?cmd=branch&noservice=1&opackage=test-package&oproject=test-project&user=cameron
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>411c6fd260778a3381a135e5cc0c1797</srcmd5>
+          <version>unknown</version>
+          <time>1739446943</time>
+          <user>cameron</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:openSUSE:repo123:PR-1">
+          <title>Look to Windward</title>
+          <description>Tenetur sed qui occaecati.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:openSUSE:repo123:PR-1">
+          <title>Look to Windward</title>
+          <description>Tenetur sed qui occaecati.</description>
+        </package>
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -667,19 +369,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '532'
+      - '428'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package" rev="34" vrev="34" srcmd5="ecaed09bd00635972ad5b7008a349eef">
-          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6" lsrcmd5="ecaed09bd00635972ad5b7008a349eef"/>
-          <entry name="_branch_request" md5="5d8aefeee8f093120d1d26f3aeebbdfb" size="82" mtime="1690960191"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1690960191"/>
+        <directory name="test-package" rev="1" vrev="1" srcmd5="411c6fd260778a3381a135e5cc0c1797">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1739446943"/>
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?view=info
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -702,18 +403,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '333'
+      - '331'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test-package" rev="34" vrev="34" srcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6" lsrcmd5="ecaed09bd00635972ad5b7008a349eef" verifymd5="f069616f8884480463bb7cde6d9c83cc">
+        <sourceinfo package="test-package" rev="1" vrev="1" srcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="test-project" package="test-package"/>
         </sourceinfo>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -736,19 +437,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '532'
+      - '428'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package" rev="34" vrev="34" srcmd5="ecaed09bd00635972ad5b7008a349eef">
-          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6" lsrcmd5="ecaed09bd00635972ad5b7008a349eef"/>
-          <entry name="_branch_request" md5="5d8aefeee8f093120d1d26f3aeebbdfb" size="82" mtime="1690960191"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1690960191"/>
+        <directory name="test-package" rev="1" vrev="1" srcmd5="411c6fd260778a3381a135e5cc0c1797">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1739446943"/>
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -773,21 +473,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '357'
+      - '354'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="0d9d5be0643092bd9b6fbd063650affc">
-          <old project="test-project:iggy:test-project:PR-1" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="34" srcmd5="ecaed09bd00635972ad5b7008a349eef"/>
+        <sourcediff key="3660b69e1b28212d520a5d1545f51dd4">
+          <old project="test-project:openSUSE:repo123:PR-1" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:openSUSE:repo123:PR-1" package="test-package" rev="1" srcmd5="411c6fd260778a3381a135e5cc0c1797"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -807,21 +507,325 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
-      Content-Length:
-      - '395'
       Cache-Control:
       - no-cache
       Connection:
       - close
+      Content-Length:
+      - '371'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3b01b2f7b34d95332d49cebaeb06bcb3">
+        <sourcediff key="de84f9025e77ea2e148a5d6ae02e36b0">
           <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="3f2794130d6c60ddbfc7b7caa9ff69c6" srcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6"/>
+          <new project="test-project:openSUSE:repo123:PR-1" package="test-package" rev="6dee1c1851207b12d4c251e1946048c7" srcmd5="6dee1c1851207b12d4c251e1946048c7"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project:openSUSE:repo123:PR-1">
+          <title>Branch project for package test-package</title>
+          <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <url>http://github.com/something</url>
+          <person userid="cameron" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '356'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="test-project:openSUSE:repo123:PR-1">
+          <title>Branch project for package test-package</title>
+          <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <url>http://github.com/something</url>
+          <person userid="cameron" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package/_branch_request?comment=Updated%20_branch_request%20file%20via%20SCM/CI%20Workflow%20run&user=cameron
+    body:
+      encoding: UTF-8
+      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":null},"sha":"123456789"}}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '259'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>25f32ee22dd2e9ddc34a462dc9fa286a</srcmd5>
+          <version>unknown</version>
+          <time>1739446943</time>
+          <user>cameron</user>
+          <comment>Updated _branch_request file via SCM/CI Workflow run</comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package/_meta?user=cameron
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:openSUSE:repo123:PR-1">
+          <title>Look to Windward</title>
+          <description>Tenetur sed qui occaecati.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test-package" project="test-project:openSUSE:repo123:PR-1">
+          <title>Look to Windward</title>
+          <description>Tenetur sed qui occaecati.</description>
+        </package>
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '530'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-package" rev="2" vrev="2" srcmd5="25f32ee22dd2e9ddc34a462dc9fa286a">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="11ce7f288ab004513a1e95487ed96a59" lsrcmd5="25f32ee22dd2e9ddc34a462dc9fa286a"/>
+          <entry name="_branch_request" md5="2207839a716a16910a5620f5e75c5276" size="89" mtime="1739446943"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1739446943"/>
+        </directory>
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '331'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test-package" rev="2" vrev="2" srcmd5="11ce7f288ab004513a1e95487ed96a59" lsrcmd5="25f32ee22dd2e9ddc34a462dc9fa286a" verifymd5="131673a5719030e0db2deee3a2030e69">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="test-project" package="test-package"/>
+        </sourceinfo>
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '530'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test-package" rev="2" vrev="2" srcmd5="25f32ee22dd2e9ddc34a462dc9fa286a">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="11ce7f288ab004513a1e95487ed96a59" lsrcmd5="25f32ee22dd2e9ddc34a462dc9fa286a"/>
+          <entry name="_branch_request" md5="2207839a716a16910a5620f5e75c5276" size="89" mtime="1739446943"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1739446943"/>
+        </directory>
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '354'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="6afa2e648a145eaea2a8fb5c5f368afe">
+          <old project="test-project:openSUSE:repo123:PR-1" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:openSUSE:repo123:PR-1" package="test-package" rev="2" srcmd5="25f32ee22dd2e9ddc34a462dc9fa286a"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/test-project:openSUSE:repo123:PR-1/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '394'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="e00d81c836b1f4e63f46eca62c12ecd8">
+          <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:openSUSE:repo123:PR-1" package="test-package" rev="11ce7f288ab004513a1e95487ed96a59" srcmd5="11ce7f288ab004513a1e95487ed96a59"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Thu, 13 Feb 2025 11:42:23 GMT
+recorded_with: VCR 6.3.1

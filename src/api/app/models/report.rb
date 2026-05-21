@@ -2,18 +2,18 @@
 class Report < ApplicationRecord
   REPORTABLE_TYPES = %i[Comment Package Project User BsRequest].freeze
   REPORTABLE_TYPES_STRINGS = {
-    Comment: 'Comment',
-    Package: 'Package',
-    Project: 'Project',
-    User: 'User',
-    BsRequest: 'Request'
+    Comment: 'comment',
+    Package: 'package',
+    Project: 'project',
+    User: 'user',
+    BsRequest: 'request'
   }.freeze
 
   validates :reason, length: { maximum: 65_535 }
   validates :reportable_type, length: { maximum: 255 }
   validates :reportable, presence: true, on: :create
 
-  belongs_to :user, optional: false
+  belongs_to :reporter, class_name: 'User', optional: false
   belongs_to :reportable, polymorphic: true, optional: true
   has_many :comments, as: :commentable, dependent: :destroy
 
@@ -34,6 +34,16 @@ class Report < ApplicationRecord
 
   scope :without_decision, -> { where(decision: nil) }
 
+  def event_parameters
+    { id: id, reporter: reporter.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
+  end
+
+  def other_reports_from_reportable
+    return [] unless reportable
+
+    reportable.reports - [self]
+  end
+
   private
 
   def create_event
@@ -50,10 +60,6 @@ class Report < ApplicationRecord
     when 'BsRequest'
       Event::ReportForRequest.create(event_parameters.merge(bs_request_number: reportable.number))
     end
-  end
-
-  def event_parameters
-    { id: id, reporter: user.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
   end
 
   def event_parameters_for_comment(commentable:)
@@ -88,22 +94,24 @@ end
 #
 #  id              :bigint           not null, primary key
 #  category        :integer          default("other")
+#  comments_count  :integer          default(0), not null, indexed
 #  reason          :text(65535)
 #  reportable_type :string(255)      indexed => [reportable_id]
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  decision_id     :bigint           indexed
 #  reportable_id   :integer          indexed => [reportable_type]
-#  user_id         :integer          not null, indexed
+#  reporter_id     :integer          not null, indexed
 #
 # Indexes
 #
-#  index_reports_on_decision_id  (decision_id)
-#  index_reports_on_reportable   (reportable_type,reportable_id)
-#  index_reports_on_user_id      (user_id)
+#  index_reports_on_comments_count  (comments_count)
+#  index_reports_on_decision_id     (decision_id)
+#  index_reports_on_reportable      (reportable_type,reportable_id)
+#  index_reports_on_reporter_id     (reporter_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (decision_id => decisions.id) ON DELETE => nullify
-#  fk_rails_...  (user_id => users.id)
+#  fk_rails_...  (reporter_id => users.id)
 #

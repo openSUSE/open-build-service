@@ -1,3 +1,6 @@
+/* global initializeRemoteDatatable */
+/* exported initializeProjectDatatable, initializeProjectDatatableLabelBeta */
+
 function toggleProjectsDatatable() {
   var all = $("#projects-datatable").data("all");
   var $toggleText = $("#toggle-text");
@@ -14,8 +17,8 @@ function toggleProjectsDatatable() {
   $("#projects-datatable").DataTable().draw();
 }
 
-function initializeProjectDatatable() { // jshint ignore:line
-  initializeRemoteDatatable( // jshint ignore:line
+function initializeProjectDatatable() {
+  initializeRemoteDatatable(
     "#projects-datatable",
     {
       "ajax": {
@@ -23,9 +26,29 @@ function initializeProjectDatatable() { // jshint ignore:line
         "data": function (d) {
           d.all = $("#projects-datatable").data("all");
         }
-      }, "responsive" : true, 
+      }, "responsive" : true,
       "columns": [
         { "data": "name" },
+        { "data": "title" }
+      ], "dom": "ftpi"
+    }
+  );
+  $(".toggle-projects").click(function() { toggleProjectsDatatable(); });
+}
+
+function initializeProjectDatatableLabelBeta() {
+  initializeRemoteDatatable(
+    "#projects-datatable",
+    {
+      "ajax": {
+        "url": $("#projects-datatable").data("source"),
+        "data": function (d) {
+          d.all = $("#projects-datatable").data("all");
+        }
+      }, "responsive" : true,
+      "columns": [
+        { "data": "name" },
+        { "data": "labels", "name": "labels", "orderable": false},
         { "data": "title" }
       ], "dom": "ftpi"
     }

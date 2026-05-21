@@ -1,0 +1,10 @@
+- global_label = global_label.present? ? 'global-' : ''
+
+:css
+  .label-#{global_label}#{label.id} {
+    color: #{h(contrast_text(label.color))};
+    background-color: #{h(label.color)};
+  }
+
+= form.button label.name, type: :submit, name: 'labels[]', value: label.name,
+                          class: "btn btn-link text-decoration-none badge label-#{global_label}#{label.id}"

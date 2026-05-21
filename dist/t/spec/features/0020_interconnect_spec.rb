@@ -1,11 +1,12 @@
 require 'spec_helper'
 
 RSpec.describe 'Interconnect', type: :feature do
-  before(:context) do
+  # We consciously want the state of a finished spec to be preserved for the next one
+  before(:context) do # rubocop:disable RSpec/BeforeAfterAll
     login
   end
 
-  after(:context) do
+  after(:context) do # rubocop:disable RSpec/BeforeAfterAll
     logout
   end
 
@@ -18,7 +19,7 @@ RSpec.describe 'Interconnect', type: :feature do
       click_link('openSUSE.org')
     end
 
-    expect(page).to have_content('Standard OBS instance at build.opensuse.org')
-    expect(page).to have_content('https://api.opensuse.org/public')
+    expect(page).to have_text('Standard OBS instance at build.opensuse.org')
+    expect(page).to have_text('https://api.opensuse.org/public')
   end
 end

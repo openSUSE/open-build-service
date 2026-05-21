@@ -10,20 +10,20 @@ class GitlabStatusReporter < SCMExceptionHandler
   end
 
   def call
-    gitlab_client = Gitlab.client(endpoint: "#{@event_subscription_payload[:api_endpoint]}/api/v4",
+    gitlab_client = Gitlab.client(endpoint: "#{@workflow_run.api_endpoint}/api/v4",
                                   private_token: @scm_token)
     # https://docs.gitlab.com/ce/api/commits.html#post-the-build-status-to-a-commit
-    gitlab_client.update_commit_status(@event_subscription_payload[:project_id],
-                                       @event_subscription_payload[:commit_sha],
+    gitlab_client.update_commit_status(@workflow_run.project_id,
+                                       @workflow_run.commit_sha,
                                        @state,
                                        status_options)
     if @workflow_run.present?
       @workflow_run.save_scm_report_success(request_context)
-      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@event_subscription_payload[:scm]} value=1")
+      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@workflow_run.scm_vendor} value=1")
     end
   rescue Gitlab::Error::Error, OpenSSL::SSL::SSLError => e
     rescue_with_handler(e) || raise(e)
-    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e.class} value=1") if @workflow_run.present?
+    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@workflow_run.scm_vendor},exception=#{e.class} value=1") if @workflow_run.present?
   end
 
   private
@@ -52,10 +52,10 @@ class GitlabStatusReporter < SCMExceptionHandler
   #       This isn't always the same depending on the SCM.
   def request_context
     {
-      api_endpoint: @event_subscription_payload[:api_endpoint],
-      project_id: @event_subscription_payload[:project_id],
-      path_with_namespace: @event_subscription_payload[:path_with_namespace],
-      commit_sha: @event_subscription_payload[:commit_sha],
+      api_endpoint: @workflow_run.api_endpoint,
+      project_id: @workflow_run.project_id,
+      path_with_namespace: @workflow_run.path_with_namespace,
+      commit_sha: @workflow_run.commit_sha,
       state: @state,
       status_options: status_options
     }

@@ -3,6 +3,13 @@ get:
   description: Get a simple directory listing of all requests
   security:
     - basic_authentication: []
+  parameters:
+    - name: page
+      in: query
+      schema:
+        type: string
+      required: false
+      description: Ask for a specific page number of the listing of requests. Each page will return 25 requests. We return page number 1 by default. 
   responses:
     '200':
       description: |

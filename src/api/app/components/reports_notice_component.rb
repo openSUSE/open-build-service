@@ -2,7 +2,7 @@ class ReportsNoticeComponent < ApplicationComponent
   attr_reader :reportable, :reportable_name, :user, :reports
 
   def initialize(reportable:, user:)
-    super
+    super()
 
     @reportable = reportable
     @reportable_name = if reportable.instance_of?(::BsRequest)
@@ -15,7 +15,7 @@ class ReportsNoticeComponent < ApplicationComponent
   end
 
   def by_user?
-    Report.exists?(user:, reportable:)
+    Report.exists?(reporter: user, reportable:)
   end
 
   def report_amount

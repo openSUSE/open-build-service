@@ -1,4 +1,4 @@
-- unless has_patchinfo
+- unless project.patchinfos.exists?
   %li
     %i.fa.fa-exclamation-circle.text-danger
     = link_to_if(User.possibly_nobody.can_modify?(project), 'Patchinfo missing',
@@ -8,6 +8,8 @@
     :ruby
       path = if open_release_requests.length == 1
                request_show_path(open_release_requests.first)
+             elsif Flipper.enabled?(:request_index, User.session)
+               projects_requests_path(project, action_type: ['maintenance_release'])
              else
                project_requests_path(project, type: 'maintenance_release')
              end

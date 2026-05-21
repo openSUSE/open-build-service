@@ -5,7 +5,7 @@
         .modal-header
           %h5.modal-title#create-staging-projects-modal-label Create Staging Project
         .modal-body
-          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'staging_project_name',
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'staging_project_name',
                                                                    label: 'Please enter a project you have permissions to',
                                                                    data: { source: autocomplete_projects_path } }
           %small.text-muted

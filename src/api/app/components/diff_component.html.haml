@@ -2,19 +2,19 @@
   .diff{ class: "digits-#{diff.max_digits}" }>
     - lines.each do |line|
       - id = file_index ? "diff_#{file_index}_n#{line.index}" : nil
-      .line-container{ id: }
+      %div{ id:, class: "line-container #{ highlighted_lines.include?(line.index) ? 'highlighted' : '' }" }
         %div{ class: "line #{line.state}" }>
           - case line.state
           - when 'range'
             - if target_file
-              = link_to(target_file, title: 'See original file') do
+              = link_to(target_file, title: 'See original file', target: '_top') do
                 .number.p-0.text-center.link-danger<
                   %i.fas.fa-file-arrow-down
             - else
               %a
                 .number
             - if source_file
-              = link_to(source_file, title: 'See submitted file') do
+              = link_to(source_file, title: 'See submitted file', target: '_top') do
                 .number.p-0.text-center.link-success<
                   %i.fas.fa-file-arrow-up
             - else
@@ -28,7 +28,7 @@
               .text-muted.text
                 = sanitize line.content
           - else
-            = link_to("##{id}", class: 'd-flex') do
+            = link_to("##{id}", class: 'd-flex', target: '_top') do
               .number<
                 = line.original_index
               .number<
@@ -40,7 +40,7 @@
                 = sanitize line.content[1..]
         - if commentable
           .line-comment{ id: "comment#{id}" }
-            - if commented_lines.include?([file_index, line.index])
+            - if commented_lines.include?(line.index)
               - commentable.comments.where(diff_file_index: file_index, diff_line_number: line.index,
                                            source_rev: [source_rev, nil], target_rev: [target_rev, nil]).each do |comment|
                 .diff-comments
@@ -53,8 +53,14 @@
                   = link_to(request_inline_comment_path(commentable.bs_request, request_action_id: commentable, line: id,
                                                         diff_file_index: file_index, diff_line_number: line.index,
                                                         source_rev:, target_rev:),
-                            class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment') do
+                            class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment',
+                            data: { diff_file_index: file_index, diff_line: line.index,
+                            commentable_type: commentable.class.name, commentable_id: commentable.id }) do
                     %i.fas.fa-comment-medical
                     .visually-hidden
                       Add comment
                 -# rubocop:enable ViewComponent/AvoidGlobalState
+
+- if commentable.present?
+  :javascript
+    openInlineCommentFormWithDraftAvailable('#{commentable.class.name}', '#{commentable.id}')

@@ -177,4 +177,23 @@ sub sendimportevent {
   sendevent($gctx, $ev, $arch, "import.$job");
 }
 
+=head2 sendrelsyncevent - send an relsync event to another scheduler
+
+ input: $prp - prp where the relsync data was updated
+        $arch - target scheduler architecture
+
+=cut
+
+sub sendrelsyncevent {
+  my ($gctx, $prp, $arch) = @_;
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $ev = {
+    'type' => 'relsync',
+    'project' => $projid,
+    'repository' => $repoid,
+  };
+  sendevent($gctx, $ev, $arch, "relsync:${projid}::${repoid}");
+}
+
 1;

@@ -19,11 +19,13 @@ get:
             count: 2
             entry:
               - id: 3
+                enabled: true
                 string: FK49K39DKK
                 kind: rss
                 triggered_at: '2021-10-28 12:32:18 UTC'
               - id: 25
                 description: Release ghcz
+                enabled: false
                 string: 4T04JGI691
                 kind: release
                 triggered_at: '2021-09-21 11:12:18 UTC'

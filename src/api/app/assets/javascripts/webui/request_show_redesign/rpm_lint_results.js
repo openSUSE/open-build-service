@@ -1,27 +1,6 @@
-// TODO: rename without "Beta" after the rollout of 'request_show_redesign'.
-function updateRpmLintResultBeta() { // jshint ignore:line
-  var ajaxDataShow = $('.rpm-lint-content').data();
-  ajaxDataShow.inRequestShowRedesign = true;
-  var rpmLintResultsUrl = $('.rpm-lint-content .rpm-lint-refresh').data('rpm-lint-results-url');
+/* exported updateRpmLintArchitectures */
 
-  $('#rpm-lint-reload').addClass('fa-spin');
-  $.ajax({
-    url: rpmLintResultsUrl,
-    data: ajaxDataShow,
-    success: function(data) {
-      $('.rpm-lint-content .result').html(data);
-    },
-    error: function() {
-      $('.rpm-lint-content .result').html('<p>No RPM lint results available</p>');
-    },
-    complete: function() {
-      $('#rpm-lint-reload').removeClass('fa-spin');
-      initializePopovers('[data-bs-toggle="popover"]'); // jshint ignore:line
-    }
-  });
-}
-
-function updateRpmLintArchitectures() { // jshint ignore:line
+function updateRpmLintArchitectures() {
   $('.rpmlint_arch_select').hide();
   $('#rpmlint_arch_select_' + $('#rpmlint_repo_select option:selected').attr('value')).show();
   updateRpmLintLog();
@@ -29,16 +8,26 @@ function updateRpmLintArchitectures() { // jshint ignore:line
 
 
 function updateRpmLintLog() {
-  var ajaxDataShow = $('#rpmlint-log').data();
   var repoKey = $('#rpmlint_repo_select option:selected').attr('value');
+  var ajaxDataShow = {};
   ajaxDataShow.repository = $('#rpmlint_repo_select option:selected').html();
   ajaxDataShow.architecture = $('#rpmlint_arch_select_' + repoKey + ' option:selected').attr('value');
   ajaxDataShow.renderChart = true;
   $.ajax({
-    url: '/package/rpmlint_log',
+    url: '/package/rpmlint_log/' + $('#rpmlint-log').data('project') + '/' + $('#rpmlint-log').data('package'),
     data: ajaxDataShow,
     success: function (data) {
       $('.rpmlint-result').html(data);
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      $('.rpmlint-result').html('<p class="error">Error loading rpmlint log (' + errorThrown + ')</p>');
     }
   });
 }
+
+$(document).on('mouseenter', '.lint-description', function() {
+  $(this).tooltip({
+    container: 'body',
+    trigger: 'hover'
+  }).tooltip('show');
+});

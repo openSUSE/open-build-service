@@ -14,11 +14,12 @@ get:
           - issues
           - productlist
           - verboseproductlist
+          - versions
       description: |
         Specify which information about each package should be returned.
 
         * `info`: Show source version, md5sums and build description files of all packages belonging to a project.
-        * `issues`, `productlist`, `verboseproductlist`:
+        * `issues`, `productlist`, `verboseproductlist`, `versions`:
           See this [other endpoint](<#/Sources - Packages/get_source__project_name_>) for details.
       example: info
     - in: query

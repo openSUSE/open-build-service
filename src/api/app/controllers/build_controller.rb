@@ -1,8 +1,7 @@
 class BuildController < ApplicationController
-  skip_before_action :extract_user, only: [:scmresult]
-  skip_before_action :require_login, only: [:scmresult]
-
-  before_action :require_scmsync_host_check, only: [:scmresult]
+  # Authentication happens via HTTP_X_SCM_BRIDGE_COOKIE, no login is required for :scmresult
+  skip_before_action :require_login, :check_anonymous_access, only: [:scmresult]
+  before_action :require_user_or_scmsync_host_check, only: [:scmresult]
 
   def index
     # for read access and visibility permission check
@@ -14,16 +13,15 @@ class BuildController < ApplicationController
 
     if request.get?
       pass_to_backend
-      return
-    end
-
-    if User.admin_session?
-      # check for a local package instance
-      Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
-      pass_to_backend
-    else
-      render_error status: 403, errorcode: 'execute_cmd_no_permission',
-                   message: 'Upload of binaries is only permitted for administrators'
+    elsif request.post?
+      if User.admin_session?
+        # check for a local package instance
+        Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
+        pass_to_backend
+      else
+        render_error status: 403, errorcode: 'execute_cmd_no_permission',
+                     message: 'Upload of binaries is only permitted for administrators'
+      end
     end
   end
 
@@ -56,7 +54,7 @@ class BuildController < ApplicationController
 
       if !allowed && !params[:package].nil?
         [params[:package]].flatten.each do |pack_name|
-          pkg = Package.find_by_project_and_name(prj.name, pack_name)
+          pkg = Package.find_by_project_and_name(prj.name, Package.multibuild_flavor(pack_name))
           if pkg.nil?
             allowed = permissions.project_change?(prj)
             unless allowed
@@ -89,15 +87,11 @@ class BuildController < ApplicationController
         render_error status: 403, errorcode: 'execute_cmd_no_permission',
                      message: "No permission to execute command on project #{params[:project]}"
       end
-    else
-      render_error status: 400, errorcode: 'illegal_request',
-                   message: "Illegal request: #{request.method.to_s.upcase} #{request.path}"
     end
     nil
   end
 
   def buildinfo
-    required_parameters :project, :repository, :arch, :package
     # just for permission checking
     if request.post? && Package.striping_multibuild_suffix(params[:package]) == '_repository'
       # for osc local package build in this repository
@@ -113,7 +107,7 @@ class BuildController < ApplicationController
     # implementation since python 3. this would break all local builds otherwise with unfixed
     # osc python 3 versions
     # Fixed for osc: https://github.com/openSUSE/osc/pull/958
-    if request.user_agent.present? && (request.user_agent[0..5] == 'osc/0.' && request.user_agent[6..].to_i < 175)
+    if request.user_agent.present? && request.user_agent[0..5] == 'osc/0.' && request.user_agent[6..].to_i < 175
       path += request.query_string.empty? ? '?' : '&'
       path += 'striphdrmd5'
     end
@@ -123,8 +117,6 @@ class BuildController < ApplicationController
 
   # /build/:project/:repository/:arch/_builddepinfo
   def builddepinfo
-    required_parameters :project, :repository, :arch
-
     # just for permission checking
     Project.get_by_name(params[:project])
 
@@ -149,8 +141,6 @@ class BuildController < ApplicationController
   end
 
   def result
-    required_parameters :project
-
     # this route is mainly for checking submissions to a target project
     return result_lastsuccess if params.key?(:lastsuccess)
 
@@ -166,7 +156,7 @@ class BuildController < ApplicationController
   end
 
   def result_lastsuccess
-    required_parameters :package, :pathproject
+    params.require(%i[package pathproject])
 
     pkg = Package.get_by_project_and_name(params[:project], params[:package],
                                           use_source: false, follow_multibuild: true)
@@ -187,5 +177,13 @@ class BuildController < ApplicationController
       @result << [repo, archs]
     end
     render xml: render_to_string(partial: 'lastsuccess')
+  end
+
+  private
+
+  def require_user_or_scmsync_host_check
+    return if User.session
+
+    require_scmsync_host_check
   end
 end

@@ -1,7 +1,10 @@
 RSpec.describe Workflows::YAMLDownloader, type: :service do
   let(:workflow_token) { build(:workflow_token) }
-  let(:yaml_downloader) { described_class.new(payload, token: workflow_token) }
+  let(:yaml_downloader) { described_class.new(workflow_run, token: workflow_token) }
   let(:max_size) { Workflows::YAMLDownloader::MAX_FILE_SIZE }
+  let(:workflow_run) do
+    create(:workflow_run, scm_vendor: scm_vendor, hook_event: hook_event, request_payload: request_payload)
+  end
 
   describe '#call' do
     before do
@@ -16,20 +19,11 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
           yaml_downloader.call
         end
 
-        let(:payload) do
-          {
-            scm: 'github',
-            commit_sha: '5d175d7f4c58d06907bba188fe9a4c8b6bd723da',
-            pr_number: 1,
-            source_branch: 'test-pr',
-            target_branch: 'master',
-            action: 'synchronize',
-            source_repository_full_name: 'rubhanazeem/hello_world',
-            target_repository_full_name: 'rubhanazeem/hello_world',
-            event: 'pull_request',
-            api_endpoint: 'https://api.github.com'
-          }
-        end
+        let(:scm_vendor) { 'github' }
+        let(:hook_event) { 'pull_request' }
+
+        let(:request_payload) { file_fixture('request_payload_github_synchronize.json').read }
+
         let(:octokit_client) { instance_double(Octokit::Client) }
 
         it 'downloads the workflow file' do
@@ -39,20 +33,10 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
 
       context 'gitlab' do
         let(:gitlab_client) { instance_spy(Gitlab::Client, file_contents: true) }
-        let(:payload) do
-          {
-            scm: 'gitlab',
-            object_kind: 'push',
-            http_url: 'https://gitlab.com/example/hello_world.git',
-            api_endpoint: 'https://gitlab.com',
-            event: 'Push Hook',
-            commit_sha: 'd6568a7e5137e2c09bbb613d83c94fc68601ff93',
-            target_branch: 'master',
-            path_with_namespace: 'example/hello_world',
-            project_id: 7_836_486,
-            ref: 'refs/heads/master'
-          }
-        end
+        let(:scm_vendor) { 'gitlab' }
+        let(:hook_event) { 'Push Hook' }
+
+        let(:request_payload) { file_fixture('request_payload_gitlab_push.json').read }
 
         before do
           allow(Gitlab).to receive(:client).and_return(gitlab_client)
@@ -70,29 +54,31 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
         end
 
         context 'for a tag push event' do
-          let(:payload) do
-            {
-              scm: 'gitea',
-              target_repository_full_name: 'iggy/target_repo',
-              api_endpoint: 'https://gitea.opensuse.org',
-              tag_name: '3.0'
-            }
-          end
-          let(:url) { "https://gitea.opensuse.org/#{payload[:target_repository_full_name]}/raw/tag/#{payload[:tag_name]}/.obs/workflows.yml" }
+          let(:scm_vendor) { 'gitea' }
+          let(:hook_event) { 'push' }
+          let(:request_payload) { file_fixture('request_payload_gitea_tag_push.json').read }
+
+          let(:url) { "https://gitea.opensuse.org/#{workflow_run.target_repository_full_name}/raw/tag/#{workflow_run.tag_name}/.obs/workflows.yml" }
 
           it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
         end
 
-        context 'for a push or pull request event' do
-          let(:payload) do
-            {
-              scm: 'gitea',
-              target_branch: 'main',
-              target_repository_full_name: 'iggy/target_repo',
-              api_endpoint: 'https://gitea.opensuse.org'
-            }
-          end
-          let(:url) { "https://gitea.opensuse.org/#{payload[:target_repository_full_name]}/raw/branch/#{payload[:target_branch]}/.obs/workflows.yml" }
+        context 'for a push event' do
+          let(:scm_vendor) { 'gitea' }
+          let(:hook_event) { 'push' }
+          let(:request_payload) { file_fixture('request_payload_gitea_push.json').read }
+
+          let(:url) { "https://gitea.opensuse.org/#{workflow_run.target_repository_full_name}/raw/branch/#{workflow_run.target_branch}/.obs/workflows.yml" }
+
+          it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
+        end
+
+        context 'for a pull request event' do
+          let(:scm_vendor) { 'gitea' }
+          let(:hook_event) { 'pull_request' }
+          let(:request_payload) { file_fixture('request_payload_gitea_pull_request_opened.json').read }
+
+          let(:url) { "https://gitea.opensuse.org/#{workflow_run.target_repository_full_name}/raw/branch/#{workflow_run.target_branch}/.obs/workflows.yml" }
 
           it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
         end
@@ -105,7 +91,11 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
         yaml_downloader.call
       end
 
-      let(:payload) { { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' } }
+      let(:scm_vendor) { 'gitlab' }
+      let(:hook_event) { 'Push Hook' }
+
+      let(:request_payload) { file_fixture('request_payload_gitlab_push.json').read }
+
       let(:url) { 'https://example.com/subdir/config_file.yml' }
 
       it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
@@ -113,7 +103,10 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
 
     context 'given workflow_configuration_path' do
       let(:gitlab_client) { instance_spy(Gitlab::Client, file_contents: true) }
-      let(:payload) { { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' } }
+      let(:scm_vendor) { 'gitlab' }
+      let(:hook_event) { 'Push Hook' }
+
+      let(:request_payload) { file_fixture('request_payload_gitlab_push.json').read }
 
       before do
         allow(Gitlab).to receive(:client).and_return(gitlab_client)
@@ -131,7 +124,10 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
         yaml_downloader.call
       end
 
-      let(:payload) { { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' } }
+      let(:scm_vendor) { 'gitlab' }
+      let(:hook_event) { 'Push Hook' }
+
+      let(:request_payload) { file_fixture('request_payload_gitlab_push.json').read }
       let(:url) { 'https://example.com/subdir/config_file.yml' }
 
       it { expect(Down).to have_received(:download).with(url, max_size: max_size) }

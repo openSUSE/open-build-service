@@ -23,7 +23,7 @@ RSpec.describe ConsistencyCheckJob, :vcr do
   describe '#check_project' do
     let!(:project) { create(:project, name: 'super_project') }
     let(:consistency_checkjob) { described_class.new }
-    let(:error_message) { "Project meta is different in backend for super_project\n{:foo=>\"bar\"}" }
+    let(:error_message) { "Project meta is different in backend for super_project\n{foo: \"bar\"}" }
 
     before do
       create(:admin_user, login: 'Admin')

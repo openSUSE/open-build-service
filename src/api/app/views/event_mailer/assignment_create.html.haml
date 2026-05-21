@@ -1,0 +1,3 @@
+:ruby
+  url = link_to("#{event['project']}/#{event['package']}", package_show_url(event['project'], event['package'], only_path: false, host: @host))
+#{event['who']} assigned #{event_relationship_recipient(event)} to #{url}.

@@ -19,7 +19,7 @@ namespace :dev do
       requestor_project = Project.find_by(name: 'requestor_project') || RakeSupport.create_and_assign_project('requestor_project', requestor)
 
       # Create notification for roles revoked
-      iggy = User.find_by(login: 'Iggy') || create(:confirmed_user, :with_home, login: 'Iggy')
+      iggy = User.find_by(login: 'Iggy') || create(:staff_user, :with_home, login: 'Iggy')
       iggy.run_as do
         home_project_iggy = Project.find_by(name: 'home:Iggy')
         role = Role.find_by_title!('maintainer')
@@ -78,16 +78,31 @@ namespace :dev do
         another_group.users << admin
 
         # Admin is already subscribed as token_executor, Iggy and another_group are now subscribed as token_member
-        iggy = User.find_by(login: 'Iggy')
         create(:event_subscription_workflow_run_fail, channel: :web, user: iggy, receiver_role: 'token_member')
         token = Token.find_by(executor: admin)
         token.users << iggy # share token with iggy
         token.groups << another_group
         create(:workflow_run, :failed, token: token)
 
-        # Process notifications immediately to see them in the web UI
-        SendEventEmailsJob.new.perform_now
+        # New upstream version
+        create(:event_subscription_upstream_version, channel: :web, user: admin, receiver_role: 'develpackage_or_package_maintainer')
+        project = Project.find_by(name: admin_package.project.name)
+        project.update(anitya_distribution_name: 'openSUSE')
+        # Ends up creating an event (Event::UpstreamPackageVersion)
+        create(:package_version_upstream, package: admin_package)
+
+        # Token Membership Update
+        create(:event_subscription_token_membership_update, channel: :web, user: admin)
+        workflow_token = create(:workflow_token, executor: iggy, description: Faker::Book.title)
+        workflow_token.users << admin # The user Admin is added to a token of user Iggy
+
+        workflow_token2 = create(:workflow_token, executor: iggy, description: Faker::Book.title)
+        workflow_token2.users << admin
+        workflow_token2.users.delete(admin) # The user Admin is removed from a token of user Iggy
       end
+
+      # Process notifications immediately to see them in the web UI
+      SendEventEmailsJob.new.perform_now
     end
   end
 end

@@ -1,5 +1,7 @@
 module Event
   class Build < Base
+    include EventObjectPackage
+
     self.description = 'Package finished building'
     self.abstract_class = true
     payload_keys :project, :package, :sender, :repository, :arch, :release, :readytime, :srcmd5,
@@ -44,10 +46,6 @@ module Event
       super.merge(notifiable_type: 'Package',
                   notifiable_id: ::Package.find_by_project_and_name(payload['project'], payload['package'])&.id,
                   type: 'NotificationPackage')
-    end
-
-    def involves_hidden_project?
-      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
     end
 
     private

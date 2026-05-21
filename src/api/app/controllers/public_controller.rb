@@ -1,16 +1,16 @@
 class PublicController < ApplicationController
+  include ReadAccessOfDeleted
   include PublicHelper
-  include ValidationHelper
 
   # we need to fall back to _nobody_ (_public_)
-  before_action :extract_user_public, :set_response_format_to_xml
   skip_before_action :extract_user
   skip_before_action :require_login
+  before_action :set_response_format_to_xml
+  before_action :set_influxdb_data_interconnect
+  before_action :set_anonymous_user
 
   # GET /public/build/:project/:repository/:arch/:package
   def build
-    required_parameters :project
-
     if params[:project] == '_result'
       pass_to_backend("/build/_result#{build_query_from_hash(params, %i[scmrepository scmbranch locallink multibuild lastbuild code])}")
       return
@@ -113,8 +113,9 @@ class PublicController < ApplicationController
   def source_file
     if params[:rev].present? && params[:rev].length >= 32 &&
        !Package.exists_by_project_and_name(params[:project], params[:package])
+      prj = Project.find_by_name(params[:project])
       # automatic fallback
-      params[:deleted] = '1'
+      params[:deleted] = '1' unless prj && prj.scmsync.present?
     end
 
     if params[:deleted].present?
@@ -125,7 +126,7 @@ class PublicController < ApplicationController
 
     path = Package.source_path(params[:project], params[:package], params[:filename])
     path += build_query_from_hash(params, %i[rev limit expand deleted])
-    volley_backend_path(path) unless forward_from_backend(path)
+    volley_backend_path(path) unless forward_from_backend?(path)
   end
 
   # GET /public/distributions
@@ -137,7 +138,6 @@ class PublicController < ApplicationController
 
   # GET /public/request/:number
   def show_request
-    required_parameters :number
     req = BsRequest.find_by_number!(params[:number])
     render xml: req.render_xml
   end
@@ -203,7 +203,21 @@ class PublicController < ApplicationController
     render 'webui/image_templates/index'
   end
 
+  def package_templates
+    @projects = Project.package_templates
+  end
+
   private
+
+  def set_influxdb_data_interconnect
+    InfluxDB::Rails.current.tags = {
+      interconnect: true
+    }
+  end
+
+  def set_anonymous_user
+    User.session = User.find_nobody!
+  end
 
   # removes /private prefix from path
   def unshift_public(path)

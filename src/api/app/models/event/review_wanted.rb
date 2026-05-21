@@ -22,7 +22,7 @@ module Event
     # for review_wanted we ignore all the other reviews
     def reviewers
       User.where(id: payload['reviewers'].pluck('user_id')) +
-        Group.where(id: payload['reviewers'].pluck('group_id'))
+        ::Group.where(id: payload['reviewers'].pluck('group_id'))
     end
 
     def parameters_for_notification

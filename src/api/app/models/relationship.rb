@@ -44,10 +44,10 @@ class Relationship < ApplicationRecord
   scope :groups, -> { where.not(group_id: nil) }
   scope :users, -> { where.not(user_id: nil) }
   scope :with_users_and_roles_query, lambda {
-    joins(:role, :user).order('roles.title, users.login')
+    joins(:role, :user)
   }
   scope :with_groups_and_roles_query, lambda {
-    joins(:role, :group).order('roles.title, groups.title')
+    joins(:role, :group)
   }
   scope :maintainers, lambda {
     where(role: Role.hashed['maintainer'])
@@ -129,11 +129,11 @@ class Relationship < ApplicationRecord
   end
 
   def self.with_users_and_roles
-    with_users_and_roles_query.pluck(:login, :title)
+    with_users_and_roles_query.order('roles.title, users.login').pluck(:login, :title)
   end
 
   def self.with_groups_and_roles
-    with_groups_and_roles_query.pluck('groups.title', 'roles.title')
+    with_groups_and_roles_query.order('roles.title, groups.title').pluck('groups.title', 'roles.title')
   end
 
   def create_relationship_delete_event
@@ -173,7 +173,7 @@ class Relationship < ApplicationRecord
   # Relationship::AddRole#add_role handling.
   # We could also check other banned users, not only nobody.
   def allowed_user
-    raise NotFoundError, "Couldn't find user #{user.login}" if user && user.is_nobody?
+    raise NotFoundError, "Couldn't find user #{user.login}" if user && user.nobody?
   end
 
   def create_relationship_create_event
@@ -199,16 +199,18 @@ class Relationship < ApplicationRecord
   end
 end
 
+# rubocop:disable Layout/LineLength, Lint/MissingCopEnableDirective
+
 # == Schema Information
 #
 # Table name: relationships
 #
 #  id         :integer          not null, primary key
-#  group_id   :integer          indexed, indexed => [package_id, role_id], indexed => [project_id, role_id]
-#  package_id :integer          indexed => [role_id, group_id], indexed => [role_id, user_id]
-#  project_id :integer          indexed => [role_id, group_id], indexed => [role_id, user_id]
-#  role_id    :integer          not null, indexed => [package_id, group_id], indexed => [package_id, user_id], indexed => [project_id, group_id], indexed => [project_id, user_id], indexed
-#  user_id    :integer          indexed => [package_id, role_id], indexed => [project_id, role_id], indexed
+#  group_id   :integer          indexed, uniquely indexed => [package_id, role_id], uniquely indexed => [project_id, role_id]
+#  package_id :integer          uniquely indexed => [role_id, group_id], uniquely indexed => [role_id, user_id]
+#  project_id :integer          uniquely indexed => [role_id, group_id], uniquely indexed => [role_id, user_id]
+#  role_id    :integer          not null, uniquely indexed => [package_id, group_id], uniquely indexed => [package_id, user_id], uniquely indexed => [project_id, group_id], uniquely indexed => [project_id, user_id], indexed
+#  user_id    :integer          uniquely indexed => [package_id, role_id], uniquely indexed => [project_id, role_id], indexed
 #
 # Indexes
 #

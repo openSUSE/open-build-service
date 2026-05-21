@@ -13,8 +13,8 @@ class ProjectPolicy < ApplicationPolicy
     return false unless user
     return false unless local_project_and_allowed_to_create_package_in?
     # The ordering is important because of the lock status check
-    return true if user.is_admin?
-    return false unless user.can_modify?(record, true)
+    return true if user.admin?
+    return false unless user.can_modify_project?(record, true)
 
     # Regular users are not allowed to modify projects with remote references
     no_remote_instance_defined_and_has_not_remote_repositories?
@@ -35,12 +35,12 @@ class ProjectPolicy < ApplicationPolicy
   def unlock?
     return false unless user
 
-    user.can_modify?(record, true)
+    user.can_modify_project?(record, true)
   end
 
   def source_access?
-    return true if user.has_global_permission?(:source_access)
-    return true if user.has_local_permission?(:source_access, record)
+    return true if user.global_permission?(:source_access)
+    return true if user.local_permission?(:source_access, record)
 
     record.enabled_for?('sourceaccess', nil, nil)
   end
@@ -53,7 +53,7 @@ class ProjectPolicy < ApplicationPolicy
       record.staged_requests.each do |request|
         # we pretend the user asked for force, we only want to check permissions
         # not if it would makes sense to accept the request
-        raise Pundit::NotAuthorizedError, query: :accept?, record: request, reason: :request_state_change unless request.permission_check_change_state(newstate: 'accepted', force: true)
+        raise Pundit::NotAuthorizedError, query: :accept?, record: request, reason: :request_state_change unless request.permission_check_change_state?(newstate: 'accepted', force: true)
       end
     end
   end
@@ -61,7 +61,7 @@ class ProjectPolicy < ApplicationPolicy
   private
 
   def no_remote_instance_defined_and_has_not_remote_repositories?
-    !record.defines_remote_instance? && !record.has_remote_repositories?
+    !record.defines_remote_instance? && !record.remote_repositories?
   end
 
   def local?
@@ -69,6 +69,8 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def local_project_and_allowed_to_create_package_in?
-    local? && Pundit.policy(user, Package.new(project: record)).create?
+    local? &&
+      !record.locked? &&
+      (user.global_permission?('create_package') || user.local_permission?('create_package', record))
   end
 end

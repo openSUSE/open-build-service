@@ -130,7 +130,7 @@ sub event_built {
     my $prp = "$info->{'project'}/$info->{'repository'}";
     BSRedisnotify::updatejobstatus("$prp/$myarch", $job) if $BSConfig::redisserver && !$info->{'packstatus_patched'};
   }
-  BSSched::BuildJob::purgejob($gctx, $job);
+  BSSched::BuildJob::purgejob($gctx, $job) unless $info->{'job_is_waiting'};
   close F;
 }
 
@@ -397,9 +397,8 @@ sub event_wipe {
   my $reporoot = $gctx->{'reporoot'};
   my $gdst = "$reporoot/$prp/$myarch";
   print "wiping $prp $packid\n";
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   my $allarch = $ev->{'type'} eq 'wipeallarch' ? 1 : undef;
-  BSSched::BuildResult::wipe($gctx, $prp, $packid, $prpsearchpath, $ectx->{'dstcache'}, $allarch) if -d "$gdst/$packid";
+  BSSched::BuildResult::wipe($gctx, $prp, $packid, $ectx->{'dstcache'}, $allarch) if -d "$gdst/$packid";
   BSSched::BuildJob::set_genbuildreqs($gctx, $prp, $packid, undef);
   for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {
@@ -436,25 +435,14 @@ sub event_useforbuild {
   if ($ev->{'package'}) {
     @packs = ($ev->{'package'});
   } else {
-    if ($BSSched::BuildResult::new_full_handling) {
-      BSSched::BuildRepo::forcefullrebuild($gctx, $prp);
-    } else {
-      @packs = sort keys %$packs;
-      @packs = reverse(BSSched::ProjPacks::orderpackids($proj, @packs));
-    }
+    BSSched::BuildRepo::forcefullrebuild($gctx, $prp);
   }
   for my $packid (@packs) {
     my $gdst = "$reporoot/$prp/$myarch";
     next unless -d "$gdst/$packid";
-    my $useforbuildenabled = 1;
-    my $pdata = $packs->{$packid} || {};
-    $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch);
-    $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
-    next unless $useforbuildenabled;
     my $meta = "$gdst/:meta/$packid";
     undef $meta unless -s $meta;
-    my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath);
+    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, "$gdst/$packid", $meta);
   }
   for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {
@@ -551,10 +539,12 @@ sub event_suspendproject {
   my $gctx = $ectx->{'gctx'};
   my $evjob = $ev->{'job'};
   return unless $evjob;
-  print "suspending project $projid: @{$gctx->{'projsuspended'}->{$projid} || []} + $evjob\n";
-  push @{$gctx->{'projsuspended'}->{$projid}}, $evjob;
+  $ev->{'time'} = time();
+  my @suspendjob = map {$_->{'job'}} @{$gctx->{'projsuspended'}->{$projid} || []};
+  print "suspending project $projid: @suspendjob + $evjob\n";
+  push @{$gctx->{'projsuspended'}->{$projid}}, $ev;
+  push @suspendjob, $evjob;
 
-  my $suspend = $gctx->{'projsuspended'}->{$projid};
   # try to set the repo state right away
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
@@ -562,7 +552,7 @@ sub event_suspendproject {
   for my $repo (@{$proj->{'repository'} || []}) {
     next unless grep {$_ eq $gctx->{'arch'}} @{$repo->{'arch'} || []};
     my $ctx = BSSched::Checker->new($gctx, "$projid/$repo->{'name'}");
-    $ctx->set_repo_state('blocked', join(', ', @$suspend));
+    $ctx->set_repo_state('blocked', join(', ', BSUtil::unify(@suspendjob)));
   }
 }
 
@@ -576,15 +566,16 @@ sub event_resumeproject {
     print "ignoring resumeproject for project $projid ($evjob)\n";
     return;
   }
+  my @suspendjob = map {$_->{'job'}} @$suspend;
   if (@$suspend > 1) {
-    print "not yet resuming project $projid: @$suspend - $evjob\n";
+    print "not yet resuming project $projid: @suspendjob - $evjob\n";
     my $first = 0;
     # remove first matching element; if not found pop last element
-    @$suspend = grep {$_ ne $evjob || $first++} @$suspend;
+    @$suspend = grep {$_->{'job'} ne $evjob || $first++} @$suspend;
     pop @$suspend unless $first;
     return;
   }
-  print "resuming project $projid: @$suspend - $evjob\n";
+  print "resuming project $projid: @suspendjob - $evjob\n";
   delete $gctx->{'projsuspended'}->{$projid};
   my $changed_high = $gctx->{'changed_high'};
   my $changed_dirty = $gctx->{'changed_dirty'};

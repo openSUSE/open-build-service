@@ -107,7 +107,7 @@ RSpec.describe Webui::AttributeController do
 
     context 'with editable values' do
       before do
-        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type1.id } }
+        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type1.id }, project_name: user.home_project.name }
       end
 
       it { expect(response).to redirect_to(edit_attribs_path(project: user.home_project_name, package: '', attribute: attribute_type1_name)) }
@@ -116,7 +116,7 @@ RSpec.describe Webui::AttributeController do
 
     context 'with non editable values' do
       before do
-        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type0.id } }
+        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type0.id }, project_name: user.home_project.name }
       end
 
       it { expect(response).to redirect_to(index_attribs_path(project: user.home_project_name, package: '')) }
@@ -126,7 +126,7 @@ RSpec.describe Webui::AttributeController do
     context 'fails at save' do
       before do
         allow_any_instance_of(Attrib).to receive(:save).and_return(false)
-        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type1.id } }
+        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type1.id }, project_name: user.home_project.name }
       end
 
       it { expect(response).to redirect_to(root_path) }

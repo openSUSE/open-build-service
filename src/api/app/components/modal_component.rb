@@ -3,7 +3,7 @@ class ModalComponent < ApplicationComponent
   renders_one :footer
 
   def initialize(modal_id:, modal_button_data: {})
-    super
+    super()
 
     @modal_id = modal_id
     @modal_button_data = modal_button_data

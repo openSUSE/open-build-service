@@ -1,9 +1,10 @@
 class Webui::UsersController < Webui::WebuiController
   include Webui::NotificationsHandler
 
+  skip_before_action :check_anonymous_access, only: :create
   before_action :require_login, except: %i[show new create tokens autocomplete]
   before_action :require_admin, only: %i[index edit destroy]
-  before_action :check_displayed_user, only: %i[show edit censor update destroy edit_account]
+  before_action :check_displayed_user, only: %i[show edit censor update destroy edit_account update_color_theme]
   before_action :role_titles, only: %i[show edit_account update]
   before_action :account_edit_link, only: %i[show edit_account update]
 
@@ -17,7 +18,7 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def show
-    @groups = @displayed_user.groups
+    @groups = @displayed_user.groups.order(:title)
     @involved_items_service = UserService::Involved.new(user: @displayed_user, filters: extract_filter_params, page: params[:page])
     @comments = paged_comments
 
@@ -59,9 +60,8 @@ class Webui::UsersController < Webui::WebuiController
       redirect_to users_path
     else
       session[:login] = create_params[:login]
-      User.session = User.find_by!(login: session[:login])
-      if User.session.home_project
-        redirect_to project_show_path(User.session.home_project)
+      if Project.find_by(name: "home:#{session[:login]}")
+        redirect_to project_show_path("home:#{session[:login]}")
       else
         redirect_to root_path
       end
@@ -102,6 +102,23 @@ class Webui::UsersController < Webui::WebuiController
     end
   end
 
+  def update_color_theme
+    authorize @displayed_user, :update?
+
+    begin
+      @displayed_user.color_theme = params[:color_theme]
+      if @displayed_user.save
+        flash[:success] = 'User color theme successfully updated.'
+      else
+        flash[:error] = "Couldn't update user: #{@displayed_user.errors.full_messages.to_sentence}."
+      end
+    rescue StandardError => e
+      flash[:error] = "Couldn't update user: #{e.message}."
+    end
+
+    redirect_back_or_to root_path
+  end
+
   def destroy
     authorize @displayed_user, :destroy?
 
@@ -130,13 +147,13 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def change_password
-    user = User.session
-
-    unless ::Configuration.passwords_changable?(user)
+    unless ::Configuration.passwords_changable?
       flash[:error] = "You're not authorized to change your password."
       redirect_back_or_to root_path
       return
     end
+
+    user = User.session
 
     if user.authenticate(params[:password])
       user.password = params[:new_password]
@@ -191,9 +208,8 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def assign_common_user_attributes
-    @displayed_user.assign_attributes(params[:user].slice(:biography, :color_theme).permit!)
+    @displayed_user.assign_attributes(params[:user].slice(:biography, :in_beta).permit!)
     @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!) unless @account_edit_link
-    @displayed_user.toggle(:in_beta) if params[:user][:in_beta]
   end
 
   def assign_admin_attributes
@@ -205,7 +221,7 @@ class Webui::UsersController < Webui::WebuiController
     return unless Flipper.enabled?(:content_moderation, User.session)
     return unless policy(@displayed_user).comment_index?
 
-    comments = @displayed_user.comments.includes(:project).newest_first
+    comments = @displayed_user.comments.includes(:project).order(created_at: :desc)
     params[:page] = comments.page(params[:page]).total_pages if comments.page(params[:page]).out_of_range?
     comments.page(params[:page])
   end

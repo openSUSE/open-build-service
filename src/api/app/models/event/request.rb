@@ -1,8 +1,10 @@
 module Event
   class Request < Base
+    include EventObjectRequest
+
     self.description = 'Request updated'
     self.abstract_class = true
-    payload_keys :author, :comment, :description, :id, :number, :actions, :state, :when, :who, :namespace
+    payload_keys :author, :comment, :description, :id, :number, :actions, :state, :oldstate, :when, :who, :namespace
     shortenable_key :description
 
     DIFF_LIMIT = 120
@@ -77,7 +79,7 @@ module Event
     end
 
     def creators
-      [User.find_by_login(payload['author'])]
+      User.where(login: payload['author'])
     end
 
     def target_maintainers
@@ -108,7 +110,7 @@ module Event
       bs_request = BsRequest.find_by(number: payload['number'])
       return false unless bs_request
 
-      bs_request.bs_request_actions.any?(&:involves_hidden_project?)
+      bs_request.involves_hidden_project?
     end
 
     private
@@ -181,7 +183,7 @@ module Event
     end
 
     def source_from_remote?
-      payload['actions'].any? { |action| Project.unscoped.is_remote_project?(action['sourceproject'], skip_access: true) }
+      payload['actions'].any? { |action| Project.unscoped.remote_project?(action['sourceproject'], skip_access: true) }
     end
 
     def payload_without_target_project?

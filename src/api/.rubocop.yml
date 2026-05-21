@@ -1,10 +1,12 @@
-require:
+plugins:
   - rubocop-capybara
   - rubocop-factory_bot
   - rubocop-performance
   - rubocop-rails
   - rubocop-rspec
   - rubocop-rspec_rails
+
+require:
   - ./lib/rubocop/cop/view_component/avoid_global_state.rb
   - ./lib/rubocop/cop/view_component/file_name.rb
   - ./lib/rubocop/cop/view_component/class_name.rb
@@ -31,6 +33,7 @@ AllCops:
     # Binaries are generated, so we don't lint them
     - 'bin/**/*'
     - 'spec/fixtures/files/factory_package.spec'
+    - 'spec/fixtures/files/template.spec'
   SuggestExtensions:
     # We don't want extra cops for minitest since we want to migrate those tests to RSpec
     rubocop-minitest: false
@@ -248,7 +251,6 @@ Metrics/BlockLength:
     - 'app/models/event_subscription/find_for_event.rb'
     - 'app/models/patchinfo.rb'
     - 'app/models/product.rb'
-    - 'app/models/user_ldap_strategy.rb'
     - 'app/views/attribute/show.xml.builder'
     - 'app/views/models/_project.xml.builder'
     - 'app/views/models/_remote_project.xml.builder'
@@ -385,7 +387,6 @@ RSpec/MultipleExpectations:
     - 'spec/models/review_spec.rb'
     - 'spec/models/statistics/maintenance_statistic_spec.rb'
     - 'spec/models/unregistered_user_spec.rb'
-    - 'spec/models/user_ldap_strategy_spec.rb'
     - 'spec/models/user_spec.rb'
     - 'spec/routing/api_matcher_spec.rb'
     - 'spec/shared/examples/a_bs_requests_data_table_controller.rb'

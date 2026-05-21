@@ -1,7 +1,7 @@
 class BsRequest
   module FindFor
     class Base
-      def initialize(parameters, relation = BsRequest.with_actions)
+      def initialize(parameters, relation = BsRequest.joins(:bs_request_actions))
         @parameters = parameters
         @relation = relation
       end
@@ -22,6 +22,10 @@ class BsRequest
 
       def package_name
         @parameters[:package]
+      end
+
+      def priorities
+        @parameters[:priorities] || []
       end
 
       def project_name
@@ -63,6 +67,10 @@ class BsRequest
 
       def creator
         @parameters[:creator]
+      end
+
+      def reviewers
+        @parameters[:reviewers]
       end
     end
   end

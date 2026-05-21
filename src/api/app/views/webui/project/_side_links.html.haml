@@ -1,5 +1,5 @@
 %ul.side_links.list-unstyled
-  - if project.is_maintenance?
+  - if project.maintenance?
     = render partial: 'webui/project/side_links/maintenance_project', locals: { open_maintenance_incidents: open_maintenance_incidents,
                                                                                 project: project,
                                                                                 maintained_projects: maintained_projects }
@@ -8,12 +8,11 @@
       = render partial: 'webui/project/side_links/project_monitor', locals: { project: project,
                                                                               nr_of_problem_packages: nr_of_problem_packages }
 
-    - if has_patchinfo
+    - if project.patchinfos.exists?
       = render partial: 'webui/project/side_links/patchinfo_present', locals: { project: project }
 
-    - if project.is_maintenance_incident?
-      = render partial: 'webui/project/side_links/incident_project', locals: { has_patchinfo: has_patchinfo,
-                                                                               project: project,
+    - if project.maintenance_incident?
+      = render partial: 'webui/project/side_links/incident_project', locals: { project: project,
                                                                                open_release_requests: open_release_requests }
 
     - if release_targets.present?
@@ -46,7 +45,17 @@
       = link_to(project_show_path(project_maintenance_project)) do
         = project_maintenance_project
 
-  - if project.is_locked?
+  - if Flipper.enabled?(:package_version_tracking, User.session) && project.anitya_distribution_name.present?
+    %li
+      %i.fas.fa-sync-alt.text-info
+      - if project.anitya_distribution_synced_at.present?
+        Anitya distribution info updated
+        = time_ago_in_words(project.anitya_distribution_synced_at)
+        ago
+      - else
+        Anitya distribution info not synced yet
+
+  - if project.locked?
     %li
       %i.fa.fa-lock
       is locked

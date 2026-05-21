@@ -9,7 +9,7 @@ RSpec.describe User do
     shared_examples 'all_my_requests' do
       subject { confirmed_user.requests }
 
-      let(:source_package) { create(:package, :as_submission_source) }
+      let(:source_package) { create(:package) }
 
       let!(:maintained_request) do
         create(:bs_request_with_submit_action,
@@ -150,7 +150,7 @@ RSpec.describe User do
     subject { confirmed_user.declined_requests }
 
     let(:target_package) { create(:package) }
-    let(:source_package) { create(:package, :as_submission_source) }
+    let(:source_package) { create(:package) }
     let!(:new_bs_request) { create(:set_bugowner_request, creator: confirmed_user) }
     let!(:declined_bs_request) do
       create(:declined_bs_request,
@@ -241,7 +241,7 @@ RSpec.describe User do
     shared_examples 'incoming_requests' do
       subject { confirmed_user.incoming_requests }
 
-      let(:source_package) { create(:package, :as_submission_source) }
+      let(:source_package) { create(:package) }
 
       let!(:maintained_request) do
         create(:bs_request_with_submit_action,

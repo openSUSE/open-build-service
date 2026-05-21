@@ -5,7 +5,7 @@ module HistoryElement
     end
 
     def description
-      desc = 'Request got superseded'
+      desc = +'Request got superseded'
       desc << ' by request ' << description_extension if description_extension
       desc
     end

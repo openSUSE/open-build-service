@@ -75,8 +75,8 @@ module TestData
       changes_file_content = Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.changes')).read
 
       update_project_branch.packages.each do |package|
-        Backend::Connection.put("/source/#{CGI.escape(update_project_branch.name)}/#{CGI.escape(package.name)}/README.txt", 'New content')
-        Backend::Connection.put("/source/#{CGI.escape(update_project_branch.name)}/#{CGI.escape(package.name)}/#{CGI.escape(package.name)}.changes", changes_file_content)
+        Backend::Api::Sources::File.write(update_project_branch.name, package.name, 'README.txt', 'New content')
+        Backend::Api::Sources::File.write(update_project_branch.name, package.name, "#{package.name}.changes", changes_file_content)
       end
     end
 

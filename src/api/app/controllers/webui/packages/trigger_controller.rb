@@ -3,7 +3,7 @@ module Webui
     class TriggerController < Webui::WebuiController
       before_action :require_login
       before_action :set_project
-      before_action :require_package
+      before_action :set_package
       before_action :set_object_to_authorize
 
       after_action :verify_authorized
@@ -12,7 +12,7 @@ module Webui
         authorize @object_to_authorize, :update?
 
         begin
-          Backend::Api::Sources::Package.trigger_services(@project.name, @package_name, User.session.to_s)
+          Backend::Api::Sources::Package.trigger_services(@project.name, @package_name, User.session&.to_s)
         rescue Timeout::Error => e
           flash[:error] = "Error while triggering services for #{@project.name}/#{@package_name}: #{e.message}"
         rescue Backend::Error => e

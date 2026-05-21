@@ -8,7 +8,7 @@
           %li= link_to('Home Project', project_show_path(User.session.home_project))
         - else
           %li= link_to('Create Home Project', new_project_path(name: User.session.home_project_name))
-        %li= link_to('Logout', session_path, method: :delete)
+        %li= link_to('Logout', log_out_url)
   .d-none.d-md-block
     %strong.text-uppercase Locations
     %ul

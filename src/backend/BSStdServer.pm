@@ -114,6 +114,10 @@ sub dispatch {
     my $peerip = ($req->{'headers'} || {})->{lc($conf->{'trusted_peerip_header'})};
     $req->{'peerip'} = $req->{'peer'} = $peer = $peerip if $peerip && $peerip =~ /^[0-9a-fA-F\.\:]+$/s;
   }
+  if (!$isajax && $conf->{'client_time_header'}) {
+    my $client_time = ($req->{'headers'} || {})->{lc($conf->{'client_time_header'})};
+    $req->{'client_time'} = 0 + $client_time if $client_time && $client_time =~ /^\d+$/;
+  }
   my $msg = sprintf("%-22s %s%s",
     "$req->{'action'} ($peer)", $req->{'path'},
     defined($req->{'query'}) ? "?$req->{'query'}" : '',
@@ -145,7 +149,8 @@ sub dispatch {
     $req = $BSServerEvents::gev->{'request'};
   }
   $msg .= " [$requestid]" if $requestid;
-  BSUtil::printlog($msg, undef, $req->{'reqid'});
+  my $id = $req->{'reqid'} || $req->{'keepalive_count'};
+  BSUtil::printlog($msg, undef, $id ? "$$.$id" : $$);
   return BSDispatch::dispatch($conf, $req);
 }
 
@@ -158,7 +163,10 @@ sub periodic {
   if (-e "$rundir/$runname.exit") {
     BSServer::dump_child_pids();
     BSServer::msg("$conf->{'name'} exiting...");
-    unlink("$conf->{'ajaxsocketpath'}.lock") if $conf->{'ajaxsocketpath'};
+    if ($conf->{'ajaxsocketpath'}) {
+      unlink("$conf->{'ajaxsocketpath'}.lock");
+      unlink("$conf->{'ajaxsocketpath'}$_.lock") for 1 .. scalar(@{$conf->{'ajaxpartitions'} || []});
+    }
     unlink("$rundir/$runname.exit");
     exit(0);
   }
@@ -182,7 +190,7 @@ sub periodic {
     }
     my @args;
     push @args, '--logfile', $conf->{'logfile'} if $conf->{'logfile'};
-    exec($0, '--restart', $arg, @args);
+    exec($0, @args, '--restart', $arg);
     die("$0: $!\n");
   }
   memoize_files($memoize_fn, $memoize_max_size) if $memoize_fn;
@@ -194,6 +202,7 @@ sub periodic {
 
 sub periodic_ajax {
   my ($conf) = @_;
+  my $aidx = $conf->{'aidx'} || '';
   if (!$conf->{'exiting'}) {
     my @s = stat(BSServer::getserverlock());
     return if $s[3];
@@ -201,13 +210,13 @@ sub periodic_ajax {
     my $sev = $conf->{'server_ev'};
     close($sev->{'fd'});
     BSEvents::rem($sev);
-    BSServer::msg("AJAX: $conf->{'name'} exiting.");
+    BSServer::msg("AJAX$aidx: $conf->{'name'} exiting.");
     $conf->{'exiting'} = 10 + 1;
   }
   my @events = BSEvents::allevents();
   # there always is the periodic concheck handler, thus we check for <= 1
   if (@events <= 1 || --$conf->{'exiting'} == 0) {
-    BSServer::msg("AJAX: $conf->{'name'} goodbye.");
+    BSServer::msg("AJAX$aidx: $conf->{'name'} goodbye.");
     exit(0);
   }
 }
@@ -363,6 +372,37 @@ sub setup_authenticator {
   }
 }
 
+sub run_ajax_server {
+  my ($aconf, $conf) = @_;
+  $isajax = 1;
+  BSServer::serverclose() if $conf;
+  unlink("$aconf->{'socketpath'}.lock") if $conf;		# we use the main socket to check if we are already running
+  BSServer::serveropen_unix($aconf->{'socketpath'}, $BSConfig::bsuser, $BSConfig::bsgroup);
+  my $sev = BSServerEvents::addserver(BSServer::getserversocket(), $aconf);
+  $aconf->{'server_ev'} = $sev;	# for periodic_ajax
+  my $name = $aconf->{'name'};
+  my $aidx = $aconf->{'aidx'} || '';
+  BSServer::msg("AJAX$aidx: $name started");
+  eval { $aconf->{'run'}->($aconf) };
+  if ($@) {
+    writestr("$aconf->{'rundir'}/$aconf->{'runname'}.AJAX$aidx.died", undef, $@);
+    BSUtil::diecritical("AJAX$aidx died: $@");
+  }
+  BSServer::msg("AJAX$aidx: $name goodbye.");
+}
+
+sub get_handoffpath_aidx {
+  my ($conf, $aidx) = @_;
+  my $sockpath = $conf->{'handoffpath'};
+  die("no handoff path set\n") unless $sockpath;
+  if ($aidx) {
+    die("bad ajax partition '$aidx'\n") if $aidx !~ /^\d+$/s;
+    die("unknown ajax partition '$aidx'\n") if $aidx > @{$conf->{'ajaxpartitions'} || []};
+    $sockpath .= $aidx;
+  }
+  return $sockpath;
+}
+
 sub server {
   my ($name, $args, $conf, $aconf) = @_;
   my $logfile;
@@ -447,6 +487,7 @@ sub server {
     BSDispatch::compile($conf);
   }
   if ($aconf) {
+    die("no AJAX socketpath configured\n") unless $aconf->{'socketpath'};
     require BSHandoff;
     $aconf->{'name'} = $name;
     $aconf->{'rundir'} ||= $BSConfig::rundir || "$BSConfig::bsdir/run";
@@ -481,8 +522,8 @@ sub server {
     $req = { %$req, %{BSHTTP::str2req(readstr($request_content))} } if $request_content;
     $BSServer::request = $req;
     if ($req->{'action'} eq 'AJAX') {
-      $isajax = 1;
       die("no AJAX configured\n") unless $aconf;
+      $isajax = 1;
       $req->{'action'} = 'GET';
       $req->{'conf'} = $aconf;
       $req->{'state'} = 'processing';
@@ -515,24 +556,33 @@ sub server {
   if ($conf && $aconf) {
     $conf->{'ajaxsocketpath'} = $aconf->{'socketpath'};
     $conf->{'handoffpath'} = $aconf->{'socketpath'};
-    unlink("$aconf->{'socketpath'}.lock");
+    $conf->{'ajaxpartitions'} = $aconf->{'partitions'};
+    if ($aconf->{'partitions'}) {
+      # setup ajax partition map
+      my $aidx = 1;
+      for my $part (@{$aconf->{'partitions'} || []}) {
+	$conf->{'ajaxpartitionmap'}->{$_} = "$aconf->{'socketpath'}$aidx" for @$part;
+	$aidx++;
+      }
+    }
   }
   BSUtil::setcritlogger(sub { critlogger($conf, $_[0]) });
   if ($aconf) {
-    if (!$conf || xfork() == 0) {
-      $isajax = 1;
-      BSServer::serverclose() if $conf;
-      BSServer::serveropen_unix($aconf->{'socketpath'}, $BSConfig::bsuser, $BSConfig::bsgroup);
-      my $sev = BSServerEvents::addserver(BSServer::getserversocket(), $aconf);
-      $aconf->{'server_ev'} = $sev;	# for periodic_ajax
-      BSServer::msg("AJAX: $name started");
-      eval { $aconf->{'run'}->($aconf) };
-      if ($@) {
-        writestr("$aconf->{'rundir'}/$aconf->{'runname'}.AJAX.died", undef, $@);
-        BSUtil::diecritical("AJAX died: $@");
-      }
-      BSServer::msg("AJAX: $name goodbye.");
+    if (!$conf) {
+      die("can only use AJAX partitions if we have a main socket\n") if $aconf->{'partitions'};
+      run_ajax_server($aconf);
       exit(0);
+    }
+    my $anum = 1 + @{$aconf->{'partitions'} || []};
+    my $aidx = '';
+    while ($anum--) {
+      if (xfork() == 0) {
+	$aconf->{'aidx'} = $aidx;
+	$aconf->{'socketpath'} .= $aidx;
+	run_ajax_server($aconf, $conf);
+	exit(0);
+      }
+      $aidx++;
     }
   }
   my $rundir = $conf->{'rundir'};

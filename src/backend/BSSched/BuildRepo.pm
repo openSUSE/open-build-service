@@ -25,13 +25,13 @@ package BSSched::BuildRepo;
 #   fctx_rebuild_full
 #   fctx_migrate_full
 #   fctx_integrate_package_into_full
-#   fctx_integrate_package_into_full_old
-#   move_into_full
+#   fctx_move_into_full
 #
 # gctx functions
 #   sync_fullcache
 #   checkuseforbuild
 #   forcefullrebuild
+#   calculate_useforbuild
 #
 # ctx functions
 #   addrepo
@@ -39,6 +39,7 @@ package BSSched::BuildRepo;
 #
 # static functions
 #   writesolv
+#   volatile_cmp
 #
 # fctx usage
 #   metaid
@@ -85,15 +86,17 @@ formerly in autobuild ':full' repository
 use strict;
 use warnings;
 
-use BSUtil;
 use BSConfiguration;
-use Build::Rpm;
+use BSOBS;
+use BSUtil;
 use BSSched::ProjPacks;		# for orderpackids
 use BSSched::DoD;
 #use BSSched::BuildResult;	# circular dep
 
+use Build::Rpm;			# for verscmp
+
 my $exportcnt = 0;
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my @binsufs_lnk = (@binsufs, 'obsbinlnk');
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my $binsufsre_lnk = join('|', map {"\Q$_\E"} @binsufs_lnk);
@@ -251,6 +254,43 @@ sub volatile_cmp {
   return 0;
 }
 
+
+=head2 calculate_useforbuild - calculate the packages that may go into the :full tree
+
+=cut
+
+sub calculate_useforbuild {
+  my ($gctx, $prp, $bconf, $dstcache) = @_;
+  my $projpacks = $gctx->{'projpacks'};
+  my $myarch = $gctx->{'arch'};
+
+  $bconf ||= BSSched::BuildResult::getconfig($gctx, $prp, $dstcache);  # hopefully taken from the cache
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $proj = $projpacks->{$projid} || {};
+  my $pdatas = $proj->{'package'} || {};
+  my $prjuseforbuildenabled = 1;
+  $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
+  my $buildflags;
+  $buildflags = { map {$_ => 1} @{$bconf->{'buildflags'} || []} } if $bconf && exists $bconf->{"buildflags:nouseforbuild"};
+  my %useforbuild;
+  for my $packid (sort keys %$pdatas) {
+    my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
+    my $useforbuildenabled = $prjuseforbuildenabled;
+    $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
+    $useforbuildenabled = 0 if $buildflags && $buildflags->{"nouseforbuild:$packid"};
+    $useforbuild{$packid} = 1 if $useforbuildenabled;
+  }
+  if ($proj->{'missingpackages'}) {
+    # packages missing from pdatas, use old data for them
+    my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+    for my $packid (@{BSUtil::retrieve("$gdst/:full.useforbuild", 1) || []}) {
+      $useforbuild{$packid} = 1 unless $pdatas->{$packid};
+    }
+  }
+  return \%useforbuild;
+}
+
 =head2 fctx_gbininfo2full - create full tree hash from gbininfo
 
 maps name -> binobj
@@ -274,34 +314,15 @@ sub fctx_gbininfo2full {
   my @packids = BSSched::ProjPacks::orderpackids($proj, keys %$gbininfo);
 
   # generate useforbuild from package data if not specified
-  if (!$useforbuild) {
-    $useforbuild = {};
-    my $prjuseforbuildenabled = 1;
-    $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
-    my $pdatas = $proj->{'package'} || {};
-    for my $packid (@packids) {
-      next if $packid eq '_volatile';
-      my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
-      my $useforbuildenabled = $prjuseforbuildenabled;
-      $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
-      $useforbuild->{$packid} = 1 if $useforbuildenabled;
-    }
-
-    if ($proj->{'missingpackages'}) {
-      # packages missing from pdatas, use old data
-      for my $packid (@{BSUtil::retrieve("$fctx->{'gdst'}/:full.useforbuild", 1) || []}) {
-        $useforbuild->{$packid} = 1 unless $pdatas->{$packid};
-      }
-    }
-  }
+  $useforbuild ||= calculate_useforbuild($gctx, $fctx->{'prp'}, $fctx->{'bconf'}, $fctx->{'dstcache'});
 
   # construct new full
   my %full;
   for my $packid (@packids) {
     next unless $packid eq '_volatile' || $useforbuild->{$packid};
     my $bininfo = $gbininfo->{$packid};
-    next if $bininfo->{'.nouseforbuild'};               # channels/patchinfos don't go into the full tree
     $bininfo = $old if defined($oldpackid) && $oldpackid eq $packid;
+    next if $bininfo->{'.nouseforbuild'};               # channels/patchinfos don't go into the full tree
     my %f = BSSched::BuildResult::set_suf_and_filter_exports($gctx, $bininfo, $fctx->{'filter'});
     for my $fn (sort { ($f{$a}->{'imported'} || 0) <=> ($f{$b}->{'imported'} || 0) || $a cmp $b} keys %f) {
       my $r = $f{$fn};
@@ -407,6 +428,7 @@ currently only puts unknown stuff into _volatile.
 sub fctx_migrate_full {
   my ($fctx, $gbininfo) = @_;
 
+  my $gctx = $fctx->{'gctx'};
   my $prp = $fctx->{'prp'};
   my $gdst = $fctx->{'gdst'};
   print "migrating full tree for $prp\n";
@@ -478,25 +500,12 @@ sub fctx_migrate_full {
   }
 
   # create newuseforbuild
-  my ($projid, $repoid) = split('/', $prp, 2);
-  my $gctx = $fctx->{'gctx'};
-  my $myarch = $gctx->{'arch'};
-  my $projpacks = $gctx->{'projpacks'};
-  my $pdatas = $projpacks->{$projid}->{'package'} || {};
-  my $newuseforbuild = [];
-  my $prjuseforbuildenabled = 1;
-  $prjuseforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
-  for my $packid (sort keys %$pdatas) {
-    my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
-    my $useforbuildenabled = $prjuseforbuildenabled;
-    $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
-    push @$newuseforbuild, $packid if $useforbuildenabled;
-  }
-  BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild);
+  my $newuseforbuild = calculate_useforbuild($gctx, $prp, $fctx->{'bconf'}, $fctx->{'dstcache'});
+  my $newuseforbuild_arr = [ sort keys %$newuseforbuild ];
+  BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild_arr);
 
   # rebuild the full tree
-  my %newuseforbuild = map {$_ => 1} @$newuseforbuild;
-  my %newfull = fctx_gbininfo2full($fctx, $gbininfo, undef, undef, \%newuseforbuild);
+  my %newfull = fctx_gbininfo2full($fctx, $gbininfo, undef, undef, $newuseforbuild);
   fctx_rebuild_full($fctx, \%newfull, $gbininfo);
 }
 
@@ -636,40 +645,11 @@ sub fctx_integrate_package_into_full {
   fctx_rebuild_full($fctx, \%newfull, $gbininfo);
 }
 
-=head2 fctx_integrate_package_into_full_old - the old way to put files from a package into the full tree.
-
-$old is actually $oldrepo.
-
-just overwrite the entries in the full tree with the new packages,
-but be careful when removing entries.
+=head2 fctx_move_into_full - TODO
 
 =cut
 
-sub fctx_integrate_package_into_full_old {
-  my ($fctx, $old, $new) = @_;
-  my $gdst = $fctx->{'gdst'};
-  my %fnew;
-  for my $rp (sort keys %$new) {
-    my $r = $new->{$rp};
-    next unless $r->{'suf'} && $r->{'id'};
-    fctx_add_binary_to_full($fctx, $rp, $r);
-    $fnew{$r->{'name'}} = 1;
-  }
-  for my $rp (sort keys %$old) {
-    my $r = $old->{$rp};
-    next unless $r->{'suf'} && $r->{'id'};
-    next if $fnew{$r->{'name'}};        # already overwritten with new version
-    my @s = stat("$gdst/:full/$r->{'name'}.$r->{'suf'}");
-    next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";        # don't delete package if not ours
-    fctx_del_binary_from_full($fctx, $r);
-  }
-}
-
-=head2 move_into_full - TODO
-
-=cut
-
-sub move_into_full {
+sub fctx_move_into_full {
   my ($fctx, $old, $new) = @_;
 
   my $prp = $fctx->{'prp'};
@@ -684,7 +664,7 @@ sub move_into_full {
   my $metacache;
   my $metacache_ismerge;
 
-  if ($fullcache && $fullcache->{'old'} && $BSSched::BuildResult::new_full_handling) {
+  if ($fullcache && $fullcache->{'old'}) {
     my $move_into_full_cnt = $fullcache->{'move_into_full_cnt'} || 0;
     if ($move_into_full_cnt > 20) {
       # a lot of integration work, go into "rebuild full tree later" mode
@@ -727,12 +707,7 @@ sub move_into_full {
   $fctx->{'metacache_ismerge'} = $metacache_ismerge;
   $fctx->{'dep2meta'} = $repodatas->{$prpa}->{'meta'} if $repodatas->{$prpa} && $repodatas->{$prpa}->{'meta'};
   mkdir_p("$gdst/:full") if $new && %$new && ! -d "$gdst/:full";
-
-  if ($BSSched::BuildResult::new_full_handling) {
-    fctx_integrate_package_into_full($fctx, $old, $new);
-  } else {
-    fctx_integrate_package_into_full_old($fctx, $old, $new);
-  }
+  fctx_integrate_package_into_full($fctx, $old, $new);
 
   mkdir_p($gdst) unless -d $gdst;
   if ($fullcache) {
@@ -793,7 +768,6 @@ sub sync_fullcache {
     }
   }
   if ($fullcache->{'rebuild_full_tree'}) {
-    die unless $BSSched::BuildResult::new_full_handling;
     unlink($fullcache->{'rebuild_full_tree'});	# delete dummy event
     %$fullcache = (); 
     forcefullrebuild($gctx, $prp);
@@ -826,76 +800,60 @@ sub writesolv {
 =head2 checkuseforbuild - TODO: add summary
 
  check if the useforbuild settings have changed. If yes, update the :full tree
+ Returns true if the :full tree was updated
 
 =cut
 
 sub checkuseforbuild {
-  my ($gctx, $prp, $prpsearchpath, $dstcache, $forcerebuild) = @_;
-  return unless $BSSched::BuildResult::new_full_handling;
+  my ($gctx, $prp, $dstcache, $forcerebuild) = @_;
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $projpacks = $gctx->{'projpacks'};
   my ($projid, $repoid) = split('/', $prp, 2);
   my $proj = $projpacks->{$projid};
-  my $pdatas = $proj->{'package'} || {};
-  if (BSUtil::enabled($repoid, $proj->{'locked'}, 0, $myarch)) {
-    my $unlocked;
-    for my $packid (sort keys %$pdatas) {
-      my $lockedflags = $pdatas->{$packid}->{'locked'};
-      if ($lockedflags && !BSUtil::enabled($repoid, $lockedflags, 1, $myarch)) {
-        $unlocked = 1;
-        last;
-      }
+  return 0 unless $proj;
+
+  # do not mess with completely locked projects
+  if (BSUtil::enabled($repoid, $proj->{'lock'}, 0, $myarch)) {
+    my $alllocked = 1;
+    for my $pack (grep {$_->{'lock'}} values %{$proj->{'package'} || {}}) {
+      $alllocked = 0 unless BSUtil::enabled($repoid, $pack->{'lock'}, 1, $myarch);
     }
-    return unless $unlocked;
+    return 0 if $alllocked;
   }
-  my $newuseforbuild = [];
-  my $prjuseforbuildenabled = 1;
-  $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
-  for my $packid (sort keys %$pdatas) {
-    my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
-    my $useforbuildenabled = $prjuseforbuildenabled;
-    $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
-    push @$newuseforbuild, $packid if $useforbuildenabled;
-  }
-  my %olduseforbuild;
-  my %newuseforbuild;
-  my $olduseforbuild = BSUtil::retrieve("$gdst/:full.useforbuild", 1);
-  if (!$olduseforbuild) {
-    $olduseforbuild = [] unless -d "$gdst/:full";
-  }
-  if ($olduseforbuild && $proj->{'missingpackages'}) {
-    # our pdatas are incomplete. Add missing entries from old data.
-    for my $packid (@$olduseforbuild) {
-      push @$newuseforbuild, $packid unless $pdatas->{$packid};
-    }
-    @$newuseforbuild = sort(@$newuseforbuild);
-  }
-  $olduseforbuild = undef if $forcerebuild;
-  if ($olduseforbuild) {
-    return if join('/', @$olduseforbuild) eq join('/', @$newuseforbuild);
-    # diff it. only care about current packages.
-    %olduseforbuild = map {$_ => 1} @$olduseforbuild;
-    %newuseforbuild = map {$_ => 1} @$newuseforbuild;
-    # work around added/removed packages
-    for (keys %newuseforbuild) {
-      next if $olduseforbuild{$_};
-      $olduseforbuild{$_} = 1 if ! -d "$gdst/$_";       # did not exist before
-    }
-  }
-  BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache; 
-  my $filter = BSSched::BuildResult::calculate_exportfilter($gctx, $prp, $prpsearchpath, $dstcache);
+
+  my $bconf = BSSched::BuildResult::getconfig($gctx, $prp, $dstcache);  # hopefully taken from the cache
+
+  my $olduseforbuild_arr = BSUtil::retrieve("$gdst/:full.useforbuild", 1);
+  $olduseforbuild_arr = [] if !$olduseforbuild_arr && ! -d "$gdst/:full";
+  $olduseforbuild_arr = undef if $forcerebuild;
+  my $newuseforbuild = calculate_useforbuild($gctx, $prp, $bconf, $dstcache);
+  my $newuseforbuild_arr = [ sort keys %$newuseforbuild ];
+
+  # return if there was no change
+  return 0 if $olduseforbuild_arr && join('/', @$olduseforbuild_arr) eq join('/', @$newuseforbuild_arr);
+
+  my $filter = BSSched::BuildResult::calculate_exportfilter($gctx, $bconf);
   my $fctx = {
     'gctx' => $gctx,
     'gdst' => $gdst,
     'prp' => $prp,
     'filter' => $filter,
     'dstcache' => $dstcache,
+    'bconf' => $bconf,
   };
-  if ($olduseforbuild) {
+
+  if ($olduseforbuild_arr) {
+    # diff it. only care about current packages.
+    my %olduseforbuild = map {$_ => 1} @$olduseforbuild_arr;
+    # work around added/removed packages
+    for (grep {!$olduseforbuild{$_}} keys %$newuseforbuild) {
+      $olduseforbuild{$_} = 1 unless -d "$gdst/$_";       # did not exist before
+    }
     $fctx->{'olduseforbuild'} = \%olduseforbuild;
-    $fctx->{'newuseforbuild'} = \%newuseforbuild;
+    $fctx->{'newuseforbuild'} = $newuseforbuild;
   }
+
   # setup metacache
   if (((-s "$gdst/:full.metacache") || 0) < 16384 && ! -e "$gdst/:full.metacache.merge") {
     $fctx->{'metacache'} = BSUtil::retrieve("$gdst/:full.metacache", 1) || {};
@@ -903,15 +861,21 @@ sub checkuseforbuild {
     $fctx->{'metacache'} = BSUtil::retrieve("$gdst/:full.metacache.merge", 1) || {};
     $fctx->{'metacache_ismerge'} = 1;
   }
+
   # this will also remove no longer existing packages from the :full tree
-  move_into_full($fctx, undef, undef);
-  BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild);
+  fctx_move_into_full($fctx, undef, undef);
+
+  # update the full.useforbuild file
+  BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild_arr);
+
   # flush updated metacache
   if ($fctx->{'metacache_ismerge'}) {
     BSUtil::store("$gdst/.:full.metacache.merge", "$gdst/:full.metacache.merge", $fctx->{'metacache'});
   } else {
     BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $fctx->{'metacache'});
   }
+
+  return 1;
 }
 
 =head2 forcefullrebuild - force the rebuild of the full repo
@@ -922,7 +886,7 @@ sub checkuseforbuild {
 
 sub forcefullrebuild {
   my ($gctx, $prp) = @_;
-  checkuseforbuild($gctx, $prp, $gctx->{'prpsearchpath'}->{$prp}, undef, 1); 
+  checkuseforbuild($gctx, $prp, undef, 1); 
 }
 
 =head2 addrepo_scan - add :full repo to pool, make sure repo is up-to-data by scanning the directory

@@ -7,36 +7,7 @@ RSpec.describe MultibuildPackage do
   let(:test_class) { TestMultibuildPackage }
 
   context 'class methods' do
-    it { expect(test_class).to respond_to(:valid_multibuild_name?) }
     it { expect(test_class).to respond_to(:striping_multibuild_suffix) }
-
-    describe '.valid_multibuild_name?' do
-      before do
-        allow(test_class).to receive(:valid_name?).and_return(package_name_validation)
-      end
-
-      context 'valid multibuild name' do
-        subject { test_class.valid_multibuild_name?(package_name) }
-
-        let(:package_name) { 'foo:bar' }
-        let(:package_name_validation) do
-          Package.valid_name?(package_name, allow_multibuild: true)
-        end
-
-        it { expect(subject).to be_truthy }
-      end
-
-      context 'invalid multibuild name' do
-        subject { test_class.valid_multibuild_name?(package_name) }
-
-        let(:package_name) { 'foo:bar' }
-        let(:package_name_validation) do
-          Package.valid_name?(package_name, allow_multibuild: false)
-        end
-
-        it { expect(subject).to be_falsey }
-      end
-    end
 
     describe '.striping_multibuild_suffix' do
       context '_patchinfo' do

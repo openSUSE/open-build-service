@@ -4,15 +4,13 @@
   @pagetitle += ": #{@action.name}"
   render partial: 'webui/request/show_actions', locals: { bs_request: @bs_request }
 
-= render partial: 'beta_alert', locals: { bs_request: @bs_request, action: @action }
-
 .card
   .card-body.p-0
     = render partial: 'request_header',
         locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action,
                   prev_action: @prev_action, next_action: @next_action, actions: @actions,
                   diff_to_superseded_id: @diff_to_superseded_id, page_name: '',
-                  bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects }
+                  current_notification: @current_notification }
     = render partial: 'request_tabs',
         locals: { bs_request: @bs_request, action: @action, issues: @issues,
                   actions_count: @actions.count, active_tab: @active_tab }
@@ -73,7 +71,8 @@
                   .collapse.mb-4#collapse-superseding
                     = render BsRequestActivityTimelineComponent.new(bs_request: superseding_request,
                                                                     history_elements: @history_elements,
-                                                                    request_reviews_for_non_staging_projects: @request_reviews)
+                                                                    request_reviews_for_non_staging_projects: @request_reviews,
+                                                                    timeline_for_superseeded: true)
                 = render BsRequestActivityTimelineComponent.new(bs_request: @bs_request,
                                                                 history_elements: @history_elements,
                                                                 request_reviews_for_non_staging_projects: @request_reviews)
@@ -104,19 +103,18 @@
                     will be
                     %strong auto-accepted
                     = render TimeComponent.new(time: @bs_request.accept_at)
-
-              .chart_build_results_wrapper{ data: { url: request_chart_build_results_path } }
-              :javascript
-                updateChartBuildResults();
-                setInterval(updateChartBuildResults, 60000);
+              // rendering the chart for a bs_request with a lot of bs_request_actions can cause performance issues on the backend,
+              // we need to skip those
+              - if User.session && @actions.count <= 300
+                .chart_build_results_wrapper{ data: { url: request_chart_build_results_path } }
+                :javascript
+                  updateChartBuildResults();
 
               - if policy(@bs_request).handle_request? && @bs_request.can_be_reopened?
                 = render partial: 'accordion_reviews', locals: { accepted_reviews: @request_reviews.accepted,
                                                                  pending_reviews: @request_reviews.opened,
                                                                  declined_reviews: @request_reviews.declined }
               = render RequestDecisionComponent.new(bs_request: @bs_request,
-                                                    action: @action,
-                                                    is_target_maintainer: @is_target_maintainer,
                                                     package_maintainers: @package_maintainers,
                                                     show_project_maintainer_hint: @show_project_maintainer_hint)
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',

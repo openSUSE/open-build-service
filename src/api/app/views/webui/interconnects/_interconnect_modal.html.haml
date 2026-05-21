@@ -7,19 +7,19 @@
         .modal-body
           .mb-3
             = f.label :name, 'Local Project Name'
-            %abbr.text-danger{ title: 'required' } *
+            = render partial: 'webui/shared/required_label_mark'
             = f.text_field :name, class: 'form-control', required: true, placeholder: 'Add a name for your project'
           .mb-3
             = f.label :remote_url, 'Remote OBS api url'
-            %abbr.text-danger{ title: 'required' } *
+            = render partial: 'webui/shared/required_label_mark'
             = f.text_field :remoteurl, class: 'form-control', required: true, placeholder: 'Add an OBS api url'
           .mb-3
             = f.label :title
-            %abbr.text-danger{ title: 'required' } *
+            = render partial: 'webui/shared/required_label_mark'
             = f.text_field :title, class: 'form-control', required: true, placeholder: 'Remote OBS instance'
           .mb-3
             = f.label :description
-            %abbr.text-danger{ title: 'required' } *
+            = render partial: 'webui/shared/required_label_mark'
             = f.text_field :description, class: 'form-control', required: true,
                                          placeholder: 'This project is representing a remote build service instance.'
         .modal-footer

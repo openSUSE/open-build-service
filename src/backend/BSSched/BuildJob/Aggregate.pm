@@ -22,6 +22,7 @@ use Digest::MD5 ();
 use JSON::XS ();		# for containerinfo reading/writing
 use POSIX;
 
+use BSOBS;
 use BSUtil;
 use BSXML;
 use BSRPC;			# FIXME: only async calls, please
@@ -32,7 +33,7 @@ use BSSched::RPC;		# for is_transient_error
 use BSSched::ProjPacks;		# for orderpackids
 use BSVerify;			# for verify_nevraquery
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my @binsufs_sign = qw{rpm pkg.tar.gz pkg.tar.xz pkg.tar.zst};
@@ -148,6 +149,7 @@ sub check {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $reporoot = $gctx->{'reporoot'};
+  return ('broken', 'need aggregatelist data') unless $pdata->{'aggregatelist'};
   # clone it as we may patch the 'packages' array below
   my $aggregates = BSUtil::clone($pdata->{'aggregatelist'}->{'aggregate'} || []);
   my @broken;
@@ -157,8 +159,40 @@ sub check {
   my %gbininfos;
   my $projpacks = $gctx->{'projpacks'};
   my $remoteprojs = $gctx->{'remoteprojs'};
+
+  # check if we want a "oneshot" build
+  if ($ctx->{'conf'}->{'buildflags:aggregate-checklocal'} && ($ctx->{'repo'}->{'rebuild'} || 'transitive') eq 'local') {
+    my $old_meta;
+    if (open(F, '<', "$ctx->{'gdst'}/:meta/$packid")) {
+      $old_meta = <F>;
+      chomp $old_meta;
+      close F;
+    }
+    if ($old_meta && $old_meta eq (($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid")) {
+      print "      - $packid (aggregate)\n";
+      print "        nothing changed (local)\n";
+      return ('done');
+    }
+  }
+
+  # first pass: make sure everything looks good and check if we are blocked
+  # also patch in package list if it is not present
   for my $aggregate (@$aggregates) {
-    my $aprojid = $aggregate->{'project'};
+    my $arch = $aggregate->{'sourcearch'} || $myarch;
+    if ($aggregate->{'arch'} && $aggregate->{'arch'} ne $myarch) {
+      if ($myarch eq 'local' && $arch eq $myarch) {
+	# always send those for now, should probably be more clever in the future
+	my $oarch = $aggregate->{'arch'};
+        my $level = ($ctx->{'changetype'} || 'med') eq 'low' ? 1 : 2;
+	$ctx->{'sendunblockedevents'}->{"$projid/$repoid/$oarch"} = $level if grep {$_ eq $oarch} @{$ctx->{'repo'}->{'arch'} || []};
+      }
+      next;
+    }
+    if ($arch ne $myarch) {
+      return ('broken', "can only use 'local' as an aggregate sourcearch") if $arch ne 'local';		# for now
+      return ('broken', "need sourcearch '$arch' in repository") unless grep {$_ eq $arch} @{$ctx->{'repo'}->{'arch'} || []};
+    }
+    my $aprojid = $aggregate->{'project'} || $projid;
     my $proj = $remoteprojs->{$aprojid} || $projpacks->{$aprojid};
     if (!$proj || $proj->{'error'}) {
       push @broken, $aprojid;
@@ -177,10 +211,12 @@ sub check {
     my @apackids = @{$aggregate->{'package'} || []};
     my $abinfilter;
     $abinfilter = { map {$_ => 1} @{$aggregate->{'binary'}} } if $aggregate->{'binary'};
+    my $aarchfilter;
+    $aarchfilter = { map {$_ => 1} @{$aggregate->{'binaryarch'}} } if $aggregate->{'binaryarch'};
     for my $arepoid (@arepoids) {
       my $aprp = "$aprojid/$arepoid";
       my $arepo = (grep {$_->{'name'} eq $arepoid} @{$proj->{'repository'} || []})[0];
-      if (!$arepo || !grep {$_ eq $myarch} @{$arepo->{'arch'} || []}) {
+      if (!$arepo || !grep {$_ eq $arch} @{$arepo->{'arch'} || []}) {
 	push @broken, $aprp;
 	next;
       }
@@ -190,24 +226,24 @@ sub check {
 
       # for remote projects we always need the gbininfo
       if ($remoteprojs->{$aprojid}) {
-	my $gbininfo = $ctx->read_gbininfo($aprp, $myarch, $ps);
-	$gbininfos{"$aprp/$myarch"} = $gbininfo;
+	my $gbininfo = $ctx->read_gbininfo($aprp, $arch, $ps);
+	$gbininfos{"$aprp/$arch"} = $gbininfo;
 	if (!$gbininfo) {
 	  $delayed = 1 if defined $gbininfo;
 	  push @broken, $aprp;
 	  next;
 	}
       } else {
-        $ps = $ctx->read_packstatus($aprp, $myarch);
+        $ps = $ctx->read_packstatus($aprp, $arch);
       }
 
       if (!$aggregate->{'package'}) {
 	# calculate apackids using the gbininfo file
 	my $gbininfo;
 	if ($remoteprojs->{$aprojid}) {
-	  $gbininfo = $gbininfos{"$aprp/$myarch"};
+	  $gbininfo = $gbininfos{"$aprp/$arch"};
 	} else {
-	  $gbininfo = $ctx->read_gbininfo($aprp);
+	  $gbininfo = $ctx->read_gbininfo($aprp, $arch);
 	}
 	if (!$gbininfo) {
 	  push @broken, $aprp;
@@ -216,8 +252,11 @@ sub check {
 	for my $apackid (keys %$gbininfo) {
 	  next if $apackid eq '_volatile';
 	  my $bininfo = $gbininfo->{$apackid};
-	  if ($abinfilter) {
-	    next unless grep {defined($_->{'name'}) && $abinfilter->{$_->{'name'}}} values %$bininfo;
+	  if ($abinfilter || $aarchfilter) {
+	    my @hits = values %$bininfo;
+	    @hits = grep {defined($_->{'name'}) && $abinfilter->{$_->{'name'}}} @hits if $abinfilter;
+	    @hits = grep {defined($_->{'arch'}) && $aarchfilter->{$_->{'arch'}}} @hits if $aarchfilter;
+	    next unless @hits;
 	  }
 	  push @apackids, $apackid;
 	}
@@ -248,8 +287,10 @@ sub check {
       }
     }
     # patch in calculated package list
+    $aggregate->{'do_product'} = 1 if @{$aggregate->{'package'} || []};
     $aggregate->{'package'} ||= \@apackids;
   }
+  
   if (@broken) {
     my $error = 'missing repositories: '.join(', ', @broken);
     print "      - $packid (aggregate)\n";
@@ -266,9 +307,13 @@ sub check {
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
   }
+
+  # second pass: generate new meta 
   my @new_meta = ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   for my $aggregate (@$aggregates) {
-    my $aprojid = $aggregate->{'project'};
+    next if $aggregate->{'arch'} && $aggregate->{'arch'} ne $myarch;
+    my $arch = $aggregate->{'sourcearch'} || $myarch;
+    my $aprojid = $aggregate->{'project'} || $projid;
     my @apackids = @{$aggregate->{'package'} || []};
     my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$aggregate->{'repository'} || []};
     if (@arepoids) {
@@ -283,7 +328,7 @@ sub check {
 	my $m = '';
         my $havecontainer;
 	if ($remoteprojs->{$aprojid}) {
-	  my $bininfo = ($gbininfos{"$aprojid/$arepoid/$myarch"} || {})->{$apackid} || {};
+	  my $bininfo = ($gbininfos{"$aprojid/$arepoid/$arch"} || {})->{$apackid} || {};
 	  for my $bin (sort {($a->{'filename'} || '') cmp ($b->{'filename'} || '')} values %$bininfo) {
 	    my $filename = $bin->{'filename'};
 	    next unless $filename;
@@ -292,10 +337,10 @@ sub check {
 	    $m .= $bin->{'hdrmd5'} || $bin->{'md5sum'} || '';
 	  }
 	} else {
-	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
-	  $d = "$reporoot/$aprojid/$arepoid/$myarch/:full" if $apackid eq '_repository';
+	  my $d = "$reporoot/$aprojid/$arepoid/$arch/$apackid";
+	  $d = "$reporoot/$aprojid/$arepoid/$arch/:full" if $apackid eq '_repository';
 	  for my $filename (sort(ls($d))) {
-	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.(?:obsbinlnk|helminfo)$/;
+	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.(?:obsbinlnk|helminfo|report)$/;
 	    $havecontainer = 1 if $filename =~ /\.(?:obsbinlnk|helminfo)$/;
 	    my @s = stat("$d/$filename");
 	    $m .= "$filename\0$s[9]/$s[7]/$s[1]\0" if @s;
@@ -308,13 +353,14 @@ sub check {
 	    $m .= "\0\0aggregate-container-add-tag\0".join("\0", @{$bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}});
 	  }
 	}
-	$m = Digest::MD5::md5_hex($m)."  $aprojid/$arepoid/$myarch/$apackid";
+	$m = Digest::MD5::md5_hex($m)."  $aprojid/$arepoid/$arch/$apackid";
 	push @new_meta, $m;
       }
     }
   }
+  my $gdst = $ctx->{'gdst'};
   my @meta;
-  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
+  if (open(F, '<', "$gdst/:meta/$packid")) {
     @meta = <F>;
     close F;
     chomp @meta;
@@ -338,7 +384,7 @@ sub check {
 =cut
 
 sub copy_provenance {
-  my ($jobdatadir, $dirprefix, $d, $filename, $jobbins, $aprpap_idx) = @_;
+  my ($jobdatadir, $ddir, $d, $filename, $jobbins, $aprpap_idx) = @_;
   die unless $d =~ s/\.(?:$binsufsre|containerinfo|helminfo)$/.slsa_provenance.json/;
   my $provenance = $filename;
   die unless $provenance =~ s/\.(?:$binsufsre|containerinfo|helminfo)$/.slsa_provenance.json/;
@@ -346,8 +392,8 @@ sub copy_provenance {
     BSUtil::cp($d, "$jobdatadir/$provenance");
     $jobbins->{$provenance} = $aprpap_idx;
     return $provenance;
-  } elsif (-e "${dirprefix}_slsa_provenance.json") {
-    BSUtil::cp("${dirprefix}_slsa_provenance.json", "$jobdatadir/$provenance");
+  } elsif (defined($ddir) && -e "${ddir}_slsa_provenance.json") {
+    BSUtil::cp("${ddir}_slsa_provenance.json", "$jobdatadir/$provenance");
     $jobbins->{$provenance} = $aprpap_idx;
     return $provenance;
   }
@@ -403,8 +449,13 @@ sub build {
   my %conflicts;
   my @aprpap_idx = ( undef );
 
+  my $aggregatelist = $pdata->{'aggregatelist'};
+  my $resign = defined($aggregatelist->{'resign'}) && ($aggregatelist->{'resign'} eq 'false' || $aggregatelist->{'resign'} eq '0') ? 0 : 1;
+
   for my $aggregate (@$aggregates) {
-    my $aprojid = $aggregate->{'project'};
+    next if $aggregate->{'arch'} && $aggregate->{'arch'} ne $myarch;
+    my $arch = $aggregate->{'sourcearch'} || $myarch;
+    my $aprojid = $aggregate->{'project'} || $projid;
     my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$aggregate->{'repository'} || []};
     if (@arepoids) {
       @arepoids = map {$_->{'source'}} grep {exists($_->{'source'})} @arepoids;
@@ -414,20 +465,33 @@ sub build {
     my @apackids = @{$aggregate->{'package'} || []};
     my $abinfilter;
     $abinfilter = { map {$_ => 1} @{$aggregate->{'binary'}} } if $aggregate->{'binary'};
+    my $aarchfilter;
+    $aarchfilter = { map {$_ => 1} @{$aggregate->{'binaryarch'}} } if $aggregate->{'binaryarch'};
     for my $arepoid (reverse @arepoids) {
       for my $apackid (@apackids) {
         next if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq $packid;
 	my @d;
 	my $cpio;
 	my $nosource = exists($aggregate->{'nosources'}) ? 1 : 0;
+	my $noupdateinfo = exists($aggregate->{'noupdateinfo'}) ? 1 : 0;
 	my $updateinfo;
+        my $bininfo = {};
 	if ($remoteprojs->{$aprojid}) {
 	  my $remoteproj = $remoteprojs->{$aprojid};
 	  my @args = 'view=cpio';
 	  push @args, 'noajax=1' if $remoteproj->{'partition'};
-	  push @args, map {"binary=$_"} @{$aggregate->{'binary'}} if $apackid eq '_repository' && $aggregate->{'binary'};
+	  if (@{$aggregate->{'binary'} || []}) {
+	    if ($apackid eq '_repository') {
+	      push @args, map {"binary=$_"} @{$aggregate->{'binary'}};
+	    } elsif ($remoteproj->{'partition'}) {
+	      # if this is a partition we can use the new "aggregatemode" switch to
+	      # do the binary filtering on the server
+	      push @args, 'aggregatemode=1';
+	      push @args, map {"binary=$_"} @{$aggregate->{'binary'}};
+	    }
+	  }
 	  my $param = {
-	    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$myarch/$apackid",
+	    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch/$apackid",
 	    'receiver' => \&BSHTTP::cpio_receiver,
 	    'directory' => $jobdatadir,
 	    'map' => "upload:",
@@ -436,31 +500,30 @@ sub build {
 	  };
 	  my $done;
 	  if ($nosource) {
-	    eval {
-	      $cpio = BSRPC::rpc($param, undef, @args, 'nosource=1');
-	    };
+	    eval { $cpio = BSRPC::rpc($param, undef, @args, 'nosource=1') };
 	    $done = 1 if !$@ || $@ !~ /nosource/;
 	  }
-	  eval {
-	    $cpio = BSRPC::rpc($param, undef, @args);
-	  } unless $done;
+          if (!$done) {
+	    eval { $cpio = BSRPC::rpc($param, undef, @args) };
+	  }
 	  if ($@) {
 	    warn($@);
 	    $error = $@;
 	    chomp $error;
-	    $gctx->{'retryevents'}->addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if BSSched::RPC::is_transient_error($error);
+	    $gctx->{'retryevents'}->addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $arch}) if BSSched::RPC::is_transient_error($error);
 	    last;
 	  }
 	  @d = map {"$jobdatadir/$_->{'name'}"} @{$cpio || []};
 	  $nosource = 1 if -e "$jobdatadir/upload:.nosourceaccess";
 	} else {
-	  my $dir = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
-	  $dir = "$reporoot/$aprojid/$arepoid/$myarch/:full" if $apackid eq '_repository';
+	  my $dir = "$reporoot/$aprojid/$arepoid/$arch/$apackid";
+	  $dir = "$reporoot/$aprojid/$arepoid/$arch/:full" if $apackid eq '_repository';
 	  @d = map {"$dir/$_"} sort(ls($dir));
 	  $nosource = 1 if -e "$dir/.nosourceaccess";
+	  $bininfo = BSUtil::retrieve("$dir/.bininfo", 1) || {} if $apackid ne '_repository';
 	}
 
-	my $aprpap = "$aprojid/$arepoid/$myarch/$apackid";
+	my $aprpap = "$aprojid/$arepoid/$arch/$apackid";
 
         # save some mem by using a number instead of a string
 	my $aprpap_idx = scalar(@aprpap_idx);
@@ -468,7 +531,7 @@ sub build {
 	
 	$logfile .= "$aprpap\n" if @d;
 
-	my $copysources;
+	my %srcbinaries;
 	my @sources;
 	my $dirprefix = $cpio ? "$jobdatadir/upload:" : "$reporoot/$aprpap/";
 	for my $d (@d) {
@@ -478,6 +541,7 @@ sub build {
 	  $filename =~ s/.*\///;
 	  $filename =~ s/^upload:// if $cpio;
 	  if ($filename eq 'updateinfo.xml') {
+	    next if $noupdateinfo;
 	    next if $abinfilter && !$abinfilter->{$filename};
 	    if ($jobbins{$filename}) {
 	      push @{$conflicts{$filename}}, $aprpap_idx;
@@ -593,25 +657,71 @@ sub build {
 	    $logfile .= "      - $provenance\n" if $provenance;
 	    next;
 	  }
+          if ($aggregate->{'do_product'} && $filename =~ /(.+)\.report$/ && -d "$dirprefix$1") {
+	    my $projectdir = $1;
+	    my $report = readxml("$dirprefix$filename", $BSXML::report, 1);
+	    next unless $report;
+	    for my $rbin (@{$report->{'binary'} || []}) {
+	      next if $nosource && $rbin->{'name'} =~ /-debug(:?info|source)?$/;
+	      next if $aarchfilter && !$aarchfilter->{$rbin->{'binaryarch'}};
+	      # construct canonical path
+	      my $subpath = "$rbin->{'binaryarch'}/$rbin->{'name'}-$rbin->{'version'}-$rbin->{'release'}.$rbin->{'binaryarch'}.rpm";
+	      next if $subpath =~ /^\// || "/$subpath" =~ /\/\./;	# hey!
+	      next unless $subpath =~ /\.(?:$binsufsre)$/;
+	      next if $subpath =~ /\.(?:nosrc|src)\.rpm$/;
+	      next unless -e "$dirprefix$projectdir/$subpath";
+	      my $dst = $subpath;
+	      $dst =~ s/.*\///;
+	      if ($jobbins{$dst}) {
+	        push @{$conflicts{$dst}}, $aprpap_idx;
+	        next;  # first one wins
+	      }
+	      $jobbins{$dst} = $aprpap_idx;
+	      unlink("$jobdatadir/$dst");
+	      eval {
+	        if ($resign) {
+	          BSUtil::cp("$dirprefix$projectdir/$subpath", "$jobdatadir/$dst");
+	        } else {
+		  link("$dirprefix$projectdir/$subpath", "$jobdatadir/$dst") || die("link $dirprefix$projectdir/$subpath $jobdatadir/$dst: $!\n");
+	        }
+	        $logfile .= "  - $dst [$s[9]/$s[7]/$s[1]] (from $filename)\n";
+	        my $provenance = copy_provenance($jobdatadir, undef, "$dirprefix$projectdir/$subpath", $dst, \%jobbins, $aprpap_idx);
+	        $logfile .= "      - $provenance\n" if $provenance;
+	      };
+	      if ($@) {
+	        warn($@);
+	        $error = $@;
+	        chomp $error;
+		last;
+	      }
+	    }
+	    next;
+	  }
 	  next unless $filename =~ /\.(?:$binsufsre)$/;
 	  my $origfilename = $filename;
 	  $filename =~ s/^::import::.*?:://;
-	  my $r;
+	  my $r = $bininfo->{$filename};
+	  $r = undef if $r && !(defined($r->{'version'}) && ($r->{'id'} || '') eq "$s[9]/$s[7]/$s[1]");
 	  eval {
-	    $r = Build::query($d, 'evra' => 1);
+	    $r ||= Build::query($d, 'evra' => 1);
 	    BSVerify::verify_nevraquery($r) if $r;
-	    $r->{'id'} = "$s[9]/$s[7]/$s[1]";
 	  };
-	  next unless $r;
-	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
+	  next if $@ || !$r;
 	  if (!$r->{'source'}) {
-	    # this is a source binary
-	    push @sources, [ $d, $r, $filename, $origfilename ];
+	    # this is a source binary, delay copying until we know what we need
+	    push @sources, [ $d, $r, $filename, $origfilename ] unless $nosource;
 	    next;
 	  }
-	  next unless $r->{'source'};
+
+	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
+	  next if $aarchfilter && !$aarchfilter->{$r->{'arch'}};
 	  # FIXME: How is debian handling debug packages ?
-	  next if $nosource && ($r->{'name'} =~ /-debug(:?info|source)?$/);
+	  if ($r->{'name'} =~ /-debug(:?info|source)?$/) {
+	    # this is a debug package. For now, ignore if we do not want sources
+	    # and it's not directly included in the filter
+	    next if $nosource && !$abinfilter;
+	  }
+
 	  if ($jobbins{$filename}) {
 	    push @{$conflicts{$filename}}, $aprpap_idx;
 	    next;  # first one wins
@@ -622,22 +732,28 @@ sub build {
 	    $have_modulemd_artifacts = 1 if $art > 0;
 	  }
 	  $jobbins{$filename} = $aprpap_idx;
-	  BSUtil::cp($d, "$jobdatadir/$filename");
+	  unlink("$jobdatadir/$filename");
+	  if ($resign) {
+	    BSUtil::cp($d, "$jobdatadir/$filename");
+	  } else {
+	    link($d, "$jobdatadir/$filename") || die("link $d $jobdatadir/$filename: $!\n");
+	  }
 	  if ($filename ne $origfilename) {
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]] (from $origfilename)\n";
 	  } else {
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
 	  }
-	  $copysources = 1 unless $nosource;
+	  $srcbinaries{$r->{'source'}} = 1 unless $nosource;
 	  my $provenance = copy_provenance($jobdatadir, $dirprefix, $d, $filename, \%jobbins, $aprpap_idx);
 	  $logfile .= "      - $provenance\n" if $provenance;
 	}
-	@sources = () unless $copysources;
+	@sources = () if $abinfilter && !%srcbinaries;
 	for my $d (@sources) {
 	  my $r = $d->[1];
 	  my $filename = $d->[2];
 	  my $origfilename = $d->[3];
 	  $d = $d->[0];
+	  next if $abinfilter && !$srcbinaries{$r->{'name'}};
 	  if ($jobbins{$filename}) {
 	    push @{$conflicts{$filename}}, $aprpap_idx;
 	    next;  # first one wins
@@ -706,7 +822,7 @@ sub build {
   writestr("$jobdatadir/meta", undef, $new_meta);
   writestr("$jobdatadir/logfile", undef, $logfile);
   my $needsign;
-  $needsign = 1 if $BSConfig::sign && grep {/\.(?:$binsufsre_sign)$/} keys %jobbins;
+  $needsign = 1 if $resign && $BSConfig::sign && grep {/\.(?:$binsufsre_sign)$/} keys %jobbins;
   BSSched::BuildJob::fakejobfinished($ctx, $packid, $job, 'succeeded', { 'file' => '_aggregate' }, $needsign);
   print "        scheduled\n";
   return ('scheduled', $job);
@@ -750,17 +866,13 @@ sub jobfinished {
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
   print "  - $prp: $packid aggregate built\n";
-  my $useforbuildenabled = 1;
-  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   my $dstcache = $ectx->{'dstcache'};
-  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath, $dstcache);
-  $changed->{$prp} = 2 if $useforbuildenabled;
-  my $repounchanged = $gctx->{'repounchanged'};
-  delete $repounchanged->{$prp} if $useforbuildenabled;
-  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
+  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $dstcache);
   $changed->{$prp} ||= 1;
+  $changed->{$prp} = 2 if $changed_full;
+  my $repounchanged = $gctx->{'repounchanged'};
+  delete $repounchanged->{$prp} if $changed_full;
+  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
   unlink("$gdst/:repodone");
   unlink("$gdst/:logfiles.fail/$packid");
   if (-e "$jobdatadir/logfile") {
@@ -824,7 +936,5 @@ sub writehelminfo {
   my $helminfo_json = JSON::XS->new->utf8->canonical->pretty->encode($helminfo);
   writestr($fn, $fnf, $helminfo_json);
 }
-
-1;
 
 1;

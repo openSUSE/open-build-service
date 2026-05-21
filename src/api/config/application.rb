@@ -38,8 +38,8 @@ module OBSApi
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
-    # Enable rails version 6.1 defaults
-    config.load_defaults(6.1)
+    # Enable rails version 7.0 defaults
+    config.load_defaults 7.0
     # FIXME: This is a known isue in RAILS 6.1 https://github.com/rails/rails/issues/40867
     config.active_record.has_many_inversing = false
 
@@ -90,7 +90,7 @@ module OBSApi
 
     # Use the database for sessions instead of the file system
     # (create the session table with 'rails create_sessions_table')
-    # config.action_controller.session_store = :active_record_store
+    # config.action_controller.session_store :active_record_store
 
     # put the rubygem requirements here for a clean handling
     # rails gems:install (installs the needed gems)
@@ -143,11 +143,11 @@ module OBSApi
     # Previews are enabled by default in development and test environments (this is the default value)
     # config.view_component.show_previews = true
     # Preview classes of view components live in:
-    config.view_component.preview_paths << Rails.root.join('spec/components/previews')
+    config.view_component.previews.paths << Rails.root.join('spec/components/previews')
     # Previews are served at http://HOST:PORT/rails/view_components (this is the default value)
     # config.view_component.preview_route = "/rails/view_components"
     # Set the default layout for previews (app/views/layouts/NAME.html.haml)
-    config.view_component.default_preview_layout = 'view_component_previews'
+    config.view_component.previews.default_layout = 'view_component_previews'
     # Below the preview, display a syntax highlighted source code example of the usage of the view component
     config.view_component.show_previews_source = true
 

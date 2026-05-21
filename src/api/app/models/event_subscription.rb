@@ -16,12 +16,17 @@ class EventSubscription < ApplicationRecord
     source_package_watcher: 'Watching the source package',
     target_package_watcher: 'Watching the target package',
     request_watcher: 'Watching the request',
-    moderator: 'Your are moderator',
+    moderator: 'As a moderator',
     token_executor: 'User who runs the workflow',
     token_member: 'User the token is shared with',
-    reporter: 'You are reporter of the content',
-    offender: 'Your are the creator of the content',
-    member: 'Member'
+    updated_token_member: 'User or group member',
+    reporter: 'As a reporter of the content',
+    offender: 'As the creator of the content',
+    member: 'Member',
+    assignee: 'Assignee',
+    group_maintainer: 'Maintainer of the group',
+    develpackage_or_package_maintainer: 'Maintainer of the develpackage or the package',
+    admin_moderator_or_staff: 'User with the Admin, Staff or Moderator role'
   }.freeze
 
   enum :channel, {
@@ -35,7 +40,7 @@ class EventSubscription < ApplicationRecord
   # Channels used by the event system, but not meant to be enabled by hand
   INTERNAL_ONLY_CHANNELS = ['scm'].freeze
 
-  serialize :payload, JSON
+  serialize :payload, coder: JSON
 
   belongs_to :user, inverse_of: :event_subscriptions, optional: true
   belongs_to :group, inverse_of: :event_subscriptions, optional: true
@@ -49,7 +54,8 @@ class EventSubscription < ApplicationRecord
            reviewer commenter creator
            project_watcher source_project_watcher target_project_watcher
            package_watcher target_package_watcher source_package_watcher request_watcher any_role
-           moderator reporter offender token_executor token_member member]
+           moderator reporter offender token_executor token_member member assignee group_maintainer
+           develpackage_or_package_maintainer admin_moderator_or_staff updated_token_member]
   }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
@@ -117,7 +123,6 @@ end
 #  channel         :integer          default("disabled"), not null
 #  enabled         :boolean          default(FALSE)
 #  eventtype       :string(255)      not null
-#  payload         :text(65535)
 #  receiver_role   :string(255)      not null
 #  created_at      :datetime
 #  updated_at      :datetime

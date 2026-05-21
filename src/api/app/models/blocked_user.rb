@@ -12,8 +12,8 @@ end
 #  id         :bigint           not null, primary key
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  blocked_id :integer          not null, indexed, indexed => [blocker_id]
-#  blocker_id :integer          not null, indexed => [blocked_id]
+#  blocked_id :integer          not null, indexed, uniquely indexed => [blocker_id]
+#  blocker_id :integer          not null, uniquely indexed => [blocked_id]
 #
 # Indexes
 #

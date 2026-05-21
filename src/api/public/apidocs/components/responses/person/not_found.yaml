@@ -8,4 +8,4 @@ content:
       $ref: '../../schemas/api_response.yaml'
     example:
       code: not_found
-      summary: "Couldn't find User with login = <login>"
+      summary: "Couldn't find User"

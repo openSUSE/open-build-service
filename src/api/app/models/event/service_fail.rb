@@ -1,5 +1,7 @@
 module Event
   class ServiceFail < Base
+    include EventObjectPackage
+
     self.message_bus_routing_key = 'package.service_fail'
     self.description = 'Package source service failed'
     payload_keys :project, :package, :sender, :comment, :error, :rev, :user, :requestid
@@ -48,10 +50,6 @@ module Event
 
     def metric_fields
       { value: 1 }
-    end
-
-    def involves_hidden_project?
-      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
     end
   end
 end

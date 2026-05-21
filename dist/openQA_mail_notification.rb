@@ -24,7 +24,7 @@ def get_build_information(version)
   request = Net::HTTP::Get.new(uri.request_uri)
   response = http.request(request)
   JSON.parse(response.body)['jobs'].last
-rescue Exception => e
+rescue StandardError => e
   warn "Error while fetching openQA data: #{e.inspect}"
   abort
 end
@@ -58,7 +58,7 @@ def send_notification(from, to, subject, message)
   settings[:domain] = ENV.fetch('HOSTNAME') if ENV.fetch('HOSTNAME', nil).present?
   mail.delivery_method :smtp, settings
   mail.deliver
-rescue Exception => e
+rescue StandardError => e
   warn "#{SMTP_SERVER}: #{e.inspect}"
   abort
 end

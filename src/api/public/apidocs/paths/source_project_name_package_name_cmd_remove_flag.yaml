@@ -50,7 +50,7 @@ post:
             Missing Parameter flag:
               value:
                 code: missing_parameter
-                summary: Required Parameter flag missing
+                summary: 'param is missing or the value is empty: flag'
             Invalid flag:
               value:
                 code: invalid_flag

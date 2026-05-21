@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <start>
+    <ref name="assignment-element"/>
+  </start>
+
+  <define ns="" name="assignment-element">
+    <element name="assignment">
+      <optional>
+        <attribute name="package">
+          <data type="string"/>
+        </attribute>
+      </optional>
+      <interleave>
+        <element name="assignee">
+          <data type="string"/>
+        </element>
+        <optional>
+          <element name="assigner">
+            <data type="string"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="created_at">
+            <data type="string"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="updated_at">
+            <data type="string"/>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+
+</grammar>

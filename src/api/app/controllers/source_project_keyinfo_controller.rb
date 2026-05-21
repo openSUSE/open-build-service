@@ -1,9 +1,10 @@
 class SourceProjectKeyinfoController < SourceController
+  before_action :require_valid_project_name
   before_action :ensure_project_exist, only: [:show]
 
   # GET /source/:project/_keyinfo
   def show
-    pass_to_backend("/source/#{@project.to_param}/_keyinfo?withsslcert=1&donotcreatecert=1")
+    render xml: Backend::Api::Sources::Project.key_info(@project.name)
   end
 
   def ensure_project_exist

@@ -36,7 +36,7 @@
           - if show_username
             = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
             commented
-          = link_to(helpers.commentable_path(comment: comment),
+          = link_to(helpers.commentable_path(comment: comment, in_changes: !diff.present?),
                     name: "comment-#{comment.id}",
                     title: l(comment.created_at.utc)) do
             = render TimeComponent.new(time: comment.created_at)
@@ -54,29 +54,29 @@
               = link_to(action.uniq_key, request_show_path(number: action.bs_request, request_action_id: action))
               >
               = link_to request_changes_path(number: action.bs_request, request_action_id: action, anchor:) do
-                = render(DiffSubjectComponent.new(state: diff['state'], old_filename: diff.dig('old', 'name'), new_filename: diff.dig('new', 'name')))
+                = render(DiffSubjectComponent.new(state: diff['state'], file_info: diff))
               - if comment.outdated?
                 %span.badge.text-bg-warning Outdated
-            = render(DiffComponent.new(diff: diff.dig('diff', '_content'), range:))
+            = render(DiffComponent.new(diff: diff.dig('diff', '_content'), range:, highlighted_lines: [comment.diff_line_number]))
           - else
             %p.border-bottom.fst-italic.px-3.pt-3.pb-2
               The following comment was attached to a line that is outdated.
       .comment-bubble-content{ id: "comment-#{comment.id}-body" }
         = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
         = helpers.render_as_markdown(comment)
+      - if policy(comment).reply?
+        .d-flex.justify-content-end.me-3.mb-2
+          = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
+                    class: 'fst-italic small collapsed') do
+            Reply
 
       - if policy(comment).update?
-        .collapse.comment-edit{ id: "edit_form_of_#{comment.id}" }
+        .collapse.comment-edit.p-3{ id: "edit_form_of_#{comment.id}" }
           = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
           comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true })
 
     -# This should be refactored to avoid relying on global state
     - if policy(comment).reply?
-      .d-flex.justify-content-end.me-2
-        = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
-                  class: 'fst-italic small collapsed') do
-          Reply
-
       .collapse.ms-4.mb-4{ id: "reply_form_of_#{comment.id}" }
         = render(partial: 'webui/comment/comment_field', locals: { form_method: :post,
           comment: comment.children.new, commentable: commentable, element_suffix: "reply_for_#{comment.id}", has_cancel: true })

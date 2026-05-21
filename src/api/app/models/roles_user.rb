@@ -1,6 +1,17 @@
 class RolesUser < ApplicationRecord
   belongs_to :user
   belongs_to :role
+
+  validates :role, uniqueness: { scope: :user }
+  after_create :create_global_role_assignment_event
+
+  private
+
+  def create_global_role_assignment_event
+    return if Role.global_roles.exclude?(role.title) || User.session.nil?
+
+    Event::GlobalRoleAssigned.create(role: role.title, user: user.login, who: User.session.login)
+  end
 end
 
 # == Schema Information
@@ -9,8 +20,8 @@ end
 #
 #  id         :integer          not null, primary key
 #  created_at :datetime
-#  role_id    :integer          default(0), not null, indexed, indexed => [user_id]
-#  user_id    :integer          default(0), not null, indexed => [role_id]
+#  role_id    :integer          default(0), not null, indexed, uniquely indexed => [user_id]
+#  user_id    :integer          default(0), not null, uniquely indexed => [role_id]
 #
 # Indexes
 #

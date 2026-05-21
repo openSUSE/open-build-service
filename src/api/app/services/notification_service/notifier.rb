@@ -1,6 +1,5 @@
 module NotificationService
   class Notifier
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     EVENTS_TO_NOTIFY = ['Event::BuildFail',
                         'Event::RequestStatechange',
                         'Event::RequestCreate',
@@ -8,9 +7,9 @@ module NotificationService
                         'Event::CommentForProject',
                         'Event::CommentForPackage',
                         'Event::CommentForRequest',
+                        'Event::CommentForReport',
                         'Event::RelationshipCreate',
                         'Event::RelationshipDelete',
-                        'Event::CreateReport',
                         'Event::ReportForProject',
                         'Event::ReportForPackage',
                         'Event::ReportForComment',
@@ -21,7 +20,13 @@ module NotificationService
                         'Event::WorkflowRunFail',
                         'Event::AppealCreated',
                         'Event::AddedUserToGroup',
-                        'Event::RemovedUserFromGroup'].freeze
+                        'Event::RemovedUserFromGroup',
+                        'Event::AssignmentCreate',
+                        'Event::AssignmentDelete',
+                        'Event::UpstreamPackageVersionChanged',
+                        'Event::TokenMembershipUpdate',
+                        'Event::GlobalRoleAssigned',
+                        'Event::TokenStateChange'].freeze
     CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
@@ -32,24 +37,27 @@ module NotificationService
       'Decision' => ::Decision,
       'WorkflowRun' => ::WorkflowRun,
       'Appeal' => ::Appeal,
-      'Group' => ::Group
+      'Group' => ::Group,
+      'Token::Workflow' => ::Token::Workflow,
+      'User' => ::User
     }.freeze
     ALLOWED_CHANNELS = {
       web: NotificationService::WebChannel,
       rss: NotificationService::RSSChannel
     }.freeze
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    REJECTED_FOR_RSS = ['Event::CreateReport',
-                        'Event::ReportForProject',
+    REJECTED_FOR_RSS = ['Event::ReportForProject',
                         'Event::ReportForPackage',
                         'Event::ReportForComment',
                         'Event::ReportForUser',
                         'Event::ReportForRequest',
+                        'Event::CommentForReport',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision',
                         'Event::WorkflowRunFail',
                         'Event::AddedUserToGroup',
-                        'Event::RemovedUserFromGroup'].freeze
+                        'Event::RemovedUserFromGroup',
+                        'Event::GlobalRoleAssigned',
+                        'Event::TokenStateChange'].freeze
 
     def initialize(event)
       @event = event
@@ -80,8 +88,7 @@ module NotificationService
     end
 
     def skip_report_notification?(event:, subscriber:)
-      # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-      return false unless [Event::CreateReport, Event::Report].include?(event.class)
+      return false unless [Event::Report, Event::CommentForReport].any? { |klass| event.is_a?(klass) }
 
       !ReportPolicy.new(subscriber, Report).notify?
     end

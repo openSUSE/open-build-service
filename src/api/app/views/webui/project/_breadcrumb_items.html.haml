@@ -17,6 +17,9 @@
   - elsif current_page?(project_monitor_path(@project))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Monitor
+  - elsif current_page?(projects_requests_path(@project))
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Requests
   - elsif current_page?(project_requests_path(@project))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Requests

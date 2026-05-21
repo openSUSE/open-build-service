@@ -56,6 +56,16 @@
        </attribute>
       </optional>
 
+     <attribute name="enabled">
+      <a:documentation>
+       Indicates whether a token can accept trigger requests or not. A token is
+       created with the `enabled` attribute set to `true`, but this attribute may
+       be automatically set to `false` depending on the number of failed trigger
+       requests associated with the token.
+      </a:documentation>
+      <data type="boolean"/>
+     </attribute>
+
       <optional>
        <attribute name="project">
         <a:documentation>

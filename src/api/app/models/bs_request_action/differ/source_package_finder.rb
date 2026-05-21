@@ -2,6 +2,7 @@ class BsRequestAction
   module Differ
     class SourcePackageFinder
       include ActiveModel::Model
+
       attr_accessor :bs_request_action
       attr_writer :options
 

@@ -6,7 +6,7 @@
           %h5.modal-title#new-maintenance-project-modal-label
             Add maintained project to #{project_name}
         .modal-body
-          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'maintained_project', label: 'Project to be maintained:',
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'maintained_project', label: 'Project to be maintained:',
                                                                    data: { source: autocomplete_projects_path } }
         .modal-footer
           = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Add' }

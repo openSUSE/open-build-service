@@ -1,19 +1,43 @@
 class SourceProjectController < SourceController
   include CheckAndRemoveRepositories
+  include ReadAccessOfDeleted
+
+  validate_action index: { method: :get, response: :directory }
+  before_action :require_valid_project_name, except: :index
+
+  # GET /source
+  #########
+  def index
+    # init and validation
+    #--------------------
+    admin_user = User.admin_session?
+
+    # access checks
+    #--------------
+
+    if params.key?(:deleted)
+      raise NoPermissionForDeleted unless admin_user
+
+      pass_to_backend
+    else
+      @project_names = Project.order(:name).pluck(:name)
+      render formats: [:xml]
+    end
+  end
 
   # GET /source/:project
   def show
     project_name = params[:project]
     if params.key?(:deleted)
-      unless Project.find_by_name(project_name) || Project.is_remote_project?(project_name)
+      unless Project.find_by_name(project_name) || Project.remote_project?(project_name)
         # project is deleted or not accessible
-        validate_visibility_of_deleted_project(project_name)
+        validate_read_access_of_deleted_project(project_name)
       end
       pass_to_backend
       return
     end
 
-    if Project.is_remote_project?(project_name)
+    if Project.remote_project?(project_name)
       # not a local project, hand over to backend
       pass_to_backend
       return
@@ -37,6 +61,8 @@ class SourceProjectController < SourceController
         render_project_issues
       when 'info'
         pass_to_backend
+      when 'versions'
+        render_project_versions
       else
         raise InvalidParameterError, "'#{params[:view]}' is not a valid 'view' parameter value."
       end
@@ -49,6 +75,11 @@ class SourceProjectController < SourceController
   def render_project_issues
     set_issues_defaults
     render partial: 'source/project_issues', formats: [:xml]
+  end
+
+  def render_project_versions
+    @packages = @project.packages.includes(:latest_local_version, :latest_upstream_version).select(:id, :name)
+    render partial: 'source/project_versions', formats: [:xml]
   end
 
   def render_project_packages
@@ -86,32 +117,37 @@ class SourceProjectController < SourceController
     render_ok
   end
 
-  # POST /source/:project?cmd
-  #-----------------
-  def project_command
-    # init and validation
-    #--------------------
-    required_parameters(:cmd)
+  # GET /source/:project/_pubkey
+  def show_pubkey
+    render plain: Backend::Api::Sources::Project.pubkey(params[:project], { rev: params[:rev] }.compact)
+  end
 
-    valid_commands = %w[undelete showlinked remove_flag set_flag createpatchinfo
-                        createkey extendkey copy createmaintenanceincident lock
-                        unlock release addchannels modifychannels move freezelink]
+  # DELETE /source/:project/_pubkey
+  def delete_pubkey
+    backend_params = {
+      user: User.session.login,
+      meta: params[:meta],
+      comment: params[:comment]
+    }.compact
 
-    raise IllegalRequest, 'invalid_command' unless valid_commands.include?(params[:cmd])
+    # check for permissions
+    project_name = Project.get_by_name(params[:project]).name
+    upper_project = project_name.gsub(/:[^:]*$/, '')
+    while upper_project != project_name && upper_project.present?
+      if Project.exists_by_name(upper_project) && User.session.can_modify?(Project.get_by_name(upper_project))
+        render xml: Backend::Api::Sources::Project.delete_pubkey(params[:project], backend_params)
+        return
+      end
+      break unless upper_project.include?(':')
 
-    command = params[:cmd]
-    project_name = params[:project]
-    params[:user] = User.session.login
+      upper_project = upper_project.gsub(/:[^:]*$/, '')
+    end
 
-    return dispatch_command(:project_command, command) if command.in?(%w[undelete release copy move])
-
-    @project = Project.get_by_name(project_name)
-
-    raise CmdExecutionNoPermission, "no permission to execute command '#{command}'" unless
-      (command == 'unlock' && User.session.can_modify?(@project, true)) ||
-      command == 'showlinked' ||
-      User.session.can_modify?(@project)
-
-    dispatch_command(:project_command, command)
+    if User.admin_session?
+      render xml: Backend::Api::Sources::Project.delete_pubkey(params[:project], backend_params)
+    else
+      raise DeleteProjectPubkeyNoPermission, "No permission to delete public key for project '#{params[:project]}'. " \
+                                             'Either maintainer permissions by upper project or admin permissions is needed.'
+    end
   end
 end

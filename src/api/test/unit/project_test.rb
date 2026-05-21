@@ -696,43 +696,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal({}, actual)
   end
 
-  test 'returns an error if repository access is disabled' do
-    User.session = users(:Iggy)
-    project = projects(:home_Iggy)
-    flag = project.add_flag('access', 'disable')
-    flag.save
-
-    xml = <<~XML
-      <project name='other_project'>
-        <title>Up-to-date project</title>
-        <description>the description</description>
-        <repository><path project='home:Iggy'></path></repository>
-      </project>
-    XML
-
-    expected = { error: 'The current backend implementation is not using binaries from read access protected projects home:Iggy' }
-    actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'other_project')
-    assert_equal expected, actual
-  end
-
-  test 'returns no error if target project equals project' do
-    User.session = users(:Iggy)
-    project = projects(:home_Iggy)
-    flag = project.add_flag('access', 'disable')
-    flag.save
-
-    xml = <<~XML
-      <project name='home:Iggy'>
-        <title>Up-to-date project</title>
-        <description>the description</description>
-        <repository><path project='home:Iggy'></path></repository>
-      </project>
-    XML
-
-    actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'home:Iggy')
-    assert_equal({}, actual)
-  end
-
   test 'get_removed_repositories returns all repositories if new_repositories does not contain the old repositories' do
     User.session = users(:Iggy)
     project = projects(:home_Iggy)
@@ -994,7 +957,9 @@ class ProjectTest < ActiveSupport::TestCase
 
   def test_open_requests
     expected = { reviews: [1000, 10, 4], targets: [5], incidents: [], maintenance_release: [] }
-    assert_equal expected, projects(:Apache).open_requests
+    # We don't care about the order of items inside the arrays returned as hash values in `open_requests`.
+    # This sorting is handled outside of `open_requests`.
+    assert_equal expected.transform_values(&:sort), projects(:Apache).open_requests.transform_values(&:sort)
 
     expected = { reviews: [], targets: [6], incidents: [6], maintenance_release: [7] }
     assert_equal expected, projects(:My_Maintenance).open_requests

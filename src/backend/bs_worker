@@ -35,15 +35,15 @@ use Digest::SHA ();
 use XML::Structured ':bytes';
 use Data::Dumper;
 use POSIX;
+use Storable;
 use Fcntl qw(:DEFAULT :flock);
 BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 
-use Storable;
-
+use BSConfiguration;
+use BSOBS;
 use BSRPC;
 use BSServer;
 use BSDispatch;
-use BSConfiguration;
 use BSUtil;
 use BSXML;
 use BSHTTP;
@@ -62,7 +62,7 @@ eval { BSRPC::import(':https') };
 
 use strict;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my $buildroot;
@@ -1185,6 +1185,8 @@ sub getfollowupsources {
   my $server = $buildinfo->{'reposerver'};
   my $res = getjobdata($buildinfo, $dir);
   die("no old sources in followup job\n") unless @$res;
+  $buildinfo->{'followup_slsa_provenance'} = readstr("$dir/_slsa_provenance.json", 1);
+  $buildinfo->{'followup_slsa_provenance_config'} = readstr("$dir/_slsa_provenance.config", 1);
   # need to get buildenv from old sources ;(
   $server = $buildinfo->{'srcserver'} || $srcserver;
   $res = BSRPC::rpc({
@@ -1240,19 +1242,16 @@ sub getmodulemddata {
 sub getpubkey {
   my ($buildinfo, $dir, $signtype) = @_;
   my $server = $buildinfo->{'srcserver'} || $srcserver;
-  my @args = ("project=$buildinfo->{'project'}", "withpubkey=1");
+  my @args = ("project=$buildinfo->{'project'}");
   push @args, "signtype=$signtype" if $signtype;
   push @args, "signflavor=$buildinfo->{'signflavor'}" if $buildinfo->{'signflavor'};
-  my $signkey;
-  my $pubkey;
-  eval {
-    $signkey = BSRPC::rpc({
-      'uri' => "$server/getsignkey",
+  my $pubkey = eval {
+    BSRPC::rpc({
+      'uri' => "$server/getpubkey",
       'timeout' => $gettimeout,
     }, undef, @args);
   };
-  die("could not retrieve build key: $@\n") if $@;
-  ($signkey, $pubkey) = split("\n", $signkey, 2);
+  die("could not retrieve pubkey: $@\n") if $@;
   die("unusable pubkey\n") unless $pubkey && length($pubkey) > 10;
   writestr("$dir/_pubkey", undef, $pubkey);
 }
@@ -1780,6 +1779,7 @@ sub getbinaries_product {
 	if ($server ne $buildinfo->{'srcserver'}) {
 	  $pbvl = BSRPC::rpc({
 	    'uri' => "$server/getpackagebinaryversionlist",
+	    'request' => 'POST',
 	    'timeout' => $gettimeout,
 	  }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @prpapackages);
 	} else {
@@ -1890,6 +1890,7 @@ sub getbinaries_product {
 	if (%tofetch) {
 	  my $param = {
 	    'uri' => "$getbinariesproxy_kiwiproduct/getbinaries_kiwiproduct",
+	    'request' => 'POST',
 	    'directory' => $ddir,
 	    'timeout' => $gettimeout,
 	    'map' => sub {
@@ -1939,24 +1940,27 @@ sub getbinaries_product {
       if (@todo) {
 	my %tofetch = map {$_->{'name'} => $_} @todo;
 	eval {
-	  my @args;
-	  push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
-	  push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
-	  push @args, map {"binary=$_->{'name'}"} @todo;
-	  my $param = {
-	    'uri' => "$server/build/$prpa/$packid",
-	    'directory' => $ddir,
-	    'timeout' => $gettimeout,
-	    'map' => sub {
-	      my ($param, $name) = @_;
-	      my $rarch = ($tofetch{$name} || {})->{'rarch'};
-	      return undef unless $rarch;
-	      mkdir_p("$ddir/$rarch");
-	      return "$rarch/$name.new.rpm";
-	    },
-	    'receiver' => \&BSHTTP::cpio_receiver,
-	  };
-	  BSRPC::rpc($param, undef, @args);
+	  my @todo_chunked = @todo;
+	  while (@todo_chunked) {
+	    my @args;
+	    push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
+	    push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
+	    push @args, map {"binary=$_->{'name'}"} splice(@todo_chunked, 0, 50);
+	    my $param = {
+	      'uri' => "$server/build/$prpa/$packid",
+	      'directory' => $ddir,
+	      'timeout' => $gettimeout,
+	      'map' => sub {
+		my ($param, $name) = @_;
+		my $rarch = ($tofetch{$name} || {})->{'rarch'};
+		return undef unless $rarch;
+		mkdir_p("$ddir/$rarch");
+		return "$rarch/$name.new.rpm";
+	      },
+	      'receiver' => \&BSHTTP::cpio_receiver,
+	    };
+	    BSRPC::rpc($param, undef, @args);
+	  }
 	};
 	if ($@) {
 	  # delete everything as a file might be truncated
@@ -2667,6 +2671,7 @@ sub getimagemode {
 sub getbinaries_containers {
   my ($buildinfo, $dir, $srcdir, $origins) = @_;
 
+  my $basecontainerannotationxml;
   my @meta;
   for my $bdep (grep {$_->{'name'} =~ /^container:/} @{$buildinfo->{'bdep'} || []}) {
     my $repo;
@@ -2679,14 +2684,15 @@ sub getbinaries_containers {
     }
     my $ddir = "$srcdir/containers/$repo->{'project'}/$repo->{'repository'}";
     mkdir_p($ddir);
+    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $callers_time = time();
     my @args;
     push @args, "workerid=$workerid" if defined $workerid;
     push @args, "project=$repo->{'project'}";
     push @args, "repository=$repo->{'repository'}";
     push @args, "arch=$buildinfo->{'arch'}";
+    push @args, "withannotation=1" if $server ne $buildinfo->{'srcserver'};
     push @args, "now=$callers_time";
-    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $res = BSRPC::rpc({
       'uri' => "$server/getbinaries",
       'directory' => $ddir,
@@ -2695,9 +2701,12 @@ sub getbinaries_containers {
       'receiver' => \&BSHTTP::cpio_receiver,
     }, undef, @args, "binaries=$bdep->{'name'}");
     die("Error\n") unless ref($res);
-    $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
+    
+    my $annotationfile = (map {$_->{'name'}} grep {$_->{'name'} =~ /\.annotation$/} @$res)[0];
+    $res = [ grep {$_->{'name'} ne '.errors' && $_->{'name'} !~ /\.annotation$/} @$res ];
     die("404 getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
     my $tarname = $res->[0]->{'name'};
+    my $tarmd5 = $res->[0]->{'md5'};
     add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}", $tarname, "$ddir/$tarname", 'containers') if $buildinfo->{'slsaprovenance'};
     my $imagemode = getimagemode($buildinfo);
     if ($imagemode eq 'kiwiimage' && $tarname =~ /\.tar$/) {
@@ -2706,16 +2715,20 @@ sub getbinaries_containers {
       die("kiwi container compression did not work\n") unless -f "$ddir/$tarname";
     }
     push @{$buildinfo->{'containerurl'}}, "dir://./containers/$repo->{'project'}/$repo->{'repository'}/$tarname";
-    push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
+    push @meta, "$tarmd5  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
     my $bin = {
       'name' => $bdep->{'name'},
       'project' => $repo->{'project'},
       'repository' => $repo->{'repository'},
       'arch' => $buildinfo->{'arch'},
     };
-    if ($bdep->{'annotation'} || $buildinfo->{'containerannotation'}) {
-      my $annotation = BSUtil::fromxml($bdep->{'annotation'} || $buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
+    undef $basecontainerannotationxml;
+    if ($annotationfile) {
+      my $annotationxml = BSUtil::readstr("$ddir/$annotationfile", 1);
+      my $annotation = $annotationxml ? BSUtil::fromxml($annotationxml, $BSXML::binannotation, 1) : undef;
       if ($annotation) {
+	$basecontainerannotationxml = $annotationxml;	# this relies on the base container coming last
+	die("annotation does not match container\n") if $annotation->{'hdrmd5'} && $annotation->{'hdrmd5'} ne $tarmd5;
 	for (qw{package version release binaryarch disturl buildhost buildtime binaryid}) {
 	  $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';
 	}
@@ -2725,9 +2738,10 @@ sub getbinaries_containers {
     push @{$origins->{':basecontainers'}}, $bin;
   }
 
-  if ($buildinfo->{'containerannotation'}) {
+  $basecontainerannotationxml ||= $buildinfo->{'containerannotation'};
+  if ($basecontainerannotationxml) {
     mkdir_p("$srcdir/containers");
-    writestr("$srcdir/containers/annotation", undef, $buildinfo->{'containerannotation'});
+    writestr("$srcdir/containers/annotation", undef, $basecontainerannotationxml);
   }
 
   return @meta;
@@ -3111,10 +3125,17 @@ sub readbuildenv {
   $buildinfo->{'hasbuildenv'} = 1;
   # work around buildenv generation bug
   $_->{'name'} =~ s/\.rpm$// for @{$bi->{'bdep'} || []};
+  if (($buildinfo->{'signflavor'} || '') eq '_buildenv') {
+    die("Need to have an outbuildinfo\n") unless $buildinfo->{'outbuildinfo'};
+    delete $buildinfo->{'signflavor'};
+    delete $buildinfo->{'outbuildinfo'}->{'signflavor'};
+    $buildinfo->{'signflavor'} = $bi->{'signflavor'} if defined $bi->{'signflavor'};
+    $buildinfo->{'outbuildinfo'}->{'signflavor'} = $bi->{'signflavor'} if defined $bi->{'signflavor'};
+  }
   for (qw{error versrel bcnt release bdep config}) {
     $buildinfo->{$_} = $bi->{$_} if defined $bi->{$_};
   }
-  for ('versrel', 'bcnt', 'release') {
+  for (qw{versrel bcnt release}) {
     $buildinfo->{'outbuildinfo'}->{$_} = $bi->{$_} if $buildinfo->{'outbuildinfo'} && defined $bi->{$_};
   }
   if (!grep {$_->{'preinstall'}} @{$buildinfo->{'bdep'} || []}) {
@@ -3743,6 +3764,8 @@ sub generate_slsa_provenance_statement_v1 {
   my $external_params = $stmt->{'predicate'}->{'buildDefinition'}->{'externalParameters'};
   $external_params->{'release'} = $buildinfo->{'release'} if defined $buildinfo->{'release'};
   $external_params->{'buildflavor'} = $buildinfo->{'buildflavor'} if defined $buildinfo->{'buildflavor'};
+  $external_params->{'disturl'} = $buildinfo->{'provenance_disturl'} if defined $buildinfo->{'provenance_disturl'};
+  $external_params->{'vcs'} = $buildinfo->{'provenance_vcs'} if defined $buildinfo->{'provenance_vcs'};
   return provenance_tojson($stmt);
 }
 
@@ -3783,9 +3806,13 @@ sub dobuild {
   my $stats = {};
   my $deltamode = $buildinfo->{'file'} eq '_delta' ? 1 : undef;
   my $ptfmode = $buildinfo->{'file'} eq '_ptf' ? 1 : undef;
+  my $reproduciblecheckmode = $buildinfo->{'file'} eq '_reproduciblecheck' ? 1 : undef;
   my $followupmode = $buildinfo->{'followupfile'};
   my $followupcopy = {};
-  my $needobspackage;
+  my $needsobspackage;
+
+  # hack to enable logfile appending
+  $followupmode = $buildinfo->{'followupfile'} = $buildinfo->{'file'} if $reproduciblecheckmode;
 
   my $helper = '';
   /^\Q$helperarch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$hostarch}};
@@ -3815,7 +3842,7 @@ sub dobuild {
   rm_rf($oldpkgdir) if -d $oldpkgdir;
 
   # create buildenv data
-  if (!$imagemode && !$followupmode && !$deltamode && !$ptfmode) {
+  if (!$imagemode && !$followupmode && !$deltamode && !$ptfmode && !$reproduciblecheckmode) {
     $buildinfo->{'outbuildinfo'} = {
       'project' => $projid,
       'package' => $packid,
@@ -3825,7 +3852,7 @@ sub dobuild {
       'verifymd5' => $buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'},
       'bdep' => [],
     };
-    for ('versrel', 'bcnt', 'release', 'module', 'crossarch') {
+    for ('versrel', 'bcnt', 'release', 'module', 'crossarch', 'signflavor') {
       $buildinfo->{'outbuildinfo'}->{$_} = $buildinfo->{$_} if defined $buildinfo->{$_};
     }
   }
@@ -3850,17 +3877,17 @@ sub dobuild {
       writestr("$srcdir/deltagen.spec", undef, $spec);
     }
     $buildinfo->{'file'} = 'deltagen.spec';
-  } elsif ($ptfmode) {
+  } elsif ($ptfmode || $reproduciblecheckmode) {
     getjobdata($buildinfo, $srcdir);
     print "packages, ";
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
-    $buildinfo->{'file'} = 'ptf.spec';
+    $buildinfo->{'file'} = $ptfmode ? 'ptf.spec' : 'reproduciblecheck.spec';
     @meta = split("\n", readstr("$srcdir/meta"));
   } elsif ($followupmode) {
     getfollowupsources($buildinfo, $srcdir);
-    getsslcert($buildinfo, $srcdir);
     readbuildenv($buildinfo, $srcdir);
+    getsslcert($buildinfo, $srcdir);
     unlink("$srcdir/_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}");
     print "packages, ";
     if ($imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose')) {
@@ -3877,9 +3904,9 @@ sub dobuild {
     @meta = split("\n", readstr("$srcdir/meta"));
   } else {
     $kiwiorigins = {} if $imagemode;	# always for image builds
-    my $needpubkey;
-    my $needsslcert;
-    my $needappxsslcert;
+    my $needspubkey;
+    my $needssslcert;
+    my $needsappxsslcert;
     my $needsbinariesforbuild;
     push @meta, getsources($buildinfo, $srcdir);
     importbuild() unless defined &Build::queryhdrmd5;
@@ -3891,13 +3918,13 @@ sub dobuild {
 	while(<F>) {
 	  chomp;
 	  $needsbinariesforbuild = 1 if /^#\s*needsbinariesforbuild\s*$/s;
-	  $needpubkey = 1 if /^#\s*needspubkeyforbuild\s*$/s;
-	  $needsslcert = 1 if /^#\s*needssslcertforbuild\s*$/s;
+	  $needspubkey = 1 if /^#\s*needspubkeyforbuild\s*$/s;
+	  $needssslcert = 1 if /^#\s*needssslcertforbuild\s*$/s;
 	  # On Debian we cannot add a commented out line in a dsc, use a tag instead
 	  # that can be generated by adding "XS-Obs: needssslcertforbuild" to debian/control
-	  $needsslcert = 1 if /^Obs:\s*needssslcertforbuild\s*$/s;
-	  $needappxsslcert = 1 if /^(?:#|Obs:)\s*needsappxsslcertforbuild\s*$/s;
-	  $needobspackage = 1 if /\@OBS_PACKAGE\@/;
+	  $needssslcert = 1 if /^Obs:\s*needssslcertforbuild\s*$/s;
+	  $needsappxsslcert = 1 if /^(?:#|Obs:)\s*needsappxsslcertforbuild\s*$/s;
+	  $needsobspackage = 1 if /\@OBS_PACKAGE\@/;
 	}
 	close F;
       }
@@ -3910,9 +3937,9 @@ sub dobuild {
     }
     $buildinfo->{'forcebinaryidmeta'} = 1 if $buildtype eq 'mkosi' || $buildtype eq 'livebuild' || $buildtype eq 'appimage' || $buildtype eq 'simpleimage' || $buildtype eq 'preinstallimage';
     getobsgendiffdata($buildinfo, $srcdir) if $buildinfo->{'obsgendiff'};
-    getsslcert($buildinfo, $srcdir, $needappxsslcert ? 'appx' : undef) if $needsslcert || $needappxsslcert;
-    getpubkey($buildinfo, $srcdir) if $needpubkey;
     readbuildenv($buildinfo, $srcdir);
+    getsslcert($buildinfo, $srcdir, $needsappxsslcert ? 'appx' : undef) if $needssslcert || $needsappxsslcert;
+    getpubkey($buildinfo, $srcdir) if $needspubkey;
     print "packages, ";
     if (($imagemode || '') eq 'kiwiproduct') {
       $buildinfo->{'rpmhdrs_only'} = 1 if kiwiproduct_is_rpmhdrsonly("$srcdir/$buildinfo->{'file'}");
@@ -3938,7 +3965,9 @@ sub dobuild {
   if (defined $buildinfo->{'config'}) {
     $config = $buildinfo->{'config'};
   } else {
-    $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
+    my $configrepoid = $repoid;
+    $configrepoid = $buildinfo->{'reprorepoid'} if $buildinfo->{'reprorepoid'} && !$reproduciblecheckmode;
+    $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$configrepoid", @configpath);
     $config = Build::combine_configs($config, "Macros:\n$buildinfo->{'modularity_macros'}") if $buildinfo->{'modularity_macros'};
   }
   $buildinfo->{'slsa_provenance_config'} = $config if $buildinfo->{'slsaprovenance'};
@@ -3992,6 +4021,14 @@ sub dobuild {
   my $release = $buildinfo->{'release'};
   my $disturl;
   $disturl = $buildinfo->{'disturl'} if $buildinfo->{'disturl'} && !$bconf->{'buildflags:nodisturl'};
+  my $vcs;
+  $vcs = $buildinfo->{'vcs'} if $buildinfo->{'vcs'} && $bconf->{'buildflags:setvcs'};
+
+  $buildinfo->{'provenance_disturl'} = $disturl if $disturl;
+  $buildinfo->{'provenance_vcs'} = $vcs if $vcs;
+
+  my $njobs = $jobs;
+  $njobs = $bconf->{'buildflags:maxjobs'} if $njobs && $bconf->{'buildflags:maxjobs'} && $bconf->{'buildflags:maxjobs'} < $njobs;
 
   my @args;
   push @args, $helper if $helper;
@@ -4101,7 +4138,7 @@ sub dobuild {
   push @args, '--release', "$release" if defined $release;
   push @args, '--debug' if $buildinfo->{'debuginfo'};
   push @args, '--arch', $arch;
-  push @args, '--jobs', $jobs if $jobs;
+  push @args, '--jobs', $njobs if $njobs;
   push @args, '--ccache' if $useccache && $oldpkgdir;
   push @args, '--ccache-create-archive' if $useccache && $oldpkgdir;
   push @args, "--ccache-type=$ccachetype" if $useccache && $oldpkgdir && $ccachetype;
@@ -4110,14 +4147,14 @@ sub dobuild {
   push @args, '--disturl', $disturl if $disturl;
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose') && -e "$statedir/build/signdummy";
-  push @args, '--vcs', $buildinfo->{'vcs'} if $buildinfo->{'vcs'} && $bconf->{'buildflags:setvcs'};
+  push @args, '--vcs', $vcs if $vcs;
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
     $packid =~ /^(.*):(.*?)$/;
-    push @args, "--obspackage=$1" if $needobspackage;
+    push @args, "--obspackage=$1" if $needsobspackage;
     push @args, "--buildflavor=$2";
     $buildinfo->{'buildflavor'} = $2;
   } else {
-    push @args, "--obspackage=$packid" if $needobspackage;
+    push @args, "--obspackage=$packid" if $needsobspackage;
   }
   push @args, "$srcdir/$buildinfo->{'file'}";
   if (($imagemode || '') eq 'kiwiimage') {
@@ -4135,8 +4172,8 @@ sub dobuild {
 	push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $prio;	# different prio for smart?
       }
     }
-    for my $containerurl (@{$buildinfo->{'containerurl'} || []}) {
-      push @args, '--kiwi-parameter', "--set-container-derived-from=$containerurl";
+    if (@{$buildinfo->{'containerurl'} || []}) {
+      push @args, '--kiwi-parameter', '--set-container-derived-from='.join(',', @{$buildinfo->{'containerurl'}});
     }
   }
   if ($imagemode && $imagemode ne 'kiwiproduct' && $imagemode ne 'productcompose') {
@@ -4182,7 +4219,19 @@ sub dobuild {
 
   # write statistics for succeeded/unchanged builds
   if ($ret == 0 || $ret == 2 * 256) {
-    $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => (time() - $starttime) };
+    my $now = time();
+    $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => ($now - $starttime) };
+    # add some extra data
+    my $info = {
+      'hostarch' => $hostarch,
+      'starttime' => $starttime,
+      'endtime' => $now,
+    };
+    $info->{'workerid'} = $workerid if defined $workerid;
+    for (qw{readytime srcmd5 verifymd5 rev vcs file buildtype jobid}) {
+      $info->{$_} = $buildinfo->{$_} if $buildinfo->{$_};
+    }
+    $stats->{'info'} = $info;
     mkdir_p("$resultdir/OTHER");
     writexml("$resultdir/OTHER/_statistics.new", "$resultdir/OTHER/_statistics", $stats, $BSXML::buildstatistics);
   }
@@ -4294,13 +4343,13 @@ sub buildkiwitree {
 	$tree{$sf} = "d ". BSHTTP::urlencode($sf);
 	push @todo, $f, "$sf/";
       } elsif (-f $f) {
-        my $leadsigmd5 = '';
-	Build::queryhdrmd5($f, \$leadsigmd5) if $f =~ /\.rpm$/;
-	if ($leadsigmd5) {
-	  $tree{$sf} = "f ". BSHTTP::urlencode($sf) . " " . $leadsigmd5;
-	} else {
-	  $tree{$sf} = "f ". BSHTTP::urlencode($sf);
+	my $extra;
+	if ($f =~ /\.slsa_provenance\.json$/) {
+	  $extra = md5file($f);
+	} elsif ($f =~ /\.rpm$/) {
+	  Build::queryhdrmd5($f, \$extra);
 	}
+	$tree{$sf} = 'f ' . BSHTTP::urlencode($sf) . ($extra ? " $extra" : '');
       }
     }
   }
@@ -4662,7 +4711,7 @@ sub periodic {
 	  warn("could not kill job\n");
 	  last;
 	}
-	append_nonfatal("$buildroot/.build.log", "\n\nJob seems to be stuck here, killed. (after $maxidle seconds of inactivity)\n");
+	append_nonfatal("$buildroot/.build.log", "\n\n$maxidle seconds (logidlelimit) elapsed without any output: build job terminated!\n");
 	$state->{'state'} = 'killed';
 	commitstate($state);
 	$locked = 0;
@@ -4673,6 +4722,7 @@ sub periodic {
 	$kill_job = "kvm spinnlock bug" if $tail =~ /INFO: rcu_sched self-detected stall on CPU/;
 # leads to false positive on i586 kernels
 #	$kill_job = "xen soft lockup" if $tail =~ /BUG: soft lockup - CPU#\d+ stuck for/;
+	$kill_job = "kvm soft lockup" if $tail =~ /BUG: soft lockup - CPU#\d+ stuck for (\d+)s/ && $1 > 1800;
 	$kill_job = "stuck in SLOF" if $tail =~ /\( \d+ \) Data Storage Exception/;
 	if ($kill_job) {
 	  next unless $locked;
@@ -4920,6 +4970,7 @@ if ($ex == 0) {
     push @d, 'SDEBS';
   }
   @d = ('ARCHPKGS') if $buildinfo->{'file'} =~ /PKGBUILD$/;
+  @d = ('APKS') if $buildinfo->{'file'} =~ /APKBUILD$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   @d = ('PRODUCT') if $buildinfo->{'file'} =~ /\.productcompose$/;
   @d = ('DOCKER') if $buildinfo->{'file'} =~ /Dockerfile(?:\.|$)/;
@@ -4958,7 +5009,10 @@ if ($ex == 0) {
   @send = grep {$_->{'name'} !~ /slsa_provenance.(?:json|config)$/} @send;
   if ($buildinfo->{'slsaprovenance'}) {
     my $slsa_provenance;
-    if (($buildinfo->{'slsa_provenance_version'} || '') eq 'v1') {
+    if ($buildinfo->{'followupfile'} && $buildinfo->{'followup_slsa_provenance'}) {
+      $slsa_provenance = $buildinfo->{'followup_slsa_provenance'};
+      $buildinfo->{'slsa_provenance_config'} = $buildinfo->{'followup_slsa_provenance_config'} if $buildinfo->{'followup_slsa_provenance_config'};
+    } elsif (($buildinfo->{'slsa_provenance_version'} || '') eq 'v1') {
       $slsa_provenance = generate_slsa_provenance_statement_v1($buildinfo, \@send);
     } else {
       $slsa_provenance = generate_slsa_provenance_statement_v02($buildinfo, \@send);

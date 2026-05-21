@@ -10,20 +10,32 @@
                                         project: selected_filter[:project], group: selected_filter[:group],
                                         page: params[:page])
   = form_tag(update_path, method: :put, remote: true) do
-    = render(NotificationActionBarComponent.new(state: selected_filter[:state],
-                                                update_path: update_path,
-                                                counted_notifications: counted_notifications))
     .card
-      .card-body
+      .card-body.pt-1
+        = render(NotificationActionBarComponent.new(state: selected_filter[:state],
+                                                    update_path: update_path,
+                                                    total_count_notifications: notifications.count))
         .text-center
           %span.ms-3= page_entries_info notifications, entry_name: ''
+          - if notifications.total_count > Notification::THRESHOLD_TO_RECOMMEND_NOTIFICATION_MANAGEMENT
+            - unless cookies[:hide_notifications_banner]
+              .alert.alert-warning.d-flex.align-items-center.mt-2.justify-content-between
+                .flex-grow-1.d-flex
+                  .me-4
+                    %i.fa.fa-exclamation-triangle.me-2
+                    Too many notifications?
+                    = link_to 'Manage your subscriptions', my_subscriptions_path, class: 'alert-link'
+                .p-2.d-flex
+                  %button.btn-close{ type: "button", data: { bs_dismiss: "alert" }, aria: { label: "Close" }, id: "dismiss-banner-btn" }
+
         .list-group.list-group-flush.mt-3
           = render partial: 'notification', collection: notifications, locals: { selected_filter: selected_filter, page: params[:page] }
 
   = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }
   = render partial: 'page_size_navigation', locals: { paginated_objects: notifications }
 
+- content_for(:content_for_head, javascript_include_tag('webui/notification'))
+
 - content_for :ready_function do
   handleNotificationCheckboxSelection();
-  applySmartOverflow();
-  window.onresize = applySmartOverflow;
+  dismissBanner("dismiss-banner-btn", "hide_notifications_banner");

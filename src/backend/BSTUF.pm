@@ -32,12 +32,6 @@ use BSX509;
 
 use strict;
 
-sub rfc3339time {
-  my ($t) = @_;
-  my @gt = gmtime($t || time());
-  return sprintf "%04d-%02d-%02dT%02d:%02d:%02dZ", $gt[5] + 1900, $gt[4] + 1, @gt[3,2,1,0];
-}
-
 sub canonical_json {
   my ($d) = @_;
   return JSON::XS->new->utf8->canonical->encode($d);
@@ -152,7 +146,7 @@ sub update_expires {
   my $keyid = $d->{'signatures'}->[0]->{'keyid'};
   die("update_expires: bad data\n") unless $d->{'signed'} && $keyid;
   $d = { %{$d->{'signed'}} };
-  $d->{'expires'} = BSTUF::rfc3339time($expires);
+  $d->{'expires'} = BSUtil::rfc3339time($expires);
   $d->{'version'} = ($d->{'version'} || 0) + 1;
   return signdata($d, $signfunc, $keyid);
 }

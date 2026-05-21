@@ -53,7 +53,7 @@ class FullTextSearch
 
     return Riddle::Query.escape(text) if fields.blank?
 
-    "@(#{fields.map(&:to_s).join(',')}) #{Riddle::Query.escape(text)}"
+    "@(#{fields.join(',')}) #{Riddle::Query.escape(text)}"
   end
 
   def find_issue_id

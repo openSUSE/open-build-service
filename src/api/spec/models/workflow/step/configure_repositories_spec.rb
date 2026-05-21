@@ -5,8 +5,8 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
   describe '#call' do
     subject do
       described_class.new(step_instructions: step_instructions,
-                          scm_webhook: scm_webhook,
-                          token: token)
+                          token: token,
+                          workflow_run: workflow_run)
     end
 
     let(:path_project1) { create(:project, name: 'openSUSE:Factory') }
@@ -33,31 +33,16 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           ]
       }
     end
-    let(:scm_webhook) do
-      SCMWebhook.new(payload: {
-                       scm: 'github',
-                       event: 'pull_request',
-                       action: 'opened',
-                       pr_number: 1,
-                       source_repository_full_name: 'openSUSE/repo123',
-                       target_repository_full_name: 'openSUSE/repo123',
-                       commit_sha: '123'
-                     })
+
+    let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+
+    let(:workflow_run) do
+      create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload)
     end
 
     context 'when the token user does not have enough permissions' do
       let(:another_user) { create(:confirmed_user, :with_home, login: 'Pop') }
       let(:token) { create(:workflow_token, executor: another_user) }
-      let(:scm_webhook) do
-        SCMWebhook.new(payload: {
-                         scm: 'github',
-                         event: 'pull_request',
-                         action: 'opened',
-                         pr_number: 1,
-                         target_repository_full_name: 'openSUSE/repo123',
-                         commit_sha: '123'
-                       })
-      end
 
       before do
         target_project

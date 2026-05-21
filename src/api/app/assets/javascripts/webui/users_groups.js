@@ -1,12 +1,18 @@
-function initializeUserConfigurationDatatable(ldapEnabled) { // jshint ignore:line
-  initializeRemoteDatatable( // jshint ignore:line
+/* exported initializeUserConfigurationDatatable */
+/* exported changeUserRole */
+/* exported setDataTableForUsersAndGroups */
+/* exported initializeGroupTokenfield */
+
+/* globals initializeRemoteDatatable */
+function initializeUserConfigurationDatatable() {
+  initializeRemoteDatatable(
     '#user-table',
     {
       pageLength: 50,
       columns: [
         { 'data': 'name' },
         { 'data': 'realname', 'visible': false },
-        { 'data': 'local_user', 'visible': ldapEnabled === 'true' },
+        { 'data': 'local_user' },
         { 'data': 'state'},
         { 'data': 'actions', 'orderable': false, 'searchable': false }
       ]
@@ -14,7 +20,7 @@ function initializeUserConfigurationDatatable(ldapEnabled) { // jshint ignore:li
   );
 }
 
-function changeUserRole(obj) { // jshint ignore:line
+function changeUserRole(obj) {
   var type = obj.data("type");
   var role = obj.data("role");
   var spinner = obj.siblings('.fa-spinner');
@@ -41,11 +47,16 @@ function changeUserRole(obj) { // jshint ignore:line
     },
     complete: function() {
       spinner.addClass('d-none');
+    },
+    success: function() {
+      if (!obj.is(':checked') && obj.data('role') === 'maintainer') {
+        window.location.reload();
+      }
     }
   });
 }
 
-function setDataTableForUsersAndGroups() { // jshint ignore:line
+function setDataTableForUsersAndGroups() {
   $('#user-table').dataTable({
     responsive: true,
     info: false,
@@ -60,7 +71,7 @@ function setDataTableForUsersAndGroups() { // jshint ignore:line
   });
 }
 
-function initializeGroupTokenfield() { // jshint ignore:line
+function initializeGroupTokenfield() {
   var $tokenfield = $('#group-members.tag-input');
 
   $tokenfield.tagsInput({

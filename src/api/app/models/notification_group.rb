@@ -8,15 +8,15 @@ class NotificationGroup < Notification
   end
 
   def avatar_objects
-    [User.find_by(login: event_payload['who'])].compact
+    User.where(login: event_payload['who'])
   end
 
   def link_text
     case event_type
     when 'Event::AddedUserToGroup'
-      "#{event_payload['who'] || 'Someone'} added you to the group '#{event_payload['group']}'"
+      "'#{event_payload['who'] || 'Someone'}' added '#{event_payload['member']}' to the group '#{event_payload['group']}'"
     when 'Event::RemovedUserFromGroup'
-      "#{event_payload['who'] || 'Someone'} removed you from the group '#{event_payload['group']}'"
+      "'#{event_payload['who'] || 'Someone'}' removed '#{event_payload['member']}' from the group '#{event_payload['group']}'"
     end
   end
 
@@ -35,7 +35,7 @@ end
 #  bs_request_oldstate        :string(255)
 #  bs_request_state           :string(255)
 #  delivered                  :boolean          default(FALSE), indexed
-#  event_payload              :text(65535)      not null
+#  event_payload              :text(16777215)   not null
 #  event_type                 :string(255)      not null, indexed
 #  last_seen_at               :datetime
 #  notifiable_type            :string(255)      indexed => [notifiable_id]

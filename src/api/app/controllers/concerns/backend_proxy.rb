@@ -12,7 +12,7 @@ module BackendProxy
       path ||= http_request_path
 
       if request.get? || request.head?
-        volley_backend_path(path) unless forward_from_backend(path)
+        volley_backend_path(path) unless forward_from_backend?(path)
         return
       end
       case request.method_symbol
@@ -74,7 +74,7 @@ module BackendProxy
 
   # This method is proxying GET requests transparently to the backend with web server specific forwarding headers.
   # Takes a path/query and lets the web server forward the backends response.
-  def forward_from_backend(path)
+  def forward_from_backend?(path)
     # apache & mod_xforward case
     # https://build.opensuse.org/package/show/OBS:Server:Unstable/apache2-mod_xforward
     if CONFIG['use_xforward'] && CONFIG['use_xforward'] != 'false'
@@ -129,7 +129,7 @@ module BackendProxy
   def download_request
     file = Tempfile.new('volley', Rails.root.join('tmp').to_s, encoding: 'ascii-8bit')
     b = request.body
-    buffer = ''
+    buffer = +''
     file.write(buffer) while b.read(40_960, buffer)
     file.close
     file.open

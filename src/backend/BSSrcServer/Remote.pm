@@ -19,7 +19,11 @@ package BSSrcServer::Remote;
 use strict;
 use warnings;
 
+use Digest::MD5 ();
+use Digest::SHA ();
+
 use BSConfiguration;
+use BSOBS;
 use BSRPC;
 use BSWatcher;
 use BSUtil;
@@ -36,7 +40,7 @@ my $uploaddir = "$srcrep/:upload";
 my $proxy;
 $proxy = $BSConfig::proxy if defined $BSConfig::proxy;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 # remote getrev cache
@@ -652,6 +656,16 @@ sub getremotebinarylist {
   return $binarylist;
 }
 
+sub getserialkey {
+  my ($op, $projid) = @_;
+  my $key = "$op/$projid";
+  if ($BSConfig::interconnect_serialize_slots) {
+    $key = unpack('N', Digest::MD5::md5($key)) % $BSConfig::interconnect_serialize_slots;
+    $key = "interconnect_serialize_slots#$key";
+  }
+  return $key;
+}
+
 sub getremotebinaryversions {
   my ($proj, $projid, $repoid, $arch, $binaries, $modules, $withevr) = @_;
 
@@ -670,7 +684,7 @@ sub getremotebinaryversions {
     $jev->{'binaryversions_key'} = $key;
   }
 
-  my $serialkey = "getremotebinaryversions/$projid";
+  my $serialkey = getserialkey('getremotebinaryversions', $projid);
   my $serial;
   if ($BSStdServer::isajax) {
     $serial = BSWatcher::serialize($serialkey);
@@ -745,7 +759,7 @@ sub getpackagebinaryversionlist {
   my $elname = $view eq 'binarychecksums' ? 'binarychecksums' : 'binaryversionlist';
   my $jev = $BSStdServer::isajax ? $BSServerEvents::gev : undef;
 
-  my $serialkey = "getpackagebinaryversionlist/$projid";
+  my $serialkey = getserialkey('getpackagebinaryversionlist', $projid);
   my $serial;
   if ($BSStdServer::isajax) {
     $serial = BSWatcher::serialize($serialkey);
@@ -813,14 +827,14 @@ sub getremotebinaries_cache {
       push @reply, {'name' => $bin, 'error' => 'not available'};
       next;
     }
-    my $cachemd5 = Digest::MD5::md5_hex("$cacheprefix/$bin");
-    substr($cachemd5, 2, 0, '/');
-    my @s = stat("$remotecache/$cachemd5");
+    my $cacheid = Digest::SHA::sha256_hex("$cacheprefix/$bin");
+    substr($cacheid, 2, 0, '/');
+    my @s = stat("$remotecache/$cacheid");
     if (!@s || $s[9] != $b->{'mtime'} || $s[7] != $b->{'size'}) {
       push @fetch, $bin;
     } else {
-      utime time(), $s[9], "$remotecache/$cachemd5";
-      push @reply, {'name' => $b->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
+      utime time(), $s[9], "$remotecache/$cacheid";
+      push @reply, {'name' => $b->{'filename'}, 'filename' => "$remotecache/$cacheid"};
     }
   }
   clean_random_cache_slot();
@@ -830,11 +844,11 @@ sub getremotebinaries_cache {
 
 sub getremotebinaries_putincache {
   my ($cacheprefix, $bin, $tmpname) = @_;
-  my $cachemd5 = Digest::MD5::md5_hex("$cacheprefix/$bin");
-  substr($cachemd5, 2, 0, '/');
-  mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
-  rename($tmpname, "$remotecache/$cachemd5");
-  return "$remotecache/$cachemd5";
+  my $cacheid = Digest::SHA::sha256_hex("$cacheprefix/$bin");
+  substr($cacheid, 2, 0, '/');
+  mkdir_p("$remotecache/".substr($cacheid, 0, 2));
+  rename($tmpname, "$remotecache/$cacheid");
+  return "$remotecache/$cacheid";
 }
 
 sub getremotebinaries {

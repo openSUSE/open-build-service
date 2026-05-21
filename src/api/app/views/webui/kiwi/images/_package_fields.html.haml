@@ -26,6 +26,8 @@
             .input-group
               %span.input-group-text
                 %i.fas.fa-search
+              -# TODO: refactor to use the _search_box partial
+                 WARNING: the .kiwi-package-search class is used by the kiwi_editor plugin and it interact with the HTML/CSS element
               = f.text_field :name, required: true,
                                     placeholder: 'Type to autocomplete...',
                                     class: 'form-control kiwi-package-search',

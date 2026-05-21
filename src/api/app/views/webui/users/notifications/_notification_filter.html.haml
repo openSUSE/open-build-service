@@ -1,157 +1,213 @@
 -# haml-lint:disable ViewLength
-= form_for(:notification, url: my_notifications_path, method: :get, id: 'notifications-filter-form') do |form|
-  .mt-3.mb-2
-    %h6.px-3.py-2
-      %b State
-    .px-4
-      = render partial: 'webui/shared/radio_button', locals: { label: 'All',
-                                                               key: 'state[all]', name: 'state', value: 'all',
-                                                               checked: selected_filter[:state] == 'all' }
-      = render partial: 'webui/shared/radio_button', locals: { label: 'Unread', amount: counted_notifications['unread'],
-                                                               key: 'state[unread]', name: 'state', value: 'unread',
-                                                               checked: selected_filter[:state] == 'unread' }
-      = render partial: 'webui/shared/radio_button', locals: { label: 'Read',
-                                                               key: 'state[read]', name: 'state', value: 'read',
-                                                               checked: selected_filter[:state] == 'read' }
-  .mt-4.mb-4
-    %h6.px-3.py-2
-      %b Type
-    .px-4
-      = render partial: 'webui/shared/check_box', locals: { label: 'Comments', amount: counted_notifications['comments'],
-                                                            key: 'kind[comments]', name: 'kind[]',
-                                                            value: 'comments', label_icon: 'fas fa-comments',
-                                                            checked: selected_filter[:kind]&.include?('comments') }
-      = render partial: 'webui/shared/check_box', locals: { label: 'Requests', amount: counted_notifications['requests'],
-                                                            key: 'kind[requests]', name: 'kind[]', value: 'requests',
-                                                            label_icon: 'fas fa-code-pull-request',
-                                                            checked: selected_filter[:kind]&.include?('requests') }
-      = render partial: 'webui/shared/check_box', locals: { label: 'Roles Granted', amount: counted_notifications['relationships_created'],
-                                                            key: 'kind[relationships_created]', name: 'kind[]', value: 'relationships_created',
-                                                            label_icon: 'fas fa-user-tag',
-                                                            checked: selected_filter[:kind]&.include?('relationships_created') }
-      = render partial: 'webui/shared/check_box', locals: { label: 'Roles Revoked', amount: counted_notifications['relationships_deleted'],
-                                                            key: 'kind[relationships_deleted]', name: 'kind[]', value: 'relationships_deleted',
-                                                            label_icon: 'fas fa-user-tag',
-                                                            checked: selected_filter[:kind]&.include?('relationships_deleted') }
-      = render partial: 'webui/shared/check_box', locals: { label: 'Build Failures', amount: counted_notifications['build_failures'],
-                                                            key: 'kind[build_failures]', name: 'kind[]', value: 'build_failures',
-                                                            label_icon: 'fas fa-xmark text-danger',
-                                                            checked: selected_filter[:kind]&.include?('build_failures') }
-      - if policy(Report.new).notify?
-        = render partial: 'webui/shared/check_box', locals: { label: 'Reports', amount: counted_notifications['reports'],
-                                                              key: 'kind[reports]', name: 'kind[]', value: 'reports',
-                                                              label_icon: 'fas fa-flag',
-                                                              checked: selected_filter[:kind]&.include?('reports') }
-      = render partial: 'webui/shared/check_box', locals: { label: 'Workflow Runs', amount: counted_notifications['workflow_runs'],
-                                                            key: 'kind[workflow_runs]', name: 'kind[]', value: 'workflow_runs',
-                                                            label_icon: 'fas fa-book-open',
-                                                            checked: selected_filter[:kind]&.include?('workflow_runs') }
-      - if Flipper.enabled?(:content_moderation, User.session)
-        = render partial: 'webui/shared/check_box', locals: { label: 'Appealed Decisions', amount: counted_notifications['appealed_decisions'],
-                                                              key: 'kind[appealed_decisions]', name: 'kind[]', value: 'appealed_decisions',
-                                                              label_icon: 'fas fa-hand',
-                                                              checked: selected_filter[:kind]&.include?('appealed_decisions') }
-      = render partial: 'webui/shared/check_box', locals: { label: 'Groups Membership', amount: counted_notifications['member_on_groups'],
-                                                            key: 'kind[member_on_groups]', name: 'kind[]', value: 'member_on_groups',
-                                                            label_icon: 'fas fa-people-group',
-                                                            checked: selected_filter[:kind]&.include?('member_on_groups') }
+= form_for(:notification, url: my_notifications_path, method: :get, id: 'content-selector-filters-form') do |form|
+  - if params[:page_size]
+    = hidden_field_tag 'page_size', params[:page_size]
+  .accordion.accordion-flush
+    .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+      .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-state' },
+                                              aria: { expanded: 'true', controls: 'notification-filter-state' } }
+        %b State
+      .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-state
+        = render partial: 'webui/shared/radio_button', locals: { label: 'All',
+                                                                 key: 'state[all]', name: 'state', value: 'all',
+                                                                 checked: selected_filter[:state] == 'all',
+                                                                 turbo_stream_counter_id: 'counts_for_all_notifications'}
+        = render partial: 'webui/shared/radio_button', locals: { label: 'Unread',
+                                                                 key: 'state[unread]', name: 'state', value: 'unread',
+                                                                 checked: selected_filter[:state] == 'unread',
+                                                                 turbo_stream_counter_id: 'counts_for_unread_notifications' }
+        = render partial: 'webui/shared/radio_button', locals: { label: 'Read',
+                                                                 key: 'state[read]', name: 'state', value: 'read',
+                                                                 checked: selected_filter[:state] == 'read' }
+    .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+      .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-type' },
+                                              aria: { expanded: 'true', controls: 'notification-filter-type' } }
+        %b Type
+        .selected-content.small.ms-1
+      .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-type
+        = render partial: 'webui/shared/check_box', locals: { label: 'Comments',
+                                                    key: 'kind[comments]', name: 'kind[]',
+                                                    value: 'comments', label_icon: 'fas fa-comments',
+                                                    checked: selected_filter[:kind]&.include?('comments'),
+                                                    turbo_stream_counter_id: 'counts_for_comments_notifications' }
+        = render partial: 'webui/shared/check_box', locals: { label: 'Requests',
+                                                    key: 'kind[requests]', name: 'kind[]', value: 'requests',
+                                                    label_icon: 'fas fa-code-pull-request',
+                                                    checked: selected_filter[:kind]&.include?('requests'),
+                                                    turbo_stream_counter_id: 'counts_for_requests_notifications' }
+        = render partial: 'webui/shared/check_box', locals: { label: 'Roles Granted',
+                                                    key: 'kind[relationships_created]', name: 'kind[]', value: 'relationships_created',
+                                                    label_icon: 'fas fa-user-tag',
+                                                    checked: selected_filter[:kind]&.include?('relationships_created'),
+                                                    turbo_stream_counter_id: 'counts_for_relationships_created_notifications' }
+        = render partial: 'webui/shared/check_box', locals: { label: 'Roles Revoked',
+                                                    key: 'kind[relationships_deleted]', name: 'kind[]', value: 'relationships_deleted',
+                                                    label_icon: 'fas fa-user-tag',
+                                                    checked: selected_filter[:kind]&.include?('relationships_deleted'),
+                                                    turbo_stream_counter_id: 'counts_for_relationships_deleted_notifications' }
+        - if policy(User.session).view_global_role_filter?
+          = render partial: 'webui/shared/check_box', locals: { label: 'Important Role Added',
+                                                                key: 'kind[important_roles_added]', name: 'kind[]', value: 'important_roles_added',
+                                                                label_icon: 'fas fa-crown',
+                                                                checked: selected_filter[:kind]&.include?('important_roles_added'),
+                                                                turbo_stream_counter_id: 'counts_for_important_roles_added_notifications' }
+        = render partial: 'webui/shared/check_box', locals: { label: 'Build Failures',
+                                                    key: 'kind[build_failures]', name: 'kind[]', value: 'build_failures',
+                                                    label_icon: 'fas fa-xmark text-danger',
+                                                    checked: selected_filter[:kind]&.include?('build_failures'),
+                                                    turbo_stream_counter_id: 'counts_for_build_failures_notifications' }
+        = render partial: 'webui/shared/check_box',
+                          locals: { label: 'Workflow Runs',
+                                    key: 'kind[workflow_runs]', name: 'kind[]', value: 'workflow_runs',
+                                    label_icon: 'fas fa-book-open',
+                                    checked: selected_filter[:kind]&.include?('workflow_runs'),
+                                    turbo_stream_counter_id: 'counts_for_workflow_runs_notifications' }
+        - if policy(Report.new).notify?
+          = render partial: 'webui/shared/check_box',
+                            locals: { label: 'Reports',
+                                      key: 'kind[reports]', name: 'kind[]', value: 'reports',
+                                      label_icon: 'fas fa-flag',
+                                      checked: selected_filter[:kind]&.include?('reports'),
+                                      turbo_stream_counter_id: 'counts_for_reports_notifications' }
+        - if Flipper.enabled?(:content_moderation, User.session)
+          = render partial: 'webui/shared/check_box',
+                            locals: { label: 'Appeals',
+                                      key: 'kind[appealed_decisions]', name: 'kind[]', value: 'appealed_decisions',
+                                      label_icon: 'fas fa-hand',
+                                      checked: selected_filter[:kind]&.include?('appealed_decisions'),
+                                      turbo_stream_counter_id: 'counts_for_appealed_decisions_notifications' }
+          = render partial: 'webui/shared/check_box',
+                            locals: { label: 'Decisions',
+                                      key: 'kind[decisions]', name: 'kind[]', value: 'decisions',
+                                      label_icon: 'fas fa-clipboard-check',
+                                      checked: selected_filter[:kind]&.include?('decisions'),
+                                      turbo_stream_counter_id: 'counts_for_decisions_notifications' }
+        = render partial: 'webui/shared/check_box',
+                          locals: { label: 'Groups Membership',
+                                    key: 'kind[member_on_groups]', name: 'kind[]', value: 'member_on_groups',
+                                    label_icon: 'fas fa-people-group',
+                                    checked: selected_filter[:kind]&.include?('member_on_groups'),
+                                    turbo_stream_counter_id: 'counts_for_member_on_groups_notifications' }
+        - if Flipper.enabled?(:package_version_tracking, User.session)
+          = render partial: 'webui/shared/check_box',
+                            locals: { label: 'Version Updates',
+                                      key: 'kind[upstream_package_version_changed]', name: 'kind[]', value: 'upstream_package_version_changed',
+                                      label_icon: 'fas fa-arrow-up',
+                                      checked: selected_filter[:kind]&.include?('upstream_package_version_changed'),
+                                      turbo_stream_counter_id: 'counts_for_upstream_package_version_changed_notifications' }
+        = render partial: 'webui/shared/check_box',
+                          locals: { label: 'Token Membership Updates',
+                                    key: 'kind[token_membership_update]', name: 'kind[]', value: 'token_membership_update',
+                                    label_icon: 'fas fa-key',
+                                    checked: selected_filter[:kind]&.include?('token_membership_update'),
+                                    turbo_stream_counter_id: 'counts_for_token_membership_update_notifications' }
 
-  - if policy(Report.new).notify?
-    .mt-3.mb-2
-      %h6.px-3.py-2
-        %b Reports
-      .px-3
-        .dropdown.form-multi-select{ 'data-name': 'type of report' }
-          %button.form-select.text-start#filter-reportable-type-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
-          .dropdown-menu.w-100
+    - if policy(Report.new).notify?
+      .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+        .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-reports' },
+                                                aria: { expanded: 'true', controls: 'notification-filter-reports' } }
+          %b Reports
+          .selected-content.small.ms-1
+        .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-reports
+          .dropdown-item-text
+            = render partial: 'webui/shared/check_box', locals: { label: 'With decision',
+                                                                key: 'report[with_decision]', name: 'report[]',
+                                                                value: 'with_decision',
+                                                                  checked: selected_filter[:report]&.include?('with_decision') }
+          .dropdown-item-text
+            = render partial: 'webui/shared/check_box', locals: { label: 'Without decision',
+                                                                    key: 'report[without_decision]', name: 'report[]',
+                                                                    value: 'without_decision',
+                                                                    checked: selected_filter[:report]&.include?('without_decision') }
+          - Report::REPORTABLE_TYPES.each do |reportable_type|
             .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: 'With decision',
-                                                                  key: 'report[with_decision]', name: 'report[]',
-                                                                  value: 'with_decision',
-                                                                    checked: selected_filter[:report]&.include?('with_decision') }
-            .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: 'Without decision',
-                                                                      key: 'report[without_decision]', name: 'report[]',
-                                                                      value: 'without_decision',
-                                                                      checked: selected_filter[:report]&.include?('without_decision') }
-            %h6.dropdown-header
-              Report for
-            - Report::REPORTABLE_TYPES.each do |reportable_type|
+              = render partial: 'webui/shared/check_box', locals: { label: "For #{Report::REPORTABLE_TYPES_STRINGS[reportable_type]}",
+                                                                    key: "reportable_type[#{reportable_type}]", name: 'reportable_type[]',
+                                                                    value: reportable_type,
+                                                                    checked: selected_filter[:reportable_type]&.include?(reportable_type.to_s) }
+
+    .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+      .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-requests' },
+                                              aria: { expanded: 'true', controls: 'notification-filter-requests' } }
+        %b Requests
+        .selected-content.small.ms-1
+      .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-requests
+        .dropdown-item-text
+          = render partial: 'webui/shared/check_box',
+                            locals: { label: 'Incoming',
+                                      key: 'kind[incoming_requests]', name: 'kind[]',
+                                      value: 'incoming_requests',
+                                      checked: selected_filter[:kind]&.include?('incoming_requests'),
+                                      turbo_stream_counter_id: 'counts_for_incoming_requests_notifications' }
+        .dropdown-item-text
+          = render partial: 'webui/shared/check_box',
+                            locals: { label: 'Outgoing',
+                                      key: 'kind[outgoing_requests]', name: 'kind[]', value: 'outgoing_requests',
+                                      checked: selected_filter[:kind]&.include?('outgoing_requests'),
+                                      turbo_stream_counter_id: 'counts_for_outgoing_requests_notifications' }
+        - BsRequest::VALID_REQUEST_STATES.each do |request_state|
+          .dropdown-item-text
+            = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: request_state)),
+                                                                  key: "request_state[#{request_state}]", name: 'request_state[]',
+                                                                  value: request_state,
+                                                                  checked: selected_filter[:request_state]&.include?(request_state.to_s) }
+
+    - unless projects_for_filter.empty?
+      .mt-2.mb-2.accordion-item.border-0
+        .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-projects' },
+                                                aria: { expanded: 'true', controls: 'notification-filter-projects' } }
+          %b Projects
+          .selected-content.small.ms-1
+        .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-projects
+          #notification-project-name-dropdown
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'project_names_search',
+                                                                     html_name: 'project[]', required: false,
+                                                                     data: { source: notification_autocomplete_projects_path },
+                                                                     button: { type: 'submit' } }
+            .scroll-list-wrapper.auto-submit-on-change
+              - selected_filter[:project].each do |project_name|
+                .dropdown-item-text
+                  = render partial: 'webui/shared/check_box', locals: { label: project_name,
+                                                                        key: "project[#{project_name}]", name: 'project[]',
+                                                                        value: project_name,
+                                                                        checked: selected_filter[:project]&.include?(project_name) }
+      .mt-2.mb-2.accordion-item.border-0
+        .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-labels' },
+                                                aria: { expanded: 'true', controls: 'notification-filter-labels' } }
+          %b Labels
+          .selected-content.small.ms-1
+        .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-labels
+          #notification-labels-dropdown
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'labels_search',
+                                                                     html_name: 'labels[]', required: false,
+                                                                     data: { source: autocomplete_labels_path },
+                                                                     button: { type: 'submit' } }
+            .scroll-list-wrapper.auto-submit-on-change
+              - selected_filter[:labels].each do |label|
+                .dropdown-item-text
+                  = render partial: 'webui/shared/check_box', locals: { label: label,
+                                                                        key: "labels[#{label}]", name: 'labels[]',
+                                                                        value: label,
+                                                                        checked: selected_filter[:labels]&.include?(label) }
+    - unless groups_for_filter.empty?
+      .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+        .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-groups' },
+                                                aria: { expanded: 'true', controls: 'notification-filter-groups' } }
+          %b Groups
+          .selected-content.small.ms-1
+        .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-groups
+          .scroll-list-wrapper
+            - groups_for_filter.each do |group_title|
               .dropdown-item-text
-                = render partial: 'webui/shared/check_box', locals: { label: Report::REPORTABLE_TYPES_STRINGS[reportable_type],
-                                                                      key: "reportable_type[#{reportable_type}]", name: 'reportable_type[]',
-                                                                      value: reportable_type,
-                                                                      checked: selected_filter[:reportable_type]&.include?(reportable_type.to_s) }
-
-  .mt-4.mb-4
-    %h6.px-3.py-2
-      %b Requests
-    .px-3
-      .dropdown.form-multi-select{ 'data-name': 'type of request' }
-        %button.form-select.text-start#filter-requests-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
-          Select the type of request
-        .dropdown-menu.w-100
-          .dropdown-item-text
-            = render partial: 'webui/shared/check_box', locals: { label: 'Incoming', amount: counted_notifications['incoming_requests'],
-                                                                  key: 'kind[incoming_requests]', name: 'kind[]',
-                                                                  value: 'incoming_requests',
-                                                                  checked: selected_filter[:kind]&.include?('incoming_requests') }
-          .dropdown-item-text
-            = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing', amount: counted_notifications['outgoing_requests'],
-                                                                  key: 'kind[outgoing_requests]', name: 'kind[]', value: 'outgoing_requests',
-                                                                  checked: selected_filter[:kind]&.include?('outgoing_requests') }
-          %h6.dropdown-header
-            State
-          - BsRequest::VALID_REQUEST_STATES.each do |request_state|
-            .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: request_state)),
-                                                                    key: "request_state[#{request_state}]", name: 'request_state[]',
-                                                                    value: request_state,
-                                                                    checked: selected_filter[:request_state]&.include?(request_state.to_s) }
-
-  - unless projects_for_filter.empty?
-    .mt-4.mb-4
-      %h6.px-3.py-2
-        %b Projects
-      .dropdown.px-3.form-multi-select{ 'data-name': 'projects' }
-        %button.form-select.text-start#filter-projects-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
-          Select the projects
-        .dropdown-menu
-          - projects_for_filter.each do |project_name|
-            .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: project_name,
-                                                                    key: "project[#{project_name}]", name: 'project[]', value: project_name,
-                                                                    checked: selected_filter[:project]&.include?(project_name) }
-  - unless groups_for_filter.empty?
-    .mt-4.mb-4
-      %h6.px-3.py-2
-        %b Groups
-      .dropdown.px-3.form-multi-select{ 'data-name': 'groups' }
-        %button.form-select.text-start#filter-groups-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
-          Select the groups
-        .dropdown-menu
-          - groups_for_filter.each do |group_title|
-            .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: group_title,
-                                                                    key: "group[#{group_title}]", name: 'group[]', value: group_title,
-                                                                    checked: selected_filter[:group]&.include?(group_title) }
+                = render partial: 'webui/shared/check_box', locals: { label: group_title,
+                                                                      key: "group[#{group_title}]", name: 'group[]', value: group_title,
+                                                                      checked: selected_filter[:group]&.include?(group_title) }
 
   .text-center.mt-4.mb-4
     = link_to('Clear', my_notifications_path, class: 'btn btn-light border')
 
-:javascript
-  collectMultiSelects()
-
-  function submitNotificationFilters() {
-    $('#notifications-filter-form').submit();
-  }
-  let submitFiltersTimeout;
-
-  $(document).on('change', '#filters input', function() {
-    $('#notifications-list').hide();
-    $('#notifications-list-loading').removeClass('d-none');
-    clearTimeout(submitFiltersTimeout);
-    submitFiltersTimeout = setTimeout(submitNotificationFilters, 1500);
-  });
-
+- content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
+-# turbo frame used to trigger the turbo stream which updates the notification filter counters
+= turbo_frame_tag("notification_filter_counts_processor", src: url_for(controller_path: controller_path,
+                                                               action: 'counts', format: :turbo_stream))
 -# haml-lint:enable ViewLength

@@ -85,17 +85,17 @@ module OwnerSearch
       package_owner
     end
 
-    def parse_binary_info(binary, project)
+    def parse_binary_info?(binary, project)
       # a binary without a package container? can only only happen
       # with manual snapshot repos...
       return false if binary['project'] != project.name || binary['package'].blank?
 
       package_name = binary['package']
-      package_name.gsub!(/\.[^.]*$/, '') if project.is_maintenance_release?
+      package_name.gsub!(/\.[^.]*$/, '') if project.maintenance_release?
       package_name = Package.striping_multibuild_suffix(package_name)
       package = project.packages.find_by_name(package_name)
 
-      return false if package.nil? || package.is_patchinfo?
+      return false if package.nil? || package.patchinfo?
 
       package_owner = lookup_package_owner(package)
 
@@ -124,7 +124,7 @@ module OwnerSearch
       @deepest_match = nil
       projects.each do |project| # project link order
         data.elements('binary').each do |binary| # no order
-          next unless parse_binary_info(binary, project)
+          next unless parse_binary_info?(binary, project)
           return @package_owners if @lookup_limit < 1 && !@match_all
         end
       end

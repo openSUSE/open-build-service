@@ -2,6 +2,8 @@
   - if project.categories.any?
     - project.categories.each do |category|
       = category_badge(category)
+  .mb-3
+    = render partial: 'webui/shared/label_global_list', locals: { project: project }
   - if project.url.present?
     = link_to(project.url, project.url, class: 'mb-3 d-block')
   .mb-4#description-text

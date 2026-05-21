@@ -7,13 +7,12 @@ OBSApi::Application.configure do
   config.cache_classes = true
 
   # Use memcache for cache/session storage
-  if CONFIG['memcached_host']
-    config.cache_store = :mem_cache_store, CONFIG['memcached_host']
-    config.session_store = :mem_cache_store, CONFIG['memcached_host']
-  else
-    config.cache_store = :mem_cache_store
-    config.session_store = :mem_cache_store
-  end
+  config.cache_store = if CONFIG['memcached_host']
+                         [:mem_cache_store, CONFIG['memcached_host']]
+                       else
+                         :mem_cache_store
+                       end
+  config.session_store :cache_store
 
   # Include generic and useful information about system operation, but avoid logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII).
@@ -128,9 +127,13 @@ OBSApi::Application.configure do
     {
       params: event.payload[:params].except(*exceptions),
       host: event.payload[:headers].env['HTTP_X_FORWARDED_FOR']&.split(',')&.first || event.payload[:headers].env['REMOTE_ADDR'],
-      time: event.time,
       backend: event.payload[:backend_runtime],
       user: User.possibly_nobody
+    }
+  end
+  config.lograge.custom_payload do |controller|
+    {
+      bot: controller.request.bot?
     }
   end
 

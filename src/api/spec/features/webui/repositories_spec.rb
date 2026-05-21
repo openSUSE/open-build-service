@@ -79,6 +79,7 @@ RSpec.describe 'Repositories', :js do
         click_button('Accept')
       end
 
+      expect(page).to have_text 'Successfully updated Download on Demand'
       download_repository_source.reload
 
       expect(download_repository_source.arch).to eq('i586')
@@ -148,7 +149,7 @@ RSpec.describe 'Repositories', :js do
     let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
     let(:project) { user.home_project }
 
-    include_examples 'bootstrap tests for sections with flag tables'
+    it_behaves_like 'bootstrap tests for sections with flag tables'
   end
 
   describe 'Repositories' do
@@ -165,10 +166,12 @@ RSpec.describe 'Repositories', :js do
       # Create interconnect
       visit(new_interconnect_path(project: admin_user.home_project))
       click_button('Connect', match: :first)
+      expect(page).to have_text('Connected')
 
       visit(new_project_distribution_path(project_name: admin_user.home_project))
       distribution = Distribution.find_by(reponame: 'openSUSE_Tumbleweed')
       find("label[for='distribution-#{distribution.id}-checkbox']").click
+      wait_for_ajax
 
       visit(project_repositories_path(project: admin_user.home_project))
 
@@ -180,9 +183,11 @@ RSpec.describe 'Repositories', :js do
 
       visit(new_project_distribution_path(project_name: admin_user.home_project))
       find("label[for='distribution-#{distribution.id}-checkbox']").click
+      wait_for_ajax
 
       visit(project_repositories_path(project: admin_user.home_project))
 
+      expect(page).to have_text(admin_user.home_project)
       expect(page).to have_no_css('#repositories > .card')
     end
 
@@ -190,9 +195,9 @@ RSpec.describe 'Repositories', :js do
       visit(project_repositories_path(project: admin_user.home_project))
 
       click_link('Add from a Project')
-      fill_in('target_project', with: repository.project)
+      fill_in('add_repo_from_project_target_project', with: repository.project)
       # Select the first autocomplete result
-      find('.ui-menu-item-wrapper', match: :first).click
+      first('.ui-menu-item-wrapper').click
       # Remove focus from autocomplete. Needed to trigger update of the other input fields.
       find_by_id('target_repo').click
 

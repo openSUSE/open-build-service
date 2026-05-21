@@ -14,7 +14,7 @@ module Webui::MaintenanceIncidentHelper
     requests = BsRequest.list_numbers(roles: %w[target], states: %w[new review], project: incident.name)
     return if requests.none?
 
-    path = (requests.count == 1 ? request_show_path(requests.first) : project_requests_path(project: incident.name))
+    path = (requests.one? ? request_show_path(requests.first) : project_requests_path(project: incident.name))
 
     tag.div do
       link_to(path) do
@@ -28,7 +28,7 @@ module Webui::MaintenanceIncidentHelper
     requests = BsRequest.list(roles: %w[source], states: %w[new review declined], types: %w[maintenance_release], project: incident.name)
     if requests.present?
       safe_join(outgoing_request_links(requests), '<div/>'.html_safe)
-    elsif incident.is_locked?
+    elsif incident.locked?
       tag.div do
         concat(tag.i(nil, class: 'fas fa-lock text-info pe-1'))
         concat('Locked')

@@ -16,7 +16,7 @@ RSpec.describe 'Sign up', :js, :vcr do
     click_button('Sign Up')
 
     expect(page).to have_text("The account 'eisendieter' is now active.")
-    assert User.find_by(login: 'eisendieter').is_active?
+    assert User.find_by(login: 'eisendieter').active?
   end
 
   it 'User with confirmation' do

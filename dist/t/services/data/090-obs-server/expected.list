@@ -1,0 +1,3 @@
+_service:obs_scm:obs-server.spec
+_service:obs_scm:open-build-service-*obscpio
+_service:obs_scm:open-build-service.obsinfo

@@ -6,7 +6,11 @@
     Request #{bs_request.number}
     -# state badge
     %small
+      = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'ms-2', overview: true)
       = render badge_state
+      -# Maintenance Incident Request
+      - if bs_request.maintenance_incident_request?
+        %span.badge.bg-maintenance.text-light.ms-2 Maintenance Incident
       %span.ms-2
         = render ReportsNoticeComponent.new(reportable: bs_request, user: User.session)
 
@@ -15,10 +19,7 @@
     .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
       = render WatchlistIconComponent.new(user: User.session,
                                           bs_request: bs_request,
-                                          current_object: bs_request,
-                                          bs_requests: bs_requests,
-                                          packages: packages,
-                                          projects: projects)
+                                          current_object: bs_request)
 
 -# author + datetime + (if superseding -> "Superseds something")
 .card-text.px-4.pb-4
@@ -61,11 +62,6 @@
         %mark.text-dark.alert-warning.ps-2.pe-2.text-nowrap{ title: bs_request.accept_at }
           auto accepted
           = render TimeComponent.new(time: bs_request.accept_at)
-    -# Maintenance Incident Request
-    - if bs_request.maintenance_incident_request?
-      %li
-        This is a
-        %mark.text-light.bg-maintenance.text-nowrap.text Maintenance Incident
     -# Maintenance Release Request
     - if bs_request.maintenance_release_request?
       %li
@@ -73,13 +69,12 @@
         %mark.text-light.bg-maintenance.text-nowrap.text Maintenance Release
         request
   .mt-4
-    -# action description, prev + dropdown select + next
-    = render partial: 'actions_details', locals: { bs_request: bs_request, action: action,
-                                                    prev_action: prev_action, next_action: next_action,
-                                                    actions: actions, diff_to_superseded_id: diff_to_superseded_id,
-                                                    page_name: page_name }
+    %h5.mt-4
+      Actions
+    = render partial: 'webui/request/request_header_actions_list', locals: { bs_request: bs_request }
   - if Flipper.enabled?(:labels, User.session)
     .mt-4
-      = render partial: 'webui/shared/label', collection: bs_request.labels, as: :label
-      - if can_apply_labels?(bs_request: bs_request, user: User.session)
-        = render partial: 'webui/shared/label_form', locals: { labelable: bs_request, project: project_for_labels(bs_request)}
+      = render partial: 'webui/shared/label', collection: bs_request.labels.map(&:label_template), as: :label
+      - project = project_for_labels(bs_request)
+      - if can_apply_labels?(bs_request: bs_request, user: User.session) && project.label_templates.present?
+        = render partial: 'webui/shared/label_form', locals: { labelable: bs_request, project: project}

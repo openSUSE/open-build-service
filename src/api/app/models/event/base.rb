@@ -19,11 +19,17 @@ module Event
       def notification_events
         [Event::BuildFail, Event::ServiceFail, Event::ReviewWanted, Event::RequestCreate,
          Event::RequestStatechange, Event::CommentForProject, Event::CommentForPackage,
-         Event::CommentForRequest,
+         Event::CommentForRequest, Event::CommentForReport,
          Event::RelationshipCreate, Event::RelationshipDelete,
-         Event::ReportForComment, Event::ReportForPackage, Event::ReportForProject, Event::ReportForUser, Event::ReportForRequest,
-         Event::WorkflowRunFail, Event::AppealCreated, Event::ClearedDecision, Event::FavoredDecision,
-         Event::AddedUserToGroup, Event::RemovedUserFromGroup]
+         Event::Report, Event::Decision, Event::AppealCreated,
+         Event::WorkflowRunFail, Event::TokenStateChange,
+         Event::AddedUserToGroup, Event::RemovedUserFromGroup,
+         Event::Assignment, Event::UpstreamPackageVersionChanged,
+         Event::GlobalRoleAssigned, Event::TokenMembershipUpdate]
+      end
+
+      def notification_feature_flag
+        nil
       end
 
       def classnames
@@ -81,21 +87,13 @@ module Event
     end
 
     # just for convenience
-    def payload_keys
-      self.class.payload_keys
-    end
+    delegate :payload_keys, to: :class
 
-    def shortenable_key
-      self.class.shortenable_key
-    end
+    delegate :shortenable_key, to: :class
 
-    def create_jobs
-      self.class.create_jobs
-    end
+    delegate :create_jobs, to: :class
 
-    def receiver_roles
-      self.class.receiver_roles
-    end
+    delegate :receiver_roles, to: :class
 
     def initialize(attribs)
       attributes = attribs.dup.with_indifferent_access
@@ -184,6 +182,9 @@ module Event
     end
 
     def subscriptions(channel = :instant_email)
+      # Don't claim to have subscriptions unless this is a notification_event
+      return [] if self.class.notification_events.none? { |e| is_a?(e) }
+
       EventSubscription::FindForEvent.new(self).subscriptions(channel)
     end
 
@@ -214,6 +215,23 @@ module Event
       Rails.logger.debug { "Maintainers #{payload.inspect}" }
       ret = _roles('maintainer', payload['project'], payload['package'])
       Rails.logger.debug { "Maintainers ret #{ret.inspect}" }
+      ret
+    end
+
+    # Returns the maintainers of the develpackage associated to the given package if there are any.
+    # Otherwise, it returns the maintainers of the given package.
+    def develpackage_or_package_maintainers
+      package = Package.get_by_project_and_name(payload['project'], payload['package'])
+      develpackage = package.develpackage
+      develproject = package.develpackage&.project
+
+      Rails.logger.debug { "Develpackage maintainers or maintainers #{payload.inspect}" }
+      ret = if develpackage
+              _roles('maintainer', develproject.name, develpackage.name)
+            else
+              _roles('maintainer', payload['project'], payload['package'])
+            end
+      Rails.logger.debug { "Develpackage maintainers or maintainers #{ret.inspect}" }
       ret
     end
 
@@ -262,12 +280,12 @@ module Event
     end
 
     def reporters
-      decision = Decision.find(payload['id'])
-      decision.reports.map(&:user)
+      decision = ::Decision.find(payload['id'])
+      decision.reports.map(&:reporter)
     end
 
     def offenders
-      decision = Decision.find(payload['id'])
+      decision = ::Decision.find(payload['id'])
       reportables = decision.reports.map(&:reportable)
       reportables.map do |reportable|
         case reportable
@@ -283,6 +301,10 @@ module Event
       end
     end
 
+    def assignees
+      User.where(login: payload['assignee'])
+    end
+
     def _roles(role, project, package = nil)
       return [] unless project
 
@@ -293,6 +315,8 @@ module Event
     end
 
     def send_to_bus
+      return if involves_hidden_project?
+
       RabbitmqBus.send_to_bus(message_bus_routing_key, self[:payload]) if message_bus_routing_key
       RabbitmqBus.send_to_bus('metrics', to_metric) if metric_fields.present?
     end
@@ -310,7 +334,13 @@ module Event
     end
 
     def involves_hidden_project?
-      false
+      return false unless payload['project']
+
+      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
+    end
+
+    def event_object
+      nil
     end
 
     private

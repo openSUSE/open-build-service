@@ -1,3 +1,5 @@
+require 'ostruct' # for OpenStruct
+
 RSpec.describe Webui::Projects::MetaController, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
 

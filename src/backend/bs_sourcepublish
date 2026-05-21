@@ -90,7 +90,7 @@ sub linksourceintodir {
   my $dir = "$basedir/$projid/$packid/$srcmd5";
   mkdir_p($dir);
   for my $filename (sort keys %$files) {
-    link(BSRevision::revfilename($rev, $filename, $files->{$filename}), "$dir/$filename");
+    BSRevision::revcopyoutfile($rev, $filename, $files->{$filename}, "$dir/$filename") unless -e "$dir/$filename";
   }
   return 1;
 }

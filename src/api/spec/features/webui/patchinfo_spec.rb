@@ -37,17 +37,14 @@ RSpec.describe 'Patchinfo', :js, :vcr do
   end
 
   describe 'delete Patchinfo' do
-    let(:patchinfo_package) do
-      create(:patchinfo, project_name: user.home_project_name) unless user.home_project.packages.exists?(name: 'patchinfo')
-      Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false)
-    end
-
-    before do
-      login(user)
-      patchinfo_package
+    let!(:patchinfo_package) do
+      user.run_as do
+        create(:patchinfo, project_name: user.home_project_name) unless user.home_project.packages.exists?(name: 'patchinfo')
+      end
     end
 
     it 'delete' do
+      login(user)
       visit show_patchinfo_path(project: project, package: 'patchinfo')
       expect(page).to have_link('Delete patchinfo')
       click_link('Delete patchinfo')

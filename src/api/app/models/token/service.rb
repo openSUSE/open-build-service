@@ -3,7 +3,7 @@ class Token::Service < Token
     set_triggered_at
     Backend::Api::Sources::Package.trigger_services(options[:project].to_param,
                                                     options[:package].to_param,
-                                                    executor.login)
+                                                    executor&.login)
   end
 
   def package_find_options
@@ -17,8 +17,9 @@ end
 #
 #  id                          :integer          not null, primary key
 #  description                 :string(64)       default("")
+#  enabled                     :boolean          default(TRUE), not null, indexed
 #  scm_token                   :string(255)      indexed
-#  string                      :string(255)      indexed
+#  string                      :string(255)      uniquely indexed
 #  triggered_at                :datetime
 #  type                        :string(255)
 #  workflow_configuration_path :string(255)      default(".obs/workflows.yml")
@@ -28,6 +29,7 @@ end
 #
 # Indexes
 #
+#  index_tokens_on_enabled    (enabled)
 #  index_tokens_on_scm_token  (scm_token)
 #  index_tokens_on_string     (string) UNIQUE
 #  package_id                 (package_id)

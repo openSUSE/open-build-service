@@ -1,11 +1,10 @@
 RSpec.describe Workflow, :vcr do
   subject do
-    described_class.new(workflow_instructions: yaml, scm_webhook: SCMWebhook.new(payload: extractor_payload), token: token, workflow_run: workflow_run)
+    described_class.new(workflow_instructions: yaml, token: token, workflow_run: workflow_run)
   end
 
   let(:user) { create(:confirmed_user, :with_home, login: 'cameron') }
   let(:token) { create(:workflow_token, executor: user) }
-  let!(:workflow_run) { create(:workflow_run, token: token) }
 
   describe '#call' do
     let(:yaml) do
@@ -15,13 +14,7 @@ RSpec.describe Workflow, :vcr do
 
     context 'with an unsupported event filter' do
       let(:yaml) { { filters: { event: 'nonexistent' } } }
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          action: 'opened',
-          event: 'pull_request'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token) }
 
       it 'does not run' do
         expect(subject.call).to be_nil
@@ -30,13 +23,7 @@ RSpec.describe Workflow, :vcr do
 
     context 'with GitHub "pull_request" event not matching the "push" event filter' do
       let(:yaml) { { filters: { event: 'push' } } }
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          action: 'opened',
-          event: 'pull_request'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token) }
 
       it 'does not run' do
         expect(subject.call).to be_nil
@@ -45,13 +32,7 @@ RSpec.describe Workflow, :vcr do
 
     context 'with GitHub "push" event not matching the "pull_request" event filter' do
       let(:yaml) { { filters: { event: 'pull_request' } } }
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          event: 'push',
-          ref: 'refs/heads/branch_123'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'push', hook_action: 'opened', token: token) }
 
       it 'does not run' do
         expect(subject.call).to be_nil
@@ -60,13 +41,7 @@ RSpec.describe Workflow, :vcr do
 
     context 'with GitHub "push" event not matching the "tag_push" event filter' do
       let(:yaml) { { filters: { event: 'tag_push' } } }
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          event: 'push',
-          ref: 'refs/heads/branch_123'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'push', hook_action: 'opened', token: token) }
 
       it 'does not run' do
         expect(subject.call).to be_nil
@@ -75,12 +50,7 @@ RSpec.describe Workflow, :vcr do
 
     context 'with GitLab "Merge Request Hook" event not matching the "push" event filter' do
       let(:yaml) { { filters: { event: 'push' } } }
-      let(:extractor_payload) do
-        {
-          scm: 'gitlab',
-          event: 'Merge Request Hook'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'gitlab', hook_event: 'Merge Request Hook', hook_action: 'update', token: token) }
 
       it 'does not run' do
         expect(subject.call).to be_nil
@@ -89,12 +59,7 @@ RSpec.describe Workflow, :vcr do
 
     context 'with GitLab "Push Hook" event not matching the "pull_request" event filter' do
       let(:yaml) { { filters: { event: 'pull_request' } } }
-      let(:extractor_payload) do
-        {
-          scm: 'gitlab',
-          event: 'Push Hook'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'gitlab', hook_event: 'Push Hook', hook_action: 'update', token: token) }
 
       it 'does not run' do
         expect(subject.call).to be_nil
@@ -103,12 +68,7 @@ RSpec.describe Workflow, :vcr do
 
     context 'with GitLab "Push Hook" event not matching the "tag_push" event filter' do
       let(:yaml) { { filters: { event: 'tag_push' } } }
-      let(:extractor_payload) do
-        {
-          scm: 'gitlab',
-          event: 'Push Hook'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'gitlab', hook_event: 'Push Hook', hook_action: 'update', token: token) }
 
       it 'does not run' do
         expect(subject.call).to be_nil
@@ -119,14 +79,7 @@ RSpec.describe Workflow, :vcr do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] }
       end
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          event: 'push',
-          ref: 'refs/tags/release_abc',
-          target_branch: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'push', hook_action: 'opened', token: token) }
 
       before do
         allow(subject.steps.first).to receive(:call)
@@ -142,14 +95,7 @@ RSpec.describe Workflow, :vcr do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] }
       end
-      let(:extractor_payload) do
-        {
-          scm: 'gitlab',
-          event: 'Tag Push Hook',
-          ref: 'refs/tags/release_abc',
-          target_branch: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'gitlab', hook_event: 'Tag Push Hook', hook_action: 'update', token: token) }
 
       before do
         allow(subject.steps.first).to receive(:call)
@@ -166,13 +112,7 @@ RSpec.describe Workflow, :vcr do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
           'filters' => { 'event' => 'merge_request' } }
       end
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          action: 'opened',
-          event: 'pull_request'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token) }
 
       before do
         allow(subject.steps.first).to receive(:call)
@@ -187,9 +127,11 @@ RSpec.describe Workflow, :vcr do
 
       context 'when a workflow version is provided that does not support the alias' do
         subject do
-          described_class.new(workflow_instructions: yaml, scm_webhook: SCMWebhook.new(payload: extractor_payload),
+          described_class.new(workflow_instructions: yaml,
                               token: token, workflow_run: workflow_run, workflow_version_number: '1.0')
         end
+
+        let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token) }
 
         it 'the workflow does not run' do
           subject.call
@@ -203,14 +145,7 @@ RSpec.describe Workflow, :vcr do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
           'filters' => { 'branches' => { 'ignore' => %w[something main] } } }
       end
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          action: 'opened',
-          event: 'pull_request',
-          target_branch: 'master'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token) }
 
       before do
         allow(subject.steps.first).to receive(:call)
@@ -227,14 +162,8 @@ RSpec.describe Workflow, :vcr do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
           'filters' => { 'branches' => { 'only' => %w[something main] } } }
       end
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          action: 'opened',
-          event: 'pull_request',
-          target_branch: 'master'
-        }
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token, request_payload: request_payload) }
 
       before do
         allow(subject.steps.first).to receive(:call)
@@ -251,14 +180,16 @@ RSpec.describe Workflow, :vcr do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
           'filters' => { 'branches' => { 'ignore' => %w[something main] } } }
       end
-      let(:extractor_payload) do
+      let(:request_payload) do
         {
-          scm: 'github',
-          action: 'opened',
-          event: 'pull_request',
-          target_branch: 'main'
-        }
+          pull_request: {
+            base: {
+              ref: 'main'
+            }
+          }
+        }.to_json
       end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token, request_payload: request_payload) }
 
       before do
         allow(subject.steps.first).to receive(:call)
@@ -275,15 +206,8 @@ RSpec.describe Workflow, :vcr do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
           'filters' => { 'branches' => { 'only' => %w[master develop] } } }
       end
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          action: 'opened',
-          event: 'pull_request',
-          source_branch: 'test_branch',
-          target_branch: 'master'
-        }
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token, request_payload: request_payload) }
 
       before do
         allow(subject.steps.first).to receive(:call)
@@ -293,6 +217,19 @@ RSpec.describe Workflow, :vcr do
         subject.call
         expect(subject.steps.first).to have_received(:call)
       end
+
+      context 'the branches filter contains a number' do
+        let(:yaml) do
+          { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
+            'filters' => { 'branches' => { 'only' => [16.0, 'develop'] } } }
+        end
+        let(:request_payload) { file_fixture('request_payload_github_pull_request_opened_branch_number.json').read }
+
+        it 'the workflow runs' do
+          subject.call
+          expect(subject.steps.first).to have_received(:call)
+        end
+      end
     end
 
     context 'when the webhook event is not supported by the branches filter' do
@@ -300,15 +237,7 @@ RSpec.describe Workflow, :vcr do
         { 'steps' => [{ 'trigger_services' => { 'project' => 'test-project', 'package' => 'test-package' } }],
           'filters' => { 'branches' => { 'only' => ['develop'] } } }
       end
-
-      let(:extractor_payload) do
-        {
-          scm: 'gitlab',
-          event: 'Tag Push Hook',
-          ref: 'refs/tags/release_abc',
-          target_branch: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
-        }
-      end
+      let!(:workflow_run) { create(:workflow_run, scm_vendor: 'gitlab', hook_event: 'Tag Push Hook', hook_action: 'update', token: token) }
 
       it 'is not valid and has an error message' do
         subject.valid?(:call)
@@ -321,15 +250,8 @@ RSpec.describe Workflow, :vcr do
   describe '#steps' do
     let(:project) { create(:project, name: 'test-project', maintainer: user) }
     let(:package) { create(:package, name: 'test-package', project: project) }
-    let(:extractor_payload) do
-      {
-        scm: 'github',
-        action: 'opened',
-        event: 'pull_request',
-        pr_number: 1,
-        target_repository_full_name: 'iggy/test-project'
-      }
-    end
+    let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+    let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token, request_payload: request_payload) }
 
     before do
       login user
@@ -422,13 +344,7 @@ RSpec.describe Workflow, :vcr do
   end
 
   describe '#filters' do
-    let(:extractor_payload) do
-      {
-        scm: 'github',
-        action: 'opened',
-        event: 'pull_request'
-      }
-    end
+    let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token) }
 
     context 'with filters having valid values' do
       let(:yaml) do
@@ -453,6 +369,65 @@ RSpec.describe Workflow, :vcr do
 
       it 'returns nothing' do
         expect(subject.filters).to eq({})
+      end
+    end
+  end
+
+  describe '#label_matches_labels_filter?' do
+    context 'label matches only filter' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
+          filters: { event: 'pull_request', labels: { only: ['duplicate'] } } }
+      end
+
+      it { expect(subject.send(:label_matches_labels_filter?)).to be_truthy }
+    end
+
+    context 'no labels filter and label event' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }] }
+      end
+
+      it 'does stop the execution of steps' do
+        expect(subject.send(:label_matches_labels_filter?)).to be_falsey
+      end
+    end
+
+    context 'label does not match only filter' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
+          filters: { event: 'pull_request', labels: { only: ['random-label'] } } }
+      end
+
+      it 'stops the execution of steps' do
+        expect(subject.send(:label_matches_labels_filter?)).not_to be_truthy
+      end
+    end
+
+    context 'label matches ignore filter' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
+          filters: { event: 'pull_request', labels: { ignore: ['duplicate'] } } }
+      end
+
+      it 'stops the execution of steps' do
+        expect(subject.send(:label_matches_labels_filter?)).not_to be_truthy
+      end
+    end
+
+    context 'label does not match ignore filter' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
+          filters: { event: 'pull_request', labels: { ignore: ['random-label'] } } }
+      end
+
+      it 'stops the execution of steps' do
+        expect(subject.send(:label_matches_labels_filter?)).to be_truthy
       end
     end
   end

@@ -446,7 +446,7 @@ sub listzip {
         my $ctx = Digest::MD5->new;
         my $ctx256 = Digest::SHA->new(256);
         my $writer = sub { $ctx->add($_[0]); $ctx256->add($_[0]) };
-	eval { BSZip::extract(\*F, $e, 'writer' => $writer) };
+	eval { BSZip::extract(\*F, $e, 'writer' => $writer, 'encrypted_ok' => 1) };
 	die("$zipfile: $@") if $@;
 	$info = $ctx256->hexdigest();
 	$md5 = $ctx->hexdigest();
@@ -470,13 +470,16 @@ sub extractzip {
     next unless $x->{'extract'};
     die("bad extract file type $e->{'ziptype'}\n") unless $e->{'ziptype'} == 8;
     if (exists($x->{'content'})) {
-      $x->{'content'} .= BSZip::extract(\*F, $e);
+      eval { $x->{'content'} .= BSZip::extract(\*F, $e) };
+      $x->{'encrypted'} = 1 if $@ && $@ =~ /cannot extract encrypted files/;
+      die("$zipfile: $@") if $@ && !$x->{'encrypted'};
     } else {
       local *G;
       open(G, '>', $x->{'extract'}) || die("$x->{'extract'}: $!\n");
       my $writer = sub { print G $_[0] or die("write: $!\n") };
       eval { BSZip::extract(\*F, $e, 'writer' => $writer) };
-      die("$zipfile: $@") if $@;
+      $x->{'encrypted'} = 1 if $@ && $@ =~ /cannot extract encrypted files/;
+      die("$zipfile: $@") if $@ && !$x->{'encrypted'};
       close(G) || die("close: $!\n");
     }
   }
@@ -704,6 +707,7 @@ sub fixup {
   } elsif ($e->{'type'} eq 'l') {
     return [ "(symlink to $e->{info})" ];
   } elsif ($e->{'type'} eq '-') {
+    return [ "(encrypted file)" ] if $e->{'encrypted'};
     writestr($e->{'extract'}, undef, $e->{'content'}) if !$nowrite && exists $e->{'content'};
     return $e->{'size'} ? $e->{'extract'} : undef;
   } else {
@@ -726,35 +730,24 @@ sub filediff_fixup {
 
 sub adddiffheader {
   my ($r, $p1, $p2) = @_;
-  my ($h, $hl);
+  my $h;
   my $state = $r->{'state'} || 'changed';
   $r->{'_content'} = '' unless defined $r->{'_content'};
-  if ($r->{'binary'}) {
-    if (defined($p1) && defined($p2) && $state eq 'changed') {
-      if ($p1 eq $p2) {
-        $h = "Binary file $p1 differs\n";
-      } else {
-        $h = "Binary files $p1 and $p2 differ\n";
-      }
-    } elsif (defined($p1) && $state ne 'added') {
-      $h = "Binary file $p1 deleted\n";
-    } elsif (defined($p2) && $state ne 'deleted') {
-      $h = "Binary file $p2 added\n";
-    }
-    $hl = 1;
-  } else {
-    if (defined($p1) && defined($p2) && $state eq 'changed') {
-      $h = "--- $p1\n+++ $p2\n";
-    } elsif (defined($p1) && $state ne 'added') {
-      $p2 = $p1 unless defined $p2;
-      $h = "--- $p1\n+++ $p2\n";
-    } elsif (defined($p2) && $state ne 'deleted') {
-      $p1 = $p2 unless defined $p1;
-      $h = "--- $p1\n+++ $p2\n";
-    }
-    $hl = 2;
+
+  if (defined($p1) && defined($p2) && $state eq 'changed') {
+    $h = "--- $p1\n+++ $p2\n";
+    $h .= $p1 eq $p2 ? "Binary file $p1 differs\n" : "Binary files $p1 and $p2 differ\n" if $r->{'binary'};
+  } elsif (defined($p1) && $state ne 'added') {
+    $p2 = $p1 unless defined $p2;
+    $h = "--- $p1\n+++ $p2\n";
+    $h .= "Binary file $p1 deleted\n" if $r->{'binary'};
+  } elsif (defined($p2) && $state ne 'deleted') {
+    $p1 = $p2 unless defined $p1;
+    $h = "--- $p1\n+++ $p2\n";
+    $h .= "Binary file $p2 added\n" if $r->{'binary'};
   }
   if ($h) {
+    my $hl = $r->{'binary'} ? 3 : 2;
     $r->{'_content'} = $h . $r->{'_content'};
     $r->{'lines'} += $hl;
     $r->{'shown'} += $hl if defined $r->{'shown'};

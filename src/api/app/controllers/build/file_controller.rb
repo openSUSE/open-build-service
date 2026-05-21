@@ -1,7 +1,6 @@
 module Build
   class FileController < ApplicationController
     before_action :check_user_has_permission
-    before_action :require_parameters
 
     # GET /build/:project/:repository/:arch/:package/:filename
     def show
@@ -44,10 +43,6 @@ module Build
 
     private
 
-    def require_parameters
-      required_parameters :project, :repository, :arch, :package, :filename
-    end
-
     def project
       @project ||=
         if params[:package] == '_repository'
@@ -56,7 +51,7 @@ module Build
           package = Package.get_by_project_and_name(
             params[:project], params[:package], use_source: false, follow_multibuild: true
           )
-          package.project if package.present?
+          package.presence&.project
         end
     end
 

@@ -55,7 +55,7 @@ module FileService
     def add_to_commit_filelist(name, file_content)
       index = @commit_filelist.find_index { |f| f[:name] == name }
       # Avoid duplicated files in commitfilelist, most recent file upload wins
-      return (@commit_filelist << file_list_entry(name, file_content)) if index.nil?
+      return @commit_filelist << file_list_entry(name, file_content) if index.nil?
 
       @commit_filelist[index][:md5] = Digest::MD5.hexdigest(file_content)
       @commit_filelist[index][:hash] = "sha256:#{Digest::SHA256.hexdigest(file_content)}"

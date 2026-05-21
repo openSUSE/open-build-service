@@ -1,7 +1,5 @@
-require 'set'
-
 class Comment < ApplicationRecord
-  belongs_to :commentable, polymorphic: true # belongs to a Project, Package, BsRequest or BsRequestActionSubmit
+  belongs_to :commentable, polymorphic: true, counter_cache: true # belongs to a Project, Package, BsRequest or BsRequestActionSubmit
   belongs_to :user, inverse_of: :comments
   belongs_to :moderator, class_name: 'User', optional: true
 
@@ -11,8 +9,8 @@ class Comment < ApplicationRecord
   validates :body, presence: true
   # FIXME: this probably should be MEDIUMTEXT(16MB) instead of text (64KB)
   validates :body, length: { maximum: 65_535 }
-  validates :body, format: { with: /\A[^\u0000]*\Z/,
-                             message: 'must not contain null characters' }
+  validates :body, format: { with: /\A[^\u0000\u000E-\u001F]*\Z/,
+                             message: 'must not contain null or invalid characters' }
   validates :source_rev, length: { maximum: 32 }
   validates :target_rev, length: { maximum: 32 }
 
@@ -29,13 +27,13 @@ class Comment < ApplicationRecord
   has_many :reports, as: :reportable, dependent: :nullify
 
   extend ActsAsTree::TreeWalker
+
   acts_as_tree order: 'created_at'
 
   has_paper_trail
 
   scope :on_actions_for_request, ->(bs_request) { where(commentable: BsRequestAction.where(bs_request: bs_request)) }
   scope :without_parent, -> { where(parent_id: nil) }
-  scope :newest_first, -> { order(created_at: :desc) }
 
   def to_s
     body
@@ -61,7 +59,7 @@ class Comment < ApplicationRecord
   end
 
   def unused_parent?
-    parent && parent.user.is_nobody? && parent.children.empty?
+    parent && parent.user.nobody? && parent.children.empty?
   end
 
   def moderated?
@@ -96,6 +94,10 @@ class Comment < ApplicationRecord
     false
   end
 
+  def sanitized_body
+    body.delete("\u0000\u000E-\u001F")
+  end
+
   private
 
   def create_event
@@ -108,6 +110,8 @@ class Comment < ApplicationRecord
       Event::CommentForRequest.create(event_parameters)
     when 'BsRequestAction'
       Event::CommentForRequest.create(event_parameters.merge({ id: id, diff_file_index: diff_file_index, diff_line_number: diff_line_number }))
+    when 'Report'
+      Event::CommentForReport.create(event_parameters.merge({ report_id: commentable.id }))
     end
   end
 
@@ -140,7 +144,7 @@ class Comment < ApplicationRecord
 
   def blocked?
     return false unless (session = User.session)
-    return true if session.blocked_users.exists?(blocked: user)
+    return true if session.blocked_users.exists?(user_id)
 
     false
   end

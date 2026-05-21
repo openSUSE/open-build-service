@@ -60,11 +60,11 @@ post:
             Missing Parameter flag:
               value:
                 code: missing_parameter
-                summary: Required Parameter flag missing
+                summary: 'param is missing or the value is empty: flag'
             Missing Parameter status:
               value:
                 code: missing_parameter
-                summary: Required Parameter status missing
+                summary: 'param is missing or the value is empty: status'
             Invalid flag:
               value:
                 code: invalid_flag

@@ -8,14 +8,14 @@ RSpec.describe 'Comments', :js, :vcr do
   it 'can be created' do
     login user
     visit project_show_path(user.home_project)
-    fill_in 'new_comment_body', with: 'Comment Body'
+    fill_in 'comment[body]', with: 'Comment Body'
     find_button('Add comment').click
 
     expect(page).to have_text('Comment Body')
   end
 
   it 'can be created using canned responses' do
-    Flipper.enable(:content_moderation)
+    Flipper.enable(:canned_responses)
     login user
     create(:canned_response, user: user, title: 'test reply', content: 'This is a canned response')
     visit project_show_path(user.home_project)
@@ -53,6 +53,7 @@ RSpec.describe 'Comments', :js, :vcr do
     click_button('Delete')
 
     visit project_show_path(user.home_project)
+    expect(page).to have_text(user.home_project)
     expect(page).to have_no_text(old_comment_text)
   end
 end

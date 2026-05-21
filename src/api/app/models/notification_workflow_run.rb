@@ -1,6 +1,11 @@
 class NotificationWorkflowRun < Notification
   def description
-    ''
+    case event_type
+    when 'Event::TokenStateChange'
+      event_payload['reason']
+    else
+      ''
+    end
   end
 
   def excerpt
@@ -12,13 +17,24 @@ class NotificationWorkflowRun < Notification
   end
 
   def link_text
-    'Workflow Run'
+    case event_type
+    when 'Event::TokenStateChange'
+      token = Token.find(event_payload['token_id'])
+      "Token '#{token.description.presence || token.id}' was #{event_payload['enabled'] ? 'enabled' : 'disabled'}"
+    else
+      'Workflow Run'
+    end
   end
 
   def link_path
     return if notifiable.blank?
 
-    Rails.application.routes.url_helpers.token_workflow_run_path(notifiable.token, notifiable, notification_id: id)
+    case event_type
+    when 'Event::TokenStateChange'
+      Rails.application.routes.url_helpers.token_path(notifiable.token_id, notification_id: id)
+    else
+      Rails.application.routes.url_helpers.token_workflow_run_path(notifiable.token_id, notifiable.id, notification_id: id)
+    end
   end
 end
 
@@ -30,7 +46,7 @@ end
 #  bs_request_oldstate        :string(255)
 #  bs_request_state           :string(255)
 #  delivered                  :boolean          default(FALSE), indexed
-#  event_payload              :text(65535)      not null
+#  event_payload              :text(16777215)   not null
 #  event_type                 :string(255)      not null, indexed
 #  last_seen_at               :datetime
 #  notifiable_type            :string(255)      indexed => [notifiable_id]

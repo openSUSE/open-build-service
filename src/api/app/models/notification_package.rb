@@ -11,6 +11,8 @@ class NotificationPackage < Notification
       "#{event_payload['who']} removed #{recipient} as #{event_payload['role']} of #{target_object}"
     when 'Event::BuildFail'
       "Build was triggered because of #{event_payload['reason']}"
+    when 'Event::UpstreamPackageVersionChanged'
+      "The upstream version of package #{event_payload['project']} / #{event_payload['package']} has changed to #{event_payload['upstream_version']}"
     end
   end
 
@@ -19,7 +21,7 @@ class NotificationPackage < Notification
   end
 
   def avatar_objects
-    [User.find_by(login: event_payload['who'])].compact
+    User.where(login: event_payload['who'])
   end
 
   def link_text
@@ -29,15 +31,24 @@ class NotificationPackage < Notification
     when 'Event::RelationshipDelete'
       "Removed as #{event_payload['role']} of a package"
     when 'Event::BuildFail'
-      "Package #{event_payload['package']} on #{event_payload['project']} project failed to build against #{event_payload['repository']} / #{event_payload['arch']}"
+      "#{event_payload['project']}/#{event_payload['package']} failed to build"
+    when 'Event::UpstreamPackageVersionChanged'
+      "New upstream version for #{event_payload['package']}"
     end
   end
 
   def link_path
-    if event_type == 'Event::BuildFail'
+    case event_type
+    when 'Event::BuildFail'
       Rails.application.routes.url_helpers.package_live_build_log_path(package: event_payload['package'], project: event_payload['project'],
                                                                        repository: event_payload['repository'], arch: event_payload['arch'],
                                                                        notification_id: id)
+    when 'Event::UpstreamPackageVersionChanged'
+      return unless Package.find_by_project_and_name(event_payload['project'], event_payload['package'])
+
+      Rails.application.routes.url_helpers.package_show_path(event_payload['project'],
+                                                             event_payload['package'],
+                                                             notification_id: id)
     else
       Rails.application.routes.url_helpers.package_users_path(event_payload['project'],
                                                               event_payload['package'],
@@ -54,7 +65,7 @@ end
 #  bs_request_oldstate        :string(255)
 #  bs_request_state           :string(255)
 #  delivered                  :boolean          default(FALSE), indexed
-#  event_payload              :text(65535)      not null
+#  event_payload              :text(16777215)   not null
 #  event_type                 :string(255)      not null, indexed
 #  last_seen_at               :datetime
 #  notifiable_type            :string(255)      indexed => [notifiable_id]

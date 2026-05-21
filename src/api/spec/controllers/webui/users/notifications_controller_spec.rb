@@ -8,10 +8,11 @@ RSpec.describe Webui::Users::NotificationsController do
   let(:comment_for_project_notification) { create(:notification_for_comment, :web_notification, :comment_for_project, subscriber: user) }
   let(:comment_for_package_notification) { create(:notification_for_comment, :web_notification, :comment_for_package, subscriber: user) }
   let(:comment_for_request_notification) { create(:notification_for_comment, :web_notification, :comment_for_request, subscriber: user) }
+  let(:comment_for_report_notification) { create(:notification_for_comment, :web_notification, :comment_for_report, subscriber: user) }
   let(:read_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user, delivered: true) }
   let(:notifications_for_other_users) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: other_user) }
   let(:build_failure) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user) }
-  let(:report_notification) { create(:notification_for_report, :web_notification, :create_report, subscriber: user) }
+  let(:report_notification) { create(:notification_for_report, :web_notification, :report_for_user, subscriber: user) }
 
   shared_examples 'returning success' do
     it 'returns ok status' do
@@ -43,7 +44,8 @@ RSpec.describe Webui::Users::NotificationsController do
                                                    review_notification,
                                                    comment_for_project_notification,
                                                    comment_for_package_notification,
-                                                   comment_for_request_notification)
+                                                   comment_for_request_notification,
+                                                   comment_for_report_notification)
       end
 
       it 'does not return the notifications for the other user' do
@@ -109,7 +111,8 @@ RSpec.describe Webui::Users::NotificationsController do
       it "sets @notifications to all undelivered notifications of 'comments' type" do
         expect(assigns[:notifications]).to include(comment_for_project_notification,
                                                    comment_for_package_notification,
-                                                   comment_for_request_notification)
+                                                   comment_for_request_notification,
+                                                   comment_for_report_notification)
       end
     end
 
@@ -131,7 +134,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context "when filtering by 'incoming_requests' param" do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:target_package) { create(:package) }
-      let(:source_package) { create(:package, :as_submission_source) }
+      let(:source_package) { create(:package) }
       let!(:relationship_package_user) { create(:relationship_package_user, user: user, package: target_package) }
 
       let!(:maintained_request) do
@@ -164,7 +167,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context "when filtering by 'outgoing_requests' param" do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:target_package) { create(:package) }
-      let(:source_package) { create(:package, :as_submission_source) }
+      let(:source_package) { create(:package) }
       let(:declined_bs_request) do
         create(:declined_bs_request,
                target_package: target_package,
@@ -226,6 +229,32 @@ RSpec.describe Webui::Users::NotificationsController do
         expect(assigns[:notifications]).to include(report_notification.reload)
       end
     end
+
+    context 'when filtering by `labels` param' do
+      let(:source_package) { create(:package) }
+      let(:target_package) { create(:package) }
+      let(:bs_request) do
+        create(:bs_request_with_submit_action, source_project: source_package.project, source_package: source_package, target_project: target_package.project, target_package: target_package)
+      end
+      let!(:notification_for_request) { create(:notification_for_request, :web_notification, subscriber: user, event_type: 'Event::RequestCreate', notifiable: bs_request) }
+      let!(:notification_build_failure) { create(:notification_for_package, :web_notification, event_type: 'Event::BuildFail', subscriber: user, notifiable: target_package) }
+
+      let(:label_template) { create(:label_template, project: target_package.project) }
+
+      let!(:label_for_request) { create(:label, label_template: label_template, labelable: bs_request) }
+      let!(:label_for_package) { create(:label, label_template: label_template, labelable: target_package) }
+      let(:params) { default_params.merge(labels: [label_template.name]) }
+
+      before do
+        subject
+      end
+
+      it_behaves_like 'returning success'
+
+      it 'sets @notifications to all undelivered notifications with the label set' do
+        expect(assigns[:notifications]).to contain_exactly(notification_build_failure, notification_for_request)
+      end
+    end
   end
 
   describe 'PUT #update' do
@@ -248,11 +277,6 @@ RSpec.describe Webui::Users::NotificationsController do
         expect(state_change_notification.reload.delivered).to be true
       end
 
-      it {
-        subject
-        expect(assigns[:count]).to be 1
-      }
-
       it 'returns the updated list of read notifications' do
         subject
         expect(assigns[:notifications]).to contain_exactly(another_unread_notification)
@@ -270,8 +294,6 @@ RSpec.describe Webui::Users::NotificationsController do
       it "doesn't set the notification as read" do
         expect(state_change_notification.reload.delivered).to be false
       end
-
-      it { expect(assigns[:count]).to be 0 }
     end
 
     context 'when a user marks one of their read notifications as unread' do
@@ -291,8 +313,6 @@ RSpec.describe Webui::Users::NotificationsController do
       it 'sets the notification as not delivered' do
         expect(read_notification.reload.delivered).to be false
       end
-
-      it { expect(assigns[:count]).to be 1 }
 
       it 'returns the updated list of read notifications' do
         expect(assigns[:notifications]).to contain_exactly(another_read_notification)

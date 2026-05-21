@@ -50,11 +50,9 @@ class DiffParser
 
         # Known scenario https://github.com/openSUSE/open-build-service/pull/17006
         # Notify the exception if a different unexpected scenario happen instead
-        if content.nil? && line.content != '+'
-          Airbreak.notify("Unknown scenario in generate_inline_diffs - content is nil but line is not '+': line='#{line.to_json}'")
-        end
+        ::Airbrake.notify("Unknown scenario in generate_inline_diffs - content is nil but line is not '+': line='#{line.to_json}'") if content.nil? && line.content != '+'
 
-        line.content = "#{sign}#{content}" unless full_line_diff(content)
+        line.content = "#{sign}#{content}" unless full_line_diff?(content)
       end
     end
   end
@@ -69,7 +67,7 @@ class DiffParser
     block.map { |l| l.state == state ? CGI.unescapeHTML(l.content[1..]) : '' }.join
   end
 
-  def full_line_diff(line)
+  def full_line_diff?(line)
     return false unless line
     return false unless line.start_with?('<')
     return false unless line.end_with?(">\n", '>')

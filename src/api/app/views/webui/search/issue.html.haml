@@ -6,14 +6,19 @@
     %h3 Search issues:
     .d-flex.justify-content-center
       = form_tag(search_issue_path, method: :get, class: 'my-3 w-75') do
-        .mb-3.input-group
-          = text_field_tag('issue', params[:issue], placeholder: 'Issue ID', autofocus: true, required: true, class: 'form-control')
+        .mb-3.d-flex
+          .w-50
+            = select_tag(:issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker),
+                          class: 'form-select rounded-end-0')
+          .w-50
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'issue',
+                                                                  value: params[:issue],
+                                                                  placeholder: 'Issue ID',
+                                                                  required: true,
+                                                                  autofocus: true,
+                                                                  input_class: 'rounded-start-0',
+                                                                  button: { type: 'submit', class: 'btn-primary' } }
 
-          = select_tag(:issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker),
-                      class: 'form-select rounded-end')
-
-          %button.btn.btn-primary.ms-1{ type: 'submit', title: 'Search' }
-            %i.fa.fa-search
         = render(partial: 'search_for')
 
     - if @results.present?

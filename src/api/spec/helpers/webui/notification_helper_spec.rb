@@ -30,76 +30,65 @@ RSpec.describe Webui::NotificationHelper do
     end
   end
 
-  describe '#avatars' do
-    let(:admin) { create(:admin_user) }
-    let(:iggy) { create(:staff_user, login: 'Iggy') }
-    let(:factory) { create(:project, name: 'openSUSE:Factory') }
-    let(:staging_workflow) { create(:staging_workflow, project: factory) }
-    let(:leap) { create(:project, name: 'openSUSE:Leap:15.0') }
-    let(:leap_apache) { create(:package_with_file, name: 'apache2', project: leap) }
-    let(:notification) { create(:notification_for_request, :request_created, notifiable: bs_request) }
-
-    before { User.session = admin }
-
-    context 'when displaying users or groups' do
-      let(:notification) { create(:notification_for_request, :request_created) }
-
-      it { expect(avatars(notification)).to include 'gravatar' }
-    end
-
-    context 'when displaying packages' do
-      let(:bs_request) do
-        bs_request = create(
-          :bs_request_with_submit_action,
-          creator: iggy,
-          target_package: 'inreview',
-          target_project: factory,
-          source_package: leap_apache
-        )
-        bs_request.save
-        bs_request
-      end
-
-      it { expect(avatars(notification)).to include 'fa-archive' }
-    end
-
-    context 'when displaying projects' do
-      let(:bs_request) do
-        bs_request = create(
-          :bs_request_with_submit_action,
-          creator: iggy,
-          target_package: 'inreview',
-          target_project: factory,
-          source_package: leap_apache
-        )
-        bs_request.staging_project = staging_workflow.staging_projects.first
-        5.times do
-          create(:review, by_project: bs_request.staging_project, bs_request: bs_request)
-        end
-        bs_request.save
-        bs_request
-      end
-
-      it { expect(avatars(notification)).to include 'fa-cubes' }
-      it { expect(avatars(notification)).to include 'avatars-counter' }
-    end
-  end
-
   describe '#notification_icon' do
-    context 'when the notification is about a request' do
-      let(:notification) { create(:notification_for_request, :request_created) }
+    subject { notification_icon(notification) }
 
-      it { expect(notification_icon(notification)).to include('fa-code-pull-request') }
+    context 'when the notification is about a comment for project' do
+      let(:notification) { create(:notification_for_comment, :comment_for_project) }
+
+      it { expect(subject).to have_css(".fa-comments[title='Comment notification']") }
     end
 
     context 'when the notification is about a relationship' do
       let(:notification) { create(:notification_for_project, :relationship_create_for_project) }
 
-      it { expect(notification_icon(notification)).to include('fa-user-tag') }
+      it { expect(subject).to include('fa-user-tag') }
+    end
+
+    context 'when the notification is about a relationship with package' do
+      let(:notification) { create(:notification_for_project, :relationship_create_for_project) }
+
+      it { expect(subject).to have_css(".fa-user-tag[title='Relationship notification']") }
+    end
+
+    context 'when the notification is about a request' do
+      let(:notification) { create(:notification_for_request, :request_created) }
+
+      it { expect(subject).to include('fa-code-pull-request') }
     end
   end
 
   describe '#description' do
+    context 'when the notification is about a build failure' do
+      let(:package) { create(:package) }
+      let(:notification) do
+        create(
+          :notification_for_package,
+          :build_failure,
+          notifiable: package,
+          event_payload: {
+            project: 'OBS:Server:Unstable',
+            package: 'obs-server',
+            repository: 'openSUSE_Factory_zSystems',
+            arch: 's390x',
+            reason: 'source change'
+          }
+        )
+      end
+
+      it 'contains the package detail' do
+        expect(description(notification)).to include('Package: OBS:Server:Unstable / obs-server')
+      end
+
+      it 'contains the repository detail' do
+        expect(description(notification)).to include('Repository: openSUSE_Factory_zSystems / s390x')
+      end
+
+      it 'contains the reason detail' do
+        expect(description(notification)).to include('Build Reason: source change')
+      end
+    end
+
     context 'when the notification is about a report for user' do
       let(:spammer) { create(:confirmed_user, login: 'trouble_maker') }
       let(:report_for_user) { create(:report, reportable: spammer, reason: 'This is a spammer!') }

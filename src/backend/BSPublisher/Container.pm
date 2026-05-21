@@ -409,6 +409,21 @@ sub create_container_index_info {
   return $info;
 }
 
+sub process_regpush_error {
+  my ($op, $result) = @_;
+  if (($result & 255) == 0) {
+    my $st = $result >> 8;	# get exit status
+    die("CRITICAL_NORETRY: error wile $op\n") if $st == 2;
+    if ($st >= 10 && $st < 20) {
+      $st -= 10;
+      my $sleep = $st < 5 ? (5, 10, 15, 30, 45)[$st] : ($st - 3) * 30;
+      $sleep *= 60;
+      die("RETRY_AFTER($sleep): error while $op\n");
+    }
+  }
+  die("error while $op: $result\n");
+}
+
 sub query_repostate {
   my ($registry, $repository, $tags, $subdigests, $missingok) = @_;
   my $registryserver = $registry->{pushserver} || $registry->{server};
@@ -435,10 +450,11 @@ sub query_repostate {
   my @opts = ('-l');
   push @opts, '--cosign' if $tags;
   push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
-  push @opts, '--listidx-no-info' if $subdigests;
+  push @opts, '--listidx-no-info' if $subdigests || ($registrystate && $tagsfile);
   push @opts, '--missingok' if $missingok;
   push @opts, '-F', $tagsfile if $tagsfile;
   push @opts, '--old-listfile', "$registrystate/$repository/:oldlist" if $registrystate && -s "$registrystate/$repository/:oldlist";
+  push @opts, '--use-head-for-list' if $registry->{'use_head_for_list'};
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
   my $now = time();
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', $tempfile, @cmd);
@@ -456,7 +472,7 @@ sub query_repostate {
 	next;
       }
       $lastdigest = undef;
-      if (@s >= 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[-1] =~ /^cosigncookie=/) {
+      if (@s >= 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[-1] =~ /cosigncookie=/) {
         $repostate->{$s[0]} = $s[-1];
       } elsif (@s >= 2) {
         $repostate->{$s[0]} = $s[1];
@@ -477,11 +493,12 @@ sub query_repostate {
   }
   unlink($tagsfile) if $tagsfile;
   unlink($tempfile);
+  process_regpush_error('querying registry', $result) if $result;
   return $repostate;
 }
 
 sub create_manifestinfo {
-  my ($registry, $prp, $repository, $containerinfo, $imginfo) = @_;
+  my ($registry, $prp, $repository, $containerinfo, $imginfo, $cosign) = @_;
 
   my $dir = $registry->{'manifestinfos'};
   my $mani_id = $imginfo->{'distmanifest'};
@@ -503,6 +520,10 @@ sub create_manifestinfo {
   $_->{'base'} && ($_->{'base'} = \1) for @{$bins || []};       # turn flag to True
   $imginfo->{'packages'} = $bins if $bins;
   mkdir_p("$dir/$repository");
+  if ($cosign) {
+    $imginfo->{'cosign_cookie'} = $cosign->{'cookie'} if $cosign->{'cookie'};
+    $imginfo->{'cosign_pubkey'} = $cosign->{'pubkey_fp'} if $cosign->{'pubkey_fp'};
+  }
   my $imginfo_json = JSON::XS->new->utf8->canonical->encode($imginfo);
   unlink("$dir/$repository/.$mani_id.$$");
   writestr("$dir/$repository/.$mani_id.$$", "$dir/$repository/$mani_id", $imginfo_json);
@@ -515,7 +536,7 @@ sub compare_to_repostate {
   my $info;
   my $cosigncookie = ($cosign || {})->{'cookie'};
   my $cosign_attestation = ($cosign || {})->{'attestation'};
-  my $cosign_expect = $cosigncookie && !$registry->{'cosign_nocheck'} ? "cosigncookie=$cosigncookie" : '-';
+  my $cosign_nocheck = $registry->{'cosign_nocheck'};
   my $manifestinfodir;
   if ($registry->{'manifestinfos'} && "/$repository/" !~ /\/[\.\/]/) {
     $manifestinfodir = "$registry->{'manifestinfos'}/$repository";
@@ -533,14 +554,14 @@ sub compare_to_repostate {
       if ($cosigncookie && $cosign_attestation && $attestation_layers) {
 	my $atttag = $info->{'digest'};
 	$atttag =~ s/:(.*)/-$1.att/;
-	$expected{$atttag} = $cosign_expect;
+	$expected{$atttag} = $cosign_nocheck ? '-' : "layers=$attestation_layers,cosigncookie=$cosigncookie";
       }
       push @infos, { %$info };	# copy so that size is not stringified
       $containerdigests .= "$info->{'digest'} $info->{'size'}\n";
       if ($cosigncookie) {
 	my $sigtag = $info->{'digest'};
 	$sigtag =~ s/:(.*)/-$1.sig/;
-	$expected{$sigtag} = $cosign_expect;
+	$expected{$sigtag} = $cosign_nocheck ? '-' : "layers=1,cosigncookie=$cosigncookie";
       }
       push @{$taginfo->{'images'}}, $imginfo if $taginfo;
     }
@@ -559,7 +580,7 @@ sub compare_to_repostate {
     if ($cosigncookie && $cosign_attestation && $attestation_layers) {
       my $atttag = $info->{'digest'};
       $atttag =~ s/:(.*)/-$1.att/;
-      $expected{$atttag} = $cosign_expect;
+      $expected{$atttag} = $cosign_nocheck ? '-' : "layers=$attestation_layers,cosigncookie=$cosigncookie";
     }
     push @{$taginfo->{'images'}}, $imginfo if $taginfo;
   }
@@ -572,12 +593,19 @@ sub compare_to_repostate {
   if ($cosigncookie) {
     my $sigtag = $info->{'digest'};
     $sigtag =~ s/:(.*)/-$1.sig/;
-    $expected{$sigtag} = $cosign_expect;
+    $expected{$sigtag} = $cosign_nocheck ? '-' : "layers=1,cosigncookie=$cosigncookie";
   }
   if (!$missing_manifestinfo && !grep {($repostate->{$_} || '') ne $expected{$_}} sort keys %expected) {
     return $containerdigests;
   }
   return undef;
+}
+
+sub copy_associated_file {
+  my ($from, $to, $tempfiles) = @_;
+  return if $from eq $to;
+  BSUtil::cp($from, $to);
+  push @$tempfiles, $to if $tempfiles;
 }
 
 =head2 upload_to_registry - upload container(s) to a set of tags
@@ -599,7 +627,6 @@ sub upload_to_registry {
 
   return '' unless @{$containerinfos || []} && @{$tags || []};
   
-  my ($pubkey, $signargs) = ($data->{'pubkey'}, $data->{'signargs'});
   my $registryserver = $registry->{pushserver} || $registry->{server};
   my $pullserver = $registry->{server};
   $pullserver =~ s/https?:\/\///;
@@ -616,12 +643,8 @@ sub upload_to_registry {
     $oci = 1 if grep {$_ && $_ ne 'gzip'} @{$containerinfo->{'layer_compression'} || []};
   }
 
-  my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
-  $gun =~ s/^https?:\/\///;
-  $gun .= "/$repository";
-
   # check if the registry is up-to-date
-  if ($repostate) {
+  if ($repostate && !($cosign && $cosign->{'force_rekor_upload'})) {
     my $taginfo = $data->{'regdata_cb'} ? {} : undef;
     my $containerdigests = compare_to_repostate($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosign, $taginfo);
     if (defined $containerdigests) {
@@ -654,6 +677,7 @@ sub upload_to_registry {
       push @uploadfiles, "$blobdir/container.".scalar(@uploadfiles).".containerinfo";
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
       $wrote_containerinfo = $uploadfiles[-1];
+      push @tempfiles, $wrote_containerinfo;
     } elsif ($file =~ /(.*)\.tgz$/ && ($containerinfo->{'type'} || '') eq 'helm') {
       my $helminfofile = "$1.helminfo";
       $blobdir = $containerinfo->{'blobdir'};
@@ -662,6 +686,7 @@ sub upload_to_registry {
       push @uploadfiles, $helminfofile;
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
       $wrote_containerinfo = $uploadfiles[-1];
+      push @tempfiles, $wrote_containerinfo;
     } elsif ($file =~ /\.tar$/) {
       push @uploadfiles, $file;
     } else {
@@ -671,30 +696,24 @@ sub upload_to_registry {
     }
     # copy provenance file into blobdir
     if ($wrote_containerinfo && $cosign && $cosign->{'attestation'}) {
+      my $file_base = $wrote_containerinfo;
+      die unless $file_base =~ s/\.[^\.]+$//;	# strip .containerinfo/.helminfo
       if ($containerinfo->{'slsa_provenance_file'}) {
-	my $provenance_file = $wrote_containerinfo;
-	die unless $provenance_file =~ s/\.[^\.]+$/.slsa_provenance.json/;
-	BSUtil::cp($containerinfo->{'slsa_provenance_file'}, $provenance_file) if $containerinfo->{'slsa_provenance_file'} ne $provenance_file;
+	copy_associated_file($containerinfo->{'slsa_provenance_file'}, "$file_base.slsa_provenance.json", \@tempfiles);
 	$do_slsaprovenance = 1;
       }
       if ($containerinfo->{'spdx_file'}) {
-	my $spdx_file = $wrote_containerinfo;
-	die unless $spdx_file =~ s/\.[^\.]+$/.spdx.json/;
-	BSUtil::cp($containerinfo->{'spdx_file'}, $spdx_file) if $containerinfo->{'spdx_file'} ne $spdx_file;
+	copy_associated_file($containerinfo->{'spdx_file'}, "$file_base.spdx.json", \@tempfiles);
 	$do_sbom = 1;
       }
       if ($containerinfo->{'cyclonedx_file'}) {
-	my $cyclonedx_file = $wrote_containerinfo;
-	die unless $cyclonedx_file =~ s/\.[^\.]+$/.cdx.json/;
-	BSUtil::cp($containerinfo->{'cyclonedx_file'}, $cyclonedx_file) if $containerinfo->{'cyclonedx_file'} ne $cyclonedx_file;
+	copy_associated_file($containerinfo->{'cyclonedx_file'}, "$file_base.cdx.json", \@tempfiles);
 	$do_sbom = 1;
       }
       my $nintoto = 0;
       for my $intoto (@{$containerinfo->{'intoto_files'} || []}) {
-	my $intoto_file = $wrote_containerinfo;
-	die unless $intoto_file =~ s/\.[^\.]+$/.$nintoto.intoto.json/;
+	copy_associated_file($intoto, "$file_base.$nintoto.intoto.json", \@tempfiles);
 	$nintoto++;
-	BSUtil::cp($intoto, $intoto_file) if $intoto ne $intoto_file;
 	$do_sbom = 1;
       }
     }
@@ -713,18 +732,19 @@ sub upload_to_registry {
   push @opts, '-m' if $multiarch;
   push @opts, '--oci' if $oci;
   push @opts, '-B', $blobdir if $blobdir;
-  if ($cosign && $cosign->{'cookie'}) {
+  if ($cosign) {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
-    push @signargs, @{$signargs || []};
+    push @signargs, @{$cosign->{'signargs'} || []};
     my $pubkeyfile = "$uploaddir/publisher.$$.pubkey";
     push @tempfiles, $pubkeyfile;
     mkdir_p($uploaddir);
     unlink($pubkeyfile);
-    writestr($pubkeyfile, undef, $pubkey);
+    writestr($pubkeyfile, undef, $cosign->{'pubkey'});
     push @opts, '--cosign', '--cosigncookie', $cosign->{'cookie'};
-    push @opts, '-p', $pubkeyfile, '-G', $gun, @signargs;
-    push @opts, '--rekor', $registry->{'rekorserver'} if $registry->{'rekorserver'};
+    push @opts, '-p', $pubkeyfile, '-G', $cosign->{'gun'}, @signargs;
+    push @opts, '--rekor', $cosign->{'rekorserver'} if $cosign->{'rekorserver'};
+    push @opts, '--force-rekor-upload' if $cosign->{'rekorserver'} && $cosign->{'force_rekor_upload'};
     push @opts, '--slsaprovenance' if $do_slsaprovenance;
     push @opts, '--sbom' if $do_sbom;
   }
@@ -736,9 +756,12 @@ sub upload_to_registry {
   my $containerdigests = readstr($containerdigestfile, 1) || '';
   unlink($containerdigestfile);
   unlink($_) for @tempfiles;
-  die("error while uploading to registry: $result\n") if $result;
+  process_regpush_error('uploading to registry', $result) if $result;
 
   if ($data->{'notify'}) {
+    my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+    $gun =~ s/^https?:\/\///;
+    $gun .= "/$repository";
     $data->{'notify'}->("$gun:$_") for @$tags;
   }
 
@@ -753,7 +776,7 @@ sub upload_to_registry {
       next unless $imginfo->{'distmanifest'};
       my $containerinfo = $uploadfiles{delete $imginfo->{'file'}};
       $imginfo->{'containerinfo'} = $containerinfo;
-      create_manifestinfo($registry, "$projid/$repoid", $repository, $containerinfo, $imginfo) if $registry->{'manifestinfos'};
+      create_manifestinfo($registry, "$projid/$repoid", $repository, $containerinfo, $imginfo, $cosign) if $registry->{'manifestinfos'};
     }
     if ($data->{'regdata_cb'}) {
       for my $tag (@{$uploadinfo->{'tags'} || []}) {
@@ -791,7 +814,7 @@ sub delete_obsolete_tags_from_registry {
   print "deleting obsolete tags: @cmd\n";
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
   unlink($containerdigestfile);
-  die("error while deleting tags from registry: $result\n") if $result;
+  process_regpush_error('deleting tags from registry', $result) if $result;
 }
 
 =head2 add_notary_upload - add notary upload information for a repository
@@ -804,8 +827,9 @@ sub add_notary_upload {
   return unless $registry->{'notary'};
   my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
   $gun =~ s/^https?:\/\///;
-  $notary_uploads->{"$gun/$repository"} ||= {'registry' => $registry, 'digests' => '', 'gun' => "$gun/$repository"};
-  $notary_uploads->{"$gun/$repository"}->{'digests'} .= $digest if $digest;
+  $gun .= "/$repository";
+  $notary_uploads->{$gun} ||= {'registry' => $registry, 'digests' => '', 'gun' => $gun};
+  $notary_uploads->{$gun}->{'digests'} .= $digest if $digest;
 }
 
 =head2 upload_to_notary - do all the collected notary uploads
@@ -937,9 +961,7 @@ sub do_local_uploads {
     my $containerinfo = { 'type' => 'artifacthub', 'artifacthubdata' => $data->{'artifacthubdata'}->{"$gun/$repository"} };
     push @{$todo{'artifacthub.io'}}, $containerinfo;
   }
-  eval {
-    BSPublisher::Registry::push_containers($registry, $projid, $repoid, $repository, \%todo, $data);
-  };
+  eval { BSPublisher::Registry::push_containers($registry, $projid, $repoid, $repository, \%todo, $data) };
   unlink($_) for @tempfiles;
   die($@) if $@;
   printf "local updating of %s took %d seconds\n", $repository, time() - $now;
@@ -1030,8 +1052,14 @@ sub do_remote_uploads {
     $cosign = $cosign ? {} : undef;
   }
   if ($cosign) {
-    my $creator = 'OBS';
-    $cosign->{'cookie'} = BSConSign::create_cosign_cookie($data->{'pubkey'}, $gun, $creator);
+    $cosign->{'creator'} = 'OBS';
+    $cosign->{'gun'} = $gun;
+    $cosign->{'pubkey'} = $data->{'pubkey'};
+    $cosign->{'signargs'} = $data->{'signargs'};
+    $cosign->{'pubkey_fp'} = BSPGP::pk2fingerprint(BSPGP::unarmor($data->{'pubkey'}));
+    $cosign->{'cookie'} = BSConSign::create_cosign_cookie($data->{'pubkey'}, $gun, $cosign->{'creator'});
+    $cosign->{'rekorserver'} = $registry->{'rekorserver'};
+    print "cosign cookie: $cosign->{'cookie'}\n";
     my $cosign_attestation = defined($registry->{'cosign_attestation'}) ? $registry->{'cosign_attestation'} : 1;
     $cosign_attestation = $cosign_attestation->($repository, $projid) if $cosign_attestation && ref($cosign_attestation) eq 'CODE';
     $cosign->{'attestation'} = 1 if $cosign_attestation;
@@ -1040,9 +1068,14 @@ sub do_remote_uploads {
   # query the current state of the registry
   my $repostate;
   my $subdigests = $safeguard ? {} : undef;
+
   my $querytags;
   $querytags = [ sort keys %$uptags ] if $registry->{'nodelete'};
-  $repostate = eval { query_repostate($registry, $repository, $querytags, $subdigests) } if 1;
+  my $need_repostate = $registry->{'repostate_unneeded'} ? 0 : 1;
+  my $missingok = $need_repostate ? 1 : 0;
+  $repostate = eval { query_repostate($registry, $repository, $querytags, $subdigests, $missingok) };
+  die($@) if $@ && $need_repostate;
+  die("could not get registry repository state\n") if !$repostate && $need_repostate;
 
   # check if we are allowed to remove tags
   if ($safeguard) {

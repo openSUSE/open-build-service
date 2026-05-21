@@ -123,6 +123,17 @@ RSpec.describe SearchController, :vcr do
         expect(Nokogiri::XML(response.body).xpath('//status/summary').inner_text).to match(%r{Error found searching elements 'request' with xpath predicate: '/e\\u0000'.})
       end
     end
+
+    describe 'wrong number of arguments' do
+      it 'shows an error', :aggregate_failures do
+        get :project, params: { match: 'starts-with(openSUSE:Backports)' }, format: :xml
+
+        expect(response).to have_http_status(:bad_request)
+        expect(Nokogiri::XML(response.body).xpath('//status').attribute('code').value).to eq('illegal_xpath_error')
+        expect(Nokogiri::XML(response.body).xpath('//status/summary').inner_text)
+          .to match(/Error found searching elements 'project' with xpath predicate: 'starts-with\(openSUSE:Backports\)'./)
+      end
+    end
   end
 
   describe 'search limited to 2 results', vcr: false do

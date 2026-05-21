@@ -61,8 +61,8 @@ end
 #  linked_remote_project_name :string(255)
 #  position                   :integer
 #  vrevmode                   :string           default("standard")
-#  db_project_id              :integer          not null, indexed => [linked_db_project_id]
-#  linked_db_project_id       :integer          indexed => [db_project_id]
+#  db_project_id              :integer          not null, uniquely indexed => [linked_db_project_id]
+#  linked_db_project_id       :integer          uniquely indexed => [db_project_id]
 #
 # Indexes
 #

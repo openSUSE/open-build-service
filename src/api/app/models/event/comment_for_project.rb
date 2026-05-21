@@ -1,6 +1,8 @@
 module Event
   class CommentForProject < Base
     include CommentEvent
+    include EventObjectProject
+
     self.message_bus_routing_key = 'project.comment'
     self.description = 'New comment for project created'
     payload_keys :project
@@ -10,10 +12,6 @@ module Event
 
     def subject
       "New comment in project #{payload['project']} by #{payload['commenter']}"
-    end
-
-    def involves_hidden_project?
-      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
     end
   end
 end

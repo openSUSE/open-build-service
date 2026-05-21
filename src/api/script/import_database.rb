@@ -44,7 +44,7 @@ def init
   abort('Not possible to locate options.yml or database.yml. Please execute this script in your open-build-service directory.') unless File.exist?(@options_path) || File.exist?(@database_path)
 
   # There is only the filename given
-  abort('No parameters, use --help') if @params.count == 1
+  abort('No parameters, use --help') if @params.one?
 
   abort('The --all parameter is not valid in combination with --import, --load or --filename') if @params[:all] && (@params[:import] || @params[:load] || @params[:path])
 

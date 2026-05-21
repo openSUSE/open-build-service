@@ -12,12 +12,8 @@ class Configuration < ApplicationRecord
   validates :description, :code_of_conduct, length: { maximum: 65_535 }
 
   class << self
-    def accounts_editable?(user = nil)
-      (
-        !proxy_auth_mode_enabled? || CONFIG['proxy_auth_account_page'].present?
-      ) && (
-        user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on
-      )
+    def accounts_editable?
+      !proxy_auth_mode_enabled? || CONFIG['proxy_auth_account_page'].present?
     end
 
     def amqp_namespace
@@ -49,17 +45,8 @@ class Configuration < ApplicationRecord
       end
     end
 
-    def ldap_enabled?
-      CONFIG['ldap_mode'] == :on
-    end
-
-    # Check if ldap group support is enabled?
-    def ldapgroup_enabled?
-      CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-    end
-
-    def passwords_changable?(user = nil)
-      change_password && !proxy_auth_mode_enabled? && (user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on)
+    def passwords_changable?
+      change_password && !proxy_auth_mode_enabled?
     end
 
     def proxy_auth_mode_enabled?

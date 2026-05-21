@@ -1,5 +1,7 @@
 module Event
   class Packtrack < Base
+    include EventObjectRepository
+
     self.message_bus_routing_key = 'repo.packtrack'
     self.description = 'Binary published'
     payload_keys :project, :repo, :payload

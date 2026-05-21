@@ -72,7 +72,8 @@ module Webui::PackageHelper
   end
 
   def expand_diff?(filename, state)
-    state != 'deleted' && filename.exclude?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec', '.changes'))
+    state != 'deleted' && filename.exclude?('/') &&
+      (filename == '_patchinfo' || filename.match?(/\ADockerfile(\..+)?\z/) || filename.ends_with?('.spec', '.changes'))
   end
 
   def viewable_file?(filename, size = nil)
@@ -86,6 +87,7 @@ module Webui::PackageHelper
   end
 
   def binary_file?(filename)
+    return true if filename == '_icon'
     return false unless (mime = Marcel::Magic.by_path(filename))
 
     !mime.text?
@@ -95,5 +97,15 @@ module Webui::PackageHelper
     result = revision.to_i
     result -= 1 if state == 'deleted'
     [result, 0].max
+  end
+
+  def release_monitoring_package_link(package, text)
+    release_monitoring_url = "https://release-monitoring.org/distro/#{package.project.anitya_distribution_name}/search/#{package.name}"
+    link_to(text, release_monitoring_url, target: '_blank', rel: 'noopener')
+  end
+
+  def release_monitoring_search_link(package, text)
+    release_monitoring_url = "https://release-monitoring.org/projects/search/?pattern=#{package.name}"
+    link_to(text, release_monitoring_url, target: '_blank', rel: 'noopener')
   end
 end

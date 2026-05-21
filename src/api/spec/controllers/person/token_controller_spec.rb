@@ -163,4 +163,49 @@ RSpec.describe Person::TokenController do
       end
     end
   end
+
+  describe '#update' do
+    subject { put :update, params: { login: user.login, id: params_id }, format: :xml, body: xml }
+
+    let(:token) { create(:service_token, executor: user) }
+    let(:params_id) { token.id }
+    let(:xml) { '<token enabled="false"></token>' }
+
+    context 'authorized user with one of their tokens' do
+      render_views
+
+      before do
+        login user
+      end
+
+      it 'updates the token' do
+        expect { subject }.to change { token.reload.enabled }.from(true).to(false)
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'unauthorized user' do
+      before do
+        login other_user
+      end
+
+      it 'does not update the token' do
+        expect { subject }.not_to(change { token.reload.enabled })
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'non-existent token' do
+      let(:params_id) { Token.last.id + 100 }
+
+      before do
+        login user
+      end
+
+      it 'does not update the token' do
+        expect { subject }.not_to(change { token.reload.enabled })
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end

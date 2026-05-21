@@ -6,6 +6,7 @@ class Webui::WebuiController < ActionController::Base
 
   Rails.cache.set_domain if Rails.cache.respond_to?(:set_domain)
 
+  include Authenticator
   include Pundit::Authorization
   include FlipperFeature
   include Webui::RescueHandler
@@ -13,19 +14,16 @@ class Webui::WebuiController < ActionController::Base
   include SetCurrentRequestDetails
   include Webui::ElisionsHelper
   include ActiveStorage::SetCurrent
+
   protect_from_forgery
 
   before_action :setup_view_path
-  before_action :check_user
   before_action :check_spider
   before_action :set_influxdb_data
-  before_action :check_anonymous
   before_action :require_configuration
   before_action :current_announcement, unless: -> { request.xhr? }
   before_action :fetch_watchlist_items
   before_action :set_paper_trail_whodunnit
-  before_action :set_unread_notifications_count, unless: -> { request.xhr? }
-  after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
@@ -55,9 +53,18 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_login
-    return kerberos_auth if CONFIG['kerberos_mode']
+    return if User.session
 
-    raise Pundit::NotAuthorizedError, reason: ApplicationPolicy::ANONYMOUS_USER unless User.session
+    if ::Configuration.proxy_auth_mode_enabled?
+      case CONFIG['proxy_auth_mode']
+      when :mellon
+        redirect_to("#{CONFIG['proxy_auth_login_page']}?ReturnTo=#{CGI.escape(request.path)}", allow_other_host: true)
+      else
+        redirect_to("#{CONFIG['proxy_auth_login_page']}?url=#{CGI.escape(request.path)}", allow_other_host: true)
+      end
+    else
+      redirect_back_or_to(new_session_path, error: 'Authentication Required', allow_other_host: false)
+    end
   end
 
   def lockout_spiders
@@ -66,55 +73,14 @@ class Webui::WebuiController < ActionController::Base
     @spider_bot = true
     logger.debug "Spider blocked on #{request.fullpath}"
     head :ok
-    true
-  end
-
-  def kerberos_auth
-    return true unless CONFIG['kerberos_mode'] && !User.session
-
-    authorization = authenticator.authorization_infos || []
-    if authorization[0].to_s == 'Negotiate'
-      begin
-        authenticator.extract_user
-      rescue Authenticator::AuthenticationRequiredError => e
-        logger.info "Authentication via kerberos failed '#{e.message}'"
-        flash[:error] = "Authentication failed: '#{e.message}'"
-        redirect_back_or_to root_path
-        return
-      end
-      if User.session
-        logger.info "User '#{User.session}' has logged in via kerberos"
-        session[:login] = User.session.login
-        redirect_back_or_to root_path
-        true
-      end
-    else
-      # Demand kerberos negotiation
-      response.headers['WWW-Authenticate'] = 'Negotiate'
-      render :new, status: :unauthorized
-      nil
-    end
-  end
-
-  def check_user
-    User.session = nil # reset old users hanging around
-
-    unless WebuiControllerService::UserChecker.new(http_request: request).call
-      redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
-      return
-    end
-
-    User.session = User.find_by_login(session[:login]) if session[:login]
-
-    User.session ||= User.possibly_nobody
   end
 
   def check_displayed_user
     param_login = params[:login] || params[:user_login]
     if param_login.present?
       begin
-        @displayed_user = User.find_by_login!(param_login)
-      rescue NotFoundError
+        @displayed_user = User.not_deleted.find_by!(login: param_login)
+      rescue ActiveRecord::RecordNotFound
         # admins can see deleted users
         @displayed_user = User.find_by_login(param_login) if User.admin_session?
         redirect_back_or_to(root_path, error: "User not found #{param_login}") unless @displayed_user
@@ -125,8 +91,7 @@ class Webui::WebuiController < ActionController::Base
     @is_displayed_user = (User.session == @displayed_user)
   end
 
-  def require_package
-    params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
+  def set_package
     @package_name = params[:package] || params[:package_name]
 
     return if @package_name.blank?
@@ -138,7 +103,6 @@ class Webui::WebuiController < ActionController::Base
       raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
     end
   end
-  alias set_package require_package
 
   def set_repository
     repository_name = params[:repository] || params[:repository_name]
@@ -151,7 +115,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def set_architecture
-    architecture_name = params[:architecture] || params[:arch]
+    architecture_name = params[:architecture] || params[:architecture_name] || params[:arch]
     @architecture = @repository.architectures.find_by(name: architecture_name)
     return if @architecture
 
@@ -171,18 +135,6 @@ class Webui::WebuiController < ActionController::Base
 
   private
 
-  def send_login_information_rabbitmq(msg)
-    message_mapping = { success: 'login,access_point=webui value=1',
-                        disabled: 'login,access_point=webui,failure=disabled value=1',
-                        logout: 'logout,access_point=webui value=1',
-                        unauthenticated: 'login,access_point=webui,failure=unauthenticated value=1' }
-    RabbitmqBus.send_to_bus('metrics', message_mapping[msg])
-  end
-
-  def authenticator
-    @authenticator ||= Authenticator.new(request, session, response)
-  end
-
   def require_configuration
     @configuration = ::Configuration.fetch
   end
@@ -192,29 +144,8 @@ class Webui::WebuiController < ActionController::Base
     return if User.admin_session?
 
     flash[:error] = 'Requires admin privileges'
-    redirect_back_or_to({ controller: 'main', action: 'index' })
+    redirect_to({ controller: 'main', action: 'index' })
   end
-
-  # before filter to only show the frontpage to anonymous users
-  def check_anonymous
-    return if User.session.present?
-    return if ::Configuration.anonymous
-
-    login_page = case CONFIG['proxy_auth_mode']
-                 when :mellon
-                   add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'ReturnTo')
-                 when :ichain
-                   add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'url')
-                 else
-                   root_path
-                 end
-
-    flash[:error] = 'No anonymous access. Please log in!' unless ::Configuration.proxy_auth_mode_enabled?
-    redirect_to login_page
-  end
-
-  # After filter to clean up caches
-  def clean_cache; end
 
   def setup_view_path
     return unless CONFIG['theme']
@@ -252,10 +183,6 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
-  def set_unread_notifications_count
-    @unread_notifications_count = User.session ? User.session.unread_notifications_count : 0
-  end
-
   def add_arrays(arr1, arr2)
     # we assert that both have the same size
     ret = []
@@ -283,22 +210,22 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def set_influxdb_data
-    InfluxDB::Rails.current.tags = {
-      beta: User.possibly_nobody.in_beta?,
+    in_beta = User.possibly_nobody.in_beta?
+
+    tags = {
+      beta: in_beta,
       anonymous: !User.session,
       spider: @spider_bot,
-      interface: :webui
+      interconnect: false,
+      interface: :webui,
+      host: request.headers['Host'] || :unknown
     }
-  end
+    if in_beta
+      Flipper.preload_all.map(&:name).each do |feature_name|
+        tags[:"beta_#{feature_name}"] = Flipper.enabled?(feature_name.to_sym, User.possibly_nobody)
+      end
+    end
 
-  def add_return_to_parameter_to_query(url:, parameter_name:)
-    uri = URI(url)
-    return_to = {}
-    return_to[parameter_name] = request.fullpath
-    query_array = uri.query.to_s.split('&')
-    query_array << return_to.to_query # for URL encoding
-    uri.query = query_array.join('&')
-
-    uri.to_s
+    InfluxDB::Rails.current.tags = tags
   end
 end

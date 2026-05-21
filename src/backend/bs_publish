@@ -41,6 +41,7 @@ use MIME::Base64;
 use JSON::XS ();
 
 use BSConfiguration;
+use BSOBS;
 use BSCando;
 use BSRPC ':https';
 use BSUtil;
@@ -53,6 +54,8 @@ use BSVerify;
 use BSStdRunner;
 use BSUrlmapper;
 use BSPGP;
+use BSASN1;
+use BSX509;
 use BSHTTP;
 use BSRekor;
 use BSRepServer::Containerinfo;
@@ -80,7 +83,7 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my $myeventdir = "$eventdir/publish";
 
-my @binsufs = qw{rpm udeb ddeb deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = (@BSOBS::binsufs, 'udeb', 'ddeb');
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 my $binarchs = join("|", keys(%BSCando::knownarch));
@@ -191,9 +194,10 @@ sub db_pickup {
 }
 
 sub db_open {
-  my ($name) = @_;
+  my ($name, $prp) = @_;
 
   return undef unless $extrepodb;
+  return undef if $prp && $BSConfig::publish_nodb && $BSConfig::publish_nodb->{$prp};
   if (!$db_oldsync_read && !$db_sync_append) {
     db_pickup();
     $db_oldsync_read = 1;
@@ -351,7 +355,7 @@ sub getsigndata {
       my @signargs;
       push @signargs, '--project', $projid;
       push @signargs, '--signflavor', $signflavor if $signflavor;
-      open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
+      open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");
       $pubkey = '';
       1 while sysread(S, $pubkey, 4096, length($pubkey));
       if (!close(S)) {
@@ -383,12 +387,73 @@ sub getsigndata {
 
 ##########################################################################
 
+sub have_good_project_signkey {
+  my ($signargs) = @_;
+  return 0 unless @{$signargs || []} >= 2;
+  return 0 if $signargs->[0] ne '-P';
+  return (-s $signargs->[1]) >= 10;
+}
+
+sub get_cert {
+  my ($projid, $signargs, $signtype, $signflavor) = @_;
+
+  if (have_good_project_signkey($signargs)) {
+    # have project signing key, ask the source server for the corresponding cert
+    my @args = ("project=$projid", "autoextend=1");
+    push @args, "signtype=$signtype" if $signtype;
+    push @args, "signflavor=$signflavor" if $signflavor;
+    my $cert = eval { BSRPC::rpc("$BSConfig::srcserver/getsslcert", undef, @args) };
+    warn($@) if $@;
+    return $cert if $cert;
+  }
+  my @signargs;
+  push @signargs, '--project', $projid if $BSConfig::sign_project;
+  push @signargs, '--signtype', $signtype if $BSConfig::sign_type || $BSConfig::sign_type;
+  push @signargs, '--signflavor', $signflavor if $signflavor;
+  push @signargs, @{$signargs || []};
+  my $fd;
+  open($fd, '-|', $BSConfig::sign, @signargs, '-C') || die("$BSConfig::sign: $!\n");
+  my $cert = '';
+  1 while sysread($fd, $cert, 4096, length($cert));
+  if (!close($fd)) {
+    warn("sign -C failed: $?\n");
+    $cert = undef;
+  }
+  return $cert;
+}
+
+##########################################################################
+
 sub pickup_detached_signature {
   my ($data, $file) = @_;
   return unless $data->{'sigs'} && $data->{'pubkey'};
   my $d = readstr($file);
   my $sig = readstr("$file.asc");
   push @{$data->{'sigs'}}, { 'data' => $d, 'signature' => $sig, 'pubkey' => $data->{'pubkey'}, 'format' => 'pgp' };
+}
+
+##########################################################################
+
+sub create_detached_cms_signature {
+  my ($data, $file) = @_;
+  $data->{'cms_cert'} = get_cert($data->{'projid'}, $data->{'signargs'}, 'cms', $data->{'signflavor'}) unless exists $data->{'cms_cert'};
+  if (!$data->{'cms_cert'}) {
+    warn("no cert, skipping cms signature generation\n");
+    return;
+  }
+  my @signargs;
+  push @signargs, '--project', $data->{'projid'} if $BSConfig::sign_project;
+  push @signargs, '--signtype', 'cms' if $BSConfig::sign_type;
+  push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
+  push @signargs, @{$data->{'signargs'} || []};
+  mkdir_p($uploaddir);
+  writestr("$uploaddir/publisher.$$.cert", undef, $data->{'cms_cert'});
+
+  if (qsystem($BSConfig::sign, @signargs, '--cmssign', '--cert', "$uploaddir/publisher.$$.cert", '--cms-nocerts', '-h', 'sha512', $file)) {
+    unlink("$uploaddir/publisher.$$.cert");
+    die("    cms sign failed: $?\n");
+  }
+  unlink("$uploaddir/publisher.$$.cert");
 }
 
 ##########################################################################
@@ -680,14 +745,21 @@ sub createrepo_rpmmd {
 
   # add updateinfos
   unlink("$extrep/repodata/$_") for grep {/updateinfo\.xml/} @oldrepodata;
+  my $embargo_date;
   if (@{$data->{'updateinfos'} || []}) {
     print "    adding updateinfo.xml to repodata\n";
     # strip supportstatus and patchinforef from updateinfos
     my $updateinfos = BSUtil::clone($data->{'updateinfos'});
     for my $up (@$updateinfos) {
       delete $up->{'patchinforef'};
+      delete $up->{'blocked_in_product'};
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
-	for my $pkg (@{$cl->{'package'} || []}) {
+        for my $pkg (@{$cl->{'package'} || []}) {
+          if ($pkg->{'embargo_date'} && $pkg->{'embargo_date'} =~ /^(\d+)-(\d+)-(\d+)(?: (\d+):(\d+))?/) {
+            # normalize in case of missing 0 prefixes
+            my $t = sprintf("%04d-%02d-%02d %02d:%02d", $1, $2, $3, $4 || 0, $5 || 0);
+            $embargo_date = $t if !$embargo_date || $embargo_date lt $t;
+          }
           delete $pkg->{'embargo_date'};
           delete $pkg->{'supportstatus'};
           delete $pkg->{'superseded_by'};
@@ -697,6 +769,11 @@ sub createrepo_rpmmd {
     writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);
     qsystem($modifyrepo_bin, "$extrep/repodata/updateinfo.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/updateinfo.xml");
+  }
+  if ($embargo_date) {
+    writestr("$extrep/repodata/embargo_date", undef, $embargo_date);
+  } else {
+    unlink("$extrep/repodata/embargo_date");
   }
 
   # add appdata
@@ -806,6 +883,7 @@ sub createrepo_rpmmd {
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     writestr("$extrep/repodata/repomd.xml.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
+    create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
   }
   if ($downloadurl) {
     local *FILE;
@@ -829,6 +907,35 @@ sub createrepo_rpmmd {
     close(FILE) || die("close: $!\n");
     rename("$extrep/$projid.repo$$", "$extrep/$projid.repo") || die("rename $extrep/$projid.repo$$ $extrep/$projid.repo: $!\n");
   }
+
+  for my $format ('spdx', 'cyclonedx') {
+    my $formatshort = $format;
+    $formatshort =~ s/cyclonedx/cdx/;
+    my $sbomfile = "$extrep/repodata/sbom-$formatshort.json";
+    # cleanup files
+    if(!$options{"sbom-$format"}) {
+      unlink($sbomfile, "$sbomfile.sha256");
+      next;
+    }
+    # container and kiwi images builds generate SBOM files already
+    next if grep {/^[^\.].*\.$formatshort\.json$/} sort(ls($extrep));
+    die("    generate_sbom not installed\n") unless -x '/usr/lib/build/generate_sbom';
+
+    print "    generating $format sbom file\n";
+    qsystem('stdout', $sbomfile, '/usr/lib/build/generate_sbom', '--format', $format, '--rpmmd', $extrep)
+      && die("    generate_sbom failed: $?\n");
+
+    open(my $fh, '<', $sbomfile) or die("cannot open $sbomfile: $!\n");
+    my $ctx = Digest::SHA->new(256);
+    $ctx->addfile($fh);
+    close($fh);
+    my $sha256sum = $ctx->hexdigest();
+
+    open(my $cfh, '>', "$sbomfile.sha256") or die("cannot write to $sbomfile.sha256: $!\n");
+    print $cfh "$sha256sum  sbom-$formatshort.json\n";
+    close($cfh);
+  }
+
 }
 
 sub deleterepo_rpmmd {
@@ -1092,11 +1199,11 @@ EOL
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/Release") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/Release");
     rename("$extrep/Release.asc","$extrep/Release.gpg");
     BSUtil::cp("$extrep/Release", "$extrep/InRelease.tmp");
-    qsystem($BSConfig::sign, @signargs, '-c', "$extrep/InRelease.tmp") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-c', '-4', "$extrep/InRelease.tmp") && die("    sign failed: $?\n");
     rename("$extrep/InRelease.tmp","$extrep/InRelease");
   }
   if ($BSConfig::sign) {
@@ -1171,6 +1278,60 @@ sub deleterepo_arch {
 
 ##########################################################################
 
+sub createrepo_apk {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+  deleterepo_apk($extrep);
+  for my $arch (ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    print "    running bs_mkapkrepo $arch\n";
+    qsystem("$INC[0]/bs_mkapkrepo", '--rewrite-arch', $arch, "$extrep/$arch") && die("    repo creation failed: $?\n");
+    my $idxfile = "$extrep/$arch/APKINDEX.tar.gz";
+    if ($BSConfig::sign && -e $idxfile) {
+      my $pk = BSPGP::unarmor($data->{'pubkey'});
+      my $keydata = BSPGP::pk2keydata($pk);
+      my $algo = $keydata->{'algo'};
+      if ($algo ne 'rsa') {
+        warn("createrepo_apk: unsupported signing algo '$algo'\n");
+	next;
+      }
+      my $times = BSPGP::pk2times($pk);
+      my $userid = BSPGP::pk2userid($pk);
+      die("signapk: missing userid\n") unless $userid;
+      die("signapk: missing email in userid\n") unless $userid =~ /\<([^\.\/].*?)\>/;
+      my $email = $1;
+      my @signargs;
+      push @signargs, '--project', $projid if $BSConfig::sign_project;
+      push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
+      push @signargs, @{$data->{'signargs'} || []};
+      my $tbsdata = Build::Apk::gettbsdata($idxfile);
+      my $hash = ord($tbsdata) == 0x1f ? 'sha1' : 'sha512';
+      my $sig = BSUtil::xsystem($tbsdata, $BSConfig::sign, @signargs, '-O', '-h', $hash);
+      my $keyname = sprintf("%s-%08x.%s.pub", $email, $times->{'key_create'}, $algo);
+      $keyname =~ s/[\000-\037 \/]//g;
+      Build::Apk::replacesignature($idxfile, "$idxfile.signed", $sig, $data->{'time'}, $algo, $hash, $keyname);
+      rename("$idxfile.signed", $idxfile) || die("rename $idxfile.signed $idxfile: $!\n");
+      my $pubk = eval { BSX509::keydata2pubkey($keydata) };
+      writestr("$extrep/$arch/$keyname", undef, BSASN1::der2pem($pubk, 'PUBLIC KEY')) if $pubk;
+    }
+  }
+}
+
+sub deleterepo_apk {
+  my ($extrep) = @_;
+  for my $arch (ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
+    next unless -e "$extrep/$arch/APKINDEX.tar.gz";
+    unlink("$extrep/$arch/APKINDEX.tar.gz");
+    unlink("$extrep/$arch/APKINDEX.tar.gz.signed");
+    for (grep {/\.rsa\.pub$/} ls("$extrep/$arch")) {
+      unlink("$extrep/$arch/$_");
+    }
+  }
+}
+
+##########################################################################
+
 sub createrepo_staticlinks {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -1202,12 +1363,27 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(-Media\d?)\.iso$/s) {
         # product builds
         $link = "$1$2.iso"; # no support for versioned links
-      } elsif (/^(.*\.(?:$binarchs)?)-([^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|raw|tar\.xz|box|json|install\.iso|install\.tar|tbz|tgz|vmx|vmdk|vmdk\.xz|appx|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2))$/s) {
-        # kiwi appliance
+      } elsif (/^(.*\.(?:$binarchs)?)-([0-9][^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|raw|tar\.xz|box|json|install\.iso|install\.tar|tbz|tgz|vmx|vmdk|vmdk\.xz|appx|wsl|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2))$/s) {
+        # kiwi appliance old style with name.arch-version-profile-BuildX.Y.suffix
         my $profile = $3 || "";
         $link = "$1$profile$5";
         $link = "$1-$2$profile$5" if $versioned;
-      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(|-Source|-Debug)\.iso$/s) {
+      } elsif (/^(.*\.(?:$binarchs)?)-?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|raw|tar\.xz|box|json|install\.iso|install\.tar|tbz|tgz|vmx|vmdk|vmdk\.xz|appx|wsl|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2))$/s) {
+        # kiwi appliance new style with name.arch-profile-BuildX.Y.suffix
+        my $profile = $2 || "";
+        $link = "$1$profile$4";
+        $link = "$1-$2$profile$4" if $versioned;
+      } elsif (/^(.*?)(?:_(.*?))?(?:_(.*))?\.(manifest|metainfo.xml|efi|vmlinuz|initrd|tar|cpio|img|raw|verity|roothash|roothash\.p7s|usrhash|usrhash\.p7s)(\.(?:gz|bz2|xz|zst|zstd))?$/s) {
+        # mkosi appliance, format is 'name_version_architecture.extension' as defined in https://www.freedesktop.org/software/systemd/man/257/systemd.v.html
+        # architecture and compression are optional
+        next unless defined $2; # No version? Nothing to do
+        my $compression = "";
+        $compression = $5 if defined $5;
+        my $architecture = "";
+        $architecture = "_$3" if defined $3;
+        $link = "${1}${architecture}.${4}${compression}";
+        $link = "${1}_${2}${architecture}.${4}${compression}" if $versioned;
+      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(|-Source|-Debug|.install)\.iso$/s) {
         # product-composer builds
         $link = "$1$2.iso"; # no support for versioned links
       }
@@ -1227,7 +1403,7 @@ sub createrepo_staticlinks {
       if ( -e "$extrep/$arch/$target.sha256" ) {
         # copy and patch the filename
         my ($econtent, $ehadsig) = depgp(readstr("$extrep/$arch/$target.sha256"));
-        $econtent =~ s/([ \/])\Q$_\E\n/$_\n/g;
+        $econtent =~ s/([ \/])\Q$target\E\n/$1$_\n/g;
         unlink("$extrep/$arch/$_.sha256");
         writestr("$extrep/$arch/$_.sha256", undef, $econtent);
       }
@@ -1447,6 +1623,7 @@ sub createpatterns_rpmmd {
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
+    create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
   }
 }
 
@@ -1517,6 +1694,7 @@ sub createpatterns_comps {
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
+    create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
   }
 }
 
@@ -1538,7 +1716,7 @@ sub createpatterns_ymp {
 
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
-  my $patterndb = db_open('pattern');
+  my $patterndb = db_open('pattern', "$projid/$repoid");
 
   # get title/description data for all involved projects
   my $repoinfo = $data->{'repoinfo'};
@@ -1620,7 +1798,7 @@ sub createpatterns_ymp {
     # write database entry
     my $ympidx = {'type' => 'ymp'};
     $ympidx->{'name'} = $pat->{'name'} if defined $pat->{'name'};
-    $ympidx->{'summary'} = $pat->{'summary'}->[0]->{'_content'} if $pat->{'summary'};;
+    $ympidx->{'summary'} = $pat->{'summary'}->[0]->{'_content'} if $pat->{'summary'};
     $ympidx->{'description'} = $pat->{'description'}->[0]->{'_content'} if $pat->{'description'};
     $ympidx->{'path'} = $repoinfo->{'prpsearchpath'} if $repoinfo->{'prpsearchpath'};
     $data->{'patterninfo'}->{$ympname} = $ympidx;
@@ -1633,7 +1811,7 @@ sub deletepatterns_ymp {
 
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
-  my $patterndb = db_open('pattern');
+  my $patterndb = db_open('pattern', "$projid/$repoid");
   for my $ympname (ls($extrep)) {
     next unless $ympname =~ /\.ymp$/;
     db_store($patterndb, "$prp_ext/$ympname", undef) if $patterndb;
@@ -1828,10 +2006,10 @@ sub deleterepo {
   }
 
   # update published database
-  my $binarydb = db_open('binary');
+  my $binarydb = db_open('binary', $prp);
   updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], []) if $binarydb;
 
-  my $repoinfodb = db_open('repoinfo');
+  my $repoinfodb = db_open('repoinfo', $prp);
   db_store($repoinfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, undef) if $repoinfodb;
 
   if ($BSConfig::markfileorigins) {
@@ -1873,6 +2051,7 @@ sub deleterepo {
   # delete repoinfo
   unlink("$reporoot/$prp/:repoinfo") unless $dbgsplit;
   rmdir("$reporoot/$prp");
+  rmdir("$reporoot/$projid");
 }
 
 sub mapsleimage {
@@ -1882,6 +2061,8 @@ sub mapsleimage {
     $rbin =~ s/\.asc$//;
     $rbin =~ s/\.sha256$//;
     $rbin =~ s/\.sha256.asc$//;
+    $rbin =~ s/\.sha512$//;
+    $rbin =~ s/\.sha512.asc$//;
     $rbin =~ s/\.(?:bz2|gz|xz|zst)$//;
     $rbin =~ s/\.(spdx|cdx)\.json$//;
     $rbin =~ s/\.(install\.iso|install\.tar|iso|packages|raw|tbz|tgz|tar|qcow2|vdi|vhdfixed|vhdx|vmdk|vmx|vagrant\..*\.box)$//;
@@ -2189,19 +2370,18 @@ sub publish {
   # Build repo by mixing all architectures.
   my @archs = @{$repo->{'arch'} || []};
 
-  if ($config->{'publishflags:archsync'}) {
-    my @bad;
-    my $lastchange = 0;
+  if ($config->{'publishflags:archsync'} && @archs > 1) {
     my %as;
     for my $a (@archs) {
-      my $as = BSUtil::retrieve("$reporoot/$prp/$a/:repo/.archsync", 1) || {};
-      $lastchange = $as->{'lastchange'} if ($as->{'lastchange'} || 0) > $lastchange;
-      $as{$a} = $as;
+      $as{$a} = BSUtil::retrieve("$reporoot/$prp/$a/:repo/.archsync", 1) || {};
+      $as{$a}->{'lastchange'} ||= 0;
     }
+    my @as_lastchange = sort {$b->{'lastchange'} <=> $a->{'lastchange'}} map {$as{$_}} @archs;
+    my @bad;
     for my $a (@archs) {
       my $as = $as{$a};
-      push @bad, $a if !$as->{'lastchange'} || !$as->{'lastcheck'} || $as->{'lastcheck'} < $lastchange;
-      $lastchange++ if $as->{'lastcheck'} && $as->{'lastcheck'} == $lastchange;
+      my $oas = $as_lastchange[0] == $as ? $as_lastchange[1] : $as_lastchange[0];
+      push @bad, $a if !$as->{'lastchange'} || !$as->{'lastcheck'} || $as->{'lastcheck'} <= $oas->{'lastchange'};
     }
     if (@bad) {
       print "    delaying publishing as architectures ".join(',', @bad)." are not ready\n";
@@ -2337,7 +2517,7 @@ sub publish {
         my $updateinfoxml = readstr("$r/$bin", 1) || '';
 	$updateinfos_state .= Digest::MD5::md5_hex($updateinfoxml);
 	my $updateinfo = readxml("$r/$bin", $BSXML::updateinfo, 1) || {};
-	push @updateinfos, @{$updateinfo->{'update'} || []};
+	push @updateinfos, grep {($_->{'type'} || '') ne '_internal'} @{$updateinfo->{'update'} || []};
       }
       if ($bin =~ /:_modulemd.yaml$/) {
         my @s = stat("$r/$bin");
@@ -2383,6 +2563,8 @@ sub publish {
 	$p = "$bin";
       } elsif ($bin =~ /\.appx$/) {
 	$p = "$bin";
+      } elsif ($bin =~ /\.wsl(?:\.sha256(?:\.asc)?)?$/) {
+	$p = "$bin";
       } elsif ($bin =~ /\.d?rpm$/) {
 	# legacy format
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
@@ -2398,6 +2580,10 @@ sub publish {
 	# special arch linux handling
 	$p = "$arch/$bin";
 	$p = "i686/$bin" if $arch eq 'i586';	# HACK
+      } elsif ($bin =~ /\.apk$/) {
+	# special apk handling
+	$p = "$arch/$bin";
+	$p = "x86/$bin" if $arch eq 'i586';
       } elsif ($bin =~ /\.(?:$binsufsre)$/) {
 	# our default
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
@@ -2406,11 +2592,11 @@ sub publish {
       } elsif ($bin =~ /\.slsa_provenance\.json$/) {
 	next;	# we pick them up with the binaries
       } else {
-	if ($bin =~ /\.iso(?:\.sha256(?:\.asc)?)?$/) {
+	if ($bin =~ /\.iso(?:\.sha[0-9]*(?:\.asc)?)?$/) {
 	  $p = "iso/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)\.iso$/;
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
-        } elsif ($bin =~ /(.*)\.(spdx|cdx)\.json$/ && -e "$r/$1.iso") {
+        } elsif ($bin =~ /(.*)\.(spdx|cdx)\.json$/ && (-e "$r/$1.iso" || -e "$r/$1.install.iso")) {
 	  $p = "iso/$bin";
     	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256(?:\.asc)?)?$/) {
@@ -2441,12 +2627,12 @@ sub publish {
 	    BSPublisher::Helm::readhelminfo($r, "$1.helminfo");
 	    $p = $bin;
           };
-	} elsif ($bin =~ /\.(manifest|efi|verity|roothash|roothash\.p7s|usrhash|usrhash\.p7s)(?:\.(?:gz|bz2|xz|zst|zstd))?(?:\.sha[0-9]*)?$/) {
+	} elsif ($bin =~ /\.(manifest|metainfo.xml|img|efi|vmlinuz|initrd|cpio|verity|roothash|roothash\.p7s|usrhash|usrhash\.p7s)(?:\.(?:gz|bz2|xz|zst|zstd))?(?:\.sha[0-9]*(?:\.asc)?)?$/) {
 	  # split dm-verity/EFI artifacts from mkosi, or image manifest file
-	  $p = "$arch/$bin";
-	} elsif ($bin =~ /^SHA[0-9]*SUMS(?:\.gpg)?$/) {
+	  $p = "$bin";
+	} elsif ($bin =~ /^SHA[0-9]*SUMS(?:\.gpg|\.asc)?$/) {
 	  # list of hashes (possibly signed) from mkosi
-	  $p = "$arch/$bin";
+	  $p = "$bin";
 	} elsif ($bin =~ /^mkosi\./) {
 	  # mkosi recipe file
 	  $p = "$bin";
@@ -2657,13 +2843,13 @@ sub publish {
   if (defined($dbgsplit)) {
     if ($dbgsplit) {
       for my $p (keys %bins) {
-        next if $p =~ /-debug(?:info|source)-.*rpm$/;
+        next if $p =~ /-debug(?:info|source)-.*(?:rpm|slsa_provenance\.json)$/;
         delete $bins{$p};
         delete $deltainfos{$p};
       }
     } else {
       for my $p (keys %bins) {
-        next unless $p =~ /-debug(?:info|source)-.*rpm$/;
+        next unless $p =~ /-debug(?:info|source)-.*(?:rpm|slsa_provenance\.json)$/;
         delete $bins{$p};
         delete $deltainfos{$p};
       }
@@ -3207,11 +3393,11 @@ sub publish {
   }
 
   # store repoinfo in published database
-  my $repoinfodb = db_open('repoinfo');
+  my $repoinfodb = db_open('repoinfo', $prp);
   db_store($repoinfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, $state ne '' ? $repoinfo : undef) if $repoinfodb;
 
   # put in published database
-  my $binarydb = db_open('binary');
+  my $binarydb = db_open('binary', $prp);
   updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], [ map {"$prp_ext/$_"} @db_changed ]) if $binarydb;
 
   # mark file origins so we can gather per package statistics
@@ -3311,6 +3497,7 @@ sub publish {
     'sigs' => [],
     'publishid' => $publishid,
     'signflavor' => $signflavor,
+    'time' => $starttime,
   };
 
   if ($repotype{'rpm-md'}) {
@@ -3338,6 +3525,11 @@ sub publish {
     createrepo_arch($extrep, $projid, $xrepoid, $data, $repotype{'arch'});
   } else {
     deleterepo_arch($extrep, $projid, $xrepoid, $data);
+  }
+  if ($repotype{'apk'}) {
+    createrepo_apk($extrep, $projid, $xrepoid, $data, $repotype{'apk'});
+  } else {
+    deleterepo_apk($extrep, $projid, $xrepoid, $data);
   }
   if ($repotype{'vagrant'}) {
     createrepo_vagrant($extrep, $projid, $xrepoid, $data, $repotype{'vagrant'});
@@ -3382,7 +3574,7 @@ sub publish {
     createrepo_virtbuilder($extrep, $projid, $xrepoid, $data);
   }
 
-  my $patterninfodb = db_open('patterninfo');
+  my $patterninfodb = db_open('patterninfo', $prp);
   db_store($patterninfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, %{$data->{'patterninfo'}} ? $data->{'patterninfo'} : undef) if $patterninfodb;
 
 publishprog_done:
@@ -3526,6 +3718,8 @@ sub check_publish_prg_running {
 }
 
 my %publish_retry;
+my %publish_retry_backoff;
+
 my %publish_lasttime;
 my %publish_duration;
 
@@ -3536,7 +3730,7 @@ sub writepublishtimeevent {
     'project' => $projid,
     'repository' => $repoid,
     'job' => "$now $duration",
-  };   
+  };
   $ev->{'job'} .= " $evn" if defined $evn;
   my $evname = "publishtime::${projid}::$repoid";
   $evname = "publishtime::".Digest::MD5::md5_hex($evname) if length($evname) > 200; 
@@ -3566,12 +3760,19 @@ sub clean_publish_retry {
   }
 }
 
+sub clean_publish_retry_backoff {
+  for (sort keys %publish_retry_backoff) {
+    delete($publish_retry_backoff{$_}) unless $publish_retry{$_};
+  }
+}
+
 sub set_publish_retry {
-  my ($req, $due) = @_;
+  my ($req, $due, $incbackoff) = @_;
   $publish_retry{$req->{'event'}} = $due;
+  $publish_retry_backoff{$req->{'event'}}++ if $incbackoff;
   my $ev = $req->{'ev'};
   if ($req->{'forked'}) {
-    writepublishtimeevent($ev->{'project'}, $ev->{'repository'}, 0, $due, $req->{'event'});
+    writepublishtimeevent($ev->{'project'}, $ev->{'repository'}, $incbackoff ? 1 : 0, $due, $req->{'event'});
   } else {
     BSUtil::ping("$myeventdir/.ping");	# see BSStdRunnder::setdue
   }
@@ -3647,11 +3848,28 @@ sub publishevent {
     # delete state from repoinfo so that we will always re-publish
     my $err = $@;
     $err =~ s/\n.*//s;
+    my ($noretry, $retry_after);
+    if ($err =~ s/^CRITICAL_NORETRY:\s*//) {
+      BSUtil::logcritical($err);
+      $noretry = 1;
+    } elsif ($err =~ s/^CRITICAL:\s*//) {
+      BSUtil::logcritical($err);
+    } elsif ($err =~ s/^RETRY_AFTER(\d+):\s*//) {
+      $retry_after = $1;
+    }
     clear_repoinfo_state($prp, $err);
-    set_publish_retry($req, $now + 60);
+    if (!$noretry) {
+      my $backoff = $publish_retry_backoff{$req->{'event'}} || 0;
+      $backoff = 5 if $backoff > 5;
+      $backoff = (1 << $backoff);
+      $backoff = $retry_after if $retry_after && $backoff < $retry_after;
+      print "retrying in $backoff minutes\n" if $backoff > 1;
+      set_publish_retry($req, $now + $backoff * 60, 1);
+    }
     publishstats($req, $prp, $code, $starttime, $now);
     db_sync();
     BSUtil::printlog("publish failed for $prp") if $req->{'forked'};
+    return 1 if $noretry;	# this will delete the publish event
     return 0;
   }
 
@@ -3675,11 +3893,12 @@ sub publishtimeevent {
   my ($req, $projid, $repoid, $job) = @_;
   my $prp = "$projid/$repoid";
   my ($lasttime, $duration, $evn) = split(' ', $job, 3);
-  if ($lasttime) {
+  if ($lasttime && $lasttime != 1) {
     $publish_lasttime{$prp} = $lasttime;
     $publish_duration{$prp} = $duration;
   } elsif (defined($evn)) {
     $publish_retry{$evn} = $duration;
+    $publish_retry_backoff{$evn}++ if $lasttime;
   }
   return 1;
 }
@@ -3693,6 +3912,7 @@ sub configurationevent {
 
 sub lsevents {
   clean_publish_retry() if %publish_retry;
+  clean_publish_retry_backoff() if %publish_retry_backoff;
   my @events = BSStdRunner::lsevents(@_);
   # put publishtime and highprio events to the front
   my @publishtimeevents = grep {/^publishtime/} @events;
@@ -3715,7 +3935,7 @@ sub getevent {
   # publishtime and configuration events are nofork events
   my $evtype = $req->{'ev'}->{'type'} || '';
   if ($evtype eq 'publishtime') {
-    return ($req, 1, 1) if ($req->{'ev'}->{'job'} || '') =~ /^0 /;
+    return ($req, 1, 1) if ($req->{'ev'}->{'job'} || '') =~ /^[01] /;
     return ($req, undef, 1);
   }
   return ($req, undef, 1) if $evtype eq 'configuration';

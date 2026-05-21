@@ -1,6 +1,10 @@
 get:
   summary: Get the build results for packages, architectures and repositories of the specified project.
-  description: Get the build results for packages, architectures and repositories of the specified project.
+  description: |
+    Get the build results for packages, architectures and repositories of the specified project.
+
+    Since the schema of the output of this endpoint depends on the value of the `lastsuccess` parameter,
+    the case where `lastsuccess` is set to `1` is documented under this [other endpoint](#/Build/get_build__project_name___result_lastsuccess_1).
   security:
     - basic_authentication: []
   parameters:
@@ -68,6 +72,15 @@ get:
         - 1
       default: 0
       example: 1
+    - in: query
+      name: lastsuccess
+      schema:
+        type: string
+      description: |
+        Set to `1` to show the last build results.
+
+        Since the schema of the output of this endpoint depends on the value of the `lastsuccess` parameter,
+        the case where `lastsuccess` is set to `1` is documented under this [other endpoint](#/Build/get_build__project_name___result_lastsuccess_1).
   responses:
     '200':
       $ref: '../components/responses/resultlist.yaml'

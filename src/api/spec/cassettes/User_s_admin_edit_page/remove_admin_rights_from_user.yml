@@ -1,0 +1,100 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title/>
+          <description/>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title></title>
+          <description></description>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 27 Aug 2025 15:46:42 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/_workerstatus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 273b47c5-2314-4a54-9570-f9e2fd3048fd
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1188'
+    body:
+      encoding: UTF-8
+      string: |
+        <workerstatus clients="2">
+          <idle workerid="afe1a12db768:1" hostarch="x86_64"/>
+          <idle workerid="afe1a12db768:2" hostarch="x86_64"/>
+          <waiting arch="i586" jobs="0"/>
+          <waiting arch="x86_64" jobs="0"/>
+          <blocked arch="i586" jobs="0"/>
+          <blocked arch="x86_64" jobs="0"/>
+          <buildavg arch="i586" buildavg="1200"/>
+          <buildavg arch="x86_64" buildavg="1200"/>
+          <partition>
+            <daemon type="srcserver" state="running" starttime="1756308036"/>
+            <daemon type="servicedispatch" state="running" starttime="1756308042"/>
+            <daemon type="service" state="running" starttime="1756308042"/>
+            <daemon type="scheduler" arch="i586" state="running" starttime="1756308042">
+              <queue high="0" med="0" low="0" next="0"/>
+            </daemon>
+            <daemon type="scheduler" arch="x86_64" state="running" starttime="1756308042">
+              <queue high="0" med="0" low="0" next="0"/>
+            </daemon>
+            <daemon type="repserver" state="running" starttime="1756308040"/>
+            <daemon type="dispatcher" state="running" starttime="1756308042"/>
+            <daemon type="publisher" state="running" starttime="1756308042"/>
+            <daemon type="signer" state="running" starttime="1756308042"/>
+          </partition>
+        </workerstatus>
+  recorded_at: Wed, 27 Aug 2025 15:46:45 GMT
+recorded_with: VCR 6.3.1

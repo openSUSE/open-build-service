@@ -51,7 +51,7 @@ RSpec.describe Webui::GroupsController do
     end
 
     context 'as a normal user' do
-      let(:login_as) { create(:user) }
+      let(:login_as) { create(:confirmed_user) }
 
       it 'does not allow to create a group' do
         expect(flash[:error]).to eq('Sorry, you are not authorized to create this group.')
@@ -83,7 +83,7 @@ RSpec.describe Webui::GroupsController do
         let(:users_to_add) { 'non_existent_user' }
 
         it "shows a flash message with the validation error and doesn't create the group" do
-          expect(flash[:error]).to eq("Group can't be saved: Couldn't find User with login = #{users_to_add}")
+          expect(flash[:error]).to eq("Group can't be saved: Couldn't find User")
           expect(Group.where(title: title)).not_to exist
         end
       end
@@ -99,7 +99,7 @@ RSpec.describe Webui::GroupsController do
     end
 
     context 'as a normal user' do
-      let(:login_as) { create(:user) }
+      let(:login_as) { create(:confirmed_user) }
 
       it 'does not allow to edit the group' do
         expect(flash[:error]).to eq('Sorry, you are not authorized to update this group.')
@@ -130,7 +130,7 @@ RSpec.describe Webui::GroupsController do
     end
 
     context 'as a normal user' do
-      let(:login_as) { create(:user) }
+      let(:login_as) { create(:confirmed_user) }
       let(:email) { 'new_email@example.com' }
 
       it 'does not allow to update the group' do

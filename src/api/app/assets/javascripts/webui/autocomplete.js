@@ -1,24 +1,21 @@
-function setupAutocomplete() {
-  $('.obs-autocomplete').each(function() {
-    $(this).autocomplete({
-      // Note: 'append' is optional and only needed when there is no element with class ui-front
-      appendTo:  $(this).data('append'),
-      source:    $(this).data('source'),
-      minLength: 2,
-      search: function() {
-        $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
-      },
-      response: function() {
-        $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
-      }
-    });
-  });
+/* exported setupAutocomplete */
+
+function setupAutocomplete(selector) {
+  $(selector).autocomplete({
+    // Note: 'append' is optional and only needed when there is no element with class ui-front
+    appendTo:  $(selector).data('append'),
+    source:    $(selector).data('source'),
+    minLength: 2,
+    search: function() {
+      $(selector).next().find('i').toggleClass('fa-search fa-spinner fa-spin');
+    },
+    response: function() {
+      $(selector).next().find('i').toggleClass('fa-search fa-spinner fa-spin');
+    }
+ });
 }
 
 $(document).ready(function() {
-
-  setupAutocomplete();
-
   $('.repository-autocomplete').on('autocompleteselect autocompletechange', function(event, ui) {
     var projectName,
         dropdown        = $(this).find('.repository-dropdown'),

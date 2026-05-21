@@ -73,7 +73,7 @@ namespace :jobs do
     IssueTracker.find_each do |t|
       next unless t.enable_fetch
 
-      t.enforced_update_all_issues
+      t.enforced_update_all_issues?
     end
   end
 end

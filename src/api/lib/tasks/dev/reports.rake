@@ -16,10 +16,10 @@ namespace :dev do
         create(:project, name: 'some_crappy_project_name', commit_user: admin),
         create(:confirmed_user, login: 'crapboy')
       ].each do |reportable|
-        Report.create!(reportable: reportable, user: iggy, reason: 'Watch your language, please')
+        Report.create!(reportable: reportable, reporter: iggy, reason: 'Watch your language, please')
       end
 
-      source_project = create(:project, :as_submission_source, name: 'source_project')
+      source_project = create(:project, name: 'source_project')
       source_package = create(:package_with_files,
                               name: 'package_a',
                               project: source_project,
@@ -34,7 +34,7 @@ namespace :dev do
                source_package: source_package,
                description: 'Hey! Visit my new site $$$!')
       ].each do |reportable|
-        Report.create!(reportable: reportable, user: user1, reason: 'This is a scam')
+        Report.create!(reportable: reportable, reporter: user1, reason: 'This is a scam')
       end
     end
 
@@ -45,9 +45,8 @@ namespace :dev do
       include FactoryBot::Syntax::Methods
 
       # This automatically subscribes everyone to the cleared and favored decision events
-      EventSubscription.create!(eventtype: Event::ClearedDecision.name, channel: :web, receiver_role: :reporter, enabled: true)
-      EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :reporter, enabled: true)
-      EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :offender, enabled: true)
+      EventSubscription.create!(eventtype: Event::Decision.name, channel: :web, receiver_role: :reporter, enabled: true)
+      EventSubscription.create!(eventtype: Event::Decision.name, channel: :web, receiver_role: :offender, enabled: true)
 
       admin = User.default_admin
 
@@ -59,7 +58,7 @@ namespace :dev do
       # The same decision applies to more than one report about the same object/reportable.
       reportable = Decision.first.reports.first.reportable
       another_user = User.find_by(login: 'Requestor') || create(:confirmed_user, login: 'Requestor')
-      another_report = Report.create!(reportable: reportable, user: another_user, reason: 'Behave properly, please!')
+      another_report = Report.create!(reportable: reportable, reporter: another_user, reason: 'Behave properly, please!')
       Decision.first.reports << another_report
 
       # Create an appeal against a favored decision and subscribe moderators to it

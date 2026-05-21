@@ -32,7 +32,7 @@
             %dt.col-6.col-sm-3 Expires on
             %dd.col-6.col-sm-9.small
               - if gpg_key.expires
-                = DateTime.strptime(gpg_key.expires, '%s').strftime('%F')
+                = Time.zone.strptime(gpg_key.expires, '%s').strftime('%F')
               - else
                 This key does not expire
             %dt.col-6.col-sm-3 Key Size
@@ -66,10 +66,10 @@
             %dd.col-12.col-sm-9.small= ssl_cert.issuer
             %dt.col-6.col-sm-3 Valid not before
             %dd.col-6.col-sm-9.small
-              = DateTime.strptime(ssl_cert.begins, '%s').strftime('%F')
+              = Time.zone.strptime(ssl_cert.begins, '%s').strftime('%F')
             %dt.col-6.col-sm-3 Expires on
             %dd.col-6.col-sm-9.small
-              = DateTime.strptime(ssl_cert.expires, '%s').strftime('%F')
+              = Time.zone.strptime(ssl_cert.expires, '%s').strftime('%F')
             %dt.col-6.col-sm-3 Algorithm type
             %dd.col-6.col-sm-9.small= ssl_cert.algorithm.upcase
             %dt.col-6.col-sm-3 Size

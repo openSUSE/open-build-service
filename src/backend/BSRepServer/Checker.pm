@@ -32,6 +32,7 @@ use BSSched::BuildJob::KiwiImage;
 use BSSched::BuildJob::KiwiProduct;
 use BSSched::BuildJob::ProductCompose;
 use BSSched::BuildJob::Docker;
+use BSSched::BuildJob::Image;
 use BSSched::BuildJob::Unknown;
 use BSSched::BuildJob::BuildEnv;
 
@@ -41,6 +42,10 @@ my %handlers = (
   'kiwi-image'      => BSSched::BuildJob::KiwiImage->new(),
   'docker'          => BSSched::BuildJob::Docker->new(),
   'fissile'         => BSSched::BuildJob::Docker->new(),
+  'mkosi'           => BSSched::BuildJob::Image->new(),
+  'appimage'        => BSSched::BuildJob::Image->new(),
+  'livebuild'       => BSSched::BuildJob::Image->new(),
+  'simpleimage'     => BSSched::BuildJob::Image->new(),
   'buildenv'        => BSSched::BuildJob::BuildEnv->new(),
   'unknown'         => BSSched::BuildJob::Unknown->new(),
   'default'         => BSSched::BuildJob::Package->new(),
@@ -106,8 +111,11 @@ sub setup {
   my $projid = $ctx->{'project'};
   my $myarch = $gctx->{'arch'};
   my $repoid = $ctx->{'repository'};
-  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  my $proj = $projpacks->{$projid};
+  die("no project $projid?\n") unless $proj;
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   die("no repo $repoid in project $projid?\n") unless $repo;
+  $ctx->{'proj'} = $proj;
   $ctx->{'repo'} = $repo;
   my $bconf = $ctx->getconfig($projid, $repoid, $myarch, $ctx->{'prpsearchpath'});
   die("project config: $bconf->{'parse_error'}\n") if $bconf->{'parse_error'} && !$BSConfig::ignore_project_config_errors;
@@ -122,7 +130,7 @@ sub setup {
     die("cross project config: $bconf_host->{'parse_error'}\n") if $bconf_host->{'parse_error'} && !$BSConfig::ignore_project_config_errors;
     $ctx->{'conf_host'} = $bconf_host;
   }
-  my $pdatas = $projpacks->{$projid}->{'package'};
+  my $pdatas = $proj->{'package'} || {};
   setup_modulemd($ctx, 'modulemd', $pdatas->{'modulemd'}) if $pdatas->{'modulemd'} && $pdatas->{'modulemd'}->{'modulemd'};
 }
 
@@ -181,6 +189,7 @@ sub newpool {
   if ($bconf) {
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
+    $pool->settype('apk') if $bconf->{'binarytype'} eq 'apk';
     $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
   }
   return $pool;

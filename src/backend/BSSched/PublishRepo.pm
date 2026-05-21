@@ -44,10 +44,11 @@ use Fcntl qw(:DEFAULT :flock);
 use POSIX;
 use Digest::MD5 ();
 
-use BSUtil;
 use BSConfiguration;
+use BSOBS;
+use BSUtil;
 use BSUrlmapper;
-use Build::Rpm;		# for verscmp
+use Build::Rpm;			# for verscmp
 
 use BSSched::ProjPacks;		# for orderpackids
 use BSSched::BuildJob::DeltaRpm;
@@ -55,9 +56,13 @@ use BSSched::EventSource::Directory;  # sendpublishevent
 use BSSched::Blobstore;
 
 my $default_publishfilter;
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
+my %publish_ignore = map {$_ => 1} qw{
+  history logfile meta status reason rpmlint.log reproduciblecheck.log
+  _ccache.tar _statistics _buildenv _channel _slsa_provenance.json _slsa_provenance.config 
+};
 
 =head1 NAME
 
@@ -229,12 +234,36 @@ sub prpfinished {
     $seen_binary = {};
   }
 
+  # check for publish blacklist
+  my %excludepublish;
+  if (exists $bconf->{'publishflags:excludepublish'}) {
+    for (@{$bconf->{'publishflags'} || []}) {
+      $excludepublish{$1} = 1 if /^excludepublish:(.*)$/s;
+    }
+  }
+
+  # check for package whitelist
+  my %onlypublish;
+  if (exists $bconf->{'publishflags:onlypublish'}) {
+    for (@{$bconf->{'publishflags'} || []}) {
+      $onlypublish{$1} = 1 if /^onlypublish:(.*)$/s;
+    }
+  }
+
   # let the publisher decide about empty repositories
   $changed = 1 if $bconf && ($bconf->{'publishflags:createempty'} || $bconf->{'publishflags:create_empty'}) && ! -e "$reporoot/$prp/:repoinfo";
 
   my %newchecksums;
   # sort like in the full tree
   for my $packid (BSSched::ProjPacks::orderpackids($projpacks->{$projid}, @$packs)) {
+    if (%onlypublish && !$onlypublish{$packid}) {
+      print "        $packid: not on publish whitelist\n";
+      next;
+    }
+    if (%excludepublish && $excludepublish{$packid}) {
+      print "        $packid: on publish blacklist\n";
+      next;
+    }
     if (!$pubenabled->{$packid}) {
       # publishing of this package is disabled, copy binary list from old info
       die unless $rinfo_packid2bins;
@@ -261,9 +290,19 @@ sub prpfinished {
     next if $all{'.preinstallimage'};
     my $debian = grep {/\.dsc$/} @all;
     my $nosourceaccess = $all{'.nosourceaccess'};
-    @all = grep {$_ ne '_ccache.tar' && $_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne '_buildenv' && $_ ne '_channel' && $_ ne '_slsa_provenance.json' && $_ ne '_slsa_provenance.config' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
+    @all = grep {!$publish_ignore{$_} && !/^\./} @all;
     @all = grep {!/slsa_provenance\.json$/} @all;
+    my $noorphanedsrcrpms = $bconf && $bconf->{'publishflags:noorphanedsrcrpms'} ? 1: 0;
+    if ($noorphanedsrcrpms) {
+      # move src rpms to the back of the array
+      my @srcrpms = grep {/\.(?:no)?src\.rpm$/} @all;
+      if (@srcrpms) {
+        @all = grep {!/\.(?:no)?src\.rpm$/} @all;
+	push @all, @srcrpms;
+      }
+    }
     my $taken;
+    my $rpm_taken;
     for my $bin (@all) {
       next if $bin =~ /^::import::/;
       next if $bin =~ /\.obsbinlnk$/;
@@ -294,6 +333,10 @@ sub prpfinished {
           last;
         }
         next if $bad;
+      }
+      if ($noorphanedsrcrpms && $bin =~ /\.rpm$/) {
+	next if !$rpm_taken && $bin =~ /\.(?:no)?src\.rpm$/;
+	$rpm_taken = 1;
       }
       $origin{$rbin} = $packid;
 
@@ -416,8 +459,8 @@ sub prpfinished {
   # update archsync information
   if ($bconf->{'publishflags:archsync'}) {
     my $oldas = BSUtil::retrieve("$rdir/.archsync", 1) || {};
-    my $as = { 'lastcheck' => time(), 'lastchange' => $oldas->{'lastchange'} };
-    $as->{'lastchange'} = $as->{'lastcheck'} if $changed || !$as->{'lastchange'};
+    my $as = { 'lastcheck' => $ctx->{'prpcheckstart'} || time(), 'lastchange' => $oldas->{'lastchange'} };
+    $as->{'lastchange'} = time() if $changed || !$as->{'lastchange'};
     $changed = 1 if -e "$rdir/.archsync.new";	# hack, see bs_publish
     mkdir_p($rdir) unless -d $rdir;
     BSUtil::store("$rdir/.archsync.new", "$rdir/.archsync", $as);

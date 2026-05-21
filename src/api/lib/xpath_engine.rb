@@ -225,8 +225,10 @@ class XpathEngine
         'review/history/@when' => { cpart: 'he.created_at',
                                     joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id ' \
                                            "LEFT JOIN history_elements he ON (he.op_object_id = r.id AND he.type IN (\"#{HistoryElement::Review.descendants.join('","')}\") )" },
-        'history/@when' => { cpart: 'he.created_at', joins: "LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )" },
-        'history/@who' => { cpart: 'husers.login', joins: ["LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
+        'history/@when' => { cpart: 'he.created_at',
+                             joins: "LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )" },
+        'history/@who' => { cpart: 'husers.login', joins: ['LEFT JOIN history_elements he ' \
+                                                           "ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
                                                            'LEFT JOIN users husers ON he.user_id = husers.id'] },
 
         'submit/target/@project' => { empty: true },
@@ -245,9 +247,7 @@ class XpathEngine
     @joins = []
   end
 
-  def logger
-    Rails.logger
-  end
+  delegate :logger, to: :Rails
 
   # Careful: there is no return value, the items found are passed to the calling block
   def find(xpath)
@@ -360,13 +360,13 @@ class XpathEngine
       logger.debug "strange base table: #{@base_table}"
     end
     cond_ary = nil
-    cond_ary = [@conditions.flatten.uniq.join(' AND '), @condition_values].flatten if @conditions.count.positive?
+    cond_ary = [@conditions.flatten.uniq.join(' AND '), @condition_values].flatten if @conditions.any?
 
     logger.debug("#{relation.to_sql}.find #{{ joins: @joins.flatten.uniq.join(' '),
                                               conditions: cond_ary }.inspect}")
     relation = relation.joins(@joins.flatten.uniq.join(' ')).where(cond_ary).order(order)
     # .distinct is critical for perfomance here...
-    relation.distinct.pluck(:id)
+    relation.distinct
   end
 
   def parse_predicate(root, stack)
@@ -437,7 +437,7 @@ class XpathEngine
       when :attribute
         expr.shift # :qname token
         expr.shift # namespace
-        a << ("@#{expr.shift}")
+        a << "@#{expr.shift}"
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
         return '' if @last_key && @attribs[table][@last_key][:empty]
@@ -447,8 +447,6 @@ class XpathEngine
           raise IllegalXpathError, 'attributes must be $NAMESPACE:$NAME' if tvalues.size != 2
 
           @condition_values_needed.times { @condition_values << tvalues }
-        elsif @last_key && @attribs[table][@last_key][:double]
-          @condition_values_needed.times { @condition_values << [value, value] }
         else
           @condition_values_needed.times { @condition_values << value }
         end

@@ -1,3 +1,4 @@
+# FIXME: This factory is a wrapper around Patchinfo.new when you can just call Patchinfo.new wherever you `create(:patchinfo)`. It makes no sense...
 FactoryBot.define do
   factory :patchinfo_base, class: 'Patchinfo' do
     initialize_with { new(**attributes) }

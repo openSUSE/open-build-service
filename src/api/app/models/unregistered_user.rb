@@ -7,12 +7,6 @@ class UnregisteredUser < User
   # Raises an exception if registration is disabled for a user
   # Returns true if a user can register
   def self.can_register?
-    # No registering if LDAP is on
-    if CONFIG['ldap_mode'] == :on && !User.admin_session?
-      logger.debug 'Someone tried to register with "ldap_mode" turned on'
-      raise ErrRegisterSave, 'Sorry, new users can only sign up via LDAP'
-    end
-
     # No registering if we use an authentication proxy
     if ::Configuration.proxy_auth_mode_enabled?
       logger.debug 'Someone tried to register with "proxy_auth_mode" turned on'
@@ -53,8 +47,7 @@ class UnregisteredUser < User
       password_confirmation: opts[:password_confirmation],
       email: opts[:email],
       state: state,
-      adminnote: opts[:note],
-      ignore_auth_services: Configuration.ldap_enabled?
+      adminnote: opts[:note]
     )
 
     raise ErrRegisterSave, "Could not save the registration, details: #{newuser.errors.full_messages.to_sentence}" unless newuser.save
@@ -82,11 +75,11 @@ end
 #  in_beta                       :boolean          default(FALSE), indexed
 #  in_rollout                    :boolean          default(TRUE), indexed
 #  last_logged_in_at             :datetime
-#  login                         :text(65535)      indexed
+#  login                         :text(65535)      uniquely indexed
 #  login_failure_count           :integer          default(0), not null
 #  password_digest               :string(255)
 #  realname                      :string(200)      default(""), not null
-#  rss_secret                    :string(200)      indexed
+#  rss_secret                    :string(200)      uniquely indexed
 #  state                         :string           default("unconfirmed"), indexed
 #  created_at                    :datetime
 #  updated_at                    :datetime

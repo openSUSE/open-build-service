@@ -3,6 +3,7 @@ RSpec.describe Triggerable do
   let(:fake_controller) do
     Class.new(ApplicationController) do
       include Triggerable
+      include Trigger::Errors
     end
   end
 
@@ -29,13 +30,22 @@ RSpec.describe Triggerable do
   describe '#set_project' do
     let(:token) { Token::Rebuild.create(executor: user) }
 
-    before do
-      allow(Project).to receive(:get_by_name).and_return('some:remote:project')
+    context 'raises for remote projects' do
+      before do
+        allow(Project).to receive(:get_by_name).and_return('some:remote:project')
+        stub_params(project_name: 'some:remote:project', package_name: package.name)
+      end
+
+      it { expect { fake_controller_instance.set_project }.to raise_error(Project::Errors::UnknownObjectError, 'Sorry, triggering tokens for remote project "project" is not possible.') }
     end
 
-    it 'raises a not found for a remote project' do
-      stub_params(project_name: 'some:remote:project', package_name: package.name)
-      expect { fake_controller_instance.set_project }.to raise_error(Project::Errors::UnknownObjectError)
+    context 'raises if token.package.project is not equal to project param' do
+      before do
+        stub_params(project_name: project.name, package_name: package.name)
+        token.package = create(:package)
+      end
+
+      it { expect { fake_controller_instance.set_project }.to raise_error(Trigger::Errors::InvalidProject) }
     end
   end
 
@@ -47,6 +57,16 @@ RSpec.describe Triggerable do
       stub_params(project_name: project.name, package_name: package_name)
       fake_controller_instance.set_project
       expect { fake_controller_instance.set_package }.to raise_error(Package::Errors::UnknownObjectError)
+    end
+
+    context 'raises if token.package is not equal to package param' do
+      before do
+        token.package = create(:package, project: project)
+        stub_params(project_name: project.name, package_name: package.name)
+        fake_controller_instance.set_project
+      end
+
+      it { expect { fake_controller_instance.set_package }.to raise_error(Trigger::Errors::InvalidPackage) }
     end
 
     context 'project with project-link and token that follows project-links' do
@@ -81,6 +101,21 @@ RSpec.describe Triggerable do
         fake_controller_instance.set_project
         fake_controller_instance.set_package
         expect(fake_controller_instance.instance_variable_get(:@package)).to eq('remote_package_trigger')
+      end
+    end
+
+    context 'project with scmsync link' do
+      let(:token) { Token::Rebuild.create(executor: user) }
+      let(:project_name) { 'project_with_scmsync' }
+      let(:package_name) { 'some-scm-package' }
+
+      let(:project_with_scmsync) { create(:project, name: project_name, maintainer: user, scmsync: 'https://github.com/hennevogel/scmsync-project.git') }
+
+      it 'assigns remote package string' do
+        stub_params(project_name: project_with_scmsync.name, package_name: package_name)
+        fake_controller_instance.set_project
+        fake_controller_instance.set_package
+        expect(fake_controller_instance.instance_variable_get(:@package)).to eq('some-scm-package')
       end
     end
   end
@@ -186,7 +221,7 @@ RSpec.describe Triggerable do
         fake_controller_instance.set_package
         fake_controller_instance.set_object_to_authorize
         fake_controller_instance.set_multibuild_flavor
-        expect(fake_controller_instance.instance_variable_get(:@multibuild_container)).to eq(multibuild_flavor)
+        expect(fake_controller_instance.instance_variable_get(:@multibuild_flavor)).to eq(multibuild_flavor)
       end
 
       it 'authorizes package object' do

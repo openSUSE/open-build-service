@@ -14,7 +14,7 @@ class StatisticsController < ApplicationController
   def most_active_projects
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}")
-                       .limit(@limit).order('activity_value DESC')
+                       .limit(@limit).order(activity_value: :desc)
     # count packages per project and sum up activity values
     projects = {}
     @packages.each do |package|
@@ -36,7 +36,7 @@ class StatisticsController < ApplicationController
   def most_active_packages
     # get all packages including activity values
     @packages = Package.select("packages.*, #{Package.activity_algorithm}")
-                       .limit(@limit).order('activity_value DESC')
+                       .limit(@limit).order(activity_value: :desc)
     @packages
   end
 
@@ -47,15 +47,15 @@ class StatisticsController < ApplicationController
   end
 
   def latest_added
-    packages = Package.limit(@limit).order('created_at DESC, name').to_a
-    projects = Project.limit(@limit).order('created_at DESC, name').to_a
+    packages = Package.limit(@limit).order(created_at: :desc, name: :asc).to_a
+    projects = Project.limit(@limit).order(created_at: :desc, name: :asc).to_a
 
     list = projects
     list.concat(packages)
     list.sort! { |a, b| b.created_at <=> a.created_at }
 
     @list = if @limit
-              list[0..@limit - 1]
+              list[0..(@limit - 1)]
             else
               list
             end
@@ -102,8 +102,6 @@ class StatisticsController < ApplicationController
   end
 
   def active_request_creators
-    required_parameters :project
-
     # get the devel projects
     @project = Project.find_by_name!(params[:project])
 

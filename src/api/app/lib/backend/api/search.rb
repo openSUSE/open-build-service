@@ -7,8 +7,8 @@ module Backend
       # Performs a search of the binary in a project list
       # @return [String]
       def self.binary(project_names, binary_name)
-        project_list = project_names.map { |project_name| "@project='#{CGI.escape(project_name)}'" }.join('+or+')
-        http_post("/search/published/binary/id?match=(@name='#{CGI.escape(binary_name)}'+and+(#{project_list}))")
+        project_list = project_names.map { |project_name| "project=#{CGI.escape(project_name)}" }.join('&')
+        http_get("/published?view=collection&name=#{CGI.escape(binary_name)}&#{project_list}")
       end
 
       def self.published_binaries_for_package(project_name, package_name)
@@ -19,6 +19,14 @@ module Backend
       def self.packages_with_link(package_names)
         packages_list = package_names.map { |name| "linkinfo/@package='#{CGI.escape(name)}'" }.join('+or+')
         http_get("/search/package/id?match=(#{packages_list})")
+      end
+
+      # Performs a search of linking packages
+      def self.linking_packages(package_name, project_name, project_local = nil)
+        match_conditions = "linkinfo/@package=\"#{CGI.escape(package_name)}\" and linkinfo/@project=\"#{CGI.escape(project_name)}\""
+        match_conditions += " and @project=\"#{CGI.escape(project_name)}\"" if project_local
+        # TODO: use GET instead of POST. Requires to record lots of cassettes
+        http_post("/search/package/id?match=(#{match_conditions})")
       end
 
       # Performs a search of incident packages for a maintenance project

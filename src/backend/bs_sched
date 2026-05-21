@@ -82,9 +82,6 @@ $maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverloa
 my $genmetaalgo = 0;
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
-my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
-
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
 BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
@@ -243,7 +240,8 @@ sub sendrelsyncupdate {
 
   my ($projid, $repoid) = split('/', $prp, 2);
   my $projpacks = $gctx->{'projpacks'};
-  my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
+  my $proj = $projpacks->{$projid} || {};
+  my $packs = $proj->{'package'} || {};
   # retrieve new data
   my $relsync = BSUtil::retrieve("$gdst/:relsync") || {};
   # convert to max format
@@ -262,7 +260,36 @@ sub sendrelsyncupdate {
   }
   # merge with relsync.max
   updaterelsyncmax($gdst, $relsyncmax, $isfinished);
+
   # send to other schedulers
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0] || {};
+  my @archs = @{$repo->{'arch'} || []};
+  if (grep {$_ eq $myarch} @archs) {
+    # archs seems legit, use fast notification without src/repserver
+    my $errors;
+    for my $arch (@archs) {
+      next if $arch eq $myarch;
+      next if $BSConfig::relsync_pool && ($BSConfig::relsync_pool->{$myarch} || '') ne ($BSConfig::relsync_pool->{$arch} || '');
+      eval {
+        mkdir_p("$gctx->{'reporoot'}/$prp/$arch");
+        if (updaterelsyncmax("$gctx->{'reporoot'}/$prp/$arch", $relsyncmax, 0)) {
+	  BSSched::EventSource::Directory::sendrelsyncevent($gctx, $prp, $arch);
+        }
+      };
+      if ($@) {
+	warn($@);
+	$errors = 1;
+      }
+    }
+    if (!$errors) {
+      unlink("$gdst/:relsync$$");
+      link("$gdst/:relsync", "$gdst/:relsync$$");
+      rename("$gdst/:relsync$$", "$gdst/:relsync.sent");
+    }
+    return;
+  }
+  # there's somthing wrong with our project data, fallback to the src server
+
   my $param = {
     'uri' => "$BSConfig::srcserver/relsync",
     'request' => 'POST',
@@ -491,6 +518,7 @@ my $gctx = {
   'rrelatedprpdeps' => {},		# reverse of relatedprpdeps
   'alllocked' => {},			# prps where all packages are locked
   'prpsearchpath_host' => {},		# which prps to use for building for the host system
+  'bigdeps' => {},			# dependency unification
 
   # triggers
   'prpcheckuseforbuild' => {},		# project/package meta has changed
@@ -670,7 +698,10 @@ if (!$testprojid && -s "$_rundir/$_runname.state") {
 
     # update projsuspended hash
     my $oldprojsuspended = $schedstate->{'projsuspended'} || {};
-    $_ = ref($_) ? $_ : [ $_ ] for values %$oldprojsuspended;	# convert to array refs
+    for my $suspend (values %$oldprojsuspended) {
+      $suspend = [ $suspend ] unless ref($suspend);
+      $_ = ref($_) ? $_ : { 'job' => $_, 'time' => time() } for @$suspend;
+    }
     %{$gctx->{'projsuspended'}} = %$oldprojsuspended;
 
     # use old start values
@@ -725,6 +756,10 @@ if (!$gctx->{'projpacks'}) {
   @{$gctx->{'lookat_low'}} = sort keys %{$gctx->{'projpacks'}};
   push @{$gctx->{'lookat_low'}}, @{$gctx->{'prps'}};
 }
+BSSched::ProjPacks::bigdeps_unification($gctx);
+
+# look at suspended projects to check the timeout
+push @{$gctx->{'lookat_med'}}, @{$gctx->{'project_prps'}->{$_} || []} for sort keys %{$gctx->{'projsuspended'}};
 
 # reset booting flag
 writeschedulerinfo($gctx);
@@ -903,6 +938,8 @@ eval {
     if ($lastprojectstats + 4 * 3600 < time()) {
       BSUtil::printlog("dumping project statistics");
       BSSched::ProjPacks::print_project_stats($gctx);
+      # do bigdeps unification to get rid of stale entries
+      BSSched::ProjPacks::bigdeps_unification($gctx);
       $lastprojectstats = time();
     }
 
@@ -1016,12 +1053,10 @@ eval {
 
     if ($gctx->{'prpcheckuseforbuild'}->{$prp}) {
       my $packs = $projpacks->{$projid}->{'package'} || {};
-      my $prpsearchpath = $ctx->{'prpsearchpath'};
       # the if statement below is to ease transition to the new full handling
       # for manually created "base" repos
-      if (!$BSSched::BuildResult::new_full_handling || %$packs || ! -d "$gdst/:full" ||
-          -e "$gdst/:full.useforbuild") {
-        BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $prpsearchpath, undef);
+      if (%$packs || ! -d "$gdst/:full" || -e "$gdst/:full.useforbuild") {
+        BSSched::BuildRepo::checkuseforbuild($gctx, $prp, undef);
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
       }
     }
@@ -1083,8 +1118,15 @@ eval {
     # trigger dod package fetching
     BSSched::DoD::dodfetch($ctx) if $ctx->{'doddownloads'};
 
+    # send relsync file if something has been changed
+    my @relsync1 = stat("$gdst/:relsync");
+    my @relsync2 = stat("$gdst/:relsync.sent");
+    if (@relsync1 && (!@relsync2 || "$relsync1[9]/$relsync1[7]/$relsync1[1]" ne "$relsync2[9]/$relsync2[7]/$relsync2[1]")) {
+      sendrelsyncupdate($gctx, $prp, $isfinished);
+    }
+
     # we always publish some build types right away...
-    my $earlypublish = $ctx->{'prptype'} eq 'kiwi' || $ctx->{'prptype'} eq 'productcompose';
+    my $earlypublish = $ctx->{'prptype'} && ($ctx->{'prptype'} eq 'kiwi' || $ctx->{'prptype'} eq 'productcompose');
     $earlypublish = 0 if $bconf->{'publishflags:noearlypublish'} || $bconf->{'publishflags:noearlykiwipublish'};
     $earlypublish = 0 if $bconf->{'publishflags:archsync'};
     if ($isfinished || $earlypublish) {
@@ -1101,6 +1143,12 @@ eval {
     Build::forgetdeps($bconf);
     $ctx->unpreparepool();
     $ctx->free_caches();
+
+    if ($ctx->{'reprorepoid'} && ($ctx->{'reprojob_written'} || $lookattype ne 'low')) {
+      # look at reprorepo next
+      my $changed = $gctx->{"changed_med"};
+      $changed->{"$projid/$ctx->{'reprorepoid'}"} ||= 1;
+    }
 
     my $wasfinished = $gctx->{'prpfinished'}->{$prp};
 
@@ -1174,13 +1222,6 @@ eval {
       delete $gctx->{'prpunfinished'}->{$prp};
     }
     $gctx->{'prpchecktimes'}->{$prp} = $ctx->{'prpchecktime'};
-
-    # send relsync file if something has been changed
-    my @relsync1 = stat("$gdst/:relsync");
-    my @relsync2 = stat("$gdst/:relsync.sent");
-    if (@relsync1 && (!@relsync2 || "$relsync1[9]/$relsync1[7]/$relsync1[1]" ne "$relsync2[9]/$relsync2[7]/$relsync2[1]")) {
-      sendrelsyncupdate($gctx, $prp, $isfinished);
-    }
 
     BSSched::Remote::cleanup_remotepackstatus($gctx, $prp) if $gctx->{'remotepackstatus_cleanup'}->{$prp} && !$ctx->{'havedelayed'};
 

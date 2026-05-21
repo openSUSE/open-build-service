@@ -326,7 +326,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
       post '/source/kde4/kdebase', params: { cmd: 'branch', target_package: n }
       assert_response :bad_request
-      assert_xml_tag tag: 'status', attributes: { code: 'invalid_package_name' }
+      assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
       post '/source/kde4/kdebase', params: { cmd: 'branch', target_project: n }
       assert_response :bad_request
@@ -929,7 +929,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_put_package_meta_with_invalid_permissions
     login_tom
     # The user is valid, but has weak permissions
-    get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
+    get url_for(controller: :source_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
     assert_response :success
 
     # Change description
@@ -941,22 +941,22 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'kdelibs'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs'), params: doc.to_s
     assert_response :forbidden
 
     # verify data is unchanged:
-    get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
+    get url_for(controller: :source_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new(@response.body).to_s)
 
     # try to trick api via non matching xml attributes
     doc.root.attributes['project'] = 'kde4'
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:tom', package: 'kdelibs'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'home:tom', package: 'kdelibs'), params: doc.to_s
     assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'project_name_mismatch' })
     doc.root.attributes['project'] = nil
     doc.root.attributes['name'] = 'none'
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:tom', package: 'kdelibs'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'home:tom', package: 'kdelibs'), params: doc.to_s
     assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'package_name_mismatch' })
   end
@@ -964,22 +964,22 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_put_package_meta_to_hidden_pkg_invalid_permissions
     login_tom
     # The user is valid, but has weak permissions
-    get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject', package: 'pack')
+    get url_for(controller: :source_package_meta, action: :show, project: 'HiddenProject', package: 'pack')
     assert_response :not_found
 
     # Write changed data back
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'HiddenProject', package: 'pack'), params: '<package name="pack"><title></title><description></description></package>'
+    put url_for(controller: :source_package_meta, action: :update, project: 'HiddenProject', package: 'pack'), params: '<package name="pack"><title></title><description></description></package>'
     assert_response :not_found
   end
 
   def do_change_package_meta_test(project, package, response1, response2, tag2, match)
     # Get meta file
-    get url_for(controller: :source_project_package_meta, action: :show, project: project, package: package)
+    get url_for(controller: :source_package_meta, action: :show, project: project, package: package)
     assert_response response1
 
     unless response2 && tag2
       # dummy write to check blocking
-      put url_for(controller: :source_project_package_meta, action: :update, project: project, package: package), params: '<package><title></title><description></description></package>'
+      put url_for(controller: :source_package_meta, action: :update, project: project, package: package), params: '<package><title></title><description></description></package>'
       assert_response :not_found
       #      assert_match(/unknown_package/, @response.body)
       assert_match(/unknown_project/, @response.body)
@@ -993,12 +993,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d.text = new_desc
 
     # Write changed data back
-    put url_for(controller: :source_project_package_meta, action: :update, project: project, package: package), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: project, package: package), params: doc.to_s
     assert_response response2 # (:success, "--> Was not able to update kdelibs _meta")
     assert_xml_tag tag2 # ( :tag => "status", :attributes => { :code => "ok"} )
 
     # Get data again and check that it is the changed data
-    get url_for(controller: :source_project_package_meta, action: :show, project: project, package: package)
+    get url_for(controller: :source_package_meta, action: :show, project: project, package: package)
     newdoc = REXML::Document.new(@response.body)
     d = newdoc.elements['//description']
     # ignore updated change
@@ -1083,7 +1083,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_create_package_meta
     # user without any special roles
     login_fred
-    get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
+    get url_for(controller: :source_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
     assert_response :success
     # change name to kdelibs2
     xml = @response.body
@@ -1091,15 +1091,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d = doc.elements['/package']
     d.delete_attribute('name')
     d.add_attribute('name', 'kdelibs2')
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'kdelibs2'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs2'), params: doc.to_s
     assert_response :success
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
     # do not allow to create it with invalid name
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'kdelibs3'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs3'), params: doc.to_s
     assert_response :bad_request
 
     # Get data again and check that the maintainer was added
-    get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'kdelibs2')
+    get url_for(controller: :source_package_meta, action: :show, project: 'kde4', package: 'kdelibs2')
     assert_response :success
     newdoc = REXML::Document.new(@response.body)
     d = newdoc.elements['/package']
@@ -1109,7 +1109,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     d.delete_attribute('name')
     d.add_attribute('name', 'kdelibs3')
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'kdelibs3'), params: newdoc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs3'), params: newdoc.to_s
     assert_response :forbidden
     assert_xml_tag(tag: 'status', attributes: { code: 'update_project_not_authorized' })
 
@@ -1123,7 +1123,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
-    put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta',
+        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
     get '/source/home:tom:projectB/_meta'
     assert_response :success
@@ -1131,7 +1132,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'path', attributes: { project: 'home:tom:projecta' }
 
     # write again with a capital letter change
-    put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projecta' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta',
+        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projecta' repository='repoA' /> </repository> </project>"
     assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'repository_access_failure' }
     get '/source/home:tom:projectB/_meta'
@@ -1172,9 +1174,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
-    put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta',
+        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
-    put '/source/home:tom:projectC/_meta', params: "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
+    put '/source/home:tom:projectC/_meta',
+        params: "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
     assert_response :success
     put '/source/home:tom:projectD/_meta', params: "<project name='home:tom:projectD'> <title/> <description/> <repository name='repoD'>  " \
                                                    "<path project='home:tom:projectA' repository='repoA' /> " \
@@ -1222,9 +1226,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'/> </project>"
     assert_response :success
-    put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta',
+        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
-    put '/source/home:tom:projectC/_meta', params: "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
+    put '/source/home:tom:projectC/_meta',
+        params: "<project name='home:tom:projectC'> <title/> <description/> <repository name='repoC'> <path project='home:tom:projectB' repository='repoB' /> </repository> </project>"
     assert_response :success
     # delete a repo
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> </project>"
@@ -1264,7 +1270,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
     assert_response :success
     put '/source/home:tom:projectB/_meta',
-        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> <arch>i586</arch> </repository> </project>"
+        params: "<project name='home:tom:projectB'> <title/> <description/> " \
+                "<repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> <arch>i586</arch> </repository> </project>"
     assert_response :success
     # delete the project including the repository
     delete '/source/home:tom:projectA'
@@ -1375,11 +1382,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def do_test_change_package_meta(project, package, response1, response2, tag2, response3, select3)
-    get url_for(controller: :source_project_package_meta, action: :show, project: project, package: package)
+    get url_for(controller: :source_package_meta, action: :show, project: project, package: package)
     assert_response response1
     unless response2 || tag2 || response3 || select3
       # dummy write to check blocking
-      put url_for(controller: :source_project_package_meta, action: :update, project: project, package: package), params: "<package name=\"#{package}\"><title></title><description></description></package>"
+      put url_for(controller: :source_package_meta, action: :update, project: project, package: package), params: "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response :not_found
       #      assert_match(/unknown_package/, @response.body)
       assert_match(/unknown_project/, @response.body)
@@ -1390,11 +1397,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     d = doc.elements['/package']
     b = d.add_element 'build'
     b.add_element 'enable'
-    put url_for(controller: :source_project_package_meta, action: :update, project: project, package: package), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: project, package: package), params: doc.to_s
     assert_response response2
     assert_xml_tag(tag2)
 
-    get url_for(controller: :source_project_package_meta, action: :show, project: project, package: package)
+    get url_for(controller: :source_package_meta, action: :show, project: project, package: package)
     assert_response response3
     assert_select select3 if select3
   end
@@ -1458,28 +1465,28 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_put_invalid_package_meta
     prepare_request_with_user('fredlibs', 'buildservice')
     # Get meta file
-    get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
+    get url_for(controller: :source_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
     assert_response :success
 
     xml = @response.body
     olddoc = REXML::Document.new(xml)
     doc = REXML::Document.new(xml)
     # Write corrupt data back
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'kdelibs'), params: doc.to_s + '</xml>'
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs'), params: doc.to_s + '</xml>'
     assert_response :bad_request
 
     login_king
     # write to illegal location:
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: '.'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: '.'), params: doc.to_s
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_package_name' }
 
     # must not create a package with different pathname and name in _meta.xml:
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'kdelibs2000'), params: doc.to_s
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'kdelibs2000'), params: doc.to_s
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'package_name_mismatch' }
     # verify data is unchanged:
-    get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
+    get url_for(controller: :source_package_meta, action: :show, project: 'kde4', package: 'kdelibs')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new(@response.body).to_s)
   end
@@ -1555,7 +1562,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # anonymous with user-agent set
     get '/source/SourceprotectedProject/pack/my_file', headers: { 'HTTP_USER_AGENT' => 'osc-something' }
     assert_response :unauthorized
-    assert_xml_tag tag: 'status', attributes: { code: 'anonymous_user' }
+    assert_xml_tag tag: 'status', attributes: { code: 'authentication_required' }
     # nobody
     prepare_request_with_user('adrian_nobody', 'buildservice')
     get '/source/SourceprotectedProject/pack/my_file'
@@ -1706,16 +1713,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                         assertresp3, asserteq3, assertresp4)
     # write without permission:
     login_tom
-    get url_for(controller: :source, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff')
+    get url_for(controller: :source_package, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff')
     assert_response :success
     origstring = @response.body.to_s
     teststring = '&;'
-    put url_for(controller: :source, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff'), params: teststring
+    put url_for(controller: :source_package, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff'), params: teststring
     assert_response(:forbidden, 'Was able to write a package file without permission')
     assert_xml_tag(tag: 'status')
 
     # check that content is unchanged:
-    get url_for(controller: :source, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff')
+    get url_for(controller: :source_package, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff')
     assert_response :success
     assert_equal(@response.body.to_s, origstring, 'Package file was changed without permissions')
 
@@ -1836,24 +1843,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def test_invalid_package_command
+  def test_package_command_without_cmd_parameter
     prepare_request_with_user('fredlibs', 'buildservice')
     post '/source/kde4/kdelibs'
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
-    post '/source/kde4/kdelibs', params: { cmd: :invalid }
     assert_response :not_found
-    assert_xml_tag tag: 'status', attributes: { code: 'illegal_request' }
-    assert_xml_tag tag: 'summary', content: 'invalid_command'
+  end
 
-    prepare_request_with_user('adrian_nobody', 'buildservice')
-    post '/source/kde4/kdelibs'
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
+  def test_package_command_with_invalid_cmd_parameter
+    prepare_request_with_user('fredlibs', 'buildservice')
     post '/source/kde4/kdelibs', params: { cmd: :invalid }
     assert_response :not_found
-    assert_xml_tag tag: 'status', attributes: { code: 'illegal_request' }
-    assert_xml_tag tag: 'summary', content: 'invalid_command'
   end
 
   def test_blame_view
@@ -2146,7 +2145,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     post '/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'source_access_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'source_access_package_not_authorized' }
     # reverse
     post '/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff'
     assert_response :forbidden
@@ -2637,14 +2636,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
         </project>"
     assert_response :success
 
-    # create token
-    post '/person/adrian/token?cmd=create&operation=release&project=home:Iggy&package=TestPack'
-    assert_response :success
-    doc = REXML::Document.new(@response.body)
-    token = doc.elements['//data[@name="token"]'].text
-    id = doc.elements['//data[@name="id"]'].text
-    assert_equal 24, token.length
-
     # workaround of testsuite breakage, database object gets restored during
     # request controller run, but backend part not
     login_Iggy
@@ -2687,24 +2678,37 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
 
-    # but they can use the token
-    reset_auth
-    post '/trigger/release', headers: { 'Authorization' => "Token #{token}" }
-    assert_response :success
-
     # and they can release it to own space
     login_Iggy
+    # test that giving target_project requires giving repository and target_repository
     post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy'
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'missing_parameter' }
 
+    # test that target_project has to exist
     post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy:TEST&repository=10.2&target_repository=10.2'
     assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' }
-    # create project
+
+    # create target_project
     doc.root.attributes['name'] = 'home:Iggy:TEST'
     put '/source/home:Iggy:TEST/_meta', params: doc.to_s
     assert_response :success
+
+    # limit source via attribute, none allowed
+    post '/source/home:Iggy:TEST/_attribute', params: "
+        <attributes><attribute namespace='OBS' name='LimitReleaseSourceProject'>
+        </attribute></attributes>"
+    assert_response :success
+    post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy:TEST&repository=10.2&target_repository=10.2'
+    assert_response :forbidden
+    assert_xml_tag tag: 'status', attributes: { code: 'outside_limit_release_source_project' }
+    post '/source/home:Iggy:TEST/_attribute', params: "
+        <attributes><attribute namespace='OBS' name='LimitReleaseSourceProject'>
+          <value>home:Iggy</value>
+        </attribute></attributes>"
+    assert_response :success
+
     # but now it works for real
     post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy:TEST&repository=10.2&target_repository=10.2'
     assert_response :success
@@ -2721,9 +2725,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:Iggy?cmd=release&nodelay=1'
     assert_response :success
     assert_xml_tag tag: 'status', attributes: { code: 'ok' }
-    # drop token
-    delete "/person/adrian/token/#{id}"
-    assert_response :success
 
     # process events
     run_scheduler('i586')
@@ -2764,6 +2765,21 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:adrian:IMAGES/appliance/_meta', params: "<package project='home:adrian:IMAGES' name='appliance'> <title/> <description/> <scmsync>http://localhost</scmsync> </package>"
     assert_response :success
 
+    # ensure we send a proper error message to osc
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory></directory> '
+    assert_response :bad_request
+    assert_xml_tag tag: 'status', attributes: { origin: 'backend' }
+    assert_select 'status[code] > summary', /Package appliance is controlled by obs-scm/
+    raw_put '/source/home:adrian:IMAGES/appliance/filename?rev=repository', '123'
+    assert_response :forbidden
+    assert_xml_tag tag: 'status', attributes: { code: 'scmsync_read_only' }
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory> <entry name="filename" md5="ba1f2511fc30423bdbb183fe33f3dd0f" /> </directory> '
+    assert_response :success
+    assert_xml_tag tag: 'directory', attributes: { error: 'missing' }
+    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'commit' }
+    assert_response :bad_request
+    assert_select 'status[code] > summary', /Package appliance is controlled by obs-scm/
+
     login_tom
     post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'fork' }
     assert_response :bad_request
@@ -2792,6 +2808,62 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/search/package', params: { match: '[scmsync="http://127.0.0.1"]' }
     assert_response :success
     assert_xml_tag child: { tag: 'package', attributes: { name: 'appliance', project: 'home:tom:branches:home:adrian:IMAGES' } }
+
+    # cleanup
+    delete '/source/home:tom:branches:home:adrian:IMAGES'
+    assert_response :success
+    login_adrian
+    delete '/source/home:adrian:IMAGES'
+    assert_response :success
+  end
+
+  def test_fork_project
+    login_adrian
+    put '/source/home:adrian:IMAGES/_meta', params: "<project name='home:adrian:IMAGES'> <title/> <description/>
+          <scmsync>http://localhost</scmsync>
+          <repository name='images'>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </repository>
+        </project>"
+    assert_response :success
+
+    # ensure we send a proper error message to osc
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory></directory> '
+    assert_response :not_found
+    assert_xml_tag tag: 'status', attributes: { code: 'unknown_package' }
+    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'commit' }
+    assert_response :not_found
+    assert_xml_tag tag: 'status', attributes: { code: 'unknown_package' }
+    raw_put '/source/home:adrian:IMAGES/appliance/filename?rev=repository', '123'
+    assert_response :forbidden
+    assert_xml_tag tag: 'status', attributes: { code: 'scmsync_read_only' }
+
+    login_tom
+    post '/source/home:adrian:IMAGES/_project', params: { cmd: 'fork' }
+    assert_response :bad_request
+    assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
+
+    # forking the project
+    post '/source/home:adrian:IMAGES/_project', params: { cmd: 'fork', scmsync: 'http://127.0.0.1' }
+    assert_response :success
+
+    post '/source/home:adrian:IMAGES/_project', params: { cmd: 'fork', scmsync: 'http://127.0.0.1',
+                                                          target_project: 'home:adrian:SOMEWHERE' }
+    assert_response :forbidden
+
+    get '/source/home:tom:branches:home:adrian:IMAGES/_project/_history'
+    assert_response :success
+
+    get '/source/home:tom:branches:home:adrian:IMAGES/_meta'
+    assert_response :success
+    assert_xml_tag(tag: 'repository', attributes: { name: 'images' })
+    assert_xml_tag(tag: 'scmsync', content: 'http://127.0.0.1')
+    assert_no_xml_tag(tag: 'path')
+
+    get '/source/home:tom:branches:home:adrian:IMAGES/_project/_meta'
+    assert_response :success
+    assert_xml_tag(tag: 'scmsync', content: 'http://127.0.0.1')
 
     # cleanup
     delete '/source/home:tom:branches:home:adrian:IMAGES'
@@ -3206,11 +3278,18 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/TestPack/anotherfilename'
     assert_response :not_found
 
-    #
-    # Test commits to special packages
-    #
+    # restore
+    raw_put '/source/home:Iggy/TestPack/TestPack.spec', load_backend_file('source/home:Iggy/TestPack/TestPack.spec')
+    assert_response :success
+    put('/source/home:Iggy/TestPack/myfile', params: 'DummyContent')
+    assert_response :success
+    delete '/source/home:Iggy/TestPack/filename'
+    assert_response :success
+  end
+
+  # _product must be created
+  def test_commits_to_product
     login_Iggy
-    # _product must be created
     put '/source/home:Iggy/_product/_meta', params: "<package project='home:Iggy' name='_product'> <title/> <description/> </package>"
     assert_response :success
     put '/source/home:Iggy/_product/filename?rev=repository', params: 'CONTENT'
@@ -3224,7 +3303,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_product/filename2'
     assert_response :success
 
-    # _pattern exists always
+    # restore
+    delete '/source/home:Iggy/_product'
+    assert_response :success
+  end
+
+  # _pattern exists always
+  def test_commits_to_pattern
+    login_Iggy
     put '/source/home:Iggy/_pattern/filename', params: 'CONTENT'
     assert_response :bad_request # illegal content
     put '/source/home:Iggy/_pattern/filename?rev=repository', params: load_backend_file('pattern/digiKam.xml')
@@ -3238,7 +3324,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_pattern/filename2'
     assert_response :success
 
-    # _project exists always
+    # restore
+    delete '/source/home:Iggy/_pattern'
+    assert_response :success
+  end
+
+  # _project exists always
+  def test_commits_to_project
+    login_Iggy
     put '/source/home:Iggy/_project/filename?rev=repository', params: 'CONTENT'
     assert_response :success
     raw_post '/source/home:Iggy/_project?cmd=commitfilelist', ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
@@ -3248,18 +3341,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:Iggy/_project/filename2', params: 'CONTENT'
     assert_response :success
     get '/source/home:Iggy/_project/filename2'
-    assert_response :success
-
-    # restore
-    delete '/source/home:Iggy/_product'
-    assert_response :success
-    delete '/source/home:Iggy/_pattern'
-    assert_response :success
-    raw_put '/source/home:Iggy/TestPack/TestPack.spec', load_backend_file('source/home:Iggy/TestPack/TestPack.spec')
-    assert_response :success
-    put('/source/home:Iggy/TestPack/myfile', params: 'DummyContent')
-    assert_response :success
-    delete '/source/home:Iggy/TestPack/filename'
     assert_response :success
   end
 
@@ -3288,6 +3369,25 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_block_branching
+    login_king
+    post '/source/kde4/kdelibs/_attribute', params: "
+        <attributes><attribute namespace='OBS' name='RejectBranch'>
+          <value>Please work instead elsewhere</value>
+        </attribute></attributes>"
+    assert_response :success
+
+    login_Iggy
+    post '/source/kde4/kdelibs?cmd=branch&ignoredevel=1'
+    assert_response :forbidden
+    assert_match 'Please work instead elsewhere', @response.body
+
+    # cleanup
+    login_king
+    delete '/source/kde4/kdelibs/_attribute/OBS:RejectBranch'
+    assert_response :success
+  end
+
   def test_list_of_linking_instances
     login_tom
 
@@ -3310,21 +3410,23 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_links
     login_king
-    put url_for(controller: :source_project_meta, action: :update, project: 'TEMPORARY'), params: '<project name="TEMPORARY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'TEMPORARY'),
+        params: '<project name="TEMPORARY"> <title/> <description/> <person role="maintainer" userid="fred"/> </project>'
     assert_response :ok
     # create packages via user without any special roles
     login_fred
-    get url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'temporary')
+    get url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'temporary')
     assert_response :not_found
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'temporary'), params: '<package project="kde4" name="temporary"> <title/> <description/> </package>'
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'temporary'), params: '<package project="kde4" name="temporary"> <title/> <description/> </package>'
     assert_response :ok
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'temporary2'), params: '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
+    put url_for(controller: :source_package_meta, action: :update, project: 'kde4', package: 'temporary2'), params: '<package project="kde4" name="temporary2"> <title/> <description/> </package>'
     assert_response :ok
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
     put '/source/kde4/temporary/file_in_linked_package', params: 'FILE CONTENT'
     assert_response :ok
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'TEMPORARY', package: 'temporary2'), params: '<package project="TEMPORARY" name="temporary2"> <title/> <description/> </package>'
+    put url_for(controller: :source_package_meta, action: :update, project: 'TEMPORARY', package: 'temporary2'),
+        params: '<package project="TEMPORARY" name="temporary2"> <title/> <description/> </package>'
     assert_response :ok
 
     url = '/source/kde4/temporary/_link'
@@ -3585,7 +3687,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_use_project_link_as_non_maintainer
     login_tom
-    put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/> <link project="kde4" /> </project>'
+    put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'),
+        params: '<project name="home:tom:temporary"> <title/> <description/> <link project="kde4" /> </project>'
     assert_response :success
     get '/source/home:tom:temporary'
     assert_response :success
@@ -3827,6 +3930,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # Branch a package with a defined devel package
     post '/source/kde4/kdelibs', params: { cmd: :branch }
     assert_response :success
+    assert_xml_tag(tag: 'data', attributes: { name: 'target_project' }, content: 'home:tom:branches:home:coolo:test')
+    assert_xml_tag(tag: 'data', attributes: { name: 'target_package' }, content: 'kdelibs_DEVEL_package')
+    assert_xml_tag(tag: 'data', attributes: { name: 'project' }, content: 'home:coolo:test')
+    assert_xml_tag(tag: 'data', attributes: { name: 'package' }, content: 'kdelibs_DEVEL_package')
+
+    # Deprecated return parameters stay for compatibility. To be removed in 3.0
     assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' }, content: 'home:tom:branches:home:coolo:test')
     assert_xml_tag(tag: 'data', attributes: { name: 'targetpackage' }, content: 'kdelibs_DEVEL_package')
     assert_xml_tag(tag: 'data', attributes: { name: 'sourceproject' }, content: 'home:coolo:test')
@@ -3906,7 +4015,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/kde4/kdelibs?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_package_not_authorized' }
 
     post '/source/home:Iggy/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
     assert_response :success # actually I consider forbidding repositories not existent
@@ -3927,7 +4036,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build'
     assert_response :bad_request
-    assert_match(/Required Parameter status missing/, @response.body)
+    assert_xml_tag tag: 'status', attributes: { code: 'missing_parameter' }
 
     post '/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything'
     assert_response :bad_request
@@ -3997,7 +4106,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_package_not_authorized' }
 
     post '/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :success
@@ -4041,7 +4150,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_package_not_authorized' }
 
     post '/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :success
@@ -4192,7 +4301,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_store_invalid_package
     login_tom
     name = Faker::Lorem.characters(number: 255)
-    url = url_for(controller: :source_project_package_meta, action: :update, project: 'home:tom', package: name)
+    url = url_for(controller: :source_package_meta, action: :update, project: 'home:tom', package: name)
     put url, params: "<package name='#{name}' project='home:tom'> <title/> <description/></package>"
     assert_response :bad_request
     assert_select 'status[code] > summary', /invalid package name/

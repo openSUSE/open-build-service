@@ -1,4 +1,6 @@
-function collectReportModalsAndSetValues() { // jshint ignore:line
+/* exported collectReportModalsAndSetValues */
+
+function collectReportModalsAndSetValues() {
   $.each(modalIdsForReport(), function( _index, modalId ) {
     setValuesOnReportDialog(modalId);
   });
@@ -66,9 +68,3 @@ function showYouReportedMessage(reportLinkId, reportableType, reportableId, mess
       break;
   }
 }
-
-$(document).ready(function(){
-  $('#report-category').on('change', '.form-check-input', function(e) {
-    $('#report-reason textarea').attr('required', (e.target.value !== 'other' ? null : true));
-  });
-});

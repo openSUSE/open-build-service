@@ -117,6 +117,11 @@
   @extend .px-1;
 }
 
+.build-state-dispatching {
+  @extend .text-bg-info;
+  @extend .px-1;
+}
+
 .build-state-signing, .build-state-finished {
   @extend .text-bg-warning;
   @extend .px-1;
@@ -130,10 +135,19 @@
   color: $gray-600;
 }
 
+.build-state-excluded {
+  color: $gray-600;
+}
+
 .build-state-blocked {
   @extend .text-white;
   @extend .px-1;
   background-color: $gray-600;
+}
+
+.build-state-locked {
+  @extend .text-bg-warning;
+  @extend .px-1;
 }
 
 .build-state-scheduled-warning {
@@ -160,7 +174,7 @@
 }
 
 .repository-state-outdated {
-  @extend .text-gray-400;
+  @extend .text-custom-gray-400;
 }
 
 .repository-state-broken {
@@ -181,7 +195,7 @@
   }
 
   .accordion-button:hover {
-    @extend .text-bg-hover;
+    box-shadow: 0px 0px 5px $custom-gray-400;
   }
 }
 
@@ -194,6 +208,11 @@
     &.center { margin-left: calc(38% + .75rem); }
     &.left { left: .5rem; }
   }
+}
+
+.build-result-header {
+  top: 50px;
+  background-color: var(--bs-body-bg);
 }
 
 .build-result-table {
@@ -226,7 +245,6 @@
   @include media-breakpoint-up(xl) {
     display: grid;
     grid-template-columns: 1fr repeat(20, auto);
-    overflow-x: scroll;
 
     .build-result-architectures, .build-result-row, .build-result-legend {
       display: contents;
@@ -235,6 +253,8 @@
     .build-result-name {
       grid-column-start: 1;
       padding: 0.25rem 1rem;
+      top: 100px;
+      background-color: var(--bs-body-bg);
     }
 
     .build-result-architecture {
@@ -242,12 +262,27 @@
       text-align: end;
       .architecture { display: none }
       &:last-of-type { padding-right: 1rem }
+      top: 100px;
+      background-color: var(--bs-body-bg);
     }
 
-    .build-result-row {
-      .build-result-name, .build-result-architecture {
-        border-top: var(--bs-border-width) solid var(--bs-border-color);
+    .build-result-row:not(:last-of-type) {
+      .build-result-name {
+        border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+        top: 100px;
+      }
+
+      .build-result-architecture {
+        border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+        top: 100px;
       }
     }
+  }
+}
+
+.build-results-content {
+  .dropdown-menu.limit-height {
+    max-height: 50vh;
+    overflow-y: auto;
   }
 }

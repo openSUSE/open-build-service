@@ -1,16 +1,30 @@
 class BuildResultsMonitorComponent < ApplicationComponent
+  FILTERS = { package: 'Package', repo: 'Repository', arch: 'Architecture', status: 'Status' }.freeze
+
   attr_reader :raw_data, :filter_url, :filters
 
   def initialize(raw_data:, filter_url:, filters:)
-    super
+    super()
 
     @raw_data = raw_data
     @filter_url = filter_url
-    @filters = filters
+    @filters = default_filters(filters)
     @filtered_data = filtered_data(raw_data)
   end
 
   private
+
+  def default_filters(filters)
+    filters.concat(Buildresult.default_status_filter_values.map { it.prepend('status_') }) unless filters.any? { it.starts_with?('status_') }
+    filters.concat(important_build_targets.map(&:second).uniq.map { it.prepend('arch_') }) unless filters.any? { it.starts_with?('arch_') }
+    filters.concat(important_build_targets.map(&:first).uniq.map { it.prepend('repo_') }) unless filters.any? { it.starts_with?('repo_') }
+
+    filters
+  end
+
+  def important_build_targets
+    RepositoryArchitecture.joins(:repository, :architecture).where(repository: { project: Project.where(name: project_name) }, important: true).pluck(['repository.name', 'architectures.name']).uniq
+  end
 
   def package_names
     raw_data.pluck(:package_name).uniq
@@ -41,7 +55,7 @@ class BuildResultsMonitorComponent < ApplicationComponent
   end
 
   def status_names
-    raw_data.pluck(:status).uniq
+    Buildresult.avail_status_values
   end
 
   def results_per_package(package_name)
@@ -68,23 +82,39 @@ class BuildResultsMonitorComponent < ApplicationComponent
   end
 
   def show
-    'show' if filtered_package_names.count == 1
+    'show' if filtered_package_names.one?
   end
 
   def filtered_data(data)
-    data = filter_data_by_multiple_values(data, filters_by_type('package_'), 'package_', :package_name)
-    data = filter_data_by_multiple_values(data, filters_by_type('repo_'), 'repo_', :repository)
-    data = filter_data_by_multiple_values(data, filters_by_type('arch_'), 'arch_', :architecture)
-    filter_data_by_multiple_values(data, filters_by_type('status_'), 'status_', :status)
+    data = filter_data_by_multiple_values(data, 'package_', :package_name)
+    data = filter_data_by_multiple_values(data, 'repo_', :repository)
+    data = filter_data_by_multiple_values(data, 'arch_', :architecture)
+    filter_data_by_multiple_values(data, 'status_', :status)
   end
 
   def filters_by_type(prefix)
     filters.select { |filter| filter.starts_with?(prefix) }
   end
 
-  def filter_data_by_multiple_values(data, filters, prefix, key_name)
+  def filter_data_by_multiple_values(data, prefix, key_name)
+    filters = filters_by_type(prefix)
     return data if filters.blank?
 
     data.select { |result| filters.include?("#{prefix}#{result[key_name]}") }
+  end
+
+  def selected_filters_text
+    FILTERS.filter_map do |key, label|
+      selected_options = filters_by_type("#{key}_")
+      next if selected_options.empty?
+
+      normalized_label = label.downcase
+      if selected_options.size == 1
+        selected_option = selected_options.first.sub("#{key}_", '')
+        "#{normalized_label}: #{selected_option}"
+      else
+        pluralize(selected_options.size, normalized_label)
+      end
+    end.join(', ')
   end
 end

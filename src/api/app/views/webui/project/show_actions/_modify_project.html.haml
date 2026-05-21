@@ -1,6 +1,6 @@
 - unless project.defines_remote_instance?
-  - if project.is_maintenance_incident? && packages.present? && has_patchinfo && open_release_requests.blank?
+  - if project.maintenance_incident? && packages.present? && project.patchinfos.exists? && open_release_requests.blank?
     = render partial: 'webui/project/show_actions/request_to_release', locals: { project: project }
   - else
-    = render partial: 'webui/project/show_actions/patchinfo', locals: { project: project, has_patchinfo: has_patchinfo }
+    = render partial: 'webui/project/show_actions/patchinfo', locals: { project: project }
     = render partial: 'webui/project/show_actions/submit_as_update', locals: { release_targets: release_targets, project: project }

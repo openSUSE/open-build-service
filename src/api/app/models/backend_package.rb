@@ -19,7 +19,7 @@ class BackendPackage < ApplicationRecord
 
   # this is called from the UpdatePackageMetaJob and clockwork
   def self.refresh_dirty
-    PackagesFinder.new.dirty_backend_packages.distinct.pluck(:project_id).each do |project_id|
+    Package.dirty_backend_packages.distinct.pluck(:project_id).each do |project_id|
       UpdatePackagesIfDirtyJob.perform_later(project_id)
     end
   end

@@ -4,7 +4,6 @@
   @pagetitle = "Show #{@project}"
   render partial: 'webui/project/show_actions', locals: { project: @project,
                                                           packages: @packages,
-                                                          has_patchinfo: @has_patchinfo,
                                                           open_release_requests: @open_release_requests,
                                                           release_targets: @release_targets }
 
@@ -18,10 +17,7 @@
         .d-inline.ms-1#watchlist-icon-wrapper
           = render WatchlistIconComponent.new(user: User.session,
                                               project: @project,
-                                              current_object: @project,
-                                              bs_requests: @watched_requests,
-                                              packages: @watched_packages,
-                                              projects: @watched_projects)
+                                              current_object: @project)
     .row
       .col-md-8
         = render partial: 'basic_info', locals: { project: @project }
@@ -30,7 +26,6 @@
                                                   project: @project,
                                                   maintained_projects: @maintained_projects,
                                                   nr_of_problem_packages: @nr_of_problem_packages,
-                                                  has_patchinfo: @has_patchinfo,
                                                   open_release_requests: @open_release_requests,
                                                   release_targets: @release_targets,
                                                   requests: @requests,
@@ -75,7 +70,7 @@
 
 = render partial: 'linking_projects_dialog', locals: { project: @project, linking_projects: @linking_projects }
 - if User.session
-  - if @project.is_locked? && User.session.can_modify?(@project, true)
+  - if @project.locked? && User.session.can_modify?(@project, true)
     = render partial: 'unlock_project_dialog', locals: { project: @project }
   - elsif User.session.can_modify?(@project)
     = render partial: 'edit_project_dialog', locals: { project: @project }

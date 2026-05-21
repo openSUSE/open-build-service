@@ -16,11 +16,13 @@ class EventSubscription
         receivers_before_expand = event.send(:"#{receiver_role}s")
         next if receivers_before_expand.blank?
 
-        puts "Looking at #{receivers_before_expand.map(&:to_s).join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug
+        puts "Looking at #{receivers_before_expand.join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug
         receivers = expand_receivers(receivers_before_expand, channel)
-        puts "Looking at #{receivers.map(&:to_s).join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug && (receivers_before_expand - receivers).any?
+        puts "Looking at #{receivers.join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug && (receivers_before_expand - receivers).any?
 
-        options = { eventtype: event.eventtype, receiver_role: receiver_role, channel: channel }
+        # Allow descendant events to also receive notifications if the subscription only covers the base class
+        # This only supports 1 level of ancestry
+        options = { eventtype: event_types, receiver_role: receiver_role, channel: channel }
         # Find the default subscription for this eventtype and receiver_role
         default_subscription = EventSubscription.defaults.find_by(options)
 
@@ -34,6 +36,11 @@ class EventSubscription
           # Skip if the receiver is the originator of this event
           if receiver == event.originator
             puts "Skipped receiver #{receiver}, since it is the originator of the event..." if @debug
+            next
+          end
+
+          if receiver.is_a?(User) && receiver.blocked_users.include?(event.originator)
+            puts "Skipped the notification for receiver #{receiver}, since the originator is blocked by them..." if @debug
             next
           end
 
@@ -54,7 +61,8 @@ class EventSubscription
             )
           elsif channel == :web && receiver.instance_of?(Group) && receiver.web_users.any? { |u| EventSubscription.for_subscriber(u).find_by(options).present? }
             # There is no default subscription for groups, so we are using the existing details
-            receivers_and_subscriptions[receiver] = EventSubscription.new(options.merge({ subscriber: receiver }))
+            # There can be only one eventtype when creating a subscription, so we use the one that came with the event
+            receivers_and_subscriptions[receiver] = EventSubscription.new(options.merge({ eventtype: event.eventtype, subscriber: receiver }))
           elsif @debug && default_subscription.present? && !default_subscription.enabled?
             puts "Skipped receiver #{receiver} because of a disabled default subscription"
           end
@@ -67,12 +75,27 @@ class EventSubscription
 
     private
 
+    def allowed_by_feature_flag?(user)
+      return true if event.class.notification_feature_flag.blank?
+
+      Flipper.enabled?(event.class.notification_feature_flag, user)
+    end
+
+    def event_types
+      @event_types ||= begin
+        types = [event.eventtype]
+        superclass = event.class.superclass.name
+        types << superclass if superclass != 'Event::Base'
+        types
+      end
+    end
+
     def expand_receivers(receivers, channel)
       receivers.inject([]) do |new_receivers, receiver|
         case receiver
         when User
-          new_receivers << receiver if receiver.is_active?
-          puts "Skipped receiver #{receiver} because it's inactive" if @debug && !receiver.is_active?
+          new_receivers << receiver if receiver.active? && allowed_by_feature_flag?(receiver)
+          puts "Skipped receiver #{receiver} because it's inactive" if @debug && !receiver.active?
         when Group
           new_receivers += expand_receivers_for_groups(receiver, channel)
         end
@@ -90,7 +113,7 @@ class EventSubscription
       return [receiver] if channel == :web || receiver.email.present?
 
       puts "Expanding group #{receiver}..." if @debug
-      receiver.email_users
+      receiver.email_users.select { |user| allowed_by_feature_flag?(user) }
     end
     # rubocop: enable Rails/Output
   end

@@ -1,0 +1,265 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 03 Mar 2025 14:42:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>In a Dry Season</title>
+          <description>Tempore eaque voluptatem inventore.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>In a Dry Season</title>
+          <description>Tempore eaque voluptatem inventore.</description>
+        </package>
+  recorded_at: Mon, 03 Mar 2025 14:42:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_config
+    body:
+      encoding: UTF-8
+      string: Occaecati sunt at. Sequi blanditiis dicta. Aut nihil accusantium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>39dba33eb4c059246ffde28d9b667e29</srcmd5>
+          <version>unknown</version>
+          <time>1741012934</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 03 Mar 2025 14:42:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Facere sequi debitis. Iure ullam quo. Repudiandae tempora sed.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>d2685f00034420edc53cb1c402421fa4</srcmd5>
+          <version>unknown</version>
+          <time>1741012934</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 03 Mar 2025 14:42:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_icon
+    body:
+      encoding: UTF-8
+      string: Aut saepe voluptatem. Dolores modi fuga. Nulla numquam qui.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="9" vrev="9">
+          <srcmd5>999db7d1f404c36044a4a1efaaeb13c4</srcmd5>
+          <version>unknown</version>
+          <time>1741012934</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 03 Mar 2025 14:42:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '395'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_files" rev="9" vrev="9" srcmd5="999db7d1f404c36044a4a1efaaeb13c4">
+          <entry name="_config" md5="b4404b10401bc36ac5e780b4d1c20bf1" size="65" mtime="1741012934"/>
+          <entry name="_icon" md5="cedba9c9cddf028d82d70c58383434ab" size="59" mtime="1741012934"/>
+          <entry name="somefile.txt" md5="54a52e4556e57ca33f1a1f49182399b6" size="62" mtime="1741012934"/>
+        </directory>
+  recorded_at: Mon, 03 Mar 2025 14:42:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '395'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_files" rev="9" vrev="9" srcmd5="999db7d1f404c36044a4a1efaaeb13c4">
+          <entry name="_config" md5="b4404b10401bc36ac5e780b4d1c20bf1" size="65" mtime="1741012934"/>
+          <entry name="_icon" md5="cedba9c9cddf028d82d70c58383434ab" size="59" mtime="1741012934"/>
+          <entry name="somefile.txt" md5="54a52e4556e57ca33f1a1f49182399b6" size="62" mtime="1741012934"/>
+        </directory>
+  recorded_at: Mon, 03 Mar 2025 14:42:14 GMT
+recorded_with: VCR 6.3.1

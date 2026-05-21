@@ -12,7 +12,7 @@ RSpec.describe 'Attributes', :js do
       create(:attrib, project_id: user.home_project.id)
 
       add_attribute_with_values
-      expect(page).to have_content('Attribute was successfully updated.')
+      expect(page).to have_text('Attribute was successfully updated.')
 
       # check what is in the database as this is also returned by the API
       # browsers might sneak a \r in there
@@ -20,7 +20,7 @@ RSpec.describe 'Attributes', :js do
       expect(attrib.values.pluck(:value)).to eq(["test\n2nd line", 'test 1'])
 
       visit index_attribs_path(project: user.home_project_name)
-      attribute_type_value = page.all('#attributes tr td', exact_text: attribute_type.fullname)[0].sibling('td', match: :first).text
+      attribute_type_value = page.first('#attributes tr td', exact_text: attribute_type.fullname).sibling('td', match: :first).text
       expect(attribute_type_value).to eq("test\n2nd line\ntest 1")
     end
 
@@ -41,7 +41,7 @@ RSpec.describe 'Attributes', :js do
         click_link('Add Attribute')
         find('select#attrib_attrib_type_id').select('OBS:VeryImportantProject')
         click_button('Add')
-        expect(page).to have_content('Sorry, you are not authorized to create this attrib.')
+        expect(page).to have_text('Sorry, you are not authorized to create this attrib.')
       end
     end
   end
@@ -62,7 +62,8 @@ RSpec.describe 'Attributes', :js do
           login other_user
 
           visit index_attribs_path(project: user.home_project_name)
-          expect(page).to have_no_content('Add Attribute')
+          expect(page).to have_text('Attributes of Project')
+          expect(page).to have_no_text('Add Attribute')
         end
       end
 
@@ -95,10 +96,10 @@ RSpec.describe 'Attributes', :js do
         login user
 
         add_attribute_with_values(package)
-        expect(page).to have_content('Attribute was successfully updated.')
+        expect(page).to have_text('Attribute was successfully updated.')
 
         visit index_attribs_path(project: user.home_project_name, package: package.name)
-        attribute_type_value = page.all('#attributes tr td', exact_text: attribute_type.fullname)[0].sibling('td', match: :first).text
+        attribute_type_value = page.first('#attributes tr td', exact_text: attribute_type.fullname).sibling('td', match: :first).text
         expect(attribute_type_value).to eq("test\n2nd line\ntest 1")
       end
     end

@@ -20,14 +20,16 @@ use warnings;
 
 use Digest::MD5 ();
 
+use BSOBS;
 use BSUtil;
 use BSSched::BuildJob;
 use BSSched::ProjPacks;		# for orderpackids
+use BSSched::Bininfo;		# for helminfo2bininfo
 use BSXML;
 use Build;			# for query
 use BSVerify;			# for verify_nevraquery
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 =head1 NAME
@@ -99,20 +101,6 @@ sub get_bins {
   return @d;
 }
 
-sub queryhelminfo {
-  my ($file) = @_;
-  return undef unless $file =~ s/\.helminfo$//;
-  $file =~ s/.*\///;
-  $file = "helm:$file";
-  my $d = {
-    'name' => $file,
-    'version' => 0,
-    'release' => 0,
-    'arch' => 'noarch',
-  };
-  ($d->{'name'}, $d->{'version'}) = ($1, $2) if $file =~ /^(.*)-([^\-]+)$/;
-  return $d;
-}
 
 =head2 check - check if a patchinfo needs to be rebuilt
 
@@ -133,16 +121,17 @@ sub check {
   my @archs = @{$repo->{'arch'}};
   return ('broken', 'missing archs') unless @archs;     # can't happen
   my $patchinfo = $pdata->{'patchinfo'};
-  if (exists $patchinfo->{'seperate_build_arch'}) {
+  my $seperate_build_arch = exists($patchinfo->{'seperate_build_arch'}) ? 1 : 0;
+  if ($seperate_build_arch) {
     # build on all schedulers, but don't take content from each other
     return ('excluded') if $BSConfig::localarch && $myarch eq 'local';
     @archs = ($myarch);
-  };
+  }
   my $buildarch = $archs[0];
   my $reporoot = $gctx->{'reporoot'};
   my $markerdir = "$reporoot/$prp/$buildarch/$packid";
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid} || {};
+  my $proj = $ctx->{'proj'};
+  my $pdatas = $proj->{'package'} || {};
 
   if (@{$patchinfo->{'releasetarget'} || []}) {
     my $ok;
@@ -164,14 +153,12 @@ sub check {
   my @packages;
   if ($patchinfo->{'package'}) {
     @packages = @{$patchinfo->{'package'}};
-    my $pdatas = $proj->{'package'} || {};
     my @missing;
     for my $apackid (@packages) {
       push @missing, $apackid unless $pdatas->{$apackid};
     }
     $broken = 'missing packages: '.join(', ', @missing) if @missing;
   } else {
-    my $pdatas = $proj->{'package'} || {};
     @packages = grep {!$pdatas->{$_}->{'aggregatelist'} && !$pdatas->{$_}->{'patchinfo'}} sort keys %$pdatas;
     @packages = BSSched::ProjPacks::orderpackids($proj, @packages);
   }
@@ -315,12 +302,13 @@ sub check {
           $rpms_seen = 1;
         }
         $metas{"$arch/$apackid"} = Digest::MD5::md5_hex($m);
-      } elsif ($ptype eq 'direct' || $ptype eq 'transitive') {
-        my ($ameta) = split("\n", readstr("$agdst/:meta/$apackid", 1) || '', 2);
+      } elsif ($ptype eq 'direct' || $ptype eq 'transitive' || $ptype eq 'local') {
+        my ($ameta) = split(' ', readstr("$agdst/:meta/$apackid", 1) || '', 2);
         if (!$ameta) {
           push @blocked, "$arch/$apackid";
           $blockedarch = 1;
         } else {
+          $metas{$apackid} = $pdatas->{$apackid}->{'verifymd5'} || $pdatas->{$apackid}->{'srcmd5'} if !$metas{$apackid} && $pdatas->{$apackid} && !$seperate_build_arch;
           if ($metas{$apackid} && $metas{$apackid} ne $ameta) {
             push @blocked, "meta/$apackid";
             $blockedarch = 1;
@@ -338,6 +326,8 @@ sub check {
       unlink("$markerdir/.waiting_for_$arch");
     }
   }
+
+  %metas = () if $ptype eq 'local';
 
   if (@blocked) {
     splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
@@ -406,7 +396,7 @@ sub build_ptf_job {
   }
   $patchinfo->{'version'} ||= 1;
   $patchinfo->{'description'} =~ s/\n+$//s if $patchinfo->{'description'};
-  my @ptfspec = split("\n", readstr("$obssrcdir/obs-ptf.spec"));
+  my @ptfspec = split("\n", readstr("$obssrcdir/templates/obs-ptf.spec"));
   for my $ptfline (splice @ptfspec) {
     $ptfline =~ s/\@patchinfo-(.*?)\@/$patchinfo->{$1}/ge;
     if ($ptfline =~ /\@(filtered-)?rpm-.*?\@/) {
@@ -571,13 +561,13 @@ sub build {
       my $d;
       if ($bin =~ /\.(:?rpm|deb)$/) {
 	eval {
-	  $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'unstrippedsource' => 1);
+	  $d = Build::query("$jobdatadir/$bin", 'evra' => 1);
 	  BSVerify::verify_nevraquery($d);
 	  my $leadsigmd5 = '';
 	  die("$jobdatadir/$bin: no hdrmd5\n") unless Build::queryhdrmd5("$jobdatadir/$bin", \$leadsigmd5);
 	  $d->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
 	};
-	return ('broken', "$bin: bad rpm") if $@ || !$d;
+	return ('broken', "$bin: bad binary") if $@ || !$d;
       } elsif ($bin =~ /\.obsbinlnk$/) {
         if (%binaryfilter) {	# not supported for containers yet
           unlink("$jobdatadir/$bin");
@@ -589,12 +579,13 @@ sub build {
 	$d->{'path'} =~ s/.*\///;
 	$d->{'path'} = "../$packid/$d->{'path'}";
 	BSUtil::store("$jobdatadir/.$bin", "$jobdatadir/$bin", $d);
+	delete $d->{'path'};
       } elsif ($bin =~ /\.helminfo$/) {
         if (%binaryfilter) {
           unlink("$jobdatadir/$bin");
           next;
 	}
-	$d = queryhelminfo("$jobdatadir/$bin");
+	$d = BSSched::Bininfo::helminfo2bininfo($jobdatadir, $bin);
 	next unless $d;
       } else {
         if (%binaryfilter) {
@@ -634,15 +625,11 @@ sub build {
 	if ($provenance) {
 	  unlink("$jobdatadir/$tprovenance");
 	  link($provenance, "$jobdatadir/$tprovenance") || die("link $provenance $jobdatadir/$tprovenance: $!\n");
-	  $bininfo->{$tprovenance} =  genbininfo($jobdatadir, $tprovenance);
+	  $bininfo->{$tprovenance} = genbininfo($jobdatadir, $tprovenance);
 	}
       }
       $donebins{$bin} = $tocopy;
-      if ($bin !~ /\.helminfo$/) {
-        $bininfo->{$bin} = {'name' => $d->{'name'}, 'arch' => $d->{'arch'}, 'hdrmd5' => $d->{'hdrmd5'}, 'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};
-        $bininfo->{$bin}->{'leadsigmd5'} = $d->{'leadsigmd5'} if $d->{'leadsigmd5'};
-        $bininfo->{$bin}->{'md5sum'} = $d->{'md5sum'} if $d->{'md5sum'};
-      }
+      $bininfo->{$bin} = { %$d, 'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]" };
       my $upd = {
         'name' => $d->{'name'},
         'version' => $d->{'version'},
@@ -692,7 +679,7 @@ sub build {
   $update->{'version'} = $patchinfo->{'version'} || '1';        # bodhi inserts its own version...
   $update->{'id'} = $patchinfo->{'incident'};
   if (!$update->{'id'}) {
-    $update->{'id'} = $projid;
+    $update->{'id'} = "${projid}::$packid";
     $update->{'id'} =~ s/:/_/g;
   }
   if ($target && $target->{'id_template'}) {
@@ -715,6 +702,7 @@ sub build {
   $update->{'severity'} = $patchinfo->{'rating'} if defined $patchinfo->{'rating'};
   $update->{'description'} = $patchinfo->{'description'};
   $update->{'message'} = $patchinfo->{'message'} if defined $patchinfo->{'message'};
+  $update->{'blocked_in_product'} = $patchinfo->{'blocked_in_product'} if $patchinfo->{'blocked_in_product'};
   # FIXME: do not guess the release element!
   $update->{'release'} = $repoid eq 'standard' ? $projid : $repoid;
   $update->{'release'} =~ s/_standard$//;
@@ -723,16 +711,16 @@ sub build {
 
   # fetch defined issue trackers from src server. FIXME: cache this
   # XXX: this is not an async call!
-  my @references;
-  my $issue_trackers;
   my $param = {
     'uri' => "$BSConfig::srcserver/issue_trackers",
     'timeout' => 30,
   };
-  eval {
-    $issue_trackers = BSRPC::rpc($param, $BSXML::issue_trackers);
-  };
-  warn($@) if $@;
+  my $issue_trackers = eval { BSRPC::rpc($param, $BSXML::issue_trackers) };
+  if ($@) {
+    warn($@);
+    $broken ||= 'could not retrieve issue trackers';
+  }
+  my @references;
   if ($issue_trackers) {
     for my $b (@{$patchinfo->{'issue'} || []}) {
       my $it = (grep {$_->{'name'} eq $b->{'tracker'}} @{$issue_trackers->{'issue-tracker'} || []})[0];

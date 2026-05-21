@@ -1,5 +1,6 @@
 class Staging::StagedRequests
   include ActiveModel::Model
+
   attr_accessor :request_numbers, :staging_project, :staging_workflow, :user_login
 
   def create
@@ -37,8 +38,7 @@ class Staging::StagedRequests
         package_name: request.first_target_package
       )
 
-      add_review_for_unstaged_request(request, staging_project) if request.state.in?(%i[new review])
-      send_to_backlog_declined_request(request, staging_project) if request.state == :declined
+      add_review_for_unstaged_request(request, staging_project) if request.state.in?(%i[new review declined])
       staging_project.staged_requests.delete(request)
     end
 
@@ -106,9 +106,8 @@ class Staging::StagedRequests
 
     link_package = Package.create!(project: staging_project, name: bs_request_action.target_package)
 
-    create_link(staging_project.name, link_package.name, User.session!, project: bs_request_action.source_project,
-                                                                        package: bs_request_action.source_package, rev: package_rev,
-                                                                        vrev: source_vrev)
+    create_link(staging_project.name, link_package.name, User.session&.login,
+                project: bs_request_action.source_project, package: bs_request_action.source_package, rev: package_rev, vrev: source_vrev)
   end
 
   def add_review_for_staged_request(request)
@@ -117,8 +116,15 @@ class Staging::StagedRequests
   end
 
   def add_review_for_unstaged_request(request, staging_project)
-    request.addreview(by_group: staging_workflow.managers_group.title, comment: "Being evaluated by group \"#{staging_workflow.managers_group}\"")
-    request.change_review_state('accepted', by_project: staging_project.name, comment: "Unstaged from project \"#{staging_project}\"")
+    # request.addreview / request.change_review_state would also change the state of a declined request, avoid this.
+    if request.state == :declined
+      request.reviews.create!(by_group: staging_workflow.managers_group.title, reason: "Being evaluated by group \"#{staging_workflow.managers_group}\"")
+      staging_project_review = request.reviews.find_by!(by_project: staging_project.name)
+      staging_project_review.update!(state: :accepted, reason: "Unstaged from project \"#{staging_project.name}\"")
+    else
+      request.addreview(by_group: staging_workflow.managers_group.title, comment: "Being evaluated by group \"#{staging_workflow.managers_group}\"")
+      request.change_review_state('accepted', by_project: staging_project.name, comment: "Unstaged from project \"#{staging_project}\"")
+    end
   end
 
   def remove_packages(staging_project_packages)
@@ -178,7 +184,7 @@ class Staging::StagedRequests
 
   def stage_request(request)
     bs_request_action = request.bs_request_actions.first
-    if bs_request_action.is_submit?
+    if bs_request_action.submit?
       if Package.find_by(project: staging_project, name: bs_request_action.target_package)
         errors << "Can't stage request '#{request.number}': package '#{bs_request_action.target_package}' already exists in '#{staging_project}'."
         return
@@ -197,13 +203,5 @@ class Staging::StagedRequests
     )
     staging_project.staged_requests << request
     add_review_for_staged_request(request)
-  end
-
-  def send_to_backlog_declined_request(request, staging_project)
-    request.with_lock do
-      request.change_state(newstate: 'new', force: true, user: User.session!.login, comment: 'Reopened via staging workflow.')
-      add_review_for_unstaged_request(request, staging_project)
-      request.change_state(newstate: 'declined', force: true, user: User.session!.login, comment: 'Declined via staging workflow.')
-    end
   end
 end

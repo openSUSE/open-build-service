@@ -1,3 +1,5 @@
+/* exported initializeDataTable, initializeRemoteDatatable, labelFiltering */
+
 //= require datatables/jquery.dataTables
 //= require datatables/dataTables.bootstrap5
 //= require datatables/extensions/Responsive/dataTables.responsive
@@ -6,7 +8,7 @@
 //= require datatables/extensions/FixedColumns/dataTables.fixedColumns
 
 var DEFAULT_DT_PARAMS = {
-  language: { 
+  language: {
     search: '', searchPlaceholder: "Search...",
     zeroRecords: "Nothing found",
     infoEmpty: "No records available",
@@ -27,12 +29,12 @@ var DEFAULT_DT_PARAMS = {
   }
 };
 
-function initializeDataTable(cssSelector, params){ // jshint ignore:line
+function initializeDataTable(cssSelector, params){
   var newParams = $.extend({}, DEFAULT_DT_PARAMS, params);
   $(cssSelector).DataTable(newParams);
 }
 
-function initializeRemoteDatatable(cssSelector, params) { // jshint ignore:line
+function initializeRemoteDatatable(cssSelector, params) {
   var defaultRemoteParams = {
     processing: true,
     serverSide: true,
@@ -41,4 +43,34 @@ function initializeRemoteDatatable(cssSelector, params) { // jshint ignore:line
   var newParams = $.extend(defaultRemoteParams, DEFAULT_DT_PARAMS, params);
 
   $(cssSelector).dataTable(newParams);
+}
+
+function labelFiltering(tableId) {
+  var table = $(tableId).DataTable();
+  var labelColumn = table.column('labels:name');
+  var labelClear = $('#label-clear');
+  var labelFilter = $('#label-filter');
+  var labelFilterBadge = $('#label-filter .badge');
+  $('.obs-dataTable').parent().on('click', '.label-filter', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var label = e.target.parentElement.dataset.label;
+    var labelId = e.target.parentElement.dataset.labelId;
+    labelFilter.addClass('d-none');
+    labelClear.addClass('d-none');
+    if (label === labelColumn.search())
+      labelColumn.search('').draw();
+    else
+      labelColumn.search(label).draw();
+
+    if (labelColumn.search() !== '') {
+      labelFilter.removeClass('d-none');
+      labelClear.removeClass('d-none');
+      labelFilterBadge.removeClass();
+      labelFilterBadge.addClass(['badge', `label-${labelId}`]);
+      labelFilterBadge.html(label);
+    }
+  });
+  if (labelColumn.search() !== '')
+    labelColumn.search('').draw();
 }

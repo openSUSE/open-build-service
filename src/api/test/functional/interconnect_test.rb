@@ -203,8 +203,6 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     get '/source/RemoteInstance:BaseDistro/pack1?view=info&parse=1' # licensedigger needs it
     assert_response :success
     assert_xml_tag(tag: 'sourceinfo', attributes: { package: 'pack1' })
-    post '/source/RemoteInstance:BaseDistro/pack1', params: { cmd: 'showlinked' }
-    assert_response :success
     post '/source/RemoteInstance:BaseDistro/pack1', params: { cmd: 'branch' }
     assert_response :success
     get '/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject'
@@ -391,8 +389,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'delete_package_no_permission' }
     post '/source/RemoteInstance:BaseDistro2.0/package', params: { cmd: :copy, oproject: 'BaseDistro2.0', opackage: 'pack2' }
-    assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_response :bad_request
+    assert_xml_tag tag: 'status', attributes: { code: 'remote_project' }
     put '/source/RemoteInstance:BaseDistro2.0/pack/_meta', params: '<package name="pack" project="RemoteInstance:BaseDistro2.0">
            <title/><description/></package>'
     assert_response :forbidden

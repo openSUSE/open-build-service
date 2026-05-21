@@ -1,10 +1,13 @@
-# TODO: Remove this helper after all `Event::CreateReport` records are migrated to the STI report classes
 module Webui::ReportablesHelper
   include Webui::WebuiHelper
 
+  def reportable_not_found(reportable_type:)
+    "The reported #{reportable_type.blank? ? 'object' : reportable_type.downcase} does not exist anymore."
+  end
+
   def link_to_reportables(report_id:, reportable_type:, host: nil)
     reportable = Report.find(report_id).reportable
-    return "The reported #{reportable_type.downcase} does not exist anymore." if reportable.blank?
+    return reportable_not_found(reportable_type: reportable_type) if reportable.blank?
 
     only_path = host.blank?
 
@@ -18,6 +21,8 @@ module Webui::ReportablesHelper
       link_to(reportable.name.to_s, Rails.application.routes.url_helpers.project_show_url(reportable, anchor: 'comments-list', only_path: only_path, host: host))
     when 'User'
       link_to(reportable.login.to_s, Rails.application.routes.url_helpers.user_url(reportable, only_path: only_path, host: host))
+    when 'BsRequest'
+      link_to("Request ##{reportable.number}", Rails.application.routes.url_helpers.request_show_url(reportable, only_path: only_path, host: host))
     end
   end
 
@@ -28,7 +33,7 @@ module Webui::ReportablesHelper
     when BsRequestAction
       link_to("Request #{commentable.bs_request.number}", Rails.application.routes.url_helpers.request_show_url(number: commentable.bs_request.number,
                                                                                                                 request_action_id: commentable.id,
-                                                                                                                anchor: 'tab-pane-changes', only_path: only_path, host: host))
+                                                                                                                anchor: 'comments-list', only_path: only_path, host: host))
     when Package
       link_to(commentable.name.to_s, Rails.application.routes.url_helpers.package_show_url(package: commentable, project: commentable.project,
                                                                                            anchor: 'comments-list', only_path: only_path, host: host))
@@ -37,16 +42,21 @@ module Webui::ReportablesHelper
     end
   end
 
-  def commentable_path(comment:)
+  def commentable_path(comment:, in_changes: false)
     anchor = "comment-#{comment.id}"
     case comment.commentable
     when BsRequest
       Rails.application.routes.url_helpers.request_show_path(comment.commentable.number,
                                                              anchor: anchor)
     when BsRequestAction
-      Rails.application.routes.url_helpers.request_show_path(number: comment.commentable.bs_request.number,
-                                                             request_action_id: comment.commentable.id,
-                                                             anchor: 'tab-pane-changes')
+      if in_changes
+        Rails.application.routes.url_helpers.request_changes_path(number: comment.commentable.bs_request.number,
+                                                                  request_action_id: comment.commentable.id)
+      else
+        Rails.application.routes.url_helpers.request_show_path(number: comment.commentable.bs_request.number,
+                                                               request_action_id: comment.commentable.id,
+                                                               anchor: anchor)
+      end
     when Package
       Rails.application.routes.url_helpers.package_show_path(package: comment.commentable,
                                                              project: comment.commentable.project,

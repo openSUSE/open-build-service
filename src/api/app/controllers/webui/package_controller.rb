@@ -6,25 +6,31 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::NotificationsHandler
 
   # rubocop:disable Rails/LexicallyScopedActionFilter
+  before_action :require_login, except: %i[show index branch_diff_info
+                                           users requests statistics revisions view_file
+                                           devel_project buildresult rpmlint_result rpmlint_log
+                                           rpmlint_summary files template_data]
+
   # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log files]
+                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files template_data
+                                       autocomplete_users]
 
-  before_action :check_scmsync, only: %i[statistics users]
+  before_action :check_scmsync, only: %i[requests revisions statistics users]
 
-  before_action :require_package, only: %i[edit update show requests statistics revisions
-                                           branch_diff_info rdiff remove
-                                           save_person save_group remove_role view_file
-                                           buildresult rpmlint_result rpmlint_log files users]
+  before_action :set_package, only: %i[edit update show requests statistics revisions
+                                       branch_diff_info rdiff remove
+                                       save_person save_group remove_role view_file
+                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files
+                                       users template_data autocomplete_users]
   # rubocop:enable Rails/LexicallyScopedActionFilter
+  before_action :lints_list, only: %i[rpmlint_summary]
 
-  before_action :check_ajax, only: %i[devel_project buildresult rpmlint_result]
+  before_action :check_ajax, only: %i[devel_project buildresult]
   # make sure it's after the require_, it requires both
-  before_action :require_login, except: %i[show index branch_diff_info
-                                           users requests statistics revisions view_file
-                                           devel_project buildresult rpmlint_result rpmlint_log files]
+  before_action :set_template, only: :create
 
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
@@ -109,6 +115,7 @@ class Webui::PackageController < Webui::WebuiController
     @package.flags.build(flag: :publish, status: :disable) if params[:disable_publishing]
 
     if @package.save
+      PackageService::Templater.new(package: @package, template: @template, user: User.session!).call if @template.present?
       flash[:success] = "Package '#{elide(@package.name)}' was created successfully"
       redirect_to action: :show, project: params[:project], package: @package.name
     else
@@ -150,13 +157,26 @@ class Webui::PackageController < Webui::WebuiController
     @roles = Role.local_roles
     if User.session && params[:notification_id]
       @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationCommentPolicy
+      authorize @current_notification, :update?, policy_class: NotificationPolicy
     end
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
   end
 
+  def autocomplete_users
+    roles = %w[maintainer bugowner reviewer]
+    user_ids = @package.relationships.joins(:role).where(roles: { title: roles }).pluck(:user_id)
+    user_ids << @project.relationships.joins(:role).where(roles: { title: roles }).pluck(:user_id)
+    user_ids = user_ids.flatten.uniq
+    render json: User.where(id: user_ids)
+                 .starting_with(params[:term])
+                     .order(Arel.sql('length(login)'), :login)
+                     .limit(50)
+                     .pluck(:login)
+  end
+
+  # TODO: Remove this once request_index beta is rolled out
   def requests
-    redirect_to project_package_requests_beta_path(@project, @package, involvement: 'incoming', state: %w[new review]) if Flipper.enabled?(:request_index, User.session)
+    redirect_to(packages_requests_path(@project, @package)) if Flipper.enabled?(:request_index, User.session)
 
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
@@ -272,39 +292,42 @@ class Webui::PackageController < Webui::WebuiController
                                                                                 collapsed_packages: params.fetch(:collapsedPackages, []),
                                                                                 collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
-      render partial: 'no_repositories', locals: { project: @project }
+      render partial: 'no_build_results', locals: { project: @project }
     end
   end
 
   def rpmlint_result
-    @repo_arch_hash = {}
+    repository = valid_xml_id(elide(params[:repository], 30)) if params[:repository].present?
+    architecture = params[:architecture] if params[:architecture].present?
+
+    repo_arch_hash = {}
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
     repos = [] # Temp var
     if @buildresult
       @buildresult.elements('result') do |result|
         if result.value('repository') != 'images' &&
-           (result.value('status') && result.value('status').value('code') != 'excluded')
+           result.value('status') && result.value('status').value('code') != 'excluded'
           hash_key = valid_xml_id(elide(result.value('repository'), 30))
-          @repo_arch_hash[hash_key] ||= []
-          @repo_arch_hash[hash_key] << result['arch']
+          repo_arch_hash[hash_key] ||= []
+          repo_arch_hash[hash_key] << result['arch']
           repos << result.value('repository')
         end
       end
     end
 
-    @repo_list = repos.uniq.collect do |repo_name|
+    repo_list = repos.uniq.collect do |repo_name|
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    if @repo_list.empty?
-      render partial: 'no_repositories', locals: { project: @project }
+    if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
+      filters = params.keys.select { |k| k.start_with?('repo', 'arch') }
+      render 'webui/package/beta/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                            package_name: @package_name,
+                                                            repository: repository, architecture: architecture,
+                                                            repository_list: repo_list.map(&:first), arch_list: repo_arch_hash.values.flatten.uniq, filters: filters }
     else
-      # TODO: this is part of the temporary changes done for 'request_show_redesign'.
-      request_show_redesign_partial = 'webui/request/beta_show_tabs/rpm_lint_result' if params.fetch(:inRequestShowRedesign, false)
-
-      render partial: request_show_redesign_partial || 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                                                   repository_list: @repo_list, repo_arch_hash: @repo_arch_hash,
-                                                                                   is_staged_request: params[:is_staged_request] }
+      render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                  repository_list: repo_list, repo_arch_hash: repo_arch_hash }
     end
   end
 
@@ -318,8 +341,13 @@ class Webui::PackageController < Webui::WebuiController
     render plain: 'No rpmlint log' and return if rpmlint_log_file.blank?
 
     render_chart = params[:renderChart] == 'true'
-    parsed_messages = RpmlintLogParser.new(content: rpmlint_log_file).call if render_chart
+    parsed_messages = RpmlintLogParser.new(rpmlint_log_file).call if render_chart
     render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
+  end
+
+  def rpmlint_summary
+    render partial: 'webui/package/beta/rpmlint_summary',
+           locals: { lints_list: @results, badness: @badness, errors: @errors, warnings: @warnings, info: @info, project: @project, package_name: @package_name }
   end
 
   def preview_description
@@ -329,10 +357,75 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
+  def autocomplete
+    render json: AutocompleteFinder::Package.new(Package, params[:term]).call.pluck(:name).uniq
+  end
+
   def files; end
   def view_file; end
 
+  def template_data
+    data = []
+    begin
+      xml = Nokogiri::XML(@package.source_file('_template'))
+      xml.css('template').children.each do |child|
+        next if child.name == 'text'
+
+        data << { name: child.name, description: child.content }
+      end
+    rescue StandardError
+      logger.debug("No template information provided for #{@project.name}/#{@package.name}")
+    end
+    render json: data.to_json, layout: false
+  end
+
   private
+
+  def lints_list
+    @results = []
+    @badness = 0
+    @errors = 0
+    @warnings = 0
+    @info = 0
+    return unless (@buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status'))
+
+    @buildresult.elements('result') do |result|
+      if result.value('repository') != 'images' &&
+         result.value('status') && result.value('status').value('code') != 'excluded'
+        begin
+          rpmlint_log_file = RpmlintLogExtractor.new(project: @project.to_param, package: @package.to_param, repository: result['repository'], architecture: result['arch']).call
+        rescue StandardError
+          logger.debug("Skipping parsing rpmlint.log for #{@project.to_param}/#{@package.to_param} for repository #{result['repository']}.#{result['arch']}")
+        else
+          if rpmlint_log_file.present?
+            parsed = filter_rpmlint(rpmlint_log_file: rpmlint_log_file, repo: result['repository'], arch: result['arch'])
+            next if parsed.nil?
+
+            @results << parsed.results
+            max_badness = parsed.badness.values.max
+            @badness = max_badness if parsed.badness.present? && (max_badness > @badness)
+            # rubocop:disable Rails/DeprecatedActiveModelErrorsMethods
+            @errors += parsed.errors.values.sum
+            # rubocop:enable Rails/DeprecatedActiveModelErrorsMethods
+            @warnings += parsed.warnings.values.sum
+            @info += parsed.info.values.sum
+          end
+        end
+      end
+    end
+  end
+
+  def filter_rpmlint(rpmlint_log_file:, repo:, arch:)
+    filters = params[:filters]
+    if filters.present?
+      repositories   = filters.select { |f| f.start_with?('repo_') }
+      architectures  = filters.select { |f| f.start_with?('arch_') }
+
+      return nil if repositories.present? && repositories.exclude?("repo_#{repo}")
+      return nil if architectures.present? && architectures.exclude?("arch_#{arch}")
+    end
+    RpmlintLogParser.new(rpmlint_log_file, repo: repo, arch: arch).call
+  end
 
   def package_params
     params.require(:package).permit(:name, :title, :description)
@@ -349,11 +442,13 @@ class Webui::PackageController < Webui::WebuiController
       .permit(:title,
               :description,
               :url,
-              :report_bug_url)
+              :report_bug_url,
+              :anitya_ignore)
   end
 
   def set_file_details
     @forced_unexpand ||= ''
+    @is_branchable = @package.find_attribute('OBS', 'RejectBranch').nil?
 
     # check source access
     @files = []
@@ -365,7 +460,7 @@ class Webui::PackageController < Webui::WebuiController
       @current_rev = @package.rev
       @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
 
-      files_xml = @package.source_file(nil, { rev: @srcmd5 || @revision, expand: @expand }.compact)
+      files_xml = Backend::Api::Sources::Package.files(@package.project.name, @package.name, { rev: @srcmd5 || @revision, expand: @expand }.compact)
       files_hash = Xmlhash.parse(files_xml)
       @files = files_hash.elements('entry')
       @srcmd5 = files_hash['srcmd5'] unless @revision == @current_rev
@@ -389,7 +484,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def set_linkinfo
-    return unless @package.is_link?
+    return unless @package.link?
 
     # FIXME: We have a rails bug here.
     # the `.backend_package.links_to` is an association chain.
@@ -451,5 +546,12 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
     true
+  end
+
+  def set_template
+    return unless params['template'] && params['template'].include?('/')
+
+    template_project, template_package = params['template'].split('/')
+    @template = Package.find_by_project_and_name(template_project, template_package)
   end
 end

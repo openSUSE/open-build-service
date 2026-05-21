@@ -24,7 +24,7 @@ use BSRevision;
 use BSUtil;
 
 sub projid2reposerver {
-  my ($projid) = @_;
+  my ($projid, $fromworker) = @_;
   return $BSConfig::reposerver unless $BSConfig::partitionservers;
   my @p = @{$BSConfig::partitioning || []}; 
   my $par;
@@ -38,6 +38,7 @@ sub projid2reposerver {
   $par = $BSConfig::partition unless defined $par;
   die("cannot determine partition for $projid\n") unless defined $par;
   die("partition '$par' from partitioning does not exist\n") unless $BSConfig::partitionservers->{$par};
+  return $BSConfig::workerpartitionservers->{$par} || $BSConfig::partitionservers->{$par} if $fromworker && $BSConfig::workerpartitionservers;
   return $BSConfig::partitionservers->{$par};
 }
 
@@ -95,6 +96,7 @@ sub checkpartition {
   }
   $remotemap->{$projid}->{'repository'} = $proj->{'repository'} if $proj->{'repository'};
   $remotemap->{$projid}->{'kind'} = $proj->{'kind'} if $proj->{'kind'};
+  $remotemap->{$projid}->{'link'} = $proj->{'link'} if $proj->{'link'};
   if ($proj->{'access'}) {
     for ('access', 'publish', 'person', 'group') {
       $remotemap->{$projid}->{$_} = $proj->{$_} if exists $proj->{$_};

@@ -1,0 +1,11 @@
+%p
+  - token = Token.find(event['token_id'])
+  The Workflow Token '#{token.description.presence || token.id}' was #{ event['enabled'] ? 'enabled' : 'disabled' }.
+
+- if event['reason']
+  %p
+    = event['reason']
+
+%p
+  = event['enabled'] ? 'Disable' : 'Enable'
+  this token again on the #{link_to('token page', token_url(event['token_id'], only_path: false, host: @host)) }.

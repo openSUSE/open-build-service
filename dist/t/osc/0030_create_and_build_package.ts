@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::Most tests => 5;
+use Test::Most tests => 6;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use File::Path qw(make_path remove_tree);
@@ -25,6 +25,8 @@ ok(checkout_home_project(), 'Checking preparation of project');
 ok(prepare_package(), 'Checking preparation of package');
 
 ok(commit_package(), 'Checking initial commit of package obs-testpackage');
+
+ok(search_package(), 'Checking if search via osc works');
 
 ok(wait_for_buildresults(), 'Checking if build succeeded');
 
@@ -86,6 +88,17 @@ sub commit_package {
   print STDERR @output if $?;
   return !$?;
 }
+
+sub search_package {
+  #my $output = `osc -H search -s obs-test`;
+  # FIXME: activate search after https://github.com/openSUSE/osc/issues/2120 has been fixed
+  my $output = `osc api /search/package?match=contains%28%40name%2C+%27obs-test%27%29+or+contains%28title%2C+%27obs-test%27%29+or+contains%28description%2C+%27obs-test%27%29`;
+  print STDERR $output if $?;
+  return 0 if $?;
+  return ($output =~ m#<package name="obs-testpackage" project="home:Admin">#) ? 1 : 0;
+}
+
+
 
 sub wait_for_buildresults {
 

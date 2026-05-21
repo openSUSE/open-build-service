@@ -171,6 +171,14 @@ at = ans.attrib_types.where(name: 'EnforceRevisionsInRequests').first_or_create
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: 'PlannedReleaseDate').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: 'RejectBranch').first_or_create(value_count: 1)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+
+at = ans.attrib_types.where(name: 'LimitReleaseSourceProject').first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+
+at = ans.attrib_types.where(name: 'PackageTemplates').first_or_create(value_count: 0)
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 
 update_all_attrib_type_descriptions
 
@@ -197,9 +205,9 @@ IssueTracker.where(name: 'RT').first_or_create(description: 'CPAN Bugs',
 IssueTracker.where(name: 'cve').first_or_create(description: 'CVE Numbers',
                                                 kind: 'cve',
                                                 regex: 'CVE-(\d\d\d\d-\d+)',
-                                                url: 'http://cve.mitre.org/',
+                                                url: 'https://www.cve.org',
                                                 label: 'CVE-@@@',
-                                                show_url: 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@')
+                                                show_url: 'https://www.cve.org/CVERecord?id=@@@')
 IssueTracker.where(name: 'deb').first_or_create(description: 'Debian Bugzilla',
                                                 kind: 'bugzilla',
                                                 regex: 'deb#(\d+)',
@@ -353,3 +361,9 @@ IssueTracker.where(name: 'svg').first_or_create(description: 'GNU Savannah bug t
                                                 regex: 'svg#(\d+)',
                                                 url: 'https://savannah.gnu.org/bugs',
                                                 label: 'svg#@@@', show_url: 'https://savannah.gnu.org/bugs/?@@@')
+IssueTracker.where(name: 'debbugs').first_or_create(description: 'GNU Debbugs',
+                                                    kind: 'debbugs',
+                                                    regex: 'debbugs#(\d+)',
+                                                    url: 'https://debbugs.gnu.org/',
+                                                    label: 'debbugs#@@@',
+                                                    show_url: 'https://debbugs.gnu.org/cgi/bugreport.cgi?bug=@@@')

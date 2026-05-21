@@ -128,16 +128,24 @@ CREATE TABLE IF NOT EXISTS scmsync(
   package TEXT,
   scmsync_repo TEXT,
   scmsync_branch TEXT,
+  scmsync_trackingbranch TEXT,
   UNIQUE(project,package)
 )
 EOS
   }
+  # add possible missing column
+  if (! grep {$_ eq 'scmsync_trackingbranch'} BSSQLite::list_columns($h, 'scmsync')) {
+    dbdo($h, 'ALTER TABLE scmsync ADD scmsync_trackingbranch TEXT');
+  }
+
+  # create indexes
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_sourceproject_sourcepackage on linkinfo(sourceproject,sourcepackage)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_project_package on linkinfo(project,package)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_package on linkinfo(package)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_project_package on scmsync(project,package)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_scmsync_repo on scmsync(scmsync_repo)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_scmsync_branch on scmsync(scmsync_repo,scmsync_branch)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS scmsync_idx_scmsync_trackingbranch on scmsync(scmsync_repo,scmsync_trackingbranch)');
 }
 
 sub asyncmode {
@@ -150,8 +158,8 @@ my %tables = (
   'binary' => { map {$_ => 1} qw {package name} },
   'pattern' => { map {$_ => 1} qw {package name summary description type} },
   'repoinfo' => { map {$_ => 1} qw {project} },
-  'linkinfo'=> { map {$_ => 1} qw {project package rev} },
-  'scmsync'=> { map {$_ => 1} qw {project package} },
+  'linkinfo'=> { map {$_ => 1} qw {project package rev sourceproject sourcepackage} },
+  'scmsync'=> { map {$_ => 1} qw {project package scmsync_repo scmsync_branch scmsync_trackingbranch} },
 );
 
 ###########################################################################
@@ -193,10 +201,8 @@ sub binarypath2name {
 }
 
 sub updatedb_deleterepo {
-  my ($db, $prp) = @_;
+  my ($db, $prp_ext) = @_;
 
-  my $prp_ext = $prp;
-  $prp_ext =~ s/:/:\//g;
   my $h = $db->{'sqlite'} || connectdb($db);
 
   my $prp_ext_id = prpext2id($h, $prp_ext);
@@ -210,12 +216,9 @@ sub updatedb_deleterepo {
 }
 
 sub updatedb_repoinfo {
-  my ($db, $prp, $repoinfo) = @_;
+  my ($db, $prp_ext, $repoinfo) = @_;
 
-  return updatedb_deleterepo($db, $prp) unless $repoinfo;
-
-  my $prp_ext = $prp;
-  $prp_ext =~ s/:/:\//g;
+  return updatedb_deleterepo($db, $prp_ext) unless $repoinfo;
 
   my $h = $db->{'sqlite'} || connectdb($db);
   my $sh;
@@ -276,10 +279,7 @@ sub updatedb_repoinfo {
 }
 
 sub updatedb_patterninfo {
-  my ($db, $prp, $patterninfo) = @_;
-
-  my $prp_ext = $prp;
-  $prp_ext =~ s/:/:\//g;
+  my ($db, $prp_ext, $patterninfo) = @_;
 
   my $h = $db->{'sqlite'} || connectdb($db);
 
@@ -362,6 +362,37 @@ sub store_linkinfo {
   BSSQLite::commit($h);
 }
 
+sub store_scmsyncinfo {
+  my ($db, $projid, $packid, $scmsyncinfo) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  BSSQLite::begin_work($h);
+  if (!defined($scmsyncinfo)) {
+    # delete operation
+    if (!defined($packid)) {
+      # delete all entries for this project
+      BSSQLite::dbdo_bind($h, 'DELETE FROM scmsync WHERE project = ?', [$projid]);
+    } else {
+      BSSQLite::dbdo_bind($h, 'DELETE FROM scmsync WHERE project = ? AND package = ?', [$projid], [$packid]);
+    }
+  } else {
+    die("store_scmsyncinfo: need a package\n") unless defined $packid;
+    BSSQLite::dbdo_bind($h, 'INSERT INTO scmsync(project,package,scmsync_repo,scmsync_branch,scmsync_trackingbranch) VALUES(?,?,?,?,?)
+                             ON CONFLICT(project,package) DO UPDATE SET
+                              scmsync_repo=excluded.scmsync_repo,scmsync_branch=excluded.scmsync_branch,scmsync_trackingbranch=excluded.scmsync_trackingbranch
+                              WHERE excluded.project=scmsync.project AND excluded.package=scmsync.package', [$projid], [$packid],
+	[$scmsyncinfo->{'scmsync_repo'}], [$scmsyncinfo->{'scmsync_branch'}], [$scmsyncinfo->{'scmsync_trackingbranch'}]);
+  }
+  BSSQLite::commit($h);
+}
+
+sub move_scmsyncinfos {
+  my ($db, $projid, $oprojid) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  BSSQLite::begin_work($h);
+  BSSQLite::dbdo_bind($h, 'UPDATE scmsync SET project = ? WHERE project = ?', [$projid], [$oprojid]);
+  BSSQLite::commit($h);
+}
+
 ###########################################################################
 #
 # Search helpers
@@ -392,14 +423,10 @@ sub getrepoorigins {
 
 sub getprojectkeys {
   my ($db, $projid) = @_;
-  my $h = $db->{'sqlite'} || connectdb($db);
-  if (!$projid) {
-    my $ary = $h->selectcol_arrayref("SELECT project FROM repoinfo") || die($h->errstr);
-    return sort(BSUtil::unify(@$ary));
-  }
   my $table = $db->{'table'};
   return map {"$projid/$_"} $db->getlinkpackages($projid) if $table eq 'linkinfo';
-  return rawkeys($db, 'project', $projid) if $table eq 'repoinfo';
+  return rawkeys($db, 'project', $projid) if $table ne 'binary' && $table ne 'pattern';
+  my $h = $db->{'sqlite'} || connectdb($db);
   my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.project = ?", [ $projid ]);
   my ($prp_ext_path, $bin_path, $package);
   $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
@@ -414,15 +441,27 @@ sub getprojectkeys {
   return sort(@res);
 }
 
-sub getrecord {
+sub getpatterninfo  {
   my ($db, $prp_ext, $path) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
   my $prp_ext_id = prpext2id($h, $prp_ext);
   return undef unless $prp_ext_id;
   my $table = $db->{'table'};
-  return undef if $table eq 'binary';		# no json element in binary
   my @ary = $h->selectrow_array("SELECT $table.json FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.path = ? AND $table.path  = ?", undef, $prp_ext, $path);
   return $ary[0] ? JSON::XS::decode_json($ary[0]) : undef;
+}
+
+sub getbinaryinfo {
+  my ($db, $prp_ext, $path) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my $prp_ext_id = prpext2id($h, $prp_ext);
+  return undef unless $prp_ext_id;
+  my $table = $db->{'table'};
+  my @ary = $h->selectrow_array("SELECT $table.name,$table.package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.path = ? AND $table.path  = ?", undef, $prp_ext, $path);
+  return undef unless @ary;
+  my $binaryinfo = { 'name' => $ary[0] };
+  $binaryinfo->{'package'} = $ary[1] if defined $ary[1];
+  return $binaryinfo;
 }
 
 sub getlinkinfo {
@@ -445,7 +484,6 @@ sub getlinkpackages {
 sub getlocallinks {
   my ($db, $projid, $packid) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
-  my $sh = dbdo_bind($h, "SELECT sourcepackage FROM linkinfo WHERE project = ? AND package = ? AND sourceproject = ?", [ $projid ], [ $packid ] , [ $projid ]);
   my $ary = $h->selectcol_arrayref("SELECT sourcepackage FROM linkinfo WHERE project = ? AND package = ? AND sourceproject = ?", undef, $projid, $packid, $projid) || die($h->errstr);
   return sort(@$ary);
 }
@@ -462,6 +500,41 @@ sub getlinkers {
   return sort(@res);
 }
 
+
+sub getscmsyncinfo {
+  my ($db, $projid, $packid) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my @ary = $h->selectrow_array("SELECT scmsync_repo,scmsync_branch,scmsync_trackingbranch FROM scmsync WHERE project = ? AND package = ?", undef, $projid, $packid);
+  return undef unless @ary;
+  my $scmsyncinfo = { 'scmsync_repo' => $ary[0] };
+  $scmsyncinfo->{'scmsync_branch'} = $ary[1] if defined $ary[1];
+  $scmsyncinfo->{'scmsync_trackingbranch'} = $ary[2] if defined $ary[2];
+  return $scmsyncinfo;
+}
+
+sub getscmsyncpackages {
+  my ($db, $scmsync_repo, $scmsync_branch, $use_trackingbranch) = @_;
+  my $branch_column = $use_trackingbranch ? 'scmsync_trackingbranch' : 'scmsync_branch';
+  my $h = $db->{'sqlite'} || connectdb($db);
+  $scmsync_repo = lc($scmsync_repo);
+  my $sh;
+  if (!defined($scmsync_branch)) {
+    # all branches
+    $sh = BSSQLite::dbdo_bind($h, 'SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ?', [$scmsync_repo]);
+  } elsif ($scmsync_branch eq '') {
+    # default branch only
+    $sh = BSSQLite::dbdo_bind($h, "SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ? AND $branch_column IS NULL", [$scmsync_repo]);
+  } else {
+    # specified branch/tracking branch
+    $sh = BSSQLite::dbdo_bind($h, "SELECT project, package FROM scmsync WHERE LOWER(scmsync_repo) = ? AND $branch_column = ?", [$scmsync_repo], [$scmsync_branch]);
+  }
+  my ($project, $package);
+  $sh->bind_columns(\$project, \$package);
+  my @res;
+  push @res, "$project/$package" while $sh->fetch();
+  die($sh->errstr) if $sh->err();
+  return sort(@res);
+}
 
 ###########################################################################
 #
@@ -484,16 +557,24 @@ sub opendb {
 sub rawfetch {
   my ($db, $key) = @_;
   my $table = $db->{'table'};
+  if ($table eq 'scmsync') {
+    my ($projid, $packid) = split('/', $key, 2);
+    return $db->getscmsyncinfo($projid, $packid);
+  }
   if ($table eq 'linkinfo') {
     my ($projid, $packid) = split('/', $key, 2);
     return $db->getlinkinfo($projid, $packid);
   }
   if ($table eq 'pattern') {
     return undef unless $key =~ /^(.+?(?<!:)\/.+?)(?<!:)\/(.*)$/;
-    return getrecord($db, $1, $2);
+    return getpatterninfo($db, $1, $2);
   }
   if ($table eq 'repoinfo') {
     return getrepoinfo($db, $key);
+  }
+  if ($table eq 'binary') {
+    return undef unless $key =~ /^(.+?(?<!:)\/.+?)(?<!:)\/(.*)$/;
+    return getbinaryinfo($db, $1, $2);
   }
   die("Cannot fetch data set for sqlite table $table\n");
 }
@@ -528,7 +609,11 @@ sub rawvalues {
   my ($db, $path, $hint, $hintval) = @_;
 
   my $table = $db->{'table'};
-  die("unsupported path for $table table: $path\n") unless $db->{'sqlite_cols'}->{$path};
+  if ($path eq 'project' && ($table eq 'binary' || $table eq 'pattern')) {
+    $table = 'repoinfo';
+  } else {
+    die("unsupported path for $table table: $path\n") unless $db->{'sqlite_cols'}->{$path};
+  }
 
   # get all values from a table column
   my $h = $db->{'sqlite'} || connectdb($db);
@@ -577,8 +662,12 @@ sub allkeys {
   my $sh;
   if ($table eq 'linkinfo') {
     $sh = dbdo_bind($h, "SELECT sourceproject,sourcepackage FROM $table");
-  } else {
+  } elsif ($table eq 'scmsync') {
+    $sh = dbdo_bind($h, "SELECT project,package FROM $table");
+  } elsif ($table eq 'binary' || $table eq 'pattern') {
     $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo");
+  } else {
+    die("Cannot get all keys for sqlite table $table\n");
   }
   my ($col1, $col2);
   $sh->bind_columns(\$col1, \$col2);
@@ -593,13 +682,19 @@ sub rawkeys {
 
   my $table = $db->{'table'};
   return allkeys($db) unless defined $path;
+  return getprojectkeys($db, $value) if $path eq 'project' && ($table eq 'binary' || $table eq 'pattern');
   die("unsupported path for $table table: $path\n") unless $db->{'sqlite_cols'}->{$path};
 
   # get all keys for a table column
   my $h = $db->{'sqlite'} || connectdb($db);
 
-  if ($table eq 'linkinfo') {
-    my $sh = dbdo_bind($h, "SELECT sourceproject,sourcepackage FROM $table WHERE $path = ?", [ $value ]);
+  if ($table eq 'linkinfo' || $table eq 'scmsync') {
+    my $sh;
+    if ($table eq 'scmsync') {
+      $sh = dbdo_bind($h, "SELECT project,package FROM $table WHERE $path = ?", [ $value ]);
+    } else {
+      $sh = dbdo_bind($h, "SELECT sourceproject,sourcepackage FROM $table WHERE $path = ?", [ $value ]);
+    }
     my ($sourceproject, $sourcepackage);
     $sh->bind_columns(\$sourceproject, \$sourcepackage);
     my @res;
@@ -613,18 +708,21 @@ sub rawkeys {
     return @$ary;
   }
 
-  my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE $path = ?", [ $value ]);
-  my ($prp_ext_path, $bin_path, $package);
-  $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
-  my $key2package = $table eq 'binary' ? $db->{'key2package'} : undef;
-  my @res;
-  while ($sh->fetch()) {
-    my $key = "$prp_ext_path/$bin_path";
-    $key2package->{$key} = $package if $key2package;
-    push @res, $key;
+  if ($table eq 'binary' || $table eq 'pattern') {
+    my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE $path = ?", [ $value ]);
+    my ($prp_ext_path, $bin_path, $package);
+    $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
+    my $key2package = $table eq 'binary' ? $db->{'key2package'} : undef;
+    my @res;
+    while ($sh->fetch()) {
+      my $key = "$prp_ext_path/$bin_path";
+      $key2package->{$key} = $package if $key2package;
+      push @res, $key;
+    }
+    die($sh->errstr) if $sh->err();
+    return sort(@res);
   }
-  die($sh->errstr) if $sh->err();
-  return sort(@res);
+  die("Cannot get keys for sqlite table $table\n");
 }
 
 1;

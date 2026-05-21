@@ -108,6 +108,50 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
+    context 'for an event of type Event::CommentForReport' do
+      let!(:subscription) { create(:event_subscription_comment_for_report, user: receiver) }
+      let!(:comment) { create(:comment_report, body: "Hey @#{receiver.login} are you sure this is spam?") }
+      let(:originator) { comment.user }
+      let(:mail) { EventMailer.with(subscribers: Event::CommentForReport.last.subscribers, event: Event::CommentForReport.last).notification_email.deliver_now }
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'has subscribers' do
+        expect(mail.to).to eq(Event::CommentForReport.last.subscribers.map(&:email))
+      end
+
+      it 'has a subject' do
+        expect(mail.subject).to eq("New comment in report ##{comment.commentable.id} by #{originator.login}")
+      end
+
+      it 'renders links absolute' do
+        expected_html = "<p>Hey <a href=\"https://build.example.com/users/#{receiver.login}\" rel=\"nofollow\">@#{receiver.login}</a> "
+        expected_html += 'are you sure this is spam?'
+        expect(mail.html_part.to_s).to include(expected_html)
+      end
+
+      it 'contains the link to the report' do
+        expected_html = "<a href=\"https://build.example.com/reports/#{comment.commentable_id}#comment-#{comment.id}\">View Comment</a>"
+        expect(mail.html_part.to_s).to include(expected_html)
+      end
+
+      it 'contains the relevan information in plain text email' do
+        expect(mail.text_part.to_s).to include("#{comment.user.realname} wrote in report ##{comment.commentable.id}:")
+        expect(mail.text_part.to_s).to include("https://build.example.com/reports/#{comment.commentable_id}#comment-#{comment.id}")
+      end
+
+      context 'when originator is subscribed' do
+        let!(:originator_subscription) { create(:event_subscription_comment_for_report, user: originator) }
+        let(:mail) { EventMailer.with(subscribers: Event::CommentForReport.last.subscribers, event: Event::CommentForReport.last).notification_email.deliver_now }
+
+        it 'does not send to the originator' do
+          expect(mail.to).not_to include(originator.email)
+        end
+      end
+    end
+
     context 'for an event of type Event::RelationshipCreate' do
       let(:who) { create(:confirmed_user) }
       let(:project) { create(:project) }
@@ -228,36 +272,9 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
-    # TODO: Remove this test after all `Event::CreateReport` records are migrated to the STI report classes
-    context 'for an event of type Event::CreateReport' do
-      let(:admin) { create(:admin_user) }
-      let!(:subscription) { create(:event_subscription_create_report, user: admin) }
-      let(:report) { create(:report, reason: 'Because reasons') }
-      let(:package) { report.reportable.commentable }
-      let(:mail) { EventMailer.with(subscribers: Event::CreateReport.last.subscribers, event: Event::CreateReport.last).notification_email.deliver_now }
-
-      before do
-        Event::CreateReport.create({ id: report.id, user_id: report.user_id, reportable_id: report.reportable_id,
-                                     reportable_type: report.reportable_type, reason: report.reason })
-      end
-
-      it 'gets delivered' do
-        expect(ActionMailer::Base.deliveries).to include(mail)
-      end
-
-      it 'contains the correct text' do
-        expect(mail.body.encoded).to include('reported a comment for the following reason:')
-        expect(mail.body.encoded).to include('Because reasons')
-      end
-
-      it 'renders link to the page of the comment' do
-        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/package/show/#{package.project}/#{package}#comments-list\">#{package}</a>")
-      end
-    end
-
     context 'for an event of type Event::ReportForProject' do
       let(:admin) { create(:admin_user) }
-      let!(:subscription) { create(:event_subscription_report_for_project, user: admin) }
+      let!(:subscription) { create(:event_subscription_report, user: admin) }
       let(:mail) { EventMailer.with(subscribers: Event::ReportForProject.last.subscribers, event: Event::ReportForProject.last).notification_email.deliver_now }
       let(:project) { create(:project, name: 'foo') }
 
@@ -281,7 +298,7 @@ RSpec.describe EventMailer, :vcr do
 
     context 'for an event of type Event::ReportForPackage' do
       let(:admin) { create(:admin_user) }
-      let!(:subscription) { create(:event_subscription_report_for_package, user: admin) }
+      let!(:subscription) { create(:event_subscription_report, user: admin) }
       let(:mail) { EventMailer.with(subscribers: Event::ReportForPackage.last.subscribers, event: Event::ReportForPackage.last).notification_email.deliver_now }
       let(:project) { create(:project, name: 'foo') }
       let(:package) { create(:package, name: 'bar', project: project) }
@@ -306,7 +323,7 @@ RSpec.describe EventMailer, :vcr do
 
     context 'for an event of type Event::ReportForUser' do
       let(:admin) { create(:admin_user) }
-      let!(:subscription) { create(:event_subscription_report_for_user, user: admin) }
+      let!(:subscription) { create(:event_subscription_report, user: admin) }
       let(:mail) { EventMailer.with(subscribers: Event::ReportForUser.last.subscribers, event: Event::ReportForUser.last).notification_email.deliver_now }
       let(:user) { create(:user, login: 'hans') }
 
@@ -330,7 +347,7 @@ RSpec.describe EventMailer, :vcr do
 
     context 'for an event of type Event::ReportForComment' do
       let(:admin) { create(:admin_user) }
-      let!(:subscription) { create(:event_subscription_report_for_comment, user: admin) }
+      let!(:subscription) { create(:event_subscription_report, user: admin) }
       let(:mail) { EventMailer.with(subscribers: Event::ReportForComment.last.subscribers, event: Event::ReportForComment.last).notification_email.deliver_now }
       let(:project) { create(:project, name: 'foo') }
       let(:comment) { create(:comment_project, commentable: project) }
@@ -392,7 +409,7 @@ RSpec.describe EventMailer, :vcr do
 
       context 'and there is a payload' do
         it 'renders the body' do
-          expect(mail.body.encoded).to have_text('Last lines of build log:')
+          expect(mail.body.encoded).to have_text('invalid byte sequence ->?')
         end
       end
 
@@ -443,12 +460,50 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
+    context 'for an event of type Event::TokenStateChange' do
+      let(:token) { create(:workflow_token, executor: receiver, description: 'Token for GitHub') }
+      let(:workflow_run) { create(:workflow_run, token: token) }
+      let!(:subscription) { create(:event_subscription_token_enabled, user: receiver) }
+      let(:mail) { EventMailer.with(subscribers: Event::TokenStateChange.last.subscribers, event: Event::TokenStateChange.last).notification_email.deliver_now }
+
+      before do
+        login(receiver)
+      end
+
+      context 'when the workflow run fails' do
+        before do
+          workflow_run.update_as_failed('Unauthorized request')
+        end
+
+        it 'gets delivered' do
+          expect(ActionMailer::Base.deliveries).to include(mail)
+        end
+
+        it 'has a subject' do
+          expect(mail.subject).to eq("Workflow Token 'Token for GitHub' was disabled")
+        end
+
+        it 'has the right subscribers' do
+          expect(mail.to).to eq(Event::TokenStateChange.last.subscribers.map(&:email))
+        end
+
+        it 'renders links absolute' do
+          expect(mail.body.encoded).to include('Enable this token again on the ' \
+                                               "<a href=\"https://build.example.com/my/tokens/#{token.id}\">token page</a>")
+        end
+
+        it { expect(mail.text_part.body.to_s).to include("The Workflow Token 'Token for GitHub' was disabled.") }
+        it { expect(mail.html_part.body.to_s).to include("The Workflow Token 'Token for GitHub' was disabled.") }
+        it { expect(mail.html_part.body.to_s).to include('Authentication to Github failed while reporting the build status. Check your tokens authorization setup!') }
+      end
+    end
+
     context 'for an event of type Event::ClearedDecision' do
       let(:admin) { create(:admin_user) }
       let(:reporter) { create(:confirmed_user) }
-      let(:report) { create(:report, user: reporter) }
+      let(:report) { create(:report, reporter: reporter) }
       let(:package) { report.reportable.commentable }
-      let!(:subscription) { create(:event_subscription_cleared_decision, user: reporter) }
+      let!(:subscription) { create(:event_subscription_decision, user: reporter) }
       let(:decision) { create(:decision_cleared, moderator: admin, reason: 'This is NOT spam.', reports: [report]) }
       let(:event) { Event::ClearedDecision.last }
       let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
@@ -487,10 +542,10 @@ RSpec.describe EventMailer, :vcr do
 
       let(:comment) { create(:comment_project, user: offender) }
       let(:project) { comment.commentable }
-      let(:report) { create(:report, user: reporter, reportable: comment) }
+      let(:report) { create(:report, reporter: reporter, reportable: comment) }
 
-      let!(:reporter_subscription) { create(:event_subscription_favored_decision, user: reporter) }
-      let!(:offender_subscription) { create(:event_subscription_favored_decision, user: offender, receiver_role: 'offender') }
+      let!(:reporter_subscription) { create(:event_subscription_decision, user: reporter) }
+      let!(:offender_subscription) { create(:event_subscription_decision, user: offender, receiver_role: 'offender') }
 
       let(:decision) { create(:decision_favored, moderator: admin, reason: 'This is spam for sure.', reports: [report]) }
       let(:event) { Event::FavoredDecision.last }
@@ -531,7 +586,7 @@ RSpec.describe EventMailer, :vcr do
 
       let(:comment) { create(:comment_project, user: offender) }
       let(:project) { comment.commentable }
-      let(:report) { create(:report, user: reporter, reportable: comment) }
+      let(:report) { create(:report, reporter: reporter, reportable: comment) }
 
       let!(:moderator_subscription) { create(:event_subscription_appeal_created, user: moderator) }
 
@@ -575,7 +630,7 @@ RSpec.describe EventMailer, :vcr do
 
       let(:comment) { create(:comment_project, user: offender) }
       let(:project) { comment.commentable }
-      let(:report) { create(:report, user: reporter, reportable: comment) }
+      let(:report) { create(:report, reporter: reporter, reportable: comment) }
 
       let!(:moderator_subscription) { create(:event_subscription_appeal_created, user: moderator) }
 
@@ -608,7 +663,7 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'renders the text about the missing reported comment' do
-        expect(mail.body.encoded).to include("The reported #{decision.reports.first.reportable&.class&.name&.downcase} does not exist anymore.")
+        expect(mail.body.encoded).to include("The reported #{decision.reports.first.reportable.class.name.downcase} does not exist anymore.")
       end
     end
 
@@ -634,11 +689,11 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'contains the correct subject' do
-        expect(mail.subject).to include("'#{who}' added you to the group '#{group}'")
+        expect(mail.subject).to include("'#{who}' added '#{user}' to the group '#{group}'")
       end
 
       it 'contains the correct text' do
-        expect(mail.body.encoded).to include("You got added to group '#{group}'")
+        expect(mail.body.encoded).to include("'#{user}' got added to group '#{group}'")
       end
     end
 
@@ -664,11 +719,148 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'contains the correct subject' do
-        expect(mail.subject).to include("'#{who}' removed you from the group '#{group}'")
+        expect(mail.subject).to include("'#{who}' removed '#{user}' from the group '#{group}'")
       end
 
       it 'contains the correct text' do
-        expect(mail.body.encoded).to include("You got removed from group '#{group}'")
+        expect(mail.body.encoded).to include("'#{user}' got removed from group '#{group}'")
+      end
+    end
+
+    context 'for an event of type Event::AssignmentCreate' do
+      let(:who) { create(:confirmed_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:project) { create(:project, name: 'foo') }
+      let(:package) { create(:package, name: 'bar', project: project) }
+      let!(:subscription) { create(:event_subscription_assignment, user: user) }
+
+      let(:mail) { EventMailer.with(subscribers: Event::AssignmentCreate.last.subscribers, event: Event::AssignmentCreate.last).notification_email.deliver_now }
+
+      before do
+        login(user)
+        Event::AssignmentCreate.create!(assignee: user.login, who: who.login, project: project.name, package: package.name)
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(user.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include("#{user} assigned to the package #{project}/#{package}")
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include("#{who} assigned you")
+      end
+    end
+
+    context 'for an event of type Event::AssignmentDelete' do
+      let(:who) { create(:confirmed_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:project) { create(:project, name: 'foo') }
+      let(:package) { create(:package, name: 'bar', project: project) }
+      let!(:subscription) { create(:event_subscription_assignment, user: user) }
+
+      let(:mail) { EventMailer.with(subscribers: Event::AssignmentDelete.last.subscribers, event: Event::AssignmentDelete.last).notification_email.deliver_now }
+
+      before do
+        login(user)
+        Event::AssignmentDelete.create!(assignee: user.login, who: who.login, project: project.name, package: package.name)
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(user.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include("#{user} unassigned from the package #{project}/#{package}")
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include("#{who} unassigned you")
+      end
+    end
+
+    context 'for event of type Event::UpstreamPackageVersionChanged' do
+      let(:user) { create(:confirmed_user) }
+      let(:project) { create(:project, name: 'foo') }
+      let(:package) { create(:package, name: 'bar', project: project) }
+      let!(:subscription) { create(:event_subscription_upstream_version, user: user) }
+
+      let(:mail) { EventMailer.with(subscribers: [user], event: Event::UpstreamPackageVersionChanged.last).notification_email.deliver_now }
+
+      before do
+        login(user)
+        Event::UpstreamPackageVersionChanged.create!(package: package.name, project: package.project.name, upstream_version: '4.9')
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(user.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include("Upstream version changed for #{project.name}/#{package.name} to 4.9")
+      end
+    end
+
+    context 'for event of type Event::TokenMembershipUpdate' do
+      let(:token) { create(:workflow_token) }
+      let!(:subscription) { create(:event_subscription_token_membership_update, user: receiver) }
+      let(:mail) { EventMailer.with(subscribers: Event::TokenMembershipUpdate.last.subscribers, event: Event::TokenMembershipUpdate.last).notification_email.deliver_now }
+
+      before do
+        login(token.executor)
+        Event::TokenMembershipUpdate.create!(token_id: token.id, user_login: receiver.login, action: 'share')
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(receiver.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include('Token membership updated')
+      end
+    end
+
+    context 'for event of type Event::GlobalRoleAssigned' do
+      let(:user) { create(:confirmed_user) }
+      let(:admin_user) { create(:admin_user) }
+      let(:payload) { { role: 'Admin', who: admin_user.login, user: user.login } }
+      let!(:subscription) { create(:event_subscription_global_role_assigned, user: user) }
+      let(:event) { Event::GlobalRoleAssigned.last }
+      let(:mail) { EventMailer.with(subscribers: [user], event: event).notification_email.deliver_now }
+
+      before do
+        login(user)
+        Event::GlobalRoleAssigned.create!(payload)
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(user.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include(event.subject)
       end
     end
   end

@@ -28,6 +28,7 @@ RSpec.describe 'Bootstrap_User Contributions', :js do
 
     it 'does not show the contribution table' do
       visit user_path(login: user.login)
+      expect(page).to have_text(user.login)
       expect(page).to have_no_text('Contributions')
     end
   end

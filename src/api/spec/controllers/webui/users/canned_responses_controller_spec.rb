@@ -6,7 +6,7 @@ RSpec.describe Webui::Users::CannedResponsesController do
 
   before do
     login(user)
-    Flipper.enable(:content_moderation)
+    Flipper.enable(:canned_responses)
 
     post :create, params: { canned_response: { title: title, content: content, decision_type: decision_type } }
   end

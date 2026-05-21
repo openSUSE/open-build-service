@@ -280,7 +280,7 @@ sub update_tuf {
   my $root = {
     '_type' => 'Root',
     'consistent_snapshot' => $JSON::XS::false,
-    'expires' => BSTUF::rfc3339time($root_expire),
+    'expires' => BSUtil::rfc3339time($root_expire),
     'keys' => $keys,
     'roles' => $roles,
   };
@@ -325,14 +325,14 @@ sub update_tuf {
   my $targets = {
     '_type' => 'Targets',
     'delegations' => { 'keys' => {}, 'roles' => []},
-    'expires' => BSTUF::rfc3339time($now + $targets_expire),
+    'expires' => BSUtil::rfc3339time($now + $targets_expire),
     'targets' => $manifests,
   };
   $tuf->{'targets'} = BSTUF::updatedata($targets, $oldtargets, $signfunc, $root_key_id);
 
   my $snapshot = {
     '_type' => 'Snapshot',
-    'expires' => BSTUF::rfc3339time($now + $targets_expire),
+    'expires' => BSUtil::rfc3339time($now + $targets_expire),
   };
   BSTUF::addmetaentry($snapshot, 'root', $tuf->{'root'});
   BSTUF::addmetaentry($snapshot, 'targets', $tuf->{'targets'});
@@ -350,7 +350,7 @@ sub update_tuf {
 
   my $timestamp = {
     '_type' => 'Timestamp',
-    'expires' => BSTUF::rfc3339time($now + $timestamp_expire),
+    'expires' => BSUtil::rfc3339time($now + $timestamp_expire),
   };
   BSTUF::addmetaentry($timestamp, 'snapshot', $tuf->{'snapshot'});
   my $oldtimestamp = $oldtuf->{'timestamp'} ? JSON::XS::decode_json($oldtuf->{'timestamp'}) : {};
@@ -449,20 +449,47 @@ sub reuse_cosign_manifest {
   return 1;
 }
 
-sub update_cosign {
-  my ($prp, $repo, $gun, $digests_to_cosign, $pubkey, $signargs, $rekorserver, $knownmanifests, $knownblobs) = @_;
+sub cosign_upload_rekor {
+  my ($rekorserver, $gpgpubkey, $sig, @layer_ents) = @_;
+  my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
+  $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
+  if ($sig) {
+    print "uploading cosign signature to $rekorserver\n";
+    die unless @layer_ents == 1;
+    my $hash = 'sha256:'.Digest::SHA::sha256_hex($layer_ents[0]->{'data'});	# must match signfunc
+    my ($rekorkey, $rekorentry) = BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
+    BSConSign::add_cosign_bundle_annotation($layer_ents[0], $rekorentry);
+  } else {
+    print "uploading cosign attestations to $rekorserver\n";
+    for my $attestation_ent (@layer_ents) {
+      my ($rekorkey, $rekorentry) = BSRekor::upload_intoto($rekorserver, $attestation_ent->{'data'}, $sslpubkey);
+      BSConSign::add_cosign_bundle_annotation($attestation_ent, $rekorentry);
+    }
+  }
+}
 
-  my $creator = 'OBS';
+sub create_cosign_attestation_ent {
+  my ($attestation, $signfunc, $digest, $reference, $annotations) = @_;
+  my ($att, $predicatetype) = BSConSign::fixup_intoto_attestation($attestation, $signfunc, $digest, $reference);
+  return BSConSign::create_cosign_attestation_ent($att, $annotations, $predicatetype);
+}
+
+sub update_cosign {
+  my ($prp, $repo, $cosign, $digests_to_cosign, $knownmanifests, $knownblobs) = @_;
+
   my ($projid, $repoid) = split('/', $prp, 2);
+  my $gun = $cosign->{'gun'};
+  my $creator = $cosign->{'creator'};
+  my $rekorserver = $cosign->{'rekorserver'};
   my @signcmd;
   push @signcmd, $BSConfig::sign;
   push @signcmd, '--project', $projid if $BSConfig::sign_project;
-  push @signcmd, @{$signargs || []};
+  push @signcmd, @{$cosign->{'signargs'} || []};
   my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
   my $repodir = "$registrydir/$repo";
   my $oldsigs = BSUtil::retrieve("$repodir/:cosign", 1) || {};
   return if !%$oldsigs && !%$digests_to_cosign;
-  my $gpgpubkey = BSPGP::unarmor($pubkey);
+  my $gpgpubkey = BSPGP::unarmor($cosign->{'pubkey'});
   my $pubkey_fp = BSPGP::pk2fingerprint($gpgpubkey);
   if (($oldsigs->{'pubkey'} || '') ne $pubkey_fp || ($oldsigs->{'gun'} || '') ne $gun || ($oldsigs->{'creator'} || '') ne ($creator || '')) {
     $oldsigs = {};	# fingerprint/gun/creator mismatch, do not use old signatures
@@ -479,15 +506,9 @@ sub update_cosign {
     }
     print "creating cosign signature for $gun $digest\n";
     my ($cosign_ent, $sig) = BSConSign::create_cosign_signature_ent($signfunc, $digest, $gun, $creator);
+    cosign_upload_rekor($rekorserver, $gpgpubkey, $sig, $cosign_ent) if $rekorserver && $sig;
     my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $cosign_ent);
     $sigs->{'digests'}->{$digest} = $mani_id;
-    if ($rekorserver) {
-      print "uploading cosign signature to $rekorserver\n";
-      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
-      $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      my $hash = 'sha256:'.Digest::SHA::sha256_hex($cosign_ent->{'data'});	# must match signfunc
-      BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
-    }
   }
 
   # update attestations
@@ -505,23 +526,15 @@ sub update_cosign {
       next;
     }
     print "creating $numlayers cosign attestations for $gun $digest\n";
-    my %predicatetypes;
-    my @attestations;
-    push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'slsa_provenance_file'};
-    push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'spdx_file'};
-    push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'cyclonedx_file'};
-    push @attestations, BSConSign::fixup_intoto_attestation(readstr($_), $signfunc, $digest, $gun, \%predicatetypes) for @{$containerinfo->{'intoto_files'} || []};
-    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, undef, \%predicatetypes);
+    my $annotations;
+    my @attestation_ents;
+    push @attestation_ents, create_cosign_attestation_ent(readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'slsa_provenance_file'};
+    push @attestation_ents, create_cosign_attestation_ent(readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'spdx_file'};
+    push @attestation_ents, create_cosign_attestation_ent(readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'cyclonedx_file'};
+    push @attestation_ents, create_cosign_attestation_ent(readstr($_), $signfunc, $digest, $gun, $annotations) for @{$containerinfo->{'intoto_files'} || []};
+    cosign_upload_rekor($rekorserver, $gpgpubkey, undef, @attestation_ents) if $rekorserver && @attestation_ents;
     my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, @attestation_ents);
     $sigs->{'attestations'}->{$digest} = $mani_id;
-    if ($rekorserver) {
-      print "uploading cosign attestations to $rekorserver\n";
-      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
-      $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      for my $attestation (@attestations) {
-        BSRekor::upload_intoto($rekorserver, $attestation, $sslpubkey);
-      }
-    }
   }
 
   if (BSUtil::identical($oldsigs, $sigs)) {
@@ -574,7 +587,6 @@ sub push_containers {
 
   my ($pubkey, $signargs) = ($data->{'pubkey'}, $data->{'signargs'});
 
-  my $rekorserver = $registry->{'rekorserver'};
   my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
   undef $gun if $gun && $gun eq 'local:';
   if ($gun) {
@@ -773,7 +785,8 @@ sub push_containers {
 
   # write signatures file (need to do this early as it adds manifests/blobs)
   if ($gun && defined($pubkey) && %digests_to_cosign) {
-    update_cosign($prp, $repo, $gun, \%digests_to_cosign, $pubkey, $signargs, $rekorserver, \%knownmanifests, \%knownblobs);
+    my $cosign = { 'creator' => 'OBS', 'gun' => $gun, 'pubkey' => $pubkey, 'signargs' => $signargs, 'rekorserver' => $registry->{'rekorserver'} };
+    update_cosign($prp, $repo, $cosign, \%digests_to_cosign, \%knownmanifests, \%knownblobs);
   } elsif (-e "$repodir/:cosign") {
     unlink("$repodir/:cosign");
   }

@@ -13,8 +13,12 @@
       %dt= link_to('Backlog:', group_path(staging_workflow.managers_group, anchor: 'reviews-in'))
       %dd= render 'requests_list', requests: unassigned_requests, more_requests: more_unassigned_requests
 
-      %dt= link_to('Ready:', project_requests_path(staging_workflow.project, state: :new))
-      %dd= render 'requests_list', requests: ready_requests, more_requests: more_ready_requests
+      - if Flipper.enabled?(:request_index, User.session)
+        %dt= link_to('Ready:', projects_requests_path(staging_workflow.project, states: ['new']))
+        %dd= render 'requests_list', requests: ready_requests, more_requests: more_ready_requests
+      - else
+        %dt= link_to('Ready:', project_requests_path(staging_workflow.project, state: :new))
+        %dd= render 'requests_list', requests: ready_requests, more_requests: more_ready_requests
 
       %dt= link_to('Excluded:', excluded_requests_path(staging_workflow.project))
       %dd= render 'requests_list', requests: excluded_requests, more_requests: more_excluded_requests, excluded: true

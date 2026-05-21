@@ -2,7 +2,7 @@ require 'webmock/rspec'
 
 RSpec.describe BuildLogSupport do
   let(:instance_with_build_log_support) do
-    fake_instance = double('Fake Instance with BuildLogSupport')
+    fake_instance = Object.new
     fake_instance.extend(BuildLogSupport)
     allow(fake_instance).to receive(:logger).and_return(Rails.logger)
     fake_instance
@@ -31,7 +31,7 @@ RSpec.describe BuildLogSupport do
       subject { instance_with_build_log_support.get_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0, 65_536) }
 
       context 'without special characters' do
-        it { is_expected.to eq("<span class=\"ansible_none\">#{build_log}</span>") }
+        it { is_expected.to eq("<span class=\"ansible_none\">#{build_log.tr("\n", "\r")}</span>") }
       end
 
       context 'with special characters' do
@@ -61,6 +61,12 @@ class=\"ansible_none\">\r[  580s] </span><span class=\"ansible_36\">Reaping 1 jo
         let(:build_log) { "invalid byte sequence ->\xD3'" }
 
         it { expect(subject).to eq('<span class="ansible_none">invalid byte sequence -&gt;�&#39;</span>') }
+      end
+
+      context 'with invalid \xFF byte in build log' do
+        let(:build_log) { "Build log start \xFF Build log end" }
+
+        it { is_expected.to include('Build log start').and(include('Build log end')) }
       end
     end
   end

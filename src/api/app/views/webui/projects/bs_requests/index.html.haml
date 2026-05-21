@@ -1,0 +1,11 @@
+- @pagetitle = "Requests for #{@project}"
+
+.row
+  .px-0.px-md-3.mb-3
+    .card
+      = render(partial: 'webui/project/tabs', locals: { project: @project })
+
+      .card-body
+        = render(partial: 'webui/shared/bs_requests/form',
+                locals: { selected_filter: @selected_filter, bs_requests_creators: @bs_requests_creators,
+                          url: projects_requests_path(@project), bs_requests: @bs_requests, viewed_object: 'Project' })

@@ -1,6 +1,7 @@
 module Statistics
   class MaintenanceStatisticsController < ApplicationController
-    skip_before_action :extract_user, :require_login
+    # We always allow access to this action...
+    skip_before_action :extract_user, :require_login, :check_anonymous_access
 
     def index
       @project = Project.get_by_name(params[:project])

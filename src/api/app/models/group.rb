@@ -5,8 +5,9 @@
 class Group < ApplicationRecord
   has_one :staging_workflow, class_name: 'Staging::Workflow', foreign_key: :managers_group_id, dependent: :nullify
   has_many :groups_users, inverse_of: :group, dependent: :destroy
-  has_many :users, -> { distinct.order(:login) }, through: :groups_users
+  has_many :users, -> { distinct }, through: :groups_users
   has_many :group_maintainers, inverse_of: :group, dependent: :destroy
+  has_many :maintainers, through: :group_maintainers, source: :user
   has_many :relationships, dependent: :destroy, inverse_of: :group
   has_many :event_subscriptions, dependent: :destroy, inverse_of: :group
   has_many :reviews, dependent: :nullify
@@ -36,8 +37,6 @@ class Group < ApplicationRecord
                       message: 'must be a valid email address',
                       allow_blank: true }
 
-  default_scope { order(:title) }
-
   alias_attribute :name, :title
 
   def update_from_xml(xmlhash, user_session_login:)
@@ -52,7 +51,7 @@ class Group < ApplicationRecord
     xmlhash.elements('maintainer') do |maintainer|
       next unless maintainer['userid']
 
-      user = User.find_by_login!(maintainer['userid'])
+      user = User.not_deleted.find_by!(login: maintainer['userid'])
       if cache.key?(user.id)
         # user has already a role in this package
         cache.delete(user.id)
@@ -73,7 +72,7 @@ class Group < ApplicationRecord
       persons.elements('person') do |person|
         next unless person['userid']
 
-        user = User.find_by_login!(person['userid'])
+        user = User.not_deleted.find_by!(login: person['userid'])
         if cache.key?(user.id)
           # user has already a role in this package
           cache.delete(user.id)
@@ -95,10 +94,10 @@ class Group < ApplicationRecord
 
   def replace_members(members)
     new_members = members.split(',').map do |m|
-      User.find_by_login!(m)
+      User.not_deleted.find_by!(login: m)
     end
     users.replace(new_members)
-  rescue ActiveRecord::RecordInvalid, NotFoundError => e
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     errors.add(:base, e.message)
     false
   end
@@ -117,21 +116,12 @@ class Group < ApplicationRecord
 
   def involved_projects
     # now filter the projects that are not visible
-    Project.where(id: involved_projects_ids)
+    Project.where(id: relationships.projects.maintainers.pluck(:project_id))
   end
 
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
-    # just for maintainer for now.
-    role = maintainer_roler
-
-    projects = involved_projects_ids
-    projects << -1 if projects.empty?
-
-    # all packages where group is maintainer
-    packages = Relationship.where(group_id: id, role_id: role.id).joins(:package).where.not('packages.project_id' => projects).pluck(:package_id)
-
-    Package.where(id: packages).where.not(project_id: projects)
+    Package.where(id: relationships.packages.maintainers.pluck(:package_id))
   end
 
   # returns the users that actually want email for this group's notifications
@@ -164,6 +154,26 @@ class Group < ApplicationRecord
     BsRequest::FindFor::Query.new(group: title, states: [:new], roles: [:maintainer], search: search).all
   end
 
+  def bs_requests
+    projects_ids = involved_projects.pluck(:id)
+    packages_ids = involved_packages.pluck(:id)
+
+    review_ids = Review.where(group_id: id)
+                       .or(Review.where(project_id: projects_ids))
+                       .or(Review.where(package_id: packages_ids))
+                       .pluck(:bs_request_id)
+
+    action_ids = BsRequestAction.where(target_project_id: projects_ids)
+                                .or(BsRequestAction.where(target_package_id: packages_ids))
+                                .or(BsRequestAction.where(source_project_id: projects_ids))
+                                .or(BsRequestAction.where(source_package_id: packages_ids))
+                                .pluck(:bs_request_id)
+
+    all_ids = (review_ids + action_ids).compact.uniq
+
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids).distinct
+  end
+
   def requests(search = nil)
     BsRequest::FindFor::Query.new(group: title, search: search).all
   end
@@ -192,21 +202,19 @@ class Group < ApplicationRecord
 
   private
 
-  def maintainer_roler
-    @maintainer_roler ||= Role.hashed['maintainer']
-  end
-
   def delete_user(klass, login_id, group_id, user_session_login: nil)
     klass.where('user_id = ? AND group_id = ?', login_id, group_id).delete_all if [GroupMaintainer, GroupsUser].include?(klass)
     Event::RemovedUserFromGroup.create(group: Group.find(group_id).title, member: User.find(login_id).login, who: user_session_login) if klass == GroupsUser
   end
 
+  # IDs of the Projects where the group is maintainer
   def involved_projects_ids
-    # just for maintainer for now.
-    role = maintainer_roler
+    relationships.projects.maintainers.pluck(:project_id)
+  end
 
-    ### all projects where user is maintainer
-    Relationship.projects.where(group_id: id, role_id: role.id).distinct.pluck(:project_id)
+  # IDs of the Packages where the group is maintainer
+  def involved_packages_ids
+    relationships.packages.maintainers.pluck(:package_id)
   end
 end
 

@@ -13,7 +13,7 @@ module Event
     end
 
     def any_roles
-      [User.find_by(login: payload['user']) || Group.find_by(title: payload['group'])]
+      [User.find_by(login: payload['user']) || ::Group.find_by(title: payload['group'])]
     end
 
     def notifiable_type
@@ -34,6 +34,13 @@ module Event
 
     def originator
       payload_address('who')
+    end
+
+    # FIXME: Use this to get rid of notifiable_type / notifiable_id
+    def event_object
+      return Package.unscoped.includes(:project).where(name: Package.striping_multibuild_suffix(payload['package']), projects: { name: payload['project'] }) if payload['package']
+
+      Project.unscoped.find_by(name: payload['project'])
     end
   end
 end

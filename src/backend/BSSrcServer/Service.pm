@@ -160,12 +160,19 @@ sub commitobsscm {
     $cgi->{'comment'} .= "[info=$rev->{'_service_info'}]";
   }
   my $newrev;
-  if ($packid eq '_project') {
-    $newrev = $addrev_obsscmproject->($cgi, $projid, $rev->{'cpiofd'});
+  eval {
+    if ($packid eq '_project') {
+      $newrev = $addrev_obsscmproject->($cgi, $projid, $rev->{'cpiofd'});
+    } else {
+      $newrev = $addrev->($cgi, $projid, $packid, $files);
+    }
+  };
+  if ($@) {
+    BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $@);	# also frees lock
+    die($@);
   } else {
-    $newrev = $addrev->($cgi, $projid, $packid, $files);
+    BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, undef);	# frees lock
   }
-  BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, undef);	# frees lock
   if ($packid eq '_project') {
     $notify_repservers->('project', $projid);
   } else {
@@ -217,7 +224,11 @@ sub addrev_service {
 	BSSrcrep::addmeta_service($projid, $packid, $files, $servicemark, $rev->{'srcmd5'}, $lxservicemd5);
       }
     };
-    $error = $@ if $@;
+    if ($@) {
+      $error = $@;
+      # die if this is a transient error and we were called from the service dispatch
+      die("Transient error for $projid/$packid: $error") if $rev->{'rev'} eq 'obsscm' && is_transient_error($error) && $commitobsscm != \&commitobsscm;
+    }
   }
   BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $error) if $error;
   notify_serviceresult($rev, $error);
@@ -353,6 +364,19 @@ sub writeresultascpio {
   $cpiofd->flush();
 }
 
+sub is_transient_error {
+  my ($error) = @_; 
+  return 1 if $error =~ /^5\d\d/;
+  if ($error =~ /^400/) {
+    return 1 if $error =~ /Too many open files/;
+    return 1 if $error =~ /No space left on device/;
+    return 1 if $error =~ /Not enough space/;
+    return 1 if $error =~ /Resource temporarily unavailable/;
+  }
+  return 1 if $error =~ /^rpc timeout/;
+  return 0;
+}
+
 # send the request to the service deamon and collect the result
 # modifies the files hash
 sub doservicerpc {
@@ -363,6 +387,9 @@ sub doservicerpc {
   my $odir = "$uploaddir/runservice$$";
   BSUtil::cleandir($odir) if -d $odir;
   mkdir_p($odir);
+  my @args;
+  push @args, "timeout=$BSConfig::service_timeout";
+  push @args, "noprefix=1" if $noprefix;
   my $receive;
   eval {
     $receive = BSRPC::rpc({
@@ -376,14 +403,14 @@ sub doservicerpc {
       'timeout'   => $BSConfig::service_timeout,
       'withmd5'   => 1,
       'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, "timeout=$BSConfig::service_timeout");
+    }, undef, @args);
   };
 
   if ($@ || !$receive) {
     BSUtil::cleandir($odir);
     rmdir($odir);
     my $error = $@ || 'error';
-    die("Transient error for $projid/$packid: $error") if $error =~ /^5/;
+    die("Transient error for $projid/$packid: $error") if is_transient_error($error);
     die("RPC error for $projid/$packid: $error") if $error !~ /^\d/;
     $error = "service daemon error:\n $error";
     return $error;

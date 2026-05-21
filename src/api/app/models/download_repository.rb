@@ -1,5 +1,5 @@
 class DownloadRepository < ApplicationRecord
-  REPOTYPES = %w[rpmmd susetags deb arch mdk registry].freeze
+  REPOTYPES = %w[rpmmd susetags deb arch mdk registry apk].freeze
 
   belongs_to :repository
 

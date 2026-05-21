@@ -2,6 +2,7 @@ class BsRequestAction
   module Differ
     class QueryBuilderForAccepted
       include ActiveModel::Model
+
       attr_accessor :bs_request_action_accept_info
 
       def build

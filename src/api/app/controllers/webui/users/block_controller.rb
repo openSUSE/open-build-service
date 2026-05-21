@@ -5,7 +5,7 @@ class Webui::Users::BlockController < Webui::WebuiController
   after_action :verify_authorized
 
   def create
-    @user_block = User.session.blocked_users.new(blocked: @displayed_user)
+    @user_block = User.session.user_blocks.new(blocked: @displayed_user)
 
     authorize @user_block
 

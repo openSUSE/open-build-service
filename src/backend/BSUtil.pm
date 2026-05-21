@@ -174,11 +174,11 @@ sub mkdir_p {
   }
   while (!mkdir($dir, 0777)) {
     my $e = $!;
-    return 1 if -d $dir;
-    if (defined($pdir) && ! -d $pdir) {
+    if (defined($pdir) && $! == POSIX::ENOENT) {
       mkdir_p($pdir) || return undef;
       next;
     }
+    return 1 if -d $dir;
     $! = $e;
     warn("mkdir: $dir: $!\n");
     return undef;
@@ -863,6 +863,18 @@ sub isotime {
   return sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
 }
 
+=head2 rfc3339time - convert time to rfc3339 format
+
+ BSUtil::rfc3339time($time);
+
+=cut
+
+sub rfc3339time {
+  my ($t) = @_;
+  my @gt = gmtime($t || time());
+  return sprintf "%04d-%02d-%02dT%02d:%02d:%02dZ", $gt[5] + 1900, $gt[4] + 1, @gt[3,2,1,0];
+}
+
 =head2 getdebuglevel - get the current debug level
 
  BSUtil::getdebuglevel();
@@ -929,19 +941,20 @@ sub setcritlogger {
 }
 
 sub logcritical {
-  my ($msg) = @_;
+  my ($msg, $id) = @_;
   chomp $msg;
-  printf "%s: %-7s CRITICAL %s\n", isotime(time), "[$$]", $msg;
+  $id ||= $$;
+  printf "%s: %-7s CRITICAL %s\n", isotime(time), "[$id]", $msg;
   eval {
-    $critlogger->($msg) if $critlogger;
+    $critlogger->($msg, $id) if $critlogger;
   };
   warn($@) if $@;
 }
 
 sub diecritical {
-  my ($msg) = @_;
+  my ($msg, $id) = @_;
   chomp $msg;
-  logcritical($msg);
+  logcritical($msg, $id);
   die("$msg\n");
 }
 

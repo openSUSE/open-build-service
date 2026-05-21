@@ -18,10 +18,6 @@
       %small.form-text#bio-chars-counter
   .mb-3
     = f.text_field(:email, required: true, email: true, placeholder: 'Email', readonly: behind_proxy, class: 'form-control')
-  - if feature_enabled?("color_themes")
-    .mb-3
-      = f.label :color_theme, "Theme"
-      = f.select(:color_theme, options_for_select(User.color_themes.keys), {}, class: 'form-select')
   .mb-3
   - if behind_proxy
     %p

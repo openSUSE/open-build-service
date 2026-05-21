@@ -13,7 +13,7 @@ class Attrib < ApplicationRecord
   belongs_to :attrib_type
   has_many :attrib_issues
   has_many :issues, through: :attrib_issues, dependent: :destroy
-  has_many :values, -> { order('position ASC') }, class_name: 'AttribValue', dependent: :delete_all
+  has_many :values, -> { order(:position) }, class_name: 'AttribValue', dependent: :delete_all
 
   accepts_nested_attributes_for :values, allow_destroy: true
   accepts_nested_attributes_for :issues, allow_destroy: true
@@ -22,6 +22,7 @@ class Attrib < ApplicationRecord
   validates_associated :values
   validates_associated :issues
   # Either we belong to a project or to a package
+  validates :binary, length: { maximum: 255 }
   validates :package, presence: true, if: proc { |attrib| attrib.project_id.nil? }
   validates :package_id, absence: { message: "can't also be present" }, if: proc { |attrib| attrib.project_id.present? }
   validates :project, presence: true, if: proc { |attrib| attrib.package_id.nil? }
@@ -128,7 +129,7 @@ class Attrib < ApplicationRecord
 
   private
 
-  def check_timezone_identifier(value)
+  def valid_timezone_identifier?(value)
     # Check for a valid timezone identifier
     if value =~ /\A\d{4}-\d\d?-\d\d?(\s|T)\d\d?:\d\d?(:\d\d?)?\s(.+)\Z/ &&  # whole string matches 'YYYY-MM-DD HH:MM:SS TZ' and
        (timezone = Regexp.last_match(3)) !~ /(\+|-)\d\d?(:\d\d?)?/          # timezone part doesn't match '+-HH:MM'
@@ -143,7 +144,7 @@ class Attrib < ApplicationRecord
     true
   end
 
-  def parse_value(value)
+  def valid_time?(value)
     begin
       parsed_value = Time.zone.parse(value)
     rescue ArgumentError => e
@@ -183,7 +184,7 @@ class Attrib < ApplicationRecord
     value = values[0]&.value
     return if value.blank?
 
-    parse_value(value) && check_timezone_identifier(value)
+    valid_time?(value) && valid_timezone_identifier?(value)
   end
 
   def write_container_attributes
@@ -206,10 +207,10 @@ end
 # Table name: attribs
 #
 #  id             :integer          not null, primary key
-#  binary         :string(255)      indexed => [attrib_type_id, package_id, project_id], indexed => [attrib_type_id, project_id, package_id]
-#  attrib_type_id :integer          not null, indexed => [package_id, project_id, binary], indexed => [project_id, package_id, binary]
-#  package_id     :integer          indexed => [attrib_type_id, project_id, binary], indexed => [attrib_type_id, project_id, binary], indexed
-#  project_id     :integer          indexed => [attrib_type_id, package_id, binary], indexed => [attrib_type_id, package_id, binary], indexed
+#  binary         :string(255)      uniquely indexed => [attrib_type_id, package_id, project_id], uniquely indexed => [attrib_type_id, project_id, package_id]
+#  attrib_type_id :integer          not null, uniquely indexed => [package_id, project_id, binary], uniquely indexed => [project_id, package_id, binary]
+#  package_id     :integer          uniquely indexed => [attrib_type_id, project_id, binary], uniquely indexed => [attrib_type_id, project_id, binary], indexed
+#  project_id     :integer          uniquely indexed => [attrib_type_id, package_id, binary], uniquely indexed => [attrib_type_id, package_id, binary], indexed
 #
 # Indexes
 #

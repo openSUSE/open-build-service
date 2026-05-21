@@ -6,7 +6,7 @@ class BsRequestHistoryElementComponent < ApplicationComponent
   attr_reader :element, :request_reviews_for_non_staging_projects
 
   def initialize(element:, request_reviews_for_non_staging_projects: [])
-    super
+    super()
 
     @element = element
     @request_reviews_for_non_staging_projects = request_reviews_for_non_staging_projects
@@ -21,7 +21,7 @@ class BsRequestHistoryElementComponent < ApplicationComponent
     when 'ReviewDeclined', 'RequestDeclined'
       tag.i(nil, class: 'fas fa-lg fa-times text-danger')
     when 'RequestReviewAdded'
-      tag.i(nil, class: 'fas fa-sm fa-circle text-warning')
+      tag.i(nil, class: 'fas fa-sm fa-eye')
     else
       tag.i(nil, class: 'fas fa-lg fa-code-commit')
     end
@@ -29,10 +29,10 @@ class BsRequestHistoryElementComponent < ApplicationComponent
 
   def expand?
     case @element.type.demodulize
-    when 'RequestDeclined'
-      true
-    else
+    when 'RequestReviewAdded', 'RequestPriorityChange', 'RequestDeleted', 'RequestSetIncident', 'RequestSuperseded', 'RequestAllReviewsApproved'
       false
+    else
+      true
     end
   end
 

@@ -2,7 +2,8 @@ module Webui::MonitorHelper
   def self.print_statistics_array(array)
     # safe guard
     array ||= []
-    '[' + array.map { |time, value| "[#{time * 1000}, #{value}]" }.join(',') + ']'
+    formatted_statistics = array.map { |time, value| "[#{time * 1000}, #{value}]" }.join(',')
+    "[#{formatted_statistics}]"
   end
 
   def icon_for_daemon(state)

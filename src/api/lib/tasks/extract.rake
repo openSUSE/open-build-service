@@ -171,7 +171,7 @@ namespace :db do
               begin
                 Integer(key)
                 key = nil # if it's a valid integer, ignore it :)
-              rescue Exception
+              rescue StandardError
                 record.delete(primary)
               end
             rescue ActiveRecord::StatementInvalid

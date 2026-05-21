@@ -54,15 +54,15 @@ module ProjectMaintenance
     maintained_projects.collect { |mp| mp.project.expand_all_projects }.flatten
   end
 
-  def is_maintenance_release?
+  def maintenance_release?
     kind == 'maintenance_release'
   end
 
-  def is_maintenance_incident?
+  def maintenance_incident?
     kind == 'maintenance_incident'
   end
 
-  def is_maintenance?
+  def maintenance?
     kind == 'maintenance'
   end
 

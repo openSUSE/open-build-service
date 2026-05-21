@@ -10,30 +10,37 @@ RSpec.describe 'LabelTemplates', :js, :vcr do
     login user
   end
 
-  context 'when having no label templates' do
-    it 'creates a label template' do
+  context 'having no label templates' do
+    before do
       visit project_label_templates_path(project)
+    end
 
+    it 'creates a label template' do
       click_on('Create Label Template')
       fill_in('Name', with: 'A label template')
       click_on('Create')
 
-      expect(LabelTemplate.last.name).to eql('A label template')
+      expect(page).to have_text('Label template created successfully')
+      expect(LabelTemplate.where(name: 'A label template')).to exist
     end
   end
 
-  context 'when having an already existing label template' do
+  context 'having an already existing label template' do
     let!(:label_template) { create(:label_template, project: project) }
-    let(:another_project) { create(:project, maintainer: user) }
 
-    it 'updates an already existing label template' do
-      visit project_label_templates_path(project)
+    context 'edit a label template' do
+      before do
+        visit project_label_templates_path(project)
 
-      click_on('Edit')
-      fill_in('Name', with: 'A label template updated')
-      click_on('Update')
+        click_on('Edit')
+        fill_in('Name', with: 'A label template updated')
+        click_on('Update')
+      end
 
-      expect(label_template.reload.name).to eql('A label template updated')
+      it 'updates an already existing label template' do
+        expect(page).to have_text('Label template updated successfully')
+        expect(label_template.reload.name).to eq('A label template updated')
+      end
     end
 
     it 'deletes an already existing label template' do
@@ -43,7 +50,9 @@ RSpec.describe 'LabelTemplates', :js, :vcr do
       expect(page).to have_text('Label template deleted successfully')
     end
 
-    context 'copies label templates to another project' do
+    context 'copying label templates to another project' do
+      let(:another_project) { create(:project, maintainer: user) }
+
       before do
         visit project_label_templates_path(another_project)
 

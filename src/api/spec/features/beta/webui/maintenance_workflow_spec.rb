@@ -1,7 +1,7 @@
 require 'browser_helper'
 
 RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
-  let(:admin_user) { create(:admin_user) }
+  let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:maintenance_project) do
     create(:maintenance_project,
            name: 'MaintenanceProject',
@@ -43,7 +43,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     end
 
     it 'displays information on type of request' do
-      expect(page).to have_text('This is a Maintenance Incident')
+      expect(page).to have_text('Maintenance Incident')
     end
 
     context 'when accepting request' do
@@ -53,15 +53,13 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
         visit request_show_path(bs_request)
         fill_in('reason', with: 'really? ok')
 
-        click_button('Accept')
-        click_button('Accept request')
-      end
-
-      it 'succeeds' do
-        expect(page).to have_text("Request #{bs_request.number} accepted")
+        accept_alert do
+          click_button('Accept')
+        end
       end
 
       it 'creates maintenance incident project' do
+        expect(page).to have_text("Request #{bs_request.number} accepted")
         expect(bs_request.bs_request_actions.first.target_project).to eq('MaintenanceProject:0')
       end
     end
@@ -69,11 +67,13 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
 
   context 'maintenance request with patchinfo' do
     let(:bs_request) do
-      user.run_as { create(:patchinfo, project_name: branched_project.name, package_name: 'patchinfo') }
-      create(:bs_request_with_maintenance_incident_actions, :with_patchinfo, source_project_name: branched_project.name,
-                                                                             source_package_names: ['cacti'],
-                                                                             target_project_name: maintenance_project.name,
-                                                                             target_releaseproject_names: [update_project.name, another_update_project.name])
+      user.run_as do
+        create(:patchinfo, project_name: branched_project.name, package_name: 'patchinfo')
+        create(:bs_request_with_maintenance_incident_actions, :with_patchinfo, source_project_name: branched_project.name,
+                                                                               source_package_names: ['cacti'],
+                                                                               target_project_name: maintenance_project.name,
+                                                                               target_releaseproject_names: [update_project.name, another_update_project.name])
+      end
     end
 
     before do
@@ -82,10 +82,11 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     end
 
     it 'displays information on type of request' do
-      expect(page).to have_text('This is a Maintenance Incident')
+      expect(page).to have_text('Maintenance Incident')
     end
 
     it 'has patchinfo submission' do
+      visit request_changes_path(bs_request)
       find_by_id('request-actions').click
       expect(page).to have_text('patchinfo')
     end
@@ -97,15 +98,13 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
         visit request_show_path(bs_request)
         fill_in('reason', with: 'really? ok')
 
-        click_button('Accept')
-        click_button('Accept request')
-      end
-
-      it 'succeeds' do
-        expect(page).to have_text("Request #{bs_request.number} accepted")
+        accept_alert do
+          click_button('Accept')
+        end
       end
 
       it 'creates maintenance incident project' do
+        expect(page).to have_text("Request #{bs_request.number} accepted")
         expect(bs_request.bs_request_actions.first.target_project).to eq('MaintenanceProject:0')
       end
     end

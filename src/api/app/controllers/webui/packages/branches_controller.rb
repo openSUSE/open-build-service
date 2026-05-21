@@ -63,8 +63,8 @@ module Webui
         branch_params[:autocleanup] = params[:autocleanup] if params[:autocleanup].present?
 
         branched_package = BranchPackage.new(branch_params).branch
-        created_project_name = branched_package[:data][:targetproject]
-        created_package_name = branched_package[:data][:targetpackage]
+        created_project_name = branched_package[:data][:target_project]
+        created_package_name = branched_package[:data][:target_package]
 
         Event::BranchCommand.create(project: source_project_name, package: source_package_name,
                                     targetproject: created_project_name, targetpackage: created_package_name,

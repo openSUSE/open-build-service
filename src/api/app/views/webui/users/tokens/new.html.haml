@@ -31,10 +31,10 @@
 
           .row#package-project-form
             .col-sm
-              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'project_name', label: 'Project name', required: false,
+              = render partial: 'webui/shared/search_box', locals: { html_id: 'project_name', label: 'Project name', required: false,
                                                                        data: { source: autocomplete_projects_path(local: true) } }
             .col-sm
-              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'package_name', label: 'Package name', required: false,
+              = render partial: 'webui/shared/search_box', locals: { html_id: 'package_name', label: 'Package name', required: false,
                                                                        data: { source: autocomplete_packages_path }, disabled: true }
             .col-12
               .mb-3.form-text.text-muted
@@ -44,7 +44,7 @@
             .col-12.col-md-10.col-lg-9
               .mb-3
                 = f.label(:scm_token, 'SCM Token:')
-                %abbr.text-danger{ title: 'required' } *
+                = render partial: 'webui/shared/required_label_mark'
                 = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your SCM token')
               .mb-3
                 = f.label(:workflow_configuration_path, 'Path for Workflows Configuration File:')

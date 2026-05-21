@@ -1,7 +1,16 @@
 module Event
   class StatusCheckForRequest < StatusCheck
+    include EventObjectRequest
+
     self.message_bus_routing_key = 'request.status_report'
     payload_keys :number
+  end
+
+  def involves_hidden_project?
+    bs_request = BsRequest.find_by(number: payload['number'])
+    return false unless bs_request
+
+    bs_request.involves_hidden_project?
   end
 end
 

@@ -7,13 +7,19 @@ class Token::Workflow < Token
                           foreign_key: :token_id,
                           association_foreign_key: :user_id,
                           dependent: :destroy,
+                          after_add: ->(token, user) { Event::TokenMembershipUpdate.create(token_id: token.id, user_login: user.login, who: User.session&.login, action: 'share') },
+                          after_remove: ->(token, user) { Event::TokenMembershipUpdate.create(token_id: token.id, user_login: user.login, who: User.session&.login, action: 'unshare') },
                           inverse_of: :users
   has_and_belongs_to_many :groups,
                           join_table: :workflow_token_groups,
                           foreign_key: :token_id,
                           association_foreign_key: :group_id,
                           dependent: :destroy,
+                          after_add: ->(token, group) { Event::TokenMembershipUpdate.create(token_id: token.id, group_title: group.title, who: User.session&.login, action: 'share') },
+                          after_remove: ->(token, group) { Event::TokenMembershipUpdate.create(token_id: token.id, group_title: group.title, who: User.session&.login, action: 'unshare') },
                           inverse_of: :groups
+
+  attr_writer :reason
 
   validates :scm_token, presence: true
   # Either a url referring to the worklflow configuration file or a filepath to the config inside the
@@ -21,33 +27,34 @@ class Token::Workflow < Token
   validates :workflow_configuration_path, presence: true, unless: -> { workflow_configuration_url.present? }
   validates :workflow_configuration_url, presence: true, unless: -> { workflow_configuration_path.present? }
 
+  after_save :state_change_event, if: :enabled_previously_changed?
+
   def call(options)
     set_triggered_at
-    @scm_webhook = options[:scm_webhook]
     workflow_run = options[:workflow_run]
-    raise Token::Errors::MissingPayload, 'A payload is required' if @scm_webhook.payload.blank?
-
-    workflow_run.update(response_url: @scm_webhook.payload[:api_endpoint])
+    # FIXME: This makes little sense, wherever we use response_url, just use api_endpoint...
+    workflow_run.update(response_url: workflow_run.api_endpoint)
 
     # We return early with a ping event, since it doesn't make sense to perform payload checks with it, just respond
-    if @scm_webhook.ping_event?
-      SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
+    if workflow_run.ping_event?
+      SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success',
+                            initial_report: true).call
       return []
     end
-
-    yaml_file = Workflows::YAMLDownloader.new(@scm_webhook.payload, token: self).call
-    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self, workflow_run: workflow_run).call
+    yaml_file = Workflows::YAMLDownloader.new(workflow_run, token: self).call
+    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: self, workflow_run: workflow_run).call
 
     return validation_errors unless validation_errors.none?
 
     # This is just an initial generic report to give a feedback asap. Initial status pending
-    SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, initial_report: true).call
+    SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, initial_report: true).call
     @workflows.each do |workflow|
       return workflow.errors.full_messages if workflow.invalid?(:call)
 
       workflow.call
     end
-    SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
+    SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success',
+                          initial_report: true).call
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
@@ -75,13 +82,16 @@ class Token::Workflow < Token
     @validation_errors ||= begin
       error_messages = []
 
-      error_messages << @scm_webhook.errors.full_messages unless @scm_webhook.valid?
       @workflows.each do |workflow|
         error_messages << workflow.errors.full_messages unless workflow.valid?
       end
 
       error_messages.flatten
     end
+  end
+
+  def state_change_event
+    Event::TokenStateChange.create(id: workflow_runs.last&.id, token_id: id, reason: @reason, enabled: enabled)
   end
 end
 
@@ -91,8 +101,9 @@ end
 #
 #  id                          :integer          not null, primary key
 #  description                 :string(64)       default("")
+#  enabled                     :boolean          default(TRUE), not null, indexed
 #  scm_token                   :string(255)      indexed
-#  string                      :string(255)      indexed
+#  string                      :string(255)      uniquely indexed
 #  triggered_at                :datetime
 #  type                        :string(255)
 #  workflow_configuration_path :string(255)      default(".obs/workflows.yml")
@@ -102,6 +113,7 @@ end
 #
 # Indexes
 #
+#  index_tokens_on_enabled    (enabled)
 #  index_tokens_on_scm_token  (scm_token)
 #  index_tokens_on_string     (string) UNIQUE
 #  package_id                 (package_id)

@@ -11,13 +11,13 @@
               .mb-3
                 = f.label(:message) do
                   Message:
-                  %abbr.text-danger{ title: 'required' } *
+                  = render partial: 'webui/shared/required_label_mark'
                 = render WriteAndPreviewComponent.new(form: f, preview_message_url: preview_news_items_path,
                                                       message_body_param: 'status_message[message]')
               .mb-3
                 = f.label(:severity) do
                   Severity:
-                  %abbr.text-danger{ title: 'required' } *
+                  = render partial: 'webui/shared/required_label_mark'
                   %small.form-text With "Announcement", the message will be displayed on the top and all over the web site.
                 - options = StatusMessage.severities.keys.map { |severity| [severity.humanize, severity] }
                 = f.select(:severity, options_for_select(options), {}, class: 'form-select')

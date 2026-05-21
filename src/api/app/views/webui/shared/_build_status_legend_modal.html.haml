@@ -11,7 +11,7 @@
       .modal-body
         - legend.each do |status, description|
           %p
-            %strong
+            %strong{ class: "build-state-#{status}" }
               #{status}:
             = description
       .modal-footer

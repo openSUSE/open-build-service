@@ -11,7 +11,7 @@
 
   .card-body
     .tab-content#reviews-in
-      = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(User.session),
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: my_requests_path,
                page_length: 10 })
 
 .card.mt-3#requests
@@ -47,16 +47,16 @@
   .card-body
     .tab-content
       .tab-pane.fade#requests-in{ role: 'tabpanel', 'aria-labelledby': 'requests-in-tab' }
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(User.session),
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: my_requests_path,
                  page_length: 10 })
       .tab-pane.fade#requests-out{ role: 'tabpanel', 'aria-labelledby': 'requests-out-tab' }
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(User.session),
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_out_table', source_url: my_requests_path,
                  page_length: 10 })
       .tab-pane.fade#requests-declined{ role: 'tabpanel', 'aria-labelledby': 'requests-declined-tab' }
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(User.session),
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_declined_table', source_url: my_requests_path,
                  page_length: 10 })
       .tab-pane.fade#all-requests{ role: 'tabpanel', 'aria-labelledby': 'all-requests-tab' }
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.session),
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: my_requests_path,
                  page_length: 10 })
 
 - number_of_involved_patchinfos = User.session.involved_patchinfos.size

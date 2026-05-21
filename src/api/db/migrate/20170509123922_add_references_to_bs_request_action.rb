@@ -5,7 +5,7 @@ class AddReferencesToBsRequestAction < ActiveRecord::Migration[5.0]
     add_reference(:bs_request_actions, :source_package, index: true)
     add_reference(:bs_request_actions, :source_project, index: true)
 
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE bs_request_actions
       INNER JOIN projects ON projects.name = bs_request_actions.target_project
       SET bs_request_actions.target_project_id = projects.id
@@ -13,7 +13,7 @@ class AddReferencesToBsRequestAction < ActiveRecord::Migration[5.0]
     SQL
     execute(sql)
 
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE bs_request_actions
       INNER JOIN projects ON projects.name = bs_request_actions.target_project
       INNER JOIN packages ON packages.name = bs_request_actions.target_package AND packages.project_id = projects.id
@@ -22,7 +22,7 @@ class AddReferencesToBsRequestAction < ActiveRecord::Migration[5.0]
     SQL
     execute(sql)
 
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE bs_request_actions
       INNER JOIN projects ON projects.name = bs_request_actions.source_project
       SET bs_request_actions.source_project_id = projects.id
@@ -30,7 +30,7 @@ class AddReferencesToBsRequestAction < ActiveRecord::Migration[5.0]
     SQL
     execute(sql)
 
-    sql = <<-SQL.squish
+    sql = <<~SQL.squish
       UPDATE bs_request_actions
       INNER JOIN projects ON projects.name = bs_request_actions.source_project
       INNER JOIN packages ON packages.name = bs_request_actions.source_package AND packages.project_id = projects.id

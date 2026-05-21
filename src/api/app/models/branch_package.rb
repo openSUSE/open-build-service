@@ -37,9 +37,7 @@ class BranchPackage
     @update_path_elements = true
   end
 
-  def logger
-    Rails.logger
-  end
+  delegate :logger, to: :Rails
 
   def branch
     #
@@ -106,7 +104,7 @@ class BranchPackage
   def copy_package_message(package_hash)
     copy_from_devel = package_hash[:copy_from_devel]
 
-    if copy_from_devel.project.is_maintenance_incident?
+    if copy_from_devel.project.maintenance_incident?
       "fetch updates from open incident project #{copy_from_devel.project.name}"
     else
       "fetch updates from devel package #{copy_from_devel.project.name}/#{copy_from_devel.name}"
@@ -141,20 +139,35 @@ class BranchPackage
   # would be just the cosmetic parts like title and description. Other elemnts should
   # not be used anyway for scmsync packages.
   def create_fork(project)
-    package = project.packages.find_or_initialize_by(name: params[:package])
-    package.scmsync = @scmsync
-    package.store
+    package = nil
+    unless params[:package] == '_project'
+      package = project.packages.find_or_initialize_by(name: params[:package])
+      package.scmsync = @scmsync
+      package.store
+    end
 
     # add repositories
-    opts = {}
-    opts[:rebuild] = @rebuild_policy if @rebuild_policy
-    opts[:block]   = @block_policy   if @block_policy
-    source_project = Project.get_by_name(params[:project])
-    project.branch_to_repositories_from(source_project, package, opts)
-    project.sync_repository_pathes
+    if @add_repositories
+      opts = {}
+      opts[:rebuild] = @rebuild_policy if @rebuild_policy
+      opts[:block]   = @block_policy   if @block_policy
+      source_project = Project.get_by_name(params[:project])
+      project.branch_to_repositories_from(source_project, package, opts)
+      project.sync_repository_pathes
+      project.store
+    end
 
-    project.store
-    { targetproject: package.project.name, targetpackage: package.name, sourceproject: params[:project], sourcepackage: params[:package] }
+    if params[:package] == '_project'
+      project.scmsync = @scmsync
+      project.store
+      return { targetproject: project.name,
+               sourceproject: params[:project] }
+    end
+
+    { targetproject: project.name,
+      targetpackage: package.name,
+      sourceproject: params[:project],
+      sourcepackage: params[:package] }
   end
 
   def create_branch_packages(tprj)
@@ -165,6 +178,10 @@ class BranchPackage
       raise CanNotBranchPackage, "package is developed at #{p[:package].scmsync}. Fork it instead" if p[:package].try(:scmsync).present?
 
       pac = p[:package]
+      if pac.instance_of?(Package)
+        a = pac.find_attribute('OBS', 'RejectBranch')
+        raise BranchRejected, "Branching is not allowed because: #{a.values.first.value}" if a && a.values.first
+      end
 
       # find origin package to be branched
       pack_name = branch_target_package(p)
@@ -182,14 +199,14 @@ class BranchPackage
         else
           tpkg = tprj.packages.new(name: pack_name)
         end
-        tpkg.bcntsynctag << (".#{p[:link_target_project].name.tr(':', '_')}") if tpkg.bcntsynctag && @extend_names
+        tpkg.bcntsynctag << ".#{p[:link_target_project].name.tr(':', '_')}" if tpkg.bcntsynctag && @extend_names
         tpkg.releasename = p[:release_name]
       end
       tpkg.store
 
       if p[:local_link]
         # copy project local linked packages
-        Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.session!.login)
+        Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.session&.login)
         # and fix the link
         ret = Nokogiri::XML(tpkg.source_file('_link'), &:strict).root
         ret.remove_attribute('project') # its a local link, project name not needed
@@ -198,7 +215,7 @@ class BranchPackage
         linked_package = params[:target_package] if params[:target_package] && params[:package] == ret['package']
         linked_package += ".#{p[:link_target_project].name.tr(':', '_')}" if @extend_names
         ret['package'] = linked_package
-        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.session!.login, ret.to_xml)
+        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.session&.login, ret.to_xml)
       else
         opackage = p[:package]
         oproject = p[:link_target_project]
@@ -211,7 +228,7 @@ class BranchPackage
         opts[:noservice] = '1' if params[:noservice].present?
         opts[:orev] = p[:rev] if p[:rev].present?
         # New incident updates need the vrev extension
-        if tpkg.project.is_maintenance_incident? && p[:package].is_a?(Package) &&
+        if tpkg.project.maintenance_incident? && p[:package].is_a?(Package) &&
            p[:package].project != p[:link_target_project]
           opts[:extendvrev] = '1'
         end
@@ -219,17 +236,22 @@ class BranchPackage
 
         response = if response
                      # multiple package transfers, just tell the target project
-                     { targetproject: tpkg.project.name }
+                     # Deprecated return parameter `targetproject` stays for compatibility. To be removed in 3.0
+                     { target_project: tpkg.project.name, targetproject: tpkg.project.name }
                    else
                      # just a single package transfer, detailed answer
-                     { targetproject: tpkg.project.name, targetpackage: tpkg.name, sourceproject: oproject, sourcepackage: opackage }
+                     {
+                       target_project: tpkg.project.name, target_package: tpkg.name, project: oproject, package: opackage,
+                       # Deprecated return parameters stay for compatibility. To be removed in 3.0
+                       targetproject: tpkg.project.name, targetpackage: tpkg.name, sourceproject: oproject, sourcepackage: opackage
+                     }
                    end
 
         # fetch newer sources from devel package, if defined
         if p[:copy_from_devel] && p[:copy_from_devel].project != tpkg.project && !p[:rev]
           msg = copy_package_message(p)
           Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:copy_from_devel].project.name, p[:copy_from_devel].name,
-                                              User.session!.login, comment: msg, keeplink: 1, expand: 1)
+                                              User.session&.login, comment: msg, keeplink: 1, expand: 1)
         end
       end
       tpkg.sources_changed
@@ -243,7 +265,7 @@ class BranchPackage
         tprj.branch_to_repositories_from(p[:link_target_project], tpkg, opts)
       end
 
-      tpkg.add_channels if tprj.is_maintenance_incident? && !tprj.parent.find_attribute('OBS', 'SkipChannelBranch')
+      tpkg.add_channels if tprj.maintenance_incident? && !tprj.parent.find_attribute('OBS', 'SkipChannelBranch')
     end
     tprj.sync_repository_pathes if @update_path_elements
 
@@ -357,7 +379,7 @@ class BranchPackage
     return unless p[:package].is_a?(Package) # only for local packages
 
     pkg = p[:package]
-    if pkg.is_link?
+    if pkg.link?
       # is the package itself a local link ?
       link = Backend::Api::Sources::Package.link_info(p[:package].project.name, p[:package].name)
       ret = Xmlhash.parse(link)
@@ -422,8 +444,11 @@ class BranchPackage
       prj = Project.get_by_name(params[:project])
       tpkg_name = params[:target_package]
       if params[:missingok]
-        raise NotMissingError, "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists." if Package.exists_by_project_and_name(params[:project], params[:package],
-                                                                                                                                                                                  allow_remote_packages: true)
+        if Package.exists_by_project_and_name(params[:project], params[:package],
+                                              allow_remote_packages: true)
+          raise NotMissingError,
+                "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists."
+        end
       else
         pkg = Package.get_by_project_and_name(params[:project], params[:package], check_update_project: params[:ignoredevel].blank?)
         if prj.is_a?(Project) && prj.find_attribute('OBS', 'BranchTarget')

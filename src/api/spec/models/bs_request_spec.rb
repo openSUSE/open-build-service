@@ -25,7 +25,7 @@ RSpec.describe BsRequest, :vcr do
       bs_request_action.update_attribute(:sourceupdate, 'foo')
       # rubocop:enable Rails/SkipsModelValidations
       expect { bs_request.reload.save! }.to raise_error(
-        ActiveRecord::RecordInvalid, 'Validation failed: Bs request actions Sourceupdate is not included in the list'
+        ActiveRecord::RecordInvalid, 'Validation failed: Bs request actions Sourceupdate is not included in the list and Sourceupdate must be blank'
       )
     end
   end
@@ -118,8 +118,8 @@ RSpec.describe BsRequest, :vcr do
 
     it 'fails with not found' do
       expect { request.addreview(by_user: 'NOEXIST') }.to raise_error do |exception|
-        expect(exception).to be_a(NotFoundError)
-        expect(exception.message).to eq('User not found')
+        expect(exception).to be_a(BsRequest::Errors::InvalidReview)
+        expect(exception.message).to eq("Review invalid: User can't be blank")
       end
     end
   end
@@ -298,6 +298,18 @@ RSpec.describe BsRequest, :vcr do
 
             expect(request.state).to be(:accepted)
           end
+        end
+      end
+
+      context 'and the source package has an assignment' do
+        let!(:assignment) { create(:assignment, assignee: creator, package: request.bs_request_actions.first.source_package_object) }
+
+        before { login creator }
+
+        it 'expires the assignment' do
+          request.change_state(newstate: 'accepted')
+
+          expect(request.bs_request_actions.first.source_package_object.assignment).to be_nil
         end
       end
     end
@@ -652,34 +664,6 @@ RSpec.describe BsRequest, :vcr do
     end
   end
 
-  describe '::with_open_reviews_for' do
-    include_context 'a BsRequest with reviews'
-
-    context "when request state is 'review' but review state is not 'new'" do
-      before do
-        bs_request.reviews.find_by(by_user: reviewer.login).update(state: 'accepted')
-      end
-
-      it { expect(BsRequest.with_open_reviews_for(by_user: reviewer.login)).to be_empty }
-    end
-
-    context "when request state is 'review' and review state is 'new'" do
-      it 'queries requests with reviews by user' do
-        expect(BsRequest.with_open_reviews_for(by_user: reviewer.login)).to contain_exactly(bs_request)
-      end
-
-      it 'queries requests with reviews by group' do
-        bs_request.reviews.create!(by_group: group.title)
-        expect(BsRequest.with_open_reviews_for(by_group: group.title)).to contain_exactly(bs_request)
-      end
-
-      it 'queries requests with reviews by package' do
-        bs_request.reviews.create!(by_package: target_package, by_project: target_project)
-        expect(BsRequest.with_open_reviews_for(by_package: target_package.name)).to contain_exactly(bs_request)
-      end
-    end
-  end
-
   describe '#as_json' do
     subject { submit_request.as_json }
 
@@ -732,6 +716,73 @@ RSpec.describe BsRequest, :vcr do
       it 'sets the value for diff_not_cached' do
         action_details = request.send(:action_details, opts, xml: request.bs_request_actions.last)
         expect(action_details[:diff_not_cached]).to be(false)
+      end
+    end
+  end
+
+  describe '#source_package_latest_local_version' do
+    context 'when the request has multiple actions' do
+      before do
+        submit_request.bs_request_actions << create(:bs_request_action_maintenance_release, source_project: source_project.name,
+                                                                                            source_package: source_package.name,
+                                                                                            target_project: target_project.name)
+      end
+
+      it 'returns nil' do
+        expect(submit_request.source_package_latest_local_version).to be_nil
+      end
+    end
+
+    context 'when the action is not a submit action' do
+      it 'returns nil' do
+        expect(delete_request.source_package_latest_local_version).to be_nil
+      end
+    end
+
+    context 'when the action is a submit action' do
+      context 'when the source project does not have an anitya distribution name' do
+        it 'returns nil' do
+          expect(submit_request.source_package_latest_local_version).to be_nil
+        end
+      end
+
+      context 'when the source project has an anitya distribution name' do
+        before do
+          source_project.update_column(:anitya_distribution_name, 'openSUSE') # rubocop:disable Rails/SkipsModelValidations
+        end
+
+        context 'when the source package has no latest local version' do
+          it 'returns nil' do
+            expect(submit_request.source_package_latest_local_version).to be_nil
+          end
+        end
+
+        context 'when the source package has a latest local version' do
+          let!(:local_version) { create(:package_version_local, version: '1.0.0', package: source_package) }
+
+          it 'returns the version' do
+            expect(submit_request.source_package_latest_local_version).to eq('1.0.0')
+          end
+        end
+      end
+    end
+  end
+
+  # Only test the happy path as the implementation is identical to #source_package_latest_local_version which is fully tested above.
+  describe '#target_package_latest_local_version' do
+    context 'when the action is a submit action' do
+      context 'when the target project has an anitya distribution name' do
+        before do
+          target_project.update_column(:anitya_distribution_name, 'openSUSE') # rubocop:disable Rails/SkipsModelValidations
+        end
+
+        context 'when the target package has a latest local version' do
+          let!(:local_version) { create(:package_version_local, version: '2.5.1', package: target_package) }
+
+          it 'returns the version' do
+            expect(submit_request.target_package_latest_local_version).to eq('2.5.1')
+          end
+        end
       end
     end
   end

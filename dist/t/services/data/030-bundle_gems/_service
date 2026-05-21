@@ -1,0 +1,5 @@
+<services>
+ <service name="bundle_gems">
+ <param name="strategy">cpio</param>
+ </service>
+</services>

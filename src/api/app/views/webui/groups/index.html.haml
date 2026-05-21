@@ -17,7 +17,8 @@
             %td
               = link_to(group, group_path(title: group))
             %td
-              = safe_join(group.users.map { |user| link_to(truncate(user.login, length: 20), user_path(user), title: user.login) }, ', ')
+              - users_links = group.users.order(:login).map { |user| link_to(truncate(user.login, length: 20), user_path(user), title: user.login) }
+              = safe_join(users_links, ', ')
             %td
               = link_to(edit_group_path(title: group.title)) do
                 %i.fas.fa-edit.text-secondary.pe-1{ title: 'Edit Group\'s Email' }

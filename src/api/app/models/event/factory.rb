@@ -3,7 +3,7 @@ module Event
   class Factory
     def self.new_from_type(type, params)
       # as long as there is no overlap, all these Srcsrv prefixes only look silly
-      type.gsub!(/^SRCSRV_/, '')
+      type = type.gsub(/^SRCSRV_/, '')
       begin
         "::Event::#{type.downcase.camelcase}".constantize.new(params)
       rescue NameError => e

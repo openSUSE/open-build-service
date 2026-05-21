@@ -1,7 +1,7 @@
 RSpec.describe User do
   let(:admin_user) { create(:admin_user, login: 'king') }
   let(:user) { create(:user, :with_home, login: 'eisendieter') }
-  let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
+  let(:confirmed_user) { create(:confirmed_user, :with_home, login: 'confirmed_user') }
   let(:user_belongs_to_confirmed_owner) { create(:user, owner: confirmed_user) }
   let(:user_belongs_to_unconfirmed_owner) { create(:confirmed_user, owner: user) }
   let(:input) { { 'Event::RequestCreate' => { source_maintainer: '1' } } }
@@ -39,27 +39,27 @@ RSpec.describe User do
     it { expect(subject).to include(active_user) }
   end
 
-  context 'is_admin?' do
-    it { expect(admin_user.is_admin?).to be(true) }
-    it { expect(user.is_admin?).to be(false) }
+  context 'admin?' do
+    it { expect(admin_user.admin?).to be(true) }
+    it { expect(user.admin?).to be(false) }
   end
 
-  describe '#is_active?' do
+  describe '#active?' do
     it 'returns true if user is confirmed' do
-      expect(confirmed_user).to be_is_active
+      expect(confirmed_user).to be_active
     end
 
     it 'returns false if user is NOT confirmed' do
-      expect(user).not_to be_is_active
+      expect(user).not_to be_active
     end
 
     context 'when user has owner' do
       it 'returns true if owner is confirmed' do
-        expect(user_belongs_to_confirmed_owner).to be_is_active
+        expect(user_belongs_to_confirmed_owner).to be_active
       end
 
       it 'returns false if owner not confirmed' do
-        expect(user_belongs_to_unconfirmed_owner).not_to be_is_active
+        expect(user_belongs_to_unconfirmed_owner).not_to be_active
       end
     end
   end
@@ -87,16 +87,6 @@ RSpec.describe User do
       end
 
       it { expect(subject).not_to be_away }
-    end
-  end
-
-  describe '#find_by_login!' do
-    it 'returns a user if it exists' do
-      expect(User.find_by_login!(user.login)).to eq(user)
-    end
-
-    it 'raises an exception if user does not exist' do
-      expect { User.find_by_login!('foo') }.to raise_error(NotFoundError, "Couldn't find User with login = foo")
     end
   end
 
@@ -187,21 +177,6 @@ RSpec.describe User do
       it 'throws an exception' do
         expect { User.create_user_with_fake_pw! }.to raise_error(ActiveRecord::RecordInvalid)
       end
-    end
-  end
-
-  describe '#add_globalrole' do
-    before do
-      user.update_globalroles(Role.where(title: 'Staff'))
-      user.add_globalrole(Role.where(title: 'Admin'))
-    end
-
-    it 'adds a global role' do
-      expect(user.roles).to include(Role.find_by(title: 'Admin'))
-    end
-
-    it 'keeps old global roles' do
-      expect(user.roles).to include(Role.find_by(title: 'Staff'))
     end
   end
 
@@ -487,51 +462,6 @@ RSpec.describe User do
       it { is_expected.to be_nil }
       it { expect(user.reload.login_failure_count).to eq(8) }
     end
-
-    context 'when LDAP mode is enabled' do
-      include_context 'setup ldap mock with user mock', for_ssl: true
-      include_context 'an ldap connection'
-      include_context 'mock searching a user' do
-        let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John@obs.de', 'John', 'Smith'] }) }
-      end
-
-      let(:user) do
-        create(:user, login: 'tux', realname: 'penguin', login_failure_count: 7, last_logged_in_at: Time.zone.yesterday, email: 'tux@suse.de')
-      end
-
-      before do
-        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on,
-                                          'ldap_search_user' => 'tux',
-                                          'ldap_search_auth' => 'tux_password'))
-      end
-
-      context 'and user is already known by OBS' do
-        subject { User.find_with_credentials(user.login, 'tux_password') }
-
-        it { is_expected.to eq(user) }
-        it { expect(subject.login_failure_count).to eq(0) }
-        it { expect(subject.last_logged_in_at).to eq(Time.zone.today) }
-
-        it 'updates user data received from the LDAP server' do
-          expect(subject.email).to eq('John@obs.de')
-          expect(subject.realname).to eq('tux')
-        end
-      end
-
-      context 'and user is not yet known by OBS' do
-        subject { User.find_with_credentials('new_user', 'tux_password') }
-
-        it 'creates a new user from the data received by the LDAP server' do
-          expect { subject }.to change(User, :count).by(1)
-          expect(subject.email).to eq('John@obs.de')
-          expect(subject.login).to eq('new_user')
-          expect(subject.realname).to eq('new_user')
-          expect(subject.state).to eq('confirmed')
-          expect(subject.login_failure_count).to eq(0)
-          expect(subject.last_logged_in_at).to eq(Time.zone.today)
-        end
-      end
-    end
   end
 
   describe 'autocomplete methods' do
@@ -558,14 +488,13 @@ RSpec.describe User do
   describe '.can_create_project' do
     let(:user) { create(:confirmed_user, login: 'toni') }
     let(:admin_user) { create(:admin_user, login: 'bierhoff') }
-    let(:maintainer) do
-      jogi = create(:confirmed_user, login: 'jogi')
-      jogi.add_globalrole(Role.where(title: 'maintainer'))
-      jogi
-    end
+    let(:maintainer) { create(:confirmed_user, login: 'jogi') }
 
     before do
       allow(Configuration).to receive(:allow_user_to_create_home_project).and_return('true')
+      admin_user.run_as do
+        maintainer.update_globalroles(Role.where(title: 'maintainer'))
+      end
     end
 
     it 'allows creating home projects' do
@@ -642,6 +571,44 @@ RSpec.describe User do
 
         it { expect(user.can_modify?(project)).to be false }
       end
+    end
+  end
+
+  describe '#bs_requests' do
+    let!(:incoming_request) { create(:bs_request_with_submit_action, target_project: confirmed_user.home_project, description: 'incoming') }
+    let!(:outgoing_request) { create(:bs_request_with_submit_action, creator: confirmed_user, description: 'outgoing') }
+    let!(:request_with_user_review) { create(:delete_bs_request, target_project: create(:project), review_by_user: confirmed_user, description: 'user_review') }
+    let!(:request_with_project_review) { create(:delete_bs_request, target_project: create(:project), review_by_project: confirmed_user.home_project, description: 'project_review') }
+    let!(:request_with_package_review) do
+      create(:delete_bs_request, target_project: create(:project), review_by_package: create(:package_with_maintainer, maintainer: confirmed_user), description: 'package_review')
+    end
+    let!(:unrelated_request) { create(:bs_request_with_submit_action, source_project: create(:project), description: 'unrelated') }
+
+    it { expect(confirmed_user.bs_requests.pluck(:description)).to contain_exactly('incoming', 'outgoing', 'user_review', 'project_review', 'package_review') }
+  end
+
+  describe 'global role assignment event' do
+    let(:non_admin_role) { create(:role) }
+
+    before do
+      User.session = admin_user
+    end
+
+    it 'creates a GlobalRoleAssigned event when an admin role is added' do
+      expect { user.roles << Role.where(title: 'Admin').last }.to change(Event::GlobalRoleAssigned, :count).by(1)
+
+      event = Event::GlobalRoleAssigned.last
+      expect(event.payload).to include(
+        'role' => 'Admin',
+        'user' => user.login,
+        'who' => admin_user.login
+      )
+    end
+
+    it 'does not create an event for non-global roles' do
+      expect do
+        user.roles << non_admin_role
+      end.not_to change(Event::GlobalRoleAssigned, :count)
     end
   end
 end

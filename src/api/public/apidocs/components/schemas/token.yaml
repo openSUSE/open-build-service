@@ -1,0 +1,37 @@
+type: object
+properties:
+  id:
+    type: string
+    xml:
+      attribute: true
+  description:
+    type: string
+    xml:
+      attribute: true
+  enabled:
+    type: string
+    xml:
+      attribute: true
+  string:
+    type: string
+    xml:
+      attribute: true
+  kind:
+    type: string
+    xml:
+      attribute: true
+  triggered_at:
+    type: string
+    format: date-time
+    xml:
+      attribute: true
+  project:
+    type: string
+    xml:
+      attribute: true
+  package:
+    type: string
+    xml:
+      attribute: true
+xml:
+  name: token

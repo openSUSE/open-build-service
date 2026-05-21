@@ -1,6 +1,8 @@
 module Event
   class CommentForPackage < Base
     include CommentEvent
+    include EventObjectPackage
+
     self.message_bus_routing_key = 'package.comment'
     self.description = 'New comment for package created'
     receiver_roles :maintainer, :bugowner, :project_watcher, :package_watcher
@@ -10,10 +12,6 @@ module Event
 
     def subject
       "New comment in package #{payload['project']}/#{payload['package']} by #{payload['commenter']}"
-    end
-
-    def involves_hidden_project?
-      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
     end
   end
 end

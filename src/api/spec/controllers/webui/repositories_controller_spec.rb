@@ -76,7 +76,8 @@ RSpec.describe Webui::RepositoriesController, :vcr do
 
     context 'with a non valid target repository' do
       before do
-        post :create, params: { project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: 'non_valid_repo' }
+        post :create, params: { project: user.home_project, repository: 'valid_name',
+                                add_repo_from_project_target_project: another_project, target_repo: 'non_valid_repo' }
       end
 
       it { expect(flash[:error]).to eq('Can not add repository: Path elements is invalid and Path Element: Link must exist') }
@@ -98,7 +99,7 @@ RSpec.describe Webui::RepositoriesController, :vcr do
         target_repo = create(:repository, project: another_project)
         post :create, params: {
           project: user.home_project, repository: 'valid_name',
-          target_project: another_project, target_repo: target_repo.name, architectures: ['i586']
+          add_repo_from_project_target_project: another_project, target_repo: target_repo.name, architectures: ['i586']
         }
       end
 
@@ -211,6 +212,46 @@ RSpec.describe Webui::RepositoriesController, :vcr do
       it { expect(assigns(:project).repositories.count).to eq(1) }
       it { expect(assigns(:project).repositories.first.name).to eq('images') }
       it { expect(assigns(:project).repositories.first.repository_architectures.count).to eq(Architecture.available.count) }
+    end
+  end
+
+  describe 'POST #mark_important' do
+    before do
+      login user
+    end
+
+    context 'marking the repository important without architectures' do
+      before do
+        create(:repository_architecture, repository: repo_for_user_home, architecture: Architecture.find_by(name: 'armv7l'))
+        create(:repository_architecture, repository: repo_for_user_home, architecture: Architecture.find_by(name: 'i586'), important: true)
+        create(:repository_architecture, repository: repo_for_user_home, architecture: Architecture.find_by(name: 'x86_64'))
+        post :mark_important, params: { project: user.home_project, repository: repo_for_user_home.name }
+      end
+
+      it {
+        expect(RepositoryArchitecture.joins(:architecture).where(repository: repo_for_user_home).pluck('architecture.name',
+                                                                                                       :important)).to contain_exactly(['armv7l', false], ['i586', false], ['x86_64', false])
+      }
+
+      it { is_expected.to redirect_to(action: :index) }
+      it { expect(flash[:success]).to eq('Successfully updated repository') }
+    end
+
+    context 'marking the repository important with architectures' do
+      before do
+        create(:repository_architecture, repository: repo_for_user_home, architecture: Architecture.find_by(name: 'armv7l'), important: true)
+        create(:repository_architecture, repository: repo_for_user_home, architecture: Architecture.find_by(name: 'i586'))
+        create(:repository_architecture, repository: repo_for_user_home, architecture: Architecture.find_by(name: 'x86_64'))
+        post :mark_important, params: { project: user.home_project, repository: repo_for_user_home.name, important: { 'i586' => true, 'x86_64' => true } }
+      end
+
+      it {
+        expect(RepositoryArchitecture.joins(:architecture).where(repository: repo_for_user_home).pluck('architecture.name',
+                                                                                                       :important)).to contain_exactly(['armv7l', false], ['i586', true], ['x86_64', true])
+      }
+
+      it { is_expected.to redirect_to(action: :index) }
+      it { expect(flash[:success]).to eq('Successfully updated repository') }
     end
   end
 end

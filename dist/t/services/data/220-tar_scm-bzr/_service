@@ -1,0 +1,9 @@
+<services>
+  <service name="tar_scm">
+    <param name="scm">bzr</param>
+    <param name="url">lp:qpdfview</param>
+    <param name="versionformat">%r</param>
+    <param name="versionprefix"></param>
+    <param name="filename">qpdfview-bzr</param>
+  </service>
+</services>

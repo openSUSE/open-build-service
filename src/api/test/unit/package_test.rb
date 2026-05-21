@@ -146,7 +146,7 @@ class PackageTest < ActiveSupport::TestCase
                                ))
     end
 
-    assert_raise(NotFoundError) do
+    assert_raise(ActiveRecord::RecordNotFound) do
       @package.update_from_xml(Xmlhash.parse(
                                  "<package name='TestBack' project='home:Iggy'>
                                    <title>My Test package</title>
@@ -303,7 +303,7 @@ class PackageTest < ActiveSupport::TestCase
       travel(90_000.seconds)
       newyear.title = 'Just a silly update 8'
       newyear.save
-      assert_in_delta(72.7, newyear.activity, 0.2)
+      assert_in_delta(73.5, newyear.activity, 0.2)
     end
   end
 

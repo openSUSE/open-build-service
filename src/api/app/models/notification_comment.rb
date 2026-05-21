@@ -13,6 +13,8 @@ class NotificationComment < Notification
       notifiable.commentable.name
     when 'Package'
       "#{notifiable.commentable.project.name} / #{notifiable.commentable.name}"
+    when 'Report'
+      "'#{notifiable.user}' commented on Report ##{notifiable.commentable.id}"
     end
   end
 
@@ -22,7 +24,7 @@ class NotificationComment < Notification
 
   def avatar_objects
     comments = notifiable.commentable.comments
-    comments.select { |comment| comment.updated_at >= unread_date }.map(&:user).uniq.compact
+    User.joins(:comments).where(comments: { updated_at: unread_date... }).where(comments: comments).distinct
   end
 
   def link_text
@@ -33,13 +35,15 @@ class NotificationComment < Notification
       'Comment on Project'
     when 'Event::CommentForPackage'
       'Comment on Package'
+    when 'Event::CommentForReport'
+      'Comment on Report'
     end
   end
 
   def link_path
     case event_type
     when 'Event::CommentForRequest'
-      anchor = if Flipper.enabled?(:request_show_redesign, User.session!)
+      anchor = if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
                  "comment-#{notifiable.id}-bubble"
                else
                  'comments-list'
@@ -55,6 +59,8 @@ class NotificationComment < Notification
                                                              project: package.project,
                                                              notification_id: id,
                                                              anchor: 'comments-list')
+    when 'Event::CommentForReport'
+      Rails.application.routes.url_helpers.report_path(notifiable.commentable)
     end
   end
 
@@ -75,7 +81,7 @@ end
 #  bs_request_oldstate        :string(255)
 #  bs_request_state           :string(255)
 #  delivered                  :boolean          default(FALSE), indexed
-#  event_payload              :text(65535)      not null
+#  event_payload              :text(16777215)   not null
 #  event_type                 :string(255)      not null, indexed
 #  last_seen_at               :datetime
 #  notifiable_type            :string(255)      indexed => [notifiable_id]

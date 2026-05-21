@@ -1,5 +1,7 @@
 RSpec.describe GitlabStatusReporter, type: :service do
   let(:scm_status_reporter) { GitlabStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type, initial_report: initial_report) }
+  let(:workflow_run) { create(:workflow_run_gitlab, request_payload: request_payload, token: create(:workflow_token, string: token)) }
+  let(:request_payload) { file_fixture('request_payload_gitlab_pull_request_opened.json').read }
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -9,7 +11,6 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:event_subscription_payload) { {} }
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
-      let(:workflow_run) { nil }
       let(:state) { 'pending' }
       let(:initial_report) { false }
 
@@ -23,7 +24,6 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:event_subscription_payload) { { scm: 'gitlab' } }
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::BuildFail' }
-      let(:workflow_run) { nil }
       let(:state) { 'failed' }
       let(:initial_report) { false }
 
@@ -45,7 +45,6 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
       let(:state) { 'pending' }
-      let(:workflow_run) { nil }
       let(:initial_report) { false }
       let(:status_options) do
         {
@@ -68,18 +67,19 @@ RSpec.describe GitlabStatusReporter, type: :service do
     context 'when reporting a submit request' do
       subject { scm_status_reporter.call }
 
+      let(:request_payload) { file_fixture('request_payload_gitlab_pull_request_opened.json').read }
+
       let(:event_payload) do
         { project: 'home:danidoni', package: 'hello_world',
           repository: 'openSUSE_Tumbleweed', arch: 'x86_64',
           number: 1, state: 'new' }
       end
       let(:event_subscription_payload) do
-        { scm: 'gitlab', project_id: 'danidoni/hello_world', commit_sha: '123456789' }
+        { scm: 'gitlab', project_id: '26_212_710', commit_sha: '123456789' }
       end
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::RequestStatechange' }
       let(:state) { 'pending' }
-      let(:workflow_run) { nil }
       let(:initial_report) { false }
       let(:status_options) do
         {
@@ -95,7 +95,7 @@ RSpec.describe GitlabStatusReporter, type: :service do
       end
 
       it 'creates a commit status' do
-        expect(gitlab_instance).to have_received(:update_commit_status).with('danidoni/hello_world', '123456789', state, status_options)
+        expect(gitlab_instance).to have_received(:update_commit_status).with('26_212_710', '123456789', state, status_options)
       end
     end
   end

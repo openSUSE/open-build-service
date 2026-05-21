@@ -67,10 +67,10 @@ Requires:       rubygem-passenger-apache2\
 Requires:       ruby(abi) = %{__obs_ruby_abi_version}\
 %{nil}
 
-%define __obs_ruby_abi_version 3.1.0
-%define __obs_ruby_bin /usr/bin/ruby.ruby3.1
-%define __obs_bundle_bin /usr/bin/bundle.ruby3.1
-%define __obs_rake_bin /usr/bin/rake.ruby3.1
+%define __obs_ruby_abi_version 3.4.0
+%define __obs_ruby_bin /usr/bin/ruby.ruby3.4
+%define __obs_bundle_bin /usr/bin/bundle.ruby3.4
+%define __obs_rake_bin /usr/bin/rake.ruby3.4
 %define __obs_document_root %{apache_datadir}/obs
 %define __obs_api_prefix %{__obs_document_root}/api
 %define __obs_build_package_name build
@@ -81,55 +81,28 @@ Requires:       ruby(abi) = %{__obs_ruby_abi_version}\
 %define obs_backend_data_dir /srv/obs
 %define obs_backend_dir /usr/lib/obs/server
 
-%if ! %{defined _restart_on_update_reload}
-%define _restart_on_update_reload() (\
-	test "$YAST_IS_RUNNING" = instsys && exit 0\
-	test -f /etc/sysconfig/services -a \\\
-	     -z "$DISABLE_RESTART_ON_UPDATE" && . /etc/sysconfig/services\
-	test "$DISABLE_RESTART_ON_UPDATE" = yes -o \\\
-	     "$DISABLE_RESTART_ON_UPDATE" = 1 && exit 0\
-	%{?*:/usr/bin/systemctl force-reload %{*}}\
-	) || : %{nil}
+%if ! %{defined service_del_postun_with_reload}
+%if 0%{?suse_version} < 1600
+%define reload_command force-reload
+%define reload_marker %{nil}
+%else
+%define reload_command set-property
+%define reload_marker Markers=+needs-reload
+%endif
 
-%define service_del_postun(fnr) \
-test -n "$FIRST_ARG" || FIRST_ARG="$1"						\
-if [ "$FIRST_ARG" -ge 1 ]; then							\
-	# Package upgrade, not uninstall					\
-	if [ -x /usr/bin/systemctl ]; then					\
-		/usr/bin/systemctl daemon-reload || :				\
-		%{expand:%%_restart_on_update%{-f:_force}%{!-f:%{-n:_never}}%{!-f:%{!-n:%{-r:_reload}}} %{?*}}  \
-	fi									\
-else # package uninstall							\
-	for service in %{?*} ; do						\
-		sysv_service="${service%.*}"					\
-		rm -f "/var/lib/systemd/migrated/$sysv_service" || :		\
-	done									\
-	if [ -x /usr/bin/systemctl ]; then					\
-		/usr/bin/systemctl daemon-reload || :				\
-	fi									\
-fi										\
+%define service_del_postun_with_reload()                                                \
+%{expand::%%service_del_postun_without_restart %{?**}}                                  \
+if [ -x /usr/bin/systemctl ]; then                                                      \
+        if [ $1 -ge 1 ]; then                                                           \
+                # Package upgrade, not uninstall                                        \
+                /usr/bin/systemctl %reload_command %{?*} %reload_marker || :            \
+        fi                                                                              \
+fi                                                                                      \
 %{nil}
-
 %endif
 
 %if ! %{defined _fillupdir}
   %define _fillupdir %{_localstatedir}/adm/fillup-templates
-%endif
-
-%if 0%{?suse_version} >= 1315
-%define reload_on_update() %{?nil:
-	test -n "$FIRST_ARG" || FIRST_ARG=$1
-	if test "$FIRST_ARG" -ge 1 ; then
-	   test -f /etc/sysconfig/services && . /etc/sysconfig/services
-	   if test "$YAST_IS_RUNNING" != "instsys" -a "$DISABLE_RESTART_ON_UPDATE" != yes ; then
-	      test -x /bin/systemctl && /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-	      for service in %{?*} ; do
-		 test -x /bin/systemctl && /bin/systemctl reload $service >/dev/null 2>&1 || :
-	      done
-	   fi
-	fi
-	%nil
-}
 %endif
 
 %global obs_api_support_scripts obs-api-support.target obs-clockwork.service obs-delayedjob-queue-consistency_check.service obs-delayedjob-queue-default.service obs-delayedjob-queue-issuetracking.service obs-delayedjob-queue-mailers.service obs-delayedjob-queue-project_log_rotate.service obs-delayedjob-queue-releasetracking.service obs-delayedjob-queue-staging.service obs-delayedjob-queue-scm.service obs-sphinx.service
@@ -141,7 +114,6 @@ Version:        2.10~pre
 Release:        0
 Url:            http://www.openbuildservice.org
 Source0:        open-build-service-%version.tar.xz
-BuildRequires:  python-devel
 
 # None of our perl modules are for consumption
 %define __provides_exclude ^perl\\(
@@ -363,17 +335,6 @@ This package contains test cases for testing a installed appliances.
  * checks if database setup worked correctly
  * checks if required service came up properly
 
-%package -n obs-cloud-uploader
-Summary:        The Open Build Service -- Image Cloud Uploader
-Group:          Productivity/Networking/Web/Utilities
-Requires:       aws-cli
-Requires:       azure-cli
-Requires:       obs-server
-Requires:       /usr/bin/ec2uploadimg
-
-%description -n obs-cloud-uploader
-This package contains all the necessary tools for upload images to the cloud.
-
 %package -n perl-OBS-XML
 Summary:        XML dtd for OBS
 
@@ -488,8 +449,15 @@ OBS_RUBY_ABI_VERSION=%{__obs_ruby_abi_version}
 EOF
 
 pushd src/api
-bundle --local --path %_libdir/obs-api/
+
+# FIXME: RPM 4.20 changed of behaviour for global macros in noarch builds
+#        https://github.com/rpm-software-management/rpm/pull/3071
+#        Use the build host RPM to evaluate libdir while parsing the spec.
+#        The build host is always x86_64 for noarch builds in OBS...
+bundle config set path %(rpm -E %%_libdir)/obs-api
+bundle install --local
 rm -rf vendor/cache/* vendor/cache.next/*
+
 popd
 
 %if 0%{?suse_version} >= 1500
@@ -546,12 +514,6 @@ if ! test -L %{buildroot}%{obs_backend_dir}/build; then
   echo "%{obs_backend_dir}/build is not a symlink!"
   exit 1
 fi
-
-install -m 755 $RPM_BUILD_DIR/open-build-service-%version/dist/clouduploader.rb $RPM_BUILD_ROOT/%{_bindir}/clouduploader
-mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload
-install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/ec2utils.conf.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.ec2utils.conf
-mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws
-install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/aws_credentials.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws/credentials
 
 # Link the assets without hash to make them accessible for third party tools like the pattern library
 pushd $RPM_BUILD_ROOT%{__obs_api_prefix}/public/assets/webui/
@@ -667,10 +629,6 @@ exit 0
 %pre -n obs-worker
 %service_add_pre obsworker.service
 
-%pre -n obs-cloud-uploader
-%service_add_pre obsclouduploadworker.service
-%service_add_pre obsclouduploadserver.service
-
 %preun
 %service_del_preun obsscheduler.service
 %service_del_preun obssrcserver.service
@@ -693,10 +651,6 @@ exit 0
 
 %preun -n obs-worker
 %service_del_preun obsworker.service
-
-%preun -n obs-cloud-uploader
-%service_del_preun obsclouduploadworker.service
-%service_del_preun obsclouduploadserver.service
 
 %preun -n obs-api
 %service_del_preun %{obs_api_support_scripts}
@@ -721,10 +675,6 @@ exit 0
 %post -n obs-worker
 %service_add_post obsworker.service
 
-%post -n obs-cloud-uploader
-%service_add_post obsclouduploadworker.service
-%service_add_post obsclouduploadserver.service
-
 %posttrans
 [ -d %{obs_backend_data_dir} ] || install -d -o obsrun -g obsrun %{obs_backend_data_dir}
 # this changes from directory to symlink. rpm can not handle this itself.
@@ -736,38 +686,34 @@ if [ ! -e %{obs_backend_dir}/build ]; then
 fi
 
 %postun
-%service_del_postun -r obsscheduler.service
-%service_del_postun -r obssrcserver.service
-%service_del_postun -r obsrepserver.service
-%service_del_postun -r obspublisher.service
-%service_del_postun -r obssigner.service
-%service_del_postun -r obsservicedispatch.service
-%service_del_postun -r obssourcepublish.service
-%service_del_postun -r obsservice.service
-%service_del_postun -r obsdeltastore.service
-%service_del_postun -r obsdispatcher.service
-%service_del_postun -r obsdodup.service
-%service_del_postun -r obsgetbinariesproxy.service
-%service_del_postun -r obswarden.service
-%service_del_postun -r obsnotifyforward.service
-%service_del_postun -r obsredis.service
+%service_del_postun_with_reload obsscheduler.service
+%service_del_postun_with_reload obssrcserver.service
+%service_del_postun_with_reload obsrepserver.service
+%service_del_postun_with_reload obspublisher.service
+%service_del_postun_with_reload obssigner.service
+%service_del_postun_with_reload obsservicedispatch.service
+%service_del_postun_with_reload obssourcepublish.service
+%service_del_postun_with_reload obsservice.service
+%service_del_postun_with_reload obsdeltastore.service
+%service_del_postun_with_reload obsdispatcher.service
+%service_del_postun_with_reload obsdodup.service
+%service_del_postun_with_reload obsgetbinariesproxy.service
+%service_del_postun_with_reload obswarden.service
+%service_del_postun_with_reload obsnotifyforward.service
+%service_del_postun_with_reload obsredis.service
 # cleanup empty directory just in case
 rmdir %{obs_backend_data_dir} 2> /dev/null || :
 
 %postun -n obs-common
-# NOT used on purpose: restart_on_update obsstoragesetup
+# NO restart on purpose for obsstoragesetup
 # This is just run once on boot
-%service_del_postun -n obsstoragesetup.service
+%service_del_postun_without_restart obsstoragesetup.service
 
 %postun -n obs-worker
-# NOT used on purpose: restart_on_update obsworker
+# NO restart on purpose for obsworker
 # This can cause problems when building chroot
 # and bs_worker is anyway updating itself at runtime based on server code
-%service_del_postun -n obsworker.service
-
-%postun -n obs-cloud-uploader
-%service_del_postun -r obsclouduploadworker.service
-%service_del_postun -r obsclouduploadserver.service
+%service_del_postun_without_restart obsworker.service
 
 %pre -n obs-api
 %service_add_pre %{obs_api_support_scripts}
@@ -837,9 +783,9 @@ if [ -e %{_rundir}/enable_obs-api-support.target ];then
 fi
 
 %postun -n obs-api
-%service_del_postun %{obs_api_support_scripts}
-%service_del_postun -r apache2
-%restart_on_update memcached
+%service_del_postun_with_restart %{obs_api_support_scripts}
+%service_del_postun_with_reload apache2
+%service_del_postun_with_restart memcached
 
 %files
 %defattr(-,root,root)
@@ -905,6 +851,7 @@ fi
 %{obs_backend_dir}/bs_getbinariesproxy
 %{obs_backend_dir}/bs_mergechanges
 %{obs_backend_dir}/bs_mkarchrepo
+%{obs_backend_dir}/bs_mkapkrepo
 %{obs_backend_dir}/bs_notar
 %{obs_backend_dir}/bs_regpush
 %{obs_backend_dir}/bs_dispatch
@@ -921,9 +868,8 @@ fi
 %{obs_backend_dir}/bs_notifyforward
 %{obs_backend_dir}/bs_dbtool
 %{obs_backend_dir}/modifyrpmheader
-%{obs_backend_dir}/obs-ptf.spec
+%{obs_backend_dir}/templates
 %{obs_backend_dir}/worker
-%{obs_backend_dir}/worker-deltagen.spec
 %config(noreplace) %{obs_backend_dir}/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
 # created via %%post, since rpm fails otherwise while switching from
@@ -1055,6 +1001,7 @@ usermod -a -G docker obsservicerun
 %{__obs_api_prefix}/bin
 %{__obs_api_prefix}/test
 %{__obs_api_prefix}/vendor/assets
+%{__obs_api_prefix}/vendor/javascript
 %{__obs_document_root}/docs
 
 %{__obs_api_prefix}/config/locales
@@ -1068,6 +1015,7 @@ usermod -a -G docker obsservicerun
 
 %{__obs_api_prefix}/config/boot.rb
 %{__obs_api_prefix}/config/routes.rb
+%{__obs_api_prefix}/config/importmap.rb
 %{__obs_api_prefix}/config/routes
 %{__obs_api_prefix}/config/environments/development.rb
 %attr(0640,root,%apache_group) %config(noreplace) %verify(md5) %{__obs_api_prefix}/config/database.yml
@@ -1125,23 +1073,6 @@ usermod -a -G docker obsservicerun
 %dir /usr/lib/obs/tests/
 %dir /usr/lib/obs/tests/appliance
 /usr/lib/obs/tests/appliance/*
-
-%files -n obs-cloud-uploader
-%defattr(-,root,root)
-%{_unitdir}/obsclouduploadworker.service
-%{_unitdir}/obsclouduploadserver.service
-%if 0%{?suse_version}
-/usr/sbin/rcobsclouduploadworker
-/usr/sbin/rcobsclouduploadserver
-%endif
-%{obs_backend_dir}/bs_clouduploadserver
-%{obs_backend_dir}/bs_clouduploadworker
-%{_bindir}/clouduploader
-%dir /etc/obs
-%dir /etc/obs/cloudupload
-%dir /etc/obs/cloudupload/.aws
-%config(noreplace) /etc/obs/cloudupload/.aws/credentials
-%config /etc/obs/cloudupload/.ec2utils.conf
 
 %files -n perl-OBS-XML
 %dir %perl_vendorlib/OBS

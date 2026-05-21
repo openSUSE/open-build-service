@@ -57,12 +57,12 @@ module Webui::WebuiHelper
   end
 
   def check_first(first)
-    first.nil? ? true : nil
+    first.nil? || nil
   end
 
   def image_template_icon(template)
     default_icon = image_url('drive-optical-48.png')
-    icon = template.source_path('_icon') if template.has_icon?
+    icon = Package.source_path(template.project.name, template.name, '_icon') if template.icon?
     capture_haml do
       content_tag(:object, data: icon || default_icon, type: 'image/png', title: template.title, width: 32, height: 32) do
         content_tag(:img, src: default_icon, alt: template.title, width: 32, height: 32)
@@ -73,7 +73,7 @@ module Webui::WebuiHelper
   def repository_status_icon(status:, details: nil, html_class: '')
     outdated = status.start_with?('outdated_')
     status = status.sub('outdated_', '')
-    description = outdated ? 'State needs recalculations, former state was: ' : ''
+    description = outdated ? +'State needs recalculations, former state was: ' : +''
     description << repo_status_description(status)
     description << " (#{details})" if details
 
@@ -84,7 +84,7 @@ module Webui::WebuiHelper
 
   def repository_info(status)
     outdated = status.sub!(/^outdated_/, '')
-    description = outdated ? 'State needs recalculations, former state was: ' : ''
+    description = outdated ? +'State needs recalculations, former state was: ' : +''
     description << repo_status_description(status)
   end
 
@@ -95,7 +95,7 @@ module Webui::WebuiHelper
   end
 
   def force_utf8_and_transform_nonprintables(text)
-    return '' if text.blank?
+    return '' if text.empty?
 
     text.force_encoding('UTF-8')
     text = 'The file you look at is not valid UTF-8 text. Please convert the file.' unless text.valid_encoding?
@@ -147,11 +147,11 @@ module Webui::WebuiHelper
           end
 
     opts[:short] = true # for project
-    out += link_to_project(prj, opts) + ' / ' +
-           link_to_if(pkg, opts[:package_text],
-                      { controller: '/webui/package', action: 'show',
-                        project: opts[:project],
-                        package: opts[:package] }, class: 'package', title: opts[:package])
+    out += safe_join([link_to_project(prj, opts),
+                      ' / ',
+                      link_to_if(pkg, opts[:package_text],
+                                 { controller: '/webui/package', action: 'show', project: opts[:project], package: opts[:package] },
+                                 class: 'package', title: opts[:package])])
     if opts[:rev] && pkg
       out += ' ('.html_safe +
              link_to("revision #{elide(opts[:rev], 10)}",
@@ -209,7 +209,7 @@ module Webui::WebuiHelper
   def tab_link(label, paths, html_class = 'nav-link text-nowrap', active: false)
     paths = [paths] unless paths.respond_to?(:select)
     paths_match = paths.any? { |path| request.path.eql?(path) }
-    html_class << ' active' if active || paths_match
+    html_class = "#{html_class} active" if active || paths_match
 
     link_to(label, paths.first, class: html_class)
   end
@@ -279,10 +279,6 @@ module Webui::WebuiHelper
       link_to(CONFIG['proxy_auth_login_page'], class: css_class) do
         link_content('Log In', css_class, 'fa-sign-in-alt')
       end
-    elsif kerberos_mode?
-      link_to(new_session_path, class: css_class) do
-        link_content('Log In', css_class, 'fa-sign-in-alt')
-      end
     else
       link_to('#', class: css_class, data: { 'bs-toggle': 'modal', 'bs-target': '#log-in-modal' }) do
         link_content('Log In', css_class, 'fa-sign-in-alt')
@@ -311,8 +307,6 @@ module Webui::WebuiHelper
   end
 
   def theme_from_user
-    return 'light' unless feature_enabled?('color_themes')
-
     User.session&.color_theme || 'system'
   end
 

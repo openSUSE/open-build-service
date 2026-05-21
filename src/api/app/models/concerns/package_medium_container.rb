@@ -18,7 +18,7 @@ module PackageMediumContainer
     # local link, go one step deeper
     prj = Project.get_by_name(linkinfo['project'])
     pkg = prj.find_package(linkinfo['package'])
-    return pkg if !options[:local] && project != prj && !prj.is_maintenance_incident?
+    return pkg if !options[:local] && project != prj && !prj.maintenance_incident?
 
     # If package is nil it's either broken or a remote one.
     # Otherwise we continue
@@ -42,7 +42,7 @@ module PackageMediumContainer
           # pick only one and the highest container.
           identifier = "#{mc_update_project.name}/#{mc.name}"
           # esp. in maintenance update projects where the name suffix is the counter
-          identifier.gsub!(/\.[^.]*$/, '') if mc_update_project.is_maintenance_release?
+          identifier.gsub!(/\.[^.]*$/, '') if mc_update_project.maintenance_release?
           next if container_list[identifier] && container_list[identifier].name > mc.name
 
           container_list[identifier] = mc
@@ -51,12 +51,12 @@ module PackageMediumContainer
     end
 
     comment = "add container for #{name}"
-    opts[:extend_package_names] = true if project.is_maintenance_incident?
+    opts[:extend_package_names] = true if project.maintenance_incident?
 
     container_list.values.each do |container|
       container_name = container.name.dup
       container_update_project = container.project.update_instance_or_self
-      container_name.gsub!(/\.[^.]*$/, '') if container_update_project.is_maintenance_release? && !container.is_link?
+      container_name.gsub!(/\.[^.]*$/, '') if container_update_project.maintenance_release? && !container.link?
       container_name << '.' << container_update_project.name.tr(':', '_') if opts[:extend_package_names]
       next if project.packages.exists?(name: container_name)
 

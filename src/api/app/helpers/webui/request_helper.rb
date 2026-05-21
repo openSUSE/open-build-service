@@ -184,8 +184,6 @@ module Webui::RequestHelper
     case opts[:page_name]
     when 'request_build_results'
       request_build_results_path(parameters)
-    when 'request_rpm_lint'
-      request_rpm_lint_path(parameters)
     when 'request_changes'
       request_changes_path(parameters)
     when 'request_mentioned_issues'
@@ -193,6 +191,29 @@ module Webui::RequestHelper
     else
       request_show_path(parameters)
     end
+  end
+
+  # bs_request_action_release only contains an attribute about the (release) target_repository, we have to query
+  # the source_repository and associated release target based on that info...
+  def find_source_release_targets(action)
+    return [] unless action.source_project_object
+
+    action.source_project_object.repositories
+          .joins(release_targets: :target_repository)
+          .find_by(target_repository: { name: action.target_repository })
+          &.release_targets
+  end
+
+  def matching_architectures(release_target)
+    src_arch = release_target.repository.architectures.pluck(:name)
+    tgt_arch = release_target.target_repository.architectures.pluck(:name)
+    (src_arch & tgt_arch).join(', ')
+  end
+
+  def package_version(package)
+    return if !Flipper.enabled?(:package_version_tracking, User.session) || package.nil? || package.latest_local_version.nil?
+
+    "(#{package.latest_local_version.version})"
   end
 
   private
@@ -219,7 +240,7 @@ module Webui::RequestHelper
   # Note: We don't allow labeling requests with more than 1 target project
   def project_for_labels(bs_request)
     target_project_ids = bs_request.bs_request_actions.pluck(:target_project_id).uniq
-    return if target_project_ids.count > 1
+    return if target_project_ids.many?
 
     Project.find_by(id: target_project_ids.last)
   end
@@ -227,14 +248,6 @@ module Webui::RequestHelper
   def can_apply_labels?(bs_request:, user:)
     return false if project_for_labels(bs_request).nil?
 
-    user.is_admin? || bs_request.is_target_maintainer?(user)
-  end
-
-  def requests_listing_pagetitle(thing = nil)
-    if thing
-      "Requests for #{thing}"
-    else
-      'Requests'
-    end
+    user.admin? || bs_request.target_maintainer?(user)
   end
 end

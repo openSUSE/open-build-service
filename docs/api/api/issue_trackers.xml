@@ -223,9 +223,9 @@
     <name>cve</name>
     <kind>cve</kind>
     <description>CVE Numbers</description>
-    <url>http://cve.mitre.org/</url>
-    <show-url>http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@</show-url>
-    <regex>(CVE-\d\d\d\d-\d+)</regex>
+    <url>https://www.cve.org/</url>
+    <show-url>https://www.cve.org/CVERecord?id=@@@</show-url>
+    <regex>CVE-(\d\d\d\d-\d+)</regex>
     <label>@@@</label>
     <enable-fetch>false</enable-fetch>
   </issue-tracker>

@@ -71,26 +71,25 @@ sub new {
     'request' => 'POST',
     'formurlencode' => 1,
   };
+  my $client = $BSConfig::partition ? "$BSConfig::partition/$myarch" : $myarch;
   my @args;
-  if ($uselasteventsproxy && $remoteurl ne $BSConfig::srcserver) {
+  if ($remoteurl eq $BSConfig::srcserver) {
+    push @args, "client=$client";
+  } elsif ($uselasteventsproxy) {
     $param->{'uri'} = "$BSConfig::srcserver/lasteventsproxy";
-    push @args, $BSConfig::partition ? "client=$BSConfig::partition/$myarch" : "client=$myarch";
+    push @args, "client=$client";
     push @args, "remoteurl=$remoteurl";
   } else {
     $param->{'proxy'} = $conf{'remoteproxy'};
-    my $obsname = $conf{'obsname'};
-    push @args, "obsname=$obsname/$myarch" if $obsname;
+    push @args, "obsname=$conf{'obsname'}/$myarch" if $conf{'obsname'};
   }
   push @args, map {"filter=$_"} @filter;
   push @args, "start=$start" if $start;
-  my $ret;
-  eval {
-    $ret = BSRPC::rpc($param, $BSXML::events, @args);
-  };
+  my $ret = eval { BSRPC::rpc($param, $BSXML::events, @args) };
   if ($@) {
     warn($@);
     print "retrying in 60 seconds\n";
-    $ret = {'retry' => time() + 60};
+    $ret = { 'retry' => time() + 60 };
   } else {
     $ret = { 'rpc' => $ret, 'socket' => $ret->{'socket'} };
   }

@@ -10,13 +10,13 @@ jobs:
   comment_on_pr:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Group files that have changed
         id: changed-files-yaml
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@v47
         with:
           files_yaml: |
             migrations:
@@ -60,7 +60,7 @@ jobs:
           echo "$COMMENT_TEXT_DATA_SCHEMA" > ./artifacts/comment_text_data_schema.txt
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: migrations_artifacts
           path: artifacts/

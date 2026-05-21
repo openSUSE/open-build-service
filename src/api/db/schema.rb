@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_15_101229) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -46,18 +46,29 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["appellant_id"], name: "fk_rails_bd2c76ec6f"
-    t.index ["decision_id"], name: "fk_rails_5fe229ec9a"
+    t.index ["decision_id", "appellant_id"], name: "index_appeals_on_decision_id", unique: true
   end
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
-    t.boolean "available", default: false
+    t.boolean "available", default: false, null: false
     t.index ["name"], name: "arch_name_index", unique: true
   end
 
   create_table "architectures_distributions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "distribution_id"
     t.integer "architecture_id"
+  end
+
+  create_table "assignments", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "assignee_id", null: false
+    t.integer "assigner_id", null: false
+    t.integer "package_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignee_id"], name: "index_assignments_on_assignee_id"
+    t.index ["assigner_id"], name: "index_assignments_on_assigner_id"
+    t.index ["package_id"], name: "index_assignments_on_package_id", unique: true
   end
 
   create_table "attrib_allowed_values", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -90,7 +101,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
   end
 
   create_table "attrib_namespaces", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name"
+    t.string "name", null: false
     t.index ["name"], name: "index_attrib_namespaces_on_name"
   end
 
@@ -111,7 +122,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.string "type"
     t.integer "value_count"
     t.integer "attrib_namespace_id", null: false
-    t.boolean "issue_list", default: false
+    t.boolean "issue_list", default: false, null: false
     t.index ["attrib_namespace_id", "name"], name: "index_attrib_types_on_attrib_namespace_id_and_name", unique: true
     t.index ["name"], name: "index_attrib_types_on_name"
   end
@@ -226,15 +237,22 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.boolean "makeoriginolder", default: false
     t.integer "target_package_id"
     t.integer "target_project_id"
+    t.integer "source_project_id"
+    t.integer "source_package_id"
+    t.integer "comments_count", default: 0, null: false
     t.index ["bs_request_id", "target_package_id"], name: "index_bs_request_actions_on_bs_request_id_and_target_package_id"
     t.index ["bs_request_id", "target_project_id"], name: "index_bs_request_actions_on_bs_request_id_and_target_project_id"
     t.index ["bs_request_id"], name: "bs_request_id"
+    t.index ["comments_count"], name: "index_bs_request_actions_on_comments_count"
     t.index ["source_package"], name: "index_bs_request_actions_on_source_package"
+    t.index ["source_package_id"], name: "index_bs_request_actions_on_source_package_id"
     t.index ["source_project"], name: "index_bs_request_actions_on_source_project"
+    t.index ["source_project_id"], name: "index_bs_request_actions_on_source_project_id"
     t.index ["target_package"], name: "index_bs_request_actions_on_target_package"
     t.index ["target_package_id"], name: "index_bs_request_actions_on_target_package_id"
     t.index ["target_project"], name: "index_bs_request_actions_on_target_project"
     t.index ["target_project_id"], name: "index_bs_request_actions_on_target_project_id"
+    t.index ["type"], name: "index_bs_request_actions_on_type"
   end
 
   create_table "bs_request_actions_seen_by_users", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -262,10 +280,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.datetime "updated_when", precision: nil
     t.string "approver"
     t.integer "staging_project_id"
+    t.integer "status"
+    t.integer "comments_count", default: 0, null: false
+    t.index ["comments_count"], name: "index_bs_requests_on_comments_count"
+    t.index ["created_at"], name: "index_bs_requests_on_created_at"
     t.index ["creator"], name: "index_bs_requests_on_creator"
     t.index ["number"], name: "index_bs_requests_on_number", unique: true
     t.index ["staging_project_id"], name: "index_bs_requests_on_staging_project_id"
     t.index ["state"], name: "index_bs_requests_on_state"
+    t.index ["status"], name: "index_bs_requests_on_status"
     t.index ["superseded_by"], name: "index_bs_requests_on_superseded_by"
   end
 
@@ -276,6 +299,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "decision_type"
+    t.integer "project_id"
+    t.index ["project_id"], name: "index_canned_responses_on_project_id"
+    t.integer "package_id"
+    t.index ["package_id"], name: "index_canned_responses_on_package_id"
     t.index ["user_id"], name: "index_canned_responses_on_user_id"
   end
 
@@ -322,34 +349,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.integer "package_id", null: false
     t.boolean "disabled"
     t.index ["package_id"], name: "index_unique", unique: true
-  end
-
-  create_table "cloud_azure_configurations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "user_id"
-    t.text "application_id"
-    t.text "application_key"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["user_id"], name: "index_cloud_azure_configurations_on_user_id"
-  end
-
-  create_table "cloud_ec2_configurations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "user_id"
-    t.string "external_id"
-    t.string "arn"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["external_id", "arn"], name: "index_cloud_ec2_configurations_on_external_id_and_arn", unique: true
-    t.index ["user_id"], name: "index_cloud_ec2_configurations_on_user_id"
-  end
-
-  create_table "cloud_user_upload_jobs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "job_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["job_id"], name: "index_cloud_user_upload_jobs_on_job_id", unique: true
-    t.index ["user_id"], name: "index_cloud_user_upload_jobs_on_user_id"
   end
 
   create_table "comment_locks", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -443,7 +442,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.index ["moderator_id"], name: "index_decisions_on_moderator_id"
   end
 
-  create_table "delayed_jobs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "delayed_jobs", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "priority", default: 0
     t.integer "attempts", default: 0
     t.text "handler", size: :medium, collation: "utf8mb4_bin"
@@ -508,7 +507,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.integer "channel", default: 0, null: false
     t.boolean "enabled", default: false
     t.integer "token_id"
-    t.text "payload"
     t.integer "package_id"
     t.integer "workflow_run_id"
     t.integer "bs_request_id"
@@ -624,7 +622,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
 
   create_table "issue_trackers", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
-    t.column "kind", "enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge','github','jira')", null: false
+    t.column "kind", "enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge','github','jira','debbugs')", null: false
     t.string "description"
     t.string "url", null: false
     t.string "show_url", limit: 8192
@@ -649,6 +647,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.index ["issue_tracker_id"], name: "issue_tracker_id"
     t.index ["name", "issue_tracker_id"], name: "index_issues_on_name_and_issue_tracker_id"
     t.index ["owner_id"], name: "owner_id"
+    t.index ["state"], name: "index_issues_on_state"
   end
 
   create_table "kiwi_descriptions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -731,6 +730,23 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.index ["image_id"], name: "index_kiwi_repositories_on_image_id"
   end
 
+  create_table "label_globals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.bigint "label_template_global_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["label_template_global_id"], name: "index_label_globals_on_label_template_global_id"
+    t.index ["project_id", "label_template_global_id"], name: "index_label_globals_on_project_and_label_template_global", unique: true
+    t.index ["project_id"], name: "index_label_globals_on_project_id"
+  end
+
+  create_table "label_template_globals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "color", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "label_templates", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "project_id", null: false
     t.string "name", null: false
@@ -778,7 +794,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
 
   create_table "notifications", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "event_type", null: false
-    t.text "event_payload", null: false
+    t.text "event_payload", size: :medium, null: false
     t.string "subscription_receiver_role", null: false
     t.boolean "delivered", default: false
     t.datetime "created_at", precision: nil, null: false
@@ -827,6 +843,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.index ["package_id"], name: "index_package_kinds_on_package_id"
   end
 
+  create_table "package_versions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "package_id", null: false
+    t.string "version", null: false
+    t.string "type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["package_id"], name: "index_package_versions_on_package_id"
+  end
+
   create_table "packages", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "project_id", null: false
     t.string "name", limit: 200, null: false, collation: "utf8mb4_bin"
@@ -843,6 +868,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.integer "kiwi_image_id"
     t.string "scmsync"
     t.string "report_bug_url", limit: 8192
+    t.integer "comments_count", default: 0, null: false
+    t.boolean "anitya_ignore", default: false, null: false
+    t.index ["comments_count"], name: "index_packages_on_comments_count"
     t.index ["develpackage_id"], name: "devel_package_id_index"
     t.index ["kiwi_image_id"], name: "index_packages_on_kiwi_image_id"
     t.index ["project_id", "name"], name: "packages_all_index", unique: true
@@ -931,6 +959,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.integer "staging_workflow_id"
     t.text "scmsync"
     t.string "report_bug_url", limit: 8192
+    t.string "anitya_distribution_name"
+    t.integer "comments_count", default: 0, null: false
+    t.datetime "anitya_distribution_synced_at"
+    t.index ["comments_count"], name: "index_projects_on_comments_count"
     t.index ["develproject_id"], name: "devel_project_id_index"
     t.index ["name"], name: "projects_name_index", unique: true
     t.index ["staging_workflow_id"], name: "index_projects_on_staging_workflow_id"
@@ -960,7 +992,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
   end
 
   create_table "reports", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
-    t.integer "user_id", null: false
     t.string "reportable_type"
     t.integer "reportable_id"
     t.text "reason"
@@ -968,9 +999,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.datetime "updated_at", null: false
     t.bigint "decision_id"
     t.integer "category", default: 99
+    t.integer "reporter_id", null: false
+    t.integer "comments_count", default: 0, null: false
+    t.index ["comments_count"], name: "index_reports_on_comments_count"
     t.index ["decision_id"], name: "index_reports_on_decision_id"
     t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable"
-    t.index ["user_id"], name: "index_reports_on_user_id"
+    t.index ["reporter_id"], name: "index_reports_on_reporter_id"
   end
 
   create_table "repositories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -979,7 +1013,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.string "remote_project_name", default: "", null: false, collation: "utf8mb4_bin"
     t.column "rebuild", "enum('transitive','direct','local')"
     t.column "block", "enum('all','local','never')"
-    t.column "linkedbuild", "enum('off','localdep','all','alldirect')"
+    t.column "linkedbuild", "enum('off','localdep','all','alldirect','alldirect_or_localdep')"
     t.integer "hostsystem_id"
     t.string "required_checks"
     t.index ["db_project_id", "name", "remote_project_name"], name: "projects_name_index", unique: true
@@ -992,6 +1026,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.integer "architecture_id", null: false
     t.integer "position", default: 0, null: false
     t.string "required_checks"
+    t.boolean "important", default: false, null: false
     t.index ["architecture_id"], name: "architecture_id"
     t.index ["repository_id", "architecture_id"], name: "arch_repo_index", unique: true
   end
@@ -1155,6 +1190,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
     t.datetime "triggered_at", precision: nil
     t.string "workflow_configuration_path", default: ".obs/workflows.yml"
     t.string "workflow_configuration_url", limit: 8192
+    t.boolean "enabled", default: true, null: false
+    t.index ["enabled"], name: "index_tokens_on_enabled"
     t.index ["executor_id"], name: "user_id"
     t.index ["package_id"], name: "package_id"
     t.index ["scm_token"], name: "index_tokens_on_scm_token"
@@ -1271,6 +1308,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeals", "decisions"
   add_foreign_key "appeals", "users", column: "appellant_id"
+  add_foreign_key "assignments", "packages"
+  add_foreign_key "assignments", "users", column: "assignee_id"
+  add_foreign_key "assignments", "users", column: "assigner_id"
   add_foreign_key "attrib_allowed_values", "attrib_types", name: "attrib_allowed_values_ibfk_1"
   add_foreign_key "attrib_default_values", "attrib_types", name: "attrib_default_values_ibfk_1"
   add_foreign_key "attrib_issues", "attribs", name: "attrib_issues_ibfk_1"
@@ -1282,7 +1322,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
   add_foreign_key "attrib_type_modifiable_bies", "roles", name: "attrib_type_modifiable_bies_ibfk_3"
   add_foreign_key "attrib_type_modifiable_bies", "users", name: "attrib_type_modifiable_bies_ibfk_1"
   add_foreign_key "attrib_types", "attrib_namespaces", name: "attrib_types_ibfk_1"
-  add_foreign_key "attrib_values", "attribs", name: "attrib_values_ibfk_1"
+  add_foreign_key "attrib_values", "attribs", on_delete: :cascade
   add_foreign_key "attribs", "attrib_types", name: "attribs_ibfk_1"
   add_foreign_key "attribs", "packages", name: "attribs_ibfk_2"
   add_foreign_key "attribs", "projects", name: "attribs_ibfk_3"
@@ -1294,6 +1334,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
   add_foreign_key "blocked_users", "users", column: "blocker_id"
   add_foreign_key "bs_request_action_accept_infos", "bs_request_actions", name: "bs_request_action_accept_infos_ibfk_1"
   add_foreign_key "bs_request_actions", "bs_requests", name: "bs_request_actions_ibfk_1"
+  add_foreign_key "canned_responses", "projects", on_delete: :nullify
+  add_foreign_key "canned_responses", "packages", on_delete: :nullify
   add_foreign_key "canned_responses", "users"
   add_foreign_key "channel_binaries", "architectures", name: "channel_binaries_ibfk_4"
   add_foreign_key "channel_binaries", "channel_binary_lists", name: "channel_binaries_ibfk_1"
@@ -1325,6 +1367,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
   add_foreign_key "issues", "users", column: "owner_id", name: "issues_ibfk_1"
   add_foreign_key "kiwi_package_groups", "kiwi_images", column: "image_id"
   add_foreign_key "kiwi_packages", "kiwi_package_groups", column: "package_group_id"
+  add_foreign_key "label_globals", "label_template_globals"
+  add_foreign_key "label_globals", "projects"
   add_foreign_key "label_templates", "projects"
   add_foreign_key "labels", "label_templates"
   add_foreign_key "maintained_projects", "projects", column: "maintenance_project_id", name: "maintained_projects_ibfk_2"
@@ -1332,6 +1376,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
   add_foreign_key "package_issues", "issues", name: "package_issues_ibfk_2"
   add_foreign_key "package_issues", "packages", name: "package_issues_ibfk_1"
   add_foreign_key "package_kinds", "packages", name: "package_kinds_ibfk_1"
+  add_foreign_key "package_versions", "packages"
   add_foreign_key "packages", "kiwi_images"
   add_foreign_key "packages", "packages", column: "develpackage_id", name: "packages_ibfk_3"
   add_foreign_key "packages", "projects", name: "packages_ibfk_4"
@@ -1355,7 +1400,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
   add_foreign_key "release_targets", "repositories", column: "target_repository_id", name: "release_targets_ibfk_2"
   add_foreign_key "release_targets", "repositories", name: "release_targets_ibfk_1"
   add_foreign_key "reports", "decisions", on_delete: :nullify
-  add_foreign_key "reports", "users"
+  add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "repositories", "projects", column: "db_project_id", name: "repositories_ibfk_1"
   add_foreign_key "repositories", "repositories", column: "hostsystem_id", name: "repositories_ibfk_2"
   add_foreign_key "repository_architectures", "architectures", name: "repository_architectures_ibfk_2"

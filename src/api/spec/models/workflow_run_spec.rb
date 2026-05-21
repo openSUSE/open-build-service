@@ -86,6 +86,46 @@ RSpec.describe WorkflowRun, :vcr do
         subject
         expect(workflow_run.reload.status).to eql('fail')
       end
+
+      it 'does not disable the token of the token workflow' do
+        expect { subject }.not_to(change { workflow_run.token.reload.enabled })
+      end
+    end
+
+    context 'when the SCM responds with a forbidden message' do
+      subject { workflow_run.save_scm_report_failure('Failed to report back to GitHub: Request is forbidden.', { api_endpoint: 'https://api.github.com' }) }
+
+      it 'disables the token of the token workflow' do
+        expect { subject }.to change { workflow_run.token.reload.enabled }.from(true).to(false)
+      end
+    end
+  end
+
+  describe '#labeled_pull_request?' do
+    context 'when event is pull request opened' do
+      let(:workflow_run) { create(:workflow_run) }
+
+      it { expect(workflow_run).not_to be_labeled_pull_request }
+    end
+
+    context 'when event is pull request labeled' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled) }
+
+      it { expect(workflow_run).to be_labeled_pull_request }
+    end
+  end
+
+  describe '#unlabeled_pull_request?' do
+    context 'when event is pull request labeled' do
+      let(:workflow_run) { create(:workflow_run) }
+
+      it { expect(workflow_run).not_to be_unlabeled_pull_request }
+    end
+
+    context 'when event is pull request unlabeled' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_unlabeled) }
+
+      it { expect(workflow_run).to be_unlabeled_pull_request }
     end
   end
 end

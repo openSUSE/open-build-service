@@ -5,6 +5,7 @@ servers:
 
 tags:
   - name: Announcements
+  - name: Assignments
   - name: Attribute Namespaces
   - name: Attributes
   - name: Build
@@ -14,10 +15,13 @@ tags:
   - name: General Information
   - name: Groups
   - name: Issue Trackers
+  - name: Labels
+  - name: Label Templates
   - name: Notifications
   - name: Person
   - name: Published Binaries
   - name: Requests
+  - name: Reports
   - name: Search
     description: |
       All endpoints besides the owner search listed in the search group use Xpath expressions. The `match` query parameter is used
@@ -94,6 +98,11 @@ paths:
   /announcements/{announcement_id}:
     $ref: 'paths/announcements_announcement_id.yaml'
 
+  /assignments/projects/{project_name}:
+    $ref: 'paths/assignments_projects_project_name.yaml'
+  /assignments/projects/{project_name}/packages/{package_name}:
+    $ref: 'paths/assignments_projects_project_name_packages_package_name.yaml'
+
   /architectures:
     $ref: 'paths/architectures.yaml'
   /architectures/{architecture_name}:
@@ -119,6 +128,8 @@ paths:
     $ref: 'paths/build_project_name.yaml'
   /build/{project_name}/_result:
     $ref: 'paths/build_project_name_result.yaml'
+  /build/{project_name}/_result?lastsuccess=1:
+    $ref: 'paths/build_project_name_result_lastsuccess.yaml'
   /build/{project_name}/{repository_name}:
     $ref: 'paths/build_project_name_repository_name.yaml'
   /build/{project_name}/{repository_name}/_buildconfig:
@@ -192,6 +203,28 @@ paths:
   /issue_trackers/{issue_tracker_name}/issues/{issue_name}:
     $ref: 'paths/issue_trackers_issue_tracker_name_issues_issue_name.yaml'
 
+  /labels/projects/{project_name}:
+    $ref: 'paths/labels_projects_project_name.yaml'
+  /labels/projects/{project_name}/{id}:
+    $ref: 'paths/labels_projects_project_name_label_id.yaml'
+  /labels/projects/{project_name}/packages/{package_name}:
+    $ref: 'paths/labels_projects_project_name_packages_package_name.yaml'
+  /labels/projects/{project_name}/packages/{package_name}/{label_id}:
+    $ref: 'paths/labels_projects_project_name_packages_package_name_label_id.yaml'
+  /labels/requests/{request_number}:
+    $ref: 'paths/labels_requests_request_number.yaml'
+  /labels/requests/{request_number}/{label_id}:
+    $ref: 'paths/labels_requests_request_number_label_id.yaml'
+
+  /label_templates:
+    $ref: 'paths/label_templates.yaml'
+  /label_templates/{label_template_id}:
+    $ref: 'paths/label_templates_label_template_id.yaml'
+  /label_templates/projects/{project_name}:
+    $ref: 'paths/label_templates_projects_project_name.yaml'
+  /label_templates/projects/{project_name}/{label_template_id}:
+    $ref: 'paths/label_templates_projects_project_name_label_template_id.yaml'
+
   /my/notifications:
     $ref: 'paths/my_notifications.yaml'
   /my/notifications/{id}:
@@ -235,6 +268,11 @@ paths:
     $ref: 'paths/request_id.yaml'
   /request/{id}?cmd=diff:
     $ref: 'paths/request_id_cmd_diff.yaml'
+
+  /reports:
+    $ref: 'paths/reports.yaml'
+  /reports/{report_id}:
+    $ref: 'paths/reports_report_id.yaml'
 
   /search:
     $ref: 'paths/search.yaml'

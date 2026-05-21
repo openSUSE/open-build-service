@@ -100,14 +100,14 @@ def ignore_by_backend_400_message?(message)
 end
 
 def ignore_by_class?(notice)
-  exceptions_to_ignore = ['AMQ::Protocol::EmptyResponseError', 'AbstractController::ActionNotFound',
+  exceptions_to_ignore = ['AbstractController::ActionNotFound',
                           'ActionController::BadRequest', 'ActionController::InvalidAuthenticityToken',
                           'ActionController::UnknownAction', 'ActionController::UnknownFormat',
                           'ActionDispatch::Http::MimeNegotiation::InvalidType',
                           'ActiveRecord::RecordNotFound', 'Backend::NotFoundError',
-                          'Bunny::TCPConnectionFailedForAllHosts', 'CGI::Session::CookieStore::TamperedWithCookie',
-                          'Errno::ECONNRESET', 'Interrupt', 'Net::HTTPBadResponse',
-                          'RoutesHelper::WebuiMatcher::InvalidRequestFormat', 'Timeout::Error']
+                          'CGI::Session::CookieStore::TamperedWithCookie',
+                          'Interrupt', 'Net::HTTPBadResponse',
+                          'RoutesHelper::WebuiMatcher::InvalidRequestFormat']
 
   notice[:errors].pluck(:type).intersect?(exceptions_to_ignore)
 end

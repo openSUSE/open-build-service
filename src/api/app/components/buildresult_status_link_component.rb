@@ -1,6 +1,6 @@
 class BuildresultStatusLinkComponent < ApplicationComponent
   def initialize(repository_name:, architecture_name:, project_name:, package_name:, build_status:, build_details:)
-    super
+    super()
 
     @repository_name = repository_name
     @architecture_name = architecture_name

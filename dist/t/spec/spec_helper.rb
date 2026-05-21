@@ -3,7 +3,7 @@
 # for capybara rspec support
 require 'support/capybara'
 
-SCREENSHOT_DIR = '/tmp/rspec_screens'.freeze
+SCREENSHOT_DIR = ENV.fetch('RSPEC_RESULT_DIR', '/tmp/rspec_screens').freeze
 
 RSpec.configure do |config|
   config.before(:suite) do

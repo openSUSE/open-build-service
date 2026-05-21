@@ -37,7 +37,7 @@ module RakeSupport
       staging_project: staging_project
     )
 
-    request.reviews.each { |review| review.change_state(:accepted, 'Accepted') }
+    request.reviews.each { |review| review.update(state: 'accepted', reason: 'Accepted!') }
   end
 
   def self.subscribe_to_all_notifications(user)
@@ -50,12 +50,7 @@ module RakeSupport
     create(:event_subscription_comment_for_request, channel: :web, user: user, receiver_role: 'target_maintainer')
     create(:event_subscription_relationship_create, channel: :web, user: user, receiver_role: 'any_role')
     create(:event_subscription_relationship_delete, channel: :web, user: user, receiver_role: 'any_role')
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    create(:event_subscription_create_report, channel: :web, user: user)
-    create(:event_subscription_report_for_project, channel: :web, user: user)
-    create(:event_subscription_report_for_package, channel: :web, user: user)
-    create(:event_subscription_report_for_comment, channel: :web, user: user)
-    create(:event_subscription_report_for_user, channel: :web, user: user)
+    create(:event_subscription_report, channel: :web, user: user)
     create(:event_subscription_build_fail, channel: :web, user: user)
 
     create(:event_subscription_added_user_to_group, channel: :web, user: user)

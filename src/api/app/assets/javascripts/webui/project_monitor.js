@@ -1,3 +1,6 @@
+/* global initializeDataTable, initializePopovers */
+/* exported setupProjectMonitor */
+
 function setAllLinks(event) {
   $(this).closest('.dropdown-menu').find('input').prop('checked', event.data.checked);
 }
@@ -41,7 +44,7 @@ function initializeMonitorDataTable() {
   var projectName = data.project;
   var scmsync = data.scmsync;
 
-  initializeDataTable('#project-monitor-table', { // jshint ignore:line
+  initializeDataTable('#project-monitor-table', {
     responsive: false,
     scrollX: true,
     fixedColumns: true,
@@ -60,7 +63,8 @@ function initializeMonitorDataTable() {
         data: null,
         render: function (packageName) {
           if (scmsync !== undefined) return packageName;
-          var url = '/package/show/' + projectName + '/' + packageName;
+          var packageNameWithoutMultibuildFlavor = packageName.replace(/:\w+$/, '');
+          var url = '/package/show/' + projectName + '/' + packageNameWithoutMultibuildFlavor;
           return '<a href="' + url + '">' + packageName + '</a>';
         }
       },
@@ -81,7 +85,7 @@ function initializeMonitorDataTable() {
   });
 }
 
-function setupProjectMonitor() { // jshint ignore:line
+function setupProjectMonitor() {
   initializeMonitorDataTable();
 
   $('#table-spinner').addClass('d-none');
@@ -92,10 +96,10 @@ function setupProjectMonitor() { // jshint ignore:line
   });
 
   $('#project-monitor-table').on('draw.dt', function () {
-    initializePopovers('[data-bs-toggle="popover"]'); // jshint ignore:line
+    initializePopovers('[data-bs-toggle="popover"]');
   });
 
-  initializePopovers('[data-bs-toggle="popover"]'); // jshint ignore:line
+  initializePopovers('[data-bs-toggle="popover"]');
 
   $('.monitor-no-filter-link').on('click', { checked: false }, setAllLinks);
 
@@ -103,5 +107,14 @@ function setupProjectMonitor() { // jshint ignore:line
 
   $('.dropdown-menu.keep-open').on('click', function (e) {
     e.stopPropagation();
+  });
+  $('.monitor-search').on('input', function (e) {
+    var labels = $(this).closest('.dropdown-menu').find('.form-check-label');
+    Array.from(labels).forEach((label) => {
+      var element = label.closest('.dropdown-item');
+      element.classList.remove('d-none');
+      if (!label.innerText.includes(e.target.value))
+        element.classList.add('d-none');
+    });
   });
 }

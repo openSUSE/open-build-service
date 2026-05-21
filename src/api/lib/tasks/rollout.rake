@@ -21,6 +21,20 @@ namespace :rollout do
     User.where(in_beta: true, in_rollout: false).in_batches.update_all(in_rollout: true)
   end
 
+  desc 'Move the users who had activity last week to rollout program'
+  task last_week_logged_users: :environment do
+    User.all_without_nobody
+        .where(in_rollout: false, last_logged_in_at: (Time.zone.today - 1.week)..Time.zone.today)
+        .in_batches.update_all(in_rollout: true)
+  end
+
+  desc 'Move the users who had activity last month to rollout program'
+  task last_month_logged_users: :environment do
+    User.all_without_nobody
+        .where(in_rollout: false, last_logged_in_at: Time.zone.today.prev_month(1)..Time.zone.today)
+        .in_batches.update_all(in_rollout: true)
+  end
+
   desc 'Move the users with recent activity to rollout program'
   task recently_logged_users: :environment do
     User.all_without_nobody

@@ -21,12 +21,14 @@ class NotifiedProjects
         @notifiable.commentable.target_project_objects.distinct
       when 'BsRequestAction'
         @notifiable.commentable.bs_request.target_project_objects.distinct
+      when 'Report'
+        []
       end
     when 'Package'
       [@notifiable.project]
     when 'Project'
       [@notifiable]
-    when 'Report', 'Decision', 'Appeal', 'WorkflowRun', 'Group'
+    when 'Report', 'Decision', 'Appeal', 'WorkflowRun', 'Group', 'Token::Workflow', 'User'
       []
     end
   end

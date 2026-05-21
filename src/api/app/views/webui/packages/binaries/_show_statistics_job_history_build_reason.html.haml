@@ -18,3 +18,13 @@
   title: 'Build reason', class: 'nav-link') do
     %i.fas.fa-info-circle
     Build reason
+
+- if result[:binaries].any? { |b| b[:filename] == 'rpmlint.log' }
+  %li.nav-item
+    = link_to(project_package_repository_architecture_rpmlint_path(project: project,
+                                                                   package: package,
+                                                                   repository: repository,
+                                                                   architecture_name: result[:arch]),
+    title: 'RPM Lint', class: 'nav-link') do
+      %i.fas.fa-gauge-high
+      RPM Lint

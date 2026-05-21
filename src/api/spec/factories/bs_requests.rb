@@ -15,6 +15,7 @@ FactoryBot.define do
     comment { nil }
     priority { 'moderate' }
     superseded_by { nil }
+    staging_project { nil }
 
     commenter do
       creator
@@ -112,6 +113,7 @@ FactoryBot.define do
 
     after(:build) do |request|
       request[:state] ||= 'new'
+      request[:status] ||= 'new'
     end
 
     after(:create) do |request, evaluator|
@@ -120,7 +122,7 @@ FactoryBot.define do
       state = evaluator.state
       state ||= :review if evaluator.reviews.present?
       if state
-        request.update(state: state)
+        request.update(state: state, status: state)
         request.reload
       end
     end
@@ -130,6 +132,7 @@ FactoryBot.define do
 
       factory :declined_bs_request do
         state { :declined }
+        status { :declined }
       end
     end
 
@@ -253,12 +256,16 @@ FactoryBot.define do
       end
 
       after(:create) do |request, evaluator|
-        request.update(state: :superseded, superseded_by: evaluator.superseded_by_request.number)
+        request.update(state: :superseded, status: :superseded, superseded_by: evaluator.superseded_by_request.number)
       end
     end
 
     factory :bs_request_with_change_devel_action do
       type { :change_devel }
+    end
+
+    factory :bs_request_with_release_action do
+      type { :release }
     end
   end
 end

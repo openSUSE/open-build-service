@@ -1,29 +1,35 @@
-// Override Bootstrap's default colors
-$gray-100: #f8f9fa;
-$gray-200: #f0f0f0;
-$gray-300: #e9ecef;
-$gray-400: #aeaeae;
-$gray-500: #878c92;
+// Define our own custom colors
+$custom-gray-100: #f8f9fa;
+$custom-gray-300: #e9ecef;
+$custom-gray-400: #aeaeae;
+$custom-gray-500: #878c92;
 
-$blue: #069;
-$green: #008000;
-$pink: #708;
-$indigo: #219;
-$purple: #30a;
-$teal: #164;
-$orange: #a50;
-$yellow: #f0ad4e;
-$cyan: #007a7c;
+$custom-blue:   #069;
+$custom-green:  #008000;
+$custom-yellow: #f0ad4e;
+$custom-cyan:   #007a7c;
 
-$primary: $green;
-$secondary: $blue;
-$warning: $yellow;
-$info: $cyan;
-$success: $green;
-$selected: $gray-200;
-$hover: $gray-400;
+// Override Bootstrap's default theme colors
+$primary:   $custom-green;
+$secondary: $custom-blue;
+$success:   $custom-green;
+$info:      $custom-cyan;
+$warning:   $custom-yellow;
 
-$link-hover-color: $green;
-$link-color: $blue;
+$link-color: $custom-blue;
 
-$menu-hover-color: lighten($color: $green, $amount: 10%);
+
+// Add custom-gray theme color
+//
+// Reference: https://getbootstrap.com/docs/5.3/customize/color-modes/#adding-theme-colors
+
+@import "bootstrap/functions";
+@import "bootstrap/variables";
+@import "bootstrap/variables-dark";
+
+// Add a custom color to $theme-colors
+$custom-colors: (
+  "custom-gray": $gray-700
+);
+
+$theme-colors: map-merge($theme-colors, $custom-colors);

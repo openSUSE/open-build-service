@@ -9,9 +9,9 @@ source 'https://rubygems.org'
 
 # Start the Rails application using src/api/Gemfile.next with `next rails s`
 if next?
-  gem 'rails', '~> 8.0'
+  gem 'rails', '~> 8.0.0'
 else
-  gem 'rails', '~> 7.0'
+  gem 'rails', '~> 7.2.0'
 end
 
 # as our database
@@ -59,8 +59,6 @@ gem 'xmlrpc'
 gem 'flipper'
 gem 'flipper-active_record'
 gem 'flipper-ui'
-# for kerberos authentication
-gem 'gssapi', require: false
 # for sending events to rabbitmq
 gem 'bunny'
 # for making changes to existing data
@@ -77,8 +75,6 @@ gem 'deep_cloneable'
 gem 'ajax-datatables-rails'
 # Add syntax highlight in ruby
 gem 'coderay'
-# required by rails
-gem 'bigdecimal'
 # Catch unsafe migrations in development
 gem 'strong_migrations'
 # for some rails console fancy
@@ -106,21 +102,29 @@ gem 'paper_trail'
 gem 'ansible'
 # Generating inline diff highlights
 gem 'dimapa'
+# Network Kanji Filter, for Kanji conversions (former kconv)
+gem 'nkf'
+# Templating engine used for package templates
+gem 'liquid'
 
-# FIXME: Required by the mail gem
-# See https://github.com/rails/rails/pull/44083
-gem 'net-smtp', require: false
-gem 'net-pop', require: false
-gem 'net-imap', require: false
+# For Hotwire javascript libraries
+gem 'importmap-rails'
+gem 'turbo-rails'
 
 # Used in Package and XpathEngine
 gem 'rexml'
-# FIXME: for prawn, matrix isn't in the default set of Ruby 3.1 anymore
-# see https://github.com/prawnpdf/prawn/commit/3658d5125c3b20eb11484c3b039ca6b89dc7d1b7
-gem 'matrix', '~> 0.4'
 
-# until we have a fix for https://github.com/rubygems/rubygems/pull/5529
-gem 'strscan', '3.0.1'
+# The following gems have a pin: they are default gems in our ruby 3.4 package and we rather use those, then maintaining them in our bundle.
+# Also, they are used by bundler so version mismatches cause problems when booting the app in passenger
+gem 'base64', '0.2.0', require: false
+gem 'stringio', '3.1.2'
+gem 'strscan', '3.1.2'
+
+# OpenStruct implementation (no longer a default gem from ruby > 3.4.0)
+gem 'ostruct'
+
+# for parsing toml in rake rpmlint:sync_description
+gem 'toml-rb'
 
 group :development, :production do
   # to have the delayed job daemon
@@ -129,17 +133,10 @@ group :development, :production do
   gem 'dalli'
   # to not rely on cron+rake
   gem 'clockwork'
-  # as interface to LDAP
-  gem 'ruby-ldap', require: false
   # to have better logs
   gem 'lograge'
-end
-
-group :production do
-  # if you have an account, it can be configured by
-  # placing a config/newrelic.yml
-  # be aware about the non-OSS license
-  #  gem 'newrelic_rpm'
+  # for asking user input e.g. in rake tasks...
+  gem 'highline'
 end
 
 # Gems used only for testing the application and not required in production environments by default.
@@ -158,6 +155,7 @@ group :test do
   gem 'minitest-reporters'
   # for integration testing
   gem 'capybara'
+  gem 'rack_session_access'
   # to fake backend replies
   gem 'webmock'
   # for mocking and stubbing
@@ -221,7 +219,7 @@ end
 
 group :development do
   # add a comment summarizing the current schema
-  gem 'annotate'
+  gem 'annotaterb'
   # toolkit to upgrade your Rails application
   gem 'next_rails'
   gem 'database_consistency', require: false
@@ -238,7 +236,7 @@ group :assets do
   # assets for jQuery and jQuery-ujs
   gem 'jquery-rails'
   # assets for jQuery-ui
-  gem 'jquery-ui-rails', '~> 4.2.1'
+  gem 'jquery-ui-rails'
   # assets for the bootstrap front-end framework
   gem 'bootstrap'
   # assets for font-awesome vector icons

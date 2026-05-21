@@ -1,7 +1,21 @@
 class ReportPolicy < ApplicationPolicy
+  class Scope < Scope
+    def resolve
+      if user.admin? || user.moderator? || user.staff?
+        scope.all
+      else
+        scope.where(reporter: user)
+      end
+    end
+  end
+
+  def index?
+    Flipper.enabled?(:content_moderation, user)
+  end
+
   def show?
-    return true if user.is_admin? || user.is_moderator? || user.is_staff?
-    return true if record.user == user
+    return true if user.admin? || user.moderator? || user.staff?
+    return true if record.reporter == user
 
     CommentPolicy.new(user, record.reportable).maintainer? if record.reportable_type == 'Comment'
   end
@@ -25,16 +39,24 @@ class ReportPolicy < ApplicationPolicy
     when 'User'
       !UserPolicy.new(user, record.reportable).update?
     when 'BsRequest'
-      !BsRequestPolicy.new(user, record.reportable).report?
+      record.reportable.creator != user.login
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
 
   def notify?
     return false unless Flipper.enabled?(:content_moderation, user)
-    return true if User.moderators.blank? && (user.is_admin? || user.is_staff?)
-    return true if user.is_moderator?
 
-    false
+    user.moderator? || user.admin? || user.staff?
+  end
+
+  def destroy?
+    return false unless Flipper.enabled?(:content_moderation, user)
+
+    user.admin? || user.moderator? || user.staff? || record.reporter == user
+  end
+
+  def update?
+    destroy?
   end
 end

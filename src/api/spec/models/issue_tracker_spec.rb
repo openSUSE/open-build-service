@@ -71,15 +71,26 @@ RSpec.describe IssueTracker do
         allow_any_instance_of(Issue).to receive(:fetch_issues)
         create(:issue, name: '3628', issue_tracker: issue_tracker)
       end
-      let(:xmlrpc_client) { double(XMLRPC::Client, timeout: nil) }
+      let(:xmlrpc_client_class) { class_double(XMLRPC::Client) }
+      let(:xmlrpc_client) { instance_double(XMLRPC::Client) }
+      let(:fake_xmlrpc_client_proxy_class) do
+        Class.new(XMLRPC::Client::Proxy) do # Dynamic class to allow stubbing methods handled via method_missing
+          def get; end
+        end
+      end
+      let(:xmlrpc_client_proxy) { instance_double(fake_xmlrpc_client_proxy_class) }
 
       before do
-        allow(XMLRPC::Client).to receive(:new2).and_return(xmlrpc_client)
+        allow(xmlrpc_client_class).to receive(:new2).and_return(xmlrpc_client)
+
         allow(xmlrpc_client).to receive(:timeout=)
         allow(xmlrpc_client).to receive(:user=)
         allow(xmlrpc_client).to receive(:password=)
-        allow(xmlrpc_client).to receive(:proxy).and_return(xmlrpc_client)
-        allow(xmlrpc_client).to receive(:get).and_raise(Errno::ECONNRESET)
+        allow(xmlrpc_client).to receive(:proxy).with('Bug').and_return(xmlrpc_client_proxy)
+
+        allow(xmlrpc_client_proxy).to receive(:get) { xmlrpc_client.call('Bug.get') } # Stub the proxy#get method (dynamic via method_missing)
+
+        allow(xmlrpc_client).to receive(:call).with('Bug.get').and_raise(Errno::ECONNRESET)
       end
 
       it { is_expected.to be_falsey }

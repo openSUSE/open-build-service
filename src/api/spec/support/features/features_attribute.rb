@@ -5,7 +5,7 @@ module FeaturesAttribute
     expect(page).to have_text('Add Attribute')
     find('select#attrib_attrib_type_id').select("#{attribute_type.attrib_namespace}:#{attribute_type.name}", match: :first)
     click_button('Add')
-    expect(page).to have_content('Attribute was successfully created.')
+    expect(page).to have_text('Attribute was successfully created.')
 
     # FIXME: With the cocoon gem, the first click is somehow not registered... but only when testing in Capybara
     click_link('Add a value')

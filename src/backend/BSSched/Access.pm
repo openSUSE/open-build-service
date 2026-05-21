@@ -44,7 +44,7 @@ sub checkaccess {
 
 # check if every user from oprojid may access projid
 sub checkroles {
-  my ($gctx, $type, $projid, $packid, $oprojid, $opackid) = @_;
+  my ($gctx, $type, $projid, $packid, $oprojid, $opackid, $readerok) = @_;
   my $projpacks = $gctx->{'projpacks'};
   my $remoteprojs = $gctx->{'remoteprojs'};
   my $proj = $projpacks->{$projid};
@@ -88,7 +88,7 @@ sub checkroles {
     } elsif (exists $r->{'groupid'}) {
       push @rx, grep {exists($_->{'groupid'}) && $_->{'groupid'} eq $r->{'groupid'}} @roles;
     }
-    return 0 unless grep {$_->{'role'} eq $r->{'role'} || $_->{'role'} eq 'maintainer'} @rx;
+    return 0 unless grep {$_->{'role'} eq $r->{'role'} || $_->{'role'} eq 'maintainer' || ($readerok && $_->{'role'} eq 'reader')} @rx;
   }
   return 1;
 }
@@ -110,8 +110,8 @@ sub checkprpaccess {
   if ((!$remoteprojs->{$aprojid} || $remoteprojs->{$aprojid}->{'partition'}) && !checkaccess($gctx, 'publish', $aprojid, undef, $arepoid)) {
     return 0 if checkaccess($gctx, 'publish', $projid, undef, $repoid);
   }
-  # check if the roles match
-  return checkroles($gctx, 'access', $aprojid, undef, $projid, undef);
+  # check if the roles match (reader is good enough)
+  return checkroles($gctx, 'access', $aprojid, undef, $projid, undef, 1);
 }
 
 1;

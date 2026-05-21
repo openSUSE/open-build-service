@@ -7,7 +7,7 @@ class Repository < ApplicationRecord
 
   has_many :channel_targets, class_name: 'ChannelTarget', dependent: :delete_all
   has_many :release_targets, class_name: 'ReleaseTarget', dependent: :delete_all
-  has_many :path_elements, -> { order('position') }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
+  has_many :path_elements, -> { order(:position) }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
   has_many :download_repositories, dependent: :delete_all
   has_many :links, class_name: 'PathElement', inverse_of: :link
   has_many :targetlinks, class_name: 'ReleaseTarget', foreign_key: 'target_repository_id'
@@ -31,7 +31,7 @@ class Repository < ApplicationRecord
   end
   has_many :product_update_repositories, dependent: :delete_all
   has_many :product_medium, dependent: :delete_all
-  has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
+  has_many :repository_architectures, -> { order(:position) }, dependent: :destroy, inverse_of: :repository
   has_many :architectures, through: :repository_architectures
 
   scope :not_remote, -> { where(remote_project_name: '') }
@@ -78,7 +78,7 @@ class Repository < ApplicationRecord
 
   def self.find_by_project_and_name!(project, repo)
     result = find_by_project_and_name(project, repo)
-    return ActiveRecord::RecordNotFound if result.blank?
+    raise ActiveRecord::RecordNotFound if result.blank?
 
     result
   end
@@ -94,17 +94,6 @@ class Repository < ApplicationRecord
     # does not exist, so let's create it
     project = Project.deleted_instance
     project.repositories.find_or_create_by!(name: 'deleted')
-  end
-
-  def self.new_from_distribution(distribution)
-    target_repository = find_by_project_and_name!(distribution.project, distribution.repository)
-    distribution_repository = new(name: distribution.reponame)
-    distribution_repository.path_elements.build(link: target_repository)
-    distribution.architectures.each do |architecture|
-      distribution_repository.repository_architectures.build(architecture: architecture)
-    end
-
-    distribution_repository
   end
 
   def cleanup_before_destroy
@@ -197,7 +186,7 @@ class Repository < ApplicationRecord
     links.map(&:repository)
   end
 
-  def is_local_channel?
+  def local_channel?
     # is any our path elements the target of a channel package in this project?
     path_elements.includes(:link).find_each do |pe|
       return true if ChannelTarget.find_by_repo(pe.link, [project]).any?
@@ -207,7 +196,7 @@ class Repository < ApplicationRecord
     false
   end
 
-  def has_hostsystem?
+  def hostsystem?
     path_elements.where(kind: :hostsystem).any?
   end
 
@@ -220,7 +209,7 @@ class Repository < ApplicationRecord
 
   def extended_name
     long_name = project.name.tr(':', '_')
-    if project.repositories.count > 1 && !(name == 'standard')
+    if project.repositories.many? && name != 'standard'
       # keep short names if project has just one repo
       long_name += "_#{name}"
     end
@@ -253,12 +242,12 @@ class Repository < ApplicationRecord
     end
   end
 
-  def is_kiwi_type?
+  def kiwi_type?
     # HACK: will be cleaned up after implementing FATE #308899
     name == 'images'
   end
 
-  def has_local_path?
+  def local_path?
     path_elements.each do |pe|
       return true if pe.link.project == project
     end
@@ -272,7 +261,7 @@ class Repository < ApplicationRecord
     end
 
     position = 1
-    if source_repository.has_local_path?
+    if source_repository.local_path?
       # don't link to the original external repo, but use the repo from this project
       # pointing to this external repo.
       source_repository.path_elements.where(kind: 'standard').find_each do |spe|
@@ -282,15 +271,15 @@ class Repository < ApplicationRecord
         path_elements.create(link: local_repository, position: position)
         position += 1
       end
-    elsif source_repository.is_kiwi_type?
+    elsif source_repository.kiwi_type?
       # kiwi builds need to copy path elements
       source_repository.path_elements.each do |pa|
         path_elements.create(link: pa.link, position: pa.position, kind: pa.kind)
       end
       # and set type in prjconf
-      prjconf = project.source_file('_config')
+      prjconf = Backend::Api::Sources::Project.configuration(project.name)
       unless /^Type:/.match?(prjconf)
-        prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+        prjconf = +"%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
         Backend::Api::Sources::Project.write_configuration(project.name, prjconf)
       end
       return
@@ -298,7 +287,7 @@ class Repository < ApplicationRecord
 
     # we build against the other repository by default
     path_elements.create(link: source_repository, position: position)
-    path_elements.create(link: source_repository, position: position, kind: :hostsystem) if source_repository.has_hostsystem?
+    path_elements.create(link: source_repository, position: position, kind: :hostsystem) if source_repository.hostsystem?
   end
 
   def download_url(file)
@@ -307,7 +296,7 @@ class Repository < ApplicationRecord
     "#{url}/#{file}" if file.present?
   end
 
-  def is_dod_repository?
+  def dod_repository?
     download_repositories.any?
   end
 
@@ -338,11 +327,11 @@ end
 #  id                  :integer          not null, primary key
 #  block               :string
 #  linkedbuild         :string
-#  name                :string(255)      not null, indexed => [db_project_id, remote_project_name]
+#  name                :string(255)      not null, uniquely indexed => [db_project_id, remote_project_name]
 #  rebuild             :string
-#  remote_project_name :string(255)      default(""), not null, indexed => [db_project_id, name], indexed
+#  remote_project_name :string(255)      default(""), not null, uniquely indexed => [db_project_id, name], indexed
 #  required_checks     :string(255)
-#  db_project_id       :integer          not null, indexed => [name, remote_project_name]
+#  db_project_id       :integer          not null, uniquely indexed => [name, remote_project_name]
 #
 # Indexes
 #

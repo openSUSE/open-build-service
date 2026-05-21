@@ -63,6 +63,7 @@ my $oci;
 my $old_listfile;
 my $with_platforms;
 my $missingok;
+my $use_head_for_list;
 
 my $cosign;
 my $cosigncookie;
@@ -73,6 +74,7 @@ my @signcmd;
 my $pubkeyfile;
 
 my $rekorserver;
+my $force_rekor_upload;
 
 my $registryserver;
 my $repository;
@@ -85,6 +87,33 @@ my $registry_blob_authenticator;
 my $keepalive;
 
 my $cosign_cookie_name = 'org.open-build-service.cosign.cookie';
+
+sub warn_and_exit {
+  warn($_[1]);
+  exit($_[0]);
+}
+
+sub rpc_failed {
+  # exit with status 2 for rpc errors that point to a configuration error
+  warn_and_exit(2, $_[0]) if $_[0] =~ /^4\d\d[^\d]/ && $_[0] !~ /^(?:401|404|408|410|417|429)/;
+  die($_[0]);
+}
+
+sub toomanyrequests {
+  my ($param, $sleep) = @_;
+  return $sleep if $sleep <= 60;
+  # convert sleep time into exit status
+  $sleep = int(($sleep + 59) / 60);
+  my $st;
+  if ($sleep <= 60) {
+    $st = (0, 0, 1, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5)[int(($sleep + 4) / 5)];
+  } else {
+    $st = 3 + int(($sleep + 29) / 30);
+  }
+  $st = 0 if $st < 0;
+  $st = 9 if $st > 9;
+  warn_and_exit(10 + $st, "429 Too Many Requests ($sleep)\n");
+}
 
 sub registry_errorcode {
   my ($answer) = @_;
@@ -113,7 +142,7 @@ sub contenttype2manitype {
   return 'ocilist' if $ct eq $BSContar::mt_oci_index;
   return 'unknown';
 }
-  
+
 sub blob_exists {
   my ($blobid, $size) = @_;
   my $replyheaders;
@@ -122,6 +151,7 @@ sub blob_exists {
     'request' => 'HEAD',
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'replyheaders' => \$replyheaders,
     'maxredirects' => 1,
   };
@@ -153,9 +183,11 @@ sub blob_upload {
     'request' => 'POST',
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'replyheaders' => \$replyheaders,
   };
-  BSRPC::rpc($param);
+  eval { BSRPC::rpc($param) };
+  rpc_failed($@) if $@;
   my $loc = $replyheaders->{'location'};
   my @locextra;
   if ($loc =~ s/\?(.*)$//) {
@@ -198,6 +230,7 @@ sub blob_download {
     'uri' => "$registryserver/v2/$repository/blobs/$blobid",
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'receiver' => $filename eq '-' ? $stdout_receiver : \&BSHTTP::file_receiver,
     'filename' => $filename,
     'maxredirects' => 1,
@@ -211,29 +244,78 @@ sub blob_fetch {
     'uri' => "$registryserver/v2/$repository/blobs/$blobid",
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'maxredirects' => 1,
   };
   return BSRPC::rpc($param);
+}
+
+sub manifest_exists_head {
+  my ($manifest, $tag, $content_type) = @_;
+
+  $content_type ||= $BSContar::mt_docker_manifest;
+  my $maniid = BSContar::blobid($manifest);
+  $tag = $maniid unless defined $tag;
+  my $accept_header = "Accept: $content_type, application/json";
+  $accept_header = "Accept: $BSContar::mt_docker_manifest, $BSContar::mt_docker_manifestlist, application/json" if $content_type eq $BSContar::mt_docker_manifest;
+  $accept_header = "Accept: $BSContar::mt_oci_manifest, $BSContar::mt_oci_index, application/json" if $content_type eq $BSContar::mt_oci_manifest;
+  my $replyheaders;
+  my $param = {
+    'headers' => [ $accept_header ],
+    'uri' => "$registryserver/v2/$repository/manifests/$tag",
+    'request' => 'HEAD',
+    'authenticator' => $registry_authenticator,
+    'replyheaders' => \$replyheaders,
+    'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
+    'keepalive' => $keepalive,
+  };
+  eval { BSRPC::rpc($param) };
+  return 0 if $@ =~ /^404/;
+  return undef if $@;	# maybe HEAD not supported?
+  if ($replyheaders) {
+    my $size = length($manifest);
+    if ($tag eq $maniid) {
+      die("size mismatch?\n") if $replyheaders->{'content-length'} && $size != $replyheaders->{'content-length'};
+      return $replyheaders->{'docker-content-digest'} eq $maniid ? 1 : 0 if $replyheaders->{'docker-content-digest'};
+      return 1;
+    }
+    return 0 if $replyheaders->{'content-length'} && $size != $replyheaders->{'content-length'};
+    return $replyheaders->{'docker-content-digest'} eq $maniid ? 1 : 0 if $replyheaders->{'docker-content-digest'};
+  }
+  return undef;	# undecided
 }
 
 sub manifest_exists {
   my ($manifest, $tag, $content_type) = @_;
 
   $content_type ||= $BSContar::mt_docker_manifest;
+
+  if (1) {
+    # first try a HEAD request
+    my $head_ret = manifest_exists_head($manifest, $tag, $content_type);
+    return $head_ret if defined $head_ret;
+  }
+
   my $maniid = BSContar::blobid($manifest);
   $tag = $maniid unless defined $tag;
+  my $accept_header = "Accept: $content_type, application/json";
+  $accept_header = "Accept: $BSContar::mt_docker_manifest, $BSContar::mt_docker_manifestlist, application/json" if $content_type eq $BSContar::mt_docker_manifest;
+  $accept_header = "Accept: $BSContar::mt_oci_manifest, $BSContar::mt_oci_index, application/json" if $content_type eq $BSContar::mt_oci_manifest;
   my $replyheaders;
   my $param = {
-    'headers' => [ "Accept: $content_type" ],
+    'headers' => [ $accept_header ],
     'uri' => "$registryserver/v2/$repository/manifests/$tag",
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'keepalive' => $keepalive,
   };
   my $maniret;
   eval { $maniret = BSRPC::rpc($param) };
   if ($maniret) {
+    return 0 if ($replyheaders->{'content-type'} || '') ne $content_type;
     my $maniretid = $replyheaders->{'docker-content-digest'};
     $maniretid ||= BSContar::blobid($maniret);
     return 1 if $maniretid eq $maniid;
@@ -265,7 +347,8 @@ sub manifest_upload {
     'replyheaders' => \$replyheaders,
     'data' => $manifest,
   };
-  BSRPC::rpc($param, undef);
+  eval { BSRPC::rpc($param, undef) };
+  rpc_failed($@) if $@;
   my $id = $replyheaders->{'docker-content-digest'};
   die("server did not return a content id\n") unless $id;
   die("server created a different manifest id: $maniid $id\n") if $maniid ne $id;
@@ -332,6 +415,31 @@ sub cosign_upload {
   manifest_append_listfile($mani_json, $tag, $mani->{'mediaType'}, $extra) if defined $listfile;
 }
 
+sub cosign_upload_rekor {
+  my ($gpgpubkey, $sig, @layer_ents) = @_;
+  my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
+  $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
+  if ($sig) {
+    print "uploading cosign signature to $rekorserver\n";
+    die unless @layer_ents == 1;
+    my $hash = 'sha256:'.Digest::SHA::sha256_hex($layer_ents[0]->{'data'});	# must match signfunc
+    my ($rekorkey, $rekorentry) = BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
+    BSConSign::add_cosign_bundle_annotation($layer_ents[0], $rekorentry);
+  } else {
+    print "uploading cosign attestations to $rekorserver\n";
+    for my $attestation_ent (@layer_ents) {
+      my ($rekorkey, $rekorentry) = BSRekor::upload_intoto($rekorserver, $attestation_ent->{'data'}, $sslpubkey);
+      BSConSign::add_cosign_bundle_annotation($attestation_ent, $rekorentry);
+    }
+  }
+}
+
+sub create_cosign_attestation_ent {
+  my ($attestation, $signfunc, $digest, $reference, $annotations) = @_;
+  my ($att, $predicatetype) = BSConSign::fixup_intoto_attestation($attestation, $signfunc, $digest, $reference);
+  return BSConSign::create_cosign_attestation_ent($att, $annotations, $predicatetype);
+}
+
 sub get_all_tags {
   my ($missing_ok) = @_;
   my @regtags;
@@ -340,6 +448,7 @@ sub get_all_tags {
     'uri' => "$registryserver/v2/$repository/tags/list",
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'replyheaders' => \$replyheaders,
     'keepalive' => $keepalive,
     'ignorestatus' => ($missing_ok ? 1 : 0),
@@ -370,6 +479,7 @@ sub get_all_repositories {
     'uri' => "$registryserver/v2/_catalog",
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'replyheaders' => \$replyheaders,
   };
   while (1) {
@@ -393,18 +503,42 @@ sub get_manifest_for_tag {
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'keepalive' => $keepalive,
   };
   push @{$param->{'headers'}}, "If-None-Match: $ifnonematch" if $ifnonematch;
-  my $mani_json;
-  eval { $mani_json = BSRPC::rpc($param); };
+  if ($ifnonematch && $use_head_for_list) {
+    $param->{'request'} = 'HEAD';
+    my $mani_json = eval { BSRPC::rpc($param) };
+    die($@) if $@ && $@ =~ /^304/;
+    die("304 Not Modified\n") if $replyheaders->{'docker-content-digest'} && "\"$replyheaders->{'docker-content-digest'}\"" eq $ifnonematch;
+    delete $param->{'request'};
+    $replyheaders = undef;
+  }
+  my $mani_json = eval { BSRPC::rpc($param) };
   if ($@) {
     return () if $@ =~ /^404/;	# tag does not exist
-    die($@);
+    rpc_failed($@);
   }
   my $mani = JSON::XS::decode_json($mani_json);
   my $maniid = $replyheaders->{'docker-content-digest'};
   die("$tag: no docker-content-digest\n") unless $maniid;
+  return ($mani, $maniid, $mani_json);
+}
+
+sub get_referrers {
+  my ($digest) = @_;
+  my $replyheaders;
+  my $param = {
+    'uri' => "$registryserver/v2/$repository/referrers/$digest",
+    'authenticator' => $registry_authenticator,
+    'replyheaders' => \$replyheaders,
+    'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
+  };
+  my $mani_json = BSRPC::rpc($param);
+  my $mani = JSON::XS::decode_json($mani_json);
+  my $maniid = $replyheaders->{'docker-content-digest'};
   return ($mani, $maniid, $mani_json);
 }
 
@@ -420,8 +554,10 @@ sub delete_manifest {
     'request' => 'DELETE',
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
   };
-  BSRPC::rpc($param, undef);
+  eval { BSRPC::rpc($param, undef) };
+  rpc_failed($@) if $@;
 }
 
 my $cannot_directly_delete_tags;
@@ -439,10 +575,11 @@ sub delete_tag {
       'request' => 'DELETE',
       'authenticator' => $registry_authenticator,
       'timeout' => $registry_timeout,
+      'toomanyrequests' => \&toomanyrequests,
     };
     eval { BSRPC::rpc($param, undef); };
     return unless $@;
-    die($@) unless $@ =~ /^40[05]/;
+    rpc_failed($@) unless $@ =~ /^40[05]/;
     $cannot_directly_delete_tags = 1;
   }
 
@@ -456,6 +593,7 @@ sub delete_tag {
     'request' => 'DELETE',
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
   };
   eval { BSRPC::rpc($param, undef); };
   my $err = $@;
@@ -463,7 +601,7 @@ sub delete_tag {
   if ($err) {
     # delete failed, switch tag back to the old image
     eval { manifest_upload($mani_json, $tag, $mani->{'mediaType'}, 1) if $newmaniid ne $maniid; };
-    die($err);
+    rpc_failed($err);
   }
 }
 
@@ -474,14 +612,16 @@ sub manifest2extrainfo {
     if (@{$mani->{'layers'} || []} == 1 && $mani->{'layers'}->[0]->{'mediaType'} eq 'application/vnd.dev.cosign.simplesigning.v1+json') {
       my $annotations = $mani->{'layers'}->[0]->{'annotations'} || {};
       my $cookie = $annotations->{$cosign_cookie_name};
-      $extra = "cosigncookie=$cookie" if $cookie;
+      $extra = "layers=".@{$mani->{'layers'} || []};
+      $extra .= ",cosigncookie=$cookie" if $cookie;
     }
   }
   if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.att$/ && $mani && $mani->{'mediaType'} && $mani->{'mediaType'} eq $BSContar::mt_oci_manifest) {
     if (@{$mani->{'layers'} || []} >= 1 && $mani->{'layers'}->[0]->{'mediaType'} eq 'application/vnd.dsse.envelope.v1+json') {
       my $annotations = $mani->{'layers'}->[0]->{'annotations'} || {};
       my $cookie = $annotations->{$cosign_cookie_name};
-      $extra = "cosigncookie=$cookie" if $cookie;
+      $extra = "layers=".@{$mani->{'layers'} || []};
+      $extra .= ",cosigncookie=$cookie" if $cookie;
     }
   }
   return $extra;
@@ -509,6 +649,7 @@ sub list_manifestinfo {
   my $param = {
     'uri' => ($manifestinfoserver || $registryserver)."/v2/$g$repository/manifestinfos/$maniid",
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
   };
   $param->{'authenticator'} = $registry_authenticator unless $manifestinfoserver;
   my $manifestinfo_json = eval { BSRPC::rpc($param, undef) };
@@ -538,11 +679,12 @@ sub list_tag {
   # check if we can use the If-None-Match header
   my $ifnonematch;
   $ifnonematch = "\"$old_data->[0]\"" if $old_data;
-  $ifnonematch = undef if $maniids;
+  $ifnonematch = undef if $maniids && ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist') && !$old_datas->{"$old_data->[0]/"};
   $ifnonematch = undef if $list_manifestinfo;
   if ($with_platforms && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
     $ifnonematch = undef if ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist') && $old_data_extra !~ /^platforms=/;
   }
+  $ifnonematch = undef if $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/ && $old_data_extra !~ /^layers=/;
   if ($listidx && ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist')) {
     # we will need to list submanifests
     $ifnonematch = undef unless $old_datas->{"$old_data->[0]/"} && $listidx_no_info;
@@ -556,6 +698,12 @@ sub list_tag {
       my ($mtype, $extra) = ($old_data_mtype, $old_data_extra);
       if ($tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
 	$extra = '' unless $with_platforms;
+      }
+      if ($maniids && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+	$maniids->{$maniid} = 1;
+	if ($mtype eq 'list' || $mtype eq 'ocilist') {
+	  $maniids->{$_->[1]} = 1 for @{$old_datas->{"$maniid/"}};
+	}
       }
       $disptag = $tag unless defined $disptag;
       printf "%-20s %s %s%s\n", $disptag, $maniid, $mtype, $extra ? " $extra" : '';
@@ -714,6 +862,15 @@ sub open_container_tar {
   return ($tar, $mtime);
 }
 
+sub get_credentials {
+  my ($creds) = @_;
+  if ($creds && $creds eq '-') {
+    $creds = <STDIN>;
+    chomp $creds;
+  }
+  return $creds;
+}
+
 sub die_with_usage {
   die <<'END';
 usage: bs_regpush [options] <registryserver> repository tar [tar...]
@@ -741,7 +898,7 @@ $| = 1;
 
 while (@ARGV) {
   if ($ARGV[0] eq '--dest-creds') {
-    $dest_creds = BSBearer::get_credentials($ARGV[1]);
+    $dest_creds = get_credentials($ARGV[1]);
     splice(@ARGV, 0, 2);
   } elsif ($ARGV[0] eq '-T') {
     $use_image_tags = 1;
@@ -800,14 +957,14 @@ while (@ARGV) {
     shift @ARGV;
   } elsif ($ARGV[0] eq '--rekor') {
     (undef, $rekorserver) = splice(@ARGV, 0, 2);
+  } elsif ($ARGV[0] eq '--force-rekor-upload') {
+    $force_rekor_upload = 1;
+    shift @ARGV;
   } elsif ($ARGV[0] eq '-G') {
     (undef, $gun) = splice(@ARGV, 0, 2);
   } elsif ($ARGV[0] eq '-p') {
     (undef, $pubkeyfile) = splice(@ARGV, 0, 2);
-  } elsif ($ARGV[0] eq '--dest-creds') {
-    $dest_creds = BSBearer::get_credentials($ARGV[1]);
-    splice(@ARGV, 0, 2);
-  } elsif ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u' || $ARGV[0] eq '--signtype' || $ARGV[0] eq '-h') {
+  } elsif ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u' || $ARGV[0] eq '--signtype' || $ARGV[0] eq '--signflavor' || $ARGV[0] eq '-h') {
     my @signopts = splice(@ARGV, 0, 2);
     push @signcmd, @signopts unless $signopts[0] eq '-h';
   } elsif ($ARGV[0] eq '--manifestinfo') {
@@ -823,15 +980,32 @@ while (@ARGV) {
     $listidx = 1;
     $listidx_no_info = 1;
     shift @ARGV;
+  } elsif ($ARGV[0] eq '--debug') {
+    $BSRPC::logrequests = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--use-head-for-list') {
+    $use_head_for_list = 1;
+    shift @ARGV;
   } else {
     last;
   }
+}
+
+if (@ARGV && $ARGV[0] =~ /^config:(.+)/) {
+  my $regname = $1;
+  require BSConfiguration;
+  my $registry;
+  $registry = $BSConfig::container_registries->{$regname} if $BSConfig::container_registries;
+  die("unknown registry $regname\n") unless $registry;
+  $ARGV[0] = $registry->{'pushserver'} || $registry->{'server'};
+  $dest_creds = get_credentials("$registry->{'user'}:$registry->{'password'}") if !$dest_creds && $registry->{'user'};
 }
 
 $registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));
 $registry_blob_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));
 
 if ($list_mode) {
+  die_with_usage() unless @ARGV >= 1;
   ($registryserver, $repository) = @ARGV;
   if (@ARGV == 1) {
     for my $repo (sort(get_all_repositories())) {
@@ -871,6 +1045,10 @@ if ($list_mode) {
       die("no such layer\n") unless $mani->{'layers'}->[$1];
       my $data = blob_fetch($mani->{'layers'}->[$1]->{'digest'});
       print $data;
+    } elsif ($ARGV[3] eq 'referrers') {
+      die("need digest for referrers\n") unless $ARGV[2] =~ /^sha256:[0-9a-f]{64}$/;
+      my ($mani, $maniid, $mani_json) = get_referrers($ARGV[2]);
+      print "$mani_json\n" if $mani_json;
     } else {
       blob_download($ARGV[2], $ARGV[3]);
     }
@@ -880,10 +1058,9 @@ if ($list_mode) {
   exit(0);
 }
 
-die_with_usage() unless @ARGV >= 2;
-($registryserver, $repository, @tarfiles) = @ARGV;
-
 if ($delete_mode || $delete_except_mode) {
+  die_with_usage() unless @ARGV == 2;
+  ($registryserver, $repository) = @ARGV;
   die("cannot do both delete and delete-except\n") if $delete_mode && $delete_except_mode;
   my %tags;
   $tags{$_} = 1 for @tags;
@@ -904,6 +1081,9 @@ if ($delete_mode || $delete_except_mode) {
   }
   exit;
 }
+
+die_with_usage() unless @ARGV >= 2;
+($registryserver, $repository, @tarfiles) = @ARGV;
 
 if ($cosign) {
   require BSConfiguration;
@@ -977,7 +1157,7 @@ for my $tarfile (@tarfiles) {
     $tar_base =~ s/\.[^\.]*$//;
     my $tar_dir = $tarfile;
     $tar_dir = '' unless $tar_dir =~ s/\/[^\/]*$/\//;
-    push @intoto_json, map {readstr("$tar_dir$_")} grep {/^\Q$tar_base\E\..+\.intoto.json$/} sort(ls($tar_dir eq '' ? '.' : $tar_dir));
+    push @intoto_json, map {readstr("$tar_dir$_")} grep {/^\Q$tar_base\E\.[^\.]+\.intoto.json$/} sort(ls($tar_dir eq '' ? '.' : $tar_dir));
   }
 
   my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
@@ -1110,6 +1290,7 @@ if ($cosign && %digests_to_sign) {
     my $sig_tag = "$digest.sig";
     $sig_tag =~ s/:/-/;
     my ($sig_mani, $sig_maniid, $sig_mani_json) = get_manifest_for_tag($sig_tag);
+    undef $sig_mani if $force_rekor_upload && $rekorserver;
     if ($sig_mani && $sig_mani->{'mediaType'} && $sig_mani->{'mediaType'} eq $BSContar::mt_oci_manifest && @{$sig_mani->{'layers'} || []} == 1 && $BSConSign::mt_cosign && $sig_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_cosign) {
       my $annotations = $sig_mani->{'layers'}->[0]->{'annotations'} || {};
       next if ($annotations->{$cosign_cookie_name} || '') eq $cosigncookie;
@@ -1118,14 +1299,8 @@ if ($cosign && %digests_to_sign) {
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
     my ($cosign_ent, $sig) = BSConSign::create_cosign_signature_ent($signfunc, $digest, $gun, $creator, undef, $annotations);
+    cosign_upload_rekor($gpgpubkey, $sig, $cosign_ent) if $rekorserver && $sig;
     cosign_upload($sig_tag, $cosign_ent);
-    if ($rekorserver) {
-      print "uploading cosign signature to $rekorserver\n";
-      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
-      $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      my $hash = 'sha256:'.Digest::SHA::sha256_hex($cosign_ent->{'data'});	# must match signfunc
-      BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
-    }
   }
   # upload attestations
   for my $digest (sort keys %digests_to_sign) {
@@ -1137,6 +1312,7 @@ if ($cosign && %digests_to_sign) {
     my $att_tag = "$digest.att";
     $att_tag =~ s/:/-/;
     my ($att_mani, $att_maniid, $att_mani_json) = get_manifest_for_tag($att_tag);
+    undef $att_mani if $force_rekor_upload && $rekorserver;
     my $numlayers = ($provenance ? 1 : 0) + ($spdx_json ? 1 : 0) + ($cyclonedx_json ? 1 : 0) + scalar(@intoto_json);
     if ($att_mani && $att_mani->{'mediaType'} && $att_mani->{'mediaType'} eq $BSContar::mt_oci_manifest && @{$att_mani->{'layers'} || []} == $numlayers && $BSConSign::mt_dsse) {
       next unless grep {$_->{'mediaType'} ne $BSConSign::mt_dsse || (($_->{'annotations'} || {})->{$cosign_cookie_name} || '') ne $cosigncookie} @{$att_mani->{'layers'}};
@@ -1144,22 +1320,13 @@ if ($cosign && %digests_to_sign) {
     print "creating $numlayers cosign attestations for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
-    my %predicatetypes;
-    my @attestations;
-    push @attestations, BSConSign::fixup_intoto_attestation($provenance, $signfunc, $digest, $gun, \%predicatetypes) if $provenance;
-    push @attestations, BSConSign::fixup_intoto_attestation($spdx_json, $signfunc, $digest, $gun, \%predicatetypes) if $spdx_json;
-    push @attestations, BSConSign::fixup_intoto_attestation($cyclonedx_json, $signfunc, $digest, $gun, \%predicatetypes) if $cyclonedx_json;
-    push @attestations, BSConSign::fixup_intoto_attestation($_, $signfunc, $digest, $gun, \%predicatetypes) for @intoto_json;
-    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, $annotations, \%predicatetypes);
+    my @attestation_ents;
+    push @attestation_ents, create_cosign_attestation_ent($provenance, $signfunc, $digest, $gun, $annotations) if $provenance;
+    push @attestation_ents, create_cosign_attestation_ent($spdx_json, $signfunc, $digest, $gun, $annotations) if $spdx_json;
+    push @attestation_ents, create_cosign_attestation_ent($cyclonedx_json, $signfunc, $digest, $gun, $annotations) if $cyclonedx_json;
+    push @attestation_ents, create_cosign_attestation_ent($_, $signfunc, $digest, $gun, $annotations) for @intoto_json;
+    cosign_upload_rekor($gpgpubkey, undef, @attestation_ents) if $rekorserver && @attestation_ents;
     cosign_upload($att_tag, @attestation_ents);
-    if ($rekorserver) {
-      print "uploading cosign attestations to $rekorserver\n";
-      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
-      $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      for my $attestation (@attestations) {
-        BSRekor::upload_intoto($rekorserver, $attestation, $sslpubkey);
-      }
-    }
   }
 }
 

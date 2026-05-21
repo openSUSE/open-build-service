@@ -26,24 +26,18 @@
 BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
   $wd ||= '.';
-  unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
 }
 
-use Digest::MD5 ();
 use XML::Structured ':bytes';
+use Digest::MD5 ();
 use Data::Dumper;
-use POSIX;
-use Fcntl qw(:DEFAULT :flock);
 
-use BSRPC;
+use BSConfiguration;
 use BSServer;
 use BSStdServer;
-use BSConfiguration;
 use BSUtil;
 use BSXML;
-use BSHTTP;
-use BSBuild;
 
 use strict;
 
@@ -137,6 +131,8 @@ sub rm_rf {
 sub run_source_update {
   my ($cgi, $projid, $packid, $timeout) = @_;
 
+  my $noprefix = $cgi->{'noprefix'};
+
   # just as fallback for older servicedispatchers
   $timeout ||= $BSConfig::service_timeout;
 
@@ -170,99 +166,108 @@ sub run_source_update {
   $::ENV{'http_proxy'} = $proxy if $proxy;
   $::ENV{'https_proxy'} = $proxy if $proxy;
 
-  # run all services
-  my $error;
+  # collect services to run
+  my @services;
   for my $sf ('_service', '_serviceproject') {
     next unless -e $sf;
-    my $infoxml = readstr($sf);
-    my $serviceinfo = XMLin($BSXML::services, $infoxml);
+    my $serviceinfo = readxml($sf, $BSXML::services);
     for my $service (@{$serviceinfo->{'service'}}) {
       my $name = $service->{'name'};
       BSVerify::verify_filename($name);
       if (defined($service->{'mode'}) && ($service->{'mode'} eq 'localonly' || $service->{'mode'} eq 'disabled' || $service->{'mode'} eq 'manual' || $service->{'mode'} eq 'buildtime')) {
         print "Skip $name\n";
-        next;
-      }
-      BSUtil::printlog("Run for $name");
-      my $servicedef;
-      if ($name eq 'obs_scm_bridge') {
-	$servicedef = $servicedef_obs_scm_bridge;
       } else {
-        $servicedef = readxml("$rootservicedir/$name.service", $BSXML::servicetype);
+        print "Take $name\n";
+        push @services, $service;
       }
-      my @run;
-      if (defined $BSConfig::service_wrapper->{$name} ) {
-        push @run, $BSConfig::service_wrapper->{$name};
-      } elsif (defined $BSConfig::service_wrapper->{'*'}) {
-        push @run, $BSConfig::service_wrapper->{'*'};
-      }
-      push @run, "$servicedir/$name";
-      for my $param (@{$service->{'param'}}) {
-        next if $param->{'name'} eq 'outdir';
-        next unless $param->{'_content'};
-        die("$name: service parameter \"$param->{'name'}\" is not defined\n") unless grep {$_->{'name'} eq $param->{'name'}} @{$servicedef->{'parameter'}};
-        push @run, "--$param->{'name'}";
-        push @run, $param->{'_content'};
-      }
-      push @run, "--outdir";
-      push @run, "$myworkdir/out";
+    }
+  }
 
-      mkdir("$myworkdir/out") || die("mkdir $myworkdir/out: $!\n");
+  BSUtil::cleandir('.') if $noprefix && !@services;	# hmm?
 
-      BSUtil::printlog("Running command '@run'");
-      # call the service
-      my $child_pid = open(SERVICE, '-|');
-      die "500 Unable to open pipe: $!\n" unless defined($child_pid);
-      if (! $child_pid) {
-        open(STDERR, ">&STDOUT");
-        exec(@run);
-        die("$run[0]: $!\n");
-      }
+  # now run all services
+  my $error;
+  for my $service (@services) {
+    my $name = $service->{'name'};
+    BSUtil::printlog("Run for $name");
+    my $servicedef;
+    if ($name eq 'obs_scm_bridge') {
+      $servicedef = $servicedef_obs_scm_bridge;
+    } else {
+      $servicedef = readxml("$rootservicedir/$name.service", $BSXML::servicetype);
+    }
+    my @run;
+    if (defined $BSConfig::service_wrapper->{$name} ) {
+      push @run, $BSConfig::service_wrapper->{$name};
+    } elsif (defined $BSConfig::service_wrapper->{'*'}) {
+      push @run, $BSConfig::service_wrapper->{'*'};
+    }
+    push @run, "$servicedir/$name";
+    for my $param (@{$service->{'param'}}) {
+      next if $param->{'name'} eq 'outdir';
+      next unless $param->{'_content'};
+      die("$name: service parameter \"$param->{'name'}\" is not defined\n") unless grep {$_->{'name'} eq $param->{'name'}} @{$servicedef->{'parameter'}};
+      push @run, "--$param->{'name'}";
+      push @run, $param->{'_content'};
+    }
+    push @run, "--outdir";
+    push @run, "$myworkdir/out";
 
-      local $SIG{ALRM} = sub {
-	kill 'TERM', $child_pid;
-	die "500 timeout while execution of $name\n";
-      };
+    mkdir("$myworkdir/out") || die("mkdir $myworkdir/out: $!\n");
 
-      # Wait given timeout or $BSConfig::service_timeout for service to finish
-      BSUtil::printlog("Waiting $timeout for service($child_pid) to finish\n") if $verbose;
-      alarm($timeout);
+    BSUtil::printlog("Running command '@run'");
+    # call the service
+    my $child_pid = open(SERVICE, '-|');
+    die "500 Unable to open pipe: $!\n" unless defined($child_pid);
+    if (! $child_pid) {
+      open(STDERR, ">&STDOUT");
+      exec(@run);
+      die("$run[0]: $!\n");
+    }
 
-      # collect output
-      my $output = '';
-      while (<SERVICE>) {
-        $output .= $_;
-      }
+    local $SIG{ALRM} = sub {
+      kill 'TERM', $child_pid;
+      die "500 timeout while execution of $name\n";
+    };
 
-      BSUtil::printlog(" $name: $output") if $verbose;
+    # Wait given timeout or $BSConfig::service_timeout for service to finish
+    BSUtil::printlog("Waiting $timeout for service($child_pid) to finish\n") if $verbose;
+    alarm($timeout);
 
-      if (close SERVICE) {
-        # SUCCESS, move files inside and add prefix
-        BSUtil::printlog('Service succeed') if $verbose;
-        for my $file (grep {!/^[:\.]/} ls("$myworkdir/out")) {
-	  next if -l "$myworkdir/out/$file" || ! -f _;	# only plain files for now
-	  my $tfile = $file;
+    # collect output
+    my $output = '';
+    $output .= $_ while <SERVICE>;
+
+    BSUtil::printlog(" $name: $output") if $verbose;
+
+    if (close SERVICE) {
+      # SUCCESS, move files inside and add prefix
+      BSUtil::printlog('Service succeed') if $verbose;
+      BSUtil::cleandir('.') if $noprefix;
+      for my $file (grep {!/^[:\.]/} sort(ls("$myworkdir/out"))) {
+	next if -l "$myworkdir/out/$file" || ! -f _;	# only plain files for now
+	my $tfile = $file;
+	if (!$noprefix) {
 	  $tfile =~ s/^_service://s;
 	  $tfile = "_service:$name:$tfile";
-	  rename("$myworkdir/out/$file", $tfile) || die("rename $myworkdir/out/$file $tfile: $!\n");
-        }
-      } else { 
-        # FAILURE, Create error file
-        BSUtil::printlog("Service failed: $!") if $verbose;
-	$output =~ s/[\r\n\s]+$//s;
-        BSUtil::cleandir('.');
-        die("500 remote execution error in $name detected\n") if $? >> 8 == 3;
-	BSUtil::writestr('_service_error', undef, "service $name failed:\n$output\n");
-	$error = 1;
+	}
+	rename("$myworkdir/out/$file", $tfile) || die("rename $myworkdir/out/$file $tfile: $!\n");
       }
-
-      alarm(0);
-
-      # delete no longer needed outdir
-      rm_rf("$myworkdir/out");
-
-      last if $error;
+    } else { 
+      # FAILURE, Create error file
+      BSUtil::printlog("Service failed: $!") if $verbose;
+      $output =~ s/[\r\n\s]+$//s;
+      BSUtil::cleandir('.');
+      die("500 remote execution error in $name detected\n") if $? >> 8 == 3;
+      BSUtil::writestr('_service_error', undef, "service $name failed:\n$output\n");
+      $error = 1;
     }
+
+    alarm(0);
+
+    # delete no longer needed outdir
+    rm_rf("$myworkdir/out");
+
     last if $error;
   }
 
@@ -271,7 +276,7 @@ sub run_source_update {
 
   # get all generate files
   my @send = sort(ls('.'));
-  @send = grep {/^_service[_:]/} @send;
+  @send = grep {/^_service[_:]/} @send unless $noprefix;
   @send = map {{'name' => $_, 'filename' => "$_"}} @send;
 
   # check for non files (symlinks or directories)
@@ -331,7 +336,7 @@ my $dispatches = [
 
   '/service' => \&list_service,
   '/serverstatus' => \&BSStdServer::serverstatus,
-  '!- POST:/sourceupdate/$project/$package $timeout:num?' => \&run_source_update,
+  '!- POST:/sourceupdate/$project/$package $timeout:num? noprefix:bool?' => \&run_source_update,
   # configuration
   'PUT:/configuration' => \&putconfiguration,
 ];

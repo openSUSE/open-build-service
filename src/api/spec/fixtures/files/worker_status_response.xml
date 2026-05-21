@@ -11,8 +11,6 @@
     <daemon type="srcserver" state="running" starttime="1535957126" />
     <daemon type="servicedispatch" state="running" starttime="1535957132" />
     <daemon type="service" state="running" starttime="1535957132" />
-    <daemon type="clouduploadserver" state="running" starttime="1535957132" />
-    <daemon type="clouduploadworker" state="running" starttime="1535957132" />
     <daemon type="scheduler" arch="i586" state="running" starttime="1535957132">
       <queue high="0" med="0" low="2" next="0" />
     </daemon>

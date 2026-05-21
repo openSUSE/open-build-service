@@ -1,5 +1,7 @@
 module Event
   class CreateProject < Base
+    include EventObjectProject
+
     self.message_bus_routing_key = 'project.create'
     self.description = 'Project created'
     payload_keys :project, :sender

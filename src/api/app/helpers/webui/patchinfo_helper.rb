@@ -9,8 +9,17 @@ module Webui::PatchinfoHelper
   end
 
   def patchinfo_issue_link(tracker, number, url)
-    link_text = tracker == 'cve' ? "#{tracker.upcase}-#{number}" : "#{tracker}##{number}"
-    link_to(link_text, url, target: :_blank, rel: 'noopener')
+    link_text = "#{tracker}##{number}"
+    link_url = url
+
+    # TODO: unify the treatment of CVE issues all over the code
+    if tracker == 'cve'
+      issue_tracker = IssueTracker.find_by(kind: 'cve')
+      link_text = "#{tracker.upcase}-#{number}"
+      link_url = issue_tracker.show_url.gsub('@@@', "CVE-#{number}")
+    end
+
+    link_to(link_text, link_url, target: :_blank, rel: 'noopener')
   end
 
   private

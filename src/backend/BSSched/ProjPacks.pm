@@ -449,6 +449,10 @@ sub update_projpacks {
       delete $proj->{'package'};
     }
   }
+  # the src server does not send the project if the packages were deleted
+  if (defined($projid) && !@{$projpacksin->{'project'} || []} && $projpacks->{$projid}) {
+    update_prpcheckuseforbuild($gctx, $projid, $projpacks->{$projid});
+  }
   if (defined($projid) && $isgone) {
     update_prpcheckuseforbuild($gctx, $projid);
     BSSched::DoD::update_doddata($gctx, $projid) if $BSConfig::enable_download_on_demand;
@@ -519,7 +523,7 @@ sub update_project_meta {
 
 sub has_critical_config_change {
   my ($projid, $repoid, $arch, $oldconfig, $newconfig) = @_;
-  my @mprefix = ("%define _project $projid", "%define _repository $repoid");
+  my @mprefix = ("%define _project $projid", "%define _repository $repoid", "%define _is_this_project 1", "%define _is_in_project 1");
   my $cold = Build::read_config($arch, [ @mprefix, split("\n", $oldconfig || '') ]);
   my $cnew = Build::read_config($arch, [ @mprefix, split("\n", $newconfig || '') ]);
   return 1 if ($cold->{'expandflags:macroserial'} || '') ne ($cnew->{'expandflags:macroserial'} || '');
@@ -958,6 +962,7 @@ sub setup_projects {
     $gctx->{'channelids'} = {};
     $gctx->{'project_prps'} = {};
     $gctx->{'alllocked'} = {};
+    $gctx->{'bigdeps'} = {};
   } else {
     # just updating some projects, delete all the entries we currently have
 
@@ -1006,6 +1011,7 @@ sub setup_projects {
   }
   my $t2 = Time::HiRes::time();
 
+  my ($nbigdeps, $nbigdepsu) = (0, 0);
   for my $projid (@projids_todo) {
     my $proj = $projpacks->{$projid};
     next if !$proj || $proj->{'remoteurl'};
@@ -1053,6 +1059,7 @@ sub setup_projects {
     my @aggs = grep {$_->{'aggregatelist'}} @pdatas;
     my @channels = grep {$_->{'channel'}} @pdatas;
     my @kiwiinfos = grep {$_->{'path'} || $_->{'containerpath'}} map {@{$_->{'info'} || []}} @pdatas;
+    my @bigdeps = grep {$_->{'hasbigdep'}} @pdatas;
     # filter out disabled/excluded/locked/broken entries
     @aggs = grep {!$_->{'error'}} @aggs;
     @channels = grep {!$_->{'error'}} @channels;
@@ -1090,6 +1097,22 @@ sub setup_projects {
 	}
       }
       $gctx->{'channelids'}->{$projid} = [ sort keys %channelids ] if %channelids;
+    }
+    if (@bigdeps) {
+      my $bigdeps = $gctx->{'bigdeps'};
+      for my $pdata (@bigdeps) {
+	for my $info (@{$pdata->{'info'} || []}) {
+	  next unless @{$info->{'dep'} || []} > 100;
+	  my $depkey = join("\n", @{$info->{'dep'}});
+	  $nbigdeps++;
+	  if (exists($bigdeps->{$depkey})) {
+	    $info->{'dep'} = $bigdeps->{$depkey};
+	  } else {
+	    $bigdeps->{$depkey} = $info->{'dep'};
+	    $nbigdepsu++;
+	  }
+	}
+      }
     }
     my %myprps;
     my $prpsearchpath = $gctx->{'prpsearchpath'};
@@ -1134,7 +1157,7 @@ sub setup_projects {
       if (@aggs) {
 	# push source repositories used in this aggregate onto xsp, obey target mapping
 	for my $agg (map {@{$_->{'aggregatelist'}->{'aggregate'} || []}} @aggs) {
-	  my $aprojid = $agg->{'project'};
+	  my $aprojid = $agg->{'project'} || $projid;
 	  my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$agg->{'repository'} || []};
 	  if (@arepoids) {
 	    # got some mappings for our target, use source as repoid
@@ -1199,6 +1222,7 @@ sub setup_projects {
   }
 
   print "have ".scalar(keys %{$gctx->{'channeldata'}})." unique channel configs\n" if %{$gctx->{'channeldata'}};
+  print "unified $nbigdeps into $nbigdepsu big dependencies\n" if $nbigdeps;
 
   # create list of prps and sort them
   print "sorting projects and repositories...\n";
@@ -1601,24 +1625,20 @@ sub do_fetchprojpacks {
 
 =head2 getconfig - concatenate and fixup the build config
 
- this is basically getconfig from the source server
-
- we do not need any macros, just the config
+ this is basically getconfig from the source server, but
+ with all the macro code stripped as we do not need any
+ macros in the scheduler.
 
 =cut
 
 sub getconfig {
   my ($gctx, $projid, $repoid, $arch, $path) = @_;
-  my $extraconfig = '';
   my $config = "%define _project $projid\n";
   $config .= "%define _obs_feature_exclude_cpu_constraints 1\n";
-  if ($BSConfig::extraconfig) {
-    for (sort keys %{$BSConfig::extraconfig}) {
-      $extraconfig .= $BSConfig::extraconfig->{$_} if $projid =~ /$_/;
-    }
-  }
   my $projpacks = $gctx->{'projpacks'};
   my $remoteprojs = $gctx->{'remoteprojs'};
+  my ($old_is_this_project, $old_is_in_project) = (-1, -1);
+  my $config_init = $config;
   for my $prp (reverse @$path) {
     my ($p, $r) = split('/', $prp, 2);
     my $c;
@@ -1630,19 +1650,33 @@ sub getconfig {
     }
     $c = $proj->{'config'};
     next unless defined $c;
+    if ("\n$c" =~ /^(.*?)\nFromScratch:/si && $1 !~ /\n[ \t]*[^\s#]/) {
+      ($old_is_this_project, $old_is_in_project, $config) = (-1, -1, $config_init);
+    }
     $config .= "\n### from $p\n";
     $config .= "%define _repository $r\n";
+    my $new_is_this_project = $p eq $projid ? 1 : 0; 
+    my $new_is_in_project = $new_is_this_project || substr($projid, 0, length($p) + 1) eq "$p:" ? 1 : 0;
+    $config .= "%define _is_this_project $new_is_this_project\n" if $new_is_this_project ne $old_is_this_project;
+    $config .= "%define _is_in_project $new_is_in_project\n" if $new_is_in_project ne $old_is_in_project;
+    ($old_is_this_project, $old_is_in_project) = ($new_is_this_project, $new_is_in_project);
+    $config .= "#!!line $p:0\n";
+
     # get rid of the Macros sections
-    my $s1 = '^\s*macros:\s*$.*?^\s*:macros\s*$';
+    my $s1 = '^[ \t]*macros:[ \t]*$(.*?)^[ \t]*:macros[ \t]*$';
     my $s2 = '^\s*macros:\s*$.*\Z';
-    $c =~ s/$s1//gmsi;
+    $c =~ s/$s1/$1 =~ tr!\n!!cdr/gmsie;		# keep newlines
     $c =~ s/$s2//gmsi;
     $config .= $c;
   }
-  # it's an error if we have no config at all
-  return undef unless $config ne '';
   # now we got the combined config, parse it
-  $config .= "\n$extraconfig" if $extraconfig;
+  if ($BSConfig::extraconfig) {
+    my $extraconfig = '';
+    for (sort keys %{$BSConfig::extraconfig}) {
+      $extraconfig .= $BSConfig::extraconfig->{$_} if $projid =~ /$_/;
+    }
+    $config .= "\n$extraconfig" if $extraconfig;
+  }
   my @c = split("\n", $config);
   my $c = Build::read_config($arch, \@c);
   $c->{'repotype'} = [ 'rpm-md' ] unless @{$c->{'repotype'}};
@@ -1897,6 +1931,30 @@ sub do_delayed_startup {
       }
     }
   }
+}
+
+sub bigdeps_unification {
+  my ($gctx) = @_;
+  my $projpacks = $gctx->{'projpacks'};
+  my $bigdeps = $gctx->{'bigdeps'} = {};
+  my ($nbigdeps, $nbigdepsu) = (0, 0);
+  for my $projid (sort keys %$projpacks) {
+    for my $pdata (values %{$projpacks->{$projid}->{'package'} || {}}) {
+      for my $info (@{$pdata->{'info'} || []}) {
+	next unless @{$info->{'dep'} || []} > 100;
+	$pdata->{'hasbigdep'} = 1;
+	my $depkey = join("\n", @{$info->{'dep'}});
+        $nbigdeps++;
+	if (exists($bigdeps->{$depkey})) {
+	  $info->{'dep'} = $bigdeps->{$depkey};
+	} else {
+	  $bigdeps->{$depkey} = $info->{'dep'};
+	  $nbigdepsu++;
+	}
+      }
+    }
+  }
+  print "unified $nbigdeps into $nbigdepsu big dependencies\n" if $nbigdeps;
 }
 
 1;

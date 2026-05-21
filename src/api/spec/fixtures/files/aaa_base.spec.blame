@@ -1,0 +1,297 @@
+     1: openSUSE:Factory/aaa_base
+
+    1:1 (unknown      2006-12-18 23:15:02     1) #
+  1:244 (darix        2011-01-14 02:04:31     2) # spec file for package aaa_base
+    1:1 (unknown      2006-12-18 23:15:02     3) #
+    795 (dirkmueller  2025-01-02 15:03:18     4) # Copyright (c) 2025 SUSE LLC
+    1:1 (unknown      2006-12-18 23:15:02     5) #
+  1:104 (unknown      2008-08-05 23:40:46     6) # All modifications and additions to the file contributed by third parties
+  1:104 (unknown      2008-08-05 23:40:46     7) # remain the property of their copyright owners, unless otherwise agreed
+  1:104 (unknown      2008-08-05 23:40:46     8) # upon. The license for this file, and modifications and additions to the
+  1:104 (unknown      2008-08-05 23:40:46     9) # file, is the same license as for the pristine package itself (unless the
+  1:104 (unknown      2008-08-05 23:40:46    10) # license for the pristine package is not an Open Source License, in which
+  1:104 (unknown      2008-08-05 23:40:46    11) # case the license is the MIT License). An "Open Source License" is a
+  1:104 (unknown      2008-08-05 23:40:46    12) # license that conforms to the Open Source Definition (Version 1.9)
+  1:104 (unknown      2008-08-05 23:40:46    13) # published by the Open Source Initiative.
+  1:104 (unknown      2008-08-05 23:40:46    14) 
+    656 (oertel       2019-08-13 23:09:03    15) # Please submit bugfixes or comments via https://bugs.opensuse.org/
+    1:1 (unknown      2006-12-18 23:15:02    16) #
+  1:415 (coolo        2014-09-15 15:39:45    17) # icecream 0
+    1:1 (unknown      2006-12-18 23:15:02    18) 
+    1:1 (unknown      2006-12-18 23:15:02    19) 
+  1:439 (dimstar_suse 2017-11-25 07:40:49    20) #Compat macro for new _fillupdir macro introduced in Nov 2017
+  1:439 (dimstar_suse 2017-11-25 07:40:49    21) %if ! %{defined _fillupdir}
+  1:439 (dimstar_suse 2017-11-25 07:40:49    22)   %define _fillupdir /var/adm/fillup-templates
+  1:439 (dimstar_suse 2017-11-25 07:40:49    23) %endif
+  1:439 (dimstar_suse 2017-11-25 07:40:49    24) 
+    748 (lnussel      2022-03-21 17:34:13    25) %if 0%{?_build_in_place}
+    748 (lnussel      2022-03-21 17:34:13    26) %define git_version %(git log '-n1' '--date=format:%Y%m%d' '--no-show-signature' "--pretty=format:+git%cd.%h")
+    748 (lnussel      2022-03-21 17:34:13    27) BuildRequires:  git-core
+    748 (lnussel      2022-03-21 17:34:13    28) %else
+    748 (lnussel      2022-03-21 17:34:13    29) # this is required for obs' source validator. It's
+    748 (lnussel      2022-03-21 17:34:13    30) # 20-files-present-and-referenced ignores all conditionals. So the
+    748 (lnussel      2022-03-21 17:34:13    31) # definition of git_version actually happens always.
+    748 (lnussel      2022-03-21 17:34:13    32) %define git_version %{nil}
+    748 (lnussel      2022-03-21 17:34:13    33) %endif
+    744 (lnussel      2022-02-21 09:20:34    34) 
+    1:1 (unknown      2006-12-18 23:15:02    35) Name:           aaa_base
+    795 (dirkmueller  2025-01-02 15:03:18    36) Version:        84.87+git20250102.c08e614%{git_version}
+    340 (coolo        2012-01-27 20:28:49    37) Release:        0
+    748 (lnussel      2022-03-21 17:34:13    38) Summary:        openSUSE Base Package
+    748 (lnussel      2022-03-21 17:34:13    39) License:        GPL-2.0-or-later
+    748 (lnussel      2022-03-21 17:34:13    40) Group:          System/Fhs
+    672 (oertel       2019-11-20 17:04:20    41) URL:            https://github.com/openSUSE/aaa_base
+    748 (lnussel      2022-03-21 17:34:13    42) Source:         aaa_base-%{version}.tar
+    748 (lnussel      2022-03-21 17:34:13    43) Source1:        README.packaging.txt
+    748 (lnussel      2022-03-21 17:34:13    44) Source99:       aaa_base-rpmlintrc
+    352 (WernerFink   2012-03-13 16:10:36    45) Requires:       /bin/mktemp
+    680 (kukuk        2020-01-28 15:12:04    46) Requires:       /usr/bin/cat
+    680 (kukuk        2020-01-28 15:12:04    47) Requires:       /usr/bin/date
+    680 (kukuk        2020-01-28 15:12:04    48) Requires:       /usr/bin/grep
+    680 (kukuk        2020-01-28 15:12:04    49) Requires:       /usr/bin/mv
+    680 (kukuk        2020-01-28 15:12:04    50) Requires:       /usr/bin/sed
+    352 (WernerFink   2012-03-13 16:10:36    51) Requires:       /usr/bin/tput
+    693 (kukuk        2020-04-15 08:49:58    52) Requires:       /usr/bin/xz
+    352 (WernerFink   2012-03-13 16:10:36    53) Requires:       distribution-release
+    352 (WernerFink   2012-03-13 16:10:36    54) Requires:       filesystem
+    766 (lnussel      2023-03-29 08:17:39    55) # required for nsswitch.conf usrfiles fixes in post script
+    766 (lnussel      2023-03-29 08:17:39    56) Requires(post): (glibc >= 2.30 if glibc)
+    764 (lnussel      2023-02-20 17:08:31    57) Requires(post): fillup
+    717 (oertel       2021-03-08 15:12:17    58) Recommends:     aaa_base-extras
+    717 (oertel       2021-03-08 15:12:17    59) Recommends:     iproute2
+    717 (oertel       2021-03-08 15:12:17    60) Recommends:     iputils
+    717 (oertel       2021-03-08 15:12:17    61) Recommends:     logrotate
+    717 (oertel       2021-03-08 15:12:17    62) Recommends:     netcfg
+    717 (oertel       2021-03-08 15:12:17    63) Recommends:     udev
+    748 (lnussel      2022-03-21 17:34:13    64) # do not require systemd - aaa_base is in the build environment and we don't
+    748 (lnussel      2022-03-21 17:34:13    65) # want to pull in tons of dependencies
+    748 (lnussel      2022-03-21 17:34:13    66) Conflicts:      sysvinit-init
+    680 (kukuk        2020-01-28 15:12:04    67) 
+    726 (lnussel      2021-06-22 11:35:33    68) # run osc service mr to recreate
+    1:1 (unknown      2006-12-18 23:15:02    69) 
+    1:1 (unknown      2006-12-18 23:15:02    70) %description
+    394 (coolo        2012-09-25 13:50:10    71) This package installs several important configuration files and central scripts.
+    1:1 (unknown      2006-12-18 23:15:02    72) 
+    131 (oertel       2010-07-29 16:04:03    73) %package extras
+    131 (oertel       2010-07-29 16:04:03    74) Summary:        SUSE Linux Base Package (recommended part)
+    131 (oertel       2010-07-29 16:04:03    75) Group:          System/Fhs
+    131 (oertel       2010-07-29 16:04:03    76) Requires:       %{name} = %{version}
+    680 (kukuk        2020-01-28 15:12:04    77) Requires:       /usr/bin/find
+    680 (kukuk        2020-01-28 15:12:04    78) Requires:       cpio
+    620 (kukuk        2018-02-04 21:48:41    79) Requires(post): fillup
+    133 (dirkmueller  2010-08-12 10:51:31    80) Provides:       aaa_base:/etc/DIR_COLORS
+    131 (oertel       2010-07-29 16:04:03    81) 
+    131 (oertel       2010-07-29 16:04:03    82) %description extras
+    131 (oertel       2010-07-29 16:04:03    83) The parts of aaa_base that should be installed by default but are not
+    752 (lnussel      2022-04-11 07:35:30    84) strictly required to run a system. (bash completions and convenience hacks).
+    131 (oertel       2010-07-29 16:04:03    85) 
+    371 (lnussel      2012-06-29 08:28:36    86) %package malloccheck
+    371 (lnussel      2012-06-29 08:28:36    87) Summary:        SUSE Linux Base Package (malloc checking)
+    371 (lnussel      2012-06-29 08:28:36    88) Group:          System/Fhs
+    371 (lnussel      2012-06-29 08:28:36    89) Requires:       %{name} = %{version}
+    371 (lnussel      2012-06-29 08:28:36    90) 
+    371 (lnussel      2012-06-29 08:28:36    91) %description malloccheck
+    371 (lnussel      2012-06-29 08:28:36    92) This package sets environment variables that enable stricter
+    371 (lnussel      2012-06-29 08:28:36    93) malloc checks to catch potential heap corruptions. It's not
+    372 (lnussel      2012-06-29 09:03:06    94) installed by default as it may degrade performance.
+    371 (lnussel      2012-06-29 08:28:36    95) 
+    594 (lnussel      2017-11-20 09:52:52    96) %package wsl
+    594 (lnussel      2017-11-20 09:52:52    97) Summary:        SUSE Linux Base Package (Windows Subsystem for Linux)
+    594 (lnussel      2017-11-20 09:52:52    98) Group:          System/Fhs
+    594 (lnussel      2017-11-20 09:52:52    99) Requires:       %{name} = %{version}
+    594 (lnussel      2017-11-20 09:52:52   100) 
+    594 (lnussel      2017-11-20 09:52:52   101) %description wsl
+    594 (lnussel      2017-11-20 09:52:52   102) This package includes some special settings needed on Windows Subsystem
+    594 (lnussel      2017-11-20 09:52:52   103) for Linux. It should only be installed on WSL and not on regular Linux
+    594 (lnussel      2017-11-20 09:52:52   104) systems.
+    594 (lnussel      2017-11-20 09:52:52   105) 
+    782 (oertel       2024-06-14 12:20:25   106) %package yama-enable-ptrace
+    782 (oertel       2024-06-14 12:20:25   107) Summary:        sysctl setting to allow ptrace with the YAMA LSM enabled
+    782 (oertel       2024-06-14 12:20:25   108) Group:          System/Fhs
+    782 (oertel       2024-06-14 12:20:25   109) Requires:       %{name} = %{version}
+    782 (oertel       2024-06-14 12:20:25   110) 
+    782 (oertel       2024-06-14 12:20:25   111) %description yama-enable-ptrace
+    782 (oertel       2024-06-14 12:20:25   112) When the YAMA LSM is enabled, ptrace is restriced by default. On
+    782 (oertel       2024-06-14 12:20:25   113) developer systems this has an impact on e.g. strace and gdb. So
+    782 (oertel       2024-06-14 12:20:25   114) this package contains a setting that allows ptrace again.
+    782 (oertel       2024-06-14 12:20:25   115) 
+    782 (oertel       2024-06-14 12:20:25   116) See https://docs.kernel.org/admin-guide/LSM/Yama.html
+    782 (oertel       2024-06-14 12:20:25   117) 
+    1:1 (unknown      2006-12-18 23:15:02   118) %prep
+    397 (msmeissn     2012-10-05 10:40:58   119) %setup -q
+    1:1 (unknown      2006-12-18 23:15:02   120) 
+    1:1 (unknown      2006-12-18 23:15:02   121) %build
+    748 (lnussel      2022-03-21 17:34:13   122) %make_build CFLAGS="%{optflags}" CC="%{__cc}"
+    1:1 (unknown      2006-12-18 23:15:02   123) 
+    1:1 (unknown      2006-12-18 23:15:02   124) %install
+    746 (dirkmueller  2022-03-21 11:41:22   125) %make_install
+    452 (lnussel      2013-05-27 11:42:40   126) mkdir -p %{buildroot}/etc/sysctl.d
+    452 (lnussel      2013-05-27 11:42:40   127) #
+   1:68 (unknown      2008-01-23 19:27:23   128) # make sure it does not creep in again
+    746 (dirkmueller  2022-03-21 11:41:22   129) test -d %{buildroot}/root/.gnupg && exit 1
+    715 (kukuk        2020-11-27 11:39:15   130) # TODO: get rid of that at some point in the future
+    746 (dirkmueller  2022-03-21 11:41:22   131) mkdir -p %{buildroot}/etc/init.d
+    703 (kukuk        2020-08-04 11:19:19   132) for i in boot.local after.local ; do
+    746 (dirkmueller  2022-03-21 11:41:22   133)   install -m 755 /dev/null %{buildroot}/etc/init.d/$i
+    509 (msmeissn     2014-07-03 14:57:10   134) done
+    521 (msmeissn     2014-08-21 13:35:10   135) # keep as ghost for migration
+    521 (msmeissn     2014-08-21 13:35:10   136) touch %buildroot/etc/inittab
+    601 (WernerFink   2017-11-28 11:52:20   137) 
+    621 (kukuk        2018-02-05 12:32:06   138) # Backup directories
+    621 (kukuk        2018-02-05 12:32:06   139) install -d -m 755 %{buildroot}/var/adm/backup/{rpmdb,sysconfig}
+    621 (kukuk        2018-02-05 12:32:06   140) 
+    602 (WernerFink   2017-11-28 12:16:33   141) mkdir -p %{buildroot}%{_fillupdir}
+    601 (WernerFink   2017-11-28 11:52:20   142) %if "%{_fillupdir}" != "/var/adm/fillup-templates"
+    602 (WernerFink   2017-11-28 12:16:33   143)   for f in %{buildroot}/var/adm/fillup-templates/* ; do
+    603 (WernerFink   2017-11-28 12:18:43   144)     test -e "$f" || continue
+    602 (WernerFink   2017-11-28 12:16:33   145)     mv $f %{buildroot}%{_fillupdir}/
+    602 (WernerFink   2017-11-28 12:16:33   146)   done
+    602 (WernerFink   2017-11-28 12:16:33   147)   rm -vrf %{buildroot}/var/adm/fillup-templates
+    602 (WernerFink   2017-11-28 12:16:33   148) %endif
+    602 (WernerFink   2017-11-28 12:16:33   149) %if "%{_fillupdir}" != "/usr/share/fillup-templates"
+    602 (WernerFink   2017-11-28 12:16:33   150)   for f in %{buildroot}/usr/share/fillup-templates/* ; do
+    603 (WernerFink   2017-11-28 12:18:43   151)     test -e "$f" || continue
+    602 (WernerFink   2017-11-28 12:16:33   152)     mv $f %{buildroot}%{_fillupdir}/
+    602 (WernerFink   2017-11-28 12:16:33   153)   done
+    602 (WernerFink   2017-11-28 12:16:33   154)   rm -vrf %{buildroot}/usr/share/fillup-templates
+    601 (WernerFink   2017-11-28 11:52:20   155) %endif
+    597 (dirkmueller  2017-11-27 09:57:16   156) 
+    791 (kukuk        2024-08-21 09:02:54   157) %pre
+    791 (kukuk        2024-08-21 09:02:54   158) %service_add_pre soft-reboot-cleanup.service
+    791 (kukuk        2024-08-21 09:02:54   159) 
+    791 (kukuk        2024-08-21 09:02:54   160) %preun
+    791 (kukuk        2024-08-21 09:02:54   161) %service_del_preun soft-reboot-cleanup.service
+    791 (kukuk        2024-08-21 09:02:54   162) 
+    789 (kukuk        2024-08-09 13:46:38   163) %post
+    789 (kukuk        2024-08-09 13:46:38   164) export LC_ALL=C
+    789 (kukuk        2024-08-09 13:46:38   165) 
+    789 (kukuk        2024-08-09 13:46:38   166) #XXX Fix /etc/nsswitch.conf to include usrfiles [bsc#1162916]
+    789 (kukuk        2024-08-09 13:46:38   167) if [ -e /etc/nsswitch.conf ]; then
+    789 (kukuk        2024-08-09 13:46:38   168)     for key in services protocols rpc ; do
+    789 (kukuk        2024-08-09 13:46:38   169) 	if ! grep -q ^${key}.*usrfiles /etc/nsswitch.conf ; then
+    789 (kukuk        2024-08-09 13:46:38   170) 	    cp /etc/nsswitch.conf /etc/nsswitch.conf.pre-usrfiles.${key}
+    789 (kukuk        2024-08-09 13:46:38   171) 	    sed -i -e "s|^\(${key}:.*[[:space:]]\)files\([[:space:]].*\)*$|\1files usrfiles\2|" /etc/nsswitch.conf
+    789 (kukuk        2024-08-09 13:46:38   172) 	fi
+    789 (kukuk        2024-08-09 13:46:38   173)     done
+    789 (kukuk        2024-08-09 13:46:38   174) fi
+    789 (kukuk        2024-08-09 13:46:38   175) 
+    789 (kukuk        2024-08-09 13:46:38   176) %{fillup_only -n language}
+    789 (kukuk        2024-08-09 13:46:38   177) %{fillup_only -n proxy}
+    791 (kukuk        2024-08-21 09:02:54   178) %service_add_post soft-reboot-cleanup.service
+    791 (kukuk        2024-08-21 09:02:54   179) 
+    791 (kukuk        2024-08-21 09:02:54   180) %postun
+    791 (kukuk        2024-08-21 09:02:54   181) %service_del_postun_without_restart soft-reboot-cleanup.service
+    1:1 (unknown      2006-12-18 23:15:02   182) 
+    620 (kukuk        2018-02-04 21:48:41   183) %pre extras
+    620 (kukuk        2018-02-04 21:48:41   184) %service_add_pre backup-rpmdb.service backup-rpmdb.timer backup-sysconfig.service backup-sysconfig.timer check-battery.service check-battery.timer
+    620 (kukuk        2018-02-04 21:48:41   185) 
+    620 (kukuk        2018-02-04 21:48:41   186) %post extras
+    620 (kukuk        2018-02-04 21:48:41   187) %fillup_only -n backup
+    620 (kukuk        2018-02-04 21:48:41   188) %service_add_post backup-rpmdb.service backup-rpmdb.timer backup-sysconfig.service backup-sysconfig.timer check-battery.service check-battery.timer
+    620 (kukuk        2018-02-04 21:48:41   189) 
+    620 (kukuk        2018-02-04 21:48:41   190) %preun extras
+    620 (kukuk        2018-02-04 21:48:41   191) %service_del_preun backup-rpmdb.service backup-rpmdb.timer backup-sysconfig.service backup-sysconfig.timer check-battery.service check-battery.timer
+    620 (kukuk        2018-02-04 21:48:41   192) 
+    620 (kukuk        2018-02-04 21:48:41   193) %postun extras
+    620 (kukuk        2018-02-04 21:48:41   194) %service_del_postun backup-rpmdb.service backup-rpmdb.timer backup-sysconfig.service backup-sysconfig.timer check-battery.service check-battery.timer
+    793 (dirkmueller  2024-09-06 09:06:52   195) 
+    793 (dirkmueller  2024-09-06 09:06:52   196) %post yama-enable-ptrace
+    793 (dirkmueller  2024-09-06 09:06:52   197) # check if yama is active
+    793 (dirkmueller  2024-09-06 09:06:52   198) if [ -f /proc/sys/kernel/yama/ptrace_scope ]; then
+    793 (dirkmueller  2024-09-06 09:06:52   199)   # automatically disable ptrace protection upon install if systemd is not
+    793 (dirkmueller  2024-09-06 09:06:52   200)   # available. Usually system will automatically apply the setting
+    793 (dirkmueller  2024-09-06 09:06:52   201)   if ! type -p systemd-notify > /dev/null || ! systemd-notify --booted; then
+    793 (dirkmueller  2024-09-06 09:06:52   202)     # don't do it on transactional systems to avoid altering the state of the
+    793 (dirkmueller  2024-09-06 09:06:52   203)     # system before reboot
+    793 (dirkmueller  2024-09-06 09:06:52   204)     if [ -z "${TRANSACTIONAL_UPDATE}" ]; then
+    793 (dirkmueller  2024-09-06 09:06:52   205)       # can't use sysctl since that would cause us to require procps, which is
+    793 (dirkmueller  2024-09-06 09:06:52   206)       # bad for container size
+    793 (dirkmueller  2024-09-06 09:06:52   207)       echo 0 > /proc/sys/kernel/yama/ptrace_scope || :
+    793 (dirkmueller  2024-09-06 09:06:52   208)     fi
+    793 (dirkmueller  2024-09-06 09:06:52   209)   fi
+    793 (dirkmueller  2024-09-06 09:06:52   210) fi
+   1:68 (unknown      2008-01-23 19:27:23   211) 
+    166 (oertel       2010-11-17 11:50:04   212) %files
+    626 (dirkmueller  2018-02-27 10:11:03   213) %license COPYING
+    765 (lnussel      2023-03-09 14:48:28   214) %ghost %config(noreplace) /etc/sysctl.conf
+    166 (oertel       2010-11-17 11:50:04   215) %config /etc/bash.bashrc
+    166 (oertel       2010-11-17 11:50:04   216) %config /etc/csh.cshrc
+    166 (oertel       2010-11-17 11:50:04   217) %config /etc/csh.login
+    166 (oertel       2010-11-17 11:50:04   218) %config /etc/inputrc
+    166 (oertel       2010-11-17 11:50:04   219) %config /etc/mime.types
+    166 (oertel       2010-11-17 11:50:04   220) %config /etc/profile
+    764 (lnussel      2023-02-20 17:08:31   221) /usr/etc/DIR_COLORS
+    764 (lnussel      2023-02-20 17:08:31   222) /usr/etc/csh.cshrc
+    764 (lnussel      2023-02-20 17:08:31   223) /usr/etc/csh.login
+    764 (lnussel      2023-02-20 17:08:31   224) /usr/etc/bash.bashrc
+    764 (lnussel      2023-02-20 17:08:31   225) /usr/etc/profile
+    764 (lnussel      2023-02-20 17:08:31   226) /usr/etc/inputrc
+    764 (lnussel      2023-02-20 17:08:31   227) /usr/etc/inputrc.keys
+    728 (kukuk        2021-07-28 09:08:47   228) /usr/etc/profile.d/alljava.csh
+    728 (kukuk        2021-07-28 09:08:47   229) /usr/etc/profile.d/alljava.sh
+    728 (kukuk        2021-07-28 09:08:47   230) /usr/etc/profile.d/lang.csh
+    728 (kukuk        2021-07-28 09:08:47   231) /usr/etc/profile.d/lang.sh
+    728 (kukuk        2021-07-28 09:08:47   232) /usr/etc/profile.d/profile.csh
+    728 (kukuk        2021-07-28 09:08:47   233) /usr/etc/profile.d/profile.sh
+    728 (kukuk        2021-07-28 09:08:47   234) /usr/etc/profile.d/xdg-environment.csh
+    728 (kukuk        2021-07-28 09:08:47   235) /usr/etc/profile.d/xdg-environment.sh
+    728 (kukuk        2021-07-28 09:08:47   236) /usr/etc/profile.d/alias.ash
+    728 (kukuk        2021-07-28 09:08:47   237) /usr/etc/profile.d/alias.bash
+    728 (kukuk        2021-07-28 09:08:47   238) /usr/etc/profile.d/alias.tcsh
+    728 (kukuk        2021-07-28 09:08:47   239) /usr/etc/profile.d/ls.tcsh
+    728 (kukuk        2021-07-28 09:08:47   240) /usr/etc/profile.d/ls.bash
+    728 (kukuk        2021-07-28 09:08:47   241) /usr/etc/profile.d/ls.zsh
+    774 (lnussel      2024-03-18 11:35:35   242) /usr/etc/profile.d/terminal.sh
+    774 (lnussel      2024-03-18 11:35:35   243) /usr/etc/profile.d/terminal.csh
+    762 (lnussel      2022-09-06 07:11:32   244) %dir /usr/lib/environment.d
+    762 (lnussel      2022-09-06 07:11:32   245) /usr/lib/environment.d/50-xdg.conf
+    791 (kukuk        2024-08-21 09:02:54   246) /usr/lib/systemd/system/soft-reboot-cleanup.service
+    791 (kukuk        2024-08-21 09:02:54   247) /usr/libexec/soft-reboot-cleanup
+    780 (kukuk        2024-05-24 11:54:23   248) %{_tmpfilesdir}/soft-reboot-cleanup.conf
+    166 (oertel       2010-11-17 11:50:04   249) %config /etc/shells
+    715 (kukuk        2020-11-27 11:39:15   250) %ghost %dir /etc/init.d
+    715 (kukuk        2020-11-27 11:39:15   251) %ghost %config(noreplace) /etc/init.d/boot.local
+    715 (kukuk        2020-11-27 11:39:15   252) %ghost %config(noreplace) /etc/init.d/after.local
+    521 (msmeissn     2014-08-21 13:35:10   253) %ghost %config /etc/inittab
+    403 (coolo        2012-10-12 14:44:24   254) /usr/bin/get_kernel_version
+    403 (coolo        2012-10-12 14:44:24   255) /usr/sbin/service
+    403 (coolo        2012-10-12 14:44:24   256) /usr/sbin/smart_agetty
+    166 (oertel       2010-11-17 11:50:04   257) /usr/bin/filesize
+    166 (oertel       2010-11-17 11:50:04   258) /usr/bin/old
+    166 (oertel       2010-11-17 11:50:04   259) /usr/bin/rpmlocate
+    166 (oertel       2010-11-17 11:50:04   260) /usr/sbin/sysconf_addword
+    166 (oertel       2010-11-17 11:50:04   261) /usr/share/man/man1/smart_agetty.1*
+    166 (oertel       2010-11-17 11:50:04   262) /usr/share/man/man8/service.8*
+    782 (oertel       2024-06-14 12:20:25   263) /usr/lib/sysctl.d/50-default.conf
+    786 (kukuk        2024-08-01 09:42:37   264) %ifnarch %ix86 %arm
+    786 (kukuk        2024-08-01 09:42:37   265) /usr/lib/sysctl.d/50-pid-max.conf
+    786 (kukuk        2024-08-01 09:42:37   266) %endif
+    782 (oertel       2024-06-14 12:20:25   267) /usr/lib/sysctl.d/51-network.conf
+    595 (dirkmueller  2017-11-24 10:22:06   268) %{_fillupdir}/sysconfig.language
+    595 (dirkmueller  2017-11-24 10:22:06   269) %{_fillupdir}/sysconfig.proxy
+    131 (oertel       2010-07-29 16:04:03   270) 
+    166 (oertel       2010-11-17 11:50:04   271) %files extras
+    787 (oertel       2024-08-05 09:20:22   272) /usr/etc/skel/.emacs
+    787 (oertel       2024-08-05 09:20:22   273) /usr/etc/skel/.inputrc
+    648 (kukuk        2019-04-24 13:32:35   274) %dir /usr/lib/base-scripts
+    622 (kukuk        2018-02-05 14:57:35   275) /usr/lib/base-scripts/backup-rpmdb
+    622 (kukuk        2018-02-05 14:57:35   276) /usr/lib/base-scripts/backup-sysconfig
+    622 (kukuk        2018-02-05 14:57:35   277) /usr/lib/base-scripts/check-battery
+    791 (kukuk        2024-08-21 09:02:54   278) /usr/lib/systemd/system/[bc]*
+    621 (kukuk        2018-02-05 12:32:06   279) /var/adm/backup/rpmdb
+    621 (kukuk        2018-02-05 12:32:06   280) /var/adm/backup/sysconfig
+    620 (kukuk        2018-02-04 21:48:41   281) %{_fillupdir}/sysconfig.backup
+    370 (lnussel      2012-06-29 08:22:54   282) 
+    370 (lnussel      2012-06-29 08:22:54   283) %files malloccheck
+    728 (kukuk        2021-07-28 09:08:47   284) /usr/etc/profile.d/malloc-debug.sh
+    728 (kukuk        2021-07-28 09:08:47   285) /usr/etc/profile.d/malloc-debug.csh
+    594 (lnussel      2017-11-20 09:52:52   286) 
+    594 (lnussel      2017-11-20 09:52:52   287) %files wsl
+    728 (kukuk        2021-07-28 09:08:47   288) /usr/etc/profile.d/wsl.csh
+    728 (kukuk        2021-07-28 09:08:47   289) /usr/etc/profile.d/wsl.sh
+    782 (oertel       2024-06-14 12:20:25   290) 
+    782 (oertel       2024-06-14 12:20:25   291) %files yama-enable-ptrace
+    782 (oertel       2024-06-14 12:20:25   292) /usr/lib/sysctl.d/52-yama.conf
+   1:57 (unknown      2007-12-03 22:01:50   293) 
+   1:12 (unknown      2007-02-26 17:59:56   294) %changelog
+

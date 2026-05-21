@@ -1,12 +1,13 @@
 require 'xmlhash'
 
-include MaintenanceHelper
-
 # rubocop:disable Metrics/ClassLength
 class BsRequest < ApplicationRecord
   include BsRequest::Errors
+  include MaintenanceHelper
 
   MAX_DESCRIPTION_LENGTH_ALLOWED = 64_000
+
+  MAX_ACTIONS_TO_RENDER_BUILD_RESULTS = 300
 
   SEARCHABLE_FIELDS = [
     'bs_requests.creator',
@@ -24,23 +25,29 @@ class BsRequest < ApplicationRecord
 
   OBSOLETE_STATES = %i[declined superseded revoked].freeze
 
+  VALID_REQUEST_PRIORITIES = %w[low moderate important critical].freeze
+
   ACTION_NOTIFY_LIMIT = 50
 
+  # Ensure attribute is declared for the enum in a migration-safe way
+  # This handles cases where the model is loaded during migrations before the status column exists
+  # or when upgrading from older OBS versions
+  if column_names.include?('status')
+    attribute :status, :integer unless attribute_types.key?('status')
+    enum :status, VALID_REQUEST_STATES, instance_methods: false, scopes: false, validate: true
+  end
+
   scope :to_accept_by_time, -> { where(state: %w[new review]).where(accept_at: ...Time.now) }
-  # Scopes for collections
-  scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
-  scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids }) }
-  scope :with_involved_packages, ->(package_ids) { where(bs_request_actions: { target_package_id: package_ids }) }
 
-  scope :with_source_subprojects, ->(project_name) { where('bs_request_actions.source_project like ?', project_name) }
-  scope :with_target_subprojects, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
-
-  scope :with_types, lambda { |types|
-    includes(:bs_request_actions).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc)
+  scope :with_action_types, lambda { |types|
+    includes(:bs_request_actions).where(bs_request_actions: { type: types }).distinct
   }
-  scope :from_source_project, ->(source_project) { where(bs_request_actions: { source_project: source_project }) }
-  scope :in_ids, ->(ids) { where(id: ids) }
-  scope :not_creator, ->(login) { where.not(creator: login) }
+  scope :from_project, ->(project_name) { where('bs_request_actions.source_project like ?', project_name) }
+  scope :to_project, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
+
+  scope :from_project_names, ->(project_names) { where(bs_request_actions: { source_project: project_names }) }
+  scope :to_project_names, ->(project_names) { where(bs_request_actions: { target_project: project_names }) }
+
   # Searching capabilities using dataTable (1.9)
   scope :do_search, lambda { |search|
     includes(:bs_request_actions)
@@ -52,24 +59,7 @@ class BsRequest < ApplicationRecord
       )
   }
 
-  scope :with_actions_and_reviews, -> { joins(:bs_request_actions).left_outer_joins(:reviews).distinct.order(priority: :asc, id: :desc) }
-  scope :with_submit_requests, -> { joins(:bs_request_actions).where(bs_request_actions: { type: 'submit' }) }
-
-  scope :by_user_reviews, ->(user_ids) { where(reviews: { user: user_ids }) }
-  scope :by_project_reviews, ->(project_ids) { where(reviews: { project: project_ids }) }
-  scope :by_package_reviews, ->(package_ids) { where(reviews: { package: package_ids }) }
-  scope :by_group_reviews, ->(group_ids) { where(reviews: { group: group_ids }) }
-
   scope :obsolete, -> { where(state: OBSOLETE_STATES) }
-  scope :with_target_project, lambda { |target_project|
-    includes(:bs_request_actions).where('bs_request_actions.target_project': target_project)
-  }
-  scope :with_open_reviews_for, lambda { |review_attributes|
-    where(state: 'review', id: Review.where(review_attributes).where(state: 'new').select(:bs_request_id))
-      .includes(:reviews)
-  }
-
-  scope :with_action_type, ->(action_type) { joins(:bs_request_actions).where(bs_request_actions: { type: action_type }).distinct }
 
   has_many :bs_request_actions, dependent: :destroy
   has_many :reviews, dependent: :delete_all
@@ -85,6 +75,7 @@ class BsRequest < ApplicationRecord
   has_many :notifications, as: :notifiable, dependent: :delete_all
   has_many :watched_items, as: :watchable, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
+  has_many :event_subscriptions, dependent: :destroy
   has_many :labels, as: :labelable
   accepts_nested_attributes_for :labels, allow_destroy: true
 
@@ -176,6 +167,7 @@ class BsRequest < ApplicationRecord
       request.state = :declined if request.state.to_s == 'rejected'
       request.state = :accepted if request.state.to_s == 'accept'
       request.state = request.state.to_sym
+      request.status = request.state
 
       request.comment = state.value('comment')
       state.delete('comment')
@@ -299,10 +291,10 @@ class BsRequest < ApplicationRecord
 
     user = User.not_deleted.find_by(login: creator)
     # FIXME: We should run the authorization on controller level
-    raise APIError unless User.possibly_nobody.is_admin? || User.possibly_nobody == user
+    raise APIError unless User.possibly_nobody.admin? || User.possibly_nobody == user
 
     errors.add(:creator, "Invalid creator specified #{creator}") unless user
-    return if user.is_active?
+    return if user.active?
 
     errors.add(:creator, "Login #{user.login} is not an active user")
   end
@@ -340,6 +332,37 @@ class BsRequest < ApplicationRecord
     bs_request_actions.first.target_package
   end
 
+  # Get the current local version of the source package for single-action submit
+  # requests if anitya distribution is enabled
+  def source_package_latest_local_version
+    return unless bs_request_actions.length == 1
+
+    bs_request_action = bs_request_actions.first
+    return unless bs_request_action.submit?
+    return if bs_request_action.source_project_object&.anitya_distribution_name.blank?
+
+    bs_request_action.source_package_object&.latest_local_version&.version
+  end
+
+  # Get the current local version of the target package for single-action submit
+  # requests if anitya distribution is enabled
+  def target_package_latest_local_version
+    return unless bs_request_actions.length == 1
+
+    bs_request_action = bs_request_actions.first
+    return unless bs_request_action.submit?
+    return if bs_request_action.target_project_object&.anitya_distribution_name.blank?
+
+    bs_request_action.target_package_object&.latest_local_version&.version
+  end
+
+  def target_package_maintainers
+    distinct_bs_request_actions = bs_request_actions.select(:target_project, :target_package).distinct
+    distinct_bs_request_actions.flat_map do |action|
+      Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
+    end.compact.uniq
+  end
+
   def state
     self[:state].to_sym
   end
@@ -366,7 +389,7 @@ class BsRequest < ApplicationRecord
   end
 
   def to_param
-    number
+    number.to_s
   end
 
   def render_xml(opts = {})
@@ -420,14 +443,14 @@ class BsRequest < ApplicationRecord
                               Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 
-  def is_reviewer?(user)
+  def reviewer?(user)
     return false if reviews.blank?
 
     reviews.each do |r|
       if r.by_user
         return true if user.login == r.by_user
       elsif r.by_group
-        return true if user.is_in_group?(r.by_group)
+        return true if user.in_group?(r.by_group)
       elsif r.by_project
         if r.by_package
           pkg = Package.find_by_project_and_name(r.by_project, r.by_package)
@@ -449,10 +472,7 @@ class BsRequest < ApplicationRecord
       next unless review.reviewable_by?(opts)
 
       logger.debug "Obsoleting review #{review.id}"
-      review.state = :obsoleted
-      review.save
-      history = HistoryElement::ReviewObsoleted
-      history.create(review: review, comment: 'reviewer got removed', user_id: User.session!.id)
+      review.update!(state: :obsoleted, reason: 'reviewer got removed')
 
       # Maybe this will turn the request into an approved state?
       next unless state == :review && reviews.where(state: 'new').none?
@@ -469,9 +489,9 @@ class BsRequest < ApplicationRecord
     checker.cmd_changereviewstate_permissions
   end
 
-  def permission_check_setincident!(incident)
+  def permission_check_setincident?(incident)
     checker = BsRequestPermissionCheck.new(self, incident: incident)
-    checker.cmd_setincident_permissions
+    checker.cmd_setincident_permissions?
   end
 
   def permission_check_setpriority!
@@ -482,7 +502,7 @@ class BsRequest < ApplicationRecord
   def permission_check_addreview!
     # allow request creator to add further reviewers
     checker = BsRequestPermissionCheck.new(self, {})
-    checker.cmd_addreview_permissions(creator == User.session!.login || is_reviewer?(User.session!))
+    checker.cmd_addreview_permissions(creator == User.session!.login || reviewer?(User.session!))
   end
 
   def permission_check_change_state!(opts)
@@ -495,7 +515,7 @@ class BsRequest < ApplicationRecord
     check_bs_request_actions!(skip_source: true)
   end
 
-  def permission_check_change_state(opts)
+  def permission_check_change_state?(opts)
     begin
       permission_check_change_state!(opts)
     rescue PostRequestNoPermission
@@ -508,10 +528,10 @@ class BsRequest < ApplicationRecord
     # all maintenance_incident actions go into the same incident project
     incident_project = nil
     bs_request_actions.each do |action|
-      next unless action.is_maintenance_incident?
+      next unless action.maintenance_incident?
 
       target_project = Project.get_by_name(action.target_project)
-      next unless target_project.is_maintenance?
+      next unless target_project.maintenance?
 
       source_project = Project.find_by_name(action.source_project)
 
@@ -540,11 +560,11 @@ class BsRequest < ApplicationRecord
     bs_request_actions.where(type: 'maintenance_release').find_each do |action|
       # unlock incident project in the soft way
       prj = Project.get_by_name(action.source_project)
-      if prj.is_locked?
+      if prj.locked?
         prj.unlock_by_request(self)
       elsif !opts.key?(:keep_packages_locked)
         pkg = Package.get_by_project_and_name(action.source_project, action.source_package)
-        pkg.unlock_by_request(self) if pkg.is_locked?
+        pkg.unlock_by_request(self) if pkg.locked?
       end
     end
   end
@@ -561,6 +581,7 @@ class BsRequest < ApplicationRecord
         a.request_changes_state(state)
       end
       self.state = state
+      self.status = state
       self.commenter = User.session!.login
       self.comment = opts[:comment]
       self.superseded_by = opts[:superseded_by]
@@ -570,10 +591,9 @@ class BsRequest < ApplicationRecord
         reviews.each do |review|
           next unless review.state != :accepted
 
-          # FIXME3.0 review history?
-          review.state = :new
-          review.save!
+          review.update!(state: :new)
           self.state = :review
+          self.status = :review
         end
       end
       save!
@@ -601,29 +621,34 @@ class BsRequest < ApplicationRecord
   end
 
   def assignreview(opts = {})
-    raise InvalidStateError, 'request is not in review state' unless state == :review || state == :new
+    raise InvalidStateError, 'request is not in review state' unless %i[review new].include?(state)
 
-    reviewer = User.find_by_login!(opts[:reviewer])
+    reviewer = User.not_deleted.find_by!(login: opts[:reviewer])
 
     Review.transaction do
-      # check if user is a reviewer already
       user_review = reviews.where(by_user: reviewer.login).last
+      # Set the by_group/project/package reviews to :new and destroy the user review
       if opts[:revert]
-        _assignreview_update_reviews(reviewer, opts)
         raise Review::NotFoundError unless user_review
         raise InvalidStateError, 'review is not in new state' unless user_review.state == :new
         raise Review::NotFoundError, 'Not an assigned review' unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
 
+        reassign_reviews(reviewer, opts)
+
         user_review.destroy
+      # Set the by_group/project/package reviews to :accepted and the user review to :new
       elsif user_review
-        review_comment = _assignreview_update_reviews(reviewer, opts)
-        user_review.state = :new
-        user_review.save!
-        HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.session!)
+        reassign_reviews(reviewer, opts)
+        user_review.update!(state: :new, reason: reassign_review_comment(opts))
+      # Set the by_group/project/package reviews to :accepted and create a user review
       else
-        review = reviews.create(by_user: reviewer.login, creator: User.session!.login, state: :new)
-        review_comment = _assignreview_update_reviews(reviewer, opts, review)
-        HistoryElement::ReviewAssigned.create(review: review, comment: review_comment, user: User.session!)
+        user_review = reviews.new(by_user: reviewer.login,
+                                  creator: User.session!.login,
+                                  state: :new,
+                                  reason: reassign_review_comment(opts))
+        user_review.is_reassigned = true
+        user_review.save!
+        reassign_reviews(reviewer, opts, user_review)
       end
       save!
     end
@@ -659,12 +684,14 @@ class BsRequest < ApplicationRecord
 
   def supersede_request(history_arguments, superseded_opt)
     self.state = :superseded
+    self.status = :superseded
     self.superseded_by = superseded_opt
     history_arguments[:description_extension] = superseded_by.to_s
     save!
     HistoryElement::RequestSuperseded.create(history_arguments)
   end
 
+  # FIXME: This is called change_review_state but it actually *also* changes `reason` if opts[:comment] differs...
   def change_review_state(new_review_state, opts = {})
     with_lock do
       new_review_state = new_review_state.to_sym
@@ -678,7 +705,10 @@ class BsRequest < ApplicationRecord
       review = find_review_for_opts(opts)
       raise Review::NotFoundError unless review
 
-      next unless review.change_state(new_review_state, opts[:comment] || '')
+      # Neither the state nor the reason is changing...
+      return if review.state == new_review_state && review.reviewer == User.session!.login && review.reason == opts[:comment].to_s
+
+      review.update!(reason: opts[:comment], state: new_review_state, changed_state_at: Time.now.utc, reviewer: User.session!.login)
 
       history_parameters = { request: self, comment: opts[:comment], user_id: User.session!.id }
       next supersede_request(history_parameters, opts[:superseded_by]) if new_review_state == :superseded
@@ -688,6 +718,7 @@ class BsRequest < ApplicationRecord
 
       self.comment = review.reason
       self.state = new_request_state
+      self.status = new_request_state
       self.commenter = User.session!.login
       case new_request_state
       when :new
@@ -706,6 +737,7 @@ class BsRequest < ApplicationRecord
     end
   end
 
+  # FIXME: This is already validated in Review...
   def check_if_valid_review!(opts)
     return if opts[:by_user] || opts[:by_group] || opts[:by_project]
 
@@ -718,27 +750,28 @@ class BsRequest < ApplicationRecord
       check_if_valid_review!(opts)
 
       self.state = 'review'
+      self.status = :review
       self.commenter = User.session!.login
       self.comment = opts[:comment] if opts[:comment]
 
-      newreview = create_new_review(opts)
-      save!
+      newreview = reviews.new(
+        reason: opts[:comment],
+        by_user: opts[:by_user],
+        by_group: opts[:by_group],
+        by_project: opts[:by_project],
+        by_package: opts[:by_package],
+        creator: User.session!.login,
+        reviewer: User.session!.login
+      )
 
-      history_params = {
-        request: self,
-        user_id: User.session!.id,
-        description_extension: newreview.id.to_s
-      }
-      history_params[:comment] = opts[:comment] if opts[:comment]
-      HistoryElement::RequestReviewAdded.create(history_params)
-      newreview.create_event(event_parameters)
+      raise InvalidReview, "Review invalid: #{newreview.errors.full_messages.to_sentence}" unless save
     end
   end
 
   def setpriority(opts)
     permission_check_setpriority!
 
-    raise SaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(%w[low moderate important critical])
+    raise SaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(VALID_REQUEST_PRIORITIES)
 
     p = { request: self, user_id: User.session!.id, description_extension: "#{priority} => #{opts[:priority]}" }
     p[:comment] = opts[:comment] if opts[:comment]
@@ -750,7 +783,7 @@ class BsRequest < ApplicationRecord
   end
 
   def setincident(incident)
-    permission_check_setincident!(incident)
+    permission_check_setincident?(incident)
 
     touched = false
     # all maintenance_incident actions go into the same incident project
@@ -759,7 +792,7 @@ class BsRequest < ApplicationRecord
       tprj = Project.get_by_name(action.target_project)
 
       # use an existing incident
-      if tprj.is_maintenance?
+      if tprj.maintenance?
         tprj = Project.get_by_name("#{action.target_project}:#{incident}")
         action.target_project = tprj.name
         action.save!
@@ -842,16 +875,16 @@ class BsRequest < ApplicationRecord
   end
 
   def auto_accept
-    # do not run for processed requests. Ignoring review on purpose since this
-    # must also work when people do not react anymore
-    return unless state == :new || state == :review
-
-    # use approve mechanic in case you want to wait for reviews
-    return if approver && state == :review
-
-    return unless accept_at || approver
-
     with_lock do
+      # do not run for processed requests. Ignoring review on purpose since this
+      # must also work when people do not react anymore
+      return unless %i[new review].include?(state)
+
+      # use approve mechanic in case you want to wait for reviews
+      return if approver && state == :review
+
+      return unless accept_at || approver
+
       if accept_at
         auto_accept_user = User.find_by!(login: creator)
       elsif approver
@@ -878,13 +911,13 @@ class BsRequest < ApplicationRecord
   end
 
   # Check if 'user' is maintainer in _all_ request sources:
-  def is_source_maintainer?(user)
-    bs_request_actions.all? { |action| action.is_source_maintainer?(user) }
+  def source_maintainer?(user)
+    bs_request_actions.includes(:source_project_object, :source_package_object).all? { |action| action.source_maintainer?(user) }
   end
 
   # Check if 'user' is maintainer in _all_ request targets:
-  def is_target_maintainer?(user)
-    bs_request_actions.all? { |action| action.is_target_maintainer?(user) }
+  def target_maintainer?(user)
+    bs_request_actions.includes(:target_package_object, :target_project_object).all? { |action| action.target_maintainer?(user) }
   end
 
   def sanitize!
@@ -897,6 +930,7 @@ class BsRequest < ApplicationRecord
 
     # ensure correct initial values, no matter what has been sent to us
     self.state = :new
+    self.status = :new
 
     # expand release and submit request targets if not specified
     expand_targets
@@ -919,12 +953,7 @@ class BsRequest < ApplicationRecord
   end
 
   def notify
-    notify = event_parameters
-    Event::RequestCreate.create(notify)
-
-    reviews.each do |review|
-      review.create_event(notify)
-    end
+    Event::RequestCreate.create(event_parameters)
   end
 
   # [DEPRECATED] TODO: drop this after request_workflow_redesign beta is rolled_out
@@ -954,7 +983,7 @@ class BsRequest < ApplicationRecord
       newactions.concat(new_action)
     end
     # will become an empty request
-    raise MissingAction if newactions.empty? && oldactions.size == bs_request_actions.size
+    raise MaintenanceHelper::MissingAction if newactions.empty? && oldactions.size == bs_request_actions.size
 
     oldactions.each { |a| bs_request_actions.destroy(a) }
     newactions.each { |a| bs_request_actions << a }
@@ -1022,6 +1051,10 @@ class BsRequest < ApplicationRecord
     reviews.collect(&:reason).join(' ')
   end
 
+  def involves_hidden_project?
+    bs_request_actions.any?(&:involves_hidden_project?)
+  end
+
   private
 
   # returns true if we have reached a state that we can't get out anymore
@@ -1052,7 +1085,7 @@ class BsRequest < ApplicationRecord
       action[:sourcediff] = xml.webui_sourcediff(opts) if with_diff
       creator = User.find_by_login(self.creator)
       target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
-      action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.hashed['maintainer'], target_package)
+      action[:creator_is_target_maintainer] = true if creator.local_role?(Role.hashed['maintainer'], target_package)
 
       if target_package
         linkinfo = target_package.linkinfo
@@ -1142,7 +1175,11 @@ class BsRequest < ApplicationRecord
         raise 'Unknown review type'
       end
     end
-    self.state = :review if reviews.any? { |a| a.state.to_sym == :new }
+
+    return unless reviews.any? { |a| a.state.to_sym == :new }
+
+    self.state = :review
+    self.status = :review
   end
 
   #
@@ -1193,34 +1230,34 @@ class BsRequest < ApplicationRecord
     )
   end
 
-  def _assignreview_update_reviews(reviewer, opts, new_review = nil)
-    review_comment = nil
-    reviews.reverse_each do |review|
-      next if review.by_user
-      next if review.by_group && review.by_group != opts[:by_group]
-      next if review.by_project && review.by_project != opts[:by_project]
-      next if review.by_package && review.by_package != opts[:by_package]
+  def reassign_reviews(reviewer, opts, new_review = nil)
+    raise Review::NotFoundError unless opts[:by_group] || opts[:by_project] || opts[:by_package]
 
-      # approve for this review
+    reviews_to_reassign = reviews.where(by_group: opts[:by_group]) if opts[:by_group]
+    reviews_to_reassign = reviews.where(by_project: opts[:by_project], by_package: opts[:by_package]) if opts[:by_project] && opts[:by_package]
+    reviews_to_reassign = reviews.where(by_project: opts[:by_project]) if opts[:by_project] && !opts[:by_package]
+
+    raise Review::NotFoundError unless reviews_to_reassign.any?
+
+    reviews_to_reassign.reverse_each do |review|
       if opts[:revert]
         review.state = :new
-        review_comment = 'revert the '
-        history_class = HistoryElement::ReviewReopened
       else
         review.state = :accepted
         review.review_assigned_to = new_review if new_review
-        review_comment = ''
-        history_class = HistoryElement::ReviewAccepted
       end
       review.reviewer = User.session!.login
+      review.reason = "review reassigned to user #{reviewer.login}"
       review.save!
-
-      review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
-      review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
-      review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
-      history_class.create(review: review, comment: "review assigned to user #{reviewer.login}", user_id: User.session!.id)
     end
-    raise Review::NotFoundError unless review_comment
+  end
+
+  def reassign_review_comment(opts)
+    review_comment = ''
+    review_comment = 'revert the ' if opts[:revert]
+    review_comment += "reassigned review for group #{opts[:by_group]} to user #{opts[:reviewer]}" if opts[:by_group]
+    review_comment += "reassigned review for project #{opts[:by_project]} to user #{opts[:reviewer]}" if opts[:by_project]
+    review_comment += "reassigned review for package #{opts[:by_project]} / #{opts[:by_package]} to user #{opts[:reviewer]}" if opts[:by_package]
 
     review_comment
   end
@@ -1243,23 +1280,6 @@ class BsRequest < ApplicationRecord
     self.approver = new_approver
     save!
   end
-
-  def create_new_review(opts)
-    newreview = reviews.create(
-      reason: opts[:comment],
-      by_user: opts[:by_user],
-      by_group: opts[:by_group],
-      by_project: opts[:by_project],
-      by_package: opts[:by_package],
-      creator: User.session!.login,
-      reviewer: User.session!.login
-    )
-    return newreview if newreview.valid?
-
-    newreview.check_reviewer!
-
-    raise InvalidReview, "Review invalid: #{newreview.errors.full_messages.join("\n")}"
-  end
 end
 
 # rubocop: enable Metrics/ClassLength
@@ -1273,22 +1293,27 @@ end
 #  approver           :string(255)
 #  comment            :text(65535)
 #  commenter          :string(255)
+#  comments_count     :integer          default(0), not null, indexed
 #  creator            :string(255)      indexed
 #  description        :text(65535)
-#  number             :integer          indexed
+#  number             :integer          uniquely indexed
 #  priority           :string           default("moderate")
 #  state              :string(255)      indexed
+#  status             :integer          indexed
 #  superseded_by      :integer          indexed
 #  updated_when       :datetime
-#  created_at         :datetime         not null
+#  created_at         :datetime         not null, indexed
 #  updated_at         :datetime         not null
 #  staging_project_id :integer          indexed
 #
 # Indexes
 #
+#  index_bs_requests_on_comments_count      (comments_count)
+#  index_bs_requests_on_created_at          (created_at)
 #  index_bs_requests_on_creator             (creator)
 #  index_bs_requests_on_number              (number) UNIQUE
 #  index_bs_requests_on_staging_project_id  (staging_project_id)
 #  index_bs_requests_on_state               (state)
+#  index_bs_requests_on_status              (status)
 #  index_bs_requests_on_superseded_by       (superseded_by)
 #

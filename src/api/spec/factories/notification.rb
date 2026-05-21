@@ -65,6 +65,21 @@ FactoryBot.define do
         event_type { 'Event::CommentForRequest' }
         notifiable factory: [:comment_request]
       end
+
+      trait :comment_for_report do
+        event_type { 'Event::CommentForReport' }
+        notifiable factory: [:comment_report]
+      end
+    end
+
+    factory :notification_for_global_role_assignment, class: 'NotificationUser' do
+      event_type { 'Event::GlobalRoleAssigned' }
+      notifiable factory: [:user]
+      web { true }
+
+      after(:build) do |notification, evaluator|
+        notification.event_payload['user'] ||= evaluator.user.login
+      end
     end
 
     factory :notification_for_project, class: 'NotificationProject' do
@@ -94,11 +109,16 @@ FactoryBot.define do
         event_type { 'Event::BuildFail' }
         notifiable factory: [:package]
       end
+
+      trait :upstream_version do
+        event_type { 'Event::UpstreamPackageVersionChanged' }
+        notifiable factory: [:package]
+      end
     end
 
     factory :notification_for_report, class: 'NotificationReport' do
-      trait :create_report do
-        event_type { 'Event::CreateReport' }
+      trait :report_for_user do
+        event_type { 'Event::ReportForUser' }
         notifiable factory: [:report]
 
         transient do

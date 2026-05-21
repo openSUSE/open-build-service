@@ -20,10 +20,7 @@
     .row
       .col-md-8#overview
         = render partial: 'show_overview', locals: { bs_request: @bs_request,
-                                                     can_add_reviews: @can_add_reviews,
-                                                     bs_requests: @watched_requests,
-                                                     packages: @watched_packages,
-                                                     projects: @watched_projects }
+                                                     can_add_reviews: @can_add_reviews }
       .col-md-4#side-links
         = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers }
       = render partial: 'actions', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews }

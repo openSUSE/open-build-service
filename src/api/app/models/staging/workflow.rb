@@ -140,7 +140,7 @@ end
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  managers_group_id :integer          indexed
-#  project_id        :integer          indexed
+#  project_id        :integer          uniquely indexed
 #
 # Indexes
 #

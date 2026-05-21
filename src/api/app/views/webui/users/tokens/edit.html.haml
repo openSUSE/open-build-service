@@ -23,6 +23,9 @@
               .mb-3
                 = f.label(:type, 'Operation:')
                 = @token.token_name.capitalize
+              .mb-3.form-check.form-switch
+                = f.check_box(:enabled, class: 'form-check-input')
+                = f.label(:enabled, 'Enabled', class: 'form-check-label')
               .mb-3
                 = f.label(:description, 'Description:')
                 %span.d-none#original-token-description

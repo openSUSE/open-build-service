@@ -99,11 +99,29 @@ sub check {
 
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
   my @archs;
-  if (!%imagearch || !grep {$imagearch{$_}} @{$repo->{'arch'} || []}) {
-     @archs = ( $myarch );
+  if (%imagearch) {
+    # recipe defines a list of rpm architectures
+    # we need to map them to scheduler architectures here
+    my %repoarch = map {$_ => 1} @{$repo->{'arch'} || []};
+    for my $arch (sort keys %imagearch) {
+      if (!$repoarch{$arch}) {
+	# unknown image arch, try some mapping
+	$arch =~ s/^armv(\d)hl$/armv$1l/;
+      }
+      push @archs, $arch if $repoarch{$arch};
+    }
+    @archs = BSUtil::unify(@archs);
   } else {
-     @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
-  };
+    @archs = ( $myarch );
+  }
+
+  if (!@archs) {
+    if ($ctx->{'verbose'}) {
+      print "      - $packid (productcompose)\n";
+      print "        no matching architectures\n";
+    }
+    return ('excluded');
+  }
 
   # sort archs like in bs_worker
   @archs = sort(@archs);
@@ -142,11 +160,17 @@ sub check {
   delete $deps{''};
   delete $deps{"-$_"} for grep {!/^-/} keys %deps;
 
-  my @bprps = @{$ctx->{'prpsearchpath'}};
+  my @aprps = @{$ctx->{'prpsearchpath'}};
+  my @bprps = @aprps;
   my $bconf = $ctx->{'conf'};
 
   if (!@{$repo->{'path'} || []}) {
     return ('broken', 'require path entries');
+  }
+
+  if ($bconf->{'buildflags:productcompose-onlydirectrepos'}) {
+    @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
+    @aprps = BSUtil::unify($prp, @aprps);
   }
 
   my @blocked;
@@ -163,7 +187,7 @@ sub check {
   $binarchs{'src'} = 1;
   $binarchs{'nosrc'} = 1;
 
-  #print "prps: @bprps\n";
+  #print "prps: @aprps\n";
   #print "archs: @archs\n";
   #print "deps: @deps\n";
   my $pool;
@@ -203,7 +227,7 @@ sub check {
       $dep2pkg{$pool->pkg2name($p)} = $p;
     }
     # check access
-    for my $aprp (@bprps) {
+    for my $aprp (@aprps) {
       if (!$ctx->checkprpaccess($aprp)) {
 	if ($ctx->{'verbose'}) {
 	  print "      - $packid (productcompose)\n";
@@ -215,7 +239,7 @@ sub check {
     # check if we are blocked
     if ($myarch ne $localbuildarch) {
       my %used;
-      for my $aprp (@bprps) {
+      for my $aprp (@aprps) {
 	my ($aprojid, $arepoid) = split('/', $aprp, 2);
 	next if $remoteprojs->{$aprojid};	# FIXME: should do something here
 	my %pnames = map {$_ => 1} @{$used{$aprp}};
@@ -260,7 +284,7 @@ sub check {
   # check right away if some gbininfo fetch is in progress
   my $delayed_errors = '';
   if (!$ctx->{'isreposerver'}) {
-    for my $aprp (@bprps) {
+    for my $aprp (@aprps) {
       my ($aprojid, $arepoid) = split('/', $aprp, 2);
       next unless $remoteprojs->{$aprojid};
       for my $arch (reverse @archs) {
@@ -289,6 +313,8 @@ sub check {
   $mode |= 2 if $nosrcpkgs;
   $mode |= 4 if $allpacks;
   $mode |= 8 if $versioned_deps;
+  my $no_repo_layering;
+  $no_repo_layering = 1 if $deps{'--unorderedproductrepos'} || $deps{'--use-newest-package'};
 
   my $maxblocked = 20;
   my %blockedarch;
@@ -297,7 +323,7 @@ sub check {
   my %archs = map {$_ => 1} @archs;
   my $dobuildinfo = $ctx->{'dobuildinfo'};
 
-  for my $aprp (@bprps) {
+  for my $aprp (@aprps) {
     my %seen_fn;	# resolve file conflicts in this prp
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
@@ -380,10 +406,20 @@ sub check {
       my @unneeded_na_revert;
 
       @apackids = BSSched::ProjPacks::orderpackids($aproj, @apackids);
-      my @apackids_patchinfos = grep {($pdatas->{$_} || {})->{'patchinfo'}} @apackids;
-      if (@apackids_patchinfos) {
-	@apackids = grep {!($pdatas->{$_} || {})->{'patchinfo'}} @apackids;
-	unshift @apackids, @apackids_patchinfos;
+
+      # bring patchinfos to the front
+      if ($gbininfo) {
+        my %patchinfos;
+	for (@apackids) {
+	  $patchinfos{$_} = 1 if $gbininfo->{$_}->{'updateinfo.xml'};
+	}
+        if (%patchinfos) {
+          my @apackids_patchinfos = grep {$patchinfos{$_}} @apackids;
+          if (@apackids_patchinfos) {
+	    @apackids = grep {!$patchinfos{$_}} @apackids;
+	    unshift @apackids, @apackids_patchinfos;
+	  }
+        }
       }
 
       for my $apackid (@apackids) {
@@ -494,7 +530,7 @@ sub check {
 	      last;
 	    }
 	    $nafilter->{"$srcbn.src"} = $nafilter->{"$srcbn.nosrc"} = 1 unless $nosrcpkgs;
-	    $nafilter->{"$srcbn-debugsource.$ba"} = $nafilter->{"$bn-debuginfo.$ba"} = 1 unless $nodbgpkgs;
+	    $nafilter->{"$srcbn-debugsource.$ba"} = $nafilter->{"$srcbn-debuginfo.$ba"} = $nafilter->{"$bn-debuginfo.$ba"} = 1 unless $nodbgpkgs;
 	  }
 	}
 
@@ -502,7 +538,7 @@ sub check {
 	for my $fn (@bi) {
 	  if ($fn eq 'updateinfo.xml' || $fn eq '_modulemd.yaml') {
 	    my $b = $bininfo->{$fn};
-	    next if $dobuildinfo || !$b || !$b->{'md5sum'};
+	    next if !$b || !$b->{'md5sum'};
 	    my $rpm = "$aprp/$arch/$apackid/$fn";
 	    push @rpms, $rpm;
 	    $rpms_hdrmd5{$rpm} = $b->{'md5sum'};
@@ -559,13 +595,15 @@ sub check {
 	}
       }
       last if @blocked > $maxblocked;
+      # revert unneeded_na decisions for the next architecture
       if (@unneeded_na_revert) {
 	delete $unneeded_na{$_} for @unneeded_na_revert;
       }
     }
-    @next_unneeded_na = () if $deps{'--use-newest-package'};
     # now commit all name.arch entries to the unneeded_na hash
-    $unneeded_na{$_} = 1 for @next_unneeded_na;
+    if (!$no_repo_layering) {
+      $unneeded_na{$_} = 1 for @next_unneeded_na;
+    }
     last if @blocked > $maxblocked;
   }
 
@@ -600,9 +638,9 @@ sub check {
   }
 
   if (1) {
-    my $nbprps = scalar(@bprps);
+    my $naprps = scalar(@aprps);
     my $narchs = scalar(@archs);
-    print "      - stats for $packid: $pkgs_taken/$pkgs_checked, $nbprps bprps, $narchs archs\n";
+    print "      - stats for $packid: $pkgs_taken/$pkgs_checked, $naprps bprps, $narchs archs\n";
   }
 
   if ($myarch ne $buildarch) {

@@ -28,6 +28,7 @@ use Digest::MD5 ();
 use Compress::Zlib ();
 use Scalar::Util;
 use POSIX;
+use Encode;
 
 use BSUtil;
 use BSTar;
@@ -42,6 +43,7 @@ our $mt_oci_index           = 'application/vnd.oci.image.index.v1+json';
 our $mt_docker_config       = 'application/vnd.docker.container.image.v1+json';
 our $mt_docker_layer        = 'application/vnd.docker.image.rootfs.diff.tar';
 our $mt_docker_layer_gzip   = 'application/vnd.docker.image.rootfs.diff.tar.gzip';
+our $mt_oci_empty           = 'application/vnd.oci.empty.v1+json';
 our $mt_oci_config          = 'application/vnd.oci.image.config.v1+json';
 our $mt_oci_layer           = 'application/vnd.oci.image.layer.v1.tar';
 our $mt_oci_layer_gzip      = 'application/vnd.oci.image.layer.v1.tar+gzip';
@@ -56,6 +58,7 @@ sub blobid {
 
 sub make_blob_entry {
   my ($name, $blob, %extra) = @_;
+  Encode::_utf8_off($blob);
   my $blobid = blobid($blob);
   my $ent = { %extra, 'name' => $name, 'size' => length($blob), 'data' => $blob, 'blobid' => $blobid };
   return ($ent, $blobid);
@@ -419,15 +422,16 @@ sub _orderhash {
 }
 
 my $blob_order = [ qw{mediaType size digest} ];
-my $distmani_order = [ qw{schemaVersion mediaType config layers} ];
+my $distmani_order = [ qw{schemaVersion mediaType artifactType config layers subject annotations} ];
 my $imagemani_order = [ qw{mediaType size digest platform} ];
-my $distmanilist_order = [ qw{schemaVersion mediaType manifests} ];
+my $distmanilist_order = [ qw{schemaVersion mediaType artifactType manifests subject annotations} ];
 
 sub create_dist_manifest {
   my ($manifest) = @_;
   my %m = %$manifest;
   $m{'config'} = _orderhash($m{'config'}, $blob_order) if $m{'config'};
   $m{'layers'} = [ map {_orderhash($_, $blob_order)} @{$m{'layers'}} ] if $m{'layers'};
+  $m{'subject'} = _orderhash($m{'subject'}, $blob_order) if $m{'subject'};
   $manifest = _orderhash(\%m, $distmani_order);
   my $json = JSON::XS->new->utf8->canonical->pretty->encode($manifest);
   $json =~ s/!!!\d_//g;
@@ -439,6 +443,7 @@ sub create_dist_manifest_list {
   my ($manifest) = @_;
   my %m = %$manifest;
   $m{'manifests'} = [ map {_orderhash($_, $imagemani_order)} @{$m{'manifests'}} ] if $m{'manifests'};
+  $m{'subject'} = _orderhash($m{'subject'}, $blob_order) if $m{'subject'};
   $manifest = _orderhash(\%m, $distmanilist_order);
   my $json = JSON::XS->new->utf8->canonical->pretty->encode($manifest);
   $json =~ s/!!!\d_//g;

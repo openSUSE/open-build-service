@@ -1,5 +1,7 @@
 module Event
   class UndeletePackage < Base
+    include EventObjectPackage
+
     self.message_bus_routing_key = 'package.undelete'
     self.description = 'Package undeleted'
     payload_keys :project, :package, :sender, :comment
