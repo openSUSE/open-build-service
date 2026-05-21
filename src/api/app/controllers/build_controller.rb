@@ -1,4 +1,9 @@
 class BuildController < ApplicationController
+  # Empty values are kept as a truthy alias for backwards compatibility with
+  # callers that just pass `?lastsuccess` without a value.
+  ALLOWED_LASTSUCCESS_VALUES = ['', '0', '1', 'false', 'true'].freeze
+  TRUTHY_LASTSUCCESS_VALUES = ['', '1', 'true'].freeze
+
   # Authentication happens via HTTP_X_SCM_BRIDGE_COOKIE, no login is required for :scmresult
   skip_before_action :require_login, :check_anonymous_access, only: [:scmresult]
   before_action :require_user_or_scmsync_host_check, only: [:scmresult]
@@ -142,12 +147,15 @@ class BuildController < ApplicationController
 
   def result
     # this route is mainly for checking submissions to a target project
-    return result_lastsuccess if params.key?(:lastsuccess)
+    return result_lastsuccess if lastsuccess_requested?
 
     # for permission check
     Project.get_by_name(params[:project])
 
-    pass_to_backend
+    # The backend route does not know the `lastsuccess` parameter, so when it
+    # was set to a falsy value (and consumed here) it must be stripped before
+    # forwarding the request.
+    pass_to_backend(backend_result_path)
   end
 
   def scmresult
@@ -180,6 +188,24 @@ class BuildController < ApplicationController
   end
 
   private
+
+  def lastsuccess_requested?
+    return false unless params.key?(:lastsuccess)
+
+    value = params[:lastsuccess].to_s
+    unless ALLOWED_LASTSUCCESS_VALUES.include?(value)
+      raise InvalidParameterError,
+            "The 'lastsuccess' parameter only accepts '1', '0', 'true' or 'false', got '#{value}'."
+    end
+
+    TRUTHY_LASTSUCCESS_VALUES.include?(value)
+  end
+
+  def backend_result_path
+    query = request.query_parameters.except('lastsuccess').to_query
+    path = request.path_info
+    query.present? ? "#{path}?#{query}" : path
+  end
 
   def require_user_or_scmsync_host_check
     return if User.session
