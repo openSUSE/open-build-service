@@ -1,20 +1,19 @@
 class RabbitmqBus
-  cattr_accessor :connection, :exchange
+  cattr_accessor :session, :exchange
 
   def self.send_to_bus(routing_key, payload)
     return unless CONFIG['amqp_options']
 
-    self.connection ||= Bunny.new(CONFIG['amqp_options'].try(:symbolize_keys))
+    self.session ||= Bunny.new(CONFIG['amqp_options'].try(:symbolize_keys))
     wrapped_exchange.publish(payload, routing_key: "#{Configuration.amqp_namespace}.#{routing_key}")
   end
 
-  # Start one connection, channel and exchange per rails process
-  # and reuse them
+  # Start one Bunny::Session, Bunny::Channel and Bunny::Exchange per thread and reuse them
   def self.wrapped_exchange
     return exchange if exchange
 
-    connection.start
-    rabbitmq_channel = connection.create_channel
+    session.start
+    rabbitmq_channel = session.create_channel
     self.exchange = if CONFIG['amqp_exchange_name']
                       rabbitmq_channel.exchange(CONFIG['amqp_exchange_name'], CONFIG['amqp_exchange_options'].try(:symbolize_keys) || {})
                     else
