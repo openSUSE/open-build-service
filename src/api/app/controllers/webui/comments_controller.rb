@@ -1,6 +1,18 @@
 class Webui::CommentsController < Webui::WebuiController
   include BuildNewComment
 
+  COMMENTABLE_TYPES = {
+    'Project' => Project,
+    'Package' => Package,
+    'BsRequest' => BsRequest,
+    'BsRequestActionSubmit' => BsRequestActionSubmit,
+    'BsRequestActionRelease' => BsRequestActionRelease,
+    'BsRequestActionMaintenanceRelease' => BsRequestActionMaintenanceRelease,
+    'BsRequestActionMaintenanceIncident' => BsRequestActionMaintenanceIncident,
+    'Report' => Report
+  }.freeze
+  private_constant :COMMENTABLE_TYPES
+
   before_action :require_login
   before_action :set_commented, only: :create
   before_action :set_comment, only: %i[moderate history]
@@ -141,7 +153,7 @@ class Webui::CommentsController < Webui::WebuiController
   end
 
   def set_commented
-    @commentable_type = [Project, Package, BsRequest, BsRequestActionSubmit, Report].find { |klass| klass.name == params[:commentable_type] }
+    @commentable_type = COMMENTABLE_TYPES[params[:commentable_type]]
     @commented = @commentable_type&.find_by(id: params[:commentable_id])
     return if @commentable_type.present?
 

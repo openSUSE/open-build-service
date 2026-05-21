@@ -89,6 +89,7 @@ class Comment < ApplicationRecord
 
   def outdated?
     return false unless revisions?
+    return false unless commentable.respond_to?(:target_srcmd5) && commentable.respond_to?(:source_srcmd5)
     return true unless commentable.target_srcmd5 == target_rev && commentable.source_srcmd5 == source_rev
 
     false
