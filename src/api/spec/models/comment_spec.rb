@@ -57,12 +57,45 @@ RSpec.describe Comment do
   end
 
   describe '#outdated?' do
-    it 'returns false when the commentable cannot compare revisions' do
-      release_action = build(:bs_request_action_release)
-      comment = build(:comment, commentable: release_action, diff_file_index: 0,
-                                source_rev: 'source_revision', target_rev: 'target_revision')
+    it 'returns false when the comment has no stored revision data' do
+      submit_action = build(:bs_request_action_submit)
+      comment = build(:comment, commentable: submit_action)
 
       expect(comment).not_to be_outdated
+    end
+
+    it 'returns false when the current revisions match the stored revisions' do
+      submit_action = build(:bs_request_action_submit)
+      allow(submit_action).to receive_messages(source_srcmd5: 'stored_source_rev',
+                                               target_srcmd5: 'stored_target_rev')
+      comment = build(:comment, commentable: submit_action, diff_file_index: 0,
+                                source_rev: 'stored_source_rev', target_rev: 'stored_target_rev')
+
+      expect(comment).not_to be_outdated
+    end
+
+    it 'returns true when the current revisions differ from the stored revisions' do
+      submit_action = build(:bs_request_action_submit)
+      allow(submit_action).to receive_messages(source_srcmd5: 'current_source_rev',
+                                               target_srcmd5: 'current_target_rev')
+      outdated_comment = build(:comment, commentable: submit_action, diff_file_index: 0,
+                                         source_rev: 'stored_source_rev', target_rev: 'stored_target_rev')
+
+      expect(outdated_comment).to be_outdated
+    end
+
+    [
+      :bs_request_action_release,
+      :bs_request_action_maintenance_release,
+      :bs_request_action_maintenance_incident
+    ].each do |action_factory|
+      it "returns false when #{action_factory} cannot compare current revisions" do
+        action = build(action_factory)
+        comment = build(:comment, commentable: action, diff_file_index: 0,
+                                  source_rev: 'stored_source_rev', target_rev: 'stored_target_rev')
+
+        expect(comment).not_to be_outdated
+      end
     end
   end
 
