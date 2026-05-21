@@ -27,13 +27,12 @@ RSpec.configure do |config|
       # define config - not taken into account though due to mocking
       stub_const('CONFIG', CONFIG.merge('amqp_options' => { dummy: 1 }, 'amqp_exchange_name' => 'pubsub', 'amqp_exchange_options' => { type: :topic }))
 
-      connection = BunnyMock.new
-      RabbitmqBus.connection = connection
+      RabbitmqBus.session = BunnyMock.new
       # setup exchange
       RabbitmqBus.exchange = nil
       RabbitmqBus.wrapped_exchange
 
-      RabbitMQHelpers.test_queue = connection.channel.queue('test')
+      RabbitMQHelpers.test_queue = RabbitmqBus.session.channel.queue('test')
       RabbitMQHelpers.test_queue.bind('pubsub', routing_key: example.metadata[:rabbitmq])
     end
   end
