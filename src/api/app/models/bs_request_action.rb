@@ -951,7 +951,8 @@ class BsRequestAction < ApplicationRecord
                                      'a submit self is not possible, please use the maintenance workflow instead.'
       end
 
-      if tprj.scmsync.present?
+      if tprj.scmsync.present? &&
+         (target_package.present? || !action_type.in?(%i[delete change_devel add_role set_bugowner]))
         raise RequestRejected,
               "The target project #{target_project} is managed in an external SCM: #{tprj.scmsync}"
       end
