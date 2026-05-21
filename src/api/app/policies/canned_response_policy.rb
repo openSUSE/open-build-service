@@ -1,4 +1,8 @@
 class CannedResponsePolicy < ApplicationPolicy
+  def show?
+    update?
+  end
+
   def edit?
     update?
   end
