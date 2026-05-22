@@ -1,4 +1,16 @@
 class Comment < ApplicationRecord
+  COMMENTABLE_TYPES = {
+    'Project' => Project,
+    'Package' => Package,
+    'BsRequest' => BsRequest,
+    'BsRequestActionSubmit' => BsRequestActionSubmit,
+    'BsRequestActionRelease' => BsRequestActionRelease,
+    'BsRequestActionMaintenanceRelease' => BsRequestActionMaintenanceRelease,
+    'BsRequestActionMaintenanceIncident' => BsRequestActionMaintenanceIncident,
+    'Report' => Report
+  }.freeze
+  private_constant :COMMENTABLE_TYPES
+
   belongs_to :commentable, polymorphic: true, counter_cache: true # belongs to a Project, Package, BsRequest or BsRequestActionSubmit
   belongs_to :user, inverse_of: :comments
   belongs_to :moderator, class_name: 'User', optional: true
@@ -34,6 +46,10 @@ class Comment < ApplicationRecord
 
   scope :on_actions_for_request, ->(bs_request) { where(commentable: BsRequestAction.where(bs_request: bs_request)) }
   scope :without_parent, -> { where(parent_id: nil) }
+
+  def self.commentable_class_for(commentable_type_name)
+    COMMENTABLE_TYPES[commentable_type_name]
+  end
 
   def to_s
     body
