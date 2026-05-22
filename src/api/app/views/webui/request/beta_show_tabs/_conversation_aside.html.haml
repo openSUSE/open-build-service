@@ -5,7 +5,7 @@
       = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
                                               my_open_reviews: my_open_reviews,
                                               history_elements: history_elements)
-    = render AddReviewCollapsibleComponent.new
+    = render AddReviewCollapsibleComponent.new(bs_request)
     .mb-2
       %h6
         Reviewers
