@@ -209,7 +209,7 @@ RSpec.describe 'Requests', :js, :vcr do
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
         find_by_id('review_type').select('User')
         fill_in 'review_user', with: reviewer.login
-        fill_in 'Comment for reviewer:', with: 'Please review'
+        fill_in 'review_comment', with: 'Please review'
         click_button('Accept')
         expect(page).to have_text(/Open review for\s+#{reviewer.login}/)
         expect(page).to have_text('Request 1')
