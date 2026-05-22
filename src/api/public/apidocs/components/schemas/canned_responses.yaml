@@ -1,0 +1,12 @@
+type: object
+properties:
+  canned_response:
+    type: array
+    items:
+      $ref: 'canned_response.yaml'
+  count:
+    type: integer
+    xml:
+      attribute: true
+xml:
+  name: canned_responses
