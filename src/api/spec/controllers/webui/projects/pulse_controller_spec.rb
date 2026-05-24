@@ -51,5 +51,16 @@ RSpec.describe Webui::Projects::PulseController do
         expect(controller.instance_variable_get(:@date_range_to)).to eq(default_to)
       end
     end
+
+    context 'with an unparsable date range parameter' do
+      subject { get :show, format: :html, params: { project_name: project.name, from: '@@QNJwx', to: '2026-04-28' } }
+
+      it { expect(flash[:error]).to eq('From or To dates are not in a valid format, using default time range') }
+
+      it 'assigns the default date range' do
+        expect(controller.instance_variable_get(:@date_range_from)).to eq(default_from)
+        expect(controller.instance_variable_get(:@date_range_to)).to eq(default_to)
+      end
+    end
   end
 end

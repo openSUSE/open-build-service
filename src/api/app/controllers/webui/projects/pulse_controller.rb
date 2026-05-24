@@ -20,7 +20,7 @@ module Webui
 
             render partial: 'pulse_list', locals: { project: @project,
                                                     builds: pulse.where(event_type: %i[build_fail build_success])
-                                                            .where(datetime: 24.hours.ago..Time.zone.now),
+                                                                 .where(datetime: 24.hours.ago..Time.zone.now),
                                                     new_packages: pulse.where(event_type: :create_package),
                                                     deleted_packages: pulse.where(event_type: :delete_package),
                                                     branches: pulse.where(event_type: :branch_command),
@@ -46,8 +46,8 @@ module Webui
         params[:to] ||= default_to.strftime('%Y-%m-%d')
 
         begin
-          @date_range_from = Time.zone.parse(params[:from]).beginning_of_day
-          @date_range_to = Time.zone.parse(params[:to]).end_of_day
+          @date_range_from = parse_date(params[:from], :beginning_of_day)
+          @date_range_to = parse_date(params[:to], :end_of_day)
         rescue ArgumentError
           flash.now[:error] = 'From or To dates are not in a valid format, using default time range'
           @date_range_from = default_from
@@ -61,6 +61,13 @@ module Webui
         end
 
         @date_range = @date_range_from..@date_range_to
+      end
+
+      def parse_date(value, boundary)
+        date = Time.zone.parse(value)
+        raise ArgumentError if date.nil?
+
+        date.public_send(boundary)
       end
     end
   end
