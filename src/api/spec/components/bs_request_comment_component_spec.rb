@@ -70,6 +70,32 @@ RSpec.describe BsRequestCommentComponent, type: :component do
     end
   end
 
+  context 'when canned responses are enabled for a comment on a request action' do
+    let(:source_package) { create(:package, :as_submission_source) }
+    let(:target_package) { create(:package) }
+    let(:bs_request) { create(:bs_request_with_submit_action, source_package: source_package, target_package: target_package) }
+    let(:commentable) { bs_request.bs_request_actions.first }
+    let(:comment_a) { travel_to(1.day.ago) { create(:comment, commentable: commentable, body: 'Comment A') } }
+
+    before do
+      Flipper.enable(:canned_responses)
+      User.session = comment_a.user
+      create(:canned_response, user: comment_a.user, title: 'Use this reply')
+      create(:canned_response, user: create(:confirmed_user), package: source_package, title: 'Source package reply')
+      render_inline(described_class.new(comment: comment_a, commentable: commentable, level: 1))
+    end
+
+    after do
+      Flipper.disable(:canned_responses)
+    end
+
+    it 'renders canned responses for the action comment form' do
+      expect(rendered_content).to(have_text('Canned Responses')
+        .and(have_text('Use this reply'))
+        .and(have_text('Source package reply')))
+    end
+  end
+
   context 'when rendering a comment thread' do
     let!(:comment_b) { create(:comment_request, commentable: commentable, body: 'Comment B', parent: comment_a) } # level 1 => 2 nested .timeline-item-comment
     let(:comment_c) { create(:comment_request, commentable: commentable, body: 'Comment C', parent: comment_b) }

@@ -16,7 +16,7 @@
                                         placeholder: 'Write your comment here... (Markdown markup is supported)',
                                         commentable_type: commentable.class.name.underscore, commentable_id: commentable.id,
                                         diff_file_index: defined?(diff_file_index) ? diff_file_index : nil,
-                                        diff_line_number: defined?(line_number) ? line_number : nil }, bs_request: commentable)
+                                        diff_line_number: defined?(line_number) ? line_number : nil }, bs_request: commentable, user: User.session)
   .comment-controls.my-3
     - case form_method
     - when :post
