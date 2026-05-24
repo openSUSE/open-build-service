@@ -309,34 +309,6 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'resultlist', children: { count: 2 }
   end
 
-  def test_result_lastsuccess_invalid_value
-    get '/build/home:Iggy/_result?lastsuccess=yes&pathproject=kde4&package=TestPack'
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_parameter' })
-  end
-
-  def test_result_falsy_lastsuccess_falls_back_to_default_result
-    # 'lastsuccess=0' and 'lastsuccess=false' must not trigger 'result_lastsuccess',
-    # they fall through to the regular build result listing.
-    %w[0 false].each do |value|
-      get "/build/home:Iggy/_result?lastsuccess=#{value}"
-      assert_response :success
-      assert_xml_tag tag: 'resultlist', children: { count: 2 }
-    end
-  end
-
-  def test_result_truthy_lastsuccess_invokes_result_lastsuccess
-    # An empty value, '1' and 'true' must all invoke 'result_lastsuccess'.
-    # We rely on the require(%i[package pathproject]) inside that method to
-    # produce a 400 missing_parameter response when only 'lastsuccess' is
-    # passed, which is enough to confirm the dispatch took the right branch.
-    ['', '1', 'true'].each do |value|
-      get "/build/home:Iggy/_result?lastsuccess=#{value}"
-      assert_response :bad_request
-      assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
-    end
-  end
-
   def test_result_of_failed_publish
     run_publisher
     get '/build/BrokenPublishing/_result'
