@@ -457,6 +457,8 @@ sub server {
         $request_content = shift @$args;
       }
     }
+    # startup, if we still have an exit file now, it is stale
+    unlink "$rundir/$runname.exit";
   }
 
   my $bsdir = $BSConfig::bsdir || "/srv/obs";
