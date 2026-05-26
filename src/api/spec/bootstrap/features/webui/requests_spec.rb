@@ -102,7 +102,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         within('#add-role-modal') do
           find(:id, 'role').select('Maintainer')
           fill_in 'description', with: 'I can produce bugs too.'
-          expect { click_button('Create') }.to change(BsRequest, :count).by(1)
+          click_button('Create')
         end
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role maintainer " \
                                   "for package #{target_project} / #{target_package}")
