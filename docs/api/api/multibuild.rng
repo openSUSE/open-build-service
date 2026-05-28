@@ -7,6 +7,14 @@
 
   <define name="multibuild-element">
     <element ns="" name="multibuild">
+      <optional>
+        <attribute name="buildemptyflavor">
+          <choice>
+            <value>true</value>
+            <value>false</value>
+          </choice>
+        </attribute>
+      </optional>
       <choice>
         <oneOrMore>
           <element ns="" name="flavor">
