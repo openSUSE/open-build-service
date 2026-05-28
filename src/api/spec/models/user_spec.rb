@@ -594,10 +594,10 @@ RSpec.describe User do
       User.session = admin_user
     end
 
-    it 'creates a GlobalRoleAssigned event when an admin role is added' do
-      expect { user.roles << Role.where(title: 'Admin').last }.to change(Event::GlobalRoleAssigned, :count).by(1)
+    it 'creates a GlobalRoleAssignmentUpdate event when an admin role is added' do
+      expect { user.roles << Role.where(title: 'Admin').last }.to change(Event::GlobalRoleAssignmentUpdate, :count).by(1)
 
-      event = Event::GlobalRoleAssigned.last
+      event = Event::GlobalRoleAssignmentUpdate.last
       expect(event.payload).to include(
         'role' => 'Admin',
         'user' => user.login,
@@ -608,7 +608,7 @@ RSpec.describe User do
     it 'does not create an event for non-global roles' do
       expect do
         user.roles << non_admin_role
-      end.not_to change(Event::GlobalRoleAssigned, :count)
+      end.not_to change(Event::GlobalRoleAssignmentUpdate, :count)
     end
   end
 end

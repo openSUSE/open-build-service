@@ -175,7 +175,7 @@ FactoryBot.define do
     end
 
     factory :event_subscription_global_role_assigned do
-      eventtype { 'Event::GlobalRoleAssigned' }
+      eventtype { 'Event::GlobalRoleAssignmentUpdate' }
       receiver_role { 'admin_moderator_or_staff' }
       channel { :instant_email }
       user

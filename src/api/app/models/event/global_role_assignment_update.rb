@@ -1,5 +1,5 @@
 module Event
-  class GlobalRoleAssigned < Base
+  class GlobalRoleAssignmentUpdate < Base
     self.description = 'User received an important role'
     self.notification_explanation = "Receive notifications when a user received an important role: #{Role.global_roles.to_sentence(last_word_connector: ' or ')}."
 

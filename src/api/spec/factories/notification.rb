@@ -73,7 +73,7 @@ FactoryBot.define do
     end
 
     factory :notification_for_global_role_assignment, class: 'NotificationUser' do
-      event_type { 'Event::GlobalRoleAssigned' }
+      event_type { 'Event::GlobalRoleAssignmentUpdate' }
       notifiable factory: [:user]
       web { true }
 

@@ -10,7 +10,7 @@ class RolesUser < ApplicationRecord
   def create_global_role_assignment_event
     return if Role.global_roles.exclude?(role.title) || User.session.nil?
 
-    Event::GlobalRoleAssigned.create(role: role.title, user: user.login, who: User.session.login)
+    Event::GlobalRoleAssignmentUpdate.create(role: role.title, user: user.login, who: User.session.login)
   end
 end
 
