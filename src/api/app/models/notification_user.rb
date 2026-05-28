@@ -1,7 +1,8 @@
 class NotificationUser < Notification
   def description
     subscriber_name = subscriber.login == event_payload['user'] ? 'you' : event_payload['user']
-    "'#{event_payload['who']}' gave the '#{event_payload['role']}' role to '#{subscriber_name}'"
+
+      "'#{event_payload['who'] || 'Someone'}' #{event_payload['action']} the '#{event_payload['role']}' role for '#{subscriber_name}'"
   end
 
   def excerpt
@@ -13,7 +14,7 @@ class NotificationUser < Notification
   end
 
   def link_text
-    'New Global Role Assigned'
+    "Global Role #{event_payload['action'].capitalize}"
   end
 
   def link_path
