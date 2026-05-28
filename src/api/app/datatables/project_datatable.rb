@@ -17,7 +17,9 @@ class ProjectDatatable < Datatable
 
   # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
-    options[:projects]
+    options[:projects].left_joins(label_globals: :label_template_global)
+                      .includes(label_globals: :label_template_global)
+                      .references(:label_globals, :label_template_global).distinct
   end
   # rubocop:enable Naming/AccessorMethodName
 

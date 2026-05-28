@@ -170,6 +170,43 @@ RSpec.describe Webui::ProjectController, :vcr do
     it { expect(assigns(:roles)).to match_array(Role.local_roles) }
   end
 
+  describe 'GET #subprojects' do
+    let(:parent_project) { create(:project, name: 'ParentProject') }
+    let!(:subproject) { create(:project, name: 'ParentProject:Subproject') }
+    let(:label_template_global) { create(:label_template_global, name: 'Packaging') }
+    let(:another_label_template_global) { create(:label_template_global, name: 'Package Maintenance') }
+    let(:datatable_params) do
+      {
+        project: parent_project.name,
+        type: 'subproject',
+        draw: '1',
+        columns: {
+          '0' => { data: 'name', searchable: 'true', orderable: 'true', search: { value: '', regex: 'false' } },
+          '1' => { data: 'labels', searchable: 'true', orderable: 'true', search: { value: '', regex: 'false' } },
+          '2' => { data: 'title', searchable: 'true', orderable: 'true', search: { value: '', regex: 'false' } }
+        },
+        order: { '0' => { column: '0', dir: 'asc' } },
+        start: '0',
+        length: '25',
+        search: { value: 'pack', regex: 'false' }
+      }
+    end
+
+    before do
+      create(:label_global, project: subproject, label_template_global: label_template_global)
+      create(:label_global, project: subproject, label_template_global: another_label_template_global)
+      get :subprojects, params: datatable_params, format: :json
+    end
+
+    it { expect(response).to have_http_status(:ok) }
+
+    it 'finds subprojects by global label name' do
+      expect(json_response['recordsFiltered']).to eq(1)
+      expect(json_response['data'].size).to eq(1)
+      expect(json_response['data'].first['name']).to include(subproject.name)
+    end
+  end
+
   describe 'GET #new' do
     before do
       login user
