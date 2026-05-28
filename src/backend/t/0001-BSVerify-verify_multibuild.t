@@ -33,12 +33,12 @@ my @invalid_cases = (
   {
     name => 'buildemptyflavor invalid value is rejected',
     data => { buildemptyflavor => 'maybe', flavor => ['default'] },
-    pattern => qr/buildemptyflavor must be either 'true' or 'false'/,
+    pattern => qr/'buildemptyflavor' attribute must be boolean/,
   },
   {
     name => 'buildemptyflavor must be lowercase true/false',
     data => { buildemptyflavor => 'False', flavor => ['default'] },
-    pattern => qr/buildemptyflavor must be either 'true' or 'false'/,
+    pattern => qr/'buildemptyflavor' attribute must be boolean/,
   },
   {
     name => 'package and flavor together are still rejected',

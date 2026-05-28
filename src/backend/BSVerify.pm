@@ -462,8 +462,9 @@ sub verify_dod {
 
 sub verify_multibuild {
   my ($mb) = @_;
-  if (defined $mb->{'buildemptyflavor'} && $mb->{'buildemptyflavor'} ne 'true' && $mb->{'buildemptyflavor'} ne 'false') {
-    die("buildemptyflavor must be either 'true' or 'false'\n");
+  my $buildemptyflavor = $mb->{'buildemptyflavor'};
+  if (defined $buildemptyflavor) {
+    die("'buildemptyflavor' attribute must be boolean\n") unless $buildemptyflavor eq 'true' || $buildemptyflavor eq 'false' || $buildemptyflavor eq '0' || $buildemptyflavor eq '1';
   }
   die("multibuild cannot have both package and flavor elements\n") if $mb->{'package'} && $mb->{'flavor'};
   for my $packid (@{$mb->{'package'} || []}) {

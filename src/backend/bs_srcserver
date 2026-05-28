@@ -1668,7 +1668,8 @@ sub getprojpack {
 	# a buildinfo query
 	my $mb = BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, $cgi->{'ignoredisable'} ? 0 : 1);
 	unshift @packages, map {"$packid:$_"} @{$mb->{'flavor'} || $mb->{'package'} || []} if $mb;
-	if ($mb && defined($mb->{'buildemptyflavor'}) && $mb->{'buildemptyflavor'} eq 'false') {
+
+	if ($mb && defined($mb->{'buildemptyflavor'}) && ($mb->{'buildemptyflavor'} eq '0' || $mb->{'buildemptyflavor'} eq 'false')) {
 	  $pinfo->{'error'} = 'excluded';
 	  next;
 	}
