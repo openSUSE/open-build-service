@@ -594,14 +594,28 @@ RSpec.describe User do
       User.session = admin_user
     end
 
-    it 'creates a GlobalRoleAssignmentUpdate event when an admin role is added' do
+    it 'creates a GlobalRoleAssignmentUpdate event when an admin role is enabled' do
       expect { user.roles << Role.where(title: 'Admin').last }.to change(Event::GlobalRoleAssignmentUpdate, :count).by(1)
 
       event = Event::GlobalRoleAssignmentUpdate.last
       expect(event.payload).to include(
         'role' => 'Admin',
         'user' => user.login,
-        'who' => admin_user.login
+        'who' => admin_user.login,
+        'action' => 'enabled'
+      )
+    end
+
+    it 'creates a GlobalRoleAssignmentUpdate event when an admin role is disabled' do
+      expect { user.roles << Role.where(title: 'Admin').last }.to change(Event::GlobalRoleAssignmentUpdate, :count).by(1)
+      expect { user.roles.destroy(Role.where(title: 'Admin').last) }.to change(Event::GlobalRoleAssignmentUpdate, :count).by(1)
+
+      event = Event::GlobalRoleAssignmentUpdate.last
+      expect(event.payload).to include(
+        'role' => 'Admin',
+        'user' => user.login,
+        'who' => admin_user.login,
+        'action' => 'disabled'
       )
     end
 
