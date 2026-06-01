@@ -753,7 +753,13 @@ class User < ApplicationRecord
   end
 
   def update_globalroles(global_roles)
-    roles.replace(global_roles + roles.where(global: false))
+    # Preserve existing non-global roles when updating global roles.
+    target_roles = global_roles + roles.where(global: false)
+    roles_to_remove = roles - target_roles
+    roles_to_add = target_roles - roles
+
+    roles.destroy(*roles_to_remove) if roles_to_remove.any?
+    roles << roles_to_add if roles_to_add.any?
   end
 
   def display_name
