@@ -19,7 +19,7 @@ class User < ApplicationRecord
 
   has_many :watched_items, dependent: :destroy
   has_many :groups_users, inverse_of: :user
-  has_many :roles_users, inverse_of: :user
+  has_many :roles_users, inverse_of: :user, dependent: :destroy
   has_many :roles, through: :roles_users
   has_many :relationships, inverse_of: :user, dependent: :destroy
 
