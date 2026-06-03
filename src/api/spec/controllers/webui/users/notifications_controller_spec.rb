@@ -283,6 +283,41 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
+    context 'when a user marks a notification as read from a notification target page' do
+      subject do
+        login user
+        put :update, params: { notification_ids: [state_change_notification.id], user_login: user.login,
+                               button: 'read', return_to: return_to }
+      end
+
+      context 'with a valid notifications return path' do
+        let(:return_to) { '/my/notifications?kind%5B%5D=requests&state=unread' }
+
+        it 'redirects to the filtered notifications page' do
+          subject
+          expect(response).to redirect_to(return_to)
+        end
+      end
+
+      context 'with an external return path' do
+        let(:return_to) { 'https://example.com/my/notifications?kind%5B%5D=requests' }
+
+        it 'redirects to the default notifications page' do
+          subject
+          expect(response).to redirect_to(my_notifications_path)
+        end
+      end
+
+      context 'with an unrelated internal return path' do
+        let(:return_to) { '/project/show/home:foo' }
+
+        it 'redirects to the default notifications page' do
+          subject
+          expect(response).to redirect_to(my_notifications_path)
+        end
+      end
+    end
+
     context 'when a user tries to mark other user notifications as read' do
       subject! do
         login user_to_log_in

@@ -100,13 +100,28 @@ RSpec.describe 'User notifications', :js do
       end
     end
 
+    context 'when returning from a request notification' do
+      let!(:notification_for_request) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user) }
+
+      before do
+        visit my_notifications_path(kind: 'requests')
+        click_link notification_for_request.link_text
+        click_link 'Back to notifications'
+      end
+
+      it 'preserves the request notification filter' do
+        expect(page).to have_current_path(my_notifications_path(kind: 'requests'), ignore_query: false)
+      end
+    end
+
     context 'when having less notifications than the maximum per page' do
       it { expect(page).to have_no_text("Mark all as 'Read'") }
     end
 
     context 'when the notification is about a comment for report' do
       it 'contains a link pointing to the report' do
-        expect(page).to have_link('Comment on Report', href: "/reports/#{notification_for_reports_comment.notifiable.commentable_id}")
+        report_path = "/reports/#{notification_for_reports_comment.notifiable.commentable_id}"
+        expect(page).to have_link('Comment on Report', href: "#{report_path}?return_to=%2Fmy%2Fnotifications")
       end
 
       it 'mentions which user commented on the report' do

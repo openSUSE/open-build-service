@@ -1,22 +1,23 @@
 .notification-toolbar.sticky-top.navbar.bg-body-secondary.border-bottom
   .container-fluid
     - if request_action
-      = link_to(request_show_path(number: request_action.bs_request.number, request_action_id: request_action.id, notification_id: notification),
+      = link_to(request_show_path(number: request_action.bs_request.number, request_action_id: request_action.id, notification_id: notification,
+                                  return_to: notification_return_to_path),
                 class: 'btn btn-sm btn-outline-secondary', title: 'Back to request action') do
         %i.fas.fa-arrow-left
         Back to request action "#{request_action.type.titleize}"
     - else
-      = link_to(my_notifications_path, class: 'btn btn-sm btn-outline-secondary', title: 'Back to notifications') do
+      = link_to(notification_return_to_path, class: 'btn btn-sm btn-outline-secondary', title: 'Back to notifications') do
         %i.fas.fa-arrow-left
         Back to notifications
       - if notification.unread?
-        = link_to(my_notifications_path(notification_ids: [notification.id], button: 'read'),
+        = link_to(my_notifications_path(notification_ids: [notification.id], button: 'read', return_to: notification_return_to_path),
                   id: dom_id(notification, :update), method: :put,
                   class: 'btn btn-sm btn-outline-success', title: 'Mark as read') do
           %i.fas.fa-check
           Mark as read
       - else
-        = link_to(my_notifications_path(notification_ids: [notification.id], button: 'unread'),
+        = link_to(my_notifications_path(notification_ids: [notification.id], button: 'unread', return_to: notification_return_to_path),
                   id: dom_id(notification, :update), method: :put,
                   class: 'btn btn-sm btn-outline-success', title: 'Mark as unread') do
           %i.fas.fa-undo

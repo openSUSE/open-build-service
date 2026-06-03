@@ -16,8 +16,10 @@ RSpec.describe 'NotificationPackage', :js do
     end
 
     it 'contains a link pointing to the report' do
+      notification_path = "/package/show/#{notification.notifiable.project.name}/#{notification.notifiable.name}"
+
       expect(page).to have_link("New upstream version for #{notification.notifiable.name}",
-                                href: "/package/show/#{notification.notifiable.project.name}/#{notification.notifiable.name}?notification_id=#{notification.id}")
+                                href: "#{notification_path}?notification_id=#{notification.id}&return_to=%2Fmy%2Fnotifications")
     end
 
     it 'contains a description' do
