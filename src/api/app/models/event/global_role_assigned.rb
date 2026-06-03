@@ -15,7 +15,7 @@ module Event
               when 'Moderator'
                 User.admins.or(User.moderators)
               end
-      users.where.not(login: payload['who']).uniq if users
+      User.where(id: users).or(User.where(login: payload['user'])).where.not(login: payload['who'])
     end
 
     def parameters_for_notification
