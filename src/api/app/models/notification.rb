@@ -10,6 +10,7 @@ class Notification < ApplicationRecord
 
   has_many :notified_projects, dependent: :destroy
   has_many :projects, through: :notified_projects
+  has_many :notified_packages, dependent: :destroy
   has_and_belongs_to_many :groups
 
   serialize :event_payload, coder: JSON
@@ -47,6 +48,7 @@ class Notification < ApplicationRecord
   scope :for_token_membership_update, -> { where(notifiable_type: 'Token::Workflow') }
 
   scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
+  scope :for_notifiable_package_name, ->(package_name) { joins(:notified_packages).where(notified_packages: { package_name: package_name }) }
   scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
   scope :for_request_state, ->(request_state) { joins(:bs_request).where(bs_request: { state: request_state }) }
   scope :stale, -> { where(created_at: ...(CONFIG['notifications_lifetime'] ||= 365).days.ago) }

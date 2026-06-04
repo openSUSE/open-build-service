@@ -1497,6 +1497,10 @@ Notification:
   web:
     ThreeStateBooleanChecker:
       enabled: false
+NotifiedPackage:
+  index_notified_packages_on_notification_id:
+    RedundantIndexChecker:
+      enabled: false
 NotifiedProject:
   index_notified_projects_on_notification_id:
     RedundantIndexChecker:

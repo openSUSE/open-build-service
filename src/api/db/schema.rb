@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_15_101229) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_03_102753) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -820,6 +820,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_101229) do
     t.index ["web"], name: "index_notifications_on_web"
   end
 
+  create_table "notified_packages", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "notification_id", null: false
+    t.string "package_name", null: false
+    t.datetime "created_at", null: false
+    t.index ["notification_id", "package_name"], name: "index_notified_packages_on_notification_id_and_package_name", unique: true
+    t.index ["notification_id"], name: "index_notified_packages_on_notification_id"
+    t.index ["package_name"], name: "index_notified_packages_on_package_name"
+  end
+
   create_table "notified_projects", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.bigint "notification_id", null: false
     t.integer "project_id", null: false
@@ -1373,6 +1382,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_101229) do
   add_foreign_key "labels", "label_templates"
   add_foreign_key "maintained_projects", "projects", column: "maintenance_project_id", name: "maintained_projects_ibfk_2"
   add_foreign_key "maintained_projects", "projects", name: "maintained_projects_ibfk_1"
+  add_foreign_key "notified_packages", "notifications"
   add_foreign_key "package_issues", "issues", name: "package_issues_ibfk_2"
   add_foreign_key "package_issues", "packages", name: "package_issues_ibfk_1"
   add_foreign_key "package_kinds", "packages", name: "package_kinds_ibfk_1"
