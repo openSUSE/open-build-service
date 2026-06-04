@@ -50,19 +50,19 @@ end
 #  title         :string(255)      not null
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
-#  project_id    :integer          indexed
 #  package_id    :integer          indexed
+#  project_id    :integer          indexed
 #  user_id       :integer          not null, indexed
 #
 # Indexes
 #
-#  index_canned_responses_on_project_id  (project_id)
 #  index_canned_responses_on_package_id  (package_id)
+#  index_canned_responses_on_project_id  (project_id)
 #  index_canned_responses_on_user_id     (user_id)
 #
 # Foreign Keys
 #
-#  fk_rails_...  (project_id => projects.id) ON DELETE => nullify
 #  fk_rails_...  (package_id => packages.id) ON DELETE => nullify
+#  fk_rails_...  (project_id => projects.id) ON DELETE => nullify
 #  fk_rails_...  (user_id => users.id)
 #
