@@ -851,4 +851,59 @@ RSpec.describe Package, :vcr do
 
     it { expect(package.bs_requests).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
   end
+
+  describe '.with_web_notifications_for' do
+    let(:other_user) { create(:confirmed_user) }
+    let(:package_with_notification) { create(:package) }
+    let(:package_without_notification) { create(:package) }
+    let!(:notification) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user, notifiable: package_with_notification) }
+
+    it 'returns packages with web notifications for the given user' do
+      expect(Package.with_web_notifications_for(user)).to include(package_with_notification)
+    end
+
+    it 'excludes packages without notifications for the given user' do
+      expect(Package.with_web_notifications_for(user)).not_to include(package_without_notification)
+    end
+
+    it 'excludes packages with notifications belonging to a different user' do
+      other_notification = create(:notification_for_package, :web_notification, :build_failure, subscriber: other_user, notifiable: package_without_notification)
+      expect(Package.with_web_notifications_for(user)).not_to include(other_notification.notifiable)
+    end
+
+    context 'when the package is only referenced via a comment notification' do
+      let(:package_only_via_comment) { create(:package) }
+      let(:comment) { create(:comment_package, commentable: package_only_via_comment) }
+      let!(:comment_notification) { create(:notification_for_comment, :web_notification, :comment_for_package, subscriber: user, notifiable: comment) }
+
+      it 'returns the package' do
+        expect(Package.with_web_notifications_for(user)).to include(package_only_via_comment)
+      end
+    end
+
+    context 'when the package is only referenced via a report notification' do
+      let(:package_only_via_report) { create(:package) }
+      let(:report) { create(:report, reportable: package_only_via_report) }
+      let!(:report_notification) { create(:notification_for_report, :web_notification, :report_for_package, subscriber: user, notifiable: report) }
+
+      it 'returns the package' do
+        expect(Package.with_web_notifications_for(user)).to include(package_only_via_report)
+      end
+    end
+
+    context 'when the package is only referenced via a request notification as source package' do
+      let(:package_only_via_request) { create(:package) }
+      let(:bs_request) do
+        create(:bs_request_with_submit_action, source_package: package_only_via_request.name,
+               source_project: package_only_via_request.project,
+               target_project: package_only_via_request.project,
+               target_package: package_only_via_request.name)
+      end
+      let!(:request_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user, notifiable: bs_request) }
+
+      it 'returns the package' do
+        expect(Package.with_web_notifications_for(user)).to include(package_only_via_request)
+      end
+    end
+  end
 end

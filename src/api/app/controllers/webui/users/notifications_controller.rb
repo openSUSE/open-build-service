@@ -28,7 +28,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   before_action :require_login
   before_action :set_filter_kind, :set_filter_state, :set_filter_report_decision, :set_filter_reportable_type,
-                :set_filter_project, :set_filter_group, :set_filter_request_state, :set_filter_label
+                :set_filter_project, :set_filter_package, :set_filter_group, :set_filter_request_state, :set_filter_label
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: :update
   before_action :filter_notifications, only: :index
@@ -69,6 +69,14 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def autocomplete_projects
     relation = Project.where(name: @projects_for_filter)
     render json: AutocompleteFinder::Project.new(relation, params[:term]).call.pluck(:name)
+  end
+
+  def autocomplete_packages
+    render json: NotifiedPackage.for_user_web_notifications(User.session)
+                                .where('notified_packages.package_name LIKE ?', "%#{params[:term]}%")
+                                .limit(50)
+				.order(:package_name)
+                                .pluck(:package_name)
   end
 
   def counts
@@ -152,6 +160,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @projects_for_filter = ProjectsForFilterFinder.new.call
   end
 
+  def set_filter_package
+    @filter_package = params[:package] ? params[:package].compact_blank.uniq : []
+    @packages_for_filter = NotifiedPackage.for_user_web_notifications(User.session).order(:package_name).pluck(:package_name)
+  end
+
   def set_filter_group
     @filter_group = params[:group] || []
     @groups_for_filter = GroupsForFilterFinder.new.call
@@ -168,6 +181,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def filter_notifications
     @notifications = filter_notifications_by_project(@notifications, @filter_project)
+    @notifications = filter_notifications_by_package(@notifications, @filter_package)
     @notifications = filter_notifications_by_group(@notifications, @filter_group)
     @notifications = filter_notifications_by_state(@notifications, @filter_state)
     @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
@@ -193,6 +207,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
                          state: @filter_state,
                          report: @filter_report_decision,
                          project: @filter_project,
+                         package: @filter_package,
                          group: @filter_group,
                          request_state: @filter_request_state,
                          reportable_type: @filter_reportable_type,

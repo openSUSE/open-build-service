@@ -33,6 +33,13 @@ FactoryBot.define do
     end
 
     factory :notification_for_request, class: 'NotificationBsRequest' do
+      after(:create) do |notification|
+        package_names = NotifiedPackages.new(notification).call
+        NotifiedPackage.insert_all(
+          package_names.map { |name| { notification_id: notification.id, package_name: name, created_at: Time.current } },
+        ) if package_names.any?
+      end
+
       trait :request_state_change do
         event_type { 'Event::RequestStatechange' }
         notifiable factory: [:bs_request_with_submit_action]
@@ -51,6 +58,13 @@ FactoryBot.define do
     end
 
     factory :notification_for_comment, class: 'NotificationComment' do
+      after(:create) do |notification|
+        package_names = NotifiedPackages.new(notification).call
+        NotifiedPackage.insert_all(
+          package_names.map { |name| { notification_id: notification.id, package_name: name, created_at: Time.current } },
+        ) if package_names.any?
+      end
+
       trait :comment_for_project do
         event_type { 'Event::CommentForProject' }
         notifiable factory: [:comment_project]
@@ -95,6 +109,13 @@ FactoryBot.define do
     end
 
     factory :notification_for_package, class: 'NotificationPackage' do
+      after(:create) do |notification|
+        package_names = NotifiedPackages.new(notification).call
+        NotifiedPackage.insert_all(
+          package_names.map { |name| { notification_id: notification.id, package_name: name, created_at: Time.current } },
+        ) if package_names.any?
+      end
+
       trait :relationship_create_for_package do
         event_type { 'Event::RelationshipCreate' }
         notifiable factory: [:package]
@@ -117,6 +138,24 @@ FactoryBot.define do
     end
 
     factory :notification_for_report, class: 'NotificationReport' do
+      after(:create) do |notification|
+        package_names = NotifiedPackages.new(notification).call
+        NotifiedPackage.insert_all(
+          package_names.map { |name| { notification_id: notification.id, package_name: name, created_at: Time.current } },
+        ) if package_names.any?
+      end
+
+      trait :report_for_package do
+        event_type { 'Event::ReportForPackage' }
+
+        after(:build) do |notification|
+          notification.event_payload['id'] ||= notification.notifiable.id
+          notification.event_payload['reportable_type'] ||= 'Package'
+          notification.event_payload['package_name'] ||= notification.notifiable.reportable.name
+          notification.event_payload['project_name'] ||= notification.notifiable.reportable.project.name
+        end
+      end
+
       trait :report_for_user do
         event_type { 'Event::ReportForUser' }
         notifiable factory: [:report]

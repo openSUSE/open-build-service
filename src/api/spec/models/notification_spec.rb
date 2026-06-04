@@ -64,6 +64,75 @@ RSpec.describe Notification do
     end
   end
 
+  describe '.for_notifiable_package_name' do
+    let(:package) { create(:package) }
+    let(:other_package) { create(:package) }
+
+    context 'with a direct package notification' do
+      let!(:notification_for_package) { create(:notification_for_package, :web_notification, :build_failure, notifiable: package) }
+      let!(:notification_for_other_package) { create(:notification_for_package, :web_notification, :build_failure, notifiable: other_package) }
+
+      it 'returns notifications for the given package name' do
+        expect(Notification.for_notifiable_package_name(package.name)).to include(notification_for_package)
+      end
+
+      it 'excludes notifications for other packages with different names' do
+        expect(Notification.for_notifiable_package_name(package.name)).not_to include(notification_for_other_package)
+      end
+    end
+
+    context 'with a comment notification on a package' do
+      let(:comment_on_package) { create(:comment_package, commentable: package) }
+      let(:comment_on_other_package) { create(:comment_package, commentable: other_package) }
+      let!(:notification_for_comment) { create(:notification_for_comment, :web_notification, :comment_for_package, notifiable: comment_on_package) }
+      let!(:notification_for_other_comment) { create(:notification_for_comment, :web_notification, :comment_for_package, notifiable: comment_on_other_package) }
+
+      it 'returns comment notifications for the given package name' do
+        expect(Notification.for_notifiable_package_name(package.name)).to include(notification_for_comment)
+      end
+
+      it 'excludes comment notifications for other packages' do
+        expect(Notification.for_notifiable_package_name(package.name)).not_to include(notification_for_other_comment)
+      end
+    end
+
+    context 'with a report notification on a package' do
+      let(:report_on_package) { create(:report, reportable: package) }
+      let(:report_on_other_package) { create(:report, reportable: other_package) }
+      let!(:notification_for_report) { create(:notification_for_report, :web_notification, :report_for_package, notifiable: report_on_package) }
+      let!(:notification_for_other_report) { create(:notification_for_report, :web_notification, :report_for_package, notifiable: report_on_other_package) }
+
+      it 'returns report notifications for the given package name' do
+        expect(Notification.for_notifiable_package_name(package.name)).to include(notification_for_report)
+      end
+
+      it 'excludes report notifications for other packages' do
+        expect(Notification.for_notifiable_package_name(package.name)).not_to include(notification_for_other_report)
+      end
+    end
+
+    context 'with a request notification where the package is source or target' do
+      let(:bs_request) do
+        create(:bs_request_with_submit_action, source_package: package.name, source_project: package.project,
+               target_project: package.project, target_package: package.name)
+      end
+      let(:bs_request_unrelated) do
+        create(:bs_request_with_submit_action, source_package: other_package.name, source_project: other_package.project,
+               target_project: other_package.project, target_package: other_package.name)
+      end
+      let!(:notification_for_request) { create(:notification_for_request, :web_notification, :request_state_change, notifiable: bs_request) }
+      let!(:notification_unrelated) { create(:notification_for_request, :web_notification, :request_state_change, notifiable: bs_request_unrelated) }
+
+      it 'returns request notifications for the given package name' do
+        expect(Notification.for_notifiable_package_name(package.name)).to include(notification_for_request)
+      end
+
+      it 'excludes request notifications for other packages' do
+        expect(Notification.for_notifiable_package_name(package.name)).not_to include(notification_unrelated)
+      end
+    end
+  end
+
   describe 'Instrumentation' do
     let!(:test_user) { create(:confirmed_user, login: 'foo') }
     let!(:web_notification) { create(:notification_for_request, :web_notification, subscriber: test_user) }

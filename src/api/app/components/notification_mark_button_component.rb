@@ -22,6 +22,7 @@ class NotificationMarkButtonComponent < ApplicationComponent
                           state: @selected_filter[:state],
                           button: @notification.unread? ? 'read' : 'unread',
                           project: @selected_filter[:project], group: @selected_filter[:group],
+                          package: @selected_filter[:package],
                           page: @page)
   end
 end

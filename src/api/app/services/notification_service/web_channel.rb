@@ -58,6 +58,10 @@ module NotificationService
 
       notification = Notification.create!(parameters(oldest_notification))
       notification.projects << NotifiedProjects.new(notification).call
+      package_names = NotifiedPackages.new(notification).call
+      NotifiedPackage.insert_all(
+        package_names.map { |name| { notification_id: notification.id, package_name: name, created_at: Time.current } }
+      ) if package_names.any?
       notification.groups << notification_groups(oldest_notification_groups)
       notification
     end

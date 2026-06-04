@@ -230,6 +230,89 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
+    context 'when filtering by `package` param' do
+      let(:package) { create(:package) }
+      let(:other_package) { create(:package) }
+      let!(:notification_for_package) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user, notifiable: package) }
+      let!(:notification_for_other_package) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user, notifiable: other_package) }
+      let(:params) { default_params.merge('package' => [package.name]) }
+
+      before { subject }
+
+      it_behaves_like 'returning success'
+
+      it 'sets @notifications to notifications for the selected package only' do
+        expect(assigns[:notifications]).to include(notification_for_package)
+        expect(assigns[:notifications]).not_to include(notification_for_other_package)
+      end
+    end
+
+    context 'when filtering by `package` param and a comment notification exists for that package' do
+      let(:package) { create(:package) }
+      let(:other_package) { create(:package) }
+      let(:comment_on_package) { create(:comment_package, commentable: package) }
+      let!(:comment_notification) { create(:notification_for_comment, :web_notification, :comment_for_package, subscriber: user, notifiable: comment_on_package) }
+      let!(:notification_for_other_package) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user, notifiable: other_package) }
+      let(:params) { default_params.merge('package' => [package.name]) }
+
+      before { subject }
+
+      it_behaves_like 'returning success'
+
+      it 'includes the comment notification for the selected package' do
+        expect(assigns[:notifications]).to include(comment_notification)
+      end
+
+      it 'excludes notifications for other packages' do
+        expect(assigns[:notifications]).not_to include(notification_for_other_package)
+      end
+    end
+
+    context 'when filtering by `package` param and a request notification exists for that package as source' do
+      let(:package) { create(:package) }
+      let(:other_package) { create(:package) }
+      let(:bs_request) do
+        create(:bs_request_with_submit_action, source_package: package.name, source_project: package.project,
+               target_project: package.project, target_package: package.name)
+      end
+      let!(:request_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user, notifiable: bs_request) }
+      let!(:notification_for_other_package) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user, notifiable: other_package) }
+      let(:params) { default_params.merge('package' => [package.name]) }
+
+      before { subject }
+
+      it_behaves_like 'returning success'
+
+      it 'includes the request notification for the selected package' do
+        expect(assigns[:notifications]).to include(request_notification)
+      end
+
+      it 'excludes notifications for other packages' do
+        expect(assigns[:notifications]).not_to include(notification_for_other_package)
+      end
+    end
+
+    context 'when filtering by `package` param and a report notification exists for that package' do
+      let(:package) { create(:package) }
+      let(:other_package) { create(:package) }
+      let(:report) { create(:report, reportable: package) }
+      let!(:report_notification) { create(:notification_for_report, :web_notification, :report_for_package, subscriber: user, notifiable: report) }
+      let!(:notification_for_other_package) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user, notifiable: other_package) }
+      let(:params) { default_params.merge('package' => [package.name]) }
+
+      before { subject }
+
+      it_behaves_like 'returning success'
+
+      it 'includes the report notification for the selected package' do
+        expect(assigns[:notifications]).to include(report_notification)
+      end
+
+      it 'excludes notifications for other packages' do
+        expect(assigns[:notifications]).not_to include(notification_for_other_package)
+      end
+    end
+
     context 'when filtering by `labels` param' do
       let(:source_package) { create(:package) }
       let(:target_package) { create(:package) }
@@ -253,6 +336,26 @@ RSpec.describe Webui::Users::NotificationsController do
 
       it 'sets @notifications to all undelivered notifications with the label set' do
         expect(assigns[:notifications]).to contain_exactly(notification_build_failure, notification_for_request)
+      end
+    end
+  end
+
+  describe 'GET #autocomplete_packages' do
+    context 'when the same package name exists in multiple projects' do
+      let(:package_1) { create(:package, name: 'python3') }
+      let(:package_2) { create(:package, name: 'python3') }
+      let!(:notification_1) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user, notifiable: package_1) }
+      let!(:notification_2) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user, notifiable: package_2) }
+
+      before do
+        login user
+        get :autocomplete_packages, params: { term: 'python3', user_login: username }
+      end
+
+      it_behaves_like 'returning success'
+
+      it 'returns the package name only once' do
+        expect(JSON.parse(response.body).count('python3')).to eq(1)
       end
     end
   end
