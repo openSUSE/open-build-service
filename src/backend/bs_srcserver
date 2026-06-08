@@ -2167,6 +2167,7 @@ sub extendkey {
   $cgi->{'comment'} ||= 'extend public key expiry date';
   die("don't know how to extend a key\n") unless $BSConfig::sign;
   die("project does not have a key\n") unless -s "$projectsdir/$projid.pkg/_pubkey";
+  die("project key is not a real key\n") unless -s _ > 2;
   die("project does not have a signkey\n") unless -s "$projectsdir/$projid.pkg/_signkey";
   die("too far in the future\n") if $cgi->{'days'} && $cgi->{'days'} >= 100000;
   my $pubkey = BSSrcServer::Signkey::extendkey($projid, "$projectsdir/$projid.pkg/_pubkey", "$projectsdir/$projid.pkg/_signkey", $cgi->{'days'});
@@ -2227,6 +2228,7 @@ sub getpubkey {
       $pubkey = BSRevision::revreadstr($rev, '_pubkey', $files->{'_pubkey'}, 1) if $files->{'_pubkey'};
     } else {
       $pubkey = readstr("$projectsdir/$projid.pkg/_pubkey", 1);
+      $pubkey = BSSrcServer::Signkey::getdefaultpubkey($projid) if $pubkey && length($pubkey) <= 2;
     }
   }
   die("404 $projid: no pubkey available\n") unless $pubkey;
@@ -6270,7 +6272,7 @@ sub published_collection {
 
 sub autoextend_check {
   my ($skprojid, $pk) = @_;
-  return $pk unless $pk;
+  return $pk unless $pk && length($pk) > 2;
   my $ex = 0;
   eval { $ex = BSPGP::pk2expire(BSPGP::unarmor($pk)) };
   if ($ex && $ex < time() + 14 * 24 * 3600) {
