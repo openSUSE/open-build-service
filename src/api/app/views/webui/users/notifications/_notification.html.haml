@@ -10,7 +10,7 @@
         .col
           = notification_icon(notification)
           - if notification.link_path.present?
-            = link_to(notification.link_text, notification.link_path, class: 'mx-1')
+            = link_to(notification.link_text, notification_target_path_with_return_to(notification.link_path), class: 'mx-1')
           - else
             %span.fst-italic.mx-1
               = notification.link_text

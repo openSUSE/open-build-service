@@ -15,7 +15,7 @@ RSpec.describe 'NotificationUser', :js do
 
     it 'contains a link pointing to the user' do
       expect(page).to have_link('New Global Role Assigned',
-                                href: "/users/#{user.login}?notification_id=#{notification.id}")
+                                href: "/users/#{user.login}?notification_id=#{notification.id}&return_to=%2Fmy%2Fnotifications")
     end
   end
 end
