@@ -4,7 +4,7 @@ class EventSubscription
     EVENTS_IN_CONTENT_MODERATION_BETA = ['Event::Decision', 'Event::CommentForReport'].freeze
     # Event class name and correspoding beta feature name:
     EVENTS_IN_BETA = { Event::UpstreamPackageVersionChanged => :package_version_tracking }.freeze
-    EVENTS_FOR_IMPORTANT_USERS = ['Event::GlobalRoleAssigned'].freeze
+    EVENTS_FOR_IMPORTANT_USERS = ['Event::GlobalRoleAssignmentUpdate'].freeze
 
     attr_reader :subscriber
 

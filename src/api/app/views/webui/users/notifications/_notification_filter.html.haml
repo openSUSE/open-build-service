@@ -46,7 +46,7 @@
                                                     checked: selected_filter[:kind]&.include?('relationships_deleted'),
                                                     turbo_stream_counter_id: 'counts_for_relationships_deleted_notifications' }
         - if policy(User.session).view_global_role_filter?
-          = render partial: 'webui/shared/check_box', locals: { label: 'Important Role Added',
+          = render partial: 'webui/shared/check_box', locals: { label: 'Important Role Updated',
                                                                 key: 'kind[important_roles_added]', name: 'kind[]', value: 'important_roles_added',
                                                                 label_icon: 'fas fa-crown',
                                                                 checked: selected_filter[:kind]&.include?('important_roles_added'),

@@ -838,17 +838,17 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
-    context 'for event of type Event::GlobalRoleAssigned' do
+    context 'for event of type Event::GlobalRoleAssignmentUpdate' do
       let(:user) { create(:confirmed_user) }
       let(:admin_user) { create(:admin_user) }
       let(:payload) { { role: 'Admin', who: admin_user.login, user: user.login } }
-      let!(:subscription) { create(:event_subscription_global_role_assigned, user: user) }
-      let(:event) { Event::GlobalRoleAssigned.last }
+      let!(:subscription) { create(:event_subscription_global_role_assignment_update, user: user) }
+      let(:event) { Event::GlobalRoleAssignmentUpdate.last }
       let(:mail) { EventMailer.with(subscribers: [user], event: event).notification_email.deliver_now }
 
       before do
         login(user)
-        Event::GlobalRoleAssigned.create!(payload)
+        Event::GlobalRoleAssignmentUpdate.create!(payload)
       end
 
       it 'gets delivered' do

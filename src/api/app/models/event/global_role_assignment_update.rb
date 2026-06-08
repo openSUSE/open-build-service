@@ -1,9 +1,9 @@
 module Event
-  class GlobalRoleAssigned < Base
-    self.description = 'User received an important role'
-    self.notification_explanation = "Receive notifications when a user received an important role: #{Role.global_roles.to_sentence(last_word_connector: ' or ')}."
+  class GlobalRoleAssignmentUpdate < Base
+    self.description = 'User received or lost an important role'
+    self.notification_explanation = "Receive notifications when a user received or lost an important role: #{Role.global_roles.to_sentence(last_word_connector: ' or ')}."
 
-    payload_keys :role, :user, :who
+    payload_keys :role, :user, :who, :action
     receiver_roles :admin_moderator_or_staff
 
     def admin_moderator_or_staffs
@@ -25,7 +25,7 @@ module Event
     end
 
     def subject
-      "#{payload['role']} role assigned to #{payload['user']}"
+      "'#{payload['role']}' role #{payload['action']} for #{payload['user']}"
     end
   end
 end
