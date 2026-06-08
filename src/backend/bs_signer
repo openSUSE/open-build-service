@@ -1152,6 +1152,7 @@ sub signjob {
         warn("rebuilding: $error\n");
 	if ($info->{'followupfile'}) {
 	  delete $info->{'followupfile'};
+	  delete $info->{'followupsteps'};
           writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
 	}
 	BSUtil::cleandir($jobdir);
