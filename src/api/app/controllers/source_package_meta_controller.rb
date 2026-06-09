@@ -49,20 +49,38 @@ class SourcePackageMetaController < SourceController
       authorize pkg, :update?
 
       change_package_protection_level?(pkg)
+
+      pkg.comment = params[:comment]
+      pkg.update_from_xml(@request_data)
     else
       prj = Project.get_by_name(@project_name)
       # necessary to pass the policy_class here
       # if its remote prj is a string
       authorize prj, :update?, policy_class: ProjectPolicy
       pkg = prj.packages.new(name: @package_name)
+      pkg.comment = params[:comment]
+      return unless update_inherited_package_from_xml(pkg)
     end
 
-    pkg.comment = params[:comment]
-    pkg.update_from_xml(@request_data)
     render_ok
   end
 
   private
+
+  # The package only exists via project inheritance, so we build and save a new
+  # local package. Saving it can raise ActiveRecord::RecordNotSaved, which -
+  # unlike the existing-package path - is not mapped to a client error and would
+  # otherwise surface as a 500. Treat it as a 400, the same validation error
+  # users get for a non-inherited package (#19529). The authorization check in
+  # #update stays outside this rescue so authorization failures keep returning
+  # 403. Returns false when an error was rendered so #update skips render_ok.
+  def update_inherited_package_from_xml(pkg)
+    pkg.update_from_xml(@request_data)
+    true
+  rescue ActiveRecord::RecordNotSaved => e
+    render_error status: 400, errorcode: 'invalid_record', message: e.message
+    false
+  end
 
   def change_package_protection_level?(pkg)
     # TODO: use pundit
