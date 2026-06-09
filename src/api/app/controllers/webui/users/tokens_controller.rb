@@ -51,7 +51,7 @@ class Webui::Users::TokensController < Webui::WebuiController
         end
       end
       format.html do
-        update_params = update_parameters.merge({ reason: "Changed by #{User.session.login}." }) if @token.is_a?(Token::Workflow)
+        update_params = @token.is_a?(Token::Workflow) ? update_parameters.merge({ reason: "Changed by #{User.session.login}." }) : update_parameters
         if @token.update(update_params)
           flash[:success] = 'Token successfully updated'
         else
