@@ -334,7 +334,7 @@ GEM
       net-protocol
     next_rails (1.6.0)
     nio4r (2.7.5)
-    nkf (0.2.0)
+    nkf (0.3.0)
     nokogiri (1.19.3)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
