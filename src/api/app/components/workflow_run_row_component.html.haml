@@ -11,10 +11,11 @@
           %span= formatted_event_source_name || "Unknown source"
           %span
             - if event_source_name
-              = link_to event_source_url, { class: 'link-secondary mx-1',
-                                            title: "Go to Event Source #{formatted_event_source_name}",
-                                            target: '_blank' } do
-                %i.fa.fa-xs.fa-link.text-secondary
+              - if event_source_url
+                = link_to event_source_url, { class: 'link-secondary mx-1',
+                                              title: "Go to Event Source #{formatted_event_source_name}",
+                                              target: '_blank' } do
+                  %i.fa.fa-xs.fa-link.text-secondary
               = link_to "?event_source=#{event_source_name}", { class: 'link-secondary mx-1', title: "Filter by this Event Source" } do
                 %i.fa.fa-xs.fa-filter.text-secondary
         .px-1

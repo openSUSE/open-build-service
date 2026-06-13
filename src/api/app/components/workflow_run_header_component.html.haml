@@ -7,8 +7,23 @@
 %p Repository: #{link_to(repository_name, repository_url)}
 - case hook_event
   - when 'pull_request'
-  %p PR: #{link_to("##{event_source_name}", event_source_url)}
+    %p
+      PR:
+      - if event_source_url
+        = link_to("##{event_source_name}", event_source_url)
+      - else
+        = "##{event_source_name}"
   - when 'Merge Request Hook'
-  %p MR: #{link_to("##{event_source_name}", event_source_url)}
+    %p
+      MR:
+      - if event_source_url
+        = link_to("##{event_source_name}", event_source_url)
+      - else
+        = "##{event_source_name}"
   - when 'push', 'Push Hook'
-  %p Commit: #{link_to(event_source_name, event_source_url)}
+    %p
+      Commit:
+      - if event_source_url
+        = link_to(event_source_name, event_source_url)
+      - else
+        = event_source_name
