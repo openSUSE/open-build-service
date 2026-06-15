@@ -14,14 +14,14 @@ RSpec.describe Token::Workflow do
 
       it "changes the token's triggered_at field and raises an error with a helpful message" do
         expect do
-          workflow_token.call({ workflow_run: workflow_run })
+          workflow_token.call(workflow_run)
         end.to change(workflow_token, :triggered_at).and(raise_error(Token::Errors::SCMTokenInvalid, 'Your SCM token secret is not properly set in your OBS workflow token.' \
                                                                                                      "\nCheck #{described_class::AUTHENTICATION_DOCUMENTATION_LINK}"))
       end
     end
 
     context 'without validation errors' do
-      subject { workflow_token.call(workflow_run: workflow_run) }
+      subject { workflow_token.call(workflow_run) }
 
       let(:workflow_run) do
         create(:workflow_run, token: workflow_token, scm_vendor: scm_vendor, hook_event: hook_event,
@@ -64,7 +64,7 @@ RSpec.describe Token::Workflow do
     end
 
     context 'with validation errors' do
-      subject { workflow_token.call(workflow_run: workflow_run) }
+      subject { workflow_token.call(workflow_run) }
 
       let(:workflow_run) do
         create(:workflow_run, token: workflow_token, scm_vendor: scm_vendor, hook_event: hook_event,
@@ -94,7 +94,7 @@ RSpec.describe Token::Workflow do
     end
 
     context 'with a ping event' do
-      subject { workflow_token.call(workflow_run: workflow_run) }
+      subject { workflow_token.call(workflow_run) }
 
       let(:workflow_run) do
         create(:workflow_run, token: workflow_token, scm_vendor: scm_vendor, hook_event: hook_event,
@@ -174,7 +174,7 @@ RSpec.describe Token::Workflow do
     end
 
     context 'when processing a reportable event' do
-      subject { workflow_token.call(workflow_run: workflow_run) }
+      subject { workflow_token.call(workflow_run) }
 
       let(:scm_vendor) { 'github' }
       let(:hook_event) { 'pull_request' }
@@ -213,7 +213,7 @@ RSpec.describe Token::Workflow do
     end
 
     context 'when processing a non-reportable event' do
-      subject { workflow_token.call(workflow_run: workflow_run) }
+      subject { workflow_token.call(workflow_run) }
 
       let(:scm_vendor) { 'github' }
       let(:hook_event) { 'pull_request' }

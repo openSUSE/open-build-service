@@ -61,7 +61,7 @@ class TriggerWorkflowController < ApplicationController
 
   def call_token
     @token.executor.run_as do
-      validation_errors = @token.call(workflow_run: @workflow_run)
+      validation_errors = @token.call(@workflow_run)
 
       unless @workflow_run.status == 'fail' # The SCMStatusReporter might already set the status to 'fail', lets not overwrite it
         if validation_errors.none?

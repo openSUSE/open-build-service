@@ -29,9 +29,8 @@ class Token::Workflow < Token
 
   after_save :state_change_event, if: :enabled_previously_changed?
 
-  def call(options)
+  def call(workflow_run)
     set_triggered_at
-    workflow_run = options[:workflow_run]
     # FIXME: This makes little sense, wherever we use response_url, just use api_endpoint...
     workflow_run.update(response_url: workflow_run.api_endpoint)
 
