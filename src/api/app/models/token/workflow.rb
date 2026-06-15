@@ -1,5 +1,6 @@
 class Token::Workflow < Token
   AUTHENTICATION_DOCUMENTATION_LINK = "#{::Workflow::SCM_CI_DOCUMENTATION_URL}#sec.obs.obs_scm_ci_workflow_integration.setup.token_authentication.how_to_authenticate_scm_with_obs".freeze
+  AUTH_FAILURE_THRESHOLD = 6
 
   has_many :workflow_runs, dependent: :destroy, foreign_key: 'token_id', inverse_of: false
   has_and_belongs_to_many :users,
@@ -58,6 +59,9 @@ class Token::Workflow < Token
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
     raise Token::Errors::SCMTokenInvalid, "Your SCM token secret is not properly set in your OBS workflow token.\nCheck #{AUTHENTICATION_DOCUMENTATION_LINK}"
+  rescue SCMExceptionHandler::RetryableError
+    # Transient SCM error on an initial status report — not critical since build-result
+    # reports go through ReportToSCMJob which handles retries via delayed_job.
   end
 
   def owned_by?(some_user)

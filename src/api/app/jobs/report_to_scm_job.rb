@@ -3,6 +3,32 @@ class ReportToSCMJob < CreateJob
 
   queue_as :scm
 
+  # Re-raise RetryableError so it escapes rescue_from(StandardError) in CreateJob
+  # and reaches delayed_job, which then calls reschedule_at for the next attempt time.
+  rescue_from SCMExceptionHandler::RetryableError do |e|
+    raise e
+  end
+
+  def max_attempts
+    SCMExceptionHandler::RETRY_WAIT_TIMES.size + 1
+  end
+
+  def reschedule_at(current_time, attempts)
+    current_time + SCMExceptionHandler::RETRY_WAIT_TIMES.fetch(attempts)
+  end
+
+  # Called by delayed_job when max_attempts is exhausted.
+  # Keeps undone_jobs balanced (after_perform never fired) and records a final failure.
+  def failure(_job = nil)
+    event = Event::Base.find_by(id: arguments.first)
+    return unless event
+
+    event.with_lock { event.mark_job_done! }
+    matched_event_subscription(event: event).each do |es|
+      es.workflow_run&.save_scm_report_failure('Failed to report back to SCM: all retries exhausted', {})
+    end
+  end
+
   def perform(event_id)
     event = Event::Base.find(event_id)
     return unless event

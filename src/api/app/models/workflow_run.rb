@@ -76,7 +76,8 @@ class WorkflowRun < ApplicationRecord
     #
     # Circuit breaker for authorization problems
     #
-    #   If message is one of these strings, we disable the token:
+    #   If message is one of these strings, we increment the token's consecutive_auth_failures counter.
+    #   Once the counter reaches Token::Workflow::AUTH_FAILURE_THRESHOLD the token is disabled.
     #
     # "Failed to report back to GitLab: Unauthorized request. Please check your credentials again."
     # "Failed to report back to GitLab: Request forbidden."
@@ -85,7 +86,12 @@ class WorkflowRun < ApplicationRecord
 
     return unless message.include?('Unauthorized request') || /Request (is )?forbidden/.match?(message)
 
-    token.update(enabled: false, reason: "Authentication to #{scm_vendor.titleize} failed while reporting the build status. Check your tokens authorization setup!")
+    token.increment!(:consecutive_auth_failures)
+    return if token.consecutive_auth_failures < Token::Workflow::AUTH_FAILURE_THRESHOLD
+
+    token.update(enabled: false,
+                 reason: "Authentication to #{scm_vendor.titleize} failed #{token.consecutive_auth_failures} " \
+                         'consecutive times while reporting the build status. Check your tokens authorization setup!')
   end
 
   # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
@@ -99,6 +105,7 @@ class WorkflowRun < ApplicationRecord
 
   # Stores info from a succesful SCM status report. The default value for 'status' is 'success'.
   def save_scm_report_success(options)
+    token.update_column(:consecutive_auth_failures, 0) if token&.consecutive_auth_failures&.positive?
     scm_status_reports.create(request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)))
   end
 
