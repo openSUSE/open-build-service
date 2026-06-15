@@ -3,6 +3,20 @@ class SCMExceptionHandler
 
   attr_accessor :event_payload, :event_subscription_payload
 
+  # Transient errors that are worth retrying: SCM-side 5xx, rate limits, and network glitches.
+  # Auth failures, 4xx config errors, and SSL problems are not retried.
+  RETRYABLE_EXCEPTIONS = [
+    Octokit::InternalServerError,
+    Octokit::BadGateway,
+    Octokit::ServiceUnavailable,
+    Octokit::ServerError,
+    Faraday::ConnectionFailed,
+    Faraday::TimeoutError
+  ].freeze
+
+  # Wait times (in seconds) indexed by retry number (0 = immediate first retry).
+  RETRY_WAIT_TIMES = [0, 1.minute, 2.minutes, 5.minutes, 10.minutes, 15.minutes].freeze
+
   rescue_from Octokit::AbuseDetected,
               Octokit::AccountSuspended,
               Octokit::BillingIssue,
@@ -62,6 +76,22 @@ class SCMExceptionHandler
   end
 
   private
+
+  # Wraps an SCM API call with retry logic for transient failures.
+  # Uses RETRY_WAIT_TIMES as the indexed schedule: retries[0]=immediate, up to retries[5]=15 min.
+  # Non-retryable exceptions (auth failures, 4xx, SSL) propagate immediately.
+  def with_scm_retries
+    retries = 0
+    begin
+      yield
+    rescue *RETRYABLE_EXCEPTIONS
+      raise if retries >= RETRY_WAIT_TIMES.length
+
+      sleep(RETRY_WAIT_TIMES[retries])
+      retries += 1
+      retry
+    end
+  end
 
   def log_to_workflow_run(exception, scm)
     if @event_payload[:project] && @event_payload[:package]

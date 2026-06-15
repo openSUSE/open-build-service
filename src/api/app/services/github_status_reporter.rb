@@ -15,13 +15,15 @@ class GithubStatusReporter < SCMExceptionHandler
     github_client = Octokit::Client.new(access_token: @scm_token,
                                         api_endpoint: @workflow_run.api_endpoint)
     # https://docs.github.com/en/rest/reference/repos#create-a-commit-status
-    github_client.create_status(@workflow_run.target_repository_full_name,
-                                @workflow_run.commit_sha,
-                                @state,
-                                status_options)
-    if @workflow_run.present?
-      @workflow_run.save_scm_report_success(request_context)
-      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@workflow_run.scm_vendor} value=1")
+    with_scm_retries do
+      github_client.create_status(@workflow_run.target_repository_full_name,
+                                  @workflow_run.commit_sha,
+                                  @state,
+                                  status_options)
+      if @workflow_run.present?
+        @workflow_run.save_scm_report_success(request_context)
+        RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@workflow_run.scm_vendor} value=1")
+      end
     end
   rescue Octokit::InvalidRepository => e
     package = Package.find_by_project_and_name(@event_payload[:project], @event_payload[:package])

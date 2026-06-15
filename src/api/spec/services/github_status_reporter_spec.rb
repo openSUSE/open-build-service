@@ -89,10 +89,11 @@ RSpec.describe GithubStatusReporter, type: :service do
         end
       end
 
-      context 'there is a network glitch' do
+      context 'there is a persistent network glitch' do
         before do
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
           allow(octokit_client).to receive(:create_status).and_raise(Faraday::ConnectionFailed.new('Network glitch'))
+          allow(scm_status_reporter).to receive(:sleep)
         end
 
         it { expect { subject }.to change(SCMStatusReport, :count).by(1) }
@@ -101,6 +102,33 @@ RSpec.describe GithubStatusReporter, type: :service do
           subject
           expect(workflow_run.status).to eq('fail')
           expect(workflow_run.last_response_body).to eq('Failed to report back to GitHub: Network glitch')
+        end
+
+        it 'retries before giving up' do
+          subject
+          expect(octokit_client).to have_received(:create_status).exactly(SCMExceptionHandler::RETRY_WAIT_TIMES.length + 1).times
+        end
+      end
+
+      context 'there is a transient network glitch that resolves on retry' do
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          call_count = 0
+          allow(octokit_client).to receive(:create_status) do
+            call_count += 1
+            raise Faraday::ConnectionFailed.new('Network glitch') if call_count == 1
+          end
+          allow(scm_status_reporter).to receive(:sleep)
+        end
+
+        it 'does not mark the workflow run as failed' do
+          subject
+          expect(workflow_run.reload.status).not_to eq('fail')
+        end
+
+        it 'records a success SCM status report' do
+          subject
+          expect(SCMStatusReport.last&.status).to eq('success')
         end
       end
     end

@@ -35,6 +35,17 @@ RSpec.describe WorkflowRun, :vcr do
         expect(SCMStatusReport.last.status).to eq('success')
       end
     end
+
+    context 'when the token has previous auth failures' do
+      let(:options) { { api_endpoint: 'https://api.github.com' } }
+
+      before { workflow_run.token.update!(consecutive_auth_failures: 3) }
+
+      it 'resets consecutive_auth_failures to zero' do
+        expect { subject }
+          .to change { workflow_run.token.reload.consecutive_auth_failures }.from(3).to(0)
+      end
+    end
   end
 
   describe '#save_scm_report_failure' do
@@ -93,12 +104,26 @@ RSpec.describe WorkflowRun, :vcr do
     end
 
     context 'when the SCM responds with a forbidden message' do
-      subject { workflow_run.save_scm_report_failure('Failed to report back to GitHub: Request is forbidden.', { api_endpoint: 'https://api.github.com' }) }
+      let(:forbidden_failure) do
+        -> { workflow_run.save_scm_report_failure('Failed to report back to GitHub: Request is forbidden.', { api_endpoint: 'https://api.github.com' }) }
+      end
 
-      it 'disables the token of the token workflow' do
-        expect { subject }.to change { workflow_run.token.reload.enabled }.from(true).to(false)
+      it 'increments consecutive_auth_failures on each failure' do
+        forbidden_failure.call
+        expect(workflow_run.token.reload.consecutive_auth_failures).to eq(1)
+      end
+
+      it 'does not disable the token before reaching the failure threshold' do
+        (Token::Workflow::AUTH_FAILURE_THRESHOLD - 1).times { forbidden_failure.call }
+        expect(workflow_run.token.reload.enabled).to be(true)
+      end
+
+      it 'disables the token after reaching the failure threshold' do
+        Token::Workflow::AUTH_FAILURE_THRESHOLD.times { forbidden_failure.call }
+        expect(workflow_run.token.reload.enabled).to be(false)
       end
     end
+
   end
 
   describe '#labeled_pull_request?' do
