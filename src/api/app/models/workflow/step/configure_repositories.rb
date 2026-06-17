@@ -20,6 +20,8 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
 
     step_instructions[:repositories].each do |repository_instructions|
       configured_repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
+      configured_repository.update!(rebuild: repository_instructions[:rebuild],
+                                    linkedbuild: repository_instructions[:linkedbuild])
 
       repository_instructions[:paths].each do |repository_path|
         target_repository = Repository.find_by_project_and_name(repository_path[:target_project], repository_path[:target_repository])
@@ -46,11 +48,19 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     step_instructions[:project]
   end
 
+  # Validate each repository definition
+  # Each repository definition must have, at least, the following keys:
+  # - architectures
+  # - name
+  # - paths
+  # Optionally it can have
+  # - rebuild: with the following valid values: direct, local
+  # - linkedbuild: with the following valid values: all, localdep, alldirect, alldirect_or_localdep, off
   def validate_repositories
-    return if step_instructions[:repositories].all? { |repository| repository.keys.sort == REQUIRED_REPOSITORY_KEYS }
-
-    required_repository_keys_sentence ||= REQUIRED_REPOSITORY_KEYS.map { |key| "'#{key}'" }.to_sentence
-    errors.add(:base, "configure_repositories step: All repositories must have the #{required_repository_keys_sentence} keys")
+    unless step_instructions[:repositories].all? { |repository| (REQUIRED_REPOSITORY_KEYS - repository.keys).empty? }
+      required_repository_keys_sentence ||= REQUIRED_REPOSITORY_KEYS.map { |key| "'#{key}'" }.to_sentence
+      errors.add(:base, "configure_repositories step: All repositories must have the #{required_repository_keys_sentence} keys")
+    end
   end
 
   def validate_repository_paths
