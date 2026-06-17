@@ -102,13 +102,13 @@ RSpec.describe ReportToSCMJob do
         event_subscription
       end
 
-      it 'raises RetryableError so delayed_job schedules the next attempt' do
-        expect { described_class.perform_now(event.id) }.to raise_error(SCMExceptionHandler::RetryableError)
+      it 'raises a retryable error so delayed_job schedules the next attempt' do
+        expect { described_class.perform_now(event.id) }.to raise_error(Faraday::ConnectionFailed)
       end
 
       it 'does not immediately mark the workflow run as failed' do
         described_class.perform_now(event.id)
-      rescue SCMExceptionHandler::RetryableError
+      rescue Faraday::ConnectionFailed
         expect(workflow_run.reload.status).to eq('running')
       end
     end

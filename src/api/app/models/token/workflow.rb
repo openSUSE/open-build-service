@@ -58,7 +58,7 @@ class Token::Workflow < Token
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
     raise Token::Errors::SCMTokenInvalid, "Your SCM token secret is not properly set in your OBS workflow token.\nCheck #{AUTHENTICATION_DOCUMENTATION_LINK}"
-  rescue SCMExceptionHandler::RetryableError
+  rescue *SCMExceptionHandler::RETRYABLE_EXCEPTIONS
     # Transient SCM error on an initial status report — not critical since build-result
     # reports go through ReportToSCMJob which handles retries via delayed_job.
   end

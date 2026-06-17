@@ -95,12 +95,12 @@ RSpec.describe GithubStatusReporter, type: :service do
           allow(octokit_client).to receive(:create_status).and_raise(Faraday::ConnectionFailed.new('Network glitch'))
         end
 
-        it 'raises RetryableError so delayed_job can schedule the next attempt' do
-          expect { subject }.to raise_error(SCMExceptionHandler::RetryableError)
+        it 'raises the original error so delayed_job can schedule the next attempt' do
+          expect { subject }.to raise_error(Faraday::ConnectionFailed)
         end
 
         it 'does not record a failure immediately (the job retries first)' do
-          subject rescue SCMExceptionHandler::RetryableError # rubocop:disable Style/RescueModifier
+          subject rescue Faraday::ConnectionFailed # rubocop:disable Style/RescueModifier
           expect(SCMStatusReport.count).to eq(0)
         end
       end
