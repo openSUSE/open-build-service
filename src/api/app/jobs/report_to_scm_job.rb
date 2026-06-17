@@ -26,8 +26,10 @@ class ReportToSCMJob < CreateJob
     return unless event
 
     event.with_lock { event.mark_job_done! }
-    matched_event_subscription(event: event).each do |es|
-      es.workflow_run&.save_scm_report_failure('Failed to report back to SCM: all retries exhausted', {})
+    matched_event_subscription(event: event).each do |subscription|
+      next if subscription.workflow_run.blank?
+      
+      subscription.workflow_run.save_scm_report_failure('Failed to report back to SCM: all retries exhausted', {})
     end
   end
 
