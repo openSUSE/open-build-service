@@ -4,8 +4,6 @@ class ReportToSCMJob < CreateJob
   # Wait schedule keyed by attempt number (attempt 1 = immediate, then backoff).
   RETRY_WAIT_TIMES = { 1 => 0, 2 => 1.minute, 3 => 2.minutes, 4 => 5.minutes, 5 => 10.minutes, 6 => 15.minutes }.freeze
 
-  MAX_ATTEMPTS = RETRY_WAIT_TIMES.size + 1
-
   queue_as :scm
 
   # Re-raise transient SCM errors so they escape rescue_from(StandardError) in CreateJob
@@ -13,7 +11,7 @@ class ReportToSCMJob < CreateJob
   rescue_from(*SCMExceptionHandler::RETRYABLE_EXCEPTIONS) { |e| raise e }
 
   def max_attempts
-    MAX_ATTEMPTS
+    7
   end
 
   def reschedule_at(current_time, attempts)
