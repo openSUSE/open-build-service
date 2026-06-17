@@ -49,14 +49,6 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   def validate_repositories
     return if step_instructions[:repositories].all? { |repository| repository.keys.sort == REQUIRED_REPOSITORY_KEYS }
 
-    # FIXME: This is only to help users migrate their configure_repositories steps when we introduced this breaking change. Remove this after March 1st, 2022.
-    if step_instructions[:repositories].any? { |repository| !repository.key?(:paths) }
-      errors.add(:base,
-                 "configure_repositories step: Repository paths are now set under the 'paths' key. Refer to " \
-                 'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-scm-ci-workflow-integration' \
-                 '#sec-obs-obs-scm-ci-workflow-integration-obs-workflows-steps-configure-repositories-architectures-for-a-project for an example')
-    end
-
     required_repository_keys_sentence ||= REQUIRED_REPOSITORY_KEYS.map { |key| "'#{key}'" }.to_sentence
     errors.add(:base, "configure_repositories step: All repositories must have the #{required_repository_keys_sentence} keys")
   end

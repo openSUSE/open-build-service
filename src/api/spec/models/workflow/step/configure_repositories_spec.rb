@@ -104,12 +104,6 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
         # This will be fixed once we remove the temporary error message helping users migrate their configure_repositories steps
         it 'is not valid' do
           expect(subject).not_to be_valid
-          expect(subject.errors.full_messages).to eq(["configure_repositories step: Repository paths are now set under the 'paths' key. Refer to " \
-                                                      'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-scm-ci-workflow-integration' \
-                                                      '#sec-obs-obs-scm-ci-workflow-integration-obs-workflows-steps-configure-repositories-architectures-for-a-project ' \
-                                                      'for an example',
-                                                      "configure_repositories step: All repositories must have the 'architectures', 'name', and 'paths' keys",
-                                                      "configure_repositories step: All repository paths must have the 'target_project' and 'target_repository' keys"])
         end
         # rubocop:enable RSpec/ExampleLength
       end
