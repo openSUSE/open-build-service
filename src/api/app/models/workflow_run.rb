@@ -24,6 +24,8 @@ class WorkflowRun < ApplicationRecord
 
   ALL_POSSIBLE_REQUEST_ACTIONS = (['all'] + ALLOWED_GITHUB_PULL_REQUEST_ACTIONS + ALLOWED_GITLAB_PULL_REQUEST_ACTIONS + ALLOWED_GITEA_PULL_REQUEST_ACTIONS).uniq
 
+  AUTH_FAILURE_THRESHOLD = 6
+
   validates :scm_vendor, :response_url,
             :workflow_configuration_path, :workflow_configuration_url,
             :hook_event, :hook_action, :generic_event_type,
@@ -77,7 +79,7 @@ class WorkflowRun < ApplicationRecord
     # Circuit breaker for authorization problems
     #
     #   If message is one of these strings, we increment the token's consecutive_auth_failures counter.
-    #   Once the counter reaches Token::Workflow::AUTH_FAILURE_THRESHOLD the token is disabled.
+    #   Once the counter reaches AUTH_FAILURE_THRESHOLD the token is disabled.
     #
     # "Failed to report back to GitLab: Unauthorized request. Please check your credentials again."
     # "Failed to report back to GitLab: Request forbidden."
@@ -87,7 +89,7 @@ class WorkflowRun < ApplicationRecord
     return unless message.include?('Unauthorized request') || /Request (is )?forbidden/.match?(message)
 
     token.increment!(:consecutive_auth_failures)
-    return if token.consecutive_auth_failures < Token::Workflow::AUTH_FAILURE_THRESHOLD
+    return if token.consecutive_auth_failures < AUTH_FAILURE_THRESHOLD
 
     token.update(enabled: false,
                  reason: "Authentication to #{scm_vendor.titleize} failed #{token.consecutive_auth_failures} " \

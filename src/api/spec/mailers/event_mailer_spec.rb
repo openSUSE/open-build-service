@@ -472,7 +472,7 @@ RSpec.describe EventMailer, :vcr do
 
       context 'when the workflow run fails' do
         before do
-          token.update_column(:consecutive_auth_failures, Token::Workflow::AUTH_FAILURE_THRESHOLD - 1)
+          token.update_column(:consecutive_auth_failures, WorkflowRun::AUTH_FAILURE_THRESHOLD - 1)
           workflow_run.update_as_failed('Unauthorized request')
         end
 
@@ -495,7 +495,7 @@ RSpec.describe EventMailer, :vcr do
 
         it { expect(mail.text_part.body.to_s).to include("The Workflow Token 'Token for GitHub' was disabled.") }
         it { expect(mail.html_part.body.to_s).to include("The Workflow Token 'Token for GitHub' was disabled.") }
-        it { expect(mail.html_part.body.to_s).to include("Authentication to Github failed #{Token::Workflow::AUTH_FAILURE_THRESHOLD} consecutive times while reporting the build status. Check your tokens authorization setup!") }
+        it { expect(mail.html_part.body.to_s).to include("Authentication to Github failed #{WorkflowRun::AUTH_FAILURE_THRESHOLD} consecutive times while reporting the build status. Check your tokens authorization setup!") }
       end
     end
 

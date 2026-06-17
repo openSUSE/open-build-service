@@ -114,12 +114,12 @@ RSpec.describe WorkflowRun, :vcr do
       end
 
       it 'does not disable the token before reaching the failure threshold' do
-        (Token::Workflow::AUTH_FAILURE_THRESHOLD - 1).times { forbidden_failure.call }
+        (WorkflowRun::AUTH_FAILURE_THRESHOLD - 1).times { forbidden_failure.call }
         expect(workflow_run.token.reload.enabled).to be(true)
       end
 
       it 'disables the token after reaching the failure threshold' do
-        Token::Workflow::AUTH_FAILURE_THRESHOLD.times { forbidden_failure.call }
+        WorkflowRun::AUTH_FAILURE_THRESHOLD.times { forbidden_failure.call }
         expect(workflow_run.token.reload.enabled).to be(false)
       end
     end
