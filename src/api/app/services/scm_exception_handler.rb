@@ -3,11 +3,6 @@ class SCMExceptionHandler
 
   attr_accessor :event_payload, :event_subscription_payload
 
-  # Raised inside with_scm_retries to signal that a transient failure occurred.
-  # ReportToSCMJob re-raises this so delayed_job can schedule the next retry attempt
-  # using the custom reschedule_at/max_attempts hooks on the job.
-  class RetryableError < StandardError; end
-
   # Transient errors that are worth retrying: SCM-side 5xx, rate limits, and network glitches.
   # Auth failures, 4xx config errors, and SSL problems are not retried.
   RETRYABLE_EXCEPTIONS = [
@@ -18,9 +13,6 @@ class SCMExceptionHandler
     Faraday::ConnectionFailed,
     Faraday::TimeoutError
   ].freeze
-
-  # Wait schedule for retries, keyed by attempt number.
-  RETRY_WAIT_TIMES = { 1 => 0, 2 => 1.minute, 3 => 2.minutes, 4 => 5.minutes, 5 => 10.minutes, 6 => 15.minutes }.freeze
 
   rescue_from Octokit::AbuseDetected,
               Octokit::AccountSuspended,
@@ -81,15 +73,6 @@ class SCMExceptionHandler
   end
 
   private
-
-  # Wraps an SCM API call and converts transient failures into RetryableError so
-  # ReportToSCMJob can delegate retry scheduling to delayed_job (reschedule_at/max_attempts).
-  # Non-retryable exceptions (auth failures, 4xx, SSL) propagate as-is.
-  def with_scm_retries
-    yield
-  rescue *RETRYABLE_EXCEPTIONS => e
-    raise RetryableError, e.message
-  end
 
   def log_to_workflow_run(exception, scm)
     if @event_payload[:project] && @event_payload[:package]

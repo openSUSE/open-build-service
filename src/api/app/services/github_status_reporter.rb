@@ -15,15 +15,13 @@ class GithubStatusReporter < SCMExceptionHandler
     github_client = Octokit::Client.new(access_token: @scm_token,
                                         api_endpoint: @workflow_run.api_endpoint)
     # https://docs.github.com/en/rest/reference/repos#create-a-commit-status
-    with_scm_retries do
-      github_client.create_status(@workflow_run.target_repository_full_name,
-                                  @workflow_run.commit_sha,
-                                  @state,
-                                  status_options)
-      if @workflow_run.present?
-        @workflow_run.save_scm_report_success(request_context)
-        RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@workflow_run.scm_vendor} value=1")
-      end
+    github_client.create_status(@workflow_run.target_repository_full_name,
+                                @workflow_run.commit_sha,
+                                @state,
+                                status_options)
+    if @workflow_run.present?
+      @workflow_run.save_scm_report_success(request_context)
+      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@workflow_run.scm_vendor} value=1")
     end
   rescue Octokit::InvalidRepository => e
     package = Package.find_by_project_and_name(@event_payload[:project], @event_payload[:package])
@@ -35,9 +33,11 @@ class GithubStatusReporter < SCMExceptionHandler
     EventSubscription.where(channel: 'scm', token: tokens, package: package).delete_all
 
     (@workflow_run.presence&.save_scm_report_failure("Failed to report back to GitHub: #{e.message}", request_context))
+  rescue *SCMExceptionHandler::RETRYABLE_EXCEPTIONS
+    raise
   rescue Octokit::Error => e
     rescue_with_handler(e) || raise(e)
-  rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::SSLError => e
+  rescue Faraday::SSLError => e
     (@workflow_run.presence&.save_scm_report_failure("Failed to report back to GitHub: #{e.message}", request_context))
   ensure
     RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@workflow_run.scm_vendor},exception=#{e.class} value=1") if e.present? && @workflow_run.present?
