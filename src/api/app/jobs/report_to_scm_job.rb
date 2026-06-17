@@ -1,6 +1,8 @@
 class ReportToSCMJob < CreateJob
   ALLOWED_EVENTS = ['Event::BuildFail', 'Event::BuildSuccess', 'Event::RequestStatechange'].freeze
 
+  MAX_ATTEMPTS = SCMExceptionHandler::RETRY_WAIT_TIMES.size + 1
+
   queue_as :scm
 
   # Re-raise RetryableError so it escapes rescue_from(StandardError) in CreateJob
@@ -10,7 +12,7 @@ class ReportToSCMJob < CreateJob
   end
 
   def max_attempts
-    SCMExceptionHandler::RETRY_WAIT_TIMES.size + 1
+    MAX_ATTEMPTS
   end
 
   def reschedule_at(current_time, attempts)
