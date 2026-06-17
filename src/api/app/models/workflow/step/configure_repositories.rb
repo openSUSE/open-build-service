@@ -19,18 +19,18 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     Pundit.authorize(@token.executor, target_project, :update?)
 
     step_instructions[:repositories].each do |repository_instructions|
-      repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
+      configured_repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
 
       repository_instructions[:paths].each do |repository_path|
         target_repository = Repository.find_by_project_and_name(repository_path[:target_project], repository_path[:target_repository])
-        repository.path_elements.find_or_create_by(link: target_repository)
+        configured_repository.path_elements.find_or_create_by(link: target_repository)
       end
 
-      repository.with_lock do
-        repository.repository_architectures.destroy_all
+      configured_repository.with_lock do
+        configured_repository.repository_architectures.destroy_all
 
         repository_instructions[:architectures].uniq.each do |architecture_name|
-          repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
+          configured_repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
         end
       end
     end
