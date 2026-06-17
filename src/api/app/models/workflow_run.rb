@@ -107,7 +107,7 @@ class WorkflowRun < ApplicationRecord
 
   # Stores info from a succesful SCM status report. The default value for 'status' is 'success'.
   def save_scm_report_success(options)
-    token.update_column(:consecutive_auth_failures, 0) if token&.consecutive_auth_failures&.positive?
+    token&.update_column(:consecutive_auth_failures, 0)
     scm_status_reports.create(request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)))
   end
 
