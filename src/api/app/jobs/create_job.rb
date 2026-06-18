@@ -13,7 +13,7 @@ class CreateJob < ApplicationJob
     end
   end
 
-  rescue_from(StandardError) do |exception|
+  def error(_job, exception)
     if Rails.env.test?
       # make debug output useful in test suite, not just showing backtrace to Airbrake
       Rails.logger.debug { "ERROR: #{exception.inspect}: #{exception.backtrace}" }
