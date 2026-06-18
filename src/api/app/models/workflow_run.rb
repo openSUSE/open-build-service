@@ -91,9 +91,7 @@ class WorkflowRun < ApplicationRecord
     token.increment!(:consecutive_auth_failures)
     return if token.consecutive_auth_failures < AUTH_FAILURE_THRESHOLD
 
-    token.update(enabled: false,
-                 reason: "Authentication to #{scm_vendor.titleize} failed #{token.consecutive_auth_failures} " \
-                         'consecutive times while reporting the build status. Check your tokens authorization setup!')
+    token.update(enabled: false, reason: "Authentication to #{scm_vendor.titleize} failed while reporting the build status. Check your tokens authorization setup! Error message: #{message}")
   end
 
   # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
