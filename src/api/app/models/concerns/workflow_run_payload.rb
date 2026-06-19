@@ -2,6 +2,8 @@
 module WorkflowRunPayload
   extend ActiveSupport::Concern
 
+  DELETED_COMMIT_SHA = '0000000000000000000000000000000000000000'.freeze
+
   SOURCE_NAME_PAYLOAD_MAPPING = {
     'pull_request' => %w[pull_request number],
     'Merge Request Hook' => %w[object_attributes iid],
@@ -31,6 +33,10 @@ module WorkflowRunPayload
 
   def push_event?
     github_push_event? || gitlab_push_event? || gitea_push_event?
+  end
+
+  def branch_deletion_push_event?
+    push_event? && payload[:after] == DELETED_COMMIT_SHA
   end
 
   def tag_push_event?
