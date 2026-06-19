@@ -1,4 +1,6 @@
-class ReportToSCMJob < CreateJob
+class ReportToSCMJob < ApplicationJob
+  include EventUndoneJobsCallback
+
   ALLOWED_EVENTS = ['Event::BuildFail', 'Event::BuildSuccess', 'Event::RequestStatechange'].freeze
 
   queue_as :scm

@@ -1,6 +1,7 @@
 module Event
   class UndeletePackage < Base
     include EventObjectPackage
+    include UpdateBackendInfosCallback
 
     self.message_bus_routing_key = 'package.undelete'
     self.description = 'Package undeleted'
@@ -10,7 +11,6 @@ module Event
       attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
       super
     end
-    create_jobs :update_backend_infos_job
   end
 end
 

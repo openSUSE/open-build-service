@@ -1,12 +1,11 @@
 module Event
   class BuildFail < Build
     include BuildLogSupport
+    include ReportToScmCallback
 
     self.message_bus_routing_key = 'package.build_fail'
     self.description = 'Package failed to build'
     receiver_roles :maintainer, :bugowner, :reader, :project_watcher, :package_watcher, :request_watcher
-
-    create_jobs :report_to_scm_job
 
     self.notification_explanation = 'Receive notifications for build failures of packages for which you are...'
 
