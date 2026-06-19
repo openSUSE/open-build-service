@@ -42,11 +42,9 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     @bs_request.save!
 
     Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, @bs_request).call
-    SCMStatusReporter.new(event_payload: { number: @bs_request.number, state: @bs_request.state },
-                          event_subscription_payload: workflow_run.payload,
-                          scm_token: @token.scm_token,
-                          workflow_run: workflow_run,
-                          event_type: 'Event::RequestStatechange').call
+    ReportToSCMJob.perform_later(workflow_run: workflow_run,
+                                 event_payload: { number: @bs_request.number, state: @bs_request.state },
+                                 event_type: 'Event::RequestStatechange')
     @bs_request
   end
 

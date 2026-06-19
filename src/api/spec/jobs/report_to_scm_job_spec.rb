@@ -25,7 +25,7 @@ RSpec.describe ReportToSCMJob do
   end
 
   describe '#perform' do
-    subject { described_class.perform_now(event.id) }
+    subject { described_class.perform_now(event_id: event.id) }
 
     context 'happy path' do
       before do

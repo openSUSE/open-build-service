@@ -1,4 +1,5 @@
 RSpec.describe Token::Workflow do
+  include ActiveJob::TestHelper
   let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:workflow_token) { create(:workflow_token, executor: token_user) }
 
@@ -48,7 +49,7 @@ RSpec.describe Token::Workflow do
         allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, token: workflow_token,
                                                                        workflow_run: workflow_run).and_return(yaml_to_workflows_service)
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
-        allow(SCMStatusReporter).to receive(:new).and_return(proc { true })
+        allow(ReportToSCMJob).to receive(:perform_later)
       end
 
       it 'returns no validation errors' do
@@ -59,7 +60,7 @@ RSpec.describe Token::Workflow do
 
       it 'sends the initial report twice' do
         subject
-        expect(SCMStatusReporter).to have_received(:new).twice
+        expect(ReportToSCMJob).to have_received(:perform_later).twice
       end
     end
 
@@ -112,7 +113,7 @@ RSpec.describe Token::Workflow do
       before do
         # Skipping call since it's tested in the Workflow model
         allow(workflow).to receive(:call).and_return(true)
-        allow(SCMStatusReporter).to receive(:new).and_return(proc { true })
+        allow(ReportToSCMJob).to receive(:perform_later)
       end
 
       it 'returns before checking for validation errors' do
@@ -123,7 +124,7 @@ RSpec.describe Token::Workflow do
 
       it 'returns early with one report' do
         subject
-        expect(SCMStatusReporter).to have_received(:new).once
+        expect(ReportToSCMJob).to have_received(:perform_later).once
       end
     end
 
@@ -208,7 +209,7 @@ RSpec.describe Token::Workflow do
       end
 
       it 'returns no validation errors' do
-        expect { subject }.to change(SCMStatusReport, :count).by(2)
+        expect { perform_enqueued_jobs { subject } }.to change(SCMStatusReport, :count).by(2)
       end
     end
 
@@ -248,7 +249,7 @@ RSpec.describe Token::Workflow do
       end
 
       it 'returns no validation errors' do
-        expect { subject }.not_to(change(SCMStatusReport, :count))
+        expect { perform_enqueued_jobs { subject } }.not_to(change(SCMStatusReport, :count))
       end
     end
   end
