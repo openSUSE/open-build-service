@@ -9,7 +9,7 @@ class Workflow # rubocop:disable Metrics/ClassLength
     branch_package: Workflow::Step::BranchPackageStep, link_package: Workflow::Step::LinkPackageStep,
     configure_repositories: Workflow::Step::ConfigureRepositories, rebuild_package: Workflow::Step::RebuildPackage,
     set_flags: Workflow::Step::SetFlags, trigger_services: Workflow::Step::TriggerServices,
-    submit_request: Workflow::Step::SubmitRequest
+    submit_request: Workflow::Step::SubmitRequest, link_project: Workflow::Step::LinkProject
   }.freeze
 
   SUPPORTED_FILTERS = %i[branches event labels].freeze
