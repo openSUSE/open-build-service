@@ -2,6 +2,8 @@ class LinkedProject < ApplicationRecord
   belongs_to :project, foreign_key: :db_project_id
   belongs_to :linked_db_project, class_name: 'Project', optional: true
 
+  acts_as_list scope: [:db_project_id]
+
   validates :linked_db_project, presence: true, unless: -> { linked_remote_project_name.present? }
   validates :linked_remote_project_name, presence: true, unless: -> { linked_db_project.present? }
   validates :linked_remote_project_name, length: { maximum: 255 }
