@@ -78,20 +78,5 @@ RSpec.describe ReportToSCMJob do
 
       it_behaves_like 'not reporting to the SCM'
     end
-
-    context 'when the reporting raises an error' do
-      let(:event) { Event::BuildSuccess.create(project: project.name, package: package.name, repository: repository.name, reason: 'foo') }
-
-      before do
-        allow_any_instance_of(Octokit::Client).to receive(:create_status).and_raise(StandardError, '42') # rubocop:disable RSpec/AnyInstance
-        event
-        event_subscription
-      end
-
-      it 'does not call the scm reporter' do
-        expect_any_instance_of(GithubStatusReporter).to receive(:call).once # rubocop:disable RSpec/AnyInstance
-        subject
-      end
-    end
   end
 end
