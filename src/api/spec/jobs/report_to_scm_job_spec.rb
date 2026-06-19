@@ -24,14 +24,6 @@ RSpec.describe ReportToSCMJob do
     end
   end
 
-  shared_examples 'reports to the SCM' do
-    it 'does call the scm reporter' do
-      allow_any_instance_of(Octokit::Client).to receive(:create_status) # rubocop:disable RSpec/AnyInstance
-      expect_any_instance_of(GithubStatusReporter).to receive(:call).once # rubocop:disable RSpec/AnyInstance
-      subject
-    end
-  end
-
   describe '#perform' do
     subject { described_class.perform_now(event.id) }
 
@@ -41,7 +33,11 @@ RSpec.describe ReportToSCMJob do
         event_subscription
       end
 
-      it_behaves_like 'reports to the SCM'
+      it 'does call the scm reporter' do
+        allow_any_instance_of(Octokit::Client).to receive(:create_status) # rubocop:disable RSpec/AnyInstance
+        expect_any_instance_of(GithubStatusReporter).to receive(:call).once # rubocop:disable RSpec/AnyInstance
+        subject
+      end
     end
 
     context 'when using a non-allowed event' do
