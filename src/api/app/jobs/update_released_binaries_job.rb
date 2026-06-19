@@ -1,5 +1,7 @@
 # Every time an Event::PackTrack happens this adds a new "set" of BinaryRelease to a Repository
-class UpdateReleasedBinariesJob < CreateJob
+class UpdateReleasedBinariesJob < ApplicationJob
+  include EventUndoneJobsCallback
+
   queue_as :releasetracking
 
   def perform(event_id)
