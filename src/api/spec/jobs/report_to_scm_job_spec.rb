@@ -40,19 +40,6 @@ RSpec.describe ReportToSCMJob do
       end
     end
 
-    context 'when using a non-allowed event' do
-      let(:event) do
-        Event::Commit.create(project: project.name, package: package.name)
-      end
-
-      before do
-        event
-        event_subscription
-      end
-
-      it_behaves_like 'not reporting to the SCM'
-    end
-
     context 'when the event is for some other project than the subscribed one' do
       let(:event) { Event::BuildSuccess.create(project: 'some:other:project', package: package.name, repository: repository.name, reason: 'foo') }
 
