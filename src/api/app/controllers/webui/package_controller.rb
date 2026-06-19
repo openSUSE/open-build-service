@@ -428,7 +428,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def package_params
-    params.require(:package).permit(:name, :title, :description)
+    params.require(:package).permit(:name, :title, :description, :scmsync)
   end
 
   def package_details_params
@@ -443,7 +443,8 @@ class Webui::PackageController < Webui::WebuiController
               :description,
               :url,
               :report_bug_url,
-              :anitya_ignore)
+              :anitya_ignore,
+              :scmsync)
   end
 
   def set_file_details

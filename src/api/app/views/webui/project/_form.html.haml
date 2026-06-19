@@ -15,6 +15,9 @@
   = form.label(:title, 'Title:')
   = form.text_field(:title, class: 'form-control')
 .mb-3
+  = form.label(:scmsync, 'SCM Sync URL:')
+  = form.text_field(:scmsync, class: 'form-control', placeholder: 'e.g. https://github.com/org/repo.git')
+.mb-3
   = form.label(:description, 'Description:')
   = render WriteAndPreviewComponent.new(form: form, preview_message_url: project_preview_description_path,
                                         message_body_param: 'project[description]',

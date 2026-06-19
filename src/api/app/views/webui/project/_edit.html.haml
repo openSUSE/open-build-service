@@ -7,6 +7,9 @@
   .mb-3
     = form.label(:url, 'URL:')
     = form.text_field(:url, class: 'form-control')
+  .mb-3
+    = form.label(:scmsync, 'SCM Sync URL:')
+    = form.text_field(:scmsync, class: 'form-control', placeholder: 'e.g. https://github.com/org/repo.git')
   - if feature_enabled?('foster_collaboration')
     .mb-3
       = form.label(:report_bug_url, 'Report Bug URL:')
