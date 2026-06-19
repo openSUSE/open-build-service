@@ -681,6 +681,11 @@ sub build {
   if (!$update->{'id'}) {
     $update->{'id'} = "${projid}::$packid";
     $update->{'id'} =~ s/:/_/g;
+
+    # Replace middle string to avoid too long strings
+    # this is a problem for some tools like MLM
+    # doing it in the middle to get the different identifier from the tail
+    substr($update->{'id'}, 48, -49, '...') if length($update->{'id'}) > 100;
   }
   if ($target && $target->{'id_template'}) {
     my $template = $target->{'id_template'};
