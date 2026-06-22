@@ -4,7 +4,7 @@ class UpdateReleasedBinariesJob < ApplicationJob
 
   queue_as :releasetracking
 
-  def perform(event_id)
+  def perform(event_id:)
     event = Event::Base.find(event_id)
 
     repository = Repository.find_by_project_and_name(event.payload['project'], event.payload['repo'])
