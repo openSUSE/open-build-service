@@ -7,6 +7,8 @@ class Workflow::Step::LinkProject < Workflow::Step
   def call
     return unless valid?
 
+    Pundit.authorize(@token.executor, @project, :update?)
+
     case
     when workflow_run.closed_merged_pull_request?, workflow_run.unlabeled_pull_request?
       @project.remove_project_link(linked_project_name: project_name_to_link_against)
