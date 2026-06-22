@@ -8,6 +8,40 @@ RSpec.describe "User's home project creation", :js do
            email: 'jim.knopf@puppenkiste.com')
   end
 
+  describe 'involved projects/packages section' do
+    let!(:project1) { create(:project, name: 'TestProject1', description: 'First project long description - ' * 50) }
+    let!(:project2) { create(:project, name: 'TestProject2', description: 'Second project long description - ' * 50) }
+    let!(:relationship1) { create(:relationship_project_user, project: project1, user: user) }
+    let!(:relationship2) { create(:relationship_project_user, project: project2, user: user) }
+
+    before do
+      visit user_path(user)
+      find('[data-bs-target="#tab-pane-involvement"]').click if has_css?('[data-bs-target="#tab-pane-involvement"]')
+    end
+
+    it 'shows expandable description with Show more/less for all involved items' do
+      involvement_descriptions = all('.involvement-description')
+      expect(involvement_descriptions.count).to be >= 2
+
+      # Verify both items have the Show more/less functionality (not just the first one)
+      involvement_descriptions.each do |description|
+        within(description) do
+          expect(page).to have_css('.show-content.more')
+        end
+      end
+    end
+
+    it 'expands and collapses description text' do
+      within(first('.involvement-description')) do
+        find('.show-content').click
+        expect(page).to have_css('.obs-collapsible-text.expanded')
+        expect(page).to have_css('.show-content.less')
+        find('.show-content').click
+        expect(page).to have_no_css('.obs-collapsible-text.expanded')
+      end
+    end
+  end
+
   describe 'as an anonymous user' do
     before do
       visit user_path(user)
