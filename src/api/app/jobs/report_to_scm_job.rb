@@ -6,7 +6,6 @@ class ReportToSCMJob < ApplicationJob
   queue_as :scm
 
   def perform(event_id: nil, workflow_run: nil, event_type: nil, initial_report: false, event_payload: nil)
-    @event_id = event_id
     if event_id
       report_event(event_id)
     else
