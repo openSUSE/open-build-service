@@ -30,10 +30,12 @@ class WorkflowStepsValidator < ActiveModel::Validator
   end
 
   def unsupported_steps
-    @unsupported_steps ||= @workflow.workflow_steps.map do |steps|
-      rejected_steps = steps.reject { |step_name, _| Workflow::SUPPORTED_STEPS.key?(step_name) }
+    @unsupported_steps ||= @workflow.workflow_steps.map do |step_definition|
+      next unless step_definition.is_a?(Hash)
+
+      rejected_steps = step_definition.reject { |step_name, _| Workflow::SUPPORTED_STEPS.key?(step_name) }
       rejected_steps.keys
-    end.flatten
+    end.flatten.compact
   end
 
   def invalid_steps
