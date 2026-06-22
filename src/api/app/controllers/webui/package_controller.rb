@@ -129,6 +129,8 @@ class Webui::PackageController < Webui::WebuiController
     respond_to do |format|
       format.js do
         if @package.update(package_details_params)
+          set_linkinfo
+          @failures = 0
           flash.now[:success] = 'Package was successfully updated.'
         else
           flash.now[:error] = 'Failed to update the package.'
