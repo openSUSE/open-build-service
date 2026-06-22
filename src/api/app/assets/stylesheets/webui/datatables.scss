@@ -33,3 +33,41 @@ table.dataTable.table-sm {
   @extend .d-flex;
   @extend .justify-content-center;
 }
+
+// Enhance visibility of expandable rows in responsive DataTables
+// Fix for issue #15610: Make it clear that attributes can be expanded
+#attributes {
+  // Show visual cue that rows are expandable when in collapsed responsive mode
+  &.dtr-inline.collapsed > tbody > tr > td.dtr-control {
+    // Ensure pointer cursor for clickable rows
+    cursor: pointer;
+
+    // Style the expand icon to be more prominent
+    &:before {
+      font-weight: bold;
+      box-shadow: 0 0 0.3em rgba(0, 0, 0, 0.3);
+    }
+
+    // Add hover effect to indicate interactivity
+    &:hover:before {
+      transform: scale(1.1);
+      box-shadow: 0 0 0.4em rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  // Add hover highlight for entire row when expandable
+  &.dtr-inline.collapsed > tbody > tr:hover {
+    background-color: $custom-gray-100;
+
+    td.dtr-control:before {
+      background-color: darken(#0d6efd, 10%);
+    }
+  }
+
+  // Style for expanded rows (parent class is added when row is expanded)
+  &.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control {
+    &:hover:before {
+      background-color: darken(#d33333, 10%);
+    }
+  }
+}
