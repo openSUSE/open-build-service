@@ -41,8 +41,8 @@ class Repository < ApplicationRecord
   # Keep in sync with src/backend/BSVerify.pm
   validates :name, format: { with: %r{\A[^_:/\000-\037][^:/\000-\037]*\Z},
                              message: "must not start with '_' or contain any of these characters ':/'" }
-  validates :rebuild, inclusion: { in: %w(transitive direct local) }, allow_blank: true
-  validates :linkedbuild, inclusion: { in: %w(off localdep all alldirect alldirect_or_localdep) }, allow_blank: true
+  validates :rebuild, inclusion: { in: %w(transitive direct local), message: "'%{value}' is not a valid rebuild option" }, allow_blank: true
+  validates :linkedbuild, inclusion: { in: %w(off localdep all alldirect alldirect_or_localdep), message: "'%{value}' is not a valid linkedbuild option" }, allow_blank: true
 
   # never used in production, but existed for quite some time...
   self.ignored_columns += ['hostsystem_id']
