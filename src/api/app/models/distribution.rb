@@ -7,6 +7,12 @@ class Distribution < ApplicationRecord
   scope :local, -> { where(remote: false) }
   scope :remote, -> { where(remote: true) }
   scope :for_project, ->(project_name) { where('project like ?', "#{project_name}:%") }
+  scope :not_eol, -> { where(eol: nil).or(where(eol: Date.current..)) }
+  scope :eol, -> { where(eol: ...Date.current) }
+
+  def eol?
+    eol.present? && eol < Date.current
+  end
 
   def self.new_from_xmlhash(xmlhash)
     return new unless xmlhash.is_a?(Xmlhash::XMLHash)
