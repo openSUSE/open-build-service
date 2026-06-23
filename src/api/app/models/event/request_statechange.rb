@@ -1,12 +1,12 @@
 module Event
   class RequestStatechange < Request
+    include ReportToScmCallback
+
     self.message_bus_routing_key = 'request.state_change'
     self.description = 'Request state changed'
     payload_keys :duration
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_project_watcher, :target_project_watcher,
                    :source_package_watcher, :target_package_watcher, :request_watcher
-
-    create_jobs :report_to_scm_job
 
     self.notification_explanation = 'Receive notifications for requests state changes for projects for which you are...'
 

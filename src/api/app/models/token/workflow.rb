@@ -29,16 +29,14 @@ class Token::Workflow < Token
 
   after_save :state_change_event, if: :enabled_previously_changed?
 
-  def call(options)
+  def call(workflow_run)
     set_triggered_at
-    workflow_run = options[:workflow_run]
     # FIXME: This makes little sense, wherever we use response_url, just use api_endpoint...
     workflow_run.update(response_url: workflow_run.api_endpoint)
 
-    # We return early with a ping event, since it doesn't make sense to perform payload checks with it, just respond
+    # In a ping event we just return early after the validation and the initial report to SCM
     if workflow_run.ping_event?
-      SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success',
-                            initial_report: true).call
+      ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'success', initial_report: true)
       return []
     end
     yaml_file = Workflows::YAMLDownloader.new(workflow_run, token: self).call
@@ -46,15 +44,15 @@ class Token::Workflow < Token
 
     return validation_errors unless validation_errors.none?
 
-    # This is just an initial generic report to give a feedback asap. Initial status pending
-    SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, initial_report: true).call
+    # Initial report with status set to pending
+    ReportToSCMJob.perform_later(workflow_run: workflow_run, initial_report: true)
     @workflows.each do |workflow|
       return workflow.errors.full_messages if workflow.invalid?(:call)
 
       workflow.call
     end
-    SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success',
-                          initial_report: true).call
+    # Final status report
+    ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'success', initial_report: true)
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized

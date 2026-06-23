@@ -1,13 +1,13 @@
 module Event
   class Commit < Base
     include EventObjectPackage
+    include UpdateBackendInfosCallback
 
     after_create :sync_local_package_version
 
     self.message_bus_routing_key = 'package.commit'
     self.description = 'New revision of a package committed'
     payload_keys :project, :package, :sender, :comment, :user, :files, :rev, :requestid
-    create_jobs :update_backend_infos_job
 
     after_create :increase_commits
 

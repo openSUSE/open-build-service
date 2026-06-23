@@ -35,7 +35,7 @@ class GithubStatusReporter < SCMExceptionHandler
     (@workflow_run.presence&.save_scm_report_failure("Failed to report back to GitHub: #{e.message}", request_context))
   rescue Octokit::Error => e
     rescue_with_handler(e) || raise(e)
-  rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::SSLError => e
+  rescue Faraday::SSLError => e
     (@workflow_run.presence&.save_scm_report_failure("Failed to report back to GitHub: #{e.message}", request_context))
   ensure
     RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@workflow_run.scm_vendor},exception=#{e.class} value=1") if e.present? && @workflow_run.present?

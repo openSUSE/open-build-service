@@ -88,21 +88,6 @@ RSpec.describe GithubStatusReporter, type: :service do
           expect(workflow_run.last_response_body).to eq('Failed to report back to GitHub: Sorry. Your account is suspended.')
         end
       end
-
-      context 'there is a network glitch' do
-        before do
-          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-          allow(octokit_client).to receive(:create_status).and_raise(Faraday::ConnectionFailed.new('Network glitch'))
-        end
-
-        it { expect { subject }.to change(SCMStatusReport, :count).by(1) }
-
-        it 'tracks the exception in the workflow_run response body and sets the status to fail' do
-          subject
-          expect(workflow_run.status).to eq('fail')
-          expect(workflow_run.last_response_body).to eq('Failed to report back to GitHub: Network glitch')
-        end
-      end
     end
 
     context 'when sending a report back to GitHub' do

@@ -7,7 +7,14 @@ module Event
     payload_keys :project, :repo, :payload
 
     # for package tracking in first place
-    create_jobs :update_released_binaries_job
+    after_create :update_released_binaries
+
+    private
+
+    def update_released_binaries
+      UpdateReleasedBinariesJob.perform_later(event_id: id)
+      self.update_columns(undone_jobs: 1)
+    end
   end
 end
 

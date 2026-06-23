@@ -1,12 +1,12 @@
 module Event
   class ServiceFail < Base
     include EventObjectPackage
+    include UpdateBackendInfosCallback
 
     self.message_bus_routing_key = 'package.service_fail'
     self.description = 'Package source service failed'
     payload_keys :project, :package, :sender, :comment, :error, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
-    create_jobs :update_backend_infos_job
 
     self.notification_explanation = 'Receive notifications for source service failures of packages for which you are...'
 

@@ -43,9 +43,10 @@ RSpec.describe FullTextSearch do
     end
 
     context 'specifying classes' do
-      let!(:project) { create(:project, name: 'test', title: '', description: '') }
-      let!(:package) { create(:package, name: 'test', project: project, title: '', description: '') }
-      let(:search_param_text) { { text: 'test' } }
+      let(:search_term) { "test#{SecureRandom.hex(4)}" }
+      let!(:project) { create(:project, name: search_term, title: '', description: '') }
+      let!(:package) { create(:package, name: search_term, project: project, title: '', description: '') }
+      let(:search_param_text) { { text: search_term } }
 
       context 'without any class' do
         let(:search_params) { search_param_text }
