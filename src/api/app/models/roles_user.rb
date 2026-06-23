@@ -3,14 +3,15 @@ class RolesUser < ApplicationRecord
   belongs_to :role
 
   validates :role, uniqueness: { scope: :user }
-  after_create :create_global_role_assignment_event
+  after_create { create_global_role_assignment_update_event('enabled') }
+  after_destroy { create_global_role_assignment_update_event('disabled') }
 
   private
 
-  def create_global_role_assignment_event
-    return if Role.global_roles.exclude?(role.title) || User.session.nil?
+  def create_global_role_assignment_update_event(action)
+    return if Role.global_roles.exclude?(role.title)
 
-    Event::GlobalRoleAssigned.create(role: role.title, user: user.login, who: User.session.login)
+    Event::GlobalRoleAssignmentUpdate.create(role: role.title, user: user.login, who: User.session&.login, action: action)
   end
 end
 

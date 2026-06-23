@@ -1,5 +1,6 @@
 class Webui::Users::NotificationsController < Webui::WebuiController
   include Webui::NotificationsFilter
+  include Webui::NotificationsHandler
 
   ALLOWED_FILTERS = %w[all comments requests incoming_requests outgoing_requests relationships_created relationships_deleted build_failures
                        reports reviews workflow_runs appealed_decisions decisions member_on_groups upstream_package_version_changed token_membership_update
@@ -53,7 +54,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     paginate_notifications
 
     respond_to do |format|
-      format.html { redirect_to my_notifications_path }
+      format.html { redirect_to notification_return_to_path }
       format.js do
         render partial: 'update', locals: {
           notifications: @notifications,

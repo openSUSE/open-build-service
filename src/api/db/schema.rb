@@ -300,9 +300,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_101229) do
     t.datetime "updated_at", null: false
     t.integer "decision_type"
     t.integer "project_id"
-    t.index ["project_id"], name: "index_canned_responses_on_project_id"
     t.integer "package_id"
     t.index ["package_id"], name: "index_canned_responses_on_package_id"
+    t.index ["project_id"], name: "index_canned_responses_on_project_id"
     t.index ["user_id"], name: "index_canned_responses_on_user_id"
   end
 
@@ -1334,8 +1334,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_101229) do
   add_foreign_key "blocked_users", "users", column: "blocker_id"
   add_foreign_key "bs_request_action_accept_infos", "bs_request_actions", name: "bs_request_action_accept_infos_ibfk_1"
   add_foreign_key "bs_request_actions", "bs_requests", name: "bs_request_actions_ibfk_1"
-  add_foreign_key "canned_responses", "projects", on_delete: :nullify
   add_foreign_key "canned_responses", "packages", on_delete: :nullify
+  add_foreign_key "canned_responses", "projects", on_delete: :nullify
   add_foreign_key "canned_responses", "users"
   add_foreign_key "channel_binaries", "architectures", name: "channel_binaries_ibfk_4"
   add_foreign_key "channel_binaries", "channel_binary_lists", name: "channel_binaries_ibfk_1"

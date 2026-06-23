@@ -11,7 +11,6 @@ module Event
       attr_accessor :description, :message_bus_routing_key, :notification_explanation
 
       @payload_keys = nil
-      @create_jobs = nil
       @classnames = nil
       @receiver_roles = nil
       @shortenable_key = nil
@@ -25,7 +24,7 @@ module Event
          Event::WorkflowRunFail, Event::TokenStateChange,
          Event::AddedUserToGroup, Event::RemovedUserFromGroup,
          Event::Assignment, Event::UpstreamPackageVersionChanged,
-         Event::GlobalRoleAssigned, Event::TokenMembershipUpdate]
+         Event::GlobalRoleAssignmentUpdate, Event::TokenMembershipUpdate]
       end
 
       def notification_feature_flag
@@ -57,14 +56,6 @@ module Event
         @shortenable_key = key
       end
 
-      def create_jobs(*keys)
-        # this function serves both for reading and setting
-        return @create_jobs || [] if keys.empty?
-
-        @create_jobs ||= []
-        @create_jobs += keys
-      end
-
       def receiver_roles(*keys)
         # this function serves both for reading and setting
         return @receiver_roles || [] if keys.empty?
@@ -81,7 +72,6 @@ module Event
         subclass.after_create_commit(:clear_caches)
         subclass.add_classname(name) unless name == 'Event::Base'
         subclass.payload_keys(*payload_keys)
-        subclass.create_jobs(*create_jobs)
         subclass.receiver_roles(*receiver_roles)
       end
     end
@@ -90,8 +80,6 @@ module Event
     delegate :payload_keys, to: :class
 
     delegate :shortenable_key, to: :class
-
-    delegate :create_jobs, to: :class
 
     delegate :receiver_roles, to: :class
 
@@ -138,29 +126,6 @@ module Event
 
     def create_project_log_entry_job
       CreateProjectLogEntryJob.perform_later(payload, created_at.to_s, self.class.name)
-    end
-
-    after_create :perform_create_jobs
-
-    def perform_create_jobs
-      self.undone_jobs = 0
-      save
-      create_jobs.each do |job|
-        job_class = job.to_s.camelize.safe_constantize
-
-        # we want to keep SCM capitalized in the job name, so we catch the case and overwrite the name
-        job_class = ReportToSCMJob.name.safe_constantize if job.to_s.camelize.casecmp(ReportToSCMJob.name).zero?
-
-        raise "#{job.to_s.camelize} does not map to a constant" if job_class.nil?
-
-        job_obj = job_class.new
-        raise("#{job.to_s.camelize} is not a CreateJob") unless job_obj.is_a?(CreateJob)
-
-        job_class.perform_later(id)
-
-        self.undone_jobs += 1
-      end
-      save if self.undone_jobs.positive?
     end
 
     def mark_job_done!

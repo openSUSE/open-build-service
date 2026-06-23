@@ -1,0 +1,50 @@
+module Event
+  class GlobalRoleAssignmentUpdate < Base
+    self.description = 'User received or lost an important role'
+    self.notification_explanation = "Receive notifications when a user received or lost an important role: #{Role.global_roles.to_sentence(last_word_connector: ' or ')}."
+
+    payload_keys :role, :user, :who, :action
+    receiver_roles :admin_moderator_or_staff
+
+    def admin_moderator_or_staffs
+      users = case payload['role']
+              when 'Admin'
+                User.admins
+              when 'Staff'
+                User.admins.or(User.staff)
+              when 'Moderator'
+                User.admins.or(User.moderators)
+              end
+      User.where(id: users).or(User.where(login: payload['user'])).where.not(login: payload['who'])
+    end
+
+    def parameters_for_notification
+      super.merge({ notifiable_type: 'User',
+                    notifiable_id: ::User.find_by(login: payload['user']).id,
+                    type: 'NotificationUser' })
+    end
+
+    def subject
+      "'#{payload['role']}' role #{payload['action']} for #{payload['user']}"
+    end
+  end
+end
+
+# == Schema Information
+#
+# Table name: events
+#
+#  id          :bigint           not null, primary key
+#  eventtype   :string(255)      not null, indexed
+#  mails_sent  :boolean          default(FALSE), indexed
+#  payload     :text(16777215)
+#  undone_jobs :integer          default(0)
+#  created_at  :datetime         indexed
+#  updated_at  :datetime
+#
+# Indexes
+#
+#  index_events_on_created_at  (created_at)
+#  index_events_on_eventtype   (eventtype)
+#  index_events_on_mails_sent  (mails_sent)
+#

@@ -25,7 +25,7 @@ module NotificationService
                         'Event::AssignmentDelete',
                         'Event::UpstreamPackageVersionChanged',
                         'Event::TokenMembershipUpdate',
-                        'Event::GlobalRoleAssigned',
+                        'Event::GlobalRoleAssignmentUpdate',
                         'Event::TokenStateChange'].freeze
     CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
@@ -56,7 +56,7 @@ module NotificationService
                         'Event::WorkflowRunFail',
                         'Event::AddedUserToGroup',
                         'Event::RemovedUserFromGroup',
-                        'Event::GlobalRoleAssigned',
+                        'Event::GlobalRoleAssignmentUpdate',
                         'Event::TokenStateChange'].freeze
 
     def initialize(event)

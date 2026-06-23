@@ -70,7 +70,15 @@ sub check {
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};
   my $prp = $ctx->{'prp'};
+  my $myarch = $gctx->{'arch'};
   return('broken', 'confused reprorepo setup') unless $ctx->{'isreprorepo'} && $ctx->{'isreprorepo'} ne $ctx->{'repository'};
+
+  my $origprp = "$ctx->{'project'}/$ctx->{'isreprorepo'}";
+  my $ps = $ctx->read_packstatus($origprp, $myarch);
+
+  my $origcode = $ps->{$packid} || 'unknown';
+  return ('excluded') if $origcode eq 'excluded';
+
   my $dst = "$gdst/$packid";
   if (! -e "$dst/.reprojob") {
     if (-e "$dst/.reprojob.success") {
@@ -95,7 +103,6 @@ sub check {
       # here comes the tricky part: generate the compare job
       return ('scheduled', [ $jobxml, $reprojobid, $job, $jobprefix, 1 ]);
     }
-    my $origprp = "$ctx->{'project'}/$ctx->{'isreprorepo'}";
     my $origjob = BSSched::BuildJob::jobname($origprp, $packid)."-$reprojobid";
     if (!-s "$myjobsdir/$origjob" && -e "$myjobsdir/$job:dir/.isfinished") {
       # generate a synthetic finished event

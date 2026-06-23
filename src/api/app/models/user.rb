@@ -19,7 +19,7 @@ class User < ApplicationRecord
 
   has_many :watched_items, dependent: :destroy
   has_many :groups_users, inverse_of: :user
-  has_many :roles_users, inverse_of: :user
+  has_many :roles_users, inverse_of: :user, dependent: :destroy
   has_many :roles, through: :roles_users
   has_many :relationships, inverse_of: :user, dependent: :destroy
 
@@ -753,7 +753,13 @@ class User < ApplicationRecord
   end
 
   def update_globalroles(global_roles)
-    roles.replace(global_roles + roles.where(global: false))
+    # Preserve existing non-global roles when updating global roles.
+    target_roles = global_roles + roles.where(global: false)
+    roles_to_remove = roles - target_roles
+    roles_to_add = target_roles - roles
+
+    roles.destroy(*roles_to_remove) if roles_to_remove.any?
+    roles << roles_to_add if roles_to_add.any?
   end
 
   def display_name

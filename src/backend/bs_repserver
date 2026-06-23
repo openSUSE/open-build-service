@@ -2287,12 +2287,13 @@ sub notify_jobresult {
   $buildtype ||= Build::recipe2buildtype($info->{'file'}) || 'unknown';
   $buildtype = $info->{'imagetype'} && ($info->{'imagetype'}->[0] || '') eq 'product' ? 'kiwi-product' : 'kiwi-image' if $buildtype eq 'kiwi';
   $ninfo{'buildtype'} = $buildtype;
-  print "job statistics: $job $prpa $jobstatus->{'result'} $ninfo{'readytime'}-$ninfo{'starttime'}-$ninfo{'endtime'} $jobstatus->{'workerid'} $buildtype\n";
-  if ($jobstatus->{'result'} eq 'unchanged') {
+  my $code = $jobstatus->{'result'};
+  print "job statistics: $job $prpa $code $ninfo{'readytime'}-$ninfo{'starttime'}-$ninfo{'endtime'} $jobstatus->{'workerid'} $buildtype\n";
+  if ($code eq 'unchanged') {
     BSNotify::notify('BUILD_UNCHANGED', \%ninfo);
-  } elsif ($jobstatus->{'result'} eq 'succeeded') {
+  } elsif ($code eq 'succeeded') {
     BSNotify::notify('BUILD_SUCCESS', \%ninfo);
-  } else {
+  } elsif ($code eq 'failed') {
     my $lastfail = BSFileDB::fdb_getlast("$reporoot/$prpa/$info->{'package'}/.failhistory", [ 'failcount', @$BSXML::jobhistlay ]) || {};
     $ninfo{'successive_failcount'} = ($lastfail->{'failcount'} || 0);
     BSNotify::notify('BUILD_FAIL', \%ninfo);

@@ -11,6 +11,10 @@ class CreateDecisions < ActiveRecord::Migration[7.0]
     end
 
     # Add column decision to reports table
-    add_reference :reports, :decision, type: :bigint, foreign_key: { on_delete: :nullify }, index: true
+    safety_assured do
+      execute 'SET SESSION foreign_key_checks = 0'
+      add_reference :reports, :decision, type: :bigint, foreign_key: { on_delete: :nullify }, index: true
+      execute 'SET SESSION foreign_key_checks = 1'
+    end
   end
 end

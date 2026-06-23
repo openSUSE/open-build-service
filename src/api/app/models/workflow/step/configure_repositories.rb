@@ -19,18 +19,20 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     Pundit.authorize(@token.executor, target_project, :update?)
 
     step_instructions[:repositories].each do |repository_instructions|
-      repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
+      configured_repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
+      configured_repository.update!(rebuild: repository_instructions[:rebuild],
+                                    linkedbuild: repository_instructions[:linkedbuild])
 
       repository_instructions[:paths].each do |repository_path|
         target_repository = Repository.find_by_project_and_name(repository_path[:target_project], repository_path[:target_repository])
-        repository.path_elements.find_or_create_by(link: target_repository)
+        configured_repository.path_elements.find_or_create_by(link: target_repository)
       end
 
-      repository.with_lock do
-        repository.repository_architectures.destroy_all
+      configured_repository.with_lock do
+        configured_repository.repository_architectures.destroy_all
 
         repository_instructions[:architectures].uniq.each do |architecture_name|
-          repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
+          configured_repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
         end
       end
     end
@@ -46,19 +48,19 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     step_instructions[:project]
   end
 
+  # Validate each repository definition
+  # Each repository definition must have, at least, the following keys:
+  # - architectures
+  # - name
+  # - paths
+  # Optionally it can have
+  # - rebuild: with the following valid values: direct, local
+  # - linkedbuild: with the following valid values: all, localdep, alldirect, alldirect_or_localdep, off
   def validate_repositories
-    return if step_instructions[:repositories].all? { |repository| repository.keys.sort == REQUIRED_REPOSITORY_KEYS }
-
-    # FIXME: This is only to help users migrate their configure_repositories steps when we introduced this breaking change. Remove this after March 1st, 2022.
-    if step_instructions[:repositories].any? { |repository| !repository.key?(:paths) }
-      errors.add(:base,
-                 "configure_repositories step: Repository paths are now set under the 'paths' key. Refer to " \
-                 'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-scm-ci-workflow-integration' \
-                 '#sec-obs-obs-scm-ci-workflow-integration-obs-workflows-steps-configure-repositories-architectures-for-a-project for an example')
+    unless step_instructions[:repositories].all? { |repository| (REQUIRED_REPOSITORY_KEYS - repository.keys).empty? }
+      required_repository_keys_sentence ||= REQUIRED_REPOSITORY_KEYS.map { |key| "'#{key}'" }.to_sentence
+      errors.add(:base, "configure_repositories step: All repositories must have the #{required_repository_keys_sentence} keys")
     end
-
-    required_repository_keys_sentence ||= REQUIRED_REPOSITORY_KEYS.map { |key| "'#{key}'" }.to_sentence
-    errors.add(:base, "configure_repositories step: All repositories must have the #{required_repository_keys_sentence} keys")
   end
 
   def validate_repository_paths

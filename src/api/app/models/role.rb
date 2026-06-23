@@ -18,7 +18,8 @@ class Role < ApplicationRecord
   has_many :relationships, dependent: :destroy
 
   # roles have n:m relations for users
-  has_and_belongs_to_many :users, -> { distinct }
+  has_many :roles_users, inverse_of: :role, dependent: :destroy
+  has_many :users, -> { distinct }, through: :roles_users
   # roles have n:m relations to groups
   has_and_belongs_to_many :groups, -> { distinct }
   # roles have n:m relations to permissions

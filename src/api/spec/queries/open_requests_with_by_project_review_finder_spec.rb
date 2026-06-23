@@ -10,8 +10,6 @@ RSpec.describe OpenRequestsWithByProjectReviewFinder do
                                                         .joins(:reviews), project.name).call
     end
 
-    it { expect(subject).not_to be_empty }
-
-    it { expect(subject).to include(bs_request) }
+    it { expect(subject).to contain_exactly(bs_request) }
   end
 end

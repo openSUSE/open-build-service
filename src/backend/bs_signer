@@ -63,6 +63,8 @@ my $maxchild_flavor;
 $maxchild = $BSConfig::signer_maxchild if defined $BSConfig::signer_maxchild;
 $maxchild_flavor = $BSConfig::signer_maxchild_flavor if defined $BSConfig::signer_maxchild_flavor;
 
+my $max_followupsteps = 3;
+
 my $sign_supports_S;
 my $sign_supports_bulk_cpio;
 my $sign_supports_delsign;
@@ -964,9 +966,9 @@ sub signjob {
 
     unlink("$jobdir/.checksums");
 
+    # check for followup files
     my $followupfile;
-    # check for followup files, but don't allow more than 3 steps to avoid loops
-    if (($info->{'followupsteps'} || 0) < 3 && ($info->{'file'} || '') ne '_aggregate') {
+    if (($info->{'file'} || '') ne '_aggregate') {
       if (grep {/\.rsasign$/} @signfiles) {
         $followupfile = (grep {/\.(spec|dsc)$/} @files)[0];
         @signfiles = grep {/\.rsasign$/} @signfiles if $followupfile;
@@ -1001,6 +1003,10 @@ sub signjob {
     };
 
     eval {
+      # don't allow more than $max_followupsteps steps to avoid loops
+      if ($followupfile && ($info->{'followupsteps'} || 0) >= $max_followupsteps) {
+	die("fatal: maximum followup steps reached\n");
+      }
       for my $signfile (@signfiles) {
 	if ($signfile eq '_slsa_provenance.json') {
 	  signslsaprovenance($data, "$jobdir/$signfile", @signargs);
@@ -1041,7 +1047,6 @@ sub signjob {
 	  } else {
 	    # newer rpm versions sometimes do in-place signature replacement,
 	    # so create a copy first
-	    # (we should add a delsign option to our sign utility...)
 	    BSUtil::cp("$jobdir/$signfile", "$jobdir/.$signfile");
 	    $signfilefinal = $signfile;
 	    $signfile = ".$signfile";
@@ -1134,8 +1139,8 @@ sub signjob {
 	  }
 	}
 	if ($signfile =~ /\.AppImage$/ && -e "$jobdir/$signfile.digest") {
-	    my $newdigest = sha256file("$jobdir/$signfile");
-	    writestr("$jobdir/$signfile.digest", undef, "$newdigest\n");
+	  my $newdigest = sha256file("$jobdir/$signfile");
+	  writestr("$jobdir/$signfile.digest", undef, "$newdigest\n");
 	}
       }
     };
@@ -1152,6 +1157,7 @@ sub signjob {
         warn("rebuilding: $error\n");
 	if ($info->{'followupfile'}) {
 	  delete $info->{'followupfile'};
+	  delete $info->{'followupsteps'};
           writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
 	}
 	BSUtil::cleandir($jobdir);
@@ -1248,11 +1254,8 @@ sub signevent {
   my ($req, $job, $arch) = @_;
 
   my $starttime = time();
-  my $res;
   undef $prpa_stats;
-  eval {
-    $res = signjob($job, $arch);
-  };
+  my $res = eval { signjob($job, $arch) };
   if ($@) {
     signstats($req, $job, $prpa_stats, 'failed', $starttime, time());
     # retry in 3 minutes

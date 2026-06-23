@@ -1,9 +1,9 @@
 module Event
   class BuildSuccess < Build
+    include ReportToScmCallback
+
     self.message_bus_routing_key = 'package.build_success'
     self.description = 'Package succeeded building'
-
-    create_jobs :report_to_scm_job
 
     def state
       'success'

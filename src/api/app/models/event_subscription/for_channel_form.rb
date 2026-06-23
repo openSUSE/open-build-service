@@ -8,7 +8,7 @@ class EventSubscription
                               'Event::FavoredDecision', 'Event::ClearedDecision',
                               'Event::AddedUserToGroup', 'Event::RemovedUserFromGroup',
                               'Event::Assignment', 'Event::UpstreamPackageVersionChanged',
-                              'Event::GlobalRoleAssigned', 'Event::TokenMembershipUpdate',
+                              'Event::GlobalRoleAssignmentUpdate', 'Event::TokenMembershipUpdate',
                               'Event::TokenStateChange'].freeze
 
     attr_reader :name, :subscription

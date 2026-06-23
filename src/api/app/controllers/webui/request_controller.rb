@@ -52,7 +52,8 @@ class Webui::RequestController < Webui::WebuiController
 
   # TODO: Remove this once request_show_redesign is rolled out
   def show
-    redirect_to request_beta_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
+    redirect_to(request_beta_show_path(params[:number], params[:request_action_id], notification_context_params)) && return if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
+
     @diff_limit = params[:full_diff] ? 0 : nil
     @is_author = @bs_request.creator == User.possibly_nobody.login
 
@@ -405,7 +406,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def check_beta_user_redirect
-    redirect_to request_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) unless Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
+    redirect_to request_show_path(params[:number], params[:request_action_id], notification_context_params) unless Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
   end
 
   def addreview_opts
