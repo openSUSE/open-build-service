@@ -130,7 +130,7 @@ OBS_WORKER_DIRECTORY=""
 OBS_WORKER_PORTBASE="0"
 
 ## Path:        Applications/OBS
-## Description: Number of parallel compile jobs per worker
+## Description: Number of parallel compile jobs per worker. Defines number of cpus for VMs
 ## Type:        integer
 ## Default:     "1"
 ## Config:      OBS
