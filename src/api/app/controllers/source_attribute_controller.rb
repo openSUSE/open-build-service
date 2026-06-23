@@ -1,6 +1,7 @@
 class SourceAttributeController < SourceController
-  before_action :set_request_data, only: [:update]
+  before_action :set_request_data, only: %i[update set]
   before_action :find_attribute_container
+  before_action :validate_and_authorize_attributes, only: %i[update set]
 
   class RemoteProject < APIError
     setup 501, 'Attribute access to remote project is not yet supported'
@@ -49,36 +50,47 @@ class SourceAttributeController < SourceController
     render_ok
   end
 
-  # POST/PUT
+  # POST
   # /source/:project/_attribute/:attribute
   # /source/:project/:package/_attribute/:attribute
   # /source/:project/:package/:binary/_attribute/:attribute
   #--------------------------------------------------------
   def update
-    # This is necessary for checking the authorization and do not create the attribute
-    # The attribute creation will happen in @attribute_container.store_attribute_xml
+    # exec
+    any_change = false
     @request_data.elements('attribute') do |attr|
-      attrib_type = AttribType.find_by_namespace_and_name!(attr.value('namespace'), attr.value('name'))
-      attrib = Attrib.new(attrib_type: attrib_type)
-
-      attr.elements('value') do |value|
-        attrib.values.new(value: value)
-      end
-
-      attrib.container = @attribute_container
-
-      unless attrib.valid?
-        render_error(message: attrib.errors.full_messages.join('\n'), status: 400, errorcode: attrib.errors.filter_map(&:type).first&.to_s)
-        return false
-      end
-
-      authorize attrib, :create?
+      any_change = @attribute_container.store_attribute_xml(attr, @binary).saved_changes?
     end
+    # Single commit to backend
+    @attribute_container.write_attributes if any_change
+    render_ok
+  end
 
+  # PUT
+  # /source/:project/_attribute
+  # /source/:project/:package/_attribute
+  #--------------------------------------------------------
+  def set
     # exec
     @request_data.elements('attribute') do |attr|
       @attribute_container.store_attribute_xml(attr, @binary)
     end
+
+    # cleanup not anymore used attributes
+    attribs = if @attribute_container.is_a?(Project)
+                Attrib.where(project: @attribute_container)
+              else
+                Attrib.where(package: @attribute_container)
+              end
+    attribs.each do |attrib|
+      next if @request_data.elements('attribute').any? { |i| i['namespace'] == attrib.namespace && i['name'] == attrib.name }
+
+      authorize attrib, :destroy?
+      attrib.destroy!
+    end
+
+    # Single commit to backend
+    @attribute_container.write_attributes
     render_ok
   end
 
@@ -108,5 +120,25 @@ class SourceAttributeController < SourceController
     end
 
     @at = attribute_type(params[:attribute])
+  end
+
+  def validate_and_authorize_attributes
+    @request_data.elements('attribute') do |attr|
+      attrib_type = AttribType.find_by_namespace_and_name!(attr.value('namespace'), attr.value('name'))
+      attrib = Attrib.new(attrib_type: attrib_type)
+
+      attr.elements('value') do |value|
+        attrib.values.new(value: value)
+      end
+
+      attrib.container = @attribute_container
+
+      unless attrib.valid?
+        render_error(message: attrib.errors.full_messages.join('\n'), status: 400, errorcode: attrib.errors.filter_map(&:type).first&.to_s)
+        return false
+      end
+
+      authorize attrib, :create?
+    end
   end
 end
