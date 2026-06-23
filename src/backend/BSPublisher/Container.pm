@@ -178,8 +178,12 @@ sub upload_all_containers {
     $isdelete = 1;
     $containers = {};
   } else {
-    my ($pubkey, $signargs) = get_notary_pubkey($projid, $data->{'pubkey'}, $data->{'signargs'}, $data->{'signflavor'});
-    $data = { %$data, 'pubkey' => $pubkey, 'signargs' => $signargs };
+    if ($BSConfig::sign_project && $BSConfig::sign) {
+      my ($pubkey, $signargs) = get_notary_pubkey($projid, $data->{'pubkey'}, $data->{'signargs'}, $data->{'signflavor'});
+      $data = { %$data, 'pubkey' => $pubkey, 'signargs' => $signargs };
+    } else {
+      $data = {};
+    }
   }
 
   my $notary_uploads = {};
