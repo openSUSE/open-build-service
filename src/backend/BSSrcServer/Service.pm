@@ -519,15 +519,12 @@ sub runservice {
     die("403 service still running\n") if $cgi->{'triggerservicerun'} && -e $lockfile;
   }
 
-  my $projectservices;
-  eval {
-    $projectservices = getprojectservices($projid, $packid);
-  };
+  my $projectservices =  eval { getprojectservices($projid, $packid) };
   if ($@) {
     addrev_service($rev, $servicemark, $files, $@);
     return;
   }
-  undef $projectservices unless $projectservices && $projectservices->{'service'} && @{$projectservices->{'service'}};
+  undef $projectservices unless $projectservices && @{$projectservices->{'service'} || []};
 
   # collect current sources to POST them
   if (!$files->{'_service'} && !$projectservices) {
@@ -696,12 +693,13 @@ sub getprojectservices {
   my $projectrev = $getrev->($projid, '_project');
   my $projectfiles = BSRevision::lsrev($projectrev);
   if ($projectfiles->{'_service'}) {
-    $services = BSRevision::revreadxml($projectrev, '_service', $projectfiles->{'_service'}, $BSXML::services, 1) || {};
+    $services = BSRevision::revreadxml($projectrev, '_service', $projectfiles->{'_service'}, $BSXML::services_link, 1) || {};
   }
+  my $servicelink = delete $services->{'link'};
 
   # find further projects via project link
   my $proj = BSRevision::readproj_local($projid, 1);
-  for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
+  for my $lprojid (map {$_->{'project'}} (@{$proj->{'link'} || []}, @{$servicelink || []})) {
     my ($lproj, $lpack);
     eval {
       $lproj = BSRevision::readproj_local($lprojid, 1);

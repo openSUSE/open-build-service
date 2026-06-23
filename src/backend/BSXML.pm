@@ -1630,6 +1630,15 @@ our $services = [
     ]],
 ];
 
+# list of used services configured in a project. It can contain links to other projects.
+our $services_link = [
+    'services' =>
+     [[ 'link' =>
+	    'project',
+     ]],
+         $services->[1],
+];
+
 # service type definitions
 our $servicetype = [
     'service' =>
