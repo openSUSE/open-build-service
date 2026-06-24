@@ -10,6 +10,7 @@ class ReportToSCMJob < ApplicationJob
     Octokit::BadGateway,
     Octokit::ServiceUnavailable,
     Octokit::ServerError,
+    Octokit::Unauthorized,
     Faraday::ConnectionFailed,
     Faraday::TimeoutError
   ].freeze

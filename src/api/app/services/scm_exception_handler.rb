@@ -12,7 +12,6 @@ class SCMExceptionHandler
               Octokit::RepositoryUnavailable,
               Octokit::NotFound,
               Octokit::OneTimePasswordRequired,
-              Octokit::Unauthorized,
               Octokit::UnavailableForLegalReasons,
               Octokit::UnsupportedMediaType,
               Octokit::CommitIsNotPartOfPullRequest,
