@@ -142,6 +142,7 @@ jobs:
       - run: echo "run-migrations-tests is << pipeline.parameters.run-migrations-tests >>"
       - run: echo "run-dist-linter is << pipeline.parameters.run-dist-linter >>"
       - run: echo "run-haml-linter is << pipeline.parameters.run-haml-linter >>"
+      - run: echo "branch is << pipeline.event.github.ref >>"
 
   checkout_code:
     docker:
@@ -570,10 +571,6 @@ workflows:
       - backend_test
 
   next_rails:
-    when:
-      matches:
-        pattern: "^next_rails-.*$"
-        value: << pipeline.git.branch >>
     jobs:
       - checkout_code
       - next_rails-linters:
