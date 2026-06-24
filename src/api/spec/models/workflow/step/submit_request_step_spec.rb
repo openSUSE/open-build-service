@@ -45,6 +45,7 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
     before do
       login(user)
       allow(Backend::Api::Sources::Package).to receive(:wait_service).and_return(true)
+      allow(ReportToSCMJob).to receive(:perform_later)
     end
 
     context 'for a newly opened PR' do
@@ -53,6 +54,9 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
 
       it 'creates a submit request' do
         expect { subject.call }.to(change(BsRequest.where(state: 'new'), :count).by(1))
+        expect(ReportToSCMJob).to have_received(:perform_later).with(workflow_run: workflow_run,
+                                                                     event_payload: { number: BsRequest.last.number, state: :new },
+                                                                     event_type: 'Event::RequestStatechange')
       end
 
       it 'creates an event subcription' do
