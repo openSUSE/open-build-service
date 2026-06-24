@@ -105,6 +105,48 @@ RSpec.describe SourcePackageCommandController, :vcr do
     end
   end
 
+  describe 'POST #rebuild' do
+    let(:project) { create(:project_with_repository, name: 'foo', maintainer: user) }
+    let(:package) { create(:package, name: 'bar', project: project) }
+    let(:repository) { project.repositories.first }
+    let(:rebuild_params) { { repository: repository.name, arch: nil } }
+
+    before do
+      login user
+    end
+
+    context 'with an unknown repository' do
+      subject { post :rebuild, params: { cmd: 'rebuild', project: project.name, package: package.name, repo: 'missing', format: :xml } }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:rebuild)
+      end
+
+      it 'returns unknown_repository without triggering a rebuild' do
+        subject
+
+        expect(response.headers['X-Opensuse-Errorcode']).to eql('unknown_repository')
+        expect(Backend::Api::Sources::Package).not_to have_received(:rebuild)
+      end
+    end
+
+    context 'with a known repository' do
+      subject { post :rebuild, params: { cmd: 'rebuild', project: project.name, package: package.name, repo: repository.name, format: :xml } }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:rebuild).and_return("<status code=\"ok\" />\n")
+      end
+
+      it { expect(subject).to have_http_status(:ok) }
+
+      it 'triggers the rebuild for that repository' do
+        subject
+
+        expect(Backend::Api::Sources::Package).to have_received(:rebuild).with(project.name, package.name, rebuild_params)
+      end
+    end
+  end
+
   describe 'POST #undelete' do
     context 'without permissions to undelete the package' do
       let(:package) { create(:package) }
