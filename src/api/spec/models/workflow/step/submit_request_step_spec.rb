@@ -45,6 +45,7 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
     before do
       login(user)
       allow(Backend::Api::Sources::Package).to receive(:wait_service).and_return(true)
+      allow_any_instance_of(SCMStatusReporter).to receive(:call).and_return(true) # no need to report for real...
     end
 
     context 'for a newly opened PR' do
