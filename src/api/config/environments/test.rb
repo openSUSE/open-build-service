@@ -78,7 +78,7 @@ OBSApi::Application.configure do
   # TODO: This shouldn't be needed when we switch to RSpec completely
   config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 950
 
-  config.active_job.queue_adapter = :inline
+  config.active_job.queue_adapter = :test
   # Access to rack session for feature specs
   config.middleware.use RackSessionAccess::Middleware
 end
