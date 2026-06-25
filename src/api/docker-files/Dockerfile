@@ -11,7 +11,7 @@ RUN npm install -g jshint
 # brakeman: license does not allow shipping, so it can't be in our bundle. Sync version with .github/workflows/brakeman.yml
 # next_rails: To be able to call `next` the gem is also needed to be installed outside the bundle
 # foreman: https://github.com/ddollar/foreman/wiki/Don't-Bundle-Foreman
-RUN gem install --no-format-executable brakeman:7.1.1 next-rails foreman
+RUN gem install --no-format-executable brakeman:7.1.1 next_rails foreman
 
 # Configure our user
 RUN usermod -u $CONTAINER_USERID frontend
