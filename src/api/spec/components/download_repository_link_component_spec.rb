@@ -1,15 +1,11 @@
 RSpec.describe DownloadRepositoryLinkComponent, type: :component do
   let(:project) { create(:project, name: 'home:Admin') }
   let(:repository) { create(:repository, project: project, name: 'images') }
-  let(:configuration) { { 'download_url' => 'https://download.opensuse.org' } }
+  let(:configuration) { { 'download_url' => 'https://download.opensuse.org/repositories' } }
 
-  context 'when the backend returns a published repository URL' do
+  context 'when published artifacts exist for the repository' do
     before do
-      allow(Backend::Api::Published).to receive(:download_url_for_repository).with(project.to_s, repository.to_s).and_return(<<~XML)
-        <directory>
-          <url>https://download.opensuse.org/repositories/home:/Admin/images</url>
-        </directory>
-      XML
+      allow(Backend::Api::Published).to receive(:published_repository_exist?).with(project.to_s, repository.to_s).and_return(true)
 
       render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
     end
@@ -19,9 +15,9 @@ RSpec.describe DownloadRepositoryLinkComponent, type: :component do
     end
   end
 
-  context 'when the backend does not return a published repository URL' do
+  context 'when no published artifacts exist for the repository' do
     before do
-      allow(Backend::Api::Published).to receive(:download_url_for_repository).with(project.to_s, repository.to_s).and_return('<directory/>')
+      allow(Backend::Api::Published).to receive(:published_repository_exist?).with(project.to_s, repository.to_s).and_return(false)
 
       render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
     end
@@ -34,7 +30,7 @@ RSpec.describe DownloadRepositoryLinkComponent, type: :component do
 
   context 'when the published repository is missing' do
     before do
-      allow(Backend::Api::Published).to receive(:download_url_for_repository).with(project.to_s, repository.to_s).and_raise(Backend::NotFoundError)
+      allow(Backend::Api::Published).to receive(:published_repository_exist?).with(project.to_s, repository.to_s).and_raise(Backend::NotFoundError)
 
       render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
     end
