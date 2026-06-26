@@ -12,6 +12,8 @@ http_interactions:
           <person userid="Iggy" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1782473809'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -39,19 +41,21 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 21 Mar 2024 16:29:09 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_3
+    uri: http://backend:5352/source/foo_project/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Needle's Eye</title>
+          <title>The Way of All Flesh</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1782473809'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -70,27 +74,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Needle's Eye</title>
+          <title>The Way of All Flesh</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 21 Mar 2024 16:29:09 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_4
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Way Through the Woods</title>
-          <description>Velit totam cum at.</description>
+          <title>Time To Murder And Create</title>
+          <description>Earum numquam sit quia.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1782473809'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -109,22 +115,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Way Through the Woods</title>
-          <description>Velit totam cum at.</description>
+          <title>Time To Murder And Create</title>
+          <description>Earum numquam sit quia.</description>
         </package>
-  recorded_at: Thu, 21 Mar 2024 16:29:09 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Quam rem ut. Voluptate cumque in. Expedita ut et.
+      string: Consectetur nam doloremque. Non fuga qui. Porro voluptas totam.
     headers:
+      X-Frontend-Start:
+      - '1782473809'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -143,27 +151,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>ee30448a58c58d3c22ad42bf731c7d17</srcmd5>
+        <revision rev="81" vrev="81">
+          <srcmd5>67c29fbc2ff0b1a0ea5cf344d17ef306</srcmd5>
           <version>unknown</version>
-          <time>1711038549</time>
+          <time>1782473809</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Mar 2024 16:29:09 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Doloremque quam perspiciatis. Nihil quia aperiam. Consectetur dolorem
-        perferendis.
+      string: Et nesciunt repellat. Accusantium repellendus rerum. Deserunt nisi repellat.
     headers:
+      X-Frontend-Start:
+      - '1782473809'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -182,22 +191,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>7fb79674dccd1b98c24bc2626a660c2f</srcmd5>
+        <revision rev="82" vrev="82">
+          <srcmd5>e5ba9c8869f2ccfdf69422e7869cf777</srcmd5>
           <version>unknown</version>
-          <time>1711038549</time>
+          <time>1782473809</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Mar 2024 16:29:09 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?comment=SCM/CI%20integration,%20link_package%20step&user=Iggy
     body:
       encoding: UTF-8
       string: |
@@ -207,6 +216,8 @@ http_interactions:
           <person userid="Iggy" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1782473809'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -234,7 +245,7 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 21 Mar 2024 16:29:09 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
@@ -246,6 +257,8 @@ http_interactions:
           <description/>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1782473809'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -272,7 +285,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Thu, 21 Mar 2024 16:29:09 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_link?user=Iggy
@@ -280,6 +293,8 @@ http_interactions:
       encoding: UTF-8
       string: <link project="foo_project" package="bar_package"/>
     headers:
+      X-Frontend-Start:
+      - '1782473809'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -298,17 +313,49 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '204'
+      - '206'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
+        <revision rev="17" vrev="17">
           <srcmd5>020ffadcfeb53d8832109237d35e8733</srcmd5>
           <version>unknown</version>
-          <time>1711038549</time>
+          <time>1782473809</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Mar 2024 16:29:09 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Fri, 26 Jun 2026 11:36:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_link
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1782473809'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '51'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: <link project="foo_project" package="bar_package"/>
+  recorded_at: Fri, 26 Jun 2026 11:36:49 GMT
+recorded_with: VCR 6.4.0

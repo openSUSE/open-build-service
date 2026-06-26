@@ -12,6 +12,8 @@ http_interactions:
           <person userid="Iggy" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1782473810'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -39,19 +41,21 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 21 Mar 2024 16:29:08 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:50 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_1
+    uri: http://backend:5352/source/foo_project/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Glory and the Dream</title>
+          <title>Frequent Hearses</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1782473810'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -70,27 +74,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Glory and the Dream</title>
+          <title>Frequent Hearses</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 21 Mar 2024 16:29:08 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:50 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_2
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_11
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Stranger in a Strange Land</title>
-          <description>Et repudiandae asperiores deserunt.</description>
+          <title>The Far-Distant Oxus</title>
+          <description>Quas quo et mollitia.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1782473810'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -109,22 +115,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Stranger in a Strange Land</title>
-          <description>Et repudiandae asperiores deserunt.</description>
+          <title>The Far-Distant Oxus</title>
+          <description>Quas quo et mollitia.</description>
         </package>
-  recorded_at: Thu, 21 Mar 2024 16:29:08 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Eius id qui. Eaque nobis sed. Quam molestias sed.
+      string: Impedit consequuntur quae. Mollitia consequatur fugiat. Accusamus officiis
+        voluptatem.
     headers:
+      X-Frontend-Start:
+      - '1782473810'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -143,26 +152,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>735f65a189fa561b4b419caf6fd25871</srcmd5>
+        <revision rev="85" vrev="85">
+          <srcmd5>9a7267479f716f835633e3f482c98bd6</srcmd5>
           <version>unknown</version>
-          <time>1711038548</time>
+          <time>1782473810</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Mar 2024 16:29:08 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Possimus temporibus exercitationem. Non qui illum. Aut quis consequuntur.
+      string: Quo omnis similique. Adipisci eum delectus. Explicabo consectetur tenetur.
     headers:
+      X-Frontend-Start:
+      - '1782473810'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -181,22 +192,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>ac32451bbfa599e0e6a9c4d3fa8e0903</srcmd5>
+        <revision rev="86" vrev="86">
+          <srcmd5>9fea661d59fd27852cd36b7bbccf3956</srcmd5>
           <version>unknown</version>
-          <time>1711038548</time>
+          <time>1782473810</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Mar 2024 16:29:08 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:50 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?comment=SCM/CI%20integration,%20link_package%20step&user=Iggy
     body:
       encoding: UTF-8
       string: |
@@ -206,6 +217,8 @@ http_interactions:
           <person userid="Iggy" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1782473810'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -233,7 +246,7 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 21 Mar 2024 16:29:08 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
@@ -245,6 +258,8 @@ http_interactions:
           <description/>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1782473810'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -271,7 +286,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Thu, 21 Mar 2024 16:29:08 GMT
+  recorded_at: Fri, 26 Jun 2026 11:36:50 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_link?user=Iggy
@@ -279,6 +294,8 @@ http_interactions:
       encoding: UTF-8
       string: <link project="foo_project" package="bar_package"/>
     headers:
+      X-Frontend-Start:
+      - '1782473810'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -297,17 +314,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '204'
+      - '206'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
+        <revision rev="19" vrev="19">
           <srcmd5>020ffadcfeb53d8832109237d35e8733</srcmd5>
           <version>unknown</version>
-          <time>1711038549</time>
+          <time>1782473810</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 21 Mar 2024 16:29:09 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Fri, 26 Jun 2026 11:36:50 GMT
+recorded_with: VCR 6.4.0
