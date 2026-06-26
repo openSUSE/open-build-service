@@ -1,0 +1,47 @@
+RSpec.describe DownloadRepositoryLinkComponent, type: :component do
+  let(:project) { create(:project, name: 'home:Admin') }
+  let(:repository) { create(:repository, project: project, name: 'images') }
+  let(:configuration) { { 'download_url' => 'https://download.opensuse.org' } }
+
+  context 'when the backend returns a published repository URL' do
+    before do
+      allow(Backend::Api::Published).to receive(:download_url_for_repository).with(project.to_s, repository.to_s).and_return(<<~XML)
+        <directory>
+          <url>https://download.opensuse.org/repositories/home:/Admin/images</url>
+        </directory>
+      XML
+
+      render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
+    end
+
+    it 'renders the download repository link' do
+      expect(rendered_content).to have_link('Go to download repository', href: 'https://download.opensuse.org/repositories/home:/Admin/images')
+    end
+  end
+
+  context 'when the backend does not return a published repository URL' do
+    before do
+      allow(Backend::Api::Published).to receive(:download_url_for_repository).with(project.to_s, repository.to_s).and_return('<directory/>')
+
+      render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
+    end
+
+    it 'renders the fallback text instead of a broken link' do
+      expect(rendered_content).to have_text('There are no published packages')
+      expect(rendered_content).to have_no_link('Go to download repository')
+    end
+  end
+
+  context 'when the published repository is missing' do
+    before do
+      allow(Backend::Api::Published).to receive(:download_url_for_repository).with(project.to_s, repository.to_s).and_raise(Backend::NotFoundError)
+
+      render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
+    end
+
+    it 'renders the fallback text instead of a broken link' do
+      expect(rendered_content).to have_text('There are no published packages')
+      expect(rendered_content).to have_no_link('Go to download repository')
+    end
+  end
+end
