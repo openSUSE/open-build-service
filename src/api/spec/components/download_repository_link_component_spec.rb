@@ -22,8 +22,7 @@ RSpec.describe DownloadRepositoryLinkComponent, type: :component do
       render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
     end
 
-    it 'renders the fallback text instead of a broken link' do
-      expect(rendered_content).to have_text('There are no published packages')
+    it 'renders nothing and hides the link' do
       expect(rendered_content).to have_no_link('Go to download repository')
     end
   end
@@ -35,8 +34,7 @@ RSpec.describe DownloadRepositoryLinkComponent, type: :component do
       render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
     end
 
-    it 'renders the fallback text instead of a broken link' do
-      expect(rendered_content).to have_text('There are no published packages')
+    it 'renders nothing and hides the link' do
       expect(rendered_content).to have_no_link('Go to download repository')
     end
   end
