@@ -7,15 +7,16 @@ class DownloadRepositoryLinkComponent < ApplicationComponent
     download_url = configuration['download_url']
     return unless download_url
 
-    @download_area_url = published_repository_url(project: project, repository: repository)
+    return unless published_repository?(project: project, repository: repository)
+
+    @download_area_url = "#{download_url}/#{project.to_s.gsub(/:/, ':/')}/#{repository}"
   end
 
   private
 
-  def published_repository_url(project:, repository:)
-    xml = Xmlhash.parse(Backend::Api::Published.download_url_for_repository(project.to_s, repository.to_s))
-    xml.elements('url').last.to_s.presence
+  def published_repository?(project:, repository:)
+    Backend::Api::Published.published_repository_exist?(project.to_s, repository.to_s)
   rescue Backend::NotFoundError
-    nil
+    false
   end
 end
