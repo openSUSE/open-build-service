@@ -1,0 +1,80 @@
+-# TODO: replace by helper
+- badge_state = BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'ms-2')
+
+.card-title.d-flex.justify-content-between.mb-2.pt-4.px-4
+  %h3
+    Request #{bs_request.number}
+    -# state badge
+    %small
+      = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'ms-2', overview: true)
+      = render badge_state
+      -# Maintenance Incident Request
+      - if bs_request.maintenance_incident_request?
+        %span.badge.bg-maintenance.text-light.ms-2 Maintenance Incident
+      %span.ms-2
+        = render ReportsNoticeComponent.new(reportable: bs_request, user: User.session)
+
+  -# watch button
+  - if User.session
+    .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
+      = render WatchlistIconComponent.new(user: User.session,
+                                          bs_request: bs_request,
+                                          current_object: bs_request)
+
+-# author + datetime + (if superseding -> "Superseds something")
+.card-text.px-4.pb-4
+  %p.fst-italic
+    Created by
+    = user_with_realname_and_icon(bs_request.creator)
+    = render TimeComponent.new(time: bs_request.created_at)
+
+  %ul
+    -# superseded
+    - if bs_request.superseded_by.present?
+      %li
+        %mark.text-nowrap{ class: "text-bg-#{badge_state.decode_state_color}" } Superseded
+        by
+        = link_to "##{bs_request.superseded_by}", number: bs_request.superseded_by
+    -# superseding statement
+    - if bs_request.superseding.present?
+      %li
+        %strong Supersedes
+        - bs_request.superseding.each do |supersed|
+          = link_to "##{supersed['number']}", number: supersed['number']
+          = link_to "(changes from superseded)", request_changes_path(bs_request, diff_to_superseded: supersed)
+    -# staging statement
+    - if staging_status
+      - staging_project = staging_status[:staging_project]
+      %li
+        - if staging_project
+          %mark.text-light.bg-staging.text-nowrap.text Staged
+          in
+          = link_to staging_project[:name], staging_project[:url]
+        - else
+          %strong Waiting
+          to be
+          %mark.text-light.bg-staging.text-nowrap.text-decoration-underline
+            = link_to 'staged', staging_status[:target_project_staging_url]
+    -# auto-accept statement
+    - if bs_request.accept_at.present?
+      %li
+        This request will be
+        %mark.text-dark.alert-warning.ps-2.pe-2.text-nowrap{ title: bs_request.accept_at }
+          auto accepted
+          = render TimeComponent.new(time: bs_request.accept_at)
+    -# Maintenance Release Request
+    - if bs_request.maintenance_release_request?
+      %li
+        This is a
+        %mark.text-light.bg-maintenance.text-nowrap.text Maintenance Release
+        request
+  .mt-4
+    %h5.mt-4
+      Actions
+    = render partial: 'webui/request/request_header_actions_list', locals: { bs_request: bs_request }
+  - if Flipper.enabled?(:labels, User.session)
+    .mt-4
+      = render partial: 'webui/shared/label', collection: bs_request.labels.map(&:label_template), as: :label
+      - project = project_for_labels(bs_request)
+      - if can_apply_labels?(bs_request: bs_request, user: User.session) && project.label_templates.present?
+        = render partial: 'webui/shared/label_form', locals: { labelable: bs_request, project: project}

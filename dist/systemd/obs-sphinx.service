@@ -1,0 +1,18 @@
+[Unit]
+Description = Open Build Service Sphinx Search Daemon
+BindsTo = obs-api-support.target
+Conflicts = searchd.service
+After = mariadb.service obsapisetup.service
+
+[Service]
+Environment = "RAILS_ENV=production"
+User = @@APACHE_USER@@
+Group = @@APACHE_GROUP@@
+WorkingDirectory = @@OBS_API_PREFIX@@
+ExecStart = @@OBS_API_PREFIX@@/bin/rails sphinx:start
+ExecStop = @@OBS_API_PREFIX@@/bin/rails ts:stop
+Type = forking
+PIDFile = @@OBS_API_PREFIX@@/log/production.sphinx.pid
+
+[Install]
+WantedBy = obs-api-support.target

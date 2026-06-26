@@ -1,0 +1,69 @@
+get:
+  summary: Get list of checks in the request
+  description: Get a full list of checks in the request's status reports
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestId'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/status_report.yaml'
+          example:
+            check:
+              - name: First
+                required: false
+                state: pending
+                short_description: This is the first of the checks
+                url: https://ci.opensuse.org/
+              - name: Second
+                required: true
+                state: success
+                short_description: This is the second of the checks
+                url: https://check.opensuse.org/
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/not_found.yaml'
+  tags:
+    - Status Reports
+
+post:
+  summary: Submit a check to the request's status report
+  description: Create or update a check to the status report for the request
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestId'
+  requestBody:
+    description: Check definition.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/check.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/check.yaml'
+          example:
+            name: First
+            required: false
+            state: pending
+            short_description: This is the first of the checks
+            url: https://ci.opensuse.org/
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/report_forbidden.yaml'
+    '404':
+      $ref: '../components/responses/not_found.yaml'
+    '422':
+      $ref: '../components/responses/invalid_check.yaml'
+  tags:
+    - Status Reports

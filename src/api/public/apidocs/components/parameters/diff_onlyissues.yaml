@@ -1,0 +1,9 @@
+in: query
+name: onlyissues
+schema:
+  type: string
+  enum:
+    - 1
+    - 0
+description: Set to `1` to show no source diff, only the tracker issues and their change state.
+example: 1

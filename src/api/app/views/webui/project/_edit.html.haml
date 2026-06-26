@@ -1,0 +1,35 @@
+= form_for(project, url: project_update_url, method: :patch, remote: true) do |form|
+  %h5 Edit Project #{project}
+  = hidden_field_tag(:id, project.id)
+  .mb-3
+    = form.label(:title, 'Title:')
+    = form.text_field(:title, class: 'form-control', autofocus: true)
+  .mb-3
+    = form.label(:url, 'URL:')
+    = form.text_field(:url, class: 'form-control')
+  - if feature_enabled?('foster_collaboration')
+    .mb-3
+      = form.label(:report_bug_url, 'Report Bug URL:')
+      = form.url_field(:report_bug_url, class: 'form-control')
+  .mb-3
+    = render partial: 'webui/shared/search_box', locals: { html_id: 'anitya_distribution_search',
+                                                           html_name: 'project[anitya_distribution_name]',
+                                                           label: 'Anitya Distribution Name:',
+                                                           data: { source: autocomplete_anitya_distributions_path },
+                                                           required: false,
+                                                           value: project.anitya_distribution_name }
+    .form-text.text-muted
+      Check the
+      = link_to 'Version Tracking Guide',
+        'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-versiontracking',
+        target: '_blank',
+        rel: 'noopener'
+  .mb-3
+    = form.label(:description, 'Description:')
+    = render WriteAndPreviewComponent.new(form: form, preview_message_url: project_preview_description_path,
+                                        message_body_param: 'project[description]',
+                                        text_area_attributes: { rows: 8, placeholder: 'Write your description here... (Markdown markup is supported)',
+                                        required: false, object_name: :description})
+  .mb-3.text-end
+    = link_to 'Cancel', project_show_path(project), class: 'cancel btn btn-outline-danger px-4', remote: true
+    = submit_tag('Update', class: 'btn btn-primary px-4')

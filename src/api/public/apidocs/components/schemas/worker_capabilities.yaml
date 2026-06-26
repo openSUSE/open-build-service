@@ -1,0 +1,41 @@
+type: object
+properties:
+  hostarch:
+    type: string
+    xml:
+      attribute: true
+  registerserver:
+    type: string
+    xml:
+      attribute: true
+  workerid:
+    type: string
+    xml:
+      attribute: true
+  hostlabel:
+    type: string
+  sandbox:
+    type: string
+  linux:
+    type: object
+    properties:
+      version:
+        type: string
+      flavor:
+        type: string
+  hardware:
+    type: object
+    properties:
+      cpu:
+        type: object
+        properties:
+          flag:
+            type: array
+            items:
+              type: string
+      processors:
+        type: string
+      jobs:
+        type: string
+xml:
+  name: worker

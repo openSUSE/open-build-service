@@ -1,0 +1,8 @@
+get:
+  deprecated: true
+  summary: This endpoint is deprecated
+  description: This endpoint is no longer supported or might not work as expected.
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  tags:
+    - Statistics

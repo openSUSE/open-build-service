@@ -1,0 +1,8 @@
+in: query
+name: file[]
+schema:
+  type: array
+  elements:
+    type: string
+description: Limit diff to the given file names.
+example: ['hello_world.spec', 'my_program.c']

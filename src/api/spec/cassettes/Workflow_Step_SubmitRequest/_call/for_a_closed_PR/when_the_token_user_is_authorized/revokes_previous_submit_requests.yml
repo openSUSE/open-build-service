@@ -1,0 +1,366 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title/>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title></title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/_meta?user=user_19
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>Mr Standfast</title>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>Mr Standfast</title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_20
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="foo_project">
+          <title>This Lime Tree Bower</title>
+          <description>Veritatis at nihil dicta.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="foo_project">
+          <title>This Lime Tree Bower</title>
+          <description>Veritatis at nihil dicta.</description>
+        </package>
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/_config
+    body:
+      encoding: UTF-8
+      string: Et optio ad. Voluptatem hic ducimus. Qui consequuntur non.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '213'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2263" vrev="2263">
+          <srcmd5>c4be4a4582f16fd362f0028814713be5</srcmd5>
+          <version>unknown</version>
+          <time>1691075778</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Ut neque dolores. Provident quia doloremque. Sit voluptatum sit.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '213'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2264" vrev="2264">
+          <srcmd5>a618191440ae5c46ae58d1ab72fc35b8</srcmd5>
+          <version>unknown</version>
+          <time>1691075778</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/baz_project/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="baz_project">
+          <title>What's Become of Waring</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="baz_project">
+          <title>What's Become of Waring</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '405'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="2264" vrev="2264" srcmd5="a618191440ae5c46ae58d1ab72fc35b8">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="c80ab2581e1e4a0e470ef1133d5d0445" size="58" mtime="1691075778"/>
+          <entry name="somefile.txt" md5="3539f0b03abca8940be2d4aa3ef26c59" size="64" mtime="1691075778"/>
+        </directory>
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/foo_project/bar_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '405'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="bar_package" rev="2264" vrev="2264" srcmd5="a618191440ae5c46ae58d1ab72fc35b8">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="c80ab2581e1e4a0e470ef1133d5d0445" size="58" mtime="1691075778"/>
+          <entry name="somefile.txt" md5="3539f0b03abca8940be2d4aa3ef26c59" size="64" mtime="1691075778"/>
+        </directory>
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=2264&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1228'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="e86393c285ca89b1d2c02a744c3c8cfa">
+          <old project="foo_project" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="foo_project" package="bar_package" rev="2264" srcmd5="a618191440ae5c46ae58d1ab72fc35b8"/>
+          <files>
+            <file state="added">
+              <new name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +{&quot;action&quot;:&quot;synchronize&quot;,&quot;pull_request&quot;:{&quot;head&quot;:{&quot;repo&quot;:{&quot;full_name&quot;:&quot;source_repository_full_name&quot;},&quot;sha&quot;:&quot;123&quot;}}}
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="_config" md5="c80ab2581e1e4a0e470ef1133d5d0445" size="58"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Et optio ad. Voluptatem hic ducimus. Qui consequuntur non.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="somefile.txt" md5="3539f0b03abca8940be2d4aa3ef26c59" size="64"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Ut neque dolores. Provident quia doloremque. Sit voluptatum sit.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
+recorded_with: VCR 6.2.0

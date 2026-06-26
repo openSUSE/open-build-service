@@ -1,0 +1,27 @@
+-------------------------------------------------------------------
+Thu Oct 30 08:57:13 UTC 2014 - adrian@suse.de
+
+- new change upstream
+
+-------------------------------------------------------------------
+Sat Jun 03 00:00:00 CEST 2006 - adrian@suse.de
+
+- One old entry
+
+-------------------------------------------------------------------
+Tue May 30 00:00:00 CEST 2006 - adrian@suse.de
+
+- Another old entry with the special case:
+  * same day and same time
+  * time is 00:00:00
+
+-------------------------------------------------------------------
+Tue May 30 00:00:00 CEST 2006 - adrian@suse.de
+
+- and a third one
+
+-------------------------------------------------------------------
+Tue May 23 00:00:00 CEST 2006 - adrian@suse.de
+
+- different date at least, TYPO
+

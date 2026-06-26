@@ -1,0 +1,59 @@
+// TODO: try to unify these rules with those in build-results.scss they are very similar.
+
+.collapsible-tooltip { cursor: pointer; }
+.collapsible-tooltip-parent { z-index: 2; }
+
+.extended-info {
+  @extend .d-flex;
+  @extend .flex-column;
+  position: relative;
+  background-color: $gray-700;
+  max-height: 100vh;
+  transition: max-height .3s 0s ease-in-out, mrgin-bottom .1s .1s linear;
+
+  .triangle {
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: -.5rem;
+    border-left: .5rem solid transparent;
+    border-right: .5rem solid transparent;
+    border-bottom: .5rem solid $gray-700;
+    transition: top .3s .1s ease-in-out, opacity 0.1s .2s ease-in-out;
+
+    &.left { left: .5rem; }
+  }
+
+  .extended-info-content {
+    overflow-y: hidden;
+  }
+
+  &.collapsed {
+    max-height: 0;
+    @extend .mb-0;
+
+    .triangle {
+      top: 0;
+      opacity: 0;
+    }
+  }
+
+  &.hover {
+    max-height: 100vh;
+
+    .triangle {
+      top: -.5rem;
+      opacity: 1;
+    }
+  }
+}
+
+@include media-breakpoint-up(md) {
+  .main-info .triangle.left { left: .25rem; }
+}
+
+@include media-breakpoint-between(sm, lg) {
+  .extended-info .triangle {
+    &.left { left: .5rem; }
+  }
+}

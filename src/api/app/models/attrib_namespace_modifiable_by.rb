@@ -1,0 +1,29 @@
+class AttribNamespaceModifiableBy < ApplicationRecord
+  belongs_to :attrib_namespace
+  belongs_to :user, optional: true
+  belongs_to :group, optional: true
+
+  validates :attrib_namespace, uniqueness: { scope: %i[user group] }
+end
+
+# == Schema Information
+#
+# Table name: attrib_namespace_modifiable_bies
+#
+#  id                  :integer          not null, primary key
+#  attrib_namespace_id :integer          not null, uniquely indexed => [user_id, group_id]
+#  group_id            :integer          uniquely indexed => [attrib_namespace_id, user_id], indexed
+#  user_id             :integer          uniquely indexed => [attrib_namespace_id, group_id], indexed
+#
+# Indexes
+#
+#  attrib_namespace_user_role_all_index  (attrib_namespace_id,user_id,group_id) UNIQUE
+#  bs_group_id                           (group_id)
+#  bs_user_id                            (user_id)
+#
+# Foreign Keys
+#
+#  attrib_namespace_modifiable_bies_ibfk_1  (attrib_namespace_id => attrib_namespaces.id)
+#  attrib_namespace_modifiable_bies_ibfk_4  (user_id => users.id)
+#  attrib_namespace_modifiable_bies_ibfk_5  (group_id => groups.id)
+#

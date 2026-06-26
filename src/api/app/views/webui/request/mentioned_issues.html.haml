@@ -1,0 +1,37 @@
+:ruby
+  @pagetitle = "Request #{@bs_request.number}: #{@action.name}"
+
+.card
+  .card-body.p-0
+    = render partial: 'request_header',
+        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action,
+                  prev_action: @prev_action, next_action: @next_action, actions: @actions,
+                  diff_to_superseded_id: @diff_to_superseded_id, page_name: 'request_mentioned_issues',
+                  bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects,
+                  current_notification: @current_notification }
+    = render partial: 'request_tabs',
+        locals: { bs_request: @bs_request, action: @action, issues: @issues,
+                  actions_count: @actions.count, active_tab: @active_tab }
+    - if @actions.count > 1
+      .mt-4
+        -# action description, prev + dropdown select + next
+        = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action,
+                                                        prev_action: @prev_action, next_action: @next_action,
+                                                        actions: @actions, diff_to_superseded_id: @diff_to_superseded_id,
+                                                        page_name: 'request_mentioned_issues', notification_id: @current_notification,
+                                                        current_notification: @current_notification }
+    .container.p-4
+      - if @issues.empty?
+        %p No issues are mentioned for this request action.
+      - else
+        %ul.list-group.list-group-flush
+          - @issues.each do |issue_name, issue_details|
+            %li.list-group-item
+              = link_to(issue_name, issue_details[:url], target: '_blank', rel: 'noopener')
+              - if issue_details[:state]
+                %span.ms-3= issue_details[:state]&.capitalize
+              - if issue_details[:owner]
+                %span.ms-3= user_with_realname_and_icon issue_details[:owner], short: true
+
+              - if issue_details[:summary]
+                = render partial: 'webui/shared/collapsible_text', locals: { text: issue_details[:summary], extra_css_classes: 'mt-2' }

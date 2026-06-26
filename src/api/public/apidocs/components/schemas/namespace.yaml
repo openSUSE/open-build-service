@@ -1,0 +1,19 @@
+type: object
+properties:
+  name:
+    type: string
+    example: 'OBS_TEST'
+    xml:
+      attribute: true
+  modifiable_by:
+    type: array
+    items:
+      type: object
+      properties:
+        user:
+          type: string
+          example: 'user_login_name'
+          xml:
+            attribute: true
+xml:
+  name: namespace

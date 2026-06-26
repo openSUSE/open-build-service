@@ -1,0 +1,57 @@
+#!/bin/bash
+
+
+echo "This script rebuilds the DB for an OBS system from an existing backend"
+echo "since OBS api does not support user / group operations, you have to restore users by hand first"
+echo "you have to 1. setup working OBS 2. restore all backend data, incl. projects dir"
+echo "3. copy the data from projects (.xml, .conf, .pkg files and dirs) to the . dir"
+echo "call this script from . and a parameter to your api server"
+echo "since the backend xml data contain also the revision control info, you get back also commit history"
+echo "also, .conf files for a project are also not stored in the DB so you get them also back with this method"
+echo
+echo "last but not least, be carefuly with project dependencies, they are not resolved with this script"
+echo
+
+
+date
+echo
+
+APISERVER="$1"
+test -n "$APISERVER" || echo "usage: $0 <apiserver>, e.g. $0 https://api.opensuse.org"
+
+echo "OBS recreating projects for api server "$APISERVER""
+echo
+
+for f in *.xml
+do
+    base=${f%%.xml}
+    (set -x && 
+	osc -A "$APISERVER" meta prj -F $f $base
+    )
+done
+
+echo
+echo "OBS recreating packages"
+echo
+
+for f in *.pkg
+do
+    base=${f%%.pkg}
+    echo
+    echo "OBS recreating packages for project $f"
+    echo
+    (
+	cd $f
+	for g in *.xml
+	do
+	    pkgbase=${g%%.xml}
+	    (set -x && 
+		osc -A "$APISERVER" meta pkg -F $g $base $pkgbase
+	    )
+	done
+    )
+done
+
+echo
+date
+echo

@@ -1,0 +1,26 @@
+.card.mb-2
+  .nested-fields
+    %h5.card-header#image-name
+      Preferences
+    .card-body
+      - image.preferences.each do |preference|
+        %h6= preference.profile
+        %ul.list-inline
+          %li.list-inline-item
+            %strong Image type:
+            %span{ data: { tag: 'type_image' } }= preference.type_image
+          %li.list-inline-item
+            %strong Version:
+            %span.fill{ data: { tag: 'version' } }= preference.version
+          - if preference.containerconfig_fields_editable?
+            %li.list-inline-item
+              %strong Container config name:
+              %span.fill{ data: { tag: 'type_containerconfig_name' } }= preference.type_containerconfig_name
+            %li.list-inline-item
+              %strong Container config tag:
+              %span.fill{ data: { tag: 'type_containerconfig_tag' } }= preference.type_containerconfig_tag
+      .pt-4
+        = link_to('#', data: { 'bs-target': '#preferences-edit', 'bs-toggle': 'modal' }) do
+          %i.fas.fa-edit.text-secondary
+          Edit Preferences
+        = render partial: 'preferences_form', locals: { f: f, image: image }

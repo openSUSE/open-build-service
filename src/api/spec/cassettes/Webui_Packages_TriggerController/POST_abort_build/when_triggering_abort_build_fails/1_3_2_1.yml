@@ -1,0 +1,194 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>Beyond the Mexique Bay</title>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>Beyond the Mexique Bay</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 13 Jun 2024 16:36:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="my_project">
+          <title>Blithe Spirit</title>
+          <description>Consequatur velit et accusantium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="my_project">
+          <title>Blithe Spirit</title>
+          <description>Consequatur velit et accusantium.</description>
+        </package>
+  recorded_at: Thu, 13 Jun 2024 16:36:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/my_package/_config
+    body:
+      encoding: UTF-8
+      string: Neque voluptatum et. Culpa reiciendis quidem. Voluptatum consequatur
+        eligendi.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>b871677d65914adbcd3029431409268d</srcmd5>
+          <version>unknown</version>
+          <time>1718296580</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 16:36:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/my_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Velit veritatis voluptatem. Dolorum laborum cupiditate. Beatae enim
+        id.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>beb276ebed58d73d1227835b241809d2</srcmd5>
+          <version>unknown</version>
+          <time>1718296580</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 16:36:20 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/my_project?cmd=abortbuild&package=my_package
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: no repository defined
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '73'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>no repository defined</summary>
+        </status>
+  recorded_at: Thu, 13 Jun 2024 16:36:20 GMT
+recorded_with: VCR 6.2.0

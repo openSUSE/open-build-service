@@ -1,0 +1,15 @@
+There was
+- if new_packages.any?
+  %b.text-success
+    = new_packages.count
+    = 'package'.pluralize(new_packages.count)
+    created
+- else
+  no package created
+- if deleted_packages.any?
+  and
+  %b.text-danger
+    = deleted_packages.count
+    deleted.
+- else
+  \.

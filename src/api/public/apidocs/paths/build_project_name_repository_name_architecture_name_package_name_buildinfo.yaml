@@ -1,0 +1,163 @@
+get:
+  summary: Return build information about a build description would produce.
+  description: |
+    Get build information using the default spec file.
+
+    To use other file than the default spec file, use this same endpoint path with the `POST` action.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - name: add
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+      description: Add a list of build dependencies (`BuildRequires`) to the build.
+      example:
+        - less
+        - vim
+    - name: debug
+      in: query
+      schema:
+        type: string
+      description: Set to `1` to add debug information about dependencies. This information is added inside an `expandeddebug` xml element.
+      example: 0
+  responses:
+    '200':
+      description:
+        Returns the artifact building information.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/buildinfo.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'unknown_project'
+            summary: 'Project not found: 1'
+
+  tags:
+    - Build
+
+post:
+  summary: Return build information about a build description would produce.
+  description: |
+    Get build information using the file passed in the request body.
+
+    Despite using the method `POST`, this endpoint doesn't alter any data.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - in: path
+      name: package_name
+      schema:
+        type: string
+      required: true
+      description: |
+        Package name.
+
+        It can take the value `_repository`, if the designated package does not exist yet in the server.
+        This is useful for testing a build locally before committing a package.
+      examples:
+        Normal Package Name:
+          value: ctris
+        No Package Yet:
+          value: _repository
+    - name: add
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+      description: Add a list of build dependencies (`BuildRequires`) to the build.
+      example:
+        - less
+        - vim
+    - name: debug
+      in: query
+      schema:
+        type: string
+      description: Set to `1` to add debug information about dependencies. This information is added inside an `expandeddebug` xml element.
+      example: 0
+  requestBody:
+    description: A RPM specfile or a Debian "dsc" file.
+    required: true
+    content:
+      text/plain:
+        schema:
+          type: string
+        example: |
+          Name:       hello_world
+          Version:    1
+          Release:    1
+          Summary:    Most simple RPM package
+          License:    CC0-1.0
+
+          %build
+          cat > hello_world.sh <<EOF
+          #!/usr/bin/bash
+          echo Hello world
+          EOF
+
+          %install
+          mkdir -p %{buildroot}/usr/bin/
+          install -m 755 hello_world.sh %{buildroot}/usr/bin/hello_world.sh
+
+          %files
+          /usr/bin/hello_world.sh
+  responses:
+    '200':
+      description:
+        Returns the artifact building information.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/buildinfo.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 400
+            origin: backend
+            details: '400 remote error: could not parse name in build description (spec) (http://backend:5252/build/home:Admin/openSUSE_Tumbleweed/x86_64/hello_world/_buildinfo)'
+            summary: 'remote error: could not parse name in build description (spec) (http://backend:5252/build/home:Admin/openSUSE_Tumbleweed/x86_64/hello_world/_buildinfo)'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'unknown_project'
+            summary: 'Project not found: 1'
+
+  tags:
+    - Build

@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<productdefinition xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!--
+  todo:
+  - local xml catalogs for xi:include
+  - check if we can map unknown protocols with it
+  - repository list
+  - assign repos per packet/group
+  - exclusion syntax for single packages
+  - pattern translations -> tool needs to create pot file from the xml
+  - solver:
+  + choose locales automatically
+  + conflicting patterns and packages
+  + group with "preferd" packages for the solver (postfix vs. sendmail)
+
+  o DISCUSS:
+	- How to set the priority (for example: repositories, archs): 
+      + use the listed order
+
+  -->
+  <products>
+    <product id="sle-11-server">
+      <vendor>Novell</vendor>
+      <name>SLES</name>
+		<!-- TODO: add Tag for missing service pack information like <productrelease>2</productrelease> for SLES-11-SP2 -->
+      <version>11</version>
+      <release>0</release>
+      <!-- ^^^ needed for example if an ISO has to rebuild /* NEEDS TO BE DISCUSSED */ -->
+      <!-- Please have a look at the Products file definition (http://en.opensuse.org/Build_Service/Product_Definition/products_file).
+      for details about the ncc_target. -->
+      <!--
+      /* required for NCC registration */ 
+      Note: this Flag has to be discussed between PrjMgr and NCC-Team - 
+      and shouldn't change the whole lifetime of the product. 
+      Normally, just needed for Enterprise - here just for 
+      reference.
+      FYI: the distribution tag will be generated during media creation. 
+      * flavor will be replaced with the <media type="dvd5"/> definition in the mediaset.
+      * target will be replaced with the ncc_target - the %{_target_cpu} macro 
+      will be replaced with the basearch of the product.
+      * release is reserved for special versions of a product 
+      -->
+      <register>
+        <target>sle-11-%{_target_cpu}</target>
+        <!-- release is optional and normally empty -->
+        <release></release>
+      </register>
+
+      <updaterepokey>A43242DKD</updaterepokey>
+
+      <summary>SUSE Linux Enterprise Server 11</summary>
+
+      <description>SUSE Linux Enterprise offers a comprehensive
+        suite of products built on a single code base.
+        The platform addresses business needs from
+        the smallest thin-client devices to the world’s
+        most powerful high-performance computing
+        and mainframe servers. SUSE Linux Enterprise
+        offers common management tools and technology
+        certifications across the platform, and
+        each product is enterprise-class. 
+      </description>
+
+      <!-- below is a list of Flags which perhaps need to be present in buildconfig, installconfig and runtimeconfig -->
+
+      <!-- Available languages for collecting packages and during installation and runtime -->
+      <linguas>
+	      <language>af</language>
+	      <language>ar</language>
+	      <language>bg</language>
+	      <language>bn</language>
+	      <language>bs</language>
+	      <language>ca</language>
+	      <language>cs</language>
+	      <language>cy</language>
+	      <language>da</language>
+	      <language>de</language>
+	      <language>el</language>
+	      <language>en_GB</language>
+	      <language>en_US</language>
+	      <language>es</language>
+	      <language>et</language>
+	      <language>fa</language>
+	      <language>fi</language>
+	      <language>fr</language>
+	      <language>gl</language>
+	      <language>gu</language>
+	      <language>he</language>
+	      <language>hi</language>
+	      <language>hr</language>
+	      <language>hu</language>
+	      <language>id</language>
+	      <language>it</language>
+	      <language>ja</language>
+	      <language>jv</language>
+	      <language>ka</language>
+	      <language>km</language>
+	      <language>ko</language>
+	      <language>lo</language>
+	      <language>lt</language>
+	      <language>mk</language>
+	      <language>mr</language>
+	      <language>nb</language>
+	      <language>nl</language>
+	      <language>pa</language>
+	      <language>pl</language>
+	      <language>pt</language>
+	      <language>pt_BR</language>
+	      <language>ro</language>
+	      <language>ru</language>
+	      <language>si</language>
+	      <language>sk</language>
+	      <language>sl</language>
+	      <language>sr</language>
+	      <language>sv</language>
+	      <language>ta</language>
+	      <language>th</language>
+	      <language>tr</language>
+	      <language>uk</language>
+	      <language>vi</language>
+	      <language>wa</language>
+	      <language>xh</language>
+	      <language>zh_CN</language>
+	      <language>zh_TW</language>
+	      <language>zu</language>
+      </linguas>
+
+      <urls>
+        <url name="releasenotes">http://www.novell.com/linux/releasenotes/$arch/SUSE-SLES/11/release-notes-sles.rpm</url>
+        <url name="smolt"       >http://smolt.novell.com/register.pl</url>
+        <url name="register"    >http://register.novell.com/</url>
+      </urls>
+
+      <buildconfig>
+        <!-- This section is needed to generate the installation media -->
+        <producttheme>SLES</producttheme>
+        <betaversion>Beta2</betaversion>
+      </buildconfig>
+
+      <installconfig>
+        <!-- All flags needed during installation -->
+        <defaultlang>en_US</defaultlang>
+          <datadir>suse</datadir>
+          <descriptiondir>suse/setup/descr</descriptiondir>
+          <releasepackage name="sles-release" version="11" flag="EQ"/>
+          <distribution>SUSE_SLE</distribution>
+        </installconfig>
+
+        <!-- All Flags needed in the running system -->
+        <runtimeconfig />
+      </product>
+    </products>
+
+    <conditionals>
+      <!-- BASELIBS handling -->
+      <conditional name="baselibs_only_ia64">
+        <platform onlyarch="ia64" />
+      </conditional>
+      <conditional name="baselibs_hammer_from_i686">
+        <platform arch="x86_64" baselibs_arch="i686" />
+      </conditional>
+      <conditional name="baselibs_only_x86_64">
+        <platform onlyarch="x86_64"/>
+      </conditional>
+      <conditional name="baselibs_only_ppc64">
+        <platform onlyarch="ppc64"/>
+      </conditional>
+      <conditional name="baselibs_only_s390x">
+        <platform onlyarch="s390x"/>
+      </conditional>
+      <conditional name="i686_only">
+        <platform arch="i586" addarch="i686" />
+      </conditional>
+      <!-- / BASELIBS handling -->
+    </conditionals>
+
+    <repositories>
+      <repository name="standard" path="obs://SUSE:Factory:Head/standard"/>
+    </repositories>
+
+<!-- Default archsets which should be in an external file -->
+    <archsets>
+      <archset name="ix86" productarch="i586">
+        <arch>i586</arch>
+        <arch>i686</arch>
+        <arch>i486</arch>
+        <arch>i386</arch>
+        <arch>noarch</arch>
+      </archset>
+      <archset name="x86_64" productarch="x86_64">
+        <arch>x86_64</arch>
+        <arch>i586</arch>
+        <arch>i686</arch>
+        <arch>i486</arch>
+        <arch>i386</arch>
+        <arch>noarch</arch>
+      </archset>
+      <archset name="ppc64" productarch="ppc64">
+        <arch>ppc64</arch>
+        <arch>ppc</arch>
+        <arch>noarch</arch>
+      </archset>
+      <archset name="s390x" productarch="s390x">
+         <arch>s390</arch>
+         <arch>s390x</arch>
+         <arch>noarch</arch>
+      </archset>
+      <archset name="ia64" productarch="ia64">
+         <arch>ia64</arch>
+         <arch>noarch</arch>
+      </archset>
+    </archsets>
+
+<!-- Default sizes for the media types
+     Can be overwritten with attribute "size"
+    <mediasizes>
+	   <media name="cd"   size="734003200"/>
+       <media name="dvd5" size="4699979776"/>
+	   <media name="dvd9" size="8539996160"/>
+    </mediasizes>
+-->
+
+    <mediasets>
+		<!-- create a media containing undecided packages
+  		<media 	type="cd"
+				use_undecided="true"
+				name="rest-iso"/>
+-->
+		<!--- create mini-iso -->
+      	<media 	type="cd"
+				product="sle-11-server"
+	            name="mini-iso"
+				create_pattern="false"
+	            use_required="false"
+    	        use_recommended="false">
+				<metadata>
+					<package name="patterns-sles"/>
+					<package name="installation-images"/>
+					<package name="skelcd-control-SLES"/>
+					<package name="skelcd-sles"/>
+					<package name="i386-rescue"/>
+				</metadata>
+				<archsets>
+					<archset ref="ix86" />
+				</archsets>
+				<archsets>
+					<archset ref="ia64" />
+				</archsets>
+				<archsets>
+					<archset ref="ppc64" />
+				</archsets>
+				<archsets>
+					<archset ref="s390x" />
+				</archsets>
+				<archsets>
+					<archset ref="x86_64" />
+				</archsets>
+		</media>
+	
+	  <media type="dvd5"
+			 product="sle-11-server"
+			 name="sle-11-server-dvd5-sources"
+			 sourcemedia="true"
+             create_pattern="false"
+             use_required="true"
+             use_recommended="true"
+			 size="30GB"
+			 allow_overflow="false"
+             use_suggested="false">
+	  </media>
+
+<!-- just to have an example of a media containing both: binaries and sources:
+	  <media type="dvd5"
+             product="sle-11-server"
+             name="sle-11-server-dvd5-mixed1"
+             sourcemedia="true"
+			 allow_overflow="true"
+			 next_media_in_set="sle-11-server-dvd5-sources">
+		<use group="more_binaries"/>
+      </media>
+-->
+
+      <media type="dvd5"
+             flavor="DVD" 
+             product="sle-11-server" 
+             name="sle-11-server-dvd5" 
+             sourcemedia="false"
+             create_pattern="false" 
+             use_required="true" 
+             use_recommended="true" 
+             use_suggested="false"
+			 allow_overflow="true"
+			 next_media_in_set="sle-11-server-dvd5-sources">
+			 <!--   type   		      : defines the default size of a media
+					flavor 		      : flavor name - this is needed for registration
+					product		      : references the product name
+					name   		      : name of the media
+					sourcemedia       : sources on this media allowed?
+					create_pattern    : create pattern out of the given groups
+					use_required      : add required packages from the groups
+					use_recommended   : add recommended packages from the groups
+					use_suggested     : add suggested packages from the groups
+					allow_overflow    : allow to use the next media (if defined) if running out of space
+					next_media_in_set : name of the next media
+			 -->
+      <archsets>                 <!-- for this we generate a medium -->
+        <archset ref="ix86" />   <!-- for this we generate a product file -->
+      </archsets>
+      <archsets>
+        <archset ref="x86_64" />
+      </archsets>
+      <archsets>
+        <archset ref="ppc64" />
+      </archsets>
+      <archsets>
+        <archset ref="s390x" />
+      </archsets>
+      <archsets>
+        <archset ref="ia64" />
+      </archsets>
+
+<!--
+      <use group="SLES_DVD_PACKAGES"/>
+      <use group="i686_list"/>
+-->
+      <!-- patterns -->
+      <use group="apparmor" />
+      <use group="base" />
+      <use group="Basis-Devel" />
+      <use group="dhcp_dns_server" />
+      <use group="directory_server" />
+      <use group="documentation" />
+      <use group="Dom0" />
+      <use group="file_server" />
+      <use group="gateway_server" />
+      <use group="gnome" />
+      <use group="kde" />
+      <use group="lamp_server" />
+      <use group="laptop" />
+      <use group="mail_server" />
+      <use group="Minimal" />
+      <use group="ofed" />
+      <use group="oracle_server" />
+      <use group="print_server" />
+      <use group="sap_server" />
+      <use group="WBEM" />
+      <use group="x11" />
+      <use group="xen_server" />
+      <!-- additional package groups -->
+      <use group="DVD_REST"        create_pattern="false" />
+      <use group="i686_list"       create_pattern="false" />
+      <use group="baselibs_ia64"   create_pattern="false" />
+      <use group="baselibs_ppc64"  create_pattern="false" />
+      <use group="baselibs_s390x"  create_pattern="false" />
+      <use group="baselibs_x86_64" create_pattern="false" />
+
+      <metadata>
+        <!-- skipped: <package name="yast2-slide-show-SLES"/> -->
+        <!-- should be done by backend: <package name="patterns-sles"/> -->
+        <package name="patterns-sles"/>
+        <package name="installation-images"/>
+        <package name="skelcd-control-SLES"/>
+        <package name="skelcd-sles"/>
+        <package name="i386-rescue"/>
+      </metadata>
+    </media>
+  </mediasets>
+
+<!--   
+    <xi:include href="group.SLES_DVD_PACKAGES.xml"/>
+    <xi:include href="group.i686_list.xml"/>
+-->
+    <xi:include href="group.apparmor.xml"/>
+    <xi:include href="group.base.xml"/>
+    <xi:include href="group.Basis-Devel.xml"/>
+    <xi:include href="group.dhcp_dns_server.xml"/>
+    <xi:include href="group.directory_server.xml"/>
+    <xi:include href="group.documentation.xml"/>
+    <xi:include href="group.Dom0.xml"/>
+    <xi:include href="group.file_server.xml"/>
+    <xi:include href="group.gateway_server.xml"/>
+    <xi:include href="group.gnome.xml"/>
+    <xi:include href="group.ha_sles.xml"/>
+    <xi:include href="group.kde.xml"/>
+    <xi:include href="group.lamp_server.xml"/>
+    <xi:include href="group.laptop.xml"/>
+    <xi:include href="group.mail_server.xml"/>
+    <xi:include href="group.Minimal.xml"/>
+    <xi:include href="group.oracle_server.xml"/>
+    <xi:include href="group.print_server.xml"/>
+    <xi:include href="group.sap_server.xml"/>
+    <xi:include href="group.WBEM.xml"/>
+    <xi:include href="group.x11.xml"/>
+    <xi:include href="group.xen_server.xml"/>
+
+    <xi:include href="group.DVD_REST.xml"/>
+    <xi:include href="group.baselibs_ia64.xml"/>
+    <xi:include href="group.baselibs_ppc64.xml"/>
+    <xi:include href="group.baselibs_s390x.xml"/>
+    <xi:include href="group.baselibs_x86_64.xml"/>
+    <xi:include href="group.i686_list.xml"/>
+</productdefinition>
+

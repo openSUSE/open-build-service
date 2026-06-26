@@ -1,0 +1,9 @@
+@subject: [obs del] Package <%= event['package']%> from <%= event['project']%> deleted
+Package <%= event['package']%> from project <%= event['project']%> was deleted
+by user <%= event['sender']%>.
+
+<%= event['comment']%>
+
+<% if event['requestid']-%>
+Check delete request: osc request log <%= event['requestid']%>
+<%-end-%>

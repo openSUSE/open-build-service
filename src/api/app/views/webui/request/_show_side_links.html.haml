@@ -1,0 +1,43 @@
+%ul.list-unstyled
+  %li
+    %i.fas.fa-user.text-success
+    Created by
+    = user_with_realname_and_icon(bs_request.creator, no_icon: true, short: true)
+    = render TimeComponent.new(time: bs_request.created_at)
+  %li
+    %i.fas.fa-info-circle.text-info
+    In state
+    = link_to(bs_request.state, { anchor: 'request-history' }, style: "color: #{request_state_color(bs_request.state.to_s)};")
+  - unless package_maintainers.empty?
+    %li
+      %i.fas.fa-info-circle.text-info
+      = render partial: 'maintainer_link', locals: { maintainers: package_maintainers }
+  - if bs_request.superseding.present?
+    %li
+      %i.fas.fa-plus-circle.text-primary
+      Supersedes
+      - bs_request.superseding.each do |supersed|
+        = link_to supersed['number'], number: supersed['number']
+  - if bs_request.superseded_by.present?
+    %li
+      %i.fas.fa-exclamation-circle.text-info
+      Superseded by
+      = link_to(bs_request.superseded_by, number: bs_request.superseded_by)
+  - if bs_request.accept_at.present?
+    %li
+      %i.fas.fa-exclamation-circle.text-danger
+      - if BsRequest::FINAL_REQUEST_STATES.include?(bs_request.state)
+        Auto-accept was set to
+        %span{ title: "#{I18n.l bs_request.accept_at}" }
+        = succeed '.' do
+          = I18n.l bs_request.accept_at, format: :only_date
+      - elsif bs_request.accept_at.past?
+        This request will be automatically accepted when it enters the 'new' state.
+      - else
+        This request will be automatically accepted
+        = render TimeComponent.new(time: bs_request.accept_at)
+  - bs_request.reviews.where(state: 'new').each do |review|
+    %li
+      %i.fas.fa-info-circle.text-info
+      Open review for
+      = render partial: 'reviewer', locals: { review: review }

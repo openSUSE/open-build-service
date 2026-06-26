@@ -1,0 +1,6 @@
+- if branches.any?
+  People
+  = link_to('branched', '#pulse-collaboration')
+  #{pluralize(branches.count, 'package')}.
+- else
+  No one branched packages from this project.

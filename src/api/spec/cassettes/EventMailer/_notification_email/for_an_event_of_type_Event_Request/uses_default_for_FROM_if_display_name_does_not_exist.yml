@@ -1,0 +1,427 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>The Road Less Traveled</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>The Road Less Traveled</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Mr Standfast</title>
+          <description>Voluptatum rerum omnis amet.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Mr Standfast</title>
+          <description>Voluptatum rerum omnis amet.</description>
+        </package>
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_config
+    body:
+      encoding: UTF-8
+      string: Voluptas sint et. Sint dolor qui. Earum et atque.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="19" vrev="19">
+          <srcmd5>a4a05601dec652d404d79ca81061f5f7</srcmd5>
+          <version>unknown</version>
+          <time>1597249140</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Quo sed earum. Voluptate ut veniam. Quod neque dolor.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="20" vrev="20">
+          <srcmd5>e9c8c1379b51c6973037758c353519be</srcmd5>
+          <version>unknown</version>
+          <time>1597249140</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_10
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description/>
+          <person userid="user_7" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description></description>
+          <person userid="user_7" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_11
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Oh! To be in England</title>
+          <description>Aut illum accusantium nemo.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Oh! To be in England</title>
+          <description>Aut illum accusantium nemo.</description>
+        </package>
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="49" vrev="49">
+          <srcmd5>3dc1874bb714a25974a14194139ad0da</srcmd5>
+          <version>unknown</version>
+          <time>1597249140</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '1'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="50" vrev="50">
+          <srcmd5>acb631d96287b800c0c069769553f9fd</srcmd5>
+          <version>unknown</version>
+          <time>1597249140</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="20" vrev="20" srcmd5="e9c8c1379b51c6973037758c353519be">
+          <entry name="_config" md5="cc9451b58ef4b6d113d02f6e409965b2" size="49" mtime="1597249140"/>
+          <entry name="somefile.txt" md5="24244676529d195c9482f556475c9b8d" size="53" mtime="1597249140"/>
+        </directory>
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="20" vrev="20" srcmd5="e9c8c1379b51c6973037758c353519be">
+          <entry name="_config" md5="cc9451b58ef4b6d113d02f6e409965b2" size="49" mtime="1597249140"/>
+          <entry name="somefile.txt" md5="24244676529d195c9482f556475c9b8d" size="53" mtime="1597249140"/>
+        </directory>
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '410'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        ++++++ _config
+        --- _config
+        +++ _config
+        @@ -1,1 +1,1 @@
+        -Odio velit cum. Eos dicta perspiciatis. Laudantium dicta ut.
+        \ No newline at end of file
+        +Voluptas sint et. Sint dolor qui. Earum et atque.
+        \ No newline at end of file
+
+        ++++++ somefile.txt
+        --- somefile.txt
+        +++ somefile.txt
+        @@ -1,1 +1,1 @@
+        -1
+        \ No newline at end of file
+        +Quo sed earum. Voluptate ut veniam. Quod neque dolor.
+        \ No newline at end of file
+  recorded_at: Wed, 12 Aug 2020 16:19:00 GMT
+recorded_with: VCR 6.0.0

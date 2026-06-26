@@ -1,0 +1,9 @@
+/srv/obs/service/log/*.log {
+    su obsservicerun obsrun
+    compress
+    dateext
+    rotate 14
+    daily
+    missingok
+    copytruncate
+}

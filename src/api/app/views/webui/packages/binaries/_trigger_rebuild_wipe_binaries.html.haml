@@ -1,0 +1,15 @@
+%li.nav-item
+  = link_to(rebuild_project_package_trigger_path(project_name: project, package_name: package, repository: repository, arch: result[:arch]),
+  title: 'Trigger rebuild', method: :post, class: 'nav-link') do
+    %i.fas.fa-redo
+    Trigger rebuild
+%li.nav-item
+  - unless result[:binaries].empty?
+    = link_to('#', title: 'Delete binaries', class: 'nav-link',
+      data: { 'bs-toggle': 'modal',
+              'bs-target': '#delete-binaries-modal',
+              confirmation_text: "Please confirm deletion of binaries for #{result[:arch]}",
+              action: project_package_repository_binaries_path(arch: result[:arch], project_name: project,
+                                                               package_name: package, repository_name: repository) }) do
+      %i.fas.fa-times-circle.text-danger
+      Delete binaries

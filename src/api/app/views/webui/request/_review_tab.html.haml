@@ -1,0 +1,13 @@
+= form_tag(action: 'modify_review') do
+  = hidden_field_tag('review_id', review.id)
+  - if review.creator
+    %p
+      = user_with_realname_and_icon(User.find_by(login: review.creator))
+      requested:
+    .ms-4
+      %p= sanitize(simple_format(review.reason || 'No reason given'), tags: %w[br p])
+  %p
+    = text_area_tag('comment', '', rows: 4, class: 'w-100 form-control', placeholder: 'Please comment on your decision')
+  %p
+    = submit_tag 'Decline', name: 'new_state', title: 'Veto this request, it will be declined.', class: 'btn btn-danger me-2'
+    = submit_tag 'Approve', name: 'new_state', title: 'Give this request your blessing, it will continue.', class: 'btn btn-primary'

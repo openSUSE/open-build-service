@@ -1,0 +1,10 @@
+- if policy(Report.new(reportable: package)).create?
+  %li.nav-item
+    = link_to('#', class: 'nav-link', id: "js-package-#{package.id}",
+          data: { 'bs-toggle': 'modal',
+                  'bs-target': '#report-modal',
+                  'modal-title': "Report package from #{package.name}",
+                  'reportable-type': package.class.name,
+                  'reportable-id': package.id }) do
+      %i.fas.fa-regular.fa-flag.fa-fw.me-2
+      %span.nav-item-name Report Package

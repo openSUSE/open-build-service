@@ -1,0 +1,10 @@
+<builddepinfo>
+  <cycle>
+    <package>a</package>
+    <package>b</package>
+  </cycle>
+  <cycle>
+    <package>b</package>
+    <package>c</package>
+  </cycle>
+</builddepinfo>

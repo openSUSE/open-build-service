@@ -1,0 +1,61 @@
+.list-group-item.px-0.px-md-1.py-3
+  .row
+    .col-auto.pe-0
+      .form-check
+        = check_box_tag('notification_ids[]', notification.id, false,
+                        id: "notification_ids_#{notification.id}", class: 'form-check-input')
+        = label_tag("notification_ids_#{notification.id}", '', class: 'form-check-label')
+    .col
+      .row
+        .col
+          = notification_icon(notification)
+          - if notification.link_path.present?
+            = link_to(notification.link_text, notification_target_path_with_return_to(notification.link_path), class: 'mx-1')
+          - else
+            %span.fst-italic.mx-1
+              = notification.link_text
+          %small.text-nowrap
+            = render TimeComponent.new(time: notification.created_at)
+          - if notification.notifiable_type == 'BsRequest'
+            = render BsRequestStateBadgeComponent.new(state: notification.notifiable.state)
+          - elsif notification.notifiable_type == 'WorkflowRun'
+            = render WorkflowRunStatusBadgeComponent.new(status: notification.notifiable.status, css_class: 'ms-1')
+          - elsif notification.notifiable_type == 'Report' && count_of_additional_reports_for_reportable(notification) >= 1
+            %span.badge.text-bg-info.ms-1
+              +#{count_of_additional_reports_for_reportable(notification)}
+              = 'Report'.pluralize(count_of_additional_reports_for_reportable(notification))
+          - elsif notification.notifiable_type == 'Report'
+            - if notification.notifiable.decision.present?
+              %span.badge.text-bg-success.ms-1
+                %i.fas.fa-gavel.me-1
+                Decided
+            - else
+              %span.badge.text-bg-warning.ms-1
+                %i.fas.fa-hourglass-half.me-1
+                Awaits decision
+        .col-auto.actions.ms-auto.align-self-end.align-self-md-start
+          = render NotificationMarkButtonComponent.new(notification, selected_filter, page)
+      .row.mt-1.ps-sm-4.flex-nowrap
+        .col-auto.pe-0
+          %ul.list-inline.d-flex.flex-row-reverse.avatars.m-0
+            - notification_avatar_objects = notification.avatar_objects
+            = hidden_avatars(notification_avatar_objects)
+            - avatars_to_display(notification_avatar_objects).each do |avatar_object|
+              %li.list-inline-item
+                - if avatar_object.is_a?(Package)
+                  %span.fa.fa-archive.text-warning.rounded-circle.bg-body-secondary.border.simulated-avatar{
+                    title: "Package #{avatar_object.project}/#{avatar_object}" }
+                - elsif avatar_object.is_a?(Project)
+                  %span.fa.fa-cubes.text-secondary.rounded-circle.bg-body-secondary.border.simulated-avatar{
+                    title: "Project #{avatar_object}" }
+                - elsif avatar_object.is_a?(User) || avatar_object.is_a?(Group)
+                  = render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
+        .col.ps-xs-2.text-break
+          = description(notification)
+      .row.d-none.d-md-block.ps-4
+        .col
+          %p.mt-3.mb-0= render_without_markdown(truncate_to_first_new_line(notification.excerpt))
+      - if Flipper.enabled?(:labels, User.session) && notification.labelable? && notification.notifiable&.labels
+        .row.d-none.d-md-block.mt-3.ps-4
+          .col
+            = render partial: 'label_clickable', collection: notification.notifiable.labels, locals: { selected_filter: selected_filter }, as: :label

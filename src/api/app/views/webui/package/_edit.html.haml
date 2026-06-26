@@ -1,0 +1,30 @@
+= form_for([project, package], as: :package_details, url: package_update_url, method: :patch, remote: true) do |form|
+  %h5 Edit Package #{package}
+  = hidden_field_tag(:id, package.id)
+  = hidden_field_tag(:project, project)
+  = hidden_field_tag(:package, package.name)
+  .mb-3
+    = form.label(:title, 'Title:')
+    = form.text_field(:title, class: 'form-control', autofocus: true)
+  .mb-3
+    = form.label(:url, 'URL:')
+    = form.text_field(:url, class: 'form-control')
+  - if feature_enabled?('foster_collaboration')
+    .mb-3
+      = form.label(:report_bug_url, 'Report Bug URL:')
+      = form.url_field(:report_bug_url, class: 'form-control')
+  - if feature_enabled?('package_version_tracking')
+    .mb-3.form-check
+      = form.label(:anitya_ignore, 'Anitya Ignore', class: 'form-check-label')
+      = form.check_box(:anitya_ignore, class: 'form-check-input')
+      %small.text-muted Ignore fetching upstream version for this package
+  .mb-3
+    = form.label(:description, 'Description:')
+    = render WriteAndPreviewComponent.new(form: form, preview_message_url: package_preview_description_path,
+                                          message_body_param: 'package[description]',
+                                          text_area_attributes: { rows: 8,
+                                          placeholder: 'Write your description here... (Markdown markup is supported)',
+                                          required: false, object_name: :description})
+  .mb-3.text-end
+    = button_tag('Cancel', type: 'reset', class: 'cancel btn btn-outline-danger px-4', id: 'cancel-in-place-editing')
+    = submit_tag('Update', class: 'btn btn-primary px-4')

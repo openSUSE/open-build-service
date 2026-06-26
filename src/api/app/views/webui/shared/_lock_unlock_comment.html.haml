@@ -1,0 +1,10 @@
+- if CommentLockPolicy.new(User.possibly_nobody, commentable).create?
+  - commentable_type = commentable.class == BsRequest ? 'request' : commentable.class.name.downcase
+  %li.nav-item
+    = link_to('#', class: 'nav-link', data: { 'bs-toggle': 'modal', 'bs-target': "#locking-#{commentable_type}-#{commentable.id}-modal" }) do
+      - if commentable.comment_lock.blank?
+        %i.fas.fa-comment-slash
+        %span.nav-item-name Lock Comments
+      - else
+        %i.fas.fa-comment
+        %span.nav-item-name Unlock Comments

@@ -1,0 +1,225 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Sunt natus ad tenetur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_files" project="home:tom">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Sunt natus ad tenetur.</description>
+        </package>
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/_config
+    body:
+      encoding: UTF-8
+      string: Veniam non voluptas. Voluptatem neque ut. Quia explicabo voluptatem.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>de5a1ace7e64d11ad3be5dcf62c8b2a0</srcmd5>
+          <version>unknown</version>
+          <time>1706702051</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Dolor pariatur quam. Eum nostrum eius. Rerum incidunt qui.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>664ba1aabc9f9d91f38fc563032cb131</srcmd5>
+          <version>unknown</version>
+          <time>1706702051</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '303'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_files" rev="2" vrev="2" srcmd5="664ba1aabc9f9d91f38fc563032cb131">
+          <entry name="_config" md5="cc5170b6c07fa711d26abc44c1906f8f" size="68" mtime="1706702051"/>
+          <entry name="somefile.txt" md5="053bd78c0cbd08f834d8dfbcc1ecd6c1" size="58" mtime="1706702051"/>
+        </directory>
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_files
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '303'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_files" rev="2" vrev="2" srcmd5="664ba1aabc9f9d91f38fc563032cb131">
+          <entry name="_config" md5="cc5170b6c07fa711d26abc44c1906f8f" size="68" mtime="1706702051"/>
+          <entry name="somefile.txt" md5="053bd78c0cbd08f834d8dfbcc1ecd6c1" size="58" mtime="1706702051"/>
+        </directory>
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
+recorded_with: VCR 6.2.0

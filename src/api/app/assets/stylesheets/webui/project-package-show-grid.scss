@@ -1,0 +1,28 @@
+.list {
+  grid-area: list;
+}
+
+.build-results {
+  grid-area: build-results;
+}
+
+#comments-list {
+  grid-area: comments;
+}
+
+.overview {
+  display: grid;
+  grid-template-columns: 100%;
+  grid-gap: 16px;
+  grid-template-areas:
+    "list"
+    "build-results"
+    "comments";
+  @include media-breakpoint-up(lg) {
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "list     build-results"
+      "comments build-results";
+  }
+}

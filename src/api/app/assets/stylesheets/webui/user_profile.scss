@@ -1,0 +1,4 @@
+#involved-filters {
+  &.sticky-top { top: $top-navigation-height; }
+  .row.row-cols-auto label { justify-content: left; }
+}

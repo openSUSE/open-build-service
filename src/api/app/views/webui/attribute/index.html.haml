@@ -1,0 +1,53 @@
+- @pagetitle = "Attributes of #{@package ? "#{@package} (Project #{@project})" : "Project #{@project}"}"
+- can_update_container = policy(@container).update?
+
+.card
+  = render(partial: "webui/#{@container.model_name.singular}/tabs", locals: { project: @project, package: @package })
+
+  .card-body
+    %h3= @pagetitle
+    - if @attributes.present?
+      %table.responsive.table.table-bordered.table-hover.w-100#attributes
+        %thead
+          %tr
+            %th Attributes
+            %th Values
+            - if can_update_container
+              %th Actions
+        %tbody
+          - @attributes.each do |attribute|
+            %tr
+              %td.text-word-break-all= attribute.fullname
+              %td
+                %ul
+                  - unless attribute.values.empty?
+                    - attribute.values.each do |v|
+                      %li.value
+                        %pre.d-inline= v.value
+                  - unless attribute.issues.empty?
+                    %li= attribute.issues.map(&:name).to_sentence
+              - if can_update_container
+                %td<
+                  - if attribute.values_editable?
+                    = link_to(edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname), title: 'Edit values') do
+                      %i.fas.fa-edit.text-secondary
+                  = link_to('#',
+                            title: 'Delete attribute', class: 'ms-1',
+                            data: { 'bs-toggle': 'modal',
+                                    'bs-target': '#delete-attribute-modal',
+                                    action: attrib_path(attribute),
+                                    confirmation_text: "Please confirm the deletion of the attribute '#{attribute.fullname}'" }) do
+                    %i.fas.fa-times-circle.text-danger
+    - else
+      %p
+        %em No attributes set
+
+    - if can_update_container
+      %ul.nav
+        %li.nav-item
+          = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add Attribute', class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Add Attribute
+    = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-attribute-modal',
+                                                   method: :delete,
+                                                   options: { modal_title: 'Do you want to remove the attribute?' })

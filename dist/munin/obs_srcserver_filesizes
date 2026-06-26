@@ -1,0 +1,23 @@
+#!/bin/sh
+
+case $1 in
+  config)
+       cat <<'EOM'
+graph_title OBS Source Server: Source File Sizes
+graph_vlabel All file sizes (bytes)
+graph_category obs
+graph_order srcsizes
+srcsizes.label obs_src_server_all_file_sizes
+srcsizes.info Total of file sizes of all packages
+srcsizes.type GAUGE
+EOM
+       exit 0;;
+esac
+
+# Please, Use mount /srv/obs/sources/ folder with a disk partition (e.g., /dev/sda3)
+# to avoid very much IO. For example,
+# vi /etc/fstab
+# /dev/sda3	/srv/obs/sources	ext4	defaults	0	0
+disk_partition="/dev/sda3"
+num_srcsizes=`df | grep "$disk_partition" | awk '{print $3}'`
+echo "srcsizes.value " $num_srcsizes

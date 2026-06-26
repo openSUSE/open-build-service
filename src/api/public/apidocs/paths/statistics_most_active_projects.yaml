@@ -1,0 +1,26 @@
+get:
+  summary: Get a list of the most active projects
+  description: Get a list of the most active projects
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/limit_10.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/most_active.yaml'
+          example:
+            project:
+              - activity: 1371.492028553694
+                packages: 1
+                name: openSUSE:Factory:Staging
+              - activity: 1369.5524345398396
+                packages: 2
+                name: home:repo-checker
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Statistics

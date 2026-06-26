@@ -1,0 +1,41 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project_7/_meta?user=user_40
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_7">
+          <title>Lilies of the Field</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_7">
+          <title>Lilies of the Field</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 12 Aug 2020 16:19:02 GMT
+recorded_with: VCR 6.0.0

@@ -1,0 +1,8 @@
+type: object
+properties:
+  report:
+    type: array
+    items:
+      $ref: 'report.yaml'
+xml:
+  name: reports

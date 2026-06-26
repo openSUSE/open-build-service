@@ -1,0 +1,60 @@
+- @pagetitle = "Build Log for Package #{@package_name} (Project #{@project})"
+- @metarobots = 'noindex,nofollow'
+
+.card.mb-3
+  - unless @project.scmsync
+    = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+  .card-body
+    %h3= @pagetitle
+    %p
+      %strong Repository:
+      = @repository
+      %strong Architecture:
+      = @architecture
+    - if @workerid
+      = render partial: 'job_status', locals: { worker_id: @workerid, build_time: @buildtime, percent: @percent }
+    %p
+      %strong Status:
+      %span#status Updating...
+    - if @what_depends_on.present?
+      %details.pb-3
+        %summary #{@what_depends_on.length} #{'package'.pluralize(@what_depends_on.length)} with a direct dependency to this package.
+        %strong Packages:
+        = @what_depends_on.join(', ')
+    = render partial: 'live_build_log_controls',
+             locals: { project: @project,
+                       package_name: @package_name,
+                       object_to_authorize: @object_to_authorize,
+                       repo: @repository,
+                       arch: @architecture }
+    #log-space-wrapper{ data: { url: package_update_build_log_path(package: @package_name, project: @project,
+                                                                   status: @status, arch: @architecture, repository: @repository) } }
+      .d-block.text-center.shadow-sm.position-sticky.w-100#log-info{ class: @current_notification ? 'notification-bar-offset' : '' }
+        .running.stop_refresh.py-2.text-bg-info
+          %i.fas.fa-spinner.fa-pulse
+          Running...
+        .paused.start_refresh.py-2.text-bg-dark
+          %i.far.fa-pause-circle
+          Paused
+        .finished.py-2.text-bg-warning
+          Build #{@status}
+        .succeeded.py-2.text-bg-success
+          %i.fa.fa-check-circle
+          Build succeeded
+        .failed.py-2.text-bg-danger
+          %i.fa.fa-times-circle
+          Build failed
+      %pre.p-4.bg-body-secondary.text-pre-wrap#log-space
+    - unless @workerid
+      = render partial: 'live_build_log_controls',
+               locals: { project: @project,
+                         package_name: @package_name,
+                         object_to_authorize: @object_to_authorize,
+                         repo: @repository,
+                         arch: @architecture }
+
+:javascript
+  liveLog = new LiveLog('#log-space-wrapper', '.start_refresh', '.stop_refresh', '#status', #{@finished}, '#log-info',
+                        '#{path_to_image('favicon-warning.ico')}', '#{path_to_image('favicon-info.ico')}',
+                        '#{path_to_image('favicon.ico')}', '#{path_to_image('favicon-success.ico')}',
+                        '#{path_to_image('favicon-danger.ico')}').initialize();

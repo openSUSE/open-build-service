@@ -1,0 +1,65 @@
+type: array
+items:
+  type: object
+  properties:
+    package:
+      type: string
+      xml:
+        attribute: true
+    rev:
+      type: string
+      xml:
+        attribute: true
+    srcmd5:
+      type: string
+      xml:
+        attribute: true
+    versrel:
+      type: string
+      xml:
+        attribute: true
+    bcnt:
+      type: integer
+      xml:
+        attribute: true
+    readytime:
+      type: integer
+      xml:
+        attribute: true
+    starttime:
+      type: integer
+      xml:
+        attribute: true
+    endtime:
+      type: integer
+      xml:
+        attribute: true
+    code:
+      type: string
+      xml:
+        attribute: true
+    uri:
+      type: string
+      xml:
+        attribute: true
+    workerid:
+      type: string
+      xml:
+        attribute: true
+    hostarch:
+      type: string
+      xml:
+        attribute: true
+    reason:
+      type: string
+      xml:
+        attribute: true
+    verifymd5:
+      type: string
+      xml:
+        attribute: true
+  xml:
+    name: jobhist
+xml:
+  wrapped: true
+  name: jobhistlist

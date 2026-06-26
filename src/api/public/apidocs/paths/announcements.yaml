@@ -1,0 +1,54 @@
+get:
+  deprecated: true
+  summary: List all announcements.
+  description: List all messages from type announcement.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      $ref: '../components/responses/status_messages.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Announcements
+
+post:
+  deprecated: true
+  summary: Create an announcement.
+  description: |
+    Create an announcement.
+
+    This is only for users with roles "Admin" or "Staff".
+  security:
+    - basic_authentication: []
+  requestBody:
+    description: Announcement definition.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/announcement.yaml'
+        example:
+          title: OBS 3.0 released!
+          content: We are glad to announce that OBS 3.0 is released.
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Invalid Announcement.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            message_cant_be_blank:
+              summary: Message can't be blank
+              value:
+                code: invalid_announcement
+                summary: '["Message can''t be blank"]'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Announcements

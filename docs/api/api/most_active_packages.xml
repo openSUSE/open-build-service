@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<most_active_packages>
+  <package activity="1369.4212932194303" project="home:Andreas_Schwab:glibc" name="glibc"/>
+  <package activity="1366.094742716323" project="KDE:Unstable:Frameworks" name="kirigami2"/>
+  <package activity="1366.0946641720063" project="KDE:Unstable:Frameworks" name="kirigami"/>
+  <package activity="1364.0532675913466" project="openSUSE:Factory:Staging" name="dashboard"/>
+  <package activity="1357.6191829371949" project="graphics:gimp:master" name="gimp"/>
+  <package activity="1357.6191672396783" project="home:AndreasSchwab:emacs:master" name="emacs"/>
+  <package activity="1357.589441757061" project="graphics:gimp:master" name="babl"/>
+  <package activity="1357.5696890918634" project="graphics:gimp:master" name="gegl"/>
+  <package activity="1346.1910232799194" project="home:mnhauke:osmocom:nightly" name="libosmo-sccp"/>
+  <package activity="1346.1425901724797" project="home:mnhauke:osmocom:nightly" name="libosmo-abis"/>
+</most_active_packages>

@@ -1,0 +1,56 @@
+module Event
+  class Commit < Base
+    include EventObjectPackage
+    include UpdateBackendInfosCallback
+
+    after_create :sync_local_package_version
+
+    self.message_bus_routing_key = 'package.commit'
+    self.description = 'New revision of a package committed'
+    payload_keys :project, :package, :sender, :comment, :user, :files, :rev, :requestid
+
+    after_create :increase_commits
+
+    def subject
+      "#{payload['project']}/#{payload['package']} r#{payload['rev']} commited"
+    end
+
+    def set_payload(attribs, keys)
+      attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
+      attribs['files'] = attribs['files'][0..800] if attribs['files'].present?
+      super
+    end
+
+    private
+
+    def increase_commits
+      CommitActivity.create_from_event_payload(payload)
+    end
+
+    def sync_local_package_version
+      return unless (package = Package.find_by_project_and_name(payload['project'], payload['package']))
+      return if package.project.anitya_distribution_name.blank?
+
+      SyncLocalPackageVersionJob.perform_later(payload['project'], package_name: payload['package'])
+    end
+  end
+end
+
+# == Schema Information
+#
+# Table name: events
+#
+#  id          :bigint           not null, primary key
+#  eventtype   :string(255)      not null, indexed
+#  mails_sent  :boolean          default(FALSE), indexed
+#  payload     :text(16777215)
+#  undone_jobs :integer          default(0)
+#  created_at  :datetime         indexed
+#  updated_at  :datetime
+#
+# Indexes
+#
+#  index_events_on_created_at  (created_at)
+#  index_events_on_eventtype   (eventtype)
+#  index_events_on_mails_sent  (mails_sent)
+#

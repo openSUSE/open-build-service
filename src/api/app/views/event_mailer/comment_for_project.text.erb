@@ -1,0 +1,5 @@
+<%= event['commenter'].realname %> wrote in project <%= event['project'] %>:
+
+<%= event['comment_body'] %>
+
+View Comment at <%= project_show_url(event['project'], anchor: "comment-#{event['id']}", only_path: false, host: @host) %>

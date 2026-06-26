@@ -1,0 +1,38 @@
+.mt-4#search-results
+  %h4 Results:
+  - results.each do |result|
+    .search_result.mt-3
+      Responsible for
+      #{project_or_package_link project: result.project, package: result.package, short: false}
+      in #{result.rootproject}
+
+      %ul.list-unstyled
+        - users_and_groups = (result.users || {}).merge(result.groups || {}) { |_role, user, group| user.concat(group) }
+        - users_and_groups.each do |role, records|
+          %li.mt-3
+            :ruby
+              emails = records.map(&:email).compact_blank.join(', ')
+            %h6
+              = role.capitalize.pluralize
+              - if emails.present? && User.session
+                = mail_to(emails) do
+                  %i.far.fa-envelope.ms-1{ title: "Send email to #{role.pluralize(records.size)}" }
+            .d-flex.flex-wrap.flex-column.flex-md-row
+              - records.each do |record|
+                .card.m-1.p-2.search-result
+                  .row.g-0
+                    .col-auto
+                      = link_to(user_or_group_path(record)) do
+                        = image_tag_for(record, size: 60, custom_class: 'align-self-center shadow-lg border border-secondary rounded border-2')
+                    .col
+                      .card-body.p-0.ps-2
+                        %ul.list-unstyled
+                          %li{ title: record.name }
+                            = truncate(record.name, length: 40)
+                          - if record.is_a?(User) && record.realname.present?
+                            %li.small
+                              = record.login
+                          %li.float-end
+                            - if record.email.present? && User.session
+                              = mail_to(record.email) do
+                                %i.far.fa-envelope{ title: "Send email to #{record.class.name.downcase}" }

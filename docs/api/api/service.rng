@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="services-element"/>
+  </start>
+
+  <define ns="" name="services-element">
+    <element name="services">
+      <zeroOrMore>
+        <ref name="service-element"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define ns="" name="service-element">
+    <element name="service">
+      <attribute name="name">
+        <data type="string"/>
+      </attribute>
+      <optional>
+        <attribute name="mode">
+          <ref name="service-modes"/>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <ref name="param-element"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define ns="" name="param-element">
+    <element name="param">
+      <attribute name="name">
+        <data type="string"/>
+      </attribute>
+      <text/>
+    </element>
+  </define>
+</grammar>

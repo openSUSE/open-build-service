@@ -1,0 +1,5 @@
+# this will generate a frontend_24 database
+mysql  -p -u root < dump_2.4.sql
+
+You can then change your config/database.yml temporarly
+to use that and run db:migrate to test

@@ -1,0 +1,12 @@
+%ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible.disable-link-generation{ role: 'tablist' }
+  %li.nav-item
+    = link_to('Overview', { controller: 'kiwi/images', action: 'show' }, class: "nav-link #{'active' if action_name == 'show'}")
+  %li.nav-item
+    = link_to 'Details', action_name == 'edit' ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'details' },
+      id: 'kiwi-details-trigger', class: "nav-link #{'active' if params[:section] == 'details'}"
+  %li.nav-item
+    = link_to 'Software', action_name == 'edit' ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'software' },
+      id: 'kiwi-software-trigger', class: "nav-link #{'active' if params[:section] == 'software'}"
+
+- content_for :ready_function do
+  initializeTabs();

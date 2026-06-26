@@ -1,0 +1,5 @@
+<%= event['commenter'].realname %> wrote in request <%= event['number'] %>:
+
+<%= event['comment_body'] %>
+
+View Comment at <%= request_show_url(event['number'], anchor: "comment-#{event['id']}", only_path: false, host: @host) %>

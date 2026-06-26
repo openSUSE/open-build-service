@@ -1,0 +1,7 @@
+in: query
+name: file
+schema:
+  type: string
+description: Limit diff to the given file name.
+example: hello_world.spec
+deprecated: true

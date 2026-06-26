@@ -1,0 +1,169 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 42
+    xml:
+      attribute: true
+  creator:
+    type: string
+    example: foo-user
+    xml:
+      attribute: true
+  action:
+    type: object
+    properties:
+      type:
+        type: string
+        example: submit
+        xml:
+          attribute: true
+      source:
+        type: object
+        properties:
+          project:
+            type: string
+            example: home:foo-user
+            xml:
+              attribute: true
+          package:
+            type: string
+            example: obs-server
+            xml:
+              attribute: true
+          rev:
+            type: integer
+            example: 521
+            xml:
+              attribute: true
+      target:
+        type: object
+        properties:
+          project:
+            type: string
+            example: OBS:Unstable
+            xml:
+              attribute: true
+          package:
+            type: string
+            example: obs-server
+            xml:
+              attribute: true
+      options:
+        type: object
+        properties:
+          sourceupdate:
+            type: string
+            example: cleanup
+  state:
+    type: object
+    properties:
+      name:
+        type: string
+        example: accepted
+        xml:
+          attribute: true
+      who:
+        type: string
+        example: bar-user
+        xml:
+          attribute: true
+      when:
+        type: string
+        example: '2021-01-15T13:39:43'
+        xml:
+          attribute: true
+      comment:
+        type: string
+        example: allright
+  review:
+    type: array
+    items:
+      type: object
+      properties:
+        state:
+          type: string
+          xml:
+            attribute: true
+        when:
+          type: string
+          xml:
+            attribute: true
+        who:
+          type: string
+          xml:
+            attribute: true
+        by_user:
+          type: string
+          xml:
+            attribute: true
+        by_group:
+          type: string
+          xml:
+            attribute: true
+        by_project:
+          type: string
+          xml:
+            attribute: true
+        by_package:
+          type: string
+          xml:
+            attribute: true
+        comment:
+          type: string
+        history:
+          type: object
+          properties:
+            when:
+              type: string
+              xml:
+                attribute: true
+            who:
+              type: string
+              xml:
+                attribute: true
+            description:
+              type: string
+    example:
+      - state: accepted
+        when: '2021-01-15T15:49:32'
+        who: obs-maintainer
+        by_user: obs-maintainer
+      - state: accepted
+        when: '2021-01-15T15:49:32'
+        who: obs-maintainer
+        by_group: obs-group
+      - state: accepted
+        when: '2021-01-15T15:49:32'
+        who: obs-maintainer
+        by_project: OBS:Unstable
+      - state: accepted
+        when: '2021-01-15T15:49:32'
+        who: obs-maintainer
+        by_package: obs-server
+  history:
+    type: array
+    items:
+      type: object
+      properties:
+        who:
+          type: string
+          example: foo
+          xml:
+            attribute: true
+        when:
+          type: string
+          example: '2021-01-15T13:39:43'
+          xml:
+            attribute: true
+        description:
+          type: string
+          example: Request created
+        comment:
+          type: string
+          example: Please review sources
+  description:
+    type: string
+    example: A little version update
+xml:
+  name: request

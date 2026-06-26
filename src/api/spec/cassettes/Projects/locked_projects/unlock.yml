@@ -1,0 +1,367 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_79/_meta?user=user_79
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_79">
+          <title/>
+          <description/>
+          <person userid="user_79" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '136'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_79">
+          <title></title>
+          <description></description>
+          <person userid="user_79" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 01 Aug 2024 17:04:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title/>
+          <description/>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title></title>
+          <description></description>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 01 Aug 2024 17:04:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/locked_project/_meta?user=user_80
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="locked_project">
+          <title>Oh! To be in England</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="locked_project">
+          <title>Oh! To be in England</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 01 Aug 2024 17:04:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/locked_project/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 6b16f92c-6ae2-4d55-bc55-31e1e8b7b237
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:36 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/locked_project/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 7bb677f6-80af-427b-84b8-078d19c02ea6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/locked_project/_meta?comment=Freedom%20at%20last!&user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="locked_project">
+          <title>Oh! To be in England</title>
+          <description/>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+    headers:
+      X-Request-Id:
+      - 876831f9-910b-452b-a2ba-60a3a3b16e20
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="locked_project">
+          <title>Oh! To be in England</title>
+          <description></description>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 01 Aug 2024 17:04:36 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/locked_project/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - e9e33ce1-219d-439f-8391-caab9e131ad6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:36 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/locked_project/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 6f365aea-df30-44f7-937a-0477b0be2490
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:36 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/locked_project/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - b0cd8538-2a40-4f67-a129-548ddd6df611
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:36 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/locked_project/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 79fe82cd-7bc2-4630-babf-e9d19a977536
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:37 GMT
+recorded_with: VCR 6.2.0

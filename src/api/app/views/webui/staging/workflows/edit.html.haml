@@ -1,0 +1,23 @@
+- @pagetitle = "Manage Staging Projects for #{@project}"
+- content_for :actions do
+  %li.nav-item
+    = link_to('#', class: 'nav-link', data: { 'bs-toggle': 'modal', 'bs-target': '#staging-managers-group-modal' }, title: 'Change Managers') do
+      %i.fas.fa-fw.me-2.fa-users
+      %span.nav-item-name Change Managers
+
+.row
+  .col-xl-12
+    .card.mb-3
+      = render(partial: 'webui/project/tabs', locals: { project: @project })
+      .card-body
+        %h3
+          = @pagetitle
+          = link_to('#', title: 'Create Staging Project', data: { 'bs-toggle': 'modal', 'bs-target': '#create-staging-projects-modal' }) do
+            %i.fas.fa-xs.fa-plus-circle.text-primary
+
+        = render partial: 'create_staging_project', locals: { staging_workflow: @staging_workflow }
+        = render partial: 'staging_managers_group', locals: { staging_workflow: @staging_workflow }
+
+        .row
+          = render(partial: 'staging_project', collection: @staging_projects,
+                                               locals: { staging_workflow: @staging_workflow })

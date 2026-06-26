@@ -1,0 +1,197 @@
+post:
+  summary: Returns the source diff of a package.
+  description: |
+    Without parameters, return the diff of the last change made to the package.
+    Despite using the method `POST`, this endpoint doesn't alter any data.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: cacheonly
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: |
+        Set to `1` to retrieve a diff only if the diff is already cached.
+
+        If the diff is not cached return a 412 "Precondition failed" error.
+      example: 1
+    - in: query
+      name: expand
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to expand any link before diffing.
+      example: 1
+    - $ref: '../components/parameters/diff_file_deprecated.yaml'
+    - $ref: '../components/parameters/diff_file.yaml'
+    - $ref: '../components/parameters/diff_filelimit.yaml'
+    - $ref: '../components/parameters/diff_linkrev.yaml'
+    - in: query
+      name: meta
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to diff meta data instead of sources.
+      example: 1
+    - in: query
+      name: missingok
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to diff against an inexistent origin.
+      example: 1
+    - in: query
+      name: nodiff
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      description: Set to `1` to only show changed files, and not details inside files.
+      example:
+    - in: query
+      name: olinkrev
+      schema:
+        type: string
+      description: Link revision of the origin package.
+    - $ref: '../components/parameters/diff_onlyissues.yaml'
+    - in: query
+      name: orev
+      schema:
+        type: string
+      description: Old revision.
+    - in: query
+      name: opackage
+      schema:
+        type: string
+      description: Old package.
+    - in: query
+      name: oproject
+      schema:
+        type: string
+      description: Old project.
+    - $ref: '../components/parameters/diff_rev.yaml'
+    - $ref: '../components/parameters/diff_tarlimit.yaml'
+    - $ref: '../components/parameters/diff_unified.yaml'
+    - $ref: '../components/parameters/diff_view.yaml'
+    - $ref: '../components/parameters/diff_withissues.yaml'
+  responses:
+    '200':
+      description: OK
+      content:
+        text/plain:
+          schema:
+            type: string
+          examples:
+            Without parameters. One character change:
+              description: Diff of adding an exclamation mark.
+              value: |
+
+                spec files:
+                -----------
+                --- hello_world.spec
+                +++ hello_world.spec
+                @@ -13,7 +13,7 @@
+                 %build
+                 cat > hello_world.sh <<EOF
+                 #!/usr/bin/bash
+                -echo Hello world
+                +echo Hello world!
+                 EOF
+
+                 %install
+            With view=unified:
+              value: |
+                Index: hello_world.spec
+                ===================================================================
+                --- hello_world.spec (revision 2)
+                +++ hello_world.spec (revision 3)
+                @@ -13,7 +13,7 @@
+                 %build
+                 cat > hello_world.sh <<EOF
+                 #!/usr/bin/bash
+                -echo Hello world
+                +echo Hello world!
+                 EOF
+
+                 %install
+            # Representing a `sourcediff` xml with a schema is not possible.
+            # The `diff` element has both: content and an attribute (`lines`).
+            # OpenAPI specification 3.0 doesn't allow to represent XML elements with both content and attributes.
+            # See https://github.com/OAI/OpenAPI-Specification/issues/630
+            # Therefore we use the type string to represent xml, instead of defining a schema.
+            With view=xml:
+              value: |
+                <?xml version="1.0" encoding="UTF-8"?>
+                <sourcediff key="e27d928c027cca122f604ad5240e4fbc">
+                  <old project="home:Admin" package="hello_world" rev="2" srcmd5="3793527d5cd7aaac8e52a8b94e3c1ffc"/>
+                  <new project="home:Admin" package="hello_world" rev="3" srcmd5="672795214454d08abd9143893d673e38"/>
+                  <files>
+                    <file state="changed">
+                      <old name="hello_world.spec" md5="dcd026ba76f1723ea8292ad13579aa84" size="463"/>
+                      <new name="hello_world.spec" md5="40f5f87134e806a20123821a3442f176" size="464"/>
+                      <diff lines="9">@@ -13,7 +13,7 @@
+                 %build
+                 cat &gt; hello_world.sh &lt;&lt;EOF
+                 #!/usr/bin/bash
+                -echo Hello world
+                +echo Hello world!
+                 EOF
+
+                 %install
+                </diff>
+                    </file>
+                  </files>
+                </sourcediff>
+            With nodiff=1:
+              description: Passing `nodiff=1` only shows changed files.
+              value: |
+
+                spec files:
+                -----------
+                --- hello_world.spec
+                +++ hello_world.spec
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Boolean:
+              description: Passing a value different than `0` or `1` to `nodiff`, for example.
+              value:
+                code: 400
+                origin: backend
+                summary: not boolean
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+    '412':
+      description: |
+        Precondition Failed
+
+        With `cacheonly=1`, and the diff is still not cached.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 412
+            origin: backend
+            summary: diff not yet in cache
+            details: 412 diff not yet in cache
+  tags:
+    - Sources - Packages

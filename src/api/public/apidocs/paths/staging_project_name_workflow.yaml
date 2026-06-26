@@ -1,0 +1,146 @@
+post:
+  summary: Create a staging workflow for the specified project
+  description: Create a staging workflow associated to the project and the manager group specified in the body of the request
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  requestBody:
+    description: "Title of the staging workflow's managers group"
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/staging/managers_group.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Staging Workflow Exists:
+              description: The project is already associated to a staging workflow
+              value:
+                code: staging_workflow_exists
+                summary: "Project project_name already has an associated Staging Workflow with id: ID"
+            Invalid XML Format:
+              value:
+                code: invalid_xml_format
+                summary: 'XML format is not valid'
+            Empty Body:
+              value:
+                code: invalid_request
+                summary: 'Empty body'
+            Invalid Request:
+              value:
+                code: invalid_request
+                summary: "Staging for project_name couldn't be created:"
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Staging Workflow
+
+put:
+  summary: Change the managers group of a staging workflow
+  description: Change the managers group of the staging workflow associated to the specified project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  requestBody:
+    description: "Title of the staging workflow's managers group"
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/staging/managers_group.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Invalid XML Format:
+              value:
+                code: invalid_xml_format
+                summary: 'XML format is not valid'
+            Empty Body:
+              value:
+                code: invalid_request
+                summary: 'Empty body'
+            Invalid Request:
+              value:
+                code: invalid_request
+                summary: "Staging for project_name couldn't be updated:"
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            project_without_staging_workflow:
+              value:
+                code: not_found
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: <some project>."
+  tags:
+    - Staging Workflow
+
+delete:
+  summary: Delete the staging workflow of the specified project
+  description: |
+    Delete the staging workflow associated to the given project (a.k.a staging workflow project).
+    The staging projects associated to that workflow are not removed unless the parameter `with_staging_projects` is given.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - name: with_staging_projects
+      in: query
+      schema:
+        type: integer
+      description: |
+        Set to `1` if you want to delete all the staging projects associated to the staging workflow when it is deleted.
+        Staging projects' names usually look like: project_name:Staging:A, project_name:Staging:B etc.
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            project_without_staging_workflow:
+              value:
+                code: not_found
+                sumary: "Project project_name doesn't have an associated Staging Workflow"
+            Unknown Project:
+              value:
+                code: unknown_project
+                summary: "Project not found: <some project>."
+  tags:
+    - Staging Workflow

@@ -1,0 +1,117 @@
+
+#
+# Open Build Service 2.5
+#
+
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+There is also an install medium with installs OBS on hard disc now.
+
+dist/README.UPDATERS file has informations for updaters.
+
+OBS Appliance users who have setup their LVM can just replace 
+their appliance image without data loss. The migration will 
+happen automatically.
+
+
+Features
+========
+
+ * Support multiple binary backends in one OBS instance. This means that
+   multiple separate servers can host a defined part of the binary results.
+
+ * The api can be configured to protect access to all newly created projects by default
+
+ * configuration data which is used by multiple obs parts is stored in the /configuration
+   path. This is the configuration.xml file in the backend. It contains 
+    - enabled scheduler architectures
+    - OBS instance name and description
+
+ * kiwi image building understands "obsrepositories:/" as repository. OBS will expand
+   the repositories as defined in the local project definition. This allows to move
+   around kiwi files without the need to modify them.
+
+ * Auto cleanup of user ~:branches: projects can be enabled via /configuration
+
+ * Build constraints can be defined per architecture or per package now
+
+ * Integrated Notification system. Administrators can activate it globally in
+   the configuration settings. User can modify these settings in their home page.
+
+ * Integrated comment system for projects, packages and requests.
+
+ * Product tracking and product update channel support.
+
+ * Groups can have email adresses now.
+
+ * Support usage of kernels from OBS repositories inside of kvm and xen builds
+
+ * Support ppc64le and m68k architecture
+
+ * api provides a token system for a secure handling of pre-defined actions.
+   This can be used to update sources of a specific package in the name of a user
+   without the need to expose his credentials. Find details here:
+
+     http://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.authorization.token.html
+
+ * Definition of release channel support (can deliever product specific channels
+   from a pool of build packages).
+
+ * Manual release mechanism, to release sources and binaries without rebuild.
+   Target definition in repositories configuration of projects.
+
+Changes on purpose:
+===================
+
+ * webui and api have merged into a single rails process. Details are described
+   in README.Update file.
+
+ * api is accessible without credentials if the anonymous mode is enabled.
+
+ * The scheduler states in /build/_workerstates were moved into a
+   partition structure to support multiple backends running in one instance.
+
+ * Submit request for entire projects will skip packages which do not contain
+   source changes relative to their linked packages.
+
+ * Notification system has been moved from the backend to the api. The backend
+   system is still available but declared as deprecated.
+
+ * /about api route is publicly accessible now for system live checks.
+
+Incompatible changes:
+=====================
+
+ * The /architectures route is not providing the attributes "recommended" and "available"
+   anymore. It just provides a fixed list of all known architectures in general.
+   => Use /configuration route to configure the available architectures for your instance.
+      This is also used by the backend now.
+   => Define the used architectures for default targets directly in /distribution.
+   => Modification of architectures is not supported in this route anymore.
+
+Notes for systems using systemd:
+================================
+
+OBS is using init scripts, not systemd style .service files. This will stay until
+we will switch from SLES 11 to SLES 12 as default production platform.
+
+openSUSE installations may use systemd (instead of sysvinit) and it should work
+in general. Not working are usages like
+
+ # rcobssrcserver status
+
+You will only get the systemd status here.
+
+Also stopping services may not kill all processes, which leads to abstract errors
+when trying to restart them. We heard also about trashed MySQL databases when using
+systemd.
+
+To avoid these problems you need switch directory to avoid the systemd wrapper:
+
+ # cd /etc/init.d
+ # ./obssrcserver status|stop|start
+

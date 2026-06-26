@@ -1,0 +1,53 @@
+get:
+  summary: List global label templates.
+  description: |
+    **(Unstable)** List the label templates globaly available.
+
+    This is only for admins.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/label_templates.yaml'
+          example:
+            count: 2
+            label_template:
+              - id: 3
+                color: '#0881ca'
+                name: Rerum
+              - id: 4 
+                color: '#0881cb'
+                name: Test
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Label Templates
+
+post:
+  summary: Create a global label template.
+  description: |
+    **(Unstable)** Create a global label template.
+
+    This is only for admins.
+  security:
+    - basic_authentication: []
+  requestBody:
+    description: Label template definition
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/label_template.yaml'
+        example:
+          color: '#AABBCC'
+          name: hey
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Label Templates

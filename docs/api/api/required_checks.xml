@@ -1,0 +1,4 @@
+<required_checks project="home:user1">
+  <name>unit tests</name>
+  <name>integration tests</name>
+</required_checks>

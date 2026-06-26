@@ -1,0 +1,15 @@
+.card-body
+  - if inherited_packages.present?
+    .obs-dataTable
+      %table.table.table-sm.table-fixed.table-bordered.table-hover#inherited-packages-table
+        %thead
+          %tr
+            %th.w-75 Name
+            %th.w-25 From
+        %tbody
+          - inherited_packages.each do |package|
+            %tr
+              %td
+                = link_to(package.first, package_show_path(package: package.first, project: project))
+              %td
+                = package.second

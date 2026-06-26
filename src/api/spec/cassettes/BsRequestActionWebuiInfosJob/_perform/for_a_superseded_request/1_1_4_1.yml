@@ -1,0 +1,137 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://backend:5352/source/another_source_project/another_source_package?cmd=diff&filelimit=10000&opackage=source_package&oproject=source_project&orev=0&rev=0&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '344'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="80817d048d55f93b2e3b2f5a4ce8cbd4">
+          <old project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="another_source_project" package="another_source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 18 Oct 2021 09:14:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/another_source_project/another_source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '306'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="another_source_package" rev="4" vrev="4" srcmd5="f20fc0e0d3f0f47f5b5aeffb4c0f87c2">
+          <entry name="_config" md5="80c8296a8d53a0f35868aa3451193d23" size="45" mtime="1634296204"/>
+          <entry name="somefile.txt" md5="4a8a08f09d37b73795649038408b5f33" size="1" mtime="1634295975"/>
+        </directory>
+  recorded_at: Mon, 18 Oct 2021 09:14:09 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/another_source_project/another_source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1056'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="b1a751f166ffa678b1a19d5dd48b655c">
+          <old project="target_project" package="target_package" rev="20" srcmd5="a18c4c7e25da876619dbc251e64080b8"/>
+          <new project="another_source_project" package="another_source_package" rev="4" srcmd5="f20fc0e0d3f0f47f5b5aeffb4c0f87c2"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="16f497b10cc027f4aa0c8eb15ab7c7c4" size="58"/>
+              <new name="_config" md5="80c8296a8d53a0f35868aa3451193d23" size="45"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Eos cumque praesentium. Quo quos explicabo. Hic eos culpa.
+        \ No newline at end of file
+        +Vel aut in. Et at saepe. Incidunt quis eaque.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="0cc175b9c0f1b6a831c399e269772661" size="1"/>
+              <new name="somefile.txt" md5="4a8a08f09d37b73795649038408b5f33" size="1"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -a
+        \ No newline at end of file
+        +c
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 18 Oct 2021 09:14:09 GMT
+recorded_with: VCR 6.0.0

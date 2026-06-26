@@ -1,0 +1,19 @@
+name: Brakeman
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ruby:3.4.2
+    steps:
+    - uses: actions/checkout@v7
+    - name: Install Brakeman
+      run: |
+        gem install --no-format-executable brakeman -v 7.1.1
+    - name: Brakeman
+      run: |
+        brakeman -p src/api

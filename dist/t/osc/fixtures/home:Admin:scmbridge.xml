@@ -1,0 +1,9 @@
+<project name="home:Admin:scmbridge">
+  <title/>
+  <description/>
+  <person userid="Admin" role="maintainer"/>
+  <repository name="Leap">
+    <path project="openSUSE.org:openSUSE:Leap:16.0" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+</project>

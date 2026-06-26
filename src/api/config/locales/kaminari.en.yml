@@ -1,0 +1,18 @@
+# "Needed" because nokogiri doesn't like &laquo, &rsaquo, etc.
+en:
+  views:
+    pagination:
+      first: "First"
+      last: "Last"
+      previous: "Previous"
+      next: "Next"
+      truncate: "..."
+  helpers:
+    page_entries_info:
+      one_page:
+        display_entries:
+          zero: "No %{entry_name} found"
+          one: "Displaying <b>1</b> %{entry_name}"
+          other: "Displaying <b>all %{count} %{entry_name}</b>"
+      more_pages:
+        display_entries: "Displaying %{entry_name} <b>%{first}&nbsp;-&nbsp;%{last}</b> of <b>%{total}</b>"

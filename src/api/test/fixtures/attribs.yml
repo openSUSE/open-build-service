@@ -1,0 +1,37 @@
+attribs_1040753498:
+  id: 1040753498
+  attrib_type_id: 62
+  project: My_Maintenance
+attribs_1040753499:
+  id: 1040753499
+  attrib_type_id: 63
+  project: My_Maintenance
+attribs_995394145:
+  id: 995394145
+  attrib_type_id: 61
+  project: kde4
+attribs_UpdateProject_for_BaseDistro:
+  id: 102
+  attrib_type_id: 57
+  project: BaseDistro
+attribs_UpdateProject_for_BaseDistro2_0:
+  id: 103
+  attrib_type_id: 57
+  project: BaseDistro2.0
+basedistro_important:
+  id: 1040753741
+  attrib_type_id: 56
+  project: BaseDistro
+maintained_apache2_package:
+  id: 101
+  attrib_type_id: 58
+  package: Apache_apache2
+quality_category_apache2_package:
+  attrib_type_id: 75
+  package: Apache_apache2
+apache_issues:
+  attrib_type_id: 67
+  project: Apache
+apache_OBS_OwnerRootProject:
+  attrib_type_id: 77
+  project: Apache

@@ -1,0 +1,25 @@
+- problems = merge_broken_packages(staging_project.broken_packages)
+
+%td.p-2.w-25.fw-bold
+  %i.me-2.fas{ class: problems.empty? ? 'fa-check-circle text-primary' : 'fa-exclamation-triangle text-warning' }
+  Broken Packages
+%td.p-2
+  - if problems.empty?
+    None
+  - else
+    - build_states_without_logs = ['unresolvable', 'broken']
+    - problems.each do |name, states|
+      = link_to("#{name}:", package_show_path(package: name, project: staging_project))
+      - states.each do |state, values|
+        = state
+        = surround '(', ')' do
+          - values.each do |value|
+            - comma = ', ' unless values.last == value
+            = succeed comma do
+              - if build_states_without_logs.include?(state)
+                = value[:arch]
+              - else
+                = link_to(value[:arch], package_live_build_log_path(package: name,
+                                                                    repository: value[:repository],
+                                                                    project: staging_project,
+                                                                    arch: value[:arch]))

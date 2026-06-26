@@ -1,0 +1,36 @@
+:ruby
+  @pagetitle = "Request #{@bs_request.number}: #{@action.name}"
+
+.card
+  .card-body.p-0
+    = render partial: 'request_header',
+        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action,
+                  prev_action: @prev_action, next_action: @next_action, actions: @actions,
+                  diff_to_superseded_id: @diff_to_superseded_id, page_name: 'request_build_results',
+                  bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects,
+                  current_notification: @current_notification }
+    = render partial: 'request_tabs',
+        locals: { bs_request: @bs_request, action: @action, issues: @issues,
+                  actions_count: @actions.count, active_tab: @active_tab }
+    .container.p-4
+      - if @buildable && @actions.count <= BsRequest::MAX_ACTIONS_TO_RENDER_BUILD_RESULTS
+        .build-results-content
+          -# For a request staged in a staging project, we display the Build Results / RPM Lint from the staging project instead
+          - if @staging_project.present?
+            %p.fst-italic
+              From staging project
+              = link_to(@project, project_show_path(@project))
+          .result{ data: { build_results_url: request_complete_build_results_path } }
+            // The content of this div is set by JavaScript which calls the partial ../_build_status.html.haml
+            = render partial: 'webui/shared/loading', locals: { text: 'Loading build results...' }
+
+        :javascript
+          updateBuildResultBeta();
+      - else
+        .build-results-content
+          .result
+            %i
+              - if @actions.count > BsRequest::MAX_ACTIONS_TO_RENDER_BUILD_RESULTS
+                Too many actions to render build results
+              - else
+                No build results available

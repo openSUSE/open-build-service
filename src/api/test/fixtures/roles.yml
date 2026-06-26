@@ -1,0 +1,21 @@
+Admin:
+  title: Admin
+  global: 1
+User:
+  title: User
+  global: 1
+bugowner:
+  title: bugowner
+  global: 0
+downloader:
+  title: downloader
+  global: 0
+maintainer:
+  title: maintainer
+  global: 0
+reader:
+  title: reader
+  global: 0
+reviewer:
+  title: reviewer
+  global: 0

@@ -1,0 +1,7 @@
+in: path
+name: attribute_name
+schema:
+  type: string
+required: true
+description: The name of the attribute
+example: OBS:OwnerRootProjectTest

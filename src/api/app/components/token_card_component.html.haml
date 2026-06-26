@@ -1,0 +1,43 @@
+= render(CardComponent.new) do |component|
+  %p.card-text
+    Id: #{@token.id}
+  %p.card-text
+    = operation
+  - if @token.package
+    %p.card-text.text-word-break-all
+      Package:
+      = token_package_link
+  %p.card-text
+    Runs as: #{link_to(@token.executor.login, user_path(@token.executor))}
+  - if @token.triggered_at.present?
+    %p.card-text
+      Last trigger on #{@token.triggered_at}
+
+  - component.with_header do
+    %h5.card-title
+      - unless @token.enabled
+        .pb-3
+          .fas.fa-ban.text-danger
+          %span.text-warning Disabled
+      - if @token.description.present?
+        = link_to @token.description, token_path(@token)
+      - else
+        = link_to 'No description', token_path(@token), class: 'fst-italic'
+
+  - if policy(@token).destroy?
+    - component.with_delete_button do
+      = link_to '#', title: 'Delete Token',
+        data: { 'bs-toggle': 'modal', 'bs-target': '#delete-token-modal', token_id: @token.id, action: token_path(@token) } do
+        %i.fas.fa-times-circle.text-danger
+
+  - if policy(@token).edit?
+    - component.with_action do
+      = link_to(edit_token_path(@token), title: 'Edit Token', class: 'nav-link p-1') do
+        %i.fas.fa-edit
+  - if @token.type == 'Token::Workflow'
+    - component.with_action do
+      = link_to(token_users_path(@token.id), title: 'Share Token', class: 'nav-link p-1') do
+        %i.fas.fa-users
+    - component.with_action do
+      = link_to(token_workflow_runs_path(@token.id), title: 'Workflow Runs', class: 'nav-link p-1') do
+        %i.fas.fa-book-open

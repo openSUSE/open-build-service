@@ -1,0 +1,78 @@
+
+type: object
+properties:
+  project:
+    type: string
+    xml:
+      attribute: true
+  pubkey:
+    # FIXME: 'content' attribute missing due to https://github.com/OAI/OpenAPI-Specification/issues/630
+    type: object
+    properties:
+      keyid:
+        type: string
+        xml:
+          attribute: true
+      userid:
+        type: string
+        xml:
+          attribute: true
+      algo:
+        type: string
+        xml:
+          attribute: true
+      keysize:
+        type: string
+        xml:
+          attribute: true
+      expires:
+        type: string
+        xml:
+          attribute: true
+      fingerprint:
+        type: string
+        xml:
+          attribute: true
+  sslcert:
+    # FIXME: 'content' attribute missing due to https://github.com/OAI/OpenAPI-Specification/issues/630
+    type: object
+    properties:
+      keyid:
+        type: string
+        xml:
+          attribute: true
+      serial:
+        type: string
+        xml:
+          attribute: true
+      issuer:
+        type: string
+        xml:
+          attribute: true
+      subject:
+        type: string
+        xml:
+          attribute: true
+      algo:
+        type: string
+        xml:
+          attribute: true
+      keysize:
+        type: string
+        xml:
+          attribute: true
+      begins:
+        type: string
+        xml:
+          attribute: true
+      expires:
+        type: string
+        xml:
+          attribute: true
+      fingerprint:
+        type: string
+        xml:
+          attribute: true
+
+xml:
+  name: keyinfo

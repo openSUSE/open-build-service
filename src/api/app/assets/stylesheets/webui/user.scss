@@ -1,0 +1,30 @@
+#contributors-table {
+  td {
+    padding: 0;
+    border: 1px solid $custom-gray-400;
+  }
+  td.week-day {
+    width: 1px;
+    padding: 0 .5rem 0 .5rem;
+    @extend .table-activity;
+  }
+  a.activity-link {
+    display: block;
+  }
+}
+
+#bio-chars-counter {
+  min-height: 1.2rem;
+}
+
+$table-activity-variants: (
+  "activity":            shift-color($custom-gray-400, -50%),
+  "activity-percentil1": shift-color($pink-300, -50%),
+  "activity-percentil2": shift-color($pink-500, -50%),
+  "activity-percentil3": shift-color($pink-700, -50%),
+  "activity-percentil4": shift-color($pink-900, -50%),
+);
+
+@each $color, $value in $table-activity-variants {
+  @include table-variant($color, $value);
+}

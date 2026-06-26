@@ -1,0 +1,21 @@
+.modal.fade{ id: 'delete-maintained-project-modal',
+             tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Disable Maintenance to this project?
+      .modal-body
+        %p Please confirm that you want to disable Maintenance this project.
+        = form_tag nil, method: :delete do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+              Cancel
+            = submit_tag('Disable', class: 'btn btn-sm btn-danger px-4')
+
+= content_for :ready_function do
+  :plain
+    $('#delete-maintained-project-modal').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('form').attr('action', link.data('action'));
+    });

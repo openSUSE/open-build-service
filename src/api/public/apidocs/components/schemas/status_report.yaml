@@ -1,0 +1,12 @@
+type: object
+properties:
+  check:
+    type: array
+    items:
+      $ref: 'check.yaml'
+  uuid:
+    type: integer
+    xml:
+      attribute: true
+xml:
+  name: status_report

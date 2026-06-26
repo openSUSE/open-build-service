@@ -1,0 +1,2230 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:admin/_meta?user=admin
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:admin">
+          <title/>
+          <description/>
+          <person userid="admin" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '132'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:admin">
+          <title></title>
+          <description></description>
+          <person userid="admin" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:22 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:Update">
+          <title>Little Hands Clapping</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '122'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:Update">
+          <title>Little Hands Clapping</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:Update">
+          <title>Little Hands Clapping</title>
+          <description/>
+          <repository name="repository_11">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '196'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:Update">
+          <title>Little Hands Clapping</title>
+          <description></description>
+          <repository name="repository_11">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="cacti.openSUSE_11.4_Update" project="home:tom:branches:Update">
+          <title>This Side of Paradise</title>
+          <description>Rerum excepturi enim quis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="cacti.openSUSE_11.4_Update" project="home:tom:branches:Update">
+          <title>This Side of Paradise</title>
+          <description>Rerum excepturi enim quis.</description>
+        </package>
+  recorded_at: Mon, 11 Aug 2025 11:07:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update/_config
+    body:
+      encoding: UTF-8
+      string: Nesciunt sit repellendus. Corrupti laboriosam quas. Quo voluptates qui.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15" vrev="15">
+          <srcmd5>7e5e9974c6825530ea41f3e34fbf5cc7</srcmd5>
+          <version>unknown</version>
+          <time>1754910444</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update/DUMMY_FILE
+    body:
+      encoding: UTF-8
+      string: boo#12345
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16" vrev="16">
+          <srcmd5>7e5e9974c6825530ea41f3e34fbf5cc7</srcmd5>
+          <version>unknown</version>
+          <time>1754910444</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="cacti.openSUSE_11.5_Update" project="home:tom:branches:Update">
+          <title>A Summer Bird-Cage</title>
+          <description>Et aut asperiores non.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="cacti.openSUSE_11.5_Update" project="home:tom:branches:Update">
+          <title>A Summer Bird-Cage</title>
+          <description>Et aut asperiores non.</description>
+        </package>
+  recorded_at: Mon, 11 Aug 2025 11:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update/_config
+    body:
+      encoding: UTF-8
+      string: Expedita aliquam vel. Nihil cumque minima. Est necessitatibus labore.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15" vrev="15">
+          <srcmd5>a3fb0168689913a4dbfab0f0bd19e295</srcmd5>
+          <version>unknown</version>
+          <time>1754910444</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update/DUMMY_FILE
+    body:
+      encoding: UTF-8
+      string: boo#12345
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16" vrev="16">
+          <srcmd5>a3fb0168689913a4dbfab0f0bd19e295</srcmd5>
+          <version>unknown</version>
+          <time>1754910444</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:tom:branches:Update">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '281'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:tom:branches:Update">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+  recorded_at: Mon, 11 Aug 2025 11:07:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=tom
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '236'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>e45d013f24b032bd54480cfc08ca5401</srcmd5>
+          <version>unknown</version>
+          <time>1754910445</time>
+          <user>tom</user>
+          <comment>generated by createpatchinfo call</comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:tom:branches:Update">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '281'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="home:tom:branches:Update">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+  recorded_at: Mon, 11 Aug 2025 11:07:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1754910327"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401" verifymd5="e45d013f24b032bd54480cfc08ca5401">
+          <filename>_patchinfo</filename>
+        </sourceinfo>
+  recorded_at: Mon, 11 Aug 2025 11:07:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1754910327"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '139'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+  recorded_at: Mon, 11 Aug 2025 11:07:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.4/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.4">
+          <title>The House of Mirth</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.4">
+          <title>The House of Mirth</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.4/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.4">
+          <title>The House of Mirth</title>
+          <description/>
+          <repository name="repository_12">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '182'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.4">
+          <title>The House of Mirth</title>
+          <description></description>
+          <repository name="repository_12">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.4/cacti/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="cacti" project="openSUSE:11.4">
+          <title>Of Human Bondage</title>
+          <description>Nulla nostrum laboriosam consequatur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="cacti" project="openSUSE:11.4">
+          <title>Of Human Bondage</title>
+          <description>Nulla nostrum laboriosam consequatur.</description>
+        </package>
+  recorded_at: Mon, 11 Aug 2025 11:07:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.4/cacti/_config
+    body:
+      encoding: UTF-8
+      string: Omnis quia in. Quia modi eius. Rerum consequuntur dicta.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15" vrev="15">
+          <srcmd5>6c83734f18e30f9ca6ff55e556a7b2ab</srcmd5>
+          <version>unknown</version>
+          <time>1754910446</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.4/cacti/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Sit amet facere. Tempora ad et. Inventore ut cupiditate.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16" vrev="16">
+          <srcmd5>61c41d6664d830021a8e82ed884bde91</srcmd5>
+          <version>unknown</version>
+          <time>1754910446</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.4:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.4:Update" kind="maintenance_release">
+          <title>For a Breath I Tarry</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.4:Update" kind="maintenance_release">
+          <title>For a Breath I Tarry</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.4:Update/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="Maintained" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="23">
+          <srcmd5>99979001fc2f58e5fe08b3c961421a0c</srcmd5>
+          <time>1754910447</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.4/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="UpdateProject" namespace="OBS">
+            <value>openSUSE:11.4:Update</value>
+          </attribute>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="24">
+          <srcmd5>c7db97325d757d5649dfc3fc215eefc0</srcmd5>
+          <time>1754910447</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.4:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.4:Update" kind="maintenance_release">
+          <title>For a Breath I Tarry</title>
+          <description/>
+          <link project="openSUSE:11.4"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.4:Update" kind="maintenance_release">
+          <title>For a Breath I Tarry</title>
+          <description></description>
+          <link project="openSUSE:11.4"/>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.5/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.5">
+          <title>Blithe Spirit</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.5">
+          <title>Blithe Spirit</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.5/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.5">
+          <title>Blithe Spirit</title>
+          <description/>
+          <repository name="repository_14">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.5">
+          <title>Blithe Spirit</title>
+          <description></description>
+          <repository name="repository_14">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.5/cacti/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="cacti" project="openSUSE:11.5">
+          <title>No Highway</title>
+          <description>Vero deleniti est omnis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '140'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="cacti" project="openSUSE:11.5">
+          <title>No Highway</title>
+          <description>Vero deleniti est omnis.</description>
+        </package>
+  recorded_at: Mon, 11 Aug 2025 11:07:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.5/cacti/_config
+    body:
+      encoding: UTF-8
+      string: Eos quae cupiditate. Aperiam nam sed. Culpa ut quia.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15" vrev="15">
+          <srcmd5>0074f3bfe8d576340075410b0c332740</srcmd5>
+          <version>unknown</version>
+          <time>1754910450</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.5/cacti/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Sed fugiat consequatur. Adipisci vel ut. Veritatis rerum quasi.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16" vrev="16">
+          <srcmd5>6dae58e87609a25b21cf90f67baf0bf7</srcmd5>
+          <version>unknown</version>
+          <time>1754910450</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.5:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.5:Update" kind="maintenance_release">
+          <title>O Jerusalem!</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '136'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.5:Update" kind="maintenance_release">
+          <title>O Jerusalem!</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.5:Update/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="Maintained" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="23">
+          <srcmd5>7cacf82801d09efb57ad5c7b1de363ad</srcmd5>
+          <time>1754910451</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.5/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="UpdateProject" namespace="OBS">
+            <value>openSUSE:11.5:Update</value>
+          </attribute>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="24">
+          <srcmd5>5b9778b98ca8041a723f32f05441ef45</srcmd5>
+          <time>1754910451</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.5:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.5:Update" kind="maintenance_release">
+          <title>O Jerusalem!</title>
+          <description/>
+          <link project="openSUSE:11.5"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.5:Update" kind="maintenance_release">
+          <title>O Jerusalem!</title>
+          <description></description>
+          <link project="openSUSE:11.5"/>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:maintenance_coord/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:maintenance_coord">
+          <title/>
+          <description/>
+          <person userid="maintenance_coord" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:maintenance_coord">
+          <title></title>
+          <description></description>
+          <person userid="maintenance_coord" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject" kind="maintenance">
+          <title>official maintenance space</title>
+          <description/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '233'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject" kind="maintenance">
+          <title>official maintenance space</title>
+          <description></description>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="MaintenanceProject" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="23">
+          <srcmd5>b5ac59f5d2a72c7f98586b6c1dbf55de</srcmd5>
+          <time>1754910452</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 11 Aug 2025 11:07:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject" kind="maintenance">
+          <title>official maintenance space</title>
+          <description/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '233'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject" kind="maintenance">
+          <title>official maintenance space</title>
+          <description></description>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+        </project>
+  recorded_at: Mon, 11 Aug 2025 11:07:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '310'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="7e5e9974c6825530ea41f3e34fbf5cc7">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1754910280"/>
+          <entry name="_config" md5="8e52a7664db60a6c5a551c13dadcb0ed" size="71" mtime="1754910443"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '310'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="7e5e9974c6825530ea41f3e34fbf5cc7">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1754910280"/>
+          <entry name="_config" md5="8e52a7664db60a6c5a551c13dadcb0ed" size="71" mtime="1754910443"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:33 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update?cmd=diff&expand=1&filelimit=10000&orev=0&rev=16&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '835'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="470fd59863389802520d445bb107a0e9">
+          <old project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="16" srcmd5="7e5e9974c6825530ea41f3e34fbf5cc7"/>
+          <files>
+            <file state="added">
+              <new name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +boo#12345
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="_config" md5="8e52a7664db60a6c5a551c13dadcb0ed" size="71"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Nesciunt sit repellendus. Corrupti laboriosam quas. Quo voluptates qui.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 11 Aug 2025 11:07:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '310'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="cacti.openSUSE_11.5_Update" rev="16" vrev="16" srcmd5="a3fb0168689913a4dbfab0f0bd19e295">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1754910281"/>
+          <entry name="_config" md5="015df7f47b77eb73f344f3d2c1464de9" size="69" mtime="1754910444"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '310'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="cacti.openSUSE_11.5_Update" rev="16" vrev="16" srcmd5="a3fb0168689913a4dbfab0f0bd19e295">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1754910281"/>
+          <entry name="_config" md5="015df7f47b77eb73f344f3d2c1464de9" size="69" mtime="1754910444"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:33 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update?cmd=diff&expand=1&filelimit=10000&orev=0&rev=16&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '833'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="7edf469b0999e5f903887ce2183dc29f">
+          <old project="home:tom:branches:Update" package="cacti.openSUSE_11.5_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.5_Update" rev="16" srcmd5="a3fb0168689913a4dbfab0f0bd19e295"/>
+          <files>
+            <file state="added">
+              <new name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +boo#12345
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="_config" md5="015df7f47b77eb73f344f3d2c1464de9" size="69"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Expedita aliquam vel. Nihil cumque minima. Est necessitatibus labore.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 11 Aug 2025 11:07:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1754910327"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1754910327"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:33 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo?cmd=diff&expand=1&filelimit=10000&orev=0&rev=4&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '737'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="1ad639e52dc89acc49b43167de200846">
+          <old project="home:tom:branches:Update" package="patchinfo" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:branches:Update" package="patchinfo" rev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401"/>
+          <files>
+            <file state="added">
+              <new name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139"/>
+              <diff lines="9">@@ -0,0 +1,7 @@
+        +&lt;patchinfo&gt;
+        +  &lt;category&gt;recommended&lt;/category&gt;
+        +  &lt;rating&gt;low&lt;/rating&gt;
+        +  &lt;packager&gt;tom&lt;/packager&gt;
+        +  &lt;summary/&gt;
+        +  &lt;description/&gt;
+        +&lt;/patchinfo&gt;
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 11 Aug 2025 11:07:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 0a19bf90-d423-42e4-946c-2417ace35036
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '310'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="7e5e9974c6825530ea41f3e34fbf5cc7">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1754910280"/>
+          <entry name="_config" md5="8e52a7664db60a6c5a551c13dadcb0ed" size="71" mtime="1754910443"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 0a19bf90-d423-42e4-946c-2417ace35036
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '310'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="7e5e9974c6825530ea41f3e34fbf5cc7">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1754910280"/>
+          <entry name="_config" md5="8e52a7664db60a6c5a551c13dadcb0ed" size="71" mtime="1754910443"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:34 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update?cacheonly=1&cmd=diff&expand=1&nodiff=1&orev=0&rev=16&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 0a19bf90-d423-42e4-946c-2417ace35036
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '603'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="907edccfa6702e5c55345fdf1aefa387">
+          <old project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="16" srcmd5="7e5e9974c6825530ea41f3e34fbf5cc7"/>
+          <files>
+            <file state="added">
+              <new name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9"/>
+            </file>
+            <file state="added">
+              <new name="_config" md5="8e52a7664db60a6c5a551c13dadcb0ed" size="71"/>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 11 Aug 2025 11:07:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 0a19bf90-d423-42e4-946c-2417ace35036
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1754910327"/>
+        </directory>
+  recorded_at: Mon, 11 Aug 2025 11:07:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo?rev=4
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '139'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary/>
+          <description/>
+        </patchinfo>
+  recorded_at: Mon, 11 Aug 2025 11:07:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.4_Update&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 517096d7-280f-45e7-900a-0066672a1575
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="08e4eea67682d70727b8576120b2af92">
+          <result project="home:tom:branches:Update" repository="repository_11" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Mon, 11 Aug 2025 11:07:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.5_Update&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 517096d7-280f-45e7-900a-0066672a1575
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="08e4eea67682d70727b8576120b2af92">
+          <result project="home:tom:branches:Update" repository="repository_11" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Mon, 11 Aug 2025 11:07:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=patchinfo&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 517096d7-280f-45e7-900a-0066672a1575
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="08e4eea67682d70727b8576120b2af92">
+          <result project="home:tom:branches:Update" repository="repository_11" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Mon, 11 Aug 2025 11:07:34 GMT
+recorded_with: VCR 6.3.1

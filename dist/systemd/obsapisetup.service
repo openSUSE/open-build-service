@@ -1,0 +1,12 @@
+[Unit]
+Description=OBS API Setup
+Before=apache2.service
+After=obsstoragesetup.service network-online.target mariadb.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/obs/server/setup-appliance.sh --non-interactive --setup-only --with-gitea
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

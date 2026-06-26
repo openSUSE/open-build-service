@@ -1,0 +1,14 @@
+production:
+  features: &default
+
+development:
+  features:
+    <<: *default
+
+test:
+  features:
+    <<: *default
+
+beta:
+  features:
+    <<: *default

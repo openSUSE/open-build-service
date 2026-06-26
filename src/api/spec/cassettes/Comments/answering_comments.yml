@@ -1,0 +1,279 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:burdenski/_meta?user=burdenski
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:burdenski">
+          <title/>
+          <description/>
+          <person userid="burdenski" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '140'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:burdenski">
+          <title></title>
+          <description></description>
+          <person userid="burdenski" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 22 Jun 2021 11:36:57 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:burdenski/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 636f53ae-e342-4dde-9221-e538ca2851dc
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 22 Jun 2021 11:37:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:burdenski/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 636f53ae-e342-4dde-9221-e538ca2851dc
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '11'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo/>\n"
+  recorded_at: Tue, 22 Jun 2021 11:37:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:burdenski/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 6a34018e-c0e0-4b7a-993e-026cd78c95da
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 22 Jun 2021 11:37:15 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:burdenski/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 981b0f4e-a8c6-4a04-aa2a-32ce8b86567e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 22 Jun 2021 11:37:16 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:burdenski/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 3be63d7e-6c32-4d25-89ec-4b1d4c8f31f8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 22 Jun 2021 11:37:17 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:burdenski/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 46c083cd-ede2-4938-ba80-8649cd14c37b
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 22 Jun 2021 11:37:17 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:burdenski/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - c9eab117-e9b5-4b21-9f55-dce9b5675c4e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 22 Jun 2021 11:37:18 GMT
+recorded_with: VCR 6.0.0

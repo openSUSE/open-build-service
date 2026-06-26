@@ -1,0 +1,15 @@
+%hr
+.d-flex.mt-2
+  .flex-shrink-0
+    = image_tag_for(element.user, size: 38, custom_class: 'me-3')
+  .flex-grow-1.text-break
+    %p
+      = link_to(element.user, user_path(element.user))
+      - if element.instance_of?(HistoryElement::RequestSuperseded)
+        = link_to(element.user_action, request_show_path(element.description_extension))
+      - else
+        = element.user_action
+      = link_to("#status-history-#{element.id}", title: I18n.l(element.created_at.utc), name: "status-history-#{element.id}") do
+        = render TimeComponent.new(time: element.created_at)
+
+    = render partial: 'webui/shared/collapsible_text', locals: { text: element.comment }

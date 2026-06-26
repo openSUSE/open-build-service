@@ -1,0 +1,23 @@
+type: object
+required:
+  - title
+  - description
+  - revision
+properties:
+  title:
+    type: string
+    example: Open Build Service API
+  description:
+    type: string
+    example: API to the Open Build Service
+  revision:
+    type: string
+    example: '2.11~alpha.20201110T101235.7b5d82e614'
+  last_deployment:
+    type: string
+    example: '2020-11-10 15:07:02 +0000'
+  commit:
+    type: string
+    example: '7b5d82e6143442a8eb8459f35cc94d2fbe263ebe'
+xml:
+  name: about

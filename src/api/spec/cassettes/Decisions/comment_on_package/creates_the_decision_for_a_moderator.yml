@@ -1,0 +1,483 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>Waiting for the Barbarians</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>Waiting for the Barbarians</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 04 Dec 2023 21:51:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/hello/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>Vanity Fair</title>
+          <description>Doloribus voluptas dignissimos aspernatur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '153'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>Vanity Fair</title>
+          <description>Doloribus voluptas dignissimos aspernatur.</description>
+        </package>
+  recorded_at: Mon, 04 Dec 2023 21:51:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/hello
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 48502be1-d8b0-42f4-bca1-c4b541aa1406
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '80'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="hello" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/hello?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '80'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="hello" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/hello/_history?deleted=0&meta=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 48502be1-d8b0-42f4-bca1-c4b541aa1406
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '31'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+        </revisionlist>
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?lastbuild=1&locallink=1&multibuild=1&package=hello&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 40c27028-2135-4ce7-8038-f433c0e5642e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?lastbuild=1&locallink=1&multibuild=1&package=hello&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 9b04ef98-9c86-4289-befc-cae1b951b378
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?package=hello&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 2cf5ce2b-f398-4025-8dfc-f87f98b450ae
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/hello
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 45f9cdc9-c32f-4611-bf43-2279c1c67222
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '80'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="hello" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/hello?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '80'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="hello" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/hello/_history?deleted=0&meta=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 45f9cdc9-c32f-4611-bf43-2279c1c67222
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '31'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+        </revisionlist>
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?lastbuild=1&locallink=1&multibuild=1&package=hello&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 9d058423-7bf7-422a-9ccc-eb2c8458a43e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?lastbuild=1&locallink=1&multibuild=1&package=hello&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 392f3dee-3f35-4104-bf05-f51e30d3e5bc
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?package=hello&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 2a8ff3e9-72ff-41a9-8413-3309e3d5d048
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:51:41 GMT
+recorded_with: VCR 6.2.0

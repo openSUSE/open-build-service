@@ -1,0 +1,123 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '79'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 29 Jul 2024 13:58:10 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball?cacheonly=1&cmd=diff&expand=1&filelimit=5&opackage=goal&oproject=home:titan&tarlimit=5&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '820'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="010b00ae752faf75e654d445a37db040">
+          <old project="home:titan" package="goal" rev="38" srcmd5="b2e5a8eac8a49f39de8821eb0bc675fd"/>
+          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+            <file state="deleted">
+              <old name="_config" md5="dd9d9ebf8d5f6aa2294820a9fcb6a1a4" size="53"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Quas et nulla. Eius ut blanditiis. Et adipisci natus.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="somefile.txt" md5="4209b833d033d83b0bf90dc45118938e" size="72"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Unde dolorem cupiditate. Dolore et quis. Temporibus laborum accusantium.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 29 Jul 2024 13:58:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="38" vrev="38" srcmd5="b2e5a8eac8a49f39de8821eb0bc675fd">
+          <entry name="_config" md5="dd9d9ebf8d5f6aa2294820a9fcb6a1a4" size="53" mtime="1722258476"/>
+          <entry name="somefile.txt" md5="4209b833d033d83b0bf90dc45118938e" size="72" mtime="1722258477"/>
+        </directory>
+  recorded_at: Mon, 29 Jul 2024 13:58:10 GMT
+recorded_with: VCR 6.2.0

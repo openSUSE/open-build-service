@@ -1,0 +1,31 @@
+- @pagetitle = "Copy label templates to #{@project}"
+.card
+  = render(partial: 'webui/project/tabs', locals: { project: @project })
+
+  .card-body
+    %h3= @pagetitle
+    .row
+      .col-12.col-md-10.col-lg-8
+        = form_with(url: clone_project_label_templates_path(@project), method: :post) do |f|
+          .mb-3#label-templates-source-project
+            = render partial: 'webui/shared/search_box',
+                     locals: { html_id: "source_project",
+                               html_name: "source_project",
+                               label: 'Source Project:', required: true,
+                               data: { source: autocomplete_projects_path } }
+          .mb-3#label-templates-preview{ data: { source: preview_project_label_templates_path(@project) } }
+          .actions
+            = link_to('Cancel', project_label_templates_path(@project), title: 'Cancel', class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
+            = f.submit('Copy', class: 'btn btn-primary px-4 mt-3 mt-sm-0')
+
+:javascript
+  $('#label-templates-source-project').on('autocompleteselect autocompletechange', function(event, ui) {
+    let preview = $('#label-templates-preview');
+    $.ajax({
+      url: preview.data('source'),
+      data: { project: ui.item.value },
+      success: function (data) {
+        preview.html(`The following templates will be copied: ${data}`);
+      }
+    });
+  });

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<packageresult package="kdelibs" project="kde4" repository="factory">
+  <date>20060127T134047Z</date>
+  <status code="building">
+    <summary>Building.</summary>
+    <packagecount state="succeeded">1</packagecount>
+    <packagecount state="failed">0</packagecount>
+  </status>
+  <archresult arch="i586">
+    <status code="built">
+      <summary>Succesfully built.</summary>
+    </status>
+    <rpm filename="mydummy-1.0-2.1.src.rpm"/>
+    <rpm filename="mydummy-1.0-2.1.i586.rpm"/>
+  </archresult>
+  <archresult arch="x86_64">
+    <status code="building">
+      <summary>Building.</summary>
+    </status>
+  </archresult>
+  <archresult arch="ppc">
+    <status code="failed">
+      <summary>Failed.</summary>
+      <builderror code="compilefailure">
+        <details>Compiler failed with error 42.</details>
+      </builderror>
+    </status>
+  </archresult>
+</packageresult>

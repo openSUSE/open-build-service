@@ -1,0 +1,4 @@
+<collection matches="2">
+    <binary name="package" project="home:Iggy" package="TestPack" repository="10.2" version="1.0" release="1" arch="i586" filename="package-1.0-1.i586.rpm" filepath="home:/Iggy/10.2/i586/package-1.0-1.i586.rpm" baseproject="BaseDistro" type="rpm" />
+    <binary name="package" project="home:Iggy" package="TestPack" repository="10.2" version="1.0" release="1" arch="src" filename="package-1.0-1.src.rpm" filepath="home:/Iggy/10.2/src/package-1.0-1.src.rpm" baseproject="BaseDistro" type="rpm" />
+</collection>

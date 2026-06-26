@@ -1,0 +1,13 @@
+[Unit]
+Description=OBS worker
+After=network-online.target obsstoragesetup.service obssrcserver.service obsrepserver.service xendomains.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/sbin/obsworker start
+ExecStop=/usr/sbin/obsworker stop
+
+[Install]
+WantedBy=multi-user.target
+

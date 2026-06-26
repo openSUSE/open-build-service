@@ -1,0 +1,92 @@
+:ruby
+  displayed_user = involved_items_service.user
+  filters = involved_items_service.filters
+  involved_items = involved_items_service.involved_pkg_and_prj_paginated
+  involved_items_as_owner = involved_items_service.involved_items_as_owner
+  owner_root_project_exists = involved_items_service.owner_root_project_exists?
+
+  projects_packages = ['projects', 'packages']
+  projects_packages_html_ids = projects_packages.map { |p| "involved_#{p}" }
+  projects_packages_selected = (filters.keys & projects_packages_html_ids).count
+  roles = Role.local_roles
+  roles_html_ids = (roles.map(&:title) << 'owner').map { |role| "role_#{role}" }
+  roles_selected = (filters.keys & roles_html_ids).count
+
+.d-none#involvement
+  .card.sticky-top.border-0#involved-filters
+    .card-body
+      = form_with(model: displayed_user, method: :get, local: true, class: 'row row-cols-auto justify-content-end') do
+        .mb-3
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'search_text',
+                                                                 value: filters[:search_text],
+                                                                 required: false }
+        %span.dropdown.mb-3#involved-project-package
+          %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { 'bs-toggle': :dropdown }, type: :button }
+            %span.caret
+            Projects / Packages
+            - if projects_packages_selected.positive?
+              %span.badge.text-bg-secondary.ms-2= projects_packages_selected
+          .dropdown-menu.keep-open
+            - projects_packages.each do |project_or_package|
+              - involved_html_id = "involved_#{project_or_package}"
+              .dropdown-item
+                .form-check
+                  = check_box_tag involved_html_id, 1, filters[involved_html_id].present?, class: 'form-check-input'
+                  %label.form-check-label{ for: involved_html_id }
+                    = project_or_package.capitalize
+        %span.dropdown.mb-3#involved-role
+          %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { 'bs-toggle': :dropdown }, type: :button }
+            %span.caret
+            Role
+            - if roles_selected.positive?
+              %span.badge.text-bg-secondary.ms-2= roles_selected
+          .dropdown-menu.keep-open
+            - if owner_root_project_exists
+              .dropdown-item
+                .form-check
+                  = check_box_tag 'role_owner', 1, filters['role_owner'].present?, class: 'form-check-input'
+                  %label.form-check-label{ for: 'role_owner' }
+                    Owner
+            - roles.each do |role|
+              - role_html_id = "role_#{role}"
+              .dropdown-item
+                .form-check
+                  = check_box_tag role_html_id, 1, filters[role_html_id].present?, class: 'form-check-input'
+                  %label.form-check-label{ for: role_html_id }
+                    = role.to_s.capitalize
+        .mb-3
+          %button.btn.btn-primary.form-control#filter-button{ type: :submit }
+            Apply Filter
+
+    - if display_filters?(filters.keys)
+      = display_applied_filters(filters, displayed_user)
+  .card-body.pt-0
+    - if involved_items.blank?
+      = filter_message(params)
+    - else
+      .list-group.list-group-flush
+        - involved_items.each do |involved_item|
+          .list-group-item
+            .row
+              .col.obs-collapsible-textbox.vanilla-textbox-to-collapse
+                .obs-collapsible-text
+                  - if involved_item.is_a?(Package)
+                    = link_to(involved_item.project, project_show_path(involved_item.project))
+                    \/
+                    = link_to(involved_item, package_show_path(project: involved_item.project, package: involved_item), class: 'pe-2')
+                  - else
+                    = link_to(involved_item, project_show_path(involved_item), class: 'pe-2')
+                - if owner_root_project_exists && involved_items_as_owner.include?(involved_item)
+                  %span.badge.text-bg-info Owner
+                - involved_item.local_roles_for_user(displayed_user).each do |role|
+                  %span.badge.text-bg-info= role.title.capitalize
+            .row.mt-1
+              .col
+                #involvement-description= render partial: 'webui/shared/collapsible_text', locals: { text: involved_item.description }
+
+      = paginate involved_items, window: 2, views_prefix: 'webui'
+- content_for :ready_function do
+  :plain
+    $('.dropdown-menu.keep-open').on('click', function(e) {
+      e.stopPropagation();
+    });

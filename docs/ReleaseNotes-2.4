@@ -1,0 +1,175 @@
+
+#
+# Open Build Service 2.4
+#
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+There is also an install medium with installs OBS on hard disc now.
+
+dist/README.UPDATERS file has informations for updaters.
+
+OBS Appliance users who have setup their LVM can just replace 
+their appliance image without data loss. The migration will 
+happen automatically.
+
+
+Regressions:
+============
+
+ * LDAP support is not tested and in unknown state (not part of test suite)
+   (A rewrite of it is WIP)
+
+ * source service editor in webui is not available anymore
+
+Changes on purpose:
+===================
+
+ * Migration to Ruby 1.9 and Rails 3.2
+
+ * More database constraints have been introduced to avoid inconsistent databases.
+   As a result this may cause problems during update if the database is already
+   inconsistent. Please use the script check_database script to fix these
+   kind of issues:
+      # cd /srv/www/obs/api
+      # RAILS_ENV=production ./script/check_database
+
+   It may return a number of SQL commands to make the database consistend again.
+
+ * request database got moved from backend to the api. Directly
+   after update all requests seem to have vanished, but a delayed
+   job is importing them again. This can take some hours dependening
+   on the amount of requests.
+
+ * package meta of package copy command is not copying 
+   relationships and devel definitions anymore
+
+ * Requests do require a description now in any case
+
+ * webui configurations got moved from environments/*.rb to config/options.yml.
+
+ * Package conflicts and obsoletes are taken into account when resolving 
+   dependencies for build jobs. This improves build consistency but may also lead
+   to new "unresolvable" errors, since they were ignored so far. The old behaviour
+   can be restored by adding the following line into the project configuration:
+
+   ExpandFlags: ignoreconflicts
+
+ * cross architecture build directives in project configuration
+   CBInstall and CBPreinstall are not supported anymore. Use standard "Install" and
+   "Preinstall" directives instead.
+   => all architectures can be used as host for cross build now.
+
+ * The api file/distribution.xml is obsolete, the config gets stored in the SQL database
+   now. Existing file gets imported during migration.
+   The list from remote instances can displayed and updated automatically now.
+
+ * The api has no html pages anymore. The user and group management went into the 
+   standard webui configuration module.
+
+Features
+========
+
+ * Arch Linux package format support got added.
+
+ * Build Job Constraints handling. It can be used to define build
+   instance requirements for certain build jobs. Either for defined
+   package sources or for all repositories.
+
+   Documentation about this can be found here:
+
+    http://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.build_job_constraints.html
+
+ * Support of preinstall images, which can be used to speed up build
+   jobs. They need to be build manually, but get automatically used for
+   creating a build instance base in a faster way than just with installing
+   packages.
+
+ * Static links (without version and release numbers) for binary results 
+   in the published repositories can be configured now. This can be done via
+   the "staticlinks" keyword in Repotype: definition.
+
+ * Build Prerequires can be used also with the FileProvides feature in the
+   build configuration now.
+
+ * Regular users can copy entire projects (without binary results) now.
+
+ * Upload of binaries via api is allowed to administrators now.
+
+ * Data about used resources of build jobs get collected. However it
+   gets not yet used for build job assignment
+
+ * Requests can be listed also for given groups now.
+
+ * Checkout of delete packages does not require a srcmd5 sum anymore.
+
+ * Delete Requests can be used to request deletion of repositories from 
+   a project.
+
+ * Support of creation of application data xml which can be used for app 
+   stores for application centric browsing versus package browsing.
+
+ * Support hugetable memory usage for kvm workers.
+
+ * Support building cross build formats, eg. building an rpm with a kiwi 
+   build description or an deb package via a .spec file.
+
+ * Efficient transport of product build results from worker to backend.
+
+ * Secure Boot signing support
+
+ * aarch64 architecture added (aka armv8 or arm64)
+
+ * New generic "emulator" virtualization support. Can be used to build inside
+   of system emulators (for foreign hardware for example)
+
+ * New s390 z/VM virtualization support.
+
+ * Asynchronus mode for handling interconnects is available. This will avoid
+   scheduler hangups with slow or broken network to a remote instance.
+   Enable this via 
+
+       our $sched_asyncmode = 1;
+
+   in BSConfig.pm file. It is the default for new OBS installations.
+      
+
+Deprecated:
+===========
+
+The following calls have been marked as deprecated, they will get removed in OBS 3.0
+
+ * api
+   - /person/$LOGIN/group   -> use /group?login=$LOGIN   instead
+   - /search/project_id     -> use /search/project/id    instead
+   - /search/package_id     -> use /search/package/id    instead
+
+ * The deprecated support to copy qemu binaries from external build host into
+   build environment has been removed. This includes also the CBInstall and CBPreinstall
+   project configuration directives. 
+
+Notes for systems using systemd:
+================================
+
+OBS is using init scripts, not systemd style .service files. This will stay until
+we will switch from SLES 11 to SLES 12 as default production platform.
+
+openSUSE installations may use systemd (instead of sysvinit) and it should work
+in general. Not working are usages like
+
+ # rcobssrcserver status
+
+You will only get the systemd status here.
+
+Also stopping services may not kill all processes, which leads to abstract errors
+when trying to restart them. We heard also about trashed MySQL databases when using
+systemd.
+
+To avoid these problems you need switch directory to avoid the systemd mapper:
+
+ # cd /etc/init.d
+ # ./obssrcserver status|stop|start
+

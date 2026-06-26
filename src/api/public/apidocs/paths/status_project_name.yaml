@@ -1,0 +1,35 @@
+get:
+  summary: Get list of packages inside a project
+  description: Get a full list of packages and their status
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/project_status.yaml'
+          example:
+            package:
+              - project: home:Admin
+                name: ruby
+                version: 1
+                srcmd5: 7fbfafc07ebb87ef62119216619d0fa5
+                changesmd5: d0fa5
+              - project: home:Admin
+                name: linked_package
+                version: 1.1
+                verifymd5: 7fbfafc07ebb87ef62rrrvvv555
+                srcmd5: 7fbfafc07ebb87ef62119216619d0fa5
+                link:
+                  project: home:Admin
+                  package: ut
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Status Project

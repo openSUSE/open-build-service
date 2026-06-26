@@ -1,0 +1,200 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 20 Jul 2018 12:48:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Alone on a Wide, Wide Sea</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Alone on a Wide, Wide Sea</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 20 Jul 2018 12:48:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/foo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="project_1">
+          <title>It's a Battlefield</title>
+          <description>Illum quia id magnam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '139'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="project_1">
+          <title>It's a Battlefield</title>
+          <description>Illum quia id magnam.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 20 Jul 2018 12:48:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/foo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="project_1">
+          <title>It's a Battlefield</title>
+          <description>Illum quia id magnam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '139'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="project_1">
+          <title>It's a Battlefield</title>
+          <description>Illum quia id magnam.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 20 Jul 2018 12:48:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/foo/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="project_1">
+          <title>It's a Battlefield</title>
+          <description>Illum quia id magnam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '139'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="project_1">
+          <title>It's a Battlefield</title>
+          <description>Illum quia id magnam.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 20 Jul 2018 12:48:46 GMT
+recorded_with: VCR 4.0.0

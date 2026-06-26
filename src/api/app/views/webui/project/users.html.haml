@@ -1,0 +1,7 @@
+- @pagetitle = "Users of #{@project}"
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project }
+  .card-body
+    = render partial: 'webui/shared/user_or_groups_roles/index',
+             locals: { project: @project, package: @package, users: @users, roles: @roles, groups: @groups }

@@ -1,0 +1,8 @@
+Actions:
+<% actions.each do |action| -%>
+<% if %w(submit maintenance_incident maintenance_release).include? action.type -%>
+<%= render partial: 'notifications/submit_action', locals: { action: action } -%>
+<% else -%>
+<%= render partial: "notifications/#{action.type}_action", locals: { action: action } -%>
+<% end -%>
+<% end -%>

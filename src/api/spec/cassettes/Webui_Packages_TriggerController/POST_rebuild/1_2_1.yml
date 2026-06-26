@@ -1,0 +1,237 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>Cover Her Face</title>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>Cover Her Face</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 13 Jun 2024 16:36:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>Cover Her Face</title>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <repository name="repository_1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '217'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>Cover Her Face</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+          <repository name="repository_1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Thu, 13 Jun 2024 16:36:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="my_project">
+          <title>The Far-Distant Oxus</title>
+          <description>Dolorum veniam in et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="my_project">
+          <title>The Far-Distant Oxus</title>
+          <description>Dolorum veniam in et.</description>
+        </package>
+  recorded_at: Thu, 13 Jun 2024 16:36:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/my_package/_config
+    body:
+      encoding: UTF-8
+      string: Veritatis nihil eos. Est deserunt voluptates. Eum ex odit.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>fb7d747f1812eb900f0927aa451827b3</srcmd5>
+          <version>unknown</version>
+          <time>1718296579</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 16:36:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/my_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Esse iste aut. A qui pariatur. Ab corrupti nam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>4896d0485dfe43cadd42ff6374be6929</srcmd5>
+          <version>unknown</version>
+          <time>1718296579</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 16:36:19 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/my_project?cmd=rebuild&package=my_package
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Thu, 13 Jun 2024 16:36:19 GMT
+recorded_with: VCR 6.2.0

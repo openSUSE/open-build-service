@@ -1,0 +1,81 @@
+get:
+  summary: Get the build log of all finished builds.
+  description: Get the build log of all finished builds, for a given project, repository and architecture.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - in: query
+      name: code
+      schema:
+        type: string
+      description: "Filter results by finished build code: `failed`, `succeeded`, `unchanged`."
+      example: succeeded
+    - in: query
+      name: endtime_end
+      schema:
+        type: integer
+      description: Show builds which finished before given time.
+      example: 1714135617
+    - in: query
+      name: endtime_start
+      schema:
+        type: integer
+      description: Show builds which finished after given time.
+      example: 1714130617
+    - in: query
+      name: limit
+      schema:
+        type: integer
+      description: Limit the number of retrieved results elements to the specified number.
+      example: 10
+    - in: query
+      name: package
+      schema:
+        type: string
+      description: Name of the package. Limit results to the specified package.
+      example: obs-server
+  responses:
+    '200':
+      description: OK
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/job_history_list.yaml'
+          example:
+            - package: obs-server
+              rev: 17367
+              srcmd5: e2fc6b9e014441f3f8a33beb62446215
+              versrel: 2.11~alpha.20240426T143809.ab0551f7-16803
+              bcnt: 1
+              readytime: 1714135430
+              starttime: 1714135490
+              endtime: 1714135617
+              code: succeeded
+              uri: http://192.168.2.130:42344
+              workerid: i02-ch1d:21
+              hostarch: x86_64
+              reason: source change
+              verifymd5: 518a4d1c0e95fe3c04117aafba722a1f
+            - package: obs-server:obs-bundled-gems
+              rev: 17368
+              srcmd5: feac17ca9cf334d57d719f3ba52a300f
+              versrel: 2.11~alpha.20240426T150958.ca259016-16804
+              bcnt: 1
+              readytime: 1714137054
+              starttime: 1714137078
+              endtime: 1714137296
+              code: succeeded
+              uri: http://192.168.2.130:42344
+              workerid: i04-ch4d:9
+              hostarch: x86_64
+              reason: source change
+              verifymd5: f81504abf10aaca978a8acea9eaa5bf5
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Build

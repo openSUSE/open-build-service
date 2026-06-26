@@ -1,0 +1,35 @@
+type: object
+properties:
+  created_at:
+    type: string
+    example: '2021-01-18 19:17:51 UTC'
+  updated_at:
+    type: string
+    example: '2021-01-18 19:17:51 UTC'
+  name:
+    type: string
+    example: 12345
+  tracker:
+    type: string
+    example: fate
+  label:
+    type: string
+    example: 'fate#12345'
+  url:
+    type: string
+    example: 'https://features.opensuse.org/12345'
+  state:
+    type: string
+  summary:
+    type: string
+  owner:
+    type: object
+    properties:
+      login:
+        type: string
+      email:
+        type: string
+      realname:
+        type: string
+xml:
+  name: issue

@@ -1,0 +1,591 @@
+openapi: 3.0.0
+
+servers:
+  - url: '/'
+
+tags:
+  - name: Announcements
+  - name: Assignments
+  - name: Attribute Namespaces
+  - name: Attributes
+  - name: Build
+  - name: Canned Responses
+  - name: Comments
+  - name: Configuration
+  - name: Distributions
+  - name: General Information
+  - name: Groups
+  - name: Issue Trackers
+  - name: Labels
+  - name: Label Templates
+  - name: Notifications
+  - name: Person
+  - name: Published Binaries
+  - name: Requests
+  - name: Reports
+  - name: Search
+    description: |
+      All endpoints besides the owner search listed in the search group use Xpath expressions. The `match` query parameter is used
+      to pass the Xpath predicate. The individual endpoints refer to different objects like Packages, Projects, Issues and more...
+      Please refer to the documentation of the individual search endpoints to know which attributes can be accessed through the predicate,
+      and which extra query parameters are supported or might be required in order to run the search.
+
+
+      These functions can be used with the predicates: `boolean`, `contains`, `not`, `starts_with`, `ends_with`.
+
+      _Example_:
+
+      For a list of all projects where the name starts with "OBS:".
+
+      `/search/project?match=starts_with(@name,'OBS:')`
+
+
+      More than one predicate can be combined with the following operators: `eq`, `and`, `or`, `neq`, `gt`, `lt`, `gteq`, `lteq`.
+
+      _Example_:
+
+      To receive details about the package "obs-server" that is part of the project "OBS:Server:Unstable".
+
+      `/search/package?match=@name='obs-server'+and+@project='OBS:Server:Unstable'`
+
+  - name: Sources
+  - name: Sources - Projects
+  - name: Sources - Packages
+  - name: Sources - Files
+  - name: Staging Workflow
+  - name: Statistics
+  - name: Status Messages
+  - name: Status Project
+  - name: Status Reports
+  - name: Status Reports - Required Checks
+  - name: Trigger
+  - name: Workers
+
+
+info:
+  description: |
+    The _Open Build Service API_ is an XML API. To make sure you are querying the API and not the Web User Interface, provide the `Accept: application/xml; charset=utf-8` header in your API requests.
+
+    To authenticate, use [HTTP basic authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) by passing the _Authorization_ header in the form of `Authorization: Basic <credentials>`.
+
+    There is no API versioning, since there is no need for it right now.
+
+    Only rudimentary rate limiting is implemented, so please be gentle when using the API concurrently, especially with potentially expensive operations.
+
+    Your OBS Admin might have implemented other authentication schemes or stricter rate limiting in front of the application. Check the [site main page](/) for details.
+
+    For command-line users, we recommend using [osc](https://github.com/openSUSE/osc) with its _api_ command to interact with the API.
+    It's as simple as this example: `osc api /about` (_about_ is one of the endpoints documented below)
+
+    In order to make sure that the XML that is send in a requests body is in the expected format, the API validates it.
+    Either against a XML Schema Definition (`.xsd`) or a RELAX NG Schema (`.rng`). The schemas are mentioned
+    in the endpoint documentation. If there is no schema file mentioned, no validation of the XML is done.
+    In case the XML is not valid, a validation error is reported.
+  version: '2.10.50'
+  title: Open Build Service API
+  contact:
+    url: 'https://openbuildservice.org/'
+    name: Open Build Service
+  license:
+    url: 'https://github.com/openSUSE/open-build-service/blob/master/COPYING'
+    name: GNU General Public License v2.0
+
+paths:
+  /about:
+    $ref: 'paths/about.yaml'
+
+  /announcements:
+    $ref: 'paths/announcements.yaml'
+  /announcements/{announcement_id}:
+    $ref: 'paths/announcements_announcement_id.yaml'
+
+  /assignments/projects/{project_name}:
+    $ref: 'paths/assignments_projects_project_name.yaml'
+  /assignments/projects/{project_name}/packages/{package_name}:
+    $ref: 'paths/assignments_projects_project_name_packages_package_name.yaml'
+
+  /architectures:
+    $ref: 'paths/architectures.yaml'
+  /architectures/{architecture_name}:
+    $ref: 'paths/architectures_architecture_name.yaml'
+
+  /attribute:
+    $ref: 'paths/attribute.yaml'
+  /attribute/{namespace}:
+    $ref: 'paths/attribute_namespace.yaml'
+  /attribute/{namespace}/_meta:
+    $ref: 'paths/attribute_namespace_meta.yaml'
+
+  /attribute/{namespace}/{attribute_name}:
+    $ref: 'paths/attribute_namespace_attribute_name.yaml'
+  /attribute/{namespace}/{attribute_name}/_meta:
+    $ref: 'paths/attribute_namespace_attribute_name_meta.yaml'
+
+  /build:
+    $ref: 'paths/build.yaml'
+  /build/_workerstatus:
+    $ref: 'paths/build__workerstatus.yaml'
+  /build/{project_name}:
+    $ref: 'paths/build_project_name.yaml'
+  /build/{project_name}/_result:
+    $ref: 'paths/build_project_name_result.yaml'
+  /build/{project_name}/_result?lastsuccess=1:
+    $ref: 'paths/build_project_name_result_lastsuccess.yaml'
+  /build/{project_name}/{repository_name}:
+    $ref: 'paths/build_project_name_repository_name.yaml'
+  /build/{project_name}/{repository_name}/_buildconfig:
+    $ref: 'paths/build_project_name_repository_name_buildconfig.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/_builddepinfo:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_builddepinfo.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/_jobhistory:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_jobhistory.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/_repository:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_repository.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_buildenv:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_buildenv.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_buildinfo:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_buildinfo.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_history:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_history.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_jobstatus:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_jobstatus.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_log:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_log.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_reason:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_reason.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_statistics:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_statistics.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_status:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_status.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/{file_name}:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/{file_name}?view=fileinfo:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name_view_fileinfo.yaml'
+
+  # Canned Responses
+  /canned_responses:
+    $ref: 'paths/canned_responses.yaml'
+  /canned_responses/{id}:
+    $ref: 'paths/canned_responses_id.yaml'
+
+  /comment/{comment_id}:
+    $ref: 'paths/comment_comment_id.yaml'
+  /comment/{comment_id}/history:
+    $ref: 'paths/comment_comment_id_history.yaml'
+  /comments/user:
+    $ref: 'paths/comments_user.yaml'
+  /comments/request/{id}:
+    $ref: 'paths/comments_request_id.yaml'
+  /comments/project/{project_name}:
+    $ref: 'paths/comments_project_project_name.yaml'
+  /comments/package/{project_name}/{package_name}:
+    $ref: 'paths/comments_package_project_name_package_name.yaml'
+
+  /configuration:
+    $ref: 'paths/configuration.yaml'
+
+  /distributions:
+    $ref: 'paths/distributions.yaml'
+  /distributions/include_remotes:
+    $ref: 'paths/distributions_include_remotes.yaml'
+  /distributions/{distribution_id}:
+    $ref: 'paths/distributions_distribution_id.yaml'
+  /distributions/bulk_replace:
+    $ref: 'paths/distributions_bulk_replace.yaml'
+
+  /group:
+    $ref: 'paths/group.yaml'
+  /group/{group_title}:
+    $ref: 'paths/group_group_title.yaml'
+
+  /image_templates:
+    $ref: 'paths/image_templates.yaml'
+
+  /issue_trackers:
+    $ref: 'paths/issue_trackers.yaml'
+  /issue_trackers/{issue_tracker_name}:
+    $ref: 'paths/issue_trackers_issue_tracker_name.yaml'
+  /issue_trackers/{issue_tracker_name}/issues/{issue_name}:
+    $ref: 'paths/issue_trackers_issue_tracker_name_issues_issue_name.yaml'
+
+  /labels/projects/{project_name}:
+    $ref: 'paths/labels_projects_project_name.yaml'
+  /labels/projects/{project_name}/{id}:
+    $ref: 'paths/labels_projects_project_name_label_id.yaml'
+  /labels/projects/{project_name}/packages/{package_name}:
+    $ref: 'paths/labels_projects_project_name_packages_package_name.yaml'
+  /labels/projects/{project_name}/packages/{package_name}/{label_id}:
+    $ref: 'paths/labels_projects_project_name_packages_package_name_label_id.yaml'
+  /labels/requests/{request_number}:
+    $ref: 'paths/labels_requests_request_number.yaml'
+  /labels/requests/{request_number}/{label_id}:
+    $ref: 'paths/labels_requests_request_number_label_id.yaml'
+
+  /label_templates:
+    $ref: 'paths/label_templates.yaml'
+  /label_templates/{label_template_id}:
+    $ref: 'paths/label_templates_label_template_id.yaml'
+  /label_templates/projects/{project_name}:
+    $ref: 'paths/label_templates_projects_project_name.yaml'
+  /label_templates/projects/{project_name}/{label_template_id}:
+    $ref: 'paths/label_templates_projects_project_name_label_template_id.yaml'
+
+  /my/notifications:
+    $ref: 'paths/my_notifications.yaml'
+  /my/notifications/{id}:
+    $ref: 'paths/my_notifications_id.yaml'
+
+  /person:
+    $ref: 'paths/person.yaml'
+  /person/register:
+    $ref: 'paths/person_register.yaml'
+  /person/{login}:
+    $ref: 'paths/person_login.yaml'
+  /person/{login}/group:
+    $ref: 'paths/person_login_group.yaml'
+  /person/{login}/token:
+    $ref: 'paths/person_login_token.yaml'
+  /person/{login}/token/{id}:
+    $ref: 'paths/person_login_token_id.yaml'
+  /person/{login}/watchlist:
+    $ref: 'paths/watchlist.yaml'
+
+  /published:
+    $ref: 'paths/published.yaml'
+  /published/{project_name}:
+    $ref: 'paths/published_project_name.yaml'
+  /published/{project_name}/{repository_name}:
+    $ref: 'paths/published_project_name_repository_name.yaml'
+  /published/{project_name}/{repository_name}?view=status:
+    $ref: 'paths/published_project_name_repository_name_view_status.yaml'
+  /published/{project_name}/{repository_name}/{architecture_name}:
+    $ref: 'paths/published_project_name_repository_name_architecture_name.yaml'
+  /published/{project_name}/{repository_name}/{architecture_name}/{binary_filename}:
+    $ref: 'paths/published_project_name_repository_name_architecture_name_binary_filename.yaml'
+  /published/{project_name}/{repository_name}/{architecture_name}/{binary_filename}?view=ymp:
+    $ref: 'paths/published_project_name_repository_name_architecture_name_binary_filename_view_ymp.yaml'
+
+  /request:
+    $ref: 'paths/request.yaml'
+  /request?view=collection:
+    $ref: 'paths/request_view_collection.yaml'
+  /request/{id}:
+    $ref: 'paths/request_id.yaml'
+  /request/{id}?cmd=diff:
+    $ref: 'paths/request_id_cmd_diff.yaml'
+
+  /reports:
+    $ref: 'paths/reports.yaml'
+  /reports/{report_id}:
+    $ref: 'paths/reports_report_id.yaml'
+
+  /search:
+    $ref: 'paths/search.yaml'
+  /search/channel:
+    $ref: 'paths/search_channel.yaml'
+  /search/channel/binary:
+    $ref: 'paths/search_channel_binary.yaml'
+  /search/channel/binary/id:
+    $ref: 'paths/search_channel_binary_id.yaml'
+  /search/issue:
+    $ref: 'paths/search_issue.yaml'
+  /search/missing_owner:
+    $ref: 'paths/search_missing_owner.yaml'
+  /search/owner:
+    $ref: 'paths/search_owner.yaml'
+  /search/package:
+    $ref: 'paths/search_package.yaml'
+  /search/package/id:
+    $ref: 'paths/search_package_id.yaml'
+  /search/package_id:
+    $ref: 'paths/search_package__id.yaml'
+  /search/person:
+    $ref: 'paths/search_person.yaml'
+  /search/project:
+    $ref: 'paths/search_project.yaml'
+  /search/project/id:
+    $ref: 'paths/search_project_id.yaml'
+  /search/project_id:
+    $ref: 'paths/search_project__id.yaml'
+  /search/published/binary/id:
+    $ref: 'paths/search_published_binary_id.yaml'
+  /search/published/pattern/id:
+    $ref: 'paths/search_published_pattern_id.yaml'
+  /search/published/repoinfo/id:
+    $ref: 'paths/search_published_repoinfo_id.yaml'
+  /search/released/binary:
+    $ref: 'paths/search_released_binary.yaml'
+  /search/released/binary/id:
+    $ref: 'paths/search_released_binary_id.yaml'
+  /search/repository/id:
+    $ref: 'paths/search_repository_id.yaml'
+  /search/request:
+    $ref: 'paths/search_request.yaml'
+  /search/request/id:
+    $ref: 'paths/search_request_id.yaml'
+
+  /service:
+    $ref: 'paths/service.yaml'
+
+  # Sources
+
+  /source?cmd=branch:
+    $ref: 'paths/source_branch.yaml'
+  /source?cmd=createmaintenanceincident:
+    $ref: 'paths/source_createmaintenanceincident.yaml'
+  /source?cmd=orderkiwirepos:
+    $ref: 'paths/source_orderkiwirepos.yaml'
+
+  # Sources - Projects
+  /source:
+    $ref: 'paths/source.yaml'
+  /source/{project_name}:
+    $ref: 'paths/source_project_name.yaml'
+  /source/{project_name}?view=info:
+    $ref: 'paths/source_project_name_view_info.yaml'
+  /source/{project_name}/_config:
+    $ref: 'paths/source_project_name_config.yaml'
+  /source/{project_name}/_meta:
+    $ref: 'paths/source_project_name_meta.yaml'
+  /source/{project_name}/_pattern:
+    $ref: 'paths/source_project_name_pattern.yaml'
+  /source/{project_name}/_pattern/{file_name}:
+    $ref: 'paths/source_project_name_pattern_file_name.yaml'
+  /source/{project_name}/_project:
+    $ref: 'paths/source_project_name_project.yaml'
+  /source/{project_name}/_pubkey:
+    $ref: 'paths/source_project_name_pubkey.yaml'
+  /source/{project_name}/_keyinfo:
+    $ref: 'paths/source_project_name_keyinfo.yaml'
+  /source/{project_name}/_attribute:
+    $ref: 'paths/source_project_name_attribute.yaml'
+  /source/{project_name}/_attribute/{attribute_name}:
+    $ref: 'paths/source_project_name_attribute_attribute_name.yaml'
+  /source/{project_name}/_project/_history:
+    $ref: 'paths/source_project_name_project_history.yaml'
+  /source/{project_name}/_project/{file_name}:
+    $ref: 'paths/source_project_name_project_file.yaml'
+  /source/{project_name}?cmd=addchannels:
+    $ref: 'paths/source_project_name_cmd_addchannels.yaml'
+  /source/{project_name}?cmd=copy:
+    $ref: 'paths/source_project_name_cmd_copy.yaml'
+  /source/{project_name}?cmd=createkey:
+    $ref: 'paths/source_project_name_cmd_createkey.yaml'
+  /source/{project_name}?cmd=createmaintenanceincident:
+    $ref: 'paths/source_project_name_cmd_createmaintenanceincident.yaml'
+  /source/{project_name}?cmd=createpatchinfo:
+    $ref: 'paths/source_project_name_cmd_createpatchinfo.yaml'
+  /source/{project_name}?cmd=extendkey:
+    $ref: 'paths/source_project_name_cmd_extendkey.yaml'
+  /source/{project_name}?cmd=freezelink:
+    $ref: 'paths/source_project_name_cmd_freezelink.yaml'
+  /source/{project_name}?cmd=lock:
+    $ref: 'paths/source_project_name_cmd_lock.yaml'
+  /source/{project_name}?cmd=modifychannels:
+    $ref: 'paths/source_project_name_cmd_modifychannels.yaml'
+  /source/{project_name}?cmd=move:
+    $ref: 'paths/source_project_name_cmd_move.yaml'
+  /source/{project_name}?cmd=release:
+    $ref: 'paths/source_project_name_cmd_release.yaml'
+  /source/{project_name}?cmd=remove_flag:
+    $ref: 'paths/source_project_name_cmd_remove_flag.yaml'
+  /source/{project_name}?cmd=set_flag:
+    $ref: 'paths/source_project_name_cmd_set_flag.yaml'
+  /source/{project_name}?cmd=showlinked:
+    $ref: 'paths/source_project_name_cmd_showlinked.yaml'
+  /source/{project_name}?cmd=undelete:
+    $ref: 'paths/source_project_name_cmd_undelete.yaml'
+  /source/{project_name}?cmd=unlock:
+    $ref: 'paths/source_project_name_cmd_unlock.yaml'
+
+  # Sources - Packages
+
+  /source/{project_name}/{package_name}:
+    $ref: 'paths/source_project_name_package_name.yaml'
+  /source/{project_name}/{package_name}/_attribute:
+    $ref: 'paths/source_project_name_package_name_attribute.yaml'
+  /source/{project_name}/{package_name}/_attribute/{attribute_name}:
+    $ref: 'paths/source_project_name_package_name_attribute_attribute_name.yaml'
+  /source/{project_name}/{package_name}/_history:
+    $ref: 'paths/source_project_name_package_name_history.yaml'
+  /source/{project_name}/{package_name}/_meta:
+    $ref: 'paths/source_project_name_package_name_meta.yaml'
+  /source/{project_name}/{package_name}?cmd=addcontainers:
+    $ref: 'paths/source_project_name_package_name_cmd_addcontainers.yaml'
+  /source/{project_name}/{package_name}?cmd=branch:
+    $ref: 'paths/source_project_name_package_name_cmd_branch.yaml'
+  /source/{project_name}/{package_name}?cmd=collectbuildenv:
+    $ref: 'paths/source_project_name_package_name_cmd_collectbuildenv.yaml'
+  /source/{project_name}/{package_name}?cmd=commit:
+    $ref: 'paths/source_project_name_package_name_cmd_commit.yaml'
+  /source/{project_name}/{package_name}?cmd=commitfilelist:
+    $ref: 'paths/source_project_name_package_name_cmd_commitfilelist.yaml'
+  /source/{project_name}/{package_name}?cmd=copy:
+    $ref: 'paths/source_project_name_package_name_cmd_copy.yaml'
+  /source/{project_name}/{package_name}?cmd=createSpecFileTemplate:
+    $ref: 'paths/source_project_name_package_name_cmd_createSpecFileTemplate.yaml'
+  /source/{project_name}/{package_name}?cmd=deleteuploadrev:
+    $ref: 'paths/source_project_name_package_name_cmd_deleteuploadrev.yaml'
+  /source/{project_name}/{package_name}?cmd=diff:
+    $ref: 'paths/source_project_name_package_name_cmd_diff.yaml'
+  /source/{project_name}/{package_name}?cmd=fork:
+    $ref: 'paths/source_project_name_package_name_cmd_fork.yaml'
+  /source/{project_name}/{package_name}?cmd=getprojectservices:
+    $ref: 'paths/source_project_name_package_name_cmd_getprojectservices.yaml'
+  /source/{project_name}/{package_name}?cmd=instantiate:
+    $ref: 'paths/source_project_name_package_name_cmd_instantiate.yaml'
+  /source/{project_name}/{package_name}?cmd=linkdiff:
+    $ref: 'paths/source_project_name_package_name_cmd_linkdiff.yaml'
+  /source/{project_name}/{package_name}?cmd=linktobranch:
+    $ref: 'paths/source_project_name_package_name_cmd_linktobranch.yaml'
+  /source/{project_name}/{package_name}?cmd=mergeservice:
+    $ref: 'paths/source_project_name_package_name_cmd_mergeservice.yaml'
+  /source/{project_name}/{package_name}?cmd=rebuild:
+    $ref: 'paths/source_project_name_package_name_cmd_rebuild.yaml'
+  /source/{project_name}/{package_name}?cmd=release:
+    $ref: 'paths/source_project_name_package_name_cmd_release.yaml'
+  /source/{project_name}/{package_name}?cmd=remove_flag:
+    $ref: 'paths/source_project_name_package_name_cmd_remove_flag.yaml'
+  /source/{project_name}/{package_name}?cmd=runservice:
+    $ref: 'paths/source_project_name_package_name_cmd_runservice.yaml'
+  /source/{project_name}/{package_name}?cmd=servicediff:
+    $ref: 'paths/source_project_name_package_name_cmd_servicediff.yaml'
+  /source/{project_name}/{package_name}?cmd=set_flag:
+    $ref: 'paths/source_project_name_package_name_cmd_set_flag.yaml'
+  /source/{project_name}/{package_name}?cmd=showlinked:
+    $ref: 'paths/source_project_name_package_name_cmd_showlinked.yaml'
+  /source/{project_name}/{package_name}?cmd=undelete:
+    $ref: 'paths/source_project_name_package_name_cmd_undelete.yaml'
+  /source/{project_name}/{package_name}?cmd=unlock:
+    $ref: 'paths/source_project_name_package_name_cmd_unlock.yaml'
+  /source/{project_name}/{package_name}?cmd=updatepatchinfo:
+    $ref: 'paths/source_project_name_package_name_cmd_updatepatchinfo.yaml'
+  /source/{project_name}/{package_name}?cmd=waitservice:
+    $ref: 'paths/source_project_name_package_name_cmd_waitservice.yaml'
+  /source/{project_name}/{package_name}?view=info:
+    $ref: 'paths/source_project_name_package_name_view_info.yaml'
+
+  # Sources - Files
+  /source/{project_name}/{package_name}/{file_name}:
+    $ref: 'paths/source_project_name_package_name_file_name.yaml'
+  /source/{project_name}/{package_name}/{binary_filename}/_attribute/{attribute_name}:
+    $ref: 'paths/source_project_name_package_name_binary_filename_attribute_name.yaml'
+  /source/{project_name}/{package_name}/{binary_filename}/_attribute:
+    $ref: 'paths/source_project_name_package_name_binary_filename_attribute.yaml'
+
+  # Staging Workflow
+  /staging/{project_name}/backlog:
+    $ref: 'paths/staging_project_name_backlog.yaml'
+  /staging/{project_name}/excluded_requests:
+    $ref: 'paths/staging_project_name_excluded_requests.yaml'
+  /staging/{project_name}/staged_requests:
+    $ref: 'paths/staging_project_name_staged_requests.yaml'
+  /staging/{project_name}/staging_projects:
+    $ref: 'paths/staging_project_name_staging_projects.yaml'
+  /staging/{project_name}/staging_projects/{staging_project_name}:
+    $ref: 'paths/staging_project_name_staging_projects_staging_project_name.yaml'
+  /staging/{project_name}/staging_projects/{staging_project_name}/accept:
+    $ref: 'paths/staging_project_name_staging_projects_staging_project_name_accept.yaml'
+  /staging/{project_name}/staging_projects/{staging_project_name}/copy/{staging_project_copy_name}:
+    $ref: 'paths/staging_project_name_staging_projects_staging_project_name_copy_staging_project_copy_name.yaml'
+  /staging/{project_name}/staging_projects/{staging_project_name}/staged_requests:
+    $ref: 'paths/staging_project_name_staging_projects_staging_project_name_staged_requests.yaml'
+  /staging/{project_name}/workflow:
+    $ref: 'paths/staging_project_name_workflow.yaml'
+
+  # Statistics
+  /statistics:
+    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+  /statistics/active_request_creators/{project_name}:
+    $ref: 'paths/statistics_deprecated_not_documented_project_name.yaml'
+  /statistics/activity/{project_name}/{package_name}:
+    $ref: 'paths/statistics_deprecated_not_documented_project_name_package_name.yaml'
+  /statistics/added_timestamp/{project_name}/{package_name}:
+    $ref: 'paths/statistics_deprecated_not_documented_project_name_package_name.yaml'
+  /statistics/global_counters:
+    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+  /statistics/latest_added:
+    $ref: 'paths/statistics_latest_added.yaml'
+  /statistics/latest_updated:
+    $ref: 'paths/statistics_latest_updated.yaml'
+  /statistics/maintenance_statistics/{project_name}:
+    $ref: 'paths/statistics_deprecated_not_documented_project_name.yaml'
+  /statistics/most_active_packages:
+    $ref: 'paths/statistics_most_active_packages.yaml'
+  /statistics/most_active_projects:
+    $ref: 'paths/statistics_most_active_projects.yaml'
+  /statistics/updated_timestamp/{project_name}/{package_name}:
+    $ref: 'paths/statistics_deprecated_not_documented_project_name_package_name.yaml'
+
+  # Status messages
+  /status/messages:
+    $ref: 'paths/status_messages.yaml'
+  /status_message:
+    $ref: 'paths/status_message.yaml'
+  /status/messages/{id}:
+    $ref: 'paths/status_messages_id.yaml'
+
+  /status/project/{project_name}:
+    $ref: 'paths/status_project_name.yaml'
+  /status/workerstatus:
+    $ref: 'paths/status_workerstatus.yaml'
+
+  # Status reports
+  /status_reports/built/{project_name}/{repository_name}/{architecture_name}/reports/{build_id}:
+    $ref: 'paths/status_reports_built_project_name_repository_name_architecture_name_reports_build_id.yaml'
+  /status_reports/published/{project_name}/{repository_name}/reports/{build_id}:
+    $ref: 'paths/status_reports_published_project_name_repository_name_reports_build_id.yaml'
+  /status_reports/requests/{id}/reports:
+    $ref: 'paths/status_reports_requests_id_reports.yaml'
+
+  # Status reports - Required Checks
+  /status_reports/built_repositories/{project_name}/{repository_name}/{architecture_name}/required_checks:
+    $ref: 'paths/status_reports_built_repositories_project_name_repository_name_architecture_name_required_checks.yaml'
+  /status_reports/built_repositories/{project_name}/{repository_name}/{architecture_name}/required_checks/{check_name}:
+    $ref: 'paths/status_reports_built_repositories_project_name_repository_name_architecture_name_required_checks_check_name.yaml'
+  /status_reports/projects/{project_name}/required_checks:
+    $ref: 'paths/status_reports_projects_project_name_required_checks.yaml'
+  /status_reports/projects/{project_name}/required_checks/{check_name}:
+    $ref: 'paths/status_reports_projects_project_name_required_checks_check_name.yaml'
+  /status_reports/repositories/{project_name}/{repository_name}/required_checks:
+    $ref: 'paths/status_reports_repositories_project_name_repository_name_required_checks.yaml'
+  /status_reports/repositories/{project_name}/{repository_name}/required_checks/{check_name}:
+    $ref: 'paths/status_reports_repositories_project_name_repository_name_required_checks_check_name.yaml'
+
+  /trigger:
+    $ref: 'paths/trigger_operation.yaml'
+  /trigger/rebuild:
+    $ref: 'paths/trigger_rebuild.yaml'
+  /trigger/release:
+    $ref: 'paths/trigger_release.yaml'
+  /trigger/runservice:
+    $ref: 'paths/trigger_runservice.yaml'
+  /trigger/workflow:
+    $ref: 'paths/trigger_workflow.yaml'
+  /trigger/webhook:
+    $ref: 'paths/trigger_webhook.yaml'
+
+  /worker/_status:
+    $ref: 'paths/worker__status.yaml'
+  /worker/status:
+    $ref: 'paths/worker_status.yaml'
+  /worker/{architecture_name}:{worker_id}:
+    $ref: 'paths/worker_architecture_name_worker_id.yaml'
+  /worker?cmd=checkconstraints:
+    $ref: 'paths/worker_cmd_checkconstraints.yaml'
+
+components:
+  securitySchemes:
+    basic_authentication:
+      type: http
+      scheme: basic
+    GitLab_key_authentication:
+      type: apiKey
+      in: header
+      name: X-GitLab-Token
+
+externalDocs:
+  url: 'https://openbuildservice.org/help/'
+  description: Open Build Service - Documentation

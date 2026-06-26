@@ -1,0 +1,66 @@
+<image name="OBS__openSUSE___12.2" schemaversion="4.1">
+  <description type="system">
+    <author>The SUSE Team</author>
+    <contact>build@opensuse.org</contact>
+    <specification>openSUSE</specification>
+  </description>
+  <preferences>
+    <type image="product" />
+    <version>1.0.0</version>
+    <packagemanager>zypper</packagemanager>
+  </preferences>
+  <instsource>
+    <architectures>
+      <arch id="i386" name="dummy" fallback="noarch" />
+      <arch id="i486" name="dummy" fallback="i386" />
+      <arch id="i586" name="dummy" fallback="i486" />
+      <arch id="i686" name="dummy" fallback="i586" />
+      <arch id="noarch" name="dummy" />
+      <arch id="x86_64" name="dummy" fallback="i686" />
+      <requiredarch ref="x86_64" />
+    </architectures>
+    <productoptions>
+      <productvar name="DISTNAME">openSUSE</productvar>
+      <productvar name="FLAVOR">dvd</productvar>
+      <productvar name="MEDIUM_NAME">openSUSE-DVD-x86_64</productvar>
+      <productvar name="MULTIPLE_MEDIA">no</productvar>
+      <productvar name="PRODUCT_DIR">/</productvar>
+      <productvar name="PRODUCT_NAME">$DISTNAME-$FLAVOR</productvar>
+      <productvar name="PRODUCT_THEME">openSUSE</productvar>
+      <productvar name="PRODUCT_VERSION">$VERSION</productvar>
+      <productvar name="RUN_ISOHYBRID">true</productvar>
+      <productvar name="SHA1OPT">-x -2</productvar>
+      <productvar name="VENDOR">openSUSE</productvar>
+      <productvar name="VERSION">12.2</productvar>
+      <productinfo name="CONTENTSTYLE">11</productinfo>
+      <productinfo name="BASEARCHS">x86_64 </productinfo>
+      <productinfo name="DATADIR">suse</productinfo>
+      <productinfo name="DESCRDIR">suse/setup/descr</productinfo>
+      <productinfo name="DISTRIBUTION">openSUSE</productinfo>
+      <productinfo name="LABEL">openSUSE</productinfo>
+      <productinfo name="LINGUAS">cs da de en en_GB en_US es fi fr hu it ja nb nl pl pt pt_BR ru sv zh zh_CN zh_TW </productinfo>
+      <productinfo name="NAME">openSUSE</productinfo>
+      <productinfo name="RELNOTESURL">http://www.suse.com/releasenotes/i386/openSUSE/12.2/release-notes-openSUSE.rpm</productinfo>
+      <productinfo name="VENDOR">openSUSE</productinfo>
+      <productinfo name="VERSION">12.2</productinfo>
+      <productoption name="INI_DIR">/usr/share/kiwi/modules/plugins/suse-12.1</productoption>
+      <productoption name="PLUGIN_DIR">/usr/share/kiwi/modules/plugins/suse-12.1</productoption>
+      <productoption name="REPO_LOCATION">http://download.opensuse.org/distribution/12.2/repo/oss/</productoption>
+      <productoption name="SOURCEMEDIUM">0</productoption>
+    </productoptions>
+    <instrepo name="repository_1" priority="1" local="true">
+      <source path="obs://home:Iggy/10.2" />
+    </instrepo>
+    <metadata>
+      <repopackage name="package" medium="0" removearch="src,nosrc" onlyarch="x86_64" />
+    </metadata>
+    <repopackages>
+      <repopackage name="NOT_EXISTING" />
+      <repopackage name="NOT_EXISTING_EITHER" onlyarch="i686" />
+      <repopackage name="package" arch="i586" />
+    </repopackages>
+  </instsource>
+  <repository type="yast2">
+    <source path="/var/lib/empty" />
+  </repository>
+</image>

@@ -1,0 +1,14 @@
+[Unit]
+Description=OBS storage setup
+After=network-online.target xendomains.service haveged.service
+Before=mysql.service sshd.service obsapisetup.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/sbin/obsstoragesetup start
+ExecStop=/usr/sbin/obsstoragesetup stop
+
+[Install]
+WantedBy=multi-user.target
+

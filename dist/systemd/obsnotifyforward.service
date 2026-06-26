@@ -1,0 +1,12 @@
+[Unit]
+Description=OBS notifyforward
+After=network-online.target
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_notifyforward --logfile notifyforward.log
+ExecStop=/usr/lib/obs/server/bs_notifyforward --stop
+ExecReload=/usr/lib/obs/server/bs_notifyforward --restart
+
+[Install]
+WantedBy=multi-user.target

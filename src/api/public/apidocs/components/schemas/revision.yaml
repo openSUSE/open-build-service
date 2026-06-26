@@ -1,0 +1,24 @@
+type: object
+properties:
+  rev:
+    type: string
+    xml:
+      attribute: true
+  vrev:
+    type: string
+    xml:
+      attribute: true
+  srcmd5:
+    type: string
+  version:
+    type: string
+  time:
+    type: string
+  user:
+    type: string
+  comment:
+    type: string
+  requestid:
+    type: string
+xml:
+  name: revision

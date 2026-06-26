@@ -1,0 +1,10 @@
+$seventy-five-chars: 75ch;
+
+// enable responsive fonts in bootstrap (RFS)
+$enable-responsive-font-sizes: true;
+
+// stop scaling down at a font-size of 16px (default 1.25rem)
+$rfs-base-font-size: 1rem;
+
+// set the scaling factor (default=10)
+$rfs-factor: 2.5;

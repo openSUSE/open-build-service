@@ -1,0 +1,13 @@
+workflow123:
+  steps:
+    - branch_package:
+        source_project: "test-project:%{SCM_ORGANIZATION_NAME}"
+        source_package: "%{SCM_REPOSITORY_NAME}"
+        target_project: 'test-target-project'
+
+workflow124:
+  steps:
+    - branch_package:
+        source_project: "test-project"
+        source_package: "test-package:%{SCM_COMMIT_SHA}"
+        target_project: 'test-target-project:PR-%{SCM_PR_NUMBER}'

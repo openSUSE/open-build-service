@@ -1,0 +1,24 @@
+.mt-4#search-results
+  %h4 Results:
+  - results.each do |result|
+    :ruby
+      if result.is_a? Project
+        project = result.name
+        package = nil
+      else
+        project = result.project_name
+        package = result.name
+      end
+    .search_result.mt-3
+      %h6
+        %i.me-1.fa{ class: result.is_a?(Project) ? 'fa-cubes text-secondary' : 'fa-archive text-warning' }
+        = project_or_package_link(project: project, package: package, short: false, trim_to: nil)
+        %span.d-none= result.sphinx_attributes
+        = ": #{result.title}" if result.title.present?
+      %p.ps-4
+        - if result.description.blank?
+          = '...'
+        - else
+          = truncate(result.description, length: 80)
+  - if per_page
+    = paginate results, views_prefix: 'webui'

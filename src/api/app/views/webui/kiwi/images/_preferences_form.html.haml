@@ -1,0 +1,31 @@
+.modal.fade#preferences-edit{ tabindex: '-1', role: 'dialog' }
+  .modal-dialog{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title Edit Kiwi Preferences
+
+      #flash-messages
+        %p.ui-state-error.alert-danger.p-3.mb-0.d-none
+          Kiwi Image name cannot be empty!
+      .modal-body
+        .dialog
+          - image.preferences.each do |preference|
+            = f.fields_for(:preferences, preference) do |preference_fields|
+              %h4= preference.profile
+              = preference_fields.label :version do
+                Version
+                %small.text-muted
+                  (must be in form Major.Minor.Release)
+              = preference_fields.text_field :version, data: { default: preference_fields.object.version }, class: 'form-control'
+              - if preference_fields.object.containerconfig_fields_editable?
+                = preference_fields.label :type_containerconfig_name, 'Container Config Name'
+                = preference_fields.text_field :type_containerconfig_name, data: { default: preference_fields.object.type_containerconfig_name },
+                class: 'form-control'
+                = preference_fields.label :type_containerconfig_tag, 'Container Config Tag'
+                = preference_fields.text_field :type_containerconfig_tag, data: { default: preference_fields.object.type_containerconfig_tag },
+                class: 'form-control'
+
+      .modal-footer
+        %a.btn.btn-sm.btn-outline-danger.px-4{ data: { 'bs-dismiss': 'modal' } }
+          Cancel
+        = link_to('Continue', '#', title: 'Continue', class: 'btn btn-sm btn-primary px-4 close-preferences-dialog')

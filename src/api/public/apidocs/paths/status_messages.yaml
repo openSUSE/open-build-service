@@ -1,0 +1,66 @@
+get:
+  summary: Get list of status messages
+  description: Get a list of all status messages
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/limit.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/status_messages.yaml'
+          example:
+            count: 2
+            status_message:
+              - id: 2
+                message: OBS 3.0 is released!
+                user: Iggy
+                severity: announcement
+                scope: all_users
+                created_at: 2021-10-15 13:28:22 UTC
+              - id: 1
+                message: Feature number 42 was implemented!
+                user: Iggy
+                severity: announcement
+                scope: all_users
+                created_at: 2021-10-12 11:18:12 UTC
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Status Messages
+
+post:
+  summary: Create a status message
+  description: |
+    Create a new status message (Only admins are allowed to add status messages).
+
+    Possible values for severity: (information, green, yellow, red, announcement).
+
+    Possible values for scope: (all_users, logged_in_users, admin_users, in_beta_users, in_rollout_users)
+  security:
+    - basic_authentication: []
+  requestBody:
+    description: Attributes for status message
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/status_message.yaml'
+        example:
+          message: Feature number 42 was implemented!
+          severity: announcement
+          scope: all_users
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      $ref: '../components/responses/validation_error.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/status_message_no_permission.yaml'
+  tags:
+    - Status Messages

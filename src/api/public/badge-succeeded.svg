@@ -1,0 +1,30 @@
+<svg aria-label="build service: succeeded" height="20" role="img" version="1.1" viewBox="0 0 168 20" width="168" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<title>build service: succeeded</title>
+<linearGradient id="s" x2="0" y2="100%">
+<stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+<stop offset="1" stop-opacity=".1"/>
+</linearGradient>
+<clipPath id="r">
+<rect fill="#fff" height="20" rx="3" width="168"/>
+</clipPath>
+<g clip-path="url(#r)">
+<rect fill="#555" height="20" width="98" x="0"/>
+<rect fill="#4c1" height="20" width="70" x="98"/>
+<rect fill="url(#s)" height="20" width="168"/>
+</g>
+<g font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-anchor="middle" text-rendering="geometricPrecision">
+<image height="14" width="14" x="6" xlink:href="data:image/svg+xml;base64,PHN2ZyBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMDI0IDc2OCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMzU0LjA2IDMxMi4zOSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KIDxwb2x5Z29uIHRyYW5zZm9ybT0ibWF0cml4KDIuMDAwMSAwIDAgMi4wMDAxIC00NDguMTQgLTU1MC42MykiIHBvaW50cz0iMzYwIDI4Ni43MyAzNjAgMzUxLjQ5IDM5OC4zIDM3MS43MSA0MDEuMDggNDEyLjQ1IDM1MiA0MzEuNSAzNTIgMzUxLjUgMzUyIDM0Ny42OSAzNTIgMjc1LjMiIGZpbGw9IiNkMWQxZDEiLz4KIDxnIHRyYW5zZm9ybT0ibWF0cml4KDIuMDAwMSAwIDAgMi4wMDAxIC00NDguMTQgLTU1MC42MykiPgogIDxwb2x5Z29uIHBvaW50cz0iMzIxIDI5OC43MyAzMTQgMjg2LjkxIDMxNCAzNTUuMjkgMzIxIDM1My44OSIgZmlsbD0iI2QxZDFkMSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMjgzLjAyIDMwOS42NCAyNzYuMDIgMjk4LjIyIDI3NiAzNjIuODkgMjgzLjAyIDM2MS40OSIgZmlsbD0iI2QxZDFkMSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMzI2IDM1Mi44OSAzMTcgMzU0LjY5IDMxNCAzNTUuMjkgMzE0IDI4Ni43MyAyOTUgMjk4LjE2IDI5NSAzNTkuMDkgMjg3IDM2MC42OSAyNzggMzYyLjQ5IDI3NiAzNjIuODkgMjc2IDI5OC4xNiAyNTcgMzA5LjU5IDI1NyAzNjYuNjkgMjMxLjc0IDM3MS43MSAyMjQuMDYgNDEyLjQ1IDI3OCA0MjAuNDggMzM0Ljk0IDQyOC45NiAzNTIgNDMxLjUgMzUyIDM3NS4xMiAzNTIgMzUxLjUgMzUyIDM0Ny42OSAzNTIgMjc1LjMgMzMzIDI4Ni43MyAzMzMgMzUxLjQ5IiBmaWxsPSIjY2VjZWNlIi8+CiA8L2c+CiA8cG9seWdvbiB0cmFuc2Zvcm09Im1hdHJpeCgyLjAwMDEgMCAwIDIuMDAwMSAtNDQ4LjE0IC01NTAuNjMpIiBwb2ludHM9IjI1NyAzMDkuNTkgMjU3IDM2Ni42OSAyMzEuNzQgMzcxLjcxIDIyNC4wNiA0MTIuNDUgMzUyIDQzMS41IDM1MiAzNTEuNSAzNTIgMzQ3LjY5IDM1MiAyNzUuMyAzMzMgMjg2LjczIDMzMyAzNTEuNDkgMzE0IDM1NS4yOSAzMTQgMjg2LjczIDI5NSAyOTguMTYgMjk1IDM1OS4wOSAyNzYgMzYyLjg5IDI3NiAyOTguMTYiIGZpbGw9IiNmZmYiLz4KIDx0ZXh0IHg9IjU1Mi4xNjkxMyIgeT0iNjMuNjgxNDc3IiBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MHB4IiBsZXR0ZXItc3BhY2luZz0iMHB4IiBzdHJva2Utd2lkdGg9IjFweCIgd29yZC1zcGFjaW5nPSIwcHgiIHN0eWxlPSJsaW5lLWhlaWdodDoxMjUlIiB4bWw6c3BhY2U9InByZXNlcnZlIj48dHNwYW4geD0iNTUyLjE2OTEzIiB5PSIxMDAuNDYyMjkiLz48dHNwYW4geD0iNTUyLjE2OTEzIiB5PSIxNTAuNDYyMjMiLz48L3RleHQ+Cjwvc3ZnPgo=" xmlns:xlink="http://www.w3.org/1999/xlink" y="3"/>
+<text aria-hidden="true" fill="#010101" fill-opacity=".3" font-size="11" textLength="70" x="59.0" y="15">
+build service
+</text>
+<text fill="#fff" font-size="11" textLength="70" x="59.0" y="14">
+build service
+</text>
+<text aria-hidden="true" fill="#010101" fill-opacity=".3" font-size="11" textLength="60" x="132.0" y="15">
+succeeded
+</text>
+<text fill="#fff" font-size="11" textLength="60" x="132.0" y="14">
+succeeded
+</text>
+</g>
+</svg>

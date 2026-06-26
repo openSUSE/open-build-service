@@ -1,0 +1,63 @@
+#grid {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: $top-navigation-height auto $bottom-navigation-height;
+  grid-template-areas:
+    'top-navigation'
+    'content'
+    'bottom-navigation';
+
+  #top-navigation-area {
+    grid-area: top-navigation;
+  }
+
+  #content-area {
+    grid-area: content;
+  }
+
+  #bottom-navigation-area {
+    grid-area: bottom-navigation;
+  }
+
+  #left-navigation-area {
+    display: none;
+  }
+}
+
+@include media-breakpoint-up(xl) {
+  #grid {
+    grid-template-columns: min-content auto;
+    grid-template-rows: $top-navigation-height 1fr auto;
+    grid-template-areas:
+      'top-navigation top-navigation'
+      'left-navigation content'
+      'toggle-sidebar-button content';
+
+    #left-navigation-area {
+      grid-area: left-navigation;
+      display: block;
+    }
+
+    #toggle-sidebar-button {
+      grid-area: toggle-sidebar-button;
+      display: block;
+    }
+
+    // This prevents content from breaking the layout by overflowing outside the viewport
+    #content {
+      // 2rem is the sum of the left and right padding for the content
+      max-width: calc(100vw - (#{$left-navigation-width} + 2rem));
+    }
+
+    // Adjust content width when sidebar is collapsed
+    #content.expanded {
+      // 2rem is the sum of the left and right padding for the content
+      max-width: calc(100vw - (#{$left-navigation-collapsed-width} + 2rem));
+    }
+
+    #bottom-navigation-area {
+      display: none;
+    }
+  }
+}

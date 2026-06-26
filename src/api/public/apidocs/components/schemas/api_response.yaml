@@ -1,0 +1,21 @@
+type: object
+properties:
+  code:
+    type: string
+    xml:
+      attribute: true
+  origin:
+    type: string
+    xml:
+      attribute: true
+  summary:
+    type: string
+  details:
+    type: string
+  data:
+    # FIXME: 'name' attribute missing due to https://github.com/OAI/OpenAPI-Specification/issues/630
+    type: array
+    items:
+      type: string
+xml:
+  name: status

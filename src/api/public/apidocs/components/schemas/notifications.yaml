@@ -1,0 +1,31 @@
+type: object
+properties:
+  count:
+    type: string
+    xml:
+      attribute: true
+  total_pages:
+    type: string
+  current_page:
+    type: string
+  notification:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          xml:
+            attribute: true
+        when:
+          type: string
+        description:
+          type: string
+        title:
+          type: string
+        who:
+          type: string
+        event_type:
+          type: string
+xml:
+  name: notifications

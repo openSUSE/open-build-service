@@ -1,0 +1,2116 @@
+---
+Appeal:
+  appellant:
+    MissingDependentDestroyChecker:
+      enabled: false
+Architecture:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+Attrib:
+  attribs_index:
+    UniqueIndexChecker:
+      enabled: false
+  attribs_on_proj_and_pack:
+    UniqueIndexChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+AttribAllowedValue:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+AttribDefaultValue:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+AttribIssue:
+  attrib:
+    MissingDependentDestroyChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  index_attrib_issues_on_attrib_id_and_issue_id:
+    UniqueIndexChecker:
+      enabled: false
+  issue:
+    MissingDependentDestroyChecker:
+      enabled: false
+AttribNamespace:
+  attrib_namespace_modifiable_bies:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+AttribNamespaceModifiableBy:
+  group:
+    MissingDependentDestroyChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  user:
+    MissingDependentDestroyChecker:
+      enabled: false
+AttribType:
+  allowed_values:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  default_values:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  name:
+    LengthConstraintChecker:
+      enabled: false
+AttribTypeModifiableBy:
+  attrib_type:
+    ForeignKeyChecker:
+      enabled: false
+  group:
+    MissingDependentDestroyChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  role:
+    MissingDependentDestroyChecker:
+      enabled: false
+  user:
+    MissingDependentDestroyChecker:
+      enabled: false
+AttribValue:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  position:
+    NullConstraintChecker:
+      enabled: false
+  value:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+BackendInfo:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  key:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  value:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+BackendPackage:
+  changesmd5:
+    LengthConstraintChecker:
+      enabled: false
+  error:
+    LengthConstraintChecker:
+      enabled: false
+  expandedmd5:
+    LengthConstraintChecker:
+      enabled: false
+  package_id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  srcmd5:
+    LengthConstraintChecker:
+      enabled: false
+  verifymd5:
+    LengthConstraintChecker:
+      enabled: false
+BinaryRelease:
+  binary_arch:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  binary_cpeid:
+    LengthConstraintChecker:
+      enabled: false
+  binary_disturl:
+    LengthConstraintChecker:
+      enabled: false
+  binary_epoch:
+    LengthConstraintChecker:
+      enabled: false
+  binary_id:
+    LengthConstraintChecker:
+      enabled: false
+  binary_maintainer:
+    LengthConstraintChecker:
+      enabled: false
+  binary_name:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  binary_release:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  binary_releasetime:
+    NullConstraintChecker:
+      enabled: false
+  binary_supportstatus:
+    LengthConstraintChecker:
+      enabled: false
+  binary_updateinfo:
+    LengthConstraintChecker:
+      enabled: false
+  binary_updateinfo_version:
+    LengthConstraintChecker:
+      enabled: false
+  binary_version:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  flavor:
+    LengthConstraintChecker:
+      enabled: false
+  medium:
+    LengthConstraintChecker:
+      enabled: false
+  on_medium:
+    ForeignKeyChecker:
+      enabled: false
+BsRequest:
+  approver:
+    LengthConstraintChecker:
+      enabled: false
+  commenter:
+    LengthConstraintChecker:
+      enabled: false
+  creator:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  request_exclusion:
+    MissingIndexChecker:
+      enabled: false
+  reviews:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  staging_project:
+    ForeignKeyChecker:
+      enabled: false
+  state:
+    LengthConstraintChecker:
+      enabled: false
+BsRequestAction:
+  bs_request_action_accept_info:
+    ForeignKeyCascadeChecker:
+      enabled: false
+    MissingIndexChecker:
+      enabled: false
+  bs_request_actions_seen_by_users:
+    ForeignKeyTypeChecker:
+      enabled: false
+  bs_request_id:
+    RedundantIndexChecker:
+      enabled: false
+  group_name:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  makeoriginolder:
+    ThreeStateBooleanChecker:
+      enabled: false
+  person_name:
+    LengthConstraintChecker:
+      enabled: false
+  role:
+    LengthConstraintChecker:
+      enabled: false
+  source_package:
+    LengthConstraintChecker:
+      enabled: false
+  source_package_object:
+    ForeignKeyChecker:
+      enabled: false
+  source_project:
+    LengthConstraintChecker:
+      enabled: false
+  source_project_object:
+    ForeignKeyChecker:
+      enabled: false
+  source_rev:
+    LengthConstraintChecker:
+      enabled: false
+  sourceupdate:
+    LengthConstraintChecker:
+      enabled: false
+  target_package:
+    LengthConstraintChecker:
+      enabled: false
+  target_package_object:
+    ForeignKeyChecker:
+      enabled: false
+  target_project:
+    LengthConstraintChecker:
+      enabled: false
+  target_project_object:
+    ForeignKeyChecker:
+      enabled: false
+  target_releaseproject:
+    LengthConstraintChecker:
+      enabled: false
+  target_repository:
+    LengthConstraintChecker:
+      enabled: false
+  type:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  updatelink:
+    ThreeStateBooleanChecker:
+      enabled: false
+BsRequestActionAcceptInfo:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  opackage:
+    LengthConstraintChecker:
+      enabled: false
+  oproject:
+    LengthConstraintChecker:
+      enabled: false
+  osrcmd5:
+    LengthConstraintChecker:
+      enabled: false
+  oxsrcmd5:
+    LengthConstraintChecker:
+      enabled: false
+  rev:
+    LengthConstraintChecker:
+      enabled: false
+  srcmd5:
+    LengthConstraintChecker:
+      enabled: false
+  xsrcmd5:
+    LengthConstraintChecker:
+      enabled: false
+BsRequestActionsSeenByUser:
+  bs_request_action:
+    ForeignKeyChecker:
+      enabled: false
+    ForeignKeyTypeChecker:
+      enabled: false
+  user:
+    ForeignKeyChecker:
+      enabled: false
+    ForeignKeyTypeChecker:
+      enabled: false
+BsRequestCounter:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+Channel:
+  disabled:
+    ThreeStateBooleanChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  index_unique:
+    UniqueIndexChecker:
+      enabled: false
+ChannelBinary:
+  architecture:
+    MissingDependentDestroyChecker:
+      enabled: false
+  binaryarch:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  name:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  package:
+    LengthConstraintChecker:
+      enabled: false
+  project:
+    MissingDependentDestroyChecker:
+      enabled: false
+  repository:
+    MissingDependentDestroyChecker:
+      enabled: false
+ChannelBinaryList:
+  architecture:
+    MissingDependentDestroyChecker:
+      enabled: false
+  channel_binaries:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  project:
+    MissingDependentDestroyChecker:
+      enabled: false
+  repository:
+    MissingDependentDestroyChecker:
+      enabled: false
+ChannelTarget:
+  disabled:
+    ThreeStateBooleanChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  id_template:
+    LengthConstraintChecker:
+      enabled: false
+  index_channel_targets_on_channel_id_and_repository_id:
+    UniqueIndexChecker:
+      enabled: false
+  prefix:
+    LengthConstraintChecker:
+      enabled: false
+  requires_issue:
+    ThreeStateBooleanChecker:
+      enabled: false
+Comment:
+  body:
+    ColumnPresenceChecker:
+      enabled: false
+  commentable:
+    ColumnPresenceChecker:
+      enabled: false
+  commentable_type:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  project:
+    ForeignKeyChecker:
+      enabled: false
+  versions:
+    ForeignKeyTypeChecker:
+      enabled: false
+CommentLock:
+  commentable_type:
+    LengthConstraintChecker:
+      enabled: false
+  moderator:
+    MissingDependentDestroyChecker:
+      enabled: false
+CommitActivity:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  index_commit_activities_on_user_id:
+    RedundantIndexChecker:
+      enabled: false
+  package:
+    LengthConstraintChecker:
+      enabled: false
+  project:
+    LengthConstraintChecker:
+      enabled: false
+  unique_activity_day:
+    UniqueIndexChecker:
+      enabled: false
+  user:
+    ForeignKeyChecker:
+      enabled: false
+Configuration:
+  allow_user_to_create_home_project:
+    ThreeStateBooleanChecker:
+      enabled: false
+  anonymous:
+    ThreeStateBooleanChecker:
+      enabled: false
+  change_password:
+    ThreeStateBooleanChecker:
+      enabled: false
+  cleanup_empty_projects:
+    ThreeStateBooleanChecker:
+      enabled: false
+  default_access_disabled:
+    ThreeStateBooleanChecker:
+      enabled: false
+  description:
+    ColumnPresenceChecker:
+      enabled: false
+  disable_publish_for_branches:
+    ThreeStateBooleanChecker:
+      enabled: false
+  disallow_group_creation:
+    ThreeStateBooleanChecker:
+      enabled: false
+  download_on_demand:
+    ThreeStateBooleanChecker:
+      enabled: false
+  enforce_project_keys:
+    ThreeStateBooleanChecker:
+      enabled: false
+  gravatar:
+    ThreeStateBooleanChecker:
+      enabled: false
+  hide_private_options:
+    ThreeStateBooleanChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  name:
+    ColumnPresenceChecker:
+      enabled: false
+  title:
+    ColumnPresenceChecker:
+      enabled: false
+Decision:
+  moderator:
+    MissingDependentDestroyChecker:
+      enabled: false
+DisabledBetaFeature:
+  feature:
+    ForeignKeyChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  name:
+    LengthConstraintChecker:
+      enabled: false
+  user:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
+Distribution:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  link:
+    LengthConstraintChecker:
+      enabled: false
+  name:
+    LengthConstraintChecker:
+      enabled: false
+  project:
+    LengthConstraintChecker:
+      enabled: false
+  remote:
+    ThreeStateBooleanChecker:
+      enabled: false
+  reponame:
+    LengthConstraintChecker:
+      enabled: false
+  repository:
+    LengthConstraintChecker:
+      enabled: false
+  vendor:
+    LengthConstraintChecker:
+      enabled: false
+  version:
+    LengthConstraintChecker:
+      enabled: false
+DistributionIcon:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  url:
+    LengthConstraintChecker:
+      enabled: false
+DownloadRepository:
+  arch:
+    LengthConstraintChecker:
+      enabled: false
+  archfilter:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  lower(arch)+repository_id:
+    MissingUniqueIndexChecker:
+      enabled: false
+  mastersslfingerprint:
+    LengthConstraintChecker:
+      enabled: false
+  masterurl:
+    LengthConstraintChecker:
+      enabled: false
+  pubkey:
+    LengthConstraintChecker:
+      enabled: false
+  repotype:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  url:
+    LengthConstraintChecker:
+      enabled: false
+Event::AddedUserToGroup:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::Base:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::BuildFail:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::BuildSuccess:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::BuildUnchanged:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::ClearedDecision:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::CommentForRequest:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::FavoredDecision:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::RelationshipCreate:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::RelationshipDelete:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::RemovedUserFromGroup:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::RequestChange:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::RequestCreate:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::RequestDelete:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::RequestStatechange:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::ReviewChanged:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::ReviewWanted:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::StatusCheckForBuild:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::StatusCheckForPublished:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::StatusCheckForRequest:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+EventSubscription:
+  enabled:
+    ThreeStateBooleanChecker:
+      enabled: false
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  group:
+    ForeignKeyChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  package:
+    ForeignKeyChecker:
+      enabled: false
+  receiver_role:
+    LengthConstraintChecker:
+      enabled: false
+  token:
+    ForeignKeyChecker:
+      enabled: false
+  user:
+    ForeignKeyChecker:
+      enabled: false
+  workflow_run:
+    ForeignKeyChecker:
+      enabled: false
+Flag:
+  architecture:
+    MissingDependentDestroyChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  lower(flag)+project_id+package_id+architecture_id+repo:
+    MissingUniqueIndexChecker:
+      enabled: false
+  repo:
+    LengthConstraintChecker:
+      enabled: false
+  status:
+    NullConstraintChecker:
+      enabled: false
+Group:
+  email:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  staging_workflow:
+    MissingIndexChecker:
+      enabled: false
+  title:
+    MissingUniqueIndexChecker:
+      enabled: false
+GroupMaintainer:
+  group:
+    ColumnPresenceChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  user:
+    ColumnPresenceChecker:
+      enabled: false
+    MissingDependentDestroyChecker:
+      enabled: false
+GroupsUser:
+  email:
+    ThreeStateBooleanChecker:
+      enabled: false
+  groups_users_all_index:
+    UniqueIndexChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  user:
+    MissingDependentDestroyChecker:
+      enabled: false
+  web:
+    ThreeStateBooleanChecker:
+      enabled: false
+HistoryElement::Base:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  user:
+    ForeignKeyChecker:
+      enabled: false
+HistoryElement::RequestAccepted:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::RequestAllReviewsApproved:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::RequestDeclined:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::RequestDeleted:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::RequestPriorityChange:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::RequestReopened:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::RequestReviewAdded:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::RequestRevoked:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::RequestSetIncident:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::RequestSuperseded:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::ReviewAccepted:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::ReviewAssigned:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::ReviewDeclined:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::ReviewObsoleted:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+HistoryElement::ReviewReopened:
+  comment:
+    LengthConstraintChecker:
+      enabled: false
+  description_extension:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  op_object_id:
+    NullConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+IncidentUpdateinfoCounterValue:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  released_at:
+    NullConstraintChecker:
+      enabled: false
+  updateinfo_counter:
+    ForeignKeyChecker:
+      enabled: false
+  value:
+    NullConstraintChecker:
+      enabled: false
+Issue:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  name:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  owner:
+    MissingDependentDestroyChecker:
+      enabled: false
+  package_issues:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  summary:
+    LengthConstraintChecker:
+      enabled: false
+IssueTracker:
+  api_key:
+    LengthConstraintChecker:
+      enabled: false
+  description:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  enable_fetch:
+    ThreeStateBooleanChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  issues_updated:
+    NullConstraintChecker:
+      enabled: false
+  kind:
+    MissingIndexFindByChecker:
+      enabled: false
+  label:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  name:
+    LengthConstraintChecker:
+      enabled: false
+    MissingIndexFindByChecker:
+      enabled: false
+    MissingUniqueIndexChecker:
+      enabled: false
+  password:
+    LengthConstraintChecker:
+      enabled: false
+  publish_issues:
+    ThreeStateBooleanChecker:
+      enabled: false
+  regex:
+    LengthConstraintChecker:
+      enabled: false
+    MissingUniqueIndexChecker:
+      enabled: false
+  show_url:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  url:
+    LengthConstraintChecker:
+      enabled: false
+  user:
+    LengthConstraintChecker:
+      enabled: false
+Kiwi::Description:
+  author:
+    LengthConstraintChecker:
+      enabled: false
+  contact:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  image:
+    ForeignKeyChecker:
+      enabled: false
+  specification:
+    LengthConstraintChecker:
+      enabled: false
+Kiwi::Image:
+  description:
+    MissingIndexChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  md5_last_revision:
+    LengthConstraintChecker:
+      enabled: false
+  name:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  package:
+    ForeignKeyCascadeChecker:
+      enabled: false
+    MissingIndexChecker:
+      enabled: false
+  use_project_repositories:
+    ThreeStateBooleanChecker:
+      enabled: false
+Kiwi::Package:
+  arch:
+    LengthConstraintChecker:
+      enabled: false
+  bootdelete:
+    ThreeStateBooleanChecker:
+      enabled: false
+  bootinclude:
+    ThreeStateBooleanChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  name:
+    LengthConstraintChecker:
+      enabled: false
+  replaces:
+    LengthConstraintChecker:
+      enabled: false
+Kiwi::PackageGroup:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  pattern_type:
+    LengthConstraintChecker:
+      enabled: false
+  profiles:
+    LengthConstraintChecker:
+      enabled: false
+Kiwi::Preference:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  image:
+    ForeignKeyChecker:
+      enabled: false
+  profile:
+    LengthConstraintChecker:
+      enabled: false
+  type_containerconfig_name:
+    LengthConstraintChecker:
+      enabled: false
+  type_containerconfig_tag:
+    LengthConstraintChecker:
+      enabled: false
+  version:
+    LengthConstraintChecker:
+      enabled: false
+Kiwi::Profile:
+  description:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  image:
+    ForeignKeyChecker:
+      enabled: false
+  lower(name)+image_id:
+    MissingUniqueIndexChecker:
+      enabled: false
+  name:
+    LengthConstraintChecker:
+      enabled: false
+  name_once_per_image:
+    UniqueIndexChecker:
+      enabled: false
+Kiwi::Repository:
+  alias:
+    LengthConstraintChecker:
+      enabled: false
+  alias+image_id:
+    MissingUniqueIndexChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  image:
+    ForeignKeyChecker:
+      enabled: false
+  imageinclude:
+    ThreeStateBooleanChecker:
+      enabled: false
+  index_kiwi_repositories_on_image_id:
+    RedundantIndexChecker:
+      enabled: false
+  password:
+    LengthConstraintChecker:
+      enabled: false
+  prefer_license:
+    ThreeStateBooleanChecker:
+      enabled: false
+  replaceable:
+    ThreeStateBooleanChecker:
+      enabled: false
+  repo_type:
+    LengthConstraintChecker:
+      enabled: false
+  source_path:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  source_path+image_id:
+    MissingUniqueIndexChecker:
+      enabled: false
+  username:
+    LengthConstraintChecker:
+      enabled: false
+LabelGlobal:
+  index_label_globals_on_project_id:
+    RedundantIndexChecker:
+      enabled: false
+LinkedProject:
+  db_project_id+linked_remote_project_name:
+    MissingUniqueIndexChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  linked_db_project:
+    ForeignKeyChecker:
+      enabled: false
+  project:
+    ForeignKeyChecker:
+      enabled: false
+MaintainedProject:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+MaintenanceIncident:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  maintenance_db_project:
+    ForeignKeyChecker:
+      enabled: false
+  project:
+    ForeignKeyChecker:
+      enabled: false
+  updateinfo_id:
+    LengthConstraintChecker:
+      enabled: false
+Notification:
+  bs_request:
+    ForeignKeyChecker:
+      enabled: false
+  bs_request_oldstate:
+    LengthConstraintChecker:
+      enabled: false
+  bs_request_state:
+    LengthConstraintChecker:
+      enabled: false
+  delivered:
+    ThreeStateBooleanChecker:
+      enabled: false
+  event_payload:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  event_type:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  notifiable_type:
+    LengthConstraintChecker:
+      enabled: false
+  rss:
+    ThreeStateBooleanChecker:
+      enabled: false
+  subscriber_type:
+    LengthConstraintChecker:
+      enabled: false
+  subscription_receiver_role:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  title:
+    LengthConstraintChecker:
+      enabled: false
+  web:
+    ThreeStateBooleanChecker:
+      enabled: false
+NotifiedProject:
+  index_notified_projects_on_notification_id:
+    RedundantIndexChecker:
+      enabled: false
+  notification:
+    ForeignKeyChecker:
+      enabled: false
+  project:
+    ForeignKeyChecker:
+      enabled: false
+Package:
+  backend_package:
+    MissingIndexChecker:
+      enabled: false
+  bcntsynctag:
+    LengthConstraintChecker:
+      enabled: false
+  binary_releases:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  develpackage:
+    MissingDependentDestroyChecker:
+      enabled: false
+  flags:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  package_issues:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  package_kinds:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  project:
+    MissingDependentDestroyChecker:
+      enabled: false
+  scmsync:
+    LengthConstraintChecker:
+      enabled: false
+PackageIssue:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+PackageKind:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  kind:
+    NullConstraintChecker:
+      enabled: false
+PathElement:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  position:
+    NullConstraintChecker:
+      enabled: false
+Product:
+  baseversion:
+    LengthConstraintChecker:
+      enabled: false
+  cpe:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  index_products_on_name_and_package_id:
+    UniqueIndexChecker:
+      enabled: false
+  name:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  patchlevel:
+    LengthConstraintChecker:
+      enabled: false
+  release:
+    LengthConstraintChecker:
+      enabled: false
+  version:
+    LengthConstraintChecker:
+      enabled: false
+ProductMedium:
+  arch_filter:
+    MissingDependentDestroyChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  index_product_media_on_product_id:
+    RedundantIndexChecker:
+      enabled: false
+  index_unique:
+    UniqueIndexChecker:
+      enabled: false
+  name:
+    LengthConstraintChecker:
+      enabled: false
+ProductUpdateRepository:
+  arch_filter:
+    MissingDependentDestroyChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  index_product_update_repositories_on_product_id:
+    RedundantIndexChecker:
+      enabled: false
+  index_unique:
+    UniqueIndexChecker:
+      enabled: false
+Project:
+  description:
+    LengthConstraintChecker:
+      enabled: false
+  develproject:
+    ForeignKeyChecker:
+      enabled: false
+  flags:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  incident_updateinfo_counter_values:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  linked_by:
+    MissingIndexChecker:
+      enabled: false
+  maintained_projects:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  maintenance_incident:
+    MissingIndexChecker:
+      enabled: false
+  maintenance_projects:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  project_log_entries:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  remoteproject:
+    LengthConstraintChecker:
+      enabled: false
+  remoteurl:
+    LengthConstraintChecker:
+      enabled: false
+  required_checks:
+    LengthConstraintChecker:
+      enabled: false
+  scmsync:
+    LengthConstraintChecker:
+      enabled: false
+  staging_workflow:
+    ForeignKeyChecker:
+      enabled: false
+  url:
+    LengthConstraintChecker:
+      enabled: false
+ProjectLogEntry:
+  additional_info:
+    LengthConstraintChecker:
+      enabled: false
+  bs_request:
+    ForeignKeyChecker:
+      enabled: false
+  datetime:
+    ColumnPresenceChecker:
+      enabled: false
+  event_type:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  package_name:
+    LengthConstraintChecker:
+      enabled: false
+  project_id:
+    ColumnPresenceChecker:
+      enabled: false
+    RedundantIndexChecker:
+      enabled: false
+  user_name:
+    LengthConstraintChecker:
+      enabled: false
+Relationship:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  index_relationships_on_package_id_and_role_id_and_group_id:
+    UniqueIndexChecker:
+      enabled: false
+  index_relationships_on_package_id_and_role_id_and_user_id:
+    UniqueIndexChecker:
+      enabled: false
+  index_relationships_on_project_id_and_role_id_and_group_id:
+    UniqueIndexChecker:
+      enabled: false
+  index_relationships_on_project_id_and_role_id_and_user_id:
+    UniqueIndexChecker:
+      enabled: false
+  package_id+role_id+group_id+user_id:
+    MissingUniqueIndexChecker:
+      enabled: false
+  project_id+role_id+group_id+user_id:
+    MissingUniqueIndexChecker:
+      enabled: false
+ReleaseTarget:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+Report:
+  comments:
+    ForeignKeyTypeChecker:
+      enabled: false
+Repository:
+  channel_targets:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  download_repositories:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  hostsystem:
+    MissingIndexChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  name:
+    MissingIndexFindByChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  path_elements:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  product_medium:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  product_update_repositories:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  release_targets:
+    ForeignKeyCascadeChecker:
+      enabled: false
+  remote_project_name:
+    LengthConstraintChecker:
+      enabled: false
+  required_checks:
+    LengthConstraintChecker:
+      enabled: false
+RepositoryArchitecture:
+  architecture:
+    MissingDependentDestroyChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  required_checks:
+    LengthConstraintChecker:
+      enabled: false
+Review:
+  creator:
+    LengthConstraintChecker:
+      enabled: false
+  group:
+    ForeignKeyChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  package:
+    ForeignKeyChecker:
+      enabled: false
+  project:
+    ForeignKeyChecker:
+      enabled: false
+  review_assigned_from:
+    MissingDependentDestroyChecker:
+      enabled: false
+  review_assigned_to:
+    MissingIndexChecker:
+      enabled: false
+  state:
+    LengthConstraintChecker:
+      enabled: false
+  user:
+    ForeignKeyChecker:
+      enabled: false
+Role:
+  global:
+    ThreeStateBooleanChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  title:
+    MissingIndexFindByChecker:
+      enabled: false
+    MissingUniqueIndexChecker:
+      enabled: false
+RolesStaticPermission:
+  role:
+    MissingDependentDestroyChecker:
+      enabled: false
+  roles_static_permissions_all_index:
+    UniqueIndexChecker:
+      enabled: false
+  static_permission:
+    MissingDependentDestroyChecker:
+      enabled: false
+RolesUser:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  role:
+    MissingDependentDestroyChecker:
+      enabled: false
+  user:
+    MissingDependentDestroyChecker:
+      enabled: false
+SCMStatusReport:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  request_parameters:
+    LengthConstraintChecker:
+      enabled: false
+  response_body:
+    LengthConstraintChecker:
+      enabled: false
+  workflow_run:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
+Staging::RequestExclusion:
+  bs_request:
+    ForeignKeyChecker:
+      enabled: false
+  bs_request_id+staging_workflow_id:
+    MissingUniqueIndexChecker:
+      enabled: false
+  description:
+    ColumnPresenceChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  number:
+    ColumnPresenceChecker:
+      enabled: false
+  staging_workflow:
+    ForeignKeyChecker:
+      enabled: false
+Staging::Workflow:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  index_staging_workflows_on_project_id:
+    UniqueIndexChecker:
+      enabled: false
+  managers_group:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
+  project:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
+StaticPermission:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  lower(title):
+    MissingUniqueIndexChecker:
+      enabled: false
+  static_permissions_title_index:
+    UniqueIndexChecker:
+      enabled: false
+  title:
+    LengthConstraintChecker:
+      enabled: false
+Status::Check:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  name:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  name+status_reports_id:
+    MissingUniqueIndexChecker:
+      enabled: false
+  short_description:
+    LengthConstraintChecker:
+      enabled: false
+  state:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  url:
+    LengthConstraintChecker:
+      enabled: false
+Status::Report:
+  checkable:
+    ColumnPresenceChecker:
+      enabled: false
+  checkable_type:
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  uuid:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+StatusHistory:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  key:
+    LengthConstraintChecker:
+      enabled: false
+  value:
+    NullConstraintChecker:
+      enabled: false
+StatusMessage:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  message:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  severity:
+    ColumnPresenceChecker:
+      enabled: false
+  user:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
+StatusMessageAcknowledgement:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  status_message:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
+  status_message_id+user_id:
+    MissingUniqueIndexChecker:
+      enabled: false
+  user:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
+Token:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  index_tokens_on_string:
+    UniqueIndexChecker:
+      enabled: false
+  lower(string):
+    MissingUniqueIndexChecker:
+      enabled: false
+  string:
+    LengthConstraintChecker:
+      enabled: false
+  type:
+    LengthConstraintChecker:
+      enabled: false
+  workflow_configuration_path:
+    LengthConstraintChecker:
+      enabled: false
+  workflow_configuration_url:
+    LengthConstraintChecker:
+      enabled: false
+UpdateinfoCounter:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+User:
+  adminnote:
+    LengthConstraintChecker:
+      enabled: false
+  bs_request_actions_seen_by_users:
+    ForeignKeyTypeChecker:
+      enabled: false
+    MissingIndexChecker:
+      enabled: false
+  deprecated_password:
+    LengthConstraintChecker:
+      enabled: false
+  deprecated_password_hash_type:
+    LengthConstraintChecker:
+      enabled: false
+  deprecated_password_salt:
+    LengthConstraintChecker:
+      enabled: false
+  email:
+    LengthConstraintChecker:
+      enabled: false
+    MissingIndexFindByChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  ignore_auth_services:
+    ThreeStateBooleanChecker:
+      enabled: false
+  in_beta:
+    ThreeStateBooleanChecker:
+      enabled: false
+  in_rollout:
+    ThreeStateBooleanChecker:
+      enabled: false
+  login:
+    ColumnPresenceChecker:
+      enabled: false
+  owner:
+    ForeignKeyChecker:
+      enabled: false
+  password_digest:
+    LengthConstraintChecker:
+      enabled: false
+  realname:
+    LengthConstraintChecker:
+      enabled: false
+  requests_created:
+    ForeignKeyTypeChecker:
+      enabled: false
+  state:
+    ColumnPresenceChecker:
+      enabled: false
+  subaccounts:
+    MissingIndexChecker:
+      enabled: false
+WatchedItem:
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  index_watched_items_on_watchable:
+    RedundantIndexChecker:
+      enabled: false
+  user:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
+  watchable_type:
+    LengthConstraintChecker:
+      enabled: false
+WorkflowArtifactsPerStep:
+  artifacts:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  step:
+    ColumnPresenceChecker:
+      enabled: false
+    LengthConstraintChecker:
+      enabled: false
+  workflow_run:
+    ForeignKeyChecker:
+      enabled: false
+WorkflowRun:
+  hook_event:
+    ColumnPresenceChecker:
+      enabled: false
+  id:
+    PrimaryKeyTypeChecker:
+      enabled: false
+  request_headers:
+    LengthConstraintChecker:
+      enabled: false
+  request_payload:
+    LengthConstraintChecker:
+      enabled: false
+  response_body:
+    LengthConstraintChecker:
+      enabled: false
+  scm_status_reports:
+    MissingIndexChecker:
+      enabled: false
+  scm_vendor:
+    ColumnPresenceChecker:
+      enabled: false
+  token:
+    ForeignKeyChecker:
+      enabled: false
+  token_id:
+    NullConstraintChecker:
+      enabled: false

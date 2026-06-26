@@ -1,0 +1,79 @@
+get:
+  summary: List users that match a XPath condition.
+  description: Return a collection of users that match a XPath condition.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: match
+      schema:
+        type: string
+      required: yes
+      description: |
+        Expression based in XPath.
+
+        Providing a value of `*` will return all users.
+
+        Available predicates are: `@login`, `@email`, `@realname`, and `@state`.
+      examples:
+        all:
+          summary: All
+          value: '*'
+        login:
+          summary: Login
+          value: "@login='user_1'"
+        function_contains:
+          summary: Function contains
+          value: contains(@realname,'lee')
+        combination:
+          summary: User email and state
+          value: "@email='iggy@example.com' and @state='confirmed'"
+    - $ref: '../components/parameters/search_limit.yaml'
+    - $ref: '../components/parameters/search_offset.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/search/collection_people.yaml'
+          examples:
+            no_results:
+              summary: No matching results
+              value:
+                matches: 0
+            two_results:
+              summary: Two matching results
+              value:
+                matches: 2
+                person:
+                  - login: Iggy
+                    email: iggy@example.com
+                    realname: Shanta
+                    state: confirmed
+                  - login: superkraig
+                    email: kraig@example.com
+                    realname: Kraig Doe
+                    state: confirmed
+                    globalrole: Admin
+                    ignore_auth_services: false
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: illegal_xpath_error
+            summary: unable to evaluate '@foo' for 'users'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Search
+
+post:
+  deprecated: true
+  summary: List users that match a XPath condition.
+  description: This endpoint is exactly the same as `GET /search/person`, please use that one.
+  tags:
+    - Search

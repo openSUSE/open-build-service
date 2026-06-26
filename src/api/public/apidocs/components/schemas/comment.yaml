@@ -1,0 +1,32 @@
+type: object
+properties:
+  id:
+    type: integer
+    xml:
+      attribute: true
+  who:
+    type: string
+    xml:
+      attribute: true
+  when:
+    type: string
+    xml:
+      attribute: true
+  parent:
+    type: integer
+    xml:
+      attribute: true
+  bsrequest:
+    type: integer
+    xml:
+      attribute: true
+  project:
+    type: string
+    xml:
+      attribute: true
+  package:
+    type: string
+    xml:
+      attribute: true
+# This schema is incomplete due to https://github.com/OAI/OpenAPI-Specification/issues/630,
+# comment element should have content

@@ -1,0 +1,13 @@
+<project name="home:Admin">
+  <title/>
+  <description/>
+  <person userid="Admin" role="maintainer"/>
+  <repository name="openSUSE_Leap_15.5">
+    <path project="openSUSE.org:openSUSE:Leap:15.5" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="openSUSE_Leap_15.4">
+    <path project="openSUSE.org:openSUSE:Leap:15.4" repository="standard"/>
+    <arch>i586</arch>
+  </repository>
+</project>

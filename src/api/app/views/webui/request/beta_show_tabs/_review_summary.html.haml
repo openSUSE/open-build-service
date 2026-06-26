@@ -1,0 +1,25 @@
+.d-flex.flex-row.pt-1
+  .ps-3
+    - if review.accepted?
+      %i.fas.fa-sm.fa-check.text-primary.align-middle.pe-1
+    - if review.declined?
+      %i.fas.fa-times.text-danger.align-middle.pe-2
+    - if review.new?
+      %i.fas.fa-2xs.fa-circle.text-warning.align-middle.pe-2
+
+  = render BsRequestOverviewAvatarsComponent.new(review)
+
+  .ps-1
+    - if review.for_user?
+      = user_with_realname_and_icon(review.by_user, short: true, no_icon: true)
+    - elsif review.for_group?
+      - modal_id = "review-group-members-#{review.id}-modal"
+      = link_to(review.by_group, '#', role: 'button', data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}" })
+      = render partial: 'webui/request/beta_show_tabs/review_group_members_modal', locals: { review:, modal_id: }
+    - elsif review.for_package?
+      = project_or_package_link(project: review.by_project, package: review.by_package, short: true)
+    - elsif review.for_project?
+      = project_or_package_link(project: review.by_project, short: true)
+    - if (review.accepted? || review.declined?) && review.reviewer && !review.for_user?
+      by
+      = link_to(review.reviewer, user_path(User.find_by(login: review.reviewer)))

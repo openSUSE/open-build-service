@@ -1,0 +1,23 @@
+get:
+  summary: Get a simple directory listing of all projects
+  description: Get a simple directory listing of all projects
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: |
+        OK
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            entry:
+              - name: 'openSUSE:Leap:15.1'
+              - name: 'openSUSE:Leap:15.2'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Build

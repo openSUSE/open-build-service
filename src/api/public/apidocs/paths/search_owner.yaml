@@ -1,0 +1,193 @@
+get:
+  summary: Search for the users or groups who are the owners of a project or package.
+  description: |
+    The owners are users/groups with the maintainer or bugowner roles in the given project/package.
+
+    By default the owner search will get results from projects (and their sub-projects) that have the
+    OBS:OwnerRootProject attribute.
+
+    You can search for the package name, a user login, a group title or a binary package name.
+    If you don't want to search the default projects, you can provide another project to search in.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: package
+      schema:
+        type: string
+      description: The name of the package whose owners you want to search.
+    - in: query
+      name: binary
+      schema:
+        type: string
+      description: |
+        The name of a binary package whose owners you want to search.
+    - in: query
+      name: user
+      schema:
+        type: string
+      description: |
+        Search what this user is owner of.
+    - in: query
+      name: group
+      schema:
+        type: string
+      description: |
+        The title of a group. Search what this group is owner of.
+    - in: query
+      name: limit
+      schema:
+        type: string
+      description: |
+        Limit the number of returned results. This is only available for
+        the search with the `binary` parameter. The default is set to `1`,
+        use `0` to receive all results or `-1` for the deepest match.
+    - in: query
+      name: devel
+      schema:
+        type: string
+        enum:
+        - true
+        - false
+        - 1
+        - 0
+      description: Include/exclude devel packages in the result.
+    - in: query
+      name: project
+      schema:
+        type: string
+      description: |
+        By default the owner search will get results from projects (and their sub-projects) that have the OBS:OwnerRootProject attribute.
+        Use this parameter to overwrite the default and search in this project (and it's sub-projects).
+    - in: query
+      name: filter
+      schema:
+        type: string
+      description: |
+        A comma separated list of role names that should be
+        taken into account in the result.
+      example: 'bugowner,maintainer'
+    - in: query
+      name: attribute
+      schema:
+        type: string
+      description: |
+        Choose the attribute name that marks the rootproject which defines the
+        owner's for all corresponding subprojects and limit the returned results
+        to those. The default value is `OBS:OwnerRootProject`.
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/owner_collection.yaml'
+          examples:
+            only package:
+              summary: Search by package name
+              description: Search by package name 'aaa_base' only.
+              value:
+                owner:
+                  - rootproject: ''
+                    project: Base:System
+                    package: aaa_base
+                    person:
+                      name: user_1
+                      role: maintainer
+                  - rootproject: ''
+                    project: Base:System
+                    person:
+                      name: user_1
+                      role: maintainer
+                    group:
+                      name: factory-maintainers
+                      role: maintainer
+                  - rootproject: ''
+                    project: Base
+                    person:
+                      name: user_2
+                      role: maintainer
+            only project:
+              summary: Search by project name
+              description: Search by project name 'openSUSE:Factory' only.
+              value:
+                owner:
+                  - rootproject: ''
+                    project: openSUSE:Factory
+                    person:
+                      name: user_1
+                      role: maintainer
+                    group:
+                      name: factory-maintainers
+                      role: maintainer
+                  - rootproject: ''
+                    project: openSUSE
+                    group:
+                      name: factory-maintainers
+                      role: maintainer
+            only binary:
+              summary: Search by binary name
+              description: Search by binary name 'aaa_base' only.
+              value:
+                owner:
+                  rootproject: 'openSUSE'
+                  project: Base:System
+                  package: aaa_base
+                  person:
+                    - name: user_1
+                      role: maintainer
+                    - name: user_2
+                      role: maintainer
+            group and project:
+              summary: Search by group and project
+              description: Search by group title 'factory-maintainers' and project name 'openSUSE:Leap:42.3'.
+              value:
+                owner:
+                  rootproject: 'openSUSE:Leap:42.3'
+                  project: openSUSE:Leap:42.3
+    '400':
+      description: Bad request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            without expected parameters:
+              summary: Without the expected parameters
+              description: One or a combination of the parameters package, user, group, binay and project is required.
+              value:
+                code: no_binary
+                summary: |
+                  The search needs at least a 'binary', 'package' or 'user' parameter
+            search root not set:
+              summary: Search root is not set
+              description: At least one of the projects in your instance should contain the OBS:OwnerRootProject attribute.
+              value:
+                summary: |
+                  The attribute OBS:OwnerRootProject is not set to define default projects.
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Found:
+              value:
+                code: unknown_project
+                summary: 'Project not found: bla'
+            Group Not Found:
+              value:
+                code: not_found
+                summary: Couldn't find Group 'fake'
+  tags:
+    - Search
+
+post:
+  deprecated: true
+  summary: Search for the users or groups who are the owners of a project or package.
+  description: This endpoint is exactly the same as `GET /search/owner`, please use that one.
+  tags:
+    - Search

@@ -1,0 +1,36 @@
+post:
+  summary:  List all services related to a package.
+  description: |
+    List all services defined in the project for this package.
+
+    Despite using the method `POST`, this endpoint doesn't alter any data.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: cmd
+      required: true
+      schema:
+        type: string
+        enum:
+          - getprojectservices
+  responses:
+    '200':
+      description:
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/services.yaml'
+          example:
+            - name: format_spec_file
+              mode: localonly
+            - name: download_files
+              mode: disabled
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages

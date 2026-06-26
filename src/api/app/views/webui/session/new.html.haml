@@ -1,0 +1,7 @@
+- @pagetitle = 'Please Log In'
+
+.card
+  .card-body#loginform
+    .col-lg-6.ps-0
+      %h3= @pagetitle
+      = render partial: 'form', locals: { with_sign_up: true, with_redirect: true }

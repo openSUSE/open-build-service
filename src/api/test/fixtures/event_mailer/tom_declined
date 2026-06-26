@@ -1,0 +1,34 @@
+From: "Thor (tom)" <obs-email@opensuse.org>
+Sender: OBS Notification <obs-email@opensuse.org>
+To: Iggy Pop <Iggy@pop.org>
+Message-ID: <notrandom@localhost>
+In-Reply-To: <obs-request-REQUESTID@localhost>
+References: <obs-request-REQUESTID@localhost>
+Subject: Request REQUESTID changed from new to declined (set_bugowner home:tom)
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-OBS-URL: http://localhost
+X-OBS-event-type: request_statechange
+X-OBS-Request-Creator: Iggy
+X-OBS-Request-Id: REQUESTID
+X-OBS-Request-State: declined
+X-OBS-Request-Action-type: set_bugowner
+X-OBS-Request-Action-target: home:tom
+Precedence: bulk
+Auto-Submitted: auto-generated
+X-Mailer: OBS Notification System
+
+Visit http://localhost/request/show/REQUESTID
+
+State of request REQUESTID was changed by tom:
+
+  new -> declined
+
+Actions:
+- set the bugowner of project home:tom to Iggy
+
+-- 
+Configure notifications at http://localhost/my/subscriptions
+Open Build Service (http://localhost/)

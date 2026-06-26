@@ -1,0 +1,7 @@
+<services>
+  <service name="obs_scm">
+    <param name="url">https://github.com/M0ses/kanku.git</param>
+    <param name="scm">git</param>
+    <param name="submodules">disable</param>
+  </service>
+</services>

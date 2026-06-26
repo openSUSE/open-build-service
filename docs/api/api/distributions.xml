@@ -1,0 +1,35 @@
+<distributions>
+  <distribution id="opensuse-11.0" vendor="opensuse" version="11.0">
+    <name>openSUSE 11.0</name>
+    <project>openSUSE:11.0</project>
+    <repository>standard</repository>
+    <reponame>openSUSE_11.0</reponame>
+    <architecture>i586</architecture>
+    <architecture>x86_64</architecture>
+    <architecture>ppc</architecture>
+    <architecture>ppc64</architecture>
+    <icon width="8" url="http://opensuse.org/static/os11logo8.png"/>
+    <icon width="16" height="16" url="http://opensuse.org/static/os11logo16.png"/>
+    <link>http://www.opensuse.org</link>
+  </distribution>
+  <distribution id="opensuse-10.3" vendor="opensuse" version="10.3">
+    <name>openSUSE 10.3</name>
+    <project>openSUSE:10.3</project>
+    <reponame>openSUSE_10.3</reponame>
+    <repository>standard</repository>
+    <icon url="http://opensuse.org/static/os10logo8.png"/>
+    <icon width="16" height="16" url="http://opensuse.org/static/os10logo16.png"/>
+    <link>http://www.opensuse.org</link>
+  </distribution>
+  <distribution id="fedora-9" vendor="fedora" version="9">
+    <name>Fedora 9</name>
+    <project>Fedora:9</project>
+    <reponame>Fedora_9</reponame>
+    <repository>standard</repository>
+    <architecture>i586</architecture>
+    <architecture>x86_64</architecture>
+    <icon height="8" url="http://opensuse.org/static/fed9logo8.png"/>
+    <icon width="16" height="16" url="http://opensuse.org/static/fed9logo16.png"/>
+    <link>http://www.fedoraproject.org</link>
+  </distribution>
+</distributions>

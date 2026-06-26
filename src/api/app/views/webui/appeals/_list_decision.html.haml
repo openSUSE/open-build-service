@@ -1,0 +1,8 @@
+.card.mt-2
+  .card-body
+    %h3 Decision
+    %p
+      = succeed '.' do
+        = decision.description
+      The reason was:
+      = decision.reason

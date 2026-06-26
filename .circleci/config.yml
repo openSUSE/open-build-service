@@ -1,0 +1,28 @@
+version: 2.1
+
+# this allows you to use CircleCI's dynamic configuration
+# https://circleci.com/docs/2.0/dynamic-config/
+setup: true
+
+# the path-filtering orb is required to continue a pipeline based on
+# the path of an updated fileset
+orbs:
+  path-filtering: circleci/path-filtering@3.0.0
+
+workflows:
+  setup:
+    jobs:
+      - path-filtering/filter:
+          name: Define dynamic CI pipeline
+          mapping: |
+            dist/.* run-dist-linter true
+            src/backend/.* run-backend-tests true
+            src/api/app/(views|components)/.* run-haml-linter true
+            src/api/vendor/cache/haml.* run-haml-linter true
+            src/api/db/.* run-migrations-tests true
+            src/api/Gemfile.lock run-passenger-and-ruby-default-gem-tests true
+            src/api/app/assets/javascripts/.* run-javascripts-linter true
+            src/api/public/apidocs/.* run-apidocs-linter true
+            src/api/vendor/cache/strong_migrations-.* run-migrations-tests true
+          base-revision: master
+          config-path: .circleci/conditional_config.yml

@@ -1,0 +1,5 @@
+<template>
+<name>This is how you specify additional information about template fields</name>
+<title>Some fields may hold special meanings and may require to be explained</title>
+<description>So this feature lets you do that easily for each template</description>
+</template>

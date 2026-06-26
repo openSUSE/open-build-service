@@ -1,0 +1,8 @@
+.form-group{ class: visible_inner_label ? 'd-flex justify-content-between input-group': '' }
+  - if visible_inner_label
+    .input-group-text
+      = label
+  = label_tag(filter_item, label, class: 'visually-hidden')
+  = select_tag(filter_item,
+               options_for_select(filter_options, selected_value),
+               class: 'form-control form-select')

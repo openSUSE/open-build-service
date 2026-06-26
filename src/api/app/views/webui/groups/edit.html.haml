@@ -1,0 +1,13 @@
+- @pagetitle = 'Edit Group'
+
+.card.mb-3
+  .card-body
+    %h3 Edit Group #{@group}
+    .col-lg-6.ps-0
+      = form_for(@group) do |form|
+        .mb-3
+          = form.label(:email) do
+            Email
+            %small.form-text (not required for groups)
+          = form.email_field(:email, class: 'form-control')
+        = form.submit('Update', class: 'btn btn-primary', data: { disable_with: 'Updating...' })

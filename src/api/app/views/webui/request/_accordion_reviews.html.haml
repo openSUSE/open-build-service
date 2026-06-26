@@ -1,0 +1,36 @@
+.accordion#accordion-reviews-component
+  - if declined_reviews.count.positive?
+    .accordion-item
+      %h2.accordion-header#heading-declined-reviews
+        = button_tag(class: 'accordion-button',
+                    data: { 'bs-toggle': 'collapse', 'bs-target': '#collapse-declined-reviews' },
+                    aria: { expanded: 'true', controls: 'collapse-declined-reviews' }) do
+          %i.fas.fa-fw.fa-sm.fa-times.text-danger.align-middle.pe-4
+          = pluralize(declined_reviews.count, 'Declined Review')
+      .accordion-collapse.collapse.show#collapse-declined-reviews{ 'aria-labelledby': 'heading-declined-reviews' }
+        .accordion-body
+          = render partial: 'webui/request/beta_show_tabs/review_summary', collection: declined_reviews, as: :review
+
+  - if pending_reviews.count.positive?
+    .accordion-item
+      %h2.accordion-header#heading-pending-reviews
+        = button_tag(class: 'accordion-button',
+                    data: { 'bs-toggle': 'collapse', 'bs-target': '#collapse-pending-reviews' },
+                    aria: { expanded: 'true', controls: 'collapse-pending-reviews' }) do
+          %i.fas.fa-fw.fa-2xs.fa-circle.text-warning.align-middle.pe-4
+          = pluralize(pending_reviews.count, 'Pending Review')
+      .accordion-collapse.collapse.show#collapse-pending-reviews{ 'aria-labelledby': 'heading-pending-reviews' }
+        .accordion-body
+          = render partial: 'webui/request/beta_show_tabs/review_summary', collection: pending_reviews, as: :review
+
+  - if accepted_reviews.count.positive?
+    .accordion-item
+      %h2.accordion-header#heading-accepted-reviews
+        = button_tag(class: 'accordion-button collapsed',
+                    data: { 'bs-toggle': 'collapse', 'bs-target': '#collapse-accepted-reviews' },
+                    aria: { expanded: 'false', controls: 'collapse-accepted-reviews' }) do
+          %i.fas.fa-fw.fa-sm.fa-check.text-primary.align-middle.pe-4
+          = pluralize(accepted_reviews.count, 'Accepted Review')
+      .accordion-collapse.collapse#collapse-accepted-reviews{ 'aria-labelledby': 'heading-accepted-reviews' }
+        .accordion-body
+          = render partial: 'webui/request/beta_show_tabs/review_summary', collection: accepted_reviews, as: :review

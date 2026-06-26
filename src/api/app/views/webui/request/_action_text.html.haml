@@ -1,0 +1,14 @@
+-# TODO: refactor this code once we support all the action types.
+.d-flex.align-items-center
+  %p.mt-0.mb-0.fw-normal
+    %span.me-2 ##{action_index + 1}
+
+  - if (user = User.session)
+    .ms-1.me-3{ id: "action-seen-by-user-wrapper-in-select-#{action.id}" }
+      = render ActionSeenByUserComponent.new(action: action, user: user, seen_by_user: seen_by_user, render_only: true)
+
+  .d-block.w-100
+    %turbo-frame{ id: "action-#{action.id}-details", src: request_action_details_path(action.bs_request.number, action.id), loading: 'lazy' }
+      = render partial: 'webui/request/request_action_details_basic', locals: { action: action, spinner: true }
+
+      = render partial: 'webui/request/request_action_details_description', locals: { action: action }

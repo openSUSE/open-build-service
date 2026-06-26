@@ -1,0 +1,63 @@
+#side-links
+  -# REVIEWERS
+  - if request_reviews.present?
+    .text-end
+      = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
+                                              my_open_reviews: my_open_reviews,
+                                              history_elements: history_elements)
+    = render AddReviewCollapsibleComponent.new(bs_request)
+    .mb-2
+      %h6
+        Reviewers
+    .mb-4
+      = render partial: 'webui/request/beta_show_tabs/review_summary', collection: request_reviews, as: :review
+  - if policy(bs_request).add_reviews?
+    = render partial: 'webui/request/beta_show_tabs/ask_for_review', locals: { bs_request: bs_request }
+
+  -# PACKAGE MAINTAINERS
+  - unless package_maintainers.empty?
+    .mt-4
+      %h6
+        Package Maintainers
+      %div
+        - package_size_limit = 3
+        - if package_maintainers.size <= package_size_limit
+          - package_maintainers.each do |package_maintainer|
+            .ps-3
+              = render UserAvatarComponent.new(package_maintainer)
+        - else
+          - package_maintainers.take(package_size_limit).each do |package_maintainer|
+            .ps-3
+              = render UserAvatarComponent.new(package_maintainer)
+          %p.mt-3.ms-3
+            - modal_id = 'show-package-maintainers-modal'
+            = link_to('Show all', '#', class: 'btn btn-outline-secondary btn-sm show_dialog',
+                      data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}" })
+            = render partial: 'webui/request/show_maintainers',
+                     locals: { modal_id: modal_id,
+                      entity_type: 'Package',
+                      maintainers: package_maintainers }
+
+  -# PROJECT MAINTAINERS
+  - unless project_maintainers.empty?
+    .mt-4
+      %h6
+        Project Maintainers
+      %div
+        - project_size_limit = 3
+        - if project_maintainers.size <= project_size_limit
+          - project_maintainers.each do |project_maintainer|
+            .ps-3
+              = render UserAvatarComponent.new(project_maintainer)
+        - else
+          - project_maintainers.take(project_size_limit).each do |project_maintainer|
+            .ps-3
+              = render UserAvatarComponent.new(project_maintainer)
+          %p.mt-3.ms-3
+            - modal_id = 'show-project-maintainers-modal'
+            = link_to('Show all', '#', class: 'btn btn-outline-secondary btn-sm show_dialog',
+                      data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}" })
+            = render partial: 'webui/request/show_maintainers',
+                     locals: { modal_id: modal_id,
+                      entity_type: 'Project',
+                      maintainers: project_maintainers }

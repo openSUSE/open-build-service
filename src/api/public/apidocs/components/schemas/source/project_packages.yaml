@@ -1,0 +1,21 @@
+type: object
+properties:
+  count:
+    type: string
+    xml:
+      attribute: true
+  entry:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          xml:
+            attribute: true
+        originpackage:
+          type: string
+          xml:
+            attribute: true
+xml:
+  name: directory

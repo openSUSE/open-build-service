@@ -1,0 +1,14 @@
+%li
+  - if open_maintenance_incidents.empty?
+    %i.fa.fa-check-circle.text-success
+  - else
+    %i.fa.fa-exclamation-circle.text-danger
+  = link_to(project_maintenance_incidents_path(project)) do
+    = pluralize(open_maintenance_incidents.size, 'open incident')
+%li
+  - if maintained_projects.empty?
+    %i.fa.fa-exclamation-circle.text-danger
+  - else
+    %i.fa.fa-check-circle.text-success
+  = link_to(project_maintained_projects_path(project)) do
+    = pluralize(maintained_projects.size, 'maintained project')

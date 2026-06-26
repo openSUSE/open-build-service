@@ -1,0 +1,19 @@
+%h5.card-header Repositories
+.card-body
+  #kiwi-use-project-repositories
+    .form-check
+      = f.check_box :use_project_repositories, class: 'form-check-input'
+      = f.label :use_project_repositories, class: 'form-check-label'
+    %p.alert.alert-info#use-project-repositories-text{ class: "#{'d-none' unless f.object.use_project_repositories?}" }
+      %i.fas.fa-info-circle.text-info
+      This option will use the repositories from the current project. Other repositories set in this Kiwi Image will be REMOVED.
+  #kiwi-repositories-list{ class: "#{'d-none' if f.object.use_project_repositories?}" }
+    %hr
+    %p#no-repositories{ class: "#{'d-none' if image.repositories.present?}" }= 'There are no repositories.'
+    .row
+      = f.fields_for :repositories do |repository_fields|
+        = render 'repository_fields', f: repository_fields
+      .col-12.mt-2.mb-4
+        = link_to_add_association(f, :repositories, partial: 'repository_fields', data: { 'bs-target': '#add-repository', 'bs-toggle': 'modal' }) do
+          %i.fas.fa-plus-circle.text-primary
+          Add repository

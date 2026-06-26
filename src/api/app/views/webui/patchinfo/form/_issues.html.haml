@@ -1,0 +1,32 @@
+.mb-3.col-md-6
+  = form.label(:issues) do
+    Issues
+    %small.form-text
+      Add a single issue or a comma-separated list of issues, e.g.: "boo#123456,bgo#654321,CVE-2012-1234".
+      = link_to('https://en.opensuse.org/openSUSE:Packaging_Patches_guidelines#Current_set_of_abbreviations',
+                target: '_blank', rel: 'noopener') do
+        List of supported trackers.
+  = text_field_tag(:issue_ids, '', class: 'form-control w-auto d-inline-block')
+  = link_to(new_tracker_patchinfo_url, id: 'add-issues', title: 'Add Issues', remote: true, data: { dataType: 'json', project: project.name }) do
+    %i.fas.fa-plus-circle.text-primary
+    %i.fas.fa-spinner.fa-spin.d-none
+    Add issues
+  %small.form-text.text-danger#ajax-error-message
+
+  .list-group.mt-3#issues
+    - issue_types = ['issueid', 'issuetracker', 'issueurl', 'issuesum']
+    - issues.to_a.each do |issue|
+      - issue_name = "#{issue[1]}_#{issue[0]}"
+      .list-group-item.flex-column.align-items-start.issue-element{ id: "issue_#{issue_name}" }
+        .d-flex.w-100.mb-1
+          %i.fa.fa-bug.text-danger.pt-1.me-1
+          = patchinfo_issue_link(issue[1], issue[0], issue[2])
+          = link_to('#', id: "delete_issue_#{issue_name}", title: 'Delete', class: 'ms-1') do
+            %i.fas.fa-times-circle.text-danger
+
+          - issue_types.each_with_index do |type, index|
+            = form.hidden_field(type.to_sym, value: issue[index], id: "#{type}_#{issue_name}", multiple: true)
+        %small.text-muted= issue[3]
+.mb-3.col-md-6
+  = link_to('Update issues from sources', update_issues_patchinfo_path(project: project, package: package),
+            data: { confirm: 'Attention! All unsaved data will be lost! Continue?' }, method: :post)

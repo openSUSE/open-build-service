@@ -1,0 +1,10 @@
+# some sortcuts
+test: test_unit
+
+test_all: test_unit test_system
+
+t: test
+
+ta: test_all
+
+ts: test_system

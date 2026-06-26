@@ -1,0 +1,5 @@
+<% if action.group_name.blank? -%>
+- set the bugowner of <%= project_or_package_text(action.target_project, action.target_package) %> to <%= action.person_name -%>
+<% else -%>
+- set the bugowner of <%= project_or_package_text(action.target_project, action.target_package) %> to group <%= action.group_name -%>
+<% end -%>

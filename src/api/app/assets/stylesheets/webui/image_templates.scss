@@ -1,0 +1,8 @@
+.image-template-box {
+  @extend .p-3;
+
+  &.active{
+    @extend .card;
+    background: var(--bs-tertiary-bg);
+  }
+}

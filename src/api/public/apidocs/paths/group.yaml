@@ -1,0 +1,24 @@
+get:
+  summary: List available groups.
+  description: List available groups.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            count: '2'
+            entry:
+              - name: 'group-admin'
+              - name: 'group-test'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Groups

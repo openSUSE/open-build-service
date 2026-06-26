@@ -1,0 +1,9 @@
+  <request>
+  <action type='set_bugowner'>
+    <target project='kde4' package='kdelibs' />
+    <person name='Iggy' />
+  </action>
+  <description/>
+  <state name='new' who='Iggy' when='2011-12-02T17:20:42'/>
+  </request>
+

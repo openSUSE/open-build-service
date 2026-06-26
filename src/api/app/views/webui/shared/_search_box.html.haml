@@ -1,0 +1,36 @@
+:ruby
+  required = local_assigns.fetch(:required, true)
+  value = local_assigns.fetch(:value, '')
+  disabled = local_assigns.fetch(:disabled, false)
+  data = local_assigns.fetch(:data, {})
+  html_name = local_assigns.fetch(:html_name, html_id)
+  label = local_assigns.fetch(:label, nil)
+  placeholder = local_assigns.fetch(:placeholder, !data.empty? ? 'Type to autocomplete...' : 'Search')
+  icon = local_assigns.fetch(:icon, 'fa-search')
+  button = local_assigns.fetch(:button, false)
+  minlength = local_assigns.fetch(:minlength, 0)
+  autofocus = local_assigns.fetch(:autofocus, false)
+  input_class = local_assigns.fetch(:input_class, '')
+
+.ui-front
+  - unless label.nil?
+    = label_tag(html_id, label)
+    - if required
+      = render partial: 'webui/shared/required_label_mark'
+  = render(InputComponent.new) do |component|
+    = search_field_tag(html_id, value, required: required, disabled: disabled, placeholder: placeholder,
+                       class: "form-control #{!data.empty? ? 'obs-autocomplete' : ''} #{input_class}", data: data, name: html_name,
+                       minlength: minlength, autofocus: autofocus)
+    - if button
+      - component.with_button do
+        %button.btn.border{ type: button[:type], class: button[:class] ? button[:class] : 'btn-light', title: button[:title] }
+          - if button[:text]
+            %span.me-1= button[:text]
+          %i.fa{ class: button[:icon] ? button[:icon] : 'fa-search' }
+    - else
+      - component.with_icon do
+        %i.fa{ class: icon }
+
+- unless data.empty?
+  :javascript
+    setupAutocomplete("##{html_id}");

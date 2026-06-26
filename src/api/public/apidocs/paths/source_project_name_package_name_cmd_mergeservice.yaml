@@ -1,0 +1,99 @@
+post:
+  summary: Expand all server side generated files and adapt the _service file.
+  description: |
+    This command executes the following steps:
+    - Expand all server side generated files. Those are the files created by the services, starting with `_service:`.
+    - Modify The `_service` file:
+      - Preserve all those services which have the `mode` attribute set to `buildtime`.
+      - Remove the `_service` file only if there aren't any services with the `mode` attribute set to `buildtime`.
+
+    An example of a `_service` file, before:
+      ```
+      <services>
+        <service name="obs_scm">
+          <param name="versionformat">2.11~alpha.%ci.%h</param>
+          <param name="url">https://github.com/openSUSE/open-build-service.git</param>
+          <param name="scm">git</param>
+          <param name="revision">master</param>
+          <param name="extract">dist/obs-server.spec</param>
+        </service>
+        <service name="tar" mode="buildtime"/>
+        <service name="recompress" mode="buildtime">
+          <param name="compression">xz</param>
+          <param name="file">*.tar</param>
+        </service>
+      </services>
+      ```
+
+    An example of a `_service` file, after this command is run:
+      ```
+      <services>
+        <service name="tar" mode="buildtime"/>
+        <service name="recompress" mode="buildtime">
+          <param name="compression">xz</param>
+          <param name="file">*.tar</param>
+        </service>
+      </services>
+      ```
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Set a comment.
+      example: Merge services.
+  responses:
+    '200':
+      description: Revision of the merge of the service file.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/revision.yaml'
+          example:
+            rev: 8
+            vrev: 8
+            srcmd5: beb268dc9f786efaa585ac07e17fea47
+            version: 2.10~pre
+            time: 1665060711
+            user: Admin
+            comment:
+            requestid:
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Package Without _service file:
+              value:
+                code: 400
+                origin: backend
+                summary: package has no service
+            Services Running:
+              value:
+                code: 400
+                origin: backend
+                summary: service in progress
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to modify package test in project home:Admin
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages

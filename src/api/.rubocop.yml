@@ -1,0 +1,424 @@
+plugins:
+  - rubocop-capybara
+  - rubocop-factory_bot
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-rspec_rails
+
+require:
+  - ./lib/rubocop/cop/view_component/avoid_global_state.rb
+  - ./lib/rubocop/cop/view_component/file_name.rb
+  - ./lib/rubocop/cop/view_component/class_name.rb
+  - ./lib/rubocop/cop/view_component/missing_preview_file.rb
+
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  NewCops: enable
+  UseCache: true
+  CacheRootDirectory: tmp/rubocop_cache_rails_dir
+  MaxFilesInCache: 4000
+  Exclude:
+    - 'tmp/**/*'
+    - 'lib/templates/**/*'
+    - 'vendor/bundle/**/*'
+    - 'test/fixtures/backend/**/*'
+    - 'files/*'
+    - 'db/schema.rb'
+    - 'db/data_schema.rb'
+    - 'db/migrate/20161128115942_init_schema.rb'
+    # this file will be deleted as soon as app/jobs/consistency_check_job.rb is validated
+    - 'app/jobs/old/consistency_check_job.rb'
+    # Binaries are generated, so we don't lint them
+    - 'bin/**/*'
+    - 'spec/fixtures/files/factory_package.spec'
+    - 'spec/fixtures/files/template.spec'
+  SuggestExtensions:
+    # We don't want extra cops for minitest since we want to migrate those tests to RSpec
+    rubocop-minitest: false
+
+#################### Style ###########################
+
+Style/ArgumentsForwarding:
+  Exclude:
+    - 'db/data/20170831143534_convert_notifications_event_payload_to_json.rb'
+
+Style/CommentAnnotation:
+  # Default keywords were TODO, FIXME, OPTIMIZE, HACK, REVIEW.
+  # We never use the last three and they can sometime trigger false positives,
+  # especially when a comment starts with "review" since we have those in OBS
+  Keywords: ['TODO', 'FIXME']
+
+# Using an empty case is sometimes clearer than `if/elsif/elsif/else`
+Style/EmptyCaseCondition:
+  Enabled: false
+
+# We need to allow some variables related to rabbiMQ.
+Style/GlobalVars:
+  AllowedVariables: ['$rabbitmq_conn', '$rabbitmq_exchange', '$rabbitmq_channel']
+
+Style/MethodCallWithArgsParentheses:
+  Enabled: true
+  Exclude:
+    - 'app/views/**/*'
+    - 'db/migrate/**/*'
+    - 'db/data/**/*'
+    - 'Gemfile*'
+    # Configuration files are often generated and especially when updating Rails, it's leading to conflicts
+    # when running the Rails update task due to missing parentheses... we have better things to do!
+    - 'config/**/*'
+  # the cop doesn't come with a well defined list of good methods, so this
+  # list is the list of offending functions when introducing. Removing functions
+  # from here leads to autocorrecting calls, if you call a new DSL function, add
+  # it here
+  AllowedMethods:
+    - abort
+    - add_column
+    - add_element
+    - add_foreign_key
+    - add_index
+    - add_reference
+    - after_action
+    - and_return
+    - around
+    - assert
+    - assert_equal
+    - assert_kind_of
+    - assert_match
+    - assert_nil
+    - assert_not
+    - assert_not_equal
+    - assert_not_nil
+    - assert_no_xml_tag
+    - assert_project
+    - assert_redirected_to
+    - assert_response
+    - assert_select
+    - assert_xml_tag
+    - authorize
+    - be
+    - belongs_to
+    - call
+    - change_column
+    - change_column_default
+    - change_column_null
+    - click_button
+    - click_link
+    - column
+    - connect
+    - content
+    - content_type
+    - debug
+    - define
+    - delete
+    - delete_element
+    - desc
+    - describe
+    - drop_table
+    - entry
+    - environment
+    - error
+    - exec_query
+    - exit
+    - expect_with
+    - fatal
+    - feature
+    - fill_in
+    - from
+    - get
+    - have_content
+    - have_link
+    - have_text
+    - head
+    - headers
+    - hook_into
+    - ignore_hosts
+    - include
+    - index
+    - info
+    - kill
+    - load
+    - match_array
+    - merge_timeout
+    - message
+    - mkdir
+    - must_be
+    - not_to
+    - orm
+    - parse
+    - post
+    - print
+    - put
+    - puts
+    - raise
+    - raise_error
+    - raise_exception
+    - raw_post
+    - raw_put
+    - read
+    - redirect_back_or_to
+    - redirect_to
+    - references
+    - register_driver
+    - register_template_handler
+    - remove_column
+    - remove_foreign_key
+    - remove_index
+    - remove_reference
+    - rename_column
+    - rename_table
+    - render
+    - render_error
+    - render_ok
+    - require
+    - required_parameters
+    - require_relative
+    - run
+    - run_with_retry
+    - set_content_type
+    - shared_context
+    - shared_examples
+    - start
+    - stopped
+    - strftime
+    - task
+    - test_framework
+    - throw
+    - to
+    - validate
+    - validate_presence_of
+    - validate_type
+    - value
+    - visit
+    - warn
+    - write
+    - yield
+    - ymp
+
+# We disabled this cop because of Rantly.
+Style/MultilineBlockChain:
+  Exclude:
+    - 'spec/helpers/webui/**/*'
+    - 'spec/models/**/*'
+
+# For routes, we use the EnforcedStyle 'template' while for other files, we should use the EnforcedStyle 'annotated'.
+# We could use this cop, but it's going to litter the code with a bunch of RuboCop comments without adding much value.
+Style/FormatStringToken:
+  Enabled: false
+
+# At the moment, the default configuration of the previous cops are pending
+# and, the autocorrect are unsafe. So for now, we will disable them.
+Style/HashEachMethods:
+  Enabled: false
+Style/HashTransformKeys:
+  Enabled: false
+Style/HashTransformValues:
+  Enabled: false
+Style/HashSyntax:
+  EnforcedShorthandSyntax: either
+
+# We agreed on disabling this cop since it's often a sign of a code smell when we need to use `something&.my_method`
+Style/SafeNavigation:
+  Enabled: false
+
+Style/StringLiterals:
+  Exclude:
+    # Configuration files are often generated and especially when updating Rails, it's leading to conflicts when running the Rails update task
+    # due to changes from single to double quotes... we have better things to do!
+    - 'config/**/*'
+
+##################### Metrics ##################################
+
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+
+# Disabled due Rspec.describe and routes.draw can't be split
+Metrics/BlockLength:
+  Exclude:
+    - 'config/routes.rb'
+    - 'config/routes/*'
+    - 'spec/**/*'
+    - '**/*.rake'
+    # FIXME: Since exclusions in `.rubocop_todo.yml` are simply ignored when we also exclude files here, the following exclusions are TODOs
+    - 'app/controllers/concerns/rescue_handler.rb'
+    - 'app/controllers/concerns/webui/rescue_handler.rb'
+    - 'app/jobs/update_released_binaries_job.rb'
+    - 'app/models/binary_release.rb'
+    - 'app/models/branch_package.rb'
+    - 'app/models/bs_request.rb'
+    - 'app/models/bs_request_action.rb'
+    - 'app/models/event_subscription/find_for_event.rb'
+    - 'app/models/patchinfo.rb'
+    - 'app/models/product.rb'
+    - 'app/views/attribute/show.xml.builder'
+    - 'app/views/models/_project.xml.builder'
+    - 'app/views/models/_remote_project.xml.builder'
+    - 'app/views/models/staging/_staging_project.xml.builder'
+    - 'app/views/staging/staging_projects/_staging_project_item.xml.builder'
+    - 'app/views/webui/feeds/commits.atom.builder'
+    - 'app/views/webui/feeds/notifications.rss.builder'
+    - 'config/environments/development.rb'
+    - 'config/environments/production.rb'
+    - 'lib/memory_debugger.rb'
+    - 'script/reformat_memprof'
+    - 'test/functional/backend_test.rb'
+    - 'test/functional/published_controller_test.rb'
+    - 'test/functional/request_controller_test.rb'
+    - 'test/test_consistency_helper.rb'
+    - 'test/unit/package_test.rb'
+  AllowedMethods:
+    - 'included'
+##################### Rails ##################################
+
+Rails/CreateTableWithTimestamps:
+  Exclude:
+    - 'db/migrate/20171030143054_create_kiwi_preference_types.rb'
+    - 'db/migrate/20240513154336_remove_watched_projects.rb'
+
+# Actually is not possible to enable this cop because we have several overwritten methods.
+Rails/DynamicFindBy:
+  Enabled: false
+
+Rails/Exit:
+  Exclude:
+    - 'lib/memory_dumper.rb'
+
+Rails/HasAndBelongsToMany:
+  Enabled: false
+
+# Checks for the use of output calls like puts and print
+Rails/Output:
+  Exclude:
+    - 'app/jobs/**/*'
+    - 'config/*'
+    - 'db/**/*'
+    - 'lib/**/*'
+    # FIXME: Since exclusions in `.rubocop_todo.yml` are simply ignored when we also exclude files here, the following exclusions are TODOs
+    - 'app/lib/backend/test.rb'
+
+# Migrations creating unique indexes are sometimes not possible to run...
+# they raise a pretty weird error about some duplicate entries, even though those entries don't exist.
+Rails/UniqueValidationWithoutIndex:
+  Enabled: false
+
+# This encourages change_table that isn't inspectable by strong_migrations
+# and therefore, less safe
+Rails/BulkChangeTable:
+  Enabled: false
+
+# This requires texts be moved to the locale files in the config/locales directory
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+##################### RSpec ##################################
+
+RSpec/SpecFilePathFormat:
+  Exclude:
+    - 'spec/controllers/concerns/rescue_authorization_handler_spec.rb'
+    - 'spec/models/project/maintenance_incidents_spec.rb'
+
+RSpec/LetSetup:
+  Enabled: false
+
+# We sometimes have a lot of expectations when testing complete workflows
+RSpec/MultipleExpectations:
+  # We accept maximum 2 expectations in an example (the default value is 1 expectation)
+  Max: 2
+  Exclude:
+    - 'spec/features/**/*.rb'
+    # FIXME: Since exclusions in `.rubocop_todo.yml` are simply ignored when we also exclude files here, the following exclusions are TODOs
+    - 'spec/controllers/attribute_controller_spec.rb'
+    - 'spec/controllers/group_controller_spec.rb'
+    - 'spec/controllers/person/token_controller_spec.rb'
+    - 'spec/controllers/request_controller_spec.rb'
+    - 'spec/controllers/source_controller_spec.rb'
+    - 'spec/controllers/staging/excluded_requests_controller_spec.rb'
+    - 'spec/controllers/staging/staging_projects_controller_spec.rb'
+    - 'spec/controllers/statistics/maintenance_statistics_controller_spec.rb'
+    - 'spec/controllers/status/checks_controller_spec.rb'
+    - 'spec/controllers/webui/attribute_controller_spec.rb'
+    - 'spec/controllers/webui/feeds_controller_spec.rb'
+    - 'spec/controllers/webui/groups/bs_requests_controller_spec.rb'
+    - 'spec/controllers/webui/groups/users_controller_spec.rb'
+    - 'spec/controllers/webui/groups_controller_spec.rb'
+    - 'spec/controllers/webui/package_controller_spec.rb'
+    - 'spec/controllers/webui/packages/branches_controller_spec.rb'
+    - 'spec/controllers/webui/packages/files_controller_spec.rb'
+    - 'spec/controllers/webui/patchinfo_controller_spec.rb'
+    - 'spec/controllers/webui/project_controller_spec.rb'
+    - 'spec/controllers/webui/request_controller_spec.rb'
+    - 'spec/controllers/webui/session_controller_spec.rb'
+    - 'spec/controllers/webui/status_messages_controller_spec.rb'
+    - 'spec/controllers/webui/users/bs_requests_controller_spec.rb'
+    - 'spec/controllers/webui/users_controller_spec.rb'
+    - 'spec/controllers/webui/webui_controller_spec.rb'
+    - 'spec/db/data/migrate_comment_payload_spec.rb'
+    - 'spec/db/data/project_log_entry_user_name_spec.rb'
+    - 'spec/db/data/regenerate_notifications_spec.rb'
+    - 'spec/db/data/remove_duplicate_repositories_spec.rb'
+    - 'spec/db/data/remove_obsolete_notifications_spec.rb'
+    - 'spec/helpers/webui/webui_helper_spec.rb'
+    - 'spec/jobs/send_event_emails_job_spec.rb'
+    - 'spec/jobs/staging_project_copy_job_spec.rb'
+    - 'spec/jobs/status_history_rescaler_job_spec.rb'
+    - 'spec/lib/authenticator_spec.rb'
+    - 'spec/lib/statistics_calculations_spec.rb'
+    - 'spec/mailers/event_mailer_spec.rb'
+    - 'spec/models/attrib_spec.rb'
+    - 'spec/models/attrib_value_spec.rb'
+    - 'spec/models/bs_request_action/differ/query_builder_spec.rb'
+    - 'spec/models/bs_request_action_spec.rb'
+    - 'spec/models/bs_request_spec.rb'
+    - 'spec/models/comment_spec.rb'
+    - 'spec/models/configuration_spec.rb'
+    - 'spec/models/event_subscription/find_for_event_spec.rb'
+    - 'spec/models/flag/specified_flags_spec.rb'
+    - 'spec/models/group_spec.rb'
+    - 'spec/models/kiwi/image_spec.rb'
+    - 'spec/models/owner_search_spec.rb'
+    - 'spec/models/package_spec.rb'
+    - 'spec/models/project/staging_project_spec.rb'
+    - 'spec/models/project/subprojects_spec.rb'
+    - 'spec/models/project/update_from_xml_command_spec.rb'
+    - 'spec/models/project_spec.rb'
+    - 'spec/models/relationship/add_role_spec.rb'
+    - 'spec/models/repository_spec.rb'
+    - 'spec/models/review_spec.rb'
+    - 'spec/models/statistics/maintenance_statistic_spec.rb'
+    - 'spec/models/unregistered_user_spec.rb'
+    - 'spec/models/user_spec.rb'
+    - 'spec/routing/api_matcher_spec.rb'
+    - 'spec/shared/examples/a_bs_requests_data_table_controller.rb'
+    - 'spec/shared/examples/a_bs_requests_data_table_controller_with_state_and_type_options.rb'
+    - 'spec/shared/examples/a_project_status_controller.rb'
+    - 'spec/shared/examples/a_subscriptions_form_for_subscriber.rb'
+    - 'spec/shared/examples/features/boostrap_flag_tables.rb'
+    - 'spec/shared/examples/features/bootstrap_user_tab.rb'
+    - 'spec/shared/examples/features/flags_tables.rb'
+
+# We disabled this cop because named subject isn't a better construction than
+# using let
+RSpec/NamedSubject:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/RepeatedExample:
+  Exclude:
+    # This cop is currently not recognizing the pundit rspec helpers.
+    # https://github.com/varvet/pundit#rspec
+    - 'spec/policies/**/*'
+
+##################### Bundler ##################################
+
+Bundler/OrderedGems:
+  Enabled: false
+
+##################### View Component ###########################
+
+ViewComponent:
+  # Custom cops under the RuboCop::Cop::ViewComponent module (lib/rubocop/cop/view_component) will run only for view components, which are always under app/components/
+  Include:
+    - "app/components/**/*.rb"

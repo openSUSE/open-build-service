@@ -1,0 +1,8 @@
+- if @published_repository_exist
+  %li.list-inline-item
+    = link_to(@download_area_url, title: 'Go to download repository') do
+      %i.fas.fa-download
+      Go to download repository
+- else
+  %li.list-inline-item
+    There are no published packages

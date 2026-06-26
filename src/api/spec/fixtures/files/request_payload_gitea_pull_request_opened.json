@@ -1,0 +1,25 @@
+{
+  "action": "opened",
+  "number": 1,
+  "pull_request": {
+    "number": 1,
+    "html_url": "http://gitea.opensuse.org/something",
+    "base": {
+      "ref": "master",
+      "repo": {
+        "full_name": "openSUSE/repo123"
+      }
+    },
+    "head": {
+      "sha": "123456789"
+    }
+  },
+  "repository": {
+    "name": "hello_world",
+    "html_url": "https://gitea.opensuse.org",
+    "clone_url": "https://gitea.opensuse.org",
+    "owner": {
+      "login": "iggy"
+    }
+  }
+}

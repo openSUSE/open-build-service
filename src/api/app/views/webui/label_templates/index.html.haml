@@ -1,0 +1,28 @@
+- @pagetitle = "Label Templates"
+.card
+  = render(partial: 'webui/configuration/tabs')
+
+  .card-body
+    %h3= @pagetitle
+    %p
+      Global label templates that you make available for projects across this OBS instance.
+      Project maintainers can apply these labels to projects, and users can search for projects by label.
+      = link_to 'Read more in the Labels documentation',
+                'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-labels',
+                target: '_blank',
+                rel: 'noopener'
+    %ul.list-unstyled
+      - @label_templates.each do |label_template|
+        %li.mb-2
+          = render partial: 'webui/shared/label', locals: { label: label_template }
+          = link_to(edit_label_template_path(label_template)) do
+            %i.fas.fa-edit
+            Edit
+          = link_to(label_template_path(label_template), method: :delete, class: 'text-danger',
+            data: { confirm: 'Are you sure you want to delete this label template?'}) do
+            %i.fas.fa-trash-can
+            Delete
+    .pt-4
+      = link_to new_label_template_path, class: 'me-2' do
+        %i.fas.fa-plus-circle.text-primary
+        Create Label Template

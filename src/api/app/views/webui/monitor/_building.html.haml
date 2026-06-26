@@ -1,0 +1,32 @@
+- max_clients = worker_status['clients']
+- build_count = worker_status.elements('building').length
+#building-all
+  %h2 Building
+  - if build_count.positive?
+    %p.info Hover the job time field to see the start time.
+    %p.info
+      = configuration_title
+      reports #{build_count} running jobs.
+    = render partial: 'building_table', locals: { worker_status: worker_status, dead_line: dead_line, interval_steps: interval_steps,
+                                                  max_color: max_color, time_now: time_now, project_filter: project_filter }
+    %h5.mt-3 Job Time Legend
+    .clearfix
+      .float-start.mx-1
+        = distance_of_time_in_words(time_now, dead_line)
+      - max_color.downto(0) do |n|
+        - color = "rgb(255,#{n},0)"
+        -# haml-lint:disable InlineStyles
+        .m-0.float-start{ style: "background-color: #{color}; width: 3px ; height: 1em;" }  
+        -# haml-lint:enable InlineStyles
+      .float-start.ms-1
+        = distance_of_time_in_words(time_now, dead_line - (max_color * interval_steps * 60))
+  - else
+    .info
+      %p
+        - if max_clients
+          - if project_filter
+            No package of the "#{project_filter}" project is building. Maybe remove the filter?:)
+          - else
+            All #{max_clients} hosts are idle!
+        - else
+          Nothing to do here!

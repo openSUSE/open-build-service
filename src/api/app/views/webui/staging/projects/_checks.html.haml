@@ -1,0 +1,17 @@
+%td.p-2.w-25.fw-bold
+  %i.me-2.fas{ class: icon_for_checks(checks, missing_checks) }
+  Checks
+%td.p-2
+  - if checks.blank? && missing_checks.blank?
+    None
+  - else
+    %ul.ps-0.list-unstyled
+      - missing_checks.each do |name|
+        %li.missing-check
+          %span
+            #{name} (Expected - Waiting for status to be reported)
+      - checks.each do |check|
+        %li
+          = link_to(check.url, class: "check-#{check.state}", title: "#{check.short_description} (#{check.updated_at})") do
+            %i.fas{ class: icon_for_check(check) }
+            #{check.name} (#{check.state} - #{TimeComponent.new(time: check.updated_at).human_time})

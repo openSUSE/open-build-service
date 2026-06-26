@@ -1,0 +1,41 @@
+.d-flex.align-items-start
+  = icon
+  .ms-2
+    %span.small
+      - if element.user.present?
+        = link_to(helpers.realname_with_login(element.user), user_path(element.user))
+      - else
+        A delete user
+      - if element.instance_of?(HistoryElement::RequestSuperseded)
+        superseded this request with
+        = link_to("request ##{element.description_extension}", request_show_path(element.description_extension))
+      - elsif element.instance_of?(HistoryElement::RequestReviewAdded) && element.review
+        = element.user_action_prefix
+        %strong
+          - if element.review_by_staging_project?
+            = link_to element.action_target, project_show_path(element.action_target)
+          - else
+            = element.action_target
+        = element.user_action_suffix
+      - elsif element.instance_of?(HistoryElement::RequestAccepted) && pending_reviews?
+        #{element.user_action} and dismissed pending reviews
+      - else
+        = element.user_action
+      - if element.is_a?(HistoryElement::Review) && element.review && !element.review.for_user?
+        for
+        - if element.review.for_group?
+          group
+          = link_to(element.review.by_group, group_path(Group.find_by(title: element.review.by_group)))
+        - else
+          = helpers.project_or_package_link({project: element.review.by_project, package: element.review.by_package}.compact)
+      = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
+        = render TimeComponent.new(time: element.created_at)
+      - if element.comment.present?
+        = link_to("#collapse-history-element-comment-#{element.id}",
+                    data: { 'bs-toggle': 'collapse' },
+                    aria: { expanded: expand?, controls: "collapse-history-element-comment" }) do
+          %i.fas.fa-sm.fa-chevron-right.expander.py-0{ title: 'Show details' }
+          %i.fas.fa-sm.fa-chevron-down.collapser.py-0{ title: 'Hide details' }
+- if element.comment.present?
+  .timeline-item-comment.collapse{ class: "#{expand? ? 'show' : nil}",  id: "collapse-history-element-comment-#{element.id}" }
+    %p.m-2.mb-4= element.comment

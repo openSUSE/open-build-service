@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Test::More tests => 3;
+
+my $file = "obs-default-gpg.asc";
+ok(-f "/srv/obs/$file", "Checking file $file");
+
+`grep -q "function create_sign_cert" /usr/lib/obs/server/functions.setup-appliance.sh`;
+
+SKIP: {
+  skip "create_sign_cert missing in functions.setup-appliance.sh", 2 if $?;
+
+  $file = "obs-default-gpg.cert";
+  ok(-f "/srv/obs/$file", "Checking for cert file $file");
+
+  `openssl x509 -text -noout < /srv/obs/obs-default-gpg.cert |grep -q "private OBS"`;
+  ok($? == 0, "X509 Certificate for package signing");
+}
+
+exit 0;

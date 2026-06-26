@@ -1,0 +1,96 @@
+description: OK. The request has succeeded.
+content:
+  application/xml; charset=utf-8:
+    schema:
+      type: object
+      properties:
+        matches:
+          type: integer
+          xml:
+            attribute: true
+        limited:
+          type: boolean
+          xml:
+            attribute: true
+        pattern:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                xml:
+                  attribute: true
+              project:
+                type: string
+                xml:
+                  attribute: true
+              repository:
+                type: string
+                xml:
+                  attribute: true
+              filename:
+                type: string
+                xml:
+                  attribute: true
+              filepath:
+                type: string
+                xml:
+                  attribute: true
+              baseproject:
+                type: string
+                xml:
+                  attribute: true
+              type:
+                type: string
+                xml:
+                  attribute: true
+              downloadurl:
+                type: string
+                xml:
+                  attribute: true
+      xml:
+        name: collection
+        wrapped: true
+    examples:
+      including_download_urls:
+        value:
+          matches: 1
+          pattern:
+            - name: OBS_Server
+              project: OBS:Server:Unstable
+              repository: SLE_12_SP4
+              filename: OBS_Server.ymp
+              filepath: OBS:/Server:/Unstable/SLE_12_SP4/OBS_Server.ymp
+              baseproject: SUSE:SLE-12:SLE-Module-Adv-Systems-Management
+              type: ymp
+              downloadurl: https://download.opensuse.org/repositories/OBS:/Server:/Unstable/SLE_12_SP4/SLE_12_SP4/OBS_Server.ymp
+        summary: Including download urls
+        description: Result after adding the `withdownloadurl=1` parameter/value pair to the request.
+      with_limit:
+        value:
+          matches: 9
+          limited: true
+          pattern:
+            - name: OBS_Server
+              project: OBS:Server:Unstable
+              repository: 15.3
+              filename: OBS_Server.ymp
+              filepath: OBS:/Server:/Unstable/15.3/OBS_Server.ymp
+              baseproject: SUSE:SLE-15:GA
+              type: ymp
+            - name: OBS_Server
+              project: OBS:Server:Unstable
+              repository: SLE_12_SP4
+              filename: OBS_Server.ymp
+              filepath: OBS:/Server:/Unstable/SLE_12_SP4/OBS_Server.ymp
+              baseproject: SUSE:SLE-12:SLE-Module-Adv-Systems-Management
+              type: ymp
+        summary: Limiting results
+        description: Result after adding `limit=2` parameter/value pair to the request.
+      without_matches:
+        value:
+          matches: 0
+        summary: No matches
+        description: |
+          Empty result, when there is no matches. For example: `?match=project='home:bs-team:OBS'`.

@@ -1,0 +1,17 @@
+.d-none{ data: { url: change_repository_flag_path(project: project, package: package) }, id: 'flag-popover-container' }
+  .flag-set-enable
+    = link_to('javascript:;', class: 'popover_flag_action', data: { cmd: 'set-disable' }) do
+      %i.fas.fa-ban.text-danger
+      Disable
+  .flag-set-disable
+    = link_to('javascript:;', class: 'popover_flag_action', data: { cmd: 'set-enable' }) do
+      %i.fas.fa-check.text-success
+      Enable
+  .flag-remove-enable
+    = link_to('javascript:;', class: 'popover_flag_action', data: { cmd: 'remove' }) do
+      %i.fas{ class: 'fa-check text-success' }
+      Take default (enable)
+  .flag-remove-disable
+    = link_to('javascript:;', class: 'popover_flag_action', data: { cmd: 'remove' }) do
+      %i.fas{ class: 'fa-ban text-danger' }
+      Take default (disable)

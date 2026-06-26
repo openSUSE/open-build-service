@@ -1,0 +1,8 @@
+type: object
+properties:
+  title:
+    type: string
+  content:
+    type: string
+xml:
+  name: announcement

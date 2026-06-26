@@ -1,0 +1,9 @@
+<group>
+  <title>review-team</title>
+  <email>review@openbuildservice.org</email>
+  <maintainer userid="king"/>
+  <person>
+    <person userid="Iggy"/>
+    <person userid="king"/>
+  </person>
+</group>

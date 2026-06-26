@@ -1,0 +1,20 @@
+:ruby
+  busy_info_text = render(partial: 'system_status_legend',
+                          locals: { building_workers: building_workers,
+                                    overall_workers: overall_workers,
+                                    waiting_packages: waiting_packages,
+                                    host_title: host_title,
+                                    system_stats: system_stats })
+
+.card.mb-3
+  %h5.card-header
+    System Status
+    - if busy
+      = render partial: 'webui/shared/info_popover', locals: { position: 'top', text: busy_info_text }
+  .card-body
+    - if busy
+      .aligncenter#overallgraph
+  :javascript
+    plotbusyworkers(#{Webui::MonitorHelper.print_statistics_array(busy)});
+
+- content_for(:content_for_head, javascript_include_tag('webui/plotbusyworkers'))

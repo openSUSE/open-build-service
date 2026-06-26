@@ -1,0 +1,9 @@
+- global_label = global_label.present? ? 'global-' : ''
+
+:css
+  .label-#{global_label}#{label.id} {
+    color: #{h(contrast_text(label.color))};
+    background-color: #{h(label.color)};
+  }
+%span.badge{ class: "label-#{global_label}#{label.id}" }
+  = label.name

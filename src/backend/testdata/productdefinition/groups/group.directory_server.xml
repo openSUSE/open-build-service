@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="directory_server" version="10" release="235.2">
+    <pattern ordernumber="3070">
+        <category>Primary Functions</category>
+        <description>Software to set up a directory server with OpenLDAP. The Lightweight Directory Access Protocol (LDAP) is used to access online directory services. </description>
+        <icon>yast-ldap-server</icon>
+        <summary>Directory Server (LDAP)</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="basesystem" relationship="requires" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="requires" id="directory_server.requires">
+            <package name="nss_ldap" />
+            <package name="openldap2" />
+            <package name="pam_ldap" />
+    </packagelist>
+    <packagelist relationship="recommends" id="directory_server.recommends">
+    </packagelist>
+</group>

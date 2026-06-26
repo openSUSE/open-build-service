@@ -1,0 +1,10 @@
+<services>
+  <service name="tar_scm">
+    <param name="url">https://github.com/openSUSE/obs-testpackage</param>
+    <param name="scm">git</param>
+    <param name="versionformat">@PARENT_TAG@</param>
+    <param name="changesgenerate">enable</param>
+    <param name="locale">C.utf8</param>
+  </service>
+</services>
+

@@ -1,0 +1,8 @@
+<jobstatus code="building">
+  <starttime>1606316426</starttime>
+  <lastduration>117</lastduration>
+  <workerid>sheep87:16</workerid>
+  <hostarch>x86_64</hostarch>
+  <uri>http://192.168.131.87:42173</uri>
+  <jobid>1b6c628f2455f68c1864b65225f85cb7</jobid>
+</jobstatus>

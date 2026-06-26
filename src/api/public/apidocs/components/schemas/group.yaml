@@ -1,0 +1,29 @@
+type: object
+properties:
+  title:
+    type: string
+    example: group-test
+  maintainer:
+    type: array
+    items:
+      type: object
+      properties:
+        userid:
+          type: string
+          example: user-test
+          xml:
+            attribute: true
+  person:
+    type: array
+    items:
+      type: object
+      properties:
+        userid:
+          type: string
+          example: user-test
+          xml:
+            attribute: true
+    xml:
+      wrapped: true
+xml:
+  name: group

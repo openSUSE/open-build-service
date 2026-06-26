@@ -1,0 +1,88 @@
+attrib_type_modifiable_bies_179501368:
+  id: 179501368
+  attrib_type_id: 58
+  group: test_group
+attrib_type_modifiable_bies_292834146:
+  id: 292834146
+  attrib_type_id: 57
+  user: maintenance_coord
+attrib_type_modifiable_bies_388974694:
+  id: 388974694
+  attrib_type_id: 63
+  user: maintenance_coord
+  role: maintainer
+attrib_type_modifiable_bies_911731374:
+  id: 911731374
+  attrib_type_id: 64
+  role: maintainer
+attrib_type_modifiable_bies_914782636:
+  id: 914782636
+  attrib_type_id: 65
+  role: maintainer
+attrib_type_modifiable_bies_967186686:
+  id: 967186686
+  attrib_type_id: 58
+  role: maintainer
+attrib_type_modifiable_bies_973674845:
+  id: 973674845
+  attrib_type_id: 58
+  user: maintenance_coord
+attrib_type_modifiable_bies_973674869:
+  id: 973674869
+  attrib_type_id: 56
+  user: Admin
+attrib_type_modifiable_bies_973674870:
+  id: 973674870
+  attrib_type_id: 57
+  user: Admin
+attrib_type_modifiable_bies_973674871:
+  id: 973674871
+  attrib_type_id: 64
+  user: Admin
+attrib_type_modifiable_bies_973674872:
+  id: 973674872
+  attrib_type_id: 65
+  user: Admin
+attrib_type_modifiable_bies_973674873:
+  id: 973674873
+  attrib_type_id: 58
+  user: Admin
+attrib_type_modifiable_bies_973674874:
+  id: 973674874
+  attrib_type_id: 62
+  user: Admin
+attrib_type_modifiable_bies_973674875:
+  id: 973674875
+  attrib_type_id: 63
+  user: Admin
+attrib_type_modifiable_bies_973674876:
+  id: 973674876
+  attrib_type_id: 73
+  user: Admin
+attrib_type_modifiable_bies_973674877:
+  id: 973674877
+  attrib_type_id: 60
+  role: maintainer
+attrib_type_modifiable_bies_973674878:
+  id: 973674878
+  attrib_type_id: 74
+  role: maintainer
+attrib_type_modifiable_bies_973674879:
+  id: 973674879
+  attrib_type_id: 61
+  role: maintainer
+attrib_type_modifiable_bies_973674880:
+  id: 973674880
+  attrib_type_id: 66
+  role: maintainer
+attrib_type_modifiable_bies_973674881:
+  id: 973674881
+  attrib_type_id: 75
+  role: maintainer
+attrib_type_modifiable_bies_973674882:
+  id: 973674882
+  attrib_type_id: 77
+  role: Admin
+User_VeryImportantProject:
+  attrib_type_id: 56
+  user: fred

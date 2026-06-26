@@ -1,0 +1,431 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 07 May 2025 09:36:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/some_package/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="home:tom">
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Officiis occaecati necessitatibus illum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '192'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="home:tom">
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Officiis occaecati necessitatibus illum.</description>
+        </package>
+  recorded_at: Wed, 07 May 2025 09:36:26 GMT
+- request:
+    method: delete
+    uri: http://backend:5352/source/home:tom/some_package?user=user_5
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Wed, 07 May 2025 09:36:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:admin/_meta?user=admin
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:admin">
+          <title/>
+          <description/>
+          <person userid="admin" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '132'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:admin">
+          <title></title>
+          <description></description>
+          <person userid="admin" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 07 May 2025 09:36:26 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/some_package?cmd=undelete&time=4803029439&user=admin
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Wed, 07 May 2025 09:36:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/some_package/_meta
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '192'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="home:tom">
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Officiis occaecati necessitatibus illum.</description>
+        </package>
+  recorded_at: Wed, 07 May 2025 09:36:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/some_package/_meta?user=admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="home:tom">
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Officiis occaecati necessitatibus illum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '192'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="home:tom">
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Officiis occaecati necessitatibus illum.</description>
+        </package>
+  recorded_at: Wed, 07 May 2025 09:36:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/some_package/_meta?user=admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="home:tom">
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Officiis occaecati necessitatibus illum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '192'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="home:tom">
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Officiis occaecati necessitatibus illum.</description>
+        </package>
+  recorded_at: Wed, 07 May 2025 09:36:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/some_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="some_package" rev="4" vrev="" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 07 May 2025 09:36:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/some_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '136'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="some_package" rev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Wed, 07 May 2025 09:36:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/some_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="some_package" rev="4" vrev="" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 07 May 2025 09:36:27 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/some_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '279'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="854f95dbdbe2cfdfba81491ffbacbe7e">
+          <old project="home:tom" package="some_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom" package="some_package" rev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Wed, 07 May 2025 09:36:27 GMT
+recorded_with: VCR 6.3.1

@@ -1,0 +1,107 @@
+-# haml-lint:disable ViewLength
+:ruby
+  @pagetitle = "Show #{@project} / #{truncate(@package.name, length: 50)}"
+
+  content_for(:meta_title, @package.title.presence || @package.name)
+  content_for(:meta_description, @package.description)
+
+  render partial: 'show_actions', locals: { revision: @revision,
+                                            current_rev: @current_rev,
+                                            cleanup_source: @cleanup_source,
+                                            services: @services,
+                                            project: @project,
+                                            package: @package,
+                                            is_working: @forced_unexpand.blank?,
+                                            is_branchable: @is_branchable }
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project, package: @package }
+  .card-body
+    .d-flex.justify-content-between.mb-2
+      %h3#package-title
+        = @package.title.presence || @package.name
+      - if User.session
+        .d-inline.ms-1#watchlist-icon-wrapper
+          = render WatchlistIconComponent.new(user: User.session,
+                                              package: @package,
+                                              project: @project,
+                                              current_object: @package)
+    .row
+      .col-md-8
+        .mb-3
+          - if Flipper.enabled?(:labels, User.session)
+            = render partial: 'webui/shared/label_list', locals: { labelable: @package, project: @project }
+          - if Flipper.enabled?(:foster_collaboration, User.session)
+            .d-flex
+              = render partial: 'webui/package/side_links/assignments', locals: { project: @project, package: @package }
+        - if Flipper.enabled?(:package_version_tracking, User.session) && (@package.latest_local_version || @package.latest_upstream_version)
+          Version:
+          - if @package.latest_local_version
+            %b= @package.latest_local_version.version
+          - unless @package.anitya_ignore
+            - if @package.latest_upstream_version && (@package.latest_local_version&.version != @package.latest_upstream_version.version)
+              (#{release_monitoring_package_link(@package, "#{@package.latest_upstream_version.version} available")})
+            - elsif @package.latest_upstream_version && (@package.latest_local_version&.version == @package.latest_upstream_version.version)
+              (#{release_monitoring_package_link(@package, 'up to date')})
+            - else
+              (#{release_monitoring_search_link(@package, 'no upstream')})
+        .in-place-editing
+          = render partial: 'basic_info', locals: { package: @package, project: @project }
+      .col-md-4
+        = render partial: 'side_links', locals: { devel_package: @package.develpackage,
+                                                  failures: @failures,
+                                                  linkinfo: @linkinfo,
+                                                  revision: @revision,
+                                                  project: @project,
+                                                  package: @package }
+
+.overview
+  .build-results
+    = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
+  .list
+    .card
+      %h5.card-header
+        Source Files
+        - if @linkinfo && @revision_parameter.nil?
+          %small
+            - if (@expand && @expand.to_s == '1') || @forced_unexpand.present?
+              = link_to('(show unmerged sources)', package_show_path(project: @project.name, package: @package.name,
+                                                                     rev: @revision_parameter, expand: '0'))
+            - else
+              = link_to('(show merged sources derived from linked package)', package_show_path(project: @project.name, package: @package.name,
+                                                                                               rev: @revision_parameter, expand: '1'))
+      - if @forced_unexpand.present?
+        .card-body
+          %p
+            %i
+              Sources could not be expanded:
+              = @forced_unexpand
+          %p
+            = link_to('Show unmerged sources', package_show_path(project: @project.name, package: @package.name,
+                                                                rev: @revision_parameter, expand: '0'))
+      - else
+        = render partial: 'files_view', locals: { project: @project,
+                                                  package: @package,
+                                                  files: @files,
+                                                  expand: @expand,
+                                                  is_current_rev: @is_current_rev,
+                                                  current_rev: @current_rev,
+                                                  revision: @revision,
+                                                  srcmd5: @srcmd5,
+                                                  spider_bot: @spider_bot }
+  .comments
+    .card#comments-list
+      %h5.card-header.text-word-break-all
+        Comments
+        %span.badge.text-bg-primary{ id: "comment-counter-package-#{@package.id}" }
+          = @comments.length
+      .card-body#comments
+        = render partial: 'webui/comment/show', locals: { commentable: @package,
+          comment_counter_id: "#comment-counter-package-#{@package.id}" }
+- if User.session && User.possibly_nobody.can_modify?(@package)
+  = render partial: 'delete_dialog', locals: { project: @project, package: @package, cleanup_source: @cleanup_source }
+
+- if Flipper.enabled?(:content_moderation, User.possibly_nobody)
+  = render partial: 'webui/shared/report_modal'
+  = render partial: 'webui/shared/locking_dialog', locals: { commentable: @package, entity_type: 'package' }
+-# haml-lint:enable ViewLength

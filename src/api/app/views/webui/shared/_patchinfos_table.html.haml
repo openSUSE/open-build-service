@@ -1,0 +1,24 @@
+%table.responsive.table.table-sm.table-bordered.table-hover.w-100#open-patchinfos-table{ title: 'Running Maintenance Updates',
+                                                                                         'data-source': source_url }
+  %thead
+    %tr
+      %th Project
+      %th Package
+      %th Issues
+      %th Actions
+  %tbody
+
+= content_for :ready_function do
+  :plain
+    $('#open-patchinfos-table').DataTable({
+      responsive: true,
+      processing: true,
+      serverSide: true,
+      ajax: $('#open-patchinfos-table').data('source'),
+      columns: [
+        { data: 'project' },
+        { data: 'package' },
+        { data: 'issues' },
+        { data: 'actions', orderable: false, searchable: false }
+      ]
+    });

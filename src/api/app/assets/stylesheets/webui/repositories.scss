@@ -1,0 +1,34 @@
+.all_flag {
+    background-color: rgba($success, 0.2);
+}
+
+details.repository-path .less{
+  display: none;
+}
+
+details[open].repository-path {
+  .less{ display: inline; }
+  .more{ display: none; }
+}
+
+#repositories {
+  .card {
+    width: 100%;
+
+    .card-title {
+      @extend .text-break;
+    }
+
+    @include media-breakpoint-up(lg) {
+      width: 48%;
+    }
+
+    @include media-breakpoint-up(xxl) {
+      width: 32%;
+    }
+  }
+}
+
+.flags_repo_header {
+  --bs-table-bg: var(--bs-secondary-bg);
+}

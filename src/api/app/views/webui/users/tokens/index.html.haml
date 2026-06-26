@@ -1,0 +1,39 @@
+- @pagetitle = 'Tokens'
+
+.card
+  .card-body
+    %h3= @pagetitle
+    .text-center.mb-2= page_entries_info(@tokens)
+    - if @tokens.count.positive?
+      .d-flex.flex-wrap.gap-4.align-self-stretch#tokens
+        = render TokenCardComponent.with_collection(@tokens)
+    .pt-4
+      = link_to new_token_path do
+        %i.fas.fa-plus-circle.text-primary
+        Create Token
+
+= paginate @tokens, views_prefix: 'webui'
+
+.modal.fade#delete-token-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-token-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#delete-token-modal-label Do you really want to delete this token?
+      .modal-body
+        %p
+          Please confirm that you want to delete the token with id
+          = surround "'" do
+            %span#token-id
+        = form_tag nil, method: :delete do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+              Cancel
+            %input.btn.btn-sm.btn-danger.px-4{ type: 'submit', name: 'commit', value: 'Delete', data: { disable: { with: 'Delete' } } }
+
+- content_for :ready_function do
+  :plain
+    $('#delete-token-modal').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('#token-id').text(link.data('token-id'));
+      $(this).find('form').attr('action', link.data('action'));
+    })

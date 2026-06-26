@@ -1,0 +1,7 @@
+in: path
+name: label_template_id
+schema:
+  type: integer
+required: true
+description: Id of the global label template.
+example: 42

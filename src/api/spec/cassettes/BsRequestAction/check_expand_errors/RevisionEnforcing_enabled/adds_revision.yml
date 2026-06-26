@@ -1,0 +1,538 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title/>
+          <description/>
+          <person userid="request_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title></title>
+          <description></description>
+          <person userid="request_user" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/_project/_attribute?meta=1&user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="EnforceRevisionsInRequests" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="14">
+          <srcmd5>b3e3cb3ec11e4fe3274337e8768d13b5</srcmd5>
+          <time>1699468989</time>
+          <user>request_user</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/tpackage/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="tpackage" project="home:request_user">
+          <title>In a Dry Season</title>
+          <description>Quo cum ut dicta.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="tpackage" project="home:request_user">
+          <title>In a Dry Season</title>
+          <description>Quo cum ut dicta.</description>
+        </package>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/tpackage/_config
+    body:
+      encoding: UTF-8
+      string: Architecto asperiores ut. Possimus eaque perferendis. Cumque numquam
+        perspiciatis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15" vrev="15">
+          <srcmd5>3941aa6f2683cc3cb5787e7c52d317f4</srcmd5>
+          <version>unknown</version>
+          <time>1699468989</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/tpackage/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Hallo
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16" vrev="16">
+          <srcmd5>3941aa6f2683cc3cb5787e7c52d317f4</srcmd5>
+          <version>unknown</version>
+          <time>1699468989</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/spackage/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="spackage" project="home:request_user">
+          <title>The World, the Flesh and the Devil</title>
+          <description>Eos aut eos aspernatur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="spackage" project="home:request_user">
+          <title>The World, the Flesh and the Devil</title>
+          <description>Eos aut eos aspernatur.</description>
+        </package>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/spackage/_config
+    body:
+      encoding: UTF-8
+      string: Earum blanditiis et. Dolorem et aut. Voluptas maiores omnis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15" vrev="15">
+          <srcmd5>e3c1b2b65bea41c904338330835159f1</srcmd5>
+          <version>unknown</version>
+          <time>1699468989</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/spackage/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Trick
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16" vrev="16">
+          <srcmd5>e3c1b2b65bea41c904338330835159f1</srcmd5>
+          <version>unknown</version>
+          <time>1699468989</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/spackage
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '575'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="spackage" rev="16" vrev="16" srcmd5="e3c1b2b65bea41c904338330835159f1">
+          <linkinfo project="home:request_user" package="hpackage" srcmd5="736995e9d41b3c9fa7309e44477e33c6" xsrcmd5="80325bb918c1a49da070f27c36a54ece" lsrcmd5="e3c1b2b65bea41c904338330835159f1"/>
+          <entry name="_config" md5="7ee9d035c1cfc728b82d52730038396e" size="60" mtime="1699468989"/>
+          <entry name="_link" md5="3069c761c6f33c814305ac38344d5a00" size="26" mtime="1699468931"/>
+          <entry name="somefile.txt" md5="59c9428d4e21d63aefeb230c919dcfe3" size="5" mtime="1699468822"/>
+        </directory>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:request_user/spackage?cmd=diff&expand=1&filelimit=10000&opackage=tpackage&oproject=home:request_user&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1287'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="b153950939a88c61c06fbf92f258a532">
+          <old project="home:request_user" package="tpackage" rev="16" srcmd5="3941aa6f2683cc3cb5787e7c52d317f4"/>
+          <new project="home:request_user" package="spackage" rev="16" srcmd5="80325bb918c1a49da070f27c36a54ece"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="c1a1b5ad49dea50431ab35ebdd777e16" size="82"/>
+              <new name="_config" md5="7ee9d035c1cfc728b82d52730038396e" size="60"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Architecto asperiores ut. Possimus eaque perferendis. Cumque numquam perspiciatis.
+        \ No newline at end of file
+        +Earum blanditiis et. Dolorem et aut. Voluptas maiores omnis.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="d1bf93299de1b68e6d382c893bf1215f" size="5"/>
+              <new name="somefile.txt" md5="59c9428d4e21d63aefeb230c919dcfe3" size="5"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Hallo
+        \ No newline at end of file
+        +Trick
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="0wnyou.txt" md5="d06527d199ada03e3f3a4f31744476b2" size="12"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Evil Content
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/spackage
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '575'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="spackage" rev="16" vrev="16" srcmd5="e3c1b2b65bea41c904338330835159f1">
+          <linkinfo project="home:request_user" package="hpackage" srcmd5="736995e9d41b3c9fa7309e44477e33c6" xsrcmd5="80325bb918c1a49da070f27c36a54ece" lsrcmd5="e3c1b2b65bea41c904338330835159f1"/>
+          <entry name="_config" md5="7ee9d035c1cfc728b82d52730038396e" size="60" mtime="1699468989"/>
+          <entry name="_link" md5="3069c761c6f33c814305ac38344d5a00" size="26" mtime="1699468931"/>
+          <entry name="somefile.txt" md5="59c9428d4e21d63aefeb230c919dcfe3" size="5" mtime="1699468822"/>
+        </directory>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:request_user/spackage?cmd=diff&expand=1&nodiff=1&opackage=tpackage&oproject=home:request_user
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        new:
+        ----
+          0wnyou.txt
+
+        other changes:
+        --------------
+
+        ++++++ 0wnyou.txt (new)
+        --- 0wnyou.txt
+        +++ 0wnyou.txt
+
+        ++++++ _config
+        --- _config
+        +++ _config
+
+        ++++++ somefile.txt
+        --- somefile.txt
+        +++ somefile.txt
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:request_user/spackage?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '567'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="spackage" rev="80325bb918c1a49da070f27c36a54ece" vrev="20" srcmd5="80325bb918c1a49da070f27c36a54ece">
+          <linkinfo project="home:request_user" package="hpackage" srcmd5="736995e9d41b3c9fa7309e44477e33c6" lsrcmd5="e3c1b2b65bea41c904338330835159f1"/>
+          <entry name="0wnyou.txt" md5="d06527d199ada03e3f3a4f31744476b2" size="12" mtime="1699468931"/>
+          <entry name="_config" md5="7ee9d035c1cfc728b82d52730038396e" size="60" mtime="1699468989"/>
+          <entry name="somefile.txt" md5="59c9428d4e21d63aefeb230c919dcfe3" size="5" mtime="1699468822"/>
+        </directory>
+  recorded_at: Wed, 08 Nov 2023 18:43:09 GMT
+recorded_with: VCR 6.2.0

@@ -1,0 +1,218 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/projectX/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="projectX">
+          <title>Surprised by Joy</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '101'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="projectX">
+          <title>Surprised by Joy</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/projectX/zaz/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="zaz" project="projectX">
+          <title>The Torment of Others</title>
+          <description>Voluptate assumenda ut molestias.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '153'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="zaz" project="projectX">
+          <title>The Torment of Others</title>
+          <description>Voluptate assumenda ut molestias.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2" kind="maintenance">
+          <title>The Wives of Bath</title>
+          <description/>
+          <build>
+            <disable/>
+          </build>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2" kind="maintenance">
+          <title>The Wives of Bath</title>
+          <description></description>
+          <build>
+            <disable/>
+          </build>
+        </project>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_project/_attribute?meta=1&user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="MaintenanceProject" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="34">
+          <srcmd5>ccd5822c6c22f27d61ede5b83b6602d1</srcmd5>
+          <time>1575469356</time>
+          <user>tux</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2" kind="maintenance">
+          <title>The Wives of Bath</title>
+          <description/>
+          <build>
+            <disable/>
+          </build>
+          <maintenance>
+            <maintains project="projectX"/>
+          </maintenance>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '227'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2" kind="maintenance">
+          <title>The Wives of Bath</title>
+          <description></description>
+          <maintenance>
+            <maintains project="projectX"/>
+          </maintenance>
+          <build>
+            <disable/>
+          </build>
+        </project>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:36 GMT
+recorded_with: VCR 5.0.0

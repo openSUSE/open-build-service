@@ -1,0 +1,10 @@
+in: query
+name: meta
+schema:
+  type: string
+  enum:
+  - 1
+  - 0
+  default: 0
+description: If set to `1`, show information about history of the package meta file instead of info on the package sources.
+example: 1

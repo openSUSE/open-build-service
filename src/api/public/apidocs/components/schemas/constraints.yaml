@@ -1,0 +1,48 @@
+type: object
+properties:
+  hostlabel:
+    type: string
+  sandbox:
+    type: string
+    example: chroot
+  linux:
+    type: object
+    properties:
+      version:
+        type: object
+        properties:
+          min:
+            type: string
+          max:
+            type: string
+      flavor:
+        type: string
+  hardware:
+    type: object
+    properties:
+      cpu:
+        type: object
+        properties:
+          flag:
+            type: array
+            items:
+              type: string
+      processors:
+        type: string
+      disk:
+        type: object
+        properties:
+          size:
+            type: string
+      memory:
+        type: object
+        properties:
+          size:
+            type: string
+      physicalmemory:
+        type: object
+        properties:
+          size:
+            type: string
+xml:
+  name: constraints

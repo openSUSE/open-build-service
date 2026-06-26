@@ -1,0 +1,50 @@
+get:
+  description: This endpoint returns the building status for a specific artifact
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  responses:
+    '200':
+      description:
+        Returns ok when the build status is ok
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/buildstatus.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'unknown_project'
+            summary: 'Project not found: 1'
+
+  tags:
+    - Build
+
+post:
+  deprecated: true
+  summary: Return the building status for a specific artifact
+  description: |
+    This endpoint is exactly the same as
+    `GET /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_status`, please use that one.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  tags:
+    - Build

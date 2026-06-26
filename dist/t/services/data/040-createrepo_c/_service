@@ -1,0 +1,17 @@
+<services>
+  <service name="tar_scm">
+    <param name="url">https://github.com/rpm-software-management/createrepo_c.git</param>
+    <param name="scm">git</param>
+    <param name="exclude">.git</param>
+    <param name="version">git-master</param>
+    <param name="versionformat">0.12.0</param>
+    <param name="revision">6110de5</param>
+    <param name="changesgenerate">enable</param>
+  </service>
+  <service name="recompress">
+    <param name="file">*.tar</param>
+    <param name="compression">gz</param>
+  </service>
+  <service name="set_version"/>
+</services>
+

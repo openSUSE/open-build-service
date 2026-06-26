@@ -1,0 +1,46 @@
+post:
+  summary: Instantiate a new package through a project link.
+  description: |
+    Instantiate a new package in the specified project based on the packages inherited
+    through a linked project (local). The new package will be a branch of the package
+    that lives in the linked project unless the `makeoriginolder` parameter is provided.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: makeoriginolder
+      schema:
+        type: string
+      description: |
+        Instead of creating a branch of the package, it will instantiate a copy
+        of the package and extend the `vrev` to ensure the copy represents a
+        newer version of the package.
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 403
+            summary: 'package is already intialized here'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Found:
+              value:
+                code: unknown_package
+                summary: 'Package not found: openSUSE:Leap:15.0:Update/foo'
+  tags:
+    - Sources - Packages

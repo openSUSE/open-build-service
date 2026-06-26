@@ -1,0 +1,8 @@
+type: object
+properties:
+  request:
+    type: array
+    items:
+      $ref: '../staging/request.yaml'
+xml:
+  name: staged_requests

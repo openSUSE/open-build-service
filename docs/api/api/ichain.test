@@ -1,0 +1,34 @@
+@arg_project="FATE"
+@arg_package="FATE-stable"
+@arg_filename="fate.spec.spec"
+@arg_revision="1"
+@arg_userid="freitag"
+
+@arg_comment="Testcomment"
+@arg_platform="SLE10"
+@arg_arch="x86_64"
+@data_body="test"
+@show_passed = true
+@arg_rpmname = "fate-1.2.1-3.1.x86_64.rpm"
+
+alias_host "api.opensuse.org", "apitest.opensuse.org"
+
+request "GET /about", 401, false
+request "GET /source/", 401, false
+request "GET /source/<project>/_meta", 401, false
+request "PUT /source/<project>/_meta", 401, false
+request "GET /source/<project>/<package>/_meta", 401, false
+request "PUT /source/<project>/<package>/_meta", 401, false
+request "GET /source/<project>/<package>/<filename>", 401, false
+request "PUT /source/<project>/<package>/<filename>", 401, false
+request "DELETE /source/<project>/<package>/<filename>", 401, false
+request "POST /source/<project>/<package>?cmd=createSpecFileTemplate", 401, false
+request "POST /source/<project>/<package>?cmd=rebuild", 401, false
+request "POST /source/<project>/<package>?cmd=commit&rev=<revision>&comment=<comment>&user=<user>", 401, false
+request "GET /platform/", 401, false
+request "GET /person/<userid>", 401, false
+request "PUT /person/<userid>", 401, false
+request "GET /rpm/<project>/<platform>/<package>/<arch>/<rpmname>", 401, false
+request "GET /result/<project>/<platform>/result", 401, false
+request "GET /result/<project>/<platform>/<package>/result", 401, false
+request "GET /result/<project>/<platform>/<package>/<arch>/log", 401, false

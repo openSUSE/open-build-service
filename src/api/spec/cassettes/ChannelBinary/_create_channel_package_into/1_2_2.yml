@@ -1,0 +1,424 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/projectX/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="projectX">
+          <title>The Mermaids Singing</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="projectX">
+          <title>The Mermaids Singing</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/projectX/zaz/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="zaz" project="projectX">
+          <title>Clouds of Witness</title>
+          <description>Eum ut alias doloribus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '139'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="zaz" project="projectX">
+          <title>Clouds of Witness</title>
+          <description>Eum ut alias doloribus.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/projectX/zaz.projectX/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="zaz.projectX" project="projectX">
+          <title>Clouds of Witness</title>
+          <description>Eum ut alias doloribus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="zaz.projectX" project="projectX">
+          <title>Clouds of Witness</title>
+          <description>Eum ut alias doloribus.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/projectX/zaz.projectX/_meta?comment=foo&user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="zaz.projectX" project="projectX">
+          <title>Clouds of Witness</title>
+          <description>Eum ut alias doloribus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="zaz.projectX" project="projectX">
+          <title>Clouds of Witness</title>
+          <description>Eum ut alias doloribus.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/projectX/zaz.projectX?cmd=branch&comment=foo&noservice=1&opackage=zaz&oproject=projectX&user=tux
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '206'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>cae4f9bb85675efd07c2b5b3c15bab7b</srcmd5>
+          <version>unknown</version>
+          <time>1575469357</time>
+          <user>tux</user>
+          <comment>foo</comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/projectX/zaz.projectX/_meta?comment=foo&user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="zaz.projectX" project="projectX">
+          <title>Clouds of Witness</title>
+          <description>Eum ut alias doloribus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="zaz.projectX" project="projectX">
+          <title>Clouds of Witness</title>
+          <description>Eum ut alias doloribus.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/projectX/zaz.projectX
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '415'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="zaz.projectX" rev="2" vrev="2" srcmd5="cae4f9bb85675efd07c2b5b3c15bab7b">
+          <linkinfo project="projectX" package="zaz" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="4f6adde55801196b884e3ed0f3ea7829" lsrcmd5="cae4f9bb85675efd07c2b5b3c15bab7b"/>
+          <entry name="_link" md5="47cc6f8fe9886a492fcf73ba76d2ab4f" size="111" mtime="1575469357"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/projectX/zaz.projectX?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '318'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="zaz.projectX" rev="2" vrev="2" srcmd5="4f6adde55801196b884e3ed0f3ea7829" lsrcmd5="cae4f9bb85675efd07c2b5b3c15bab7b" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="projectX" package="zaz"/>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/projectX/zaz.projectX
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '415'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="zaz.projectX" rev="2" vrev="2" srcmd5="cae4f9bb85675efd07c2b5b3c15bab7b">
+          <linkinfo project="projectX" package="zaz" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="4f6adde55801196b884e3ed0f3ea7829" lsrcmd5="cae4f9bb85675efd07c2b5b3c15bab7b"/>
+          <entry name="_link" md5="47cc6f8fe9886a492fcf73ba76d2ab4f" size="111" mtime="1575469357"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/projectX/zaz.projectX?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="c73aa9bef304af875e0314d70497c636">
+          <old project="projectX" package="zaz.projectX" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="projectX" package="zaz.projectX" rev="2" srcmd5="cae4f9bb85675efd07c2b5b3c15bab7b"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/projectX/zaz.projectX?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '355'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="dc3e028c2ae277eefd5ff6b755f7095b">
+          <old project="projectX" package="zaz" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="projectX" package="zaz.projectX" rev="4f6adde55801196b884e3ed0f3ea7829" srcmd5="4f6adde55801196b884e3ed0f3ea7829"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 04 Dec 2019 14:22:37 GMT
+recorded_with: VCR 5.0.0

@@ -1,0 +1,34 @@
+type: array
+items:
+  type: object
+  properties:
+    name:
+      type: string
+      xml:
+        attribute: true
+    summary:
+      type: string
+    description:
+      type: string
+    parameter:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            xml:
+              attribute: true
+          description:
+            type: string
+          allowedvalue:
+            type: array
+            items:
+              type: string
+          required:
+            type: string
+  xml:
+    name: service
+xml:
+  wrapped: true
+  name: servicelist

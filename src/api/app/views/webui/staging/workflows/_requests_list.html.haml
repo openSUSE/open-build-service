@@ -1,0 +1,11 @@
+- excluded ||= false
+
+%ul.ps-2.list-unstyled
+  - if requests.empty?
+    %li
+      Empty
+  - else
+    - requests.each do |request|
+      %li= info_link(request, excluded: excluded)
+    - unless more_requests.zero?
+      %li ... #{more_requests} more

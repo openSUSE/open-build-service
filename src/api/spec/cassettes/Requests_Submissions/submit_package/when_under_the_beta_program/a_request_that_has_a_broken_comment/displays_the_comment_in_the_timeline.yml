@@ -1,0 +1,819 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/_meta?user=mr_receiver
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:mr_receiver">
+          <title/>
+          <description/>
+          <person userid="mr_receiver" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:mr_receiver">
+          <title></title>
+          <description></description>
+          <person userid="mr_receiver" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 14 Oct 2024 13:35:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>Behold the Man</title>
+          <description>Veritatis perspiciatis tempore reprehenderit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>Behold the Man</title>
+          <description>Veritatis perspiciatis tempore reprehenderit.</description>
+        </package>
+  recorded_at: Mon, 14 Oct 2024 13:35:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_config
+    body:
+      encoding: UTF-8
+      string: Quae sunt cum. Dolore adipisci itaque. Dicta atque doloribus.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>4a96cbc858b39c387c76b04dcdf8289b</srcmd5>
+          <version>unknown</version>
+          <time>1728912920</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 14 Oct 2024 13:35:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Est debitis culpa. Sit amet necessitatibus. Ex et repellat.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>2053ba47d937e37179f6f45e350b7a4e</srcmd5>
+          <version>unknown</version>
+          <time>1728912920</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 14 Oct 2024 13:35:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/_meta?user=madam_submitter
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:madam_submitter">
+          <title/>
+          <description/>
+          <person userid="madam_submitter" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:madam_submitter">
+          <title></title>
+          <description></description>
+          <person userid="madam_submitter" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 14 Oct 2024 13:35:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/Quebec/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:madam_submitter">
+          <title>The Glory and the Dream</title>
+          <description>Voluptas error ex excepturi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:madam_submitter">
+          <title>The Glory and the Dream</title>
+          <description>Voluptas error ex excepturi.</description>
+        </package>
+  recorded_at: Mon, 14 Oct 2024 13:35:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/Quebec/_config
+    body:
+      encoding: UTF-8
+      string: Vitae ut tempora. Qui nihil blanditiis. Ut et ut.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>9eb4cf17e148dcff13e1fff72de3e22b</srcmd5>
+          <version>unknown</version>
+          <time>1728912920</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 14 Oct 2024 13:35:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/Quebec/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Ut voluptas explicabo. Et deleniti et. Ex aliquam optio.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>dd9ecabab96ad2d4de8f38ca55c32c02</srcmd5>
+          <version>unknown</version>
+          <time>1728912920</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 14 Oct 2024 13:35:20 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="dd9ecabab96ad2d4de8f38ca55c32c02">
+          <entry name="_config" md5="6718ee2c88229fd1979305d3b7402d60" size="49" mtime="1728912920"/>
+          <entry name="somefile.txt" md5="decb076ec679f3beba7624e71aaebc98" size="56" mtime="1728912920"/>
+        </directory>
+  recorded_at: Mon, 14 Oct 2024 13:35:20 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?cmd=diff&expand=1&filelimit=10000&opackage=Quebec&oproject=home:mr_receiver&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1153'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="94f6fb68d68f3ca2e687de13c620f9c2">
+          <old project="home:mr_receiver" package="Quebec" rev="4" srcmd5="2053ba47d937e37179f6f45e350b7a4e"/>
+          <new project="home:madam_submitter" package="Quebec" rev="2" srcmd5="dd9ecabab96ad2d4de8f38ca55c32c02"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="bad3d5b28b56118d45a5b953b6555a2e" size="61"/>
+              <new name="_config" md5="6718ee2c88229fd1979305d3b7402d60" size="49"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Quae sunt cum. Dolore adipisci itaque. Dicta atque doloribus.
+        \ No newline at end of file
+        +Vitae ut tempora. Qui nihil blanditiis. Ut et ut.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="5a8a803a223c1bdeb5ecb108c57193ce" size="59"/>
+              <new name="somefile.txt" md5="decb076ec679f3beba7624e71aaebc98" size="56"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Est debitis culpa. Sit amet necessitatibus. Ex et repellat.
+        \ No newline at end of file
+        +Ut voluptas explicabo. Et deleniti et. Ex aliquam optio.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 14 Oct 2024 13:35:20 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:mr_receiver/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 9c08cec6-b4c0-43a7-8b43-c27c2ea51fac
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="4" vrev="4" srcmd5="2053ba47d937e37179f6f45e350b7a4e">
+          <entry name="_config" md5="bad3d5b28b56118d45a5b953b6555a2e" size="61" mtime="1728912920"/>
+          <entry name="somefile.txt" md5="5a8a803a223c1bdeb5ecb108c57193ce" size="59" mtime="1728912920"/>
+        </directory>
+  recorded_at: Mon, 14 Oct 2024 13:35:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=0&locallink=1&multibuild=1&package=Quebec&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 924d912a-611a-41dd-b163-3fe6296ac5e8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 14 Oct 2024 13:35:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 924d912a-611a-41dd-b163-3fe6296ac5e8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="dd9ecabab96ad2d4de8f38ca55c32c02">
+          <entry name="_config" md5="6718ee2c88229fd1979305d3b7402d60" size="49" mtime="1728912920"/>
+          <entry name="somefile.txt" md5="decb076ec679f3beba7624e71aaebc98" size="56" mtime="1728912920"/>
+        </directory>
+  recorded_at: Mon, 14 Oct 2024 13:35:27 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=Quebec&oproject=home:mr_receiver&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 924d912a-611a-41dd-b163-3fe6296ac5e8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '1153'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="94f6fb68d68f3ca2e687de13c620f9c2">
+          <old project="home:mr_receiver" package="Quebec" rev="4" srcmd5="2053ba47d937e37179f6f45e350b7a4e"/>
+          <new project="home:madam_submitter" package="Quebec" rev="2" srcmd5="dd9ecabab96ad2d4de8f38ca55c32c02"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="bad3d5b28b56118d45a5b953b6555a2e" size="61"/>
+              <new name="_config" md5="6718ee2c88229fd1979305d3b7402d60" size="49"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Quae sunt cum. Dolore adipisci itaque. Dicta atque doloribus.
+        \ No newline at end of file
+        +Vitae ut tempora. Qui nihil blanditiis. Ut et ut.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="5a8a803a223c1bdeb5ecb108c57193ce" size="59"/>
+              <new name="somefile.txt" md5="decb076ec679f3beba7624e71aaebc98" size="56"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Est debitis culpa. Sit amet necessitatibus. Ex et repellat.
+        \ No newline at end of file
+        +Ut voluptas explicabo. Et deleniti et. Ex aliquam optio.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 14 Oct 2024 13:35:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 924d912a-611a-41dd-b163-3fe6296ac5e8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="dd9ecabab96ad2d4de8f38ca55c32c02">
+          <entry name="_config" md5="6718ee2c88229fd1979305d3b7402d60" size="49" mtime="1728912920"/>
+          <entry name="somefile.txt" md5="decb076ec679f3beba7624e71aaebc98" size="56" mtime="1728912920"/>
+        </directory>
+  recorded_at: Mon, 14 Oct 2024 13:35:27 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=Quebec&oproject=home:mr_receiver&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 924d912a-611a-41dd-b163-3fe6296ac5e8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '1153'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="94f6fb68d68f3ca2e687de13c620f9c2">
+          <old project="home:mr_receiver" package="Quebec" rev="4" srcmd5="2053ba47d937e37179f6f45e350b7a4e"/>
+          <new project="home:madam_submitter" package="Quebec" rev="2" srcmd5="dd9ecabab96ad2d4de8f38ca55c32c02"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="bad3d5b28b56118d45a5b953b6555a2e" size="61"/>
+              <new name="_config" md5="6718ee2c88229fd1979305d3b7402d60" size="49"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Quae sunt cum. Dolore adipisci itaque. Dicta atque doloribus.
+        \ No newline at end of file
+        +Vitae ut tempora. Qui nihil blanditiis. Ut et ut.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="5a8a803a223c1bdeb5ecb108c57193ce" size="59"/>
+              <new name="somefile.txt" md5="decb076ec679f3beba7624e71aaebc98" size="56"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Est debitis culpa. Sit amet necessitatibus. Ex et repellat.
+        \ No newline at end of file
+        +Ut voluptas explicabo. Et deleniti et. Ex aliquam optio.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 14 Oct 2024 13:35:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=0&locallink=1&multibuild=1&package=Quebec&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - bf7258fb-f5bd-4094-b67b-cf41806cbdcf
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 14 Oct 2024 13:35:28 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?cacheonly=1&cmd=diff&expand=1&nodiff=1&opackage=Quebec&oproject=home:mr_receiver&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 34a27880-4c97-4344-a2a2-e7fc24296970
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home madam_submitter' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:madam_submitter' does not exist</summary>
+          <details>404 project 'home:madam_submitter' does not exist</details>
+        </status>
+  recorded_at: Mon, 19 May 2025 10:01:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>Number the Stars</title>
+          <description>Qui rerum eius magnam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home mr_receiver' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:mr_receiver' does not exist</summary>
+          <details>404 project 'home:mr_receiver' does not exist</details>
+        </status>
+  recorded_at: Mon, 19 May 2025 10:09:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>The Sun Also Rises</title>
+          <description>Est accusamus rerum et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home mr_receiver' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:mr_receiver' does not exist</summary>
+          <details>404 project 'home:mr_receiver' does not exist</details>
+        </status>
+  recorded_at: Mon, 19 May 2025 10:12:56 GMT
+recorded_with: VCR 6.3.1

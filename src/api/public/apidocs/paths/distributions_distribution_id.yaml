@@ -1,0 +1,94 @@
+get:
+  summary: Show a distribution.
+  description: Show a distribution that can be build against.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/distribution_id.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/distribution.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'not_found'
+            summary: "Couldn't find Distribution with 'id'=0"
+  tags:
+    - Distributions
+
+put:
+  summary: Update a distribution.
+  description: Update the data of a distribution.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/distribution_id.yaml'
+  requestBody:
+    description: Distribution definition
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/distribution.yaml'
+  responses:
+    '200':
+      description: |
+        OK. The Request has succeeded.
+
+        XML Schema used for body validation: [distribution.rng](../schema/distribution.rng)
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'not_found'
+            summary: "Couldn't find Distribution with 'id'=0"
+  tags:
+    - Distributions
+
+delete:
+  summary: Delete a distribution.
+  description: |
+    Delete a distribution.
+
+    This is only for admins.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/distribution_id.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'ok'
+            summary: 'Ok'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'not_found'
+            summary: "Couldn't find Distribution with 'id'=0"
+  tags:
+    - Distributions

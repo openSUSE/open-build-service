@@ -1,0 +1,34 @@
+.d-flex.justify-content-around
+  - if User.session
+    .d-none.d-md-block
+      %strong.text-uppercase User
+      %ul
+        %li= link_to('Your Profile', user_path(User.session))
+        - if User.session.home_project
+          %li= link_to('Home Project', project_show_path(User.session.home_project))
+        - else
+          %li= link_to('Create Home Project', new_project_path(name: User.session.home_project_name))
+        %li= link_to('Logout', log_out_url)
+  .d-none.d-md-block
+    %strong.text-uppercase Locations
+    %ul
+      %li= link_to('Projects', projects_path)
+      %li= link_to('Search', search_path, class: 'search-link')
+      - unless spider_bot
+        %li= link_to('Status Monitor', monitor_path)
+  %div
+    %strong.text-uppercase Help
+    %ul
+      %li= link_to('OpenBuildService.org', 'https://openbuildservice.org/')
+      %li= link_to('Documentation', 'https://openbuildservice.org/help/manuals/')
+      %li= link_to('API Documentation', "#{root_path}apidocs/index")
+      - if configuration.code_of_conduct.present?
+        %li= link_to('Code of Conduct', code_of_conduct_index_path)
+
+  %div
+    %strong.text-uppercase Contact
+    %ul
+      %li= link_to('Support', 'https://openbuildservice.org/support/')
+      %li= link_to('@OBShq', 'https://fosstodon.org/@obshq', ref: 'me')
+      - if configuration.tos_url.present?
+        %li= link_to('Terms', configuration.tos_url)

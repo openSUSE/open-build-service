@@ -1,0 +1,53 @@
+get:
+  summary: List all the projects.
+  description: Get the list of all projects.
+  security:
+    - basic_authentication: []
+  parameters:
+    - name: deleted
+      in: query
+      schema:
+        type: integer
+      description: Set to `1` to list the deleted projects. This is available for Admins only.
+      example: 0
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          examples:
+            List of projects:
+              value:
+                entry:
+                  - name: "home:Admin"
+                  - name: "home:Iggy"
+            Deleted projects:
+              value:
+                entry:
+                  - name: "home:user_1"
+    '400':
+      description: Wrong value for deleted parameter.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not boolean:
+              value:
+                code: 400
+                summary: "not boolean"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: No permission to access deleted projects.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'no_permission_for_deleted'
+            summary: only admins can see deleted projects.
+  tags:
+    - Sources - Projects

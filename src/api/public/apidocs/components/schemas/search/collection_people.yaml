@@ -1,0 +1,25 @@
+type: object
+properties:
+  matches:
+    type: integer
+    xml:
+      attribute: true
+  person:
+    type: array
+    items:
+      type: object
+      properties:
+        login:
+          type: string
+        email:
+          type: string
+        realname:
+          type: string
+        state:
+          type: string
+        globalrole:
+          type: string
+        ignore_auth_services:
+          type: string
+xml:
+  name: collection

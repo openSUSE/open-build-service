@@ -1,0 +1,46 @@
+.modal.fade#add-dod-repository-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'add-dod-repository-label', hidden: 'true' } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      =# TODO: Convert this to form_for and use dod_source_field partial
+      = form_tag(create_dod_repository_path(project: project), method: 'post') do
+        .modal-header
+          %h5.modal-title#add-dod-repository-label Add DoD repository
+        .modal-body
+          .mb-3.row
+            = label_tag :name, 'Repository name', class: 'col-sm-4 col-form-label'
+            .col-sm-8
+              = text_field_tag :name, nil, required: true, class: 'form-control'
+          .mb-3
+            %h6 Download on Demand Source
+          .mb-3.row
+            = label_tag :arch, 'Architecture', class: 'col-sm-4 col-form-label'
+            .col-sm-8
+              = select_tag :arch, options_for_select(available_architectures, ''), required: true,
+                                  class: 'form-select'
+          .mb-3.row
+            = label_tag :repotype, 'Type', class: 'col-sm-4 col-form-label'
+            .col-sm-8
+              = select_tag :repotype, options_for_select(DownloadRepository::REPOTYPES, ''),
+                                      class: 'form-select'
+          .mb-3.row
+            = label_tag :url, 'Url', class: 'col-sm-4 col-form-label'
+            .col-sm-8
+              = text_field_tag(:url, nil, required: true, class: 'form-control')
+          .mb-3.row
+            = label_tag :archfilter, 'Arch. Filter', class: 'col-sm-4 col-form-label'
+            .col-sm-8
+              = text_field_tag :archfilter, nil, class: 'form-control'
+          .mb-3.row
+            = label_tag :masterurl, 'Master Url', class: 'col-sm-4 col-form-label'
+            .col-sm-8
+              = text_field_tag :masterurl, nil, class: 'form-control'
+          .mb-3.row
+            = label_tag :mastersslfingerprint, 'SSL Fingerprint', class: 'col-sm-4 col-form-label'
+            .col-sm-8
+              = text_field_tag :mastersslfingerprint, nil, class: 'form-control'
+          .mb-3.row
+            = label_tag :pubkey, 'Public Key', class: 'col-sm-4 col-form-label'
+            .col-sm-8
+              = text_area_tag :pubkey, nil, row: 2, class: 'form-control'
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons'

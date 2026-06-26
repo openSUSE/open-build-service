@@ -1,0 +1,73 @@
+type: object
+properties:
+  project:
+    type: string
+    example: 'home:Admin'
+    xml:
+      attribute: true
+  repository:
+    type: string
+    example: 'openSUSE_Tumbleweed'
+    xml:
+      attribute: true
+  package:
+    type: string
+    example: 'ctris'
+    xml:
+      attribute: true
+  arch:
+    type: string
+    example: 'i586'
+  srcmd5:
+    type: string
+    example: '6b7c8d9cb5c5d36453c1dc8e102016b1'
+  verifymd5:
+    type: string
+    example: '6b7c8d9cb5c5d36453c1dc8e102016b1'
+  versrel:
+    type: string
+    example: '0.42.1-3'
+  bcnt:
+    type: string
+    example: '2'
+  release:
+    type: string
+    example: '3.2'
+  config:
+    type: string
+    example: |
+      %define _project home:enavarro_suse
+
+      ### from openSUSE:Factory
+      %define _repository ports
+
+      Macros:
+      %vendor obs://build.opensuse.org/home:enavarro_suse
+      %_download_url https://download.opensuse.org/repositories
+      %_project home:enavarro_suse
+  bdep:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 'liblua5_4-5'
+        xml:
+          attribute: true
+      hdrmd5:
+        type: string
+        example: 4f50c1ea427e184620686ded4baa3097
+        xml:
+          attribute: true
+      project:
+        type: string
+        example: 'openSUSE:Tumbleweed'
+        xml:
+          attribute: true
+      repository:
+        type: string
+        example: dod
+        xml:
+          attribute: true
+
+xml:
+  name: 'buildinfo'

@@ -1,0 +1,7 @@
+_service
+obs-release.spec
+obs.group
+defaults-conditionals.include
+defaults-repositories.include
+simple.product
+defaults-archsets.include

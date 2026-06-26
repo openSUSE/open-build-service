@@ -1,0 +1,16 @@
+delete:
+  summary: Delete a label of a package.
+  description: |
+    **(Unstable)** Delete a label of a package.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/label_id.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Labels

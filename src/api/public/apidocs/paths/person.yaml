@@ -1,0 +1,75 @@
+get:
+  summary: List all people.
+  description: List all people.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: prefix
+      schema:
+        type: string
+      required: false
+      description: A prefix to filter the people to look for
+      example: 'Adm'
+    - in: query
+      name: confirmed
+      schema:
+        type: string
+      required: false
+      description: List only active users. This parameter is interpreted as `true` if present, `false` otherwise.
+      example: 1
+
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            count: '9'
+            entry:
+              - name: 'Admin'
+              - name: '_nobody_'
+              - name: 'Iggy'
+              - name: 'user_1'
+              - name: 'repo-checker'
+              - name: 'reviewhero'
+              - name: 'user_2'
+              - name: 'user_3'
+              - name: 'Requestor'
+  tags:
+    - Person
+
+post:
+  summary: Executes a command on the person endpoint.
+  description: |
+    Allows executing command on the person endpoint.
+
+    As of now, the only command allowed is 'register'.
+  parameters:
+    - in: query
+      name: cmd
+      schema:
+        type: string
+        enum: [register]
+      required: true
+      description: The command to execute
+      example: register
+  requestBody:
+    description: The data for the person to register.
+    required: true
+    content:
+      application/xml:
+        schema:
+          $ref: '../components/schemas/unregistered_person.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      $ref: '../components/responses/unknown_command_error.yaml'
+  tags:
+    - Person

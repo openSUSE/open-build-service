@@ -1,0 +1,42 @@
+- @pagetitle = 'Manage Users'
+
+.card.mb-3
+  = render partial: 'webui/configuration/tabs'
+  .card-body
+    %h3= @pagetitle
+    %table.responsive.table.table-sm.table-bordered.table-hover#user-table{ data: { source: users_path } }
+      %thead
+        %tr
+          %th.all
+            User
+          %th
+            Real Name
+          %th
+            Local User
+          %th.all
+            State
+          %th.all
+            Actions
+      %tbody
+
+    .pt-4
+      = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create', title: 'Create User')) do
+        %i.fas.fa-plus-circle.text-primary
+        Create User
+    - confirmation_text = "Please confirm deletion of '#{content_tag(:span, '', class: 'user-login')}'"
+    = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-user-modal',
+                                                   method: :delete,
+                                                   options: { modal_title: 'Delete user?', remote: false,
+                                                              confirmation_text: sanitize(confirmation_text, tags: ['span']) }) do |component|
+      - component.with_text_area do
+        = label_tag('Adminnote', 'Admin note:', for: 'adminnote')
+        = text_area_tag(:adminnote, '', placeholder: 'Please explain the reason for the deletion...', class: 'form-control')
+
+- content_for :ready_function do
+  :plain
+    initializeUserConfigurationDatatable();
+    $('#delete-user-modal').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('.user-login').text(link.data('user-login'));
+      $(this).find('form').attr('action', link.data('action'));
+    });

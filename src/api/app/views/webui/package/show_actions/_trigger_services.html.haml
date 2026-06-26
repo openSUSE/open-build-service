@@ -1,0 +1,5 @@
+%li.nav-item
+  = link_to(services_project_package_trigger_path(project_name: project, package_name: package), method: :post, class: 'nav-link',
+            title: 'Trigger Services') do
+    %i.fas.fa-project-diagram.fa-fw.me-2
+    %span.nav-item-name Trigger Services

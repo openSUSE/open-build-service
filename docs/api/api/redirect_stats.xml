@@ -1,0 +1,804 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<redirect_stats>
+  <project name="games:puzzle">
+    <package name="ksudoku">
+      <repository name="openSUSE_Factory">
+        <arch name="src">
+          <count release="3.1" created_at="2007-03-19T13:47:11+01:00" counted_at="2007-03-19T13:47:11+01:00" filetype="rpm" filename="ksudoku" version="0.4">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="3.1" created_at="2007-03-19T14:09:41+01:00" counted_at="2007-03-19T14:09:41+01:00" filetype="rpm" filename="ksudoku" version="0.4">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="3.1" created_at="2007-03-19T13:47:11+01:00" counted_at="2007-03-19T13:47:11+01:00" filetype="rpm" filename="ksudoku" version="0.4">0</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="3.1" created_at="2007-03-19T13:15:14+01:00" counted_at="2007-03-19T13:15:14+01:00" filetype="rpm" filename="ksudoku" version="0.4">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="3.1" created_at="2007-03-19T13:15:14+01:00" counted_at="2007-03-21T15:11:46+01:00" filetype="rpm" filename="ksudoku" version="0.4">106</count>
+        </arch>
+      </repository>
+    </package>
+  </project>
+  <project name="devel:languages:perl">
+    <package name="perl-Mail-IMAPClient">
+      <repository name="SUSE_Linux_9.3">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:19:13+01:00" counted_at="2007-03-14T20:19:13+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+          <count release="2.2" created_at="2007-03-16T22:22:45+01:00" counted_at="2007-03-16T22:22:45+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:19:13+01:00" counted_at="2007-03-14T20:19:13+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+          <count release="2.2" created_at="2007-03-16T22:31:57+01:00" counted_at="2007-03-16T22:31:57+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:42:03+01:00" counted_at="2007-03-14T20:42:03+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+          <count release="2.2" created_at="2007-03-16T22:22:45+01:00" counted_at="2007-03-16T22:22:45+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_Factory">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-16T21:31:18+01:00" counted_at="2007-03-16T21:31:18+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-16T23:01:22+01:00" counted_at="2007-03-16T23:01:22+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-16T21:31:18+01:00" counted_at="2007-03-16T21:31:18+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:40:33+01:00" counted_at="2007-03-14T20:40:33+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+          <count release="2.2" created_at="2007-03-16T22:34:51+01:00" counted_at="2007-03-16T22:34:51+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-16T22:28:35+01:00" counted_at="2007-03-17T21:47:31+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">2</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:40:33+01:00" counted_at="2007-03-15T10:06:22+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">1</count>
+          <count release="2.2" created_at="2007-03-16T22:34:51+01:00" counted_at="2007-03-16T22:34:51+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-14T20:13:52+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+          <count release="2.2" created_at="2007-03-16T20:59:37+01:00" counted_at="2007-03-16T20:59:37+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:23:39+01:00" counted_at="2007-03-14T20:23:39+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+          <count release="2.2" created_at="2007-03-16T22:54:38+01:00" counted_at="2007-03-16T22:54:38+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-14T20:13:52+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+          <count release="2.2" created_at="2007-03-16T20:59:37+01:00" counted_at="2007-03-16T20:59:37+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:38:46+01:00" counted_at="2007-03-14T20:38:46+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+          <count release="2.2" created_at="2007-03-16T22:28:14+01:00" counted_at="2007-03-16T22:28:14+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-16T22:54:49+01:00" counted_at="2007-03-16T22:54:49+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:38:46+01:00" counted_at="2007-03-14T20:38:46+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">0</count>
+          <count release="2.2" created_at="2007-03-16T22:28:14+01:00" counted_at="2007-03-17T16:36:05+01:00" filetype="rpm" filename="perl-Mail-IMAPClient" version="2.2.9">1</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="perl-Text-Autoformat">
+      <repository name="SUSE_Linux_9.3">
+        <arch name="src">
+          <count release="2.2" created_at="2007-03-16T22:22:45+01:00" counted_at="2007-03-16T22:22:45+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.2" created_at="2007-03-16T22:31:57+01:00" counted_at="2007-03-16T22:31:57+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.2" created_at="2007-03-16T22:22:45+01:00" counted_at="2007-03-16T22:22:45+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_Factory">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-16T21:31:18+01:00" counted_at="2007-03-16T21:31:18+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+          <count release="2.2" created_at="2007-03-16T23:01:22+01:00" counted_at="2007-03-16T23:01:22+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.2" created_at="2007-03-16T23:01:22+01:00" counted_at="2007-03-16T23:01:22+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-16T21:31:18+01:00" counted_at="2007-03-16T21:31:18+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="2.2" created_at="2007-03-16T22:28:35+01:00" counted_at="2007-03-16T22:28:35+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.2" created_at="2007-03-16T22:28:35+01:00" counted_at="2007-03-17T21:49:08+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">2</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.2" created_at="2007-03-16T22:34:51+01:00" counted_at="2007-03-16T22:34:51+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-16T20:59:37+01:00" counted_at="2007-03-16T20:59:37+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+          <count release="2.2" created_at="2007-03-17T18:36:51+01:00" counted_at="2007-03-17T18:36:51+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-16T20:59:37+01:00" counted_at="2007-03-16T20:59:37+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+          <count release="2.2" created_at="2007-03-17T18:36:51+01:00" counted_at="2007-03-17T18:36:51+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-16T22:28:14+01:00" counted_at="2007-03-16T22:28:14+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+          <count release="2.2" created_at="2007-03-16T22:54:48+01:00" counted_at="2007-03-16T22:54:48+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.2" created_at="2007-03-16T22:54:49+01:00" counted_at="2007-03-16T22:54:49+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-16T22:28:14+01:00" counted_at="2007-03-17T16:36:05+01:00" filetype="rpm" filename="perl-Text-Autoformat" version="1.13">1</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="perl-File-Remove">
+      <repository name="SUSE_Linux_9.3">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:19:13+01:00" counted_at="2007-03-14T20:19:13+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T22:22:45+01:00" counted_at="2007-03-16T22:22:45+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:19:13+01:00" counted_at="2007-03-14T20:19:13+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T22:31:57+01:00" counted_at="2007-03-16T22:31:57+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:42:03+01:00" counted_at="2007-03-14T20:42:03+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T22:22:45+01:00" counted_at="2007-03-16T22:22:45+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_Factory">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-14T20:13:52+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T21:31:18+01:00" counted_at="2007-03-16T21:31:18+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-14T20:13:52+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T23:01:22+01:00" counted_at="2007-03-16T23:01:22+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:29:27+01:00" counted_at="2007-03-14T20:29:27+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T21:31:18+01:00" counted_at="2007-03-16T21:31:18+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-14T20:13:52+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T22:28:35+01:00" counted_at="2007-03-16T22:28:35+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-14T20:13:52+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T22:28:35+01:00" counted_at="2007-03-17T21:47:30+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">2</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:40:33+01:00" counted_at="2007-03-14T20:40:33+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T22:34:51+01:00" counted_at="2007-03-16T22:34:51+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-14T20:13:52+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T20:59:37+01:00" counted_at="2007-03-16T20:59:37+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:23:39+01:00" counted_at="2007-03-14T20:23:39+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T22:54:38+01:00" counted_at="2007-03-16T22:54:38+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-14T20:13:52+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T20:59:37+01:00" counted_at="2007-03-16T20:59:37+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:15:54+01:00" counted_at="2007-03-14T20:15:54+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T22:54:48+01:00" counted_at="2007-03-16T22:54:48+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:15:54+01:00" counted_at="2007-03-14T20:15:54+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+          <count release="2.2" created_at="2007-03-16T22:54:48+01:00" counted_at="2007-03-16T22:54:48+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-16T22:28:14+01:00" counted_at="2007-03-17T16:36:10+01:00" filetype="rpm" filename="perl-File-Remove" version="0.31">1</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="perl-CDDB_get">
+      <repository name="SUSE_Linux_9.3">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-15T13:26:10+01:00" counted_at="2007-03-15T13:26:10+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-15T14:08:57+01:00" counted_at="2007-03-15T14:08:57+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-15T13:26:10+01:00" counted_at="2007-03-16T18:42:01+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">1</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_Factory">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-15T13:38:19+01:00" counted_at="2007-03-15T13:38:19+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-15T14:28:36+01:00" counted_at="2007-03-15T14:28:36+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-15T13:38:19+01:00" counted_at="2007-03-15T13:38:19+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-15T13:26:23+01:00" counted_at="2007-03-15T13:26:23+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-15T13:26:23+01:00" counted_at="2007-03-15T13:26:23+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-15T13:37:58+01:00" counted_at="2007-03-15T13:37:58+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-15T13:37:58+01:00" counted_at="2007-03-15T13:37:58+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-15T14:02:36+01:00" counted_at="2007-03-15T14:02:36+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-15T13:46:57+01:00" counted_at="2007-03-15T13:46:57+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-15T13:46:57+01:00" counted_at="2007-03-15T13:46:57+01:00" filetype="rpm" filename="perl-CDDB_get" version="2.27">0</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="perl-Text-Reform">
+      <repository name="SUSE_Linux_9.3">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-16T22:22:45+01:00" counted_at="2007-03-16T22:22:45+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T17:54:46+01:00" counted_at="2007-03-17T17:54:46+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.3" created_at="2007-03-17T18:10:29+01:00" counted_at="2007-03-17T18:10:29+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-16T22:31:57+01:00" counted_at="2007-03-16T22:31:57+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-16T22:22:45+01:00" counted_at="2007-03-16T22:22:45+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T17:54:46+01:00" counted_at="2007-03-17T17:54:46+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.3" created_at="2007-03-17T18:10:29+01:00" counted_at="2007-03-17T18:10:29+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_Factory">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-16T21:31:18+01:00" counted_at="2007-03-16T21:31:18+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T17:30:50+01:00" counted_at="2007-03-17T17:30:50+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.3" created_at="2007-03-17T18:11:38+01:00" counted_at="2007-03-17T18:11:38+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-16T23:01:22+01:00" counted_at="2007-03-16T23:01:22+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T17:36:59+01:00" counted_at="2007-03-17T17:36:59+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.3" created_at="2007-03-17T18:11:38+01:00" counted_at="2007-03-17T18:11:38+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-16T21:31:18+01:00" counted_at="2007-03-16T21:31:18+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T17:30:50+01:00" counted_at="2007-03-17T17:30:50+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-16T22:28:35+01:00" counted_at="2007-03-16T22:28:35+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T17:09:36+01:00" counted_at="2007-03-17T17:09:36+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.3" created_at="2007-03-17T18:27:00+01:00" counted_at="2007-03-17T18:27:00+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-16T22:28:35+01:00" counted_at="2007-03-16T23:44:50+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">1</count>
+          <count release="2.2" created_at="2007-03-17T17:09:36+01:00" counted_at="2007-03-17T17:09:36+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.3" created_at="2007-03-17T18:28:32+01:00" counted_at="2007-03-17T21:47:26+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">1</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-16T22:34:51+01:00" counted_at="2007-03-16T22:34:51+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T17:21:06+01:00" counted_at="2007-03-17T17:21:06+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.3" created_at="2007-03-17T18:27:00+01:00" counted_at="2007-03-17T18:27:00+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-16T22:54:38+01:00" counted_at="2007-03-16T22:54:38+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T16:58:08+01:00" counted_at="2007-03-17T16:58:08+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-16T22:54:38+01:00" counted_at="2007-03-16T22:54:38+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T16:58:08+01:00" counted_at="2007-03-17T16:58:08+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-17T18:36:51+01:00" counted_at="2007-03-17T18:36:51+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-16T22:28:14+01:00" counted_at="2007-03-16T22:28:14+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T17:18:59+01:00" counted_at="2007-03-17T17:18:59+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.3" created_at="2007-03-17T18:20:26+01:00" counted_at="2007-03-17T18:20:26+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-16T22:54:49+01:00" counted_at="2007-03-16T22:54:49+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.2" created_at="2007-03-17T17:39:52+01:00" counted_at="2007-03-17T17:39:52+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-16T22:28:14+01:00" counted_at="2007-03-17T16:36:08+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">1</count>
+          <count release="2.2" created_at="2007-03-17T17:18:59+01:00" counted_at="2007-03-17T17:18:59+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+          <count release="2.3" created_at="2007-03-17T18:20:26+01:00" counted_at="2007-03-17T18:20:26+01:00" filetype="rpm" filename="perl-Text-Reform" version="1.11">0</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="perl-User-Identity">
+      <repository name="SUSE_Linux_9.3">
+        <arch name="src">
+          <count release="3.2" created_at="2007-03-17T17:54:46+01:00" counted_at="2007-03-17T17:54:46+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.3" created_at="2007-03-17T18:10:29+01:00" counted_at="2007-03-17T18:10:29+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="3.2" created_at="2007-03-17T17:54:46+01:00" counted_at="2007-03-17T17:54:46+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.3" created_at="2007-03-17T18:10:29+01:00" counted_at="2007-03-17T18:10:29+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_Factory">
+        <arch name="src">
+          <count release="3.1" created_at="2007-03-17T17:30:50+01:00" counted_at="2007-03-17T17:30:50+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.2" created_at="2007-03-17T17:36:59+01:00" counted_at="2007-03-17T17:36:59+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.3" created_at="2007-03-17T18:11:38+01:00" counted_at="2007-03-17T18:11:38+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="3.2" created_at="2007-03-17T17:36:59+01:00" counted_at="2007-03-17T17:36:59+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.3" created_at="2007-03-17T18:11:38+01:00" counted_at="2007-03-17T18:11:38+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="3.1" created_at="2007-03-17T17:30:50+01:00" counted_at="2007-03-17T17:30:50+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="3.2" created_at="2007-03-17T17:21:06+01:00" counted_at="2007-03-17T17:21:06+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.3" created_at="2007-03-17T18:27:00+01:00" counted_at="2007-03-17T18:27:00+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="3.2" created_at="2007-03-17T17:21:06+01:00" counted_at="2007-03-17T17:21:06+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.3" created_at="2007-03-17T18:27:00+01:00" counted_at="2007-03-17T18:27:00+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="3.1" created_at="2007-03-17T17:11:19+01:00" counted_at="2007-03-17T17:11:19+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.2" created_at="2007-03-17T18:36:51+01:00" counted_at="2007-03-17T18:36:51+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="3.1" created_at="2007-03-17T18:28:44+01:00" counted_at="2007-03-17T18:28:44+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="3.1" created_at="2007-03-17T17:11:19+01:00" counted_at="2007-03-17T17:11:19+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.2" created_at="2007-03-17T18:36:51+01:00" counted_at="2007-03-17T18:36:51+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="3.2" created_at="2007-03-17T17:18:59+01:00" counted_at="2007-03-17T17:18:59+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.3" created_at="2007-03-17T18:20:26+01:00" counted_at="2007-03-17T18:20:26+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="3.2" created_at="2007-03-17T17:39:52+01:00" counted_at="2007-03-17T17:39:52+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.3" created_at="2007-03-17T18:28:01+01:00" counted_at="2007-03-17T18:28:01+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="3.2" created_at="2007-03-17T17:18:59+01:00" counted_at="2007-03-17T17:18:59+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+          <count release="3.3" created_at="2007-03-17T18:20:26+01:00" counted_at="2007-03-17T18:20:26+01:00" filetype="rpm" filename="perl-User-Identity" version="0.91">0</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="perl-Object-Realize-Later">
+      <repository name="SUSE_Linux_9.3">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:19:13+01:00" counted_at="2007-03-14T20:19:13+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T17:58:07+01:00" counted_at="2007-03-17T17:58:07+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:19:13+01:00" counted_at="2007-03-14T20:19:13+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T17:58:07+01:00" counted_at="2007-03-17T17:58:07+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-17T17:54:46+01:00" counted_at="2007-03-17T17:54:46+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_Factory">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:29:27+01:00" counted_at="2007-03-14T20:29:27+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T17:30:50+01:00" counted_at="2007-03-17T17:30:50+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-17T17:36:59+01:00" counted_at="2007-03-17T17:36:59+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:29:27+01:00" counted_at="2007-03-14T20:29:27+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T17:30:50+01:00" counted_at="2007-03-17T17:30:50+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:13:53+01:00" counted_at="2007-03-14T20:13:53+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T17:09:36+01:00" counted_at="2007-03-17T17:09:36+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-16T23:44:52+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">2</count>
+          <count release="2.2" created_at="2007-03-17T17:09:36+01:00" counted_at="2007-03-17T21:47:28+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">1</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:40:33+01:00" counted_at="2007-03-14T20:40:33+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T17:21:06+01:00" counted_at="2007-03-17T17:21:06+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-14T20:13:52+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T16:58:08+01:00" counted_at="2007-03-17T16:58:08+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:23:39+01:00" counted_at="2007-03-14T20:23:39+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T16:58:08+01:00" counted_at="2007-03-17T16:58:08+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:13:52+01:00" counted_at="2007-03-14T20:13:52+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T17:11:19+01:00" counted_at="2007-03-17T17:11:19+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="2.1" created_at="2007-03-14T20:15:54+01:00" counted_at="2007-03-14T20:15:54+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T17:18:59+01:00" counted_at="2007-03-17T17:18:59+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.1" created_at="2007-03-14T20:15:54+01:00" counted_at="2007-03-14T20:15:54+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+          <count release="2.2" created_at="2007-03-17T17:39:52+01:00" counted_at="2007-03-17T17:39:52+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.1" created_at="2007-03-14T20:38:46+01:00" counted_at="2007-03-17T16:36:11+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">1</count>
+          <count release="2.2" created_at="2007-03-17T17:18:59+01:00" counted_at="2007-03-17T17:18:59+01:00" filetype="rpm" filename="perl-Object-Realize-Later" version="0.15">0</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="perl-xmltv">
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="2.4" created_at="2007-03-07T21:48:31+01:00" counted_at="2007-03-12T20:09:17+01:00" filetype="rpm" filename="perl-xmltv" version="0.5.44">1</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.4" created_at="2007-03-07T21:57:25+01:00" counted_at="2007-03-07T21:57:25+01:00" filetype="rpm" filename="perl-xmltv" version="0.5.44">0</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.4" created_at="2007-03-07T21:48:31+01:00" counted_at="2007-03-07T21:48:31+01:00" filetype="rpm" filename="perl-xmltv" version="0.5.44">0</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="2.4" created_at="2007-03-07T21:57:48+01:00" counted_at="2007-03-07T21:57:48+01:00" filetype="rpm" filename="perl-xmltv" version="0.5.44">0</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.4" created_at="2007-03-07T21:57:48+01:00" counted_at="2007-03-09T18:00:51+01:00" filetype="rpm" filename="perl-xmltv" version="0.5.44">1</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.4" created_at="2007-03-07T22:09:10+01:00" counted_at="2007-03-07T22:09:10+01:00" filetype="rpm" filename="perl-xmltv" version="0.5.44">0</count>
+        </arch>
+      </repository>
+    </package>
+  </project>
+  <project name="Beagle">
+    <package name="kerry">
+      <repository name="openSUSE_Factory">
+        <arch name="src">
+          <count release="4.7" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:39+01:00" filetype="rpm" filename="kerry" version="0.2.2">9</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="4.7" created_at="2007-03-18T11:30:10+01:00" counted_at="2007-03-21T07:15:41+01:00" filetype="rpm" filename="kerry" version="0.2.2">5</count>
+        </arch>
+        <arch name="i586">
+          <count release="4.7" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:37+01:00" filetype="rpm" filename="kerry" version="0.2.2">9</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="4.5" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T07:15:34+01:00" filetype="rpm" filename="kerry" version="0.2.2">9</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="4.5" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T12:16:16+01:00" filetype="rpm" filename="kerry" version="0.2.2">36</count>
+        </arch>
+        <arch name="i586">
+          <count release="4.5" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T15:01:51+01:00" filetype="rpm" filename="kerry" version="0.2.2">110</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="4.5" created_at="2007-03-16T00:46:14+01:00" counted_at="2007-03-21T07:15:21+01:00" filetype="rpm" filename="kerry" version="0.2.2">9</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="4.5" created_at="2007-03-16T01:24:16+01:00" counted_at="2007-03-21T07:15:22+01:00" filetype="rpm" filename="kerry" version="0.2.2">9</count>
+        </arch>
+        <arch name="i586">
+          <count release="4.5" created_at="2007-03-16T00:46:14+01:00" counted_at="2007-03-21T07:15:17+01:00" filetype="rpm" filename="kerry" version="0.2.2">11</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="4.5" created_at="2007-03-16T01:16:55+01:00" counted_at="2007-03-21T07:15:27+01:00" filetype="rpm" filename="kerry" version="0.2.2">11</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="4.5" created_at="2007-03-16T01:16:55+01:00" counted_at="2007-03-21T07:15:29+01:00" filetype="rpm" filename="kerry" version="0.2.2">10</count>
+        </arch>
+        <arch name="i586">
+          <count release="4.5" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="kerry" version="0.2.2">23</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="beagle">
+      <repository name="openSUSE_Factory">
+        <arch name="src">
+          <count release="5.1" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:39+01:00" filetype="rpm" filename="beagle" version="0.2.16.3">10</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="5.1" created_at="2007-03-16T01:07:09+01:00" counted_at="2007-03-21T07:15:40+01:00" filetype="rpm" filename="beagle" version="0.2.16.3">10</count>
+          <count release="5.1" created_at="2007-03-16T01:07:09+01:00" counted_at="2007-03-21T07:15:40+01:00" filetype="rpm" filename="beagle-evolution" version="0.2.16.3">9</count>
+          <count release="5.1" created_at="2007-03-16T01:07:09+01:00" counted_at="2007-03-21T07:15:40+01:00" filetype="rpm" filename="beagle-firefox" version="0.2.16.3">10</count>
+          <count release="5.1" created_at="2007-03-16T01:07:09+01:00" counted_at="2007-03-21T07:15:40+01:00" filetype="rpm" filename="beagle-gui" version="0.2.16.3">10</count>
+          <count release="5.1" created_at="2007-03-16T01:07:09+01:00" counted_at="2007-03-21T07:15:40+01:00" filetype="rpm" filename="beagle-thunderbird" version="0.2.16.3">10</count>
+        </arch>
+        <arch name="i586">
+          <count release="5.1" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:36+01:00" filetype="rpm" filename="beagle" version="0.2.16.3">12</count>
+          <count release="5.1" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:36+01:00" filetype="rpm" filename="beagle-evolution" version="0.2.16.3">11</count>
+          <count release="5.1" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:36+01:00" filetype="rpm" filename="beagle-firefox" version="0.2.16.3">13</count>
+          <count release="5.1" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:36+01:00" filetype="rpm" filename="beagle-gui" version="0.2.16.3">10</count>
+          <count release="5.1" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:37+01:00" filetype="rpm" filename="beagle-thunderbird" version="0.2.16.3">9</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="5.1" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T07:15:34+01:00" filetype="rpm" filename="beagle" version="0.2.16.3">9</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="5.1" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T12:16:18+01:00" filetype="rpm" filename="beagle" version="0.2.16.3">42</count>
+          <count release="5.1" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T10:24:14+01:00" filetype="rpm" filename="beagle-evolution" version="0.2.16.3">25</count>
+          <count release="5.1" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T12:15:35+01:00" filetype="rpm" filename="beagle-firefox" version="0.2.16.3">38</count>
+          <count release="5.1" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T10:24:14+01:00" filetype="rpm" filename="beagle-gui" version="0.2.16.3">27</count>
+          <count release="5.1" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T07:15:35+01:00" filetype="rpm" filename="beagle-thunderbird" version="0.2.16.3">13</count>
+        </arch>
+        <arch name="i586">
+          <count release="5.1" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T15:01:51+01:00" filetype="rpm" filename="beagle" version="0.2.16.3">143</count>
+          <count release="5.1" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T10:42:05+01:00" filetype="rpm" filename="beagle-evolution" version="0.2.16.3">63</count>
+          <count release="5.1" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T15:02:06+01:00" filetype="rpm" filename="beagle-firefox" version="0.2.16.3">138</count>
+          <count release="5.1" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T10:45:17+01:00" filetype="rpm" filename="beagle-gui" version="0.2.16.3">75</count>
+          <count release="5.1" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T07:15:31+01:00" filetype="rpm" filename="beagle-thunderbird" version="0.2.16.3">27</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="5.1" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:27+01:00" filetype="rpm" filename="beagle" version="0.2.16.3">12</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="5.1" created_at="2007-03-16T16:38:29+01:00" counted_at="2007-03-21T07:15:28+01:00" filetype="rpm" filename="beagle" version="0.2.16.3">11</count>
+          <count release="5.1" created_at="2007-03-16T16:38:29+01:00" counted_at="2007-03-21T07:15:28+01:00" filetype="rpm" filename="beagle-evolution" version="0.2.16.3">9</count>
+          <count release="5.1" created_at="2007-03-16T16:38:29+01:00" counted_at="2007-03-21T07:15:28+01:00" filetype="rpm" filename="beagle-firefox" version="0.2.16.3">10</count>
+          <count release="5.1" created_at="2007-03-16T16:38:29+01:00" counted_at="2007-03-21T07:15:28+01:00" filetype="rpm" filename="beagle-gui" version="0.2.16.3">9</count>
+          <count release="5.1" created_at="2007-03-16T16:38:29+01:00" counted_at="2007-03-21T07:15:28+01:00" filetype="rpm" filename="beagle-thunderbird" version="0.2.16.3">8</count>
+        </arch>
+        <arch name="i586">
+          <count release="5.1" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="beagle" version="0.2.16.3">33</count>
+          <count release="5.1" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="beagle-evolution" version="0.2.16.3">17</count>
+          <count release="5.1" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="beagle-firefox" version="0.2.16.3">35</count>
+          <count release="5.1" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="beagle-gui" version="0.2.16.3">24</count>
+          <count release="5.1" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="beagle-thunderbird" version="0.2.16.3">12</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="beaglefs">
+      <repository name="openSUSE_Factory">
+        <arch name="src">
+          <count release="1.1" created_at="2007-03-20T22:02:26+01:00" counted_at="2007-03-21T07:15:39+01:00" filetype="rpm" filename="beaglefs" version="1.0.4">1</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="1.1" created_at="2007-03-20T22:14:29+01:00" counted_at="2007-03-21T07:15:40+01:00" filetype="rpm" filename="beaglefs" version="1.0.4">1</count>
+        </arch>
+        <arch name="i586">
+          <count release="1.1" created_at="2007-03-20T22:02:26+01:00" counted_at="2007-03-21T07:15:37+01:00" filetype="rpm" filename="beaglefs" version="1.0.4">1</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="1.1" created_at="2007-03-20T22:02:17+01:00" counted_at="2007-03-21T07:15:34+01:00" filetype="rpm" filename="beaglefs" version="1.0.4">1</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="1.1" created_at="2007-03-20T22:06:30+01:00" counted_at="2007-03-21T07:15:35+01:00" filetype="rpm" filename="beaglefs" version="1.0.4">1</count>
+        </arch>
+        <arch name="i586">
+          <count release="1.1" created_at="2007-03-20T22:02:16+01:00" counted_at="2007-03-21T07:15:31+01:00" filetype="rpm" filename="beaglefs" version="1.0.4">1</count>
+        </arch>
+      </repository>
+      <repository name="Fedora_Extras_6">
+        <arch name="src">
+          <count release="1.1" created_at="2007-03-20T22:01:55+01:00" counted_at="2007-03-21T07:15:16+01:00" filetype="rpm" filename="beaglefs" version="1.0.4">1</count>
+        </arch>
+        <arch name="i386">
+          <count release="1.1" created_at="2007-03-20T22:01:55+01:00" counted_at="2007-03-21T07:15:15+01:00" filetype="rpm" filename="beaglefs" version="1.0.4">1</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="kio_beagle">
+      <repository name="openSUSE_Factory">
+        <arch name="src">
+          <count release="33.7" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:39+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">9</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="33.7" created_at="2007-03-16T01:07:09+01:00" counted_at="2007-03-21T07:15:41+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">9</count>
+        </arch>
+        <arch name="i586">
+          <count release="33.7" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:37+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">9</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="33.4" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T07:15:34+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">8</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="33.4" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T12:15:53+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">10</count>
+        </arch>
+        <arch name="i586">
+          <count release="33.4" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T07:15:31+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">13</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="33.4" created_at="2007-03-16T00:46:14+01:00" counted_at="2007-03-21T07:15:21+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">9</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="33.4" created_at="2007-03-16T01:24:16+01:00" counted_at="2007-03-21T07:15:22+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">9</count>
+        </arch>
+        <arch name="i586">
+          <count release="33.4" created_at="2007-03-16T00:46:14+01:00" counted_at="2007-03-21T07:15:17+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">10</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="33.4" created_at="2007-03-16T01:16:55+01:00" counted_at="2007-03-21T07:15:27+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">10</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="33.4" created_at="2007-03-16T01:16:55+01:00" counted_at="2007-03-21T07:15:29+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">10</count>
+        </arch>
+        <arch name="i586">
+          <count release="33.4" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="kio_beagle" version="0.3.1">24</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="libbeagle">
+      <repository name="openSUSE_Factory">
+        <arch name="src">
+          <count release="6.1" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:40+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">10</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="6.1" created_at="2007-03-16T01:07:09+01:00" counted_at="2007-03-21T07:15:41+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">10</count>
+          <count release="6.1" created_at="2007-03-16T01:07:09+01:00" counted_at="2007-03-21T07:15:41+01:00" filetype="rpm" filename="libbeagle-devel" version="0.2.16.3">9</count>
+          <count release="6.1" created_at="2007-03-16T01:07:09+01:00" counted_at="2007-03-21T07:15:41+01:00" filetype="rpm" filename="libbeagle-doc" version="0.2.16.3">9</count>
+        </arch>
+        <arch name="i586">
+          <count release="6.1" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:37+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">12</count>
+          <count release="6.1" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:37+01:00" filetype="rpm" filename="libbeagle-devel" version="0.2.16.3">9</count>
+          <count release="6.1" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:37+01:00" filetype="rpm" filename="libbeagle-doc" version="0.2.16.3">9</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="6.1" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T07:15:34+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">8</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="6.1" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T12:16:01+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">45</count>
+          <count release="6.1" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T07:15:35+01:00" filetype="rpm" filename="libbeagle-devel" version="0.2.16.3">16</count>
+          <count release="6.1" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T07:15:35+01:00" filetype="rpm" filename="libbeagle-doc" version="0.2.16.3">8</count>
+        </arch>
+        <arch name="i586">
+          <count release="6.1" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T15:01:58+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">150</count>
+          <count release="6.1" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T10:37:31+01:00" filetype="rpm" filename="libbeagle-devel" version="0.2.16.3">33</count>
+          <count release="6.1" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T07:15:31+01:00" filetype="rpm" filename="libbeagle-doc" version="0.2.16.3">10</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="6.1" created_at="2007-03-16T00:46:14+01:00" counted_at="2007-03-21T07:15:21+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">9</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="6.1" created_at="2007-03-16T01:24:16+01:00" counted_at="2007-03-21T07:15:22+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">9</count>
+          <count release="6.1" created_at="2007-03-16T01:24:16+01:00" counted_at="2007-03-21T07:15:22+01:00" filetype="rpm" filename="libbeagle-devel" version="0.2.16.3">9</count>
+          <count release="6.1" created_at="2007-03-16T01:24:16+01:00" counted_at="2007-03-21T07:15:22+01:00" filetype="rpm" filename="libbeagle-doc" version="0.2.16.3">9</count>
+        </arch>
+        <arch name="i586">
+          <count release="6.1" created_at="2007-03-16T00:46:14+01:00" counted_at="2007-03-21T07:15:18+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">15</count>
+          <count release="6.1" created_at="2007-03-16T00:46:14+01:00" counted_at="2007-03-21T07:15:18+01:00" filetype="rpm" filename="libbeagle-devel" version="0.2.16.3">12</count>
+          <count release="6.1" created_at="2007-03-16T00:46:14+01:00" counted_at="2007-03-21T07:15:18+01:00" filetype="rpm" filename="libbeagle-doc" version="0.2.16.3">10</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="6.1" created_at="2007-03-16T01:16:55+01:00" counted_at="2007-03-21T07:15:27+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">10</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="6.1" created_at="2007-03-16T01:16:55+01:00" counted_at="2007-03-21T07:15:29+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">11</count>
+          <count release="6.1" created_at="2007-03-16T01:16:55+01:00" counted_at="2007-03-21T07:15:29+01:00" filetype="rpm" filename="libbeagle-devel" version="0.2.16.3">9</count>
+          <count release="6.1" created_at="2007-03-16T01:16:55+01:00" counted_at="2007-03-21T07:15:29+01:00" filetype="rpm" filename="libbeagle-doc" version="0.2.16.3">9</count>
+        </arch>
+        <arch name="i586">
+          <count release="6.1" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="libbeagle" version="0.2.16.3">34</count>
+          <count release="6.1" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="libbeagle-devel" version="0.2.16.3">13</count>
+          <count release="6.1" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="libbeagle-doc" version="0.2.16.3">9</count>
+        </arch>
+      </repository>
+    </package>
+    <package name="kbeaglebar">
+      <repository name="openSUSE_Factory">
+        <arch name="src">
+          <count release="2.7" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:39+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">9</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.7" created_at="2007-03-16T01:07:09+01:00" counted_at="2007-03-21T07:15:41+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">10</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.7" created_at="2007-03-15T23:51:51+01:00" counted_at="2007-03-21T07:15:37+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">9</count>
+        </arch>
+      </repository>
+      <repository name="openSUSE_10.2">
+        <arch name="src">
+          <count release="2.4" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T07:15:34+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">9</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.4" created_at="2007-03-16T01:45:50+01:00" counted_at="2007-03-21T12:16:01+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">10</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.4" created_at="2007-03-16T00:04:03+01:00" counted_at="2007-03-21T11:02:52+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">28</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.0">
+        <arch name="src">
+          <count release="2.4" created_at="2007-03-16T00:46:14+01:00" counted_at="2007-03-21T07:15:20+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">9</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.4" created_at="2007-03-16T01:24:16+01:00" counted_at="2007-03-21T07:15:22+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">9</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.4" created_at="2007-03-16T00:46:14+01:00" counted_at="2007-03-21T07:15:17+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">10</count>
+        </arch>
+      </repository>
+      <repository name="SUSE_Linux_10.1">
+        <arch name="src">
+          <count release="2.4" created_at="2007-03-16T01:16:55+01:00" counted_at="2007-03-21T07:15:27+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">10</count>
+        </arch>
+        <arch name="x86_64">
+          <count release="2.4" created_at="2007-03-16T01:16:55+01:00" counted_at="2007-03-21T07:15:28+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">9</count>
+        </arch>
+        <arch name="i586">
+          <count release="2.4" created_at="2007-03-16T01:17:43+01:00" counted_at="2007-03-21T07:15:24+01:00" filetype="rpm" filename="kbeaglebar" version="0.5.0">12</count>
+        </arch>
+      </repository>
+    </package>
+  </project>
+</redirect_stats>

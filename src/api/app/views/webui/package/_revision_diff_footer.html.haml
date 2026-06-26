@@ -1,0 +1,14 @@
+- if request.present?
+  %p
+    The previous request
+    = link_to(request['id'], request_show_path(project, package, request['id']))
+    was declined #{TimeComponent.new(time: request['when']).human_time} by
+    = user_with_realname_and_icon(request['decliner'], short: true)
+    with the following message:
+    %pre= request['comment']
+- if submit_message && show_link
+  %ul.nav
+    %li.nav-item
+      = link_to(new_project_package_submission_path(project, package, revision: revision), class: 'nav-link') do
+        %i.fas.fa-share-square.text-warning
+        = submit_message

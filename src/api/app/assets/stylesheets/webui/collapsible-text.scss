@@ -1,0 +1,75 @@
+@mixin collapsible($maxHeight: 4.5em, $maxWidth: $seventy-five-chars, $moreButtonLabel: 'Show more ', $lessButtonLabel: 'Show less ') {
+  .obs-collapsible-textbox {
+    padding-right: 1em;
+    @extend .text-break;
+    max-width: $maxWidth;
+
+    .obs-collapsible-text {
+      overflow: hidden;
+      line-height: 1.5;
+      max-height: $maxHeight;
+
+      p:last-child { @extend .mb-0; }
+      &.expanded { max-height: initial; }
+    }
+
+    .show-content {
+      text-decoration: none;
+      @extend .small;
+      @extend .float-end;
+      @extend .mt-2;
+
+      &.more{
+        &:before { content: $moreButtonLabel; }
+        i { @extend .fa-chevron-down; }
+      }
+      &.less{
+        &:before { content: $lessButtonLabel; }
+        i { @extend .fa-chevron-up; }
+      }
+    }
+  }
+
+  .obs-collapsible-textbox.full-width {
+    max-width: none;
+    width: 100%;
+
+    .show-content {
+      @extend .mt-0;
+    }
+  }
+}
+
+#description-text {
+  p { @extend .mb-4; }
+  @include collapsible($maxHeight: 15em);
+}
+
+#request-history .card-body {
+  @include collapsible($maxHeight: 4.5em);
+}
+
+#involvement-description {
+  @include collapsible($maxHeight: 2.75em, $maxWidth: none);
+  .obs-collapsible-textbox {  @extend .pe-0; }
+}
+
+.list-group-item {
+  @include collapsible($maxHeight: 2.75em, $maxWidth: none, $moreButtonLabel: 'Expand name ', $lessButtonLabel: 'Shrink name ');
+}
+
+#mentioned-issues .list-group-item {
+  max-width: 75ch;
+  @include collapsible($maxHeight: 2.75em, $maxWidth: 75ch);
+}
+
+// TODO: Remove this when the request_show_redesign is removed
+#issue-summary {
+  @include collapsible($maxHeight: 1.5em);
+  .obs-collapsible-textbox {  @extend .pe-0; }
+}
+
+.canned-response-card-text {
+  p { @extend .mb-4; }
+  @include collapsible($maxHeight: 4.5em, $maxWidth: 70ch);
+}

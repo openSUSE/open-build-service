@@ -1,0 +1,31 @@
+= form_for(comment, method: form_method, remote: true,
+           html: { id: "#{element_suffix}_form", class: "#{form_method}-comment-form", onsubmit: "clearDraftCommentFromSession(event.target.id)" },
+           data: { turbo_frame: "_top" }) do |f|
+  = hidden_field_tag :commentable_type, commentable.class.name, { id: "#{element_suffix}_commentable_type" }
+  = hidden_field_tag :commentable_id, commentable.id, { id: "#{element_suffix}_commentable_id" }
+  - if defined?(file_index)
+    = f.hidden_field :diff_file_index, value: file_index, id: "#{element_suffix}_diff_file_index"
+    = f.hidden_field :diff_line_number, value: line_number, id: "#{element_suffix}_diff_line_number"
+  - if defined?(source_rev) && defined?(target_rev)
+    = f.hidden_field :source_rev, value: source_rev, id: "#{element_suffix}_source_rev"
+    = f.hidden_field :target_rev, value: target_rev, id: "#{element_suffix}_target_rev"
+  = f.hidden_field :parent_id, value: comment.parent_id, id: "#{element_suffix}_parent_id"
+
+  = render WriteAndPreviewComponent.new(form: f, preview_message_url: preview_comments_path, canned_responses_enabled: true,
+                                        message_body_param: 'comment[body]', text_area_attributes: { object_name: 'body', id_suffix: element_suffix,
+                                        placeholder: 'Write your comment here... (Markdown markup is supported)',
+                                        commentable_type: commentable.class.name.underscore, commentable_id: commentable.id,
+                                        diff_file_index: defined?(diff_file_index) ? diff_file_index : nil,
+                                        diff_line_number: defined?(line_number) ? line_number : nil }, bs_request: commentable)
+  .comment-controls.my-3
+    - case form_method
+    - when :post
+      = f.submit 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, disabled: true
+    - when :put
+      = f.submit 'Update comment', class: 'btn btn-primary me-2', data: { disable_with: 'Updating comment...' }
+    - if has_cancel
+      %a.cancel-comment.btn.btn-outline-secondary
+        Cancel
+
+  :javascript
+    draftComments('#{f.id}');

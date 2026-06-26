@@ -1,0 +1,42 @@
+.modal.fade#add-reviewer-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'add-reviewer-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(action: 'add_reviewer') do
+        .modal-header
+          %h5.modal-title#add-reviewer-modal-label Add a reviewer to request #{params['number']}
+        .modal-body
+          = hidden_field_tag(:number, params['number'])
+          .mb-3
+            = label_tag(:review_type, 'Request review from:')
+            = select_tag(:review_type, options_for_select([['User', 'review-user'], ['Group Members', 'review-group'],
+                                                           ['Project Maintainers', 'review-project'], ['Package Maintainers', 'review-package']]),
+                                                           class: 'form-select')
+            %p.text-wrap.mt-1#reviewer-meaning
+              The review will be requested from the selected user
+          .hideable.review-user
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'review_user', label: 'User:', required: true,
+                                                                     data: { source: autocomplete_users_path } }
+
+          .hideable.review-group.d-none
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'review_group', label: 'Group:', required: true,
+                                                                     data: { source: autocomplete_groups_path } }
+          .hideable.review-project.review-package.d-none
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'review_project', label: 'Project:', required: true,
+                                                                     data: { source: autocomplete_projects_path } }
+
+          .hideable.review-package.d-none
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'review_package', label: 'Package:', required: true,
+                                                                     data: { source: autocomplete_packages_path } }
+
+          .mb-3{ data: { 'canned-controller': '' } }
+            - if Flipper.enabled?(:canned_responses, User.session)
+              .d-flex.justify-content-end
+                - request_canned_responses = bs_request.canned_responses.where(decision_type: nil)
+                - user_canned_responses = User.session.canned_responses.where(decision_type: nil)
+                = render CannedResponsesDropdownComponent.new(user_canned_responses.or(request_canned_responses).order(:title))
+            = text_area_tag('review_comment', '', row: 3, class: 'form-control', placeholder: 'Comment for reviewer')
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons'
+
+- content_for :ready_function do
+  requestAddAutocomplete('#review_type');

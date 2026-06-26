@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="Basis-Devel" version="10" release="235.2">
+    <pattern ordernumber="4010">
+        <category>Development</category>
+        <description>Minimal set of tools for compiling and linking applications</description>
+        <summary>C/C++ Compiler and Tools</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="basesystem" relationship="requires" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="requires" id="Basis-Devel.requires">
+            <package name="autoconf" />
+            <package name="automake" />
+            <package name="cvs" />
+    </packagelist>
+    <packagelist relationship="recommends" id="Basis-Devel.recommends">
+            <package name="bison" />
+            <package name="emacs" />
+            <package name="emacs-info" />
+            <package name="emacs-x11" />
+            <package name="flex" />
+            <package name="gcc" />
+            <package name="gcc-c++" />
+            <package name="gcc-info" />
+            <package name="gcc-locale" />
+            <package name="gdbm-devel" />
+            <package name="glibc-devel" />
+            <package name="glibc-info" />
+            <package name="itrace" />
+            <package name="kernel-source" />
+            <package name="libaio-devel" />
+            <package name="libstdc++-devel" />
+            <package name="libstdc++-doc" />
+            <package name="ncurses-devel" />
+            <package name="pkg-config" />
+            <package name="rcs" />
+            <package name="texinfo" />
+    </packagelist>
+</group>

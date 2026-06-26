@@ -1,0 +1,7 @@
+in: path
+name: package_name
+schema:
+  type: string
+required: true
+description: Package name
+example: "ctris"

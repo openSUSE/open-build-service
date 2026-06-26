@@ -1,0 +1,223 @@
+ post:
+  summary: Return the diff of changes made by a service run.
+  description: |
+     Return the diff of changes made by a service run.
+
+     Despite using the method `POST`, this endpoint doesn't alter any data.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/diff_file_deprecated.yaml'
+    - $ref: '../components/parameters/diff_file.yaml'
+    - $ref: '../components/parameters/diff_filelimit.yaml'
+    - $ref: '../components/parameters/diff_onlyissues.yaml'
+    - $ref: '../components/parameters/diff_rev.yaml'
+    - $ref: '../components/parameters/diff_tarlimit.yaml'
+    - $ref: '../components/parameters/diff_unified.yaml'
+    - $ref: '../components/parameters/diff_view.yaml'
+    - $ref: '../components/parameters/diff_withissues.yaml'
+  responses:
+    '200':
+      description: OK
+      content:
+        text/plain:
+          schema:
+            type: string
+          examples:
+            No Changes:
+              description: If the last run of services didn't change the sources, return empty.
+              value: |
+            Without any value for view parameter:
+              value: |
+                new:
+                ----
+                  _service:obs_scm:obs-api-testsuite-rspec.spec
+
+                spec files:
+                -----------
+
+                ++++++ new spec file:
+                --- _service:obs_scm:obs-api-testsuite-rspec.spec
+                +++ _service:obs_scm:obs-api-testsuite-rspec.spec
+                @@ -0,0 +1,73 @@
+                +#
+                +# spec file for package obs-api-testsuite-rspec
+                +#
+                +
+                +
+                +Name:           obs-api-testsuite-rspec
+                +Version:        2.10~pre
+                +Release:        0
+                +Summary:        The Open Build Service -- RSpec test suite
+                +License:        GPL-2.0-only OR GPL-3.0-only
+                +Group:          Productivity/Networking/Web/Utilities
+                +Url:            http://www.openbuildservice.org
+                +Source0:        open-build-service-%version.tar.xz
+                +BuildRequires:  obs-api-testsuite-deps
+                +# rspec specific dependencies
+                +BuildRequires:  chromedriver
+                +BuildRequires:  xorg-x11-fonts
+                +BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+                +%if 0%{?disable_obs_frontend_test_suite} || 0%{?disable_obs_test_suite}
+                +ExclusiveArch:  nothere
+                +%else
+                +ExclusiveArch:  x86_64
+                +%endif
+                +
+                +
+                +%description
+                +Running the RSpec test suite of the OBS frontend independently
+                +of packaging the application
+                +
+                +%prep
+                +%setup -q -n open-build-service-%{version}
+                +
+                +%build
+                +# run in build environment
+                +pushd src/backend/
+                +rm -rf build
+                +ln -sf /usr/lib/build build
+                +popd
+                +
+                +pushd src/api
+                +# configure to the bundled gems
+                +bundle --local --path %_libdir/obs-api/
+                +
+                +./script/prepare_spec_tests.sh
+                +
+                +export RAILS_ENV=test
+                +bin/rake db:setup
+                +bin/rails assets:precompile
+                +
+                +bin/rspec -f d --exclude-pattern 'spec/db/**/*_spec.rb'
+                +
+                +# now migration tests (if they fail they create tons of follow up errors, so run them last)
+                +bin/rspec -f d -P 'spec/db/**/*_spec.rb'
+                +
+                +%install
+                +
+                +# no result
+                +%files
+                +
+                +%changelog
+            With view=unified:
+              value: |
+                Index: _service:obs_scm:obs-api-testsuite-rspec.spec
+                ===================================================================
+                --- _service:obs_scm:obs-api-testsuite-rspec.spec (added)
+                +++ _service:obs_scm:obs-api-testsuite-rspec.spec (revision c63d8550ea46703ce56000277de12d1c)
+                @@ -0,0 +1,73 @@
+                +#
+                +# spec file for package obs-api-testsuite-rspec
+                +#
+                [...]
+                +%changelog
+                Index: _service:obs_scm:obs-server.spec
+                ===================================================================
+                --- _service:obs_scm:obs-server.spec (added)
+                +++ _service:obs_scm:obs-server.spec (revision c63d8550ea46703ce56000277de12d1c)
+                @@ -0,0 +1,1120 @@
+                +#
+                +# spec file for package obs-server
+                [...]
+                +Recommends:     yum yum-metadata-parser repoview dpkg
+                +Recommends:     deb >= 1.5
+                (921 more lines skipped)
+                Index: _service:obs_scm:open-build-service-2.11~alpha.20221007T165328.9f99a31a.obscpio
+                ===================================================================
+                Binary file _service:obs_scm:open-build-service-2.11~alpha.20221007T165328.9f99a31a.obscpio (revision c63d8550ea46703ce56000277de12d1c) added
+                Index: _service:obs_scm:open-build-service.obsinfo
+                ===================================================================
+                --- _service:obs_scm:open-build-service.obsinfo (added)
+                +++ _service:obs_scm:open-build-service.obsinfo (revision c63d8550ea46703ce56000277de12d1c)
+                @@ -0,0 +1,4 @@
+                +name: open-build-service
+                +version: 2.11~alpha.20221007T165328.9f99a31a
+                +mtime: 1665154408
+                +commit: 9f99a31afe0ab435c1dd1d02be5f52fe4425b00f
+        text/xml:
+          schema:
+            type: object
+            properties:
+              name:
+                key: string
+                xml:
+                  attribute: true
+            xml:
+              name: sourcediff
+          examples:
+            # Representing a `sourcediff` xml with a schema is not possible.
+            # The `diff` element has both: content and an attribute (`lines`).
+            # OpenAPI specification 3.0 doesn't allow to represent XML elements with both content and attributes.
+            # See https://github.com/OAI/OpenAPI-Specification/issues/630
+            # Therefore we use the type string to represent xml, instead of defining a schema.
+            With view=xml:
+              value: |
+                <?xml version="1.0" encoding="UTF-8"?>
+                <sourcediff key="1634c0e9b7625f79874458d437a4f225">
+                  <old project="home:Admin" package="test" rev="62be45f382bfef30d5028b3f3161d4fc" srcmd5="62be45f382bfef30d5028b3f3161d4fc"/>
+                  <new project="home:Admin" package="test" rev="c63d8550ea46703ce56000277de12d1c" srcmd5="c63d8550ea46703ce56000277de12d1c"/>
+                  <files>
+                    <file state="added">
+                      <new name="_service:obs_scm:obs-api-testsuite-rspec.spec" md5="4fab7cf67a4293a22778d2062239864c" size="2069"/>
+                      <diff lines="74">@@ -0,0 +1,73 @@
+                +#
+                +# spec file for package obs-api-testsuite-rspec
+                [...]
+                +
+                +%changelog
+                </diff>
+                    </file>
+                    <file state="added">
+                      <new name="_service:obs_scm:obs-server.spec" md5="49bbbfd13505e676cd02296094095933" size="36575"/>
+                      <diff lines="1121" shown="200">@@ -0,0 +1,1120 @@
+                +#
+                +# spec file for package obs-server
+                [...]
+                +Recommends:     yum yum-metadata-parser repoview dpkg
+                +Recommends:     deb &gt;= 1.5
+                </diff>
+                    </file>
+                    <file state="added">
+                      <new name="_service:obs_scm:open-build-service-2.11~alpha.20221007T165328.9f99a31a.obscpio" md5="9f6cb81b792f4afc208d285086f3e9ec" size="96545294"/>
+                      <diff binary="1" lines="0"></diff>
+                    </file>
+                    <file state="added">
+                      <new name="_service:obs_scm:open-build-service.obsinfo" md5="7220e2c761f90c579e01ba0d3c2af25a" size="137"/>
+                      <diff lines="5">@@ -0,0 +1,4 @@
+                +name: open-build-service
+                +version: 2.11~alpha.20221007T165328.9f99a31a
+                +mtime: 1665154408
+                +commit: 9f99a31afe0ab435c1dd1d02be5f52fe4425b00f
+                </diff>
+                    </file>
+                  </files>
+                </sourcediff>
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Boolean:
+              description: Passing a value different than `0` or `1` to `unified`, for example.
+              value: |
+                <xml version="1.0" encoding="UTF-8"?>
+                <status code="400" origin="backend">
+                  <summary>not boolean</summary>
+                </status>
+            No Service Run:
+              value: |
+                <xml version="1.0" encoding="UTF-8"?>
+                <status code="400" origin="backend">
+                  <summary>no service was run for this revision</summary>
+                </status>
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages

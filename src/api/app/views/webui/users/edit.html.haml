@@ -1,0 +1,31 @@
+- @pagetitle = "Edit User #{@displayed_user}"
+
+.card.mb-3
+  .card-body
+    %h3= @pagetitle
+    .col-md-6.ps-0
+      = form_for(@displayed_user) do |form|
+        = form.hidden_field(:login)
+        .mb-3
+          = form.label(:realname, 'Name:')
+          = form.text_field(:realname, class: 'form-control')
+        .mb-3
+          = form.label(:email, 'Email:')
+          = render partial: 'webui/shared/required_label_mark'
+          = form.text_field(:email, required: true, email: true, class: 'form-control')
+        .mb-3
+          = form.collection_check_boxes(:role_ids, Role.global, :id, :title, {}) do |checkbox|
+            .form-check
+              = checkbox.check_box(class: 'form-check-input')
+              = checkbox.label(class: 'form-check-label')
+        .mb-3
+          = form.collection_radio_buttons(:state, User::STATES - ['subaccount'], :to_s, :to_s, class: 'form-check-input') do |radio|
+            .form-check.custom-control-inline
+              = radio.radio_button(class: 'form-check-input')
+              = radio.label(class: 'form-check-label')
+        - if User.admin_session?
+          .mb-3
+            .form-check
+              = form.check_box(:ignore_auth_services, { class: 'form-check-input' }, true)
+              = form.label(:ignore_auth_services, 'Local user', class: 'form-check-label')
+        = form.submit('Update', class: 'btn btn-primary', data: { disable_with: 'Updating...' })

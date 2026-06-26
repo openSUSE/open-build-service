@@ -1,0 +1,525 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>To Say Nothing of the Dog</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>To Say Nothing of the Dog</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 04 Dec 2023 21:52:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_3/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_3">
+          <title/>
+          <description/>
+          <person userid="user_3" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_3">
+          <title></title>
+          <description></description>
+          <person userid="user_3" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 04 Dec 2023 21:52:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/against_the_rules/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="against_the_rules" project="factory">
+          <title>The Golden Apples of the Sun</title>
+          <description>Reprehenderit magnam nihil modi.</description>
+          <person userid="user_3" role="maintainer"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '218'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="against_the_rules" project="factory">
+          <title>The Golden Apples of the Sun</title>
+          <description>Reprehenderit magnam nihil modi.</description>
+          <person userid="user_3" role="maintainer"/>
+        </package>
+  recorded_at: Mon, 04 Dec 2023 21:52:04 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/against_the_rules
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - afe137b8-9d95-4a1f-b1ff-db260fe580ac
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '92'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="against_the_rules" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/against_the_rules?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '92'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="against_the_rules" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/against_the_rules/_history?deleted=0&meta=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - afe137b8-9d95-4a1f-b1ff-db260fe580ac
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '31'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+        </revisionlist>
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?lastbuild=1&locallink=1&multibuild=1&package=against_the_rules&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - c8b78245-591e-41eb-bd84-6a015352e9e0
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?lastbuild=1&locallink=1&multibuild=1&package=against_the_rules&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ff6bd4c4-38b9-4000-9ba2-f95e1c570396
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?package=against_the_rules&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 95e1efd4-51a2-4906-97a2-10fed3b7e77b
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/against_the_rules
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 4d0a9f64-eae0-48a6-a203-95b300b79cee
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '92'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="against_the_rules" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/against_the_rules?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '92'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="against_the_rules" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory/against_the_rules/_history?deleted=0&meta=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 4d0a9f64-eae0-48a6-a203-95b300b79cee
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '31'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+        </revisionlist>
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?lastbuild=1&locallink=1&multibuild=1&package=against_the_rules&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - fc7606f6-096a-4d94-81c8-8df093faded9
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?lastbuild=1&locallink=1&multibuild=1&package=against_the_rules&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 6a229120-f5a3-41d2-85e6-05a81be8f348
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:52:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/factory/_result?package=against_the_rules&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - a31da44b-84fd-4b3a-8228-412e8742c1d1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 04 Dec 2023 21:52:07 GMT
+recorded_with: VCR 6.2.0

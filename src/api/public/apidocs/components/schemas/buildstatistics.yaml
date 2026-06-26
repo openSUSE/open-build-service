@@ -1,0 +1,154 @@
+type: object
+properties:
+  disk:
+    type: object
+    properties:
+      usage:
+        type: object
+        properties:
+          size:
+            type: object
+            properties:
+              # FIXME: 'content' attribute missing due to https://github.com/OAI/OpenAPI-Specification/issues/630
+              # This happens for all `size` and `time` elements in this schema
+              unit:
+                type: string
+                xml:
+                  attribute: true
+          io_requests:
+            type: string
+          io_sectors:
+            type: string
+  memory:
+    type: object
+    properties:
+      usage:
+        type: object
+        properties:
+          size:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+  times:
+    type: object
+    properties:
+      total:
+        type: object
+        properties:
+          time:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+      preinstall:
+        type: object
+        properties:
+          time:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+      install:
+        type: object
+        properties:
+          time:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+      main:
+        type: object
+        properties:
+          time:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+      postchecks:
+        type: object
+        properties:
+          time:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+      rpmlint:
+        type: object
+        properties:
+          time:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+      buildcmp:
+        type: object
+        properties:
+          time:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+      deltarpms:
+        type: object
+        properties:
+          time:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+      download:
+        type: object
+        properties:
+          time:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+      cpusteal:
+        type: object
+        properties:
+          time:
+            type: object
+            properties:
+              unit:
+                type: string
+                xml:
+                  attribute: true
+  download:
+    type: object
+    properties:
+      size:
+        type: object
+        properties:
+          unit:
+            type: string
+            xml:
+              attribute: true
+      binaries:
+        type: string
+      cachehits:
+        type: string
+
+xml:
+  name: 'buildstatistics'

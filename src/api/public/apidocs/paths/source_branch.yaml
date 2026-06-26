@@ -1,0 +1,116 @@
+post:
+  summary: Branch a set of packages based on attributes
+  description: |
+    Create a source link from a package of an existing project to a
+    new subproject of the requesters home project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - name: project
+      description: The project that you want to branch
+      in: query
+      schema:
+        type: string
+    - name: package
+      description: The package that you want to branch
+      in: query
+      schema:
+        type: string
+    - name: target_project
+      description: Project which will be used or created
+      in: query
+      schema:
+        type: string
+    - name: target_package
+      description: Package name which will be used
+      in: query
+      schema:
+        type: string
+    - name: attribute
+      description: Attribute used for package search, default is OBS:MaintenanceProject
+      in: query
+      schema:
+        type: string
+    - name: add_repositories
+      description: Copy the repositories from branched project
+      in: query
+      schema:
+        type: boolean
+    - name: update_path_elements
+      description: Check if repository path elements do use each other and adapt our own path elements
+      in: query
+      schema:
+        type: boolean
+    - name: update_project_attribute
+      description: Set a different Update Project attribute.
+      in: query
+      schema:
+        type: string
+      default: OBS:UpdateProject
+    - name: noaccess
+      description: Create hidden project. The new created project will be read protected
+      in: query
+      schema:
+        type: boolean
+    - name: extend_package_names
+      description: Extend repo and package names
+      in: query
+      schema:
+        type: boolean
+    - name: add_repositories_rebuild
+      description: Use defined rebuild policy for new repos or copy it from the source project
+      in: query
+      schema:
+        type: string
+        enum: [transitive direct local copy]
+    - name: add_repositories_block
+      description: Use defined block policy for new repos
+      in: query
+      schema:
+        type: string
+        enum: [all, local, never]
+    - name: newinstance
+      description: The target package exists only via project links, but the link should point to given project
+      in: query
+      schema:
+        type: boolean
+    - name: maintenance
+      describe: Explicitly asked for maintenance branch
+      in: query
+      schema:
+        type: boolean
+  responses:
+    '200':
+      description: ok
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+            summary: Ok
+            data:
+              - home:Admin
+              - hello_world
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                xml:
+                  attribute: true
+              summary:
+                type: string
+            xml:
+              name: status
+          example:
+            code: not_found
+            summary: no packages found by search criteria
+  tags:
+    - Sources

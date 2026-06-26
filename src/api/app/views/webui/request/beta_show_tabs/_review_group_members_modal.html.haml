@@ -1,0 +1,22 @@
+- group = review.group
+- users = group&.users&.sort_by(&:login) || []
+
+.modal.fade{ id: modal_id, tabindex: -1, role: 'dialog', aria: { labelledby: "#{modal_id}-label", hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title{ id: "#{modal_id}-label" }
+          Members of #{review.by_group}
+      .modal-body
+        - if group.nil?
+          %p This group does not exist.
+        - elsif users.empty?
+          %p This group does not have members.
+        - else
+          %ul.list-unstyled.mb-0
+            - users.each do |user|
+              %li.mb-2
+                = user_with_realname_and_icon(user.login, short: true)
+      .modal-footer
+        %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+          OK

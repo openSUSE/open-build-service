@@ -1,0 +1,35 @@
+type: object
+properties:
+  count:
+    type: string
+    xml:
+      attribute: true
+  entry:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          xml:
+            attribute: true
+        cpe:
+          type: string
+          xml:
+            attribute: true
+        originproject:
+          type: string
+          xml:
+            attribute: true
+        originpackage:
+          type: string
+          xml:
+            attribute: true
+        mtime:
+          type: string
+          xml:
+            attribute: true
+    xml:
+      name: product
+xml:
+  name: productlist

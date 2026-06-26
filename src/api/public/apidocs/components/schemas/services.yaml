@@ -1,0 +1,17 @@
+type: array
+items:
+  type: object
+  properties:
+    name:
+      type: string
+      xml:
+        attribute: true
+    mode:
+      type: string
+      xml:
+        attribute: true
+  xml:
+    name: service
+xml:
+  wrapped: true
+  name: services

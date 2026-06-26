@@ -1,0 +1,6 @@
+<% if flash[:error] %>
+  $('#flash').html("<%= escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash)) %>");
+<% end %>
+
+$('td[data-package-name="<%= @package.name %>"]').
+  html('<%= escape_javascript(render(partial: 'edit_comment', locals: { package_name: @package.name, editable: true, comment: @comment, project: @project })) %>');

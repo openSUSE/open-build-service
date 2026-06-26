@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<productdefinition xmlns:xi="http://www.w3.org/2001/XInclude">
+  <products>
+    <product>
+      <vendor>OBS_Fuzzies</vendor>
+      <name>simple</name>
+      <predecessor>too_complex</predecessor>
+      <predecessor>silly_fork</predecessor>
+      <version>13.1</version>
+      <release>0</release>
+      <register>
+        <target>sle-11-%{_target_cpu}</target>
+        <pool>
+          <repository project="BaseDistro" name="BaseDistro_repo" medium="DVD" />
+          <repository url="http://external.url/to.some.one" />
+        </pool>
+        <updates>
+          <repository project="BaseDistro2.0:LinkedUpdateProject" name="BaseDistro2LinkedUpdateProject_repo" />
+        </updates>
+      </register>
+      <shortsummary>SimpleProduct</shortsummary>
+      <summary>Simple OBS Product</summary>
+
+      <description>Some text
+in multiple
+lines
+      </description>
+
+      <urls>
+        <url name="bugtracker">https://bugzilla.novell.com/</url>
+      </urls>
+      <buildconfig>
+        <!-- This section is needed to generate the installation media -->
+        <producttheme>openSUSE</producttheme>
+        <betaversion>Beta2</betaversion>
+      </buildconfig>
+
+      <installconfig>
+        <!-- All flags needed during installation -->
+        <defaultlang>en_US</defaultlang>
+          <datadir>suse</datadir>
+          <descriptiondir>suse/setup/descr</descriptiondir>
+          <releasepackage name="simple-release" version="13.1" flag="EQ"/>
+          <distribution>openSUSE</distribution>
+        </installconfig>
+        <!-- All Flags needed in the running system -->
+        <runtimeconfig />
+      </product>
+    </products>
+
+    <xi:include href="defaults-conditionals.include" />
+    <xi:include href="defaults-archsets.include" />
+    <xi:include href="defaults-repositories.include" />
+
+    <mediasets>
+        <media type="cd"
+               flavor="cd"
+               name="OBS-CD"
+               sourcemedia="1"
+               create_pattern="false"
+               ignore_missing_meta_packages="true"
+               mediastyle="sle-13"
+               use_required="true"
+               use_suggested="false"
+               use_recommended="true">
+
+		<preselected_patterns>
+			<pattern name="OBS" />
+		</preselected_patterns>
+
+               <archsets>
+                   <archset ref="ix86" />
+                   <archset ref="x86_64" />
+               </archsets>
+               <metadata>
+                   <package name="skelcd-obs"/>
+		   <package name="patterns-obs"/>
+               </metadata>
+            <use group="obs">
+		<package name="package" relationship="requires" />
+<!--
+		<package name="obs-release" relationship="requires" />
+		<package name="obs-release-cd" relationship="requires" />
+-->
+	    </use>
+        </media>
+    </mediasets>
+
+    <xi:include href="obs.group"/>
+</productdefinition>
+

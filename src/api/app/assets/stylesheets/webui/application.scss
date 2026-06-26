@@ -1,0 +1,85 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+*/
+
+@import 'codemirror';
+@import 'editor-colors';
+@import 'bootstrap_variables/breakpoints';
+@import 'bootstrap_variables/colors';
+@import 'bootstrap_variables/spacers';
+@import 'bootstrap_variables/fonts';
+@import 'bootstrap_variables/sizes';
+@import 'bootstrap_variables/options';
+@import 'bootstrap';
+@import 'colors';
+@import 'font-awesome';
+@import 'tokenfield';
+@import 'links';
+@import 'datatables';
+@import 'card-component';
+@import 'breadcrumbs-component';
+@import 'tabs';
+@import 'kaminari';
+@import 'coderay';
+@import 'system-status';
+@import 'texts';
+@import 'build-results';
+@import 'autocomplete';
+@import 'package-attributes';
+@import 'modals';
+@import 'comments';
+@import 'cm2';
+@import 'live_build_log';
+@import 'borders';
+@import 'diff';
+@import 'staging-workflow';
+@import 'repositories';
+@import 'collapse-component';
+@import 'project-package-show-grid';
+@import 'user';
+@import 'pulse';
+@import 'requests';
+@import 'collapsible-text';
+@import 'architectures';
+@import 'flash';
+@import 'groups';
+@import 'patchinfo';
+@import 'image_templates';
+@import 'search';
+@import 'monitor';
+@import 'project-monitor';
+@import 'grid';
+@import 'sponsors';
+@import 'layout';
+@import 'navbar';
+@import 'notifications';
+@import 'notification_toolbar';
+@import 'sidebar-collapsible';
+@import 'user_profile';
+@import 'workflow_runs';
+@import 'watchlist';
+@import 'timeline';
+@import 'request_show_redesign/add_review';
+@import 'request_show_redesign/build_results';
+@import 'accordion-reviews';
+@import 'tokens';
+@import 'subscriptions';
+@import 'build-log';
+@import 'content-selector-filters';
+@import 'mixin';
+@import 'blame';
+@import 'canned-responses';
+@import 'rpmlint';
+
+html {
+    overflow-y: scroll !important;
+    scroll-padding-top: $top-navigation-height + $notification-toolbar-height;
+}

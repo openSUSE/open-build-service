@@ -1,0 +1,19 @@
+.modal.fade#linking-packages-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'linking-packages-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#linking-packages-modal-label Derived Packages
+      .modal-body
+        %ul.list-unstyled
+          - package.linking_packages.each do |linking_package|
+            :ruby
+              # FIXME: get rid of these helpers
+              name = if linking_package.name == package.name
+                       elide(linking_package.project.name, 46)
+                     else
+                       elide_two(linking_package.project.name, linking_package.name, 46).join(' / ')
+                     end
+            %li= link_to(name, package_show_path(project: linking_package.project.name, package: linking_package.name))
+      .modal-footer
+        %a.btn.btn-sm.btn-outline-danger.px-4{ data: { 'bs-dismiss': 'modal' } }
+          Cancel

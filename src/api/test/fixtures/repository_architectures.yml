@@ -1,0 +1,129 @@
+repository_architectures_1025734373:
+  repository_id: 142
+  position: 0
+  id: 1025734373
+  architecture: i586
+repository_architectures_1064140822:
+  repository_id: 95
+  position: 0
+  id: 1064140822
+  architecture: i586
+repository_architectures_1065345265:
+  repository_id: 85
+  position: 1
+  id: 1065345265
+  architecture: x86_64
+repository_architectures_141209731:
+  repository_id: 96
+  position: 0
+  id: 141209731
+  architecture: i586
+repository_architectures_142135418:
+  repository_id: 85
+  position: 0
+  id: 142135418
+  architecture: i586
+repository_architectures_170149496:
+  repository_id: 142
+  position: 1
+  id: 170149496
+  architecture: x86_64
+BaseDistro2.0_repo_i586:
+  repository_id: 92
+  position: 0
+  id: 252146842
+  architecture: i586
+BaseDistro2.0_repo_x86_64:
+  repository_id: 92
+  position: 1
+  architecture: x86_64
+BaseDistro3_BaseDistro3_repo:
+  repository_id: 93
+  position: 0
+  id: 291758395
+  architecture: i586
+repository_architectures_292651458:
+  repository_id: 86
+  position: 1
+  id: 292651458
+  architecture: x86_64
+repository_architectures_30317653:
+  repository_id: 87
+  position: 0
+  id: 30317653
+  architecture: i586
+repository_architectures_321722320:
+  repository_id: 144
+  position: 0
+  id: 321722320
+  architecture: i586
+repository_architectures_370025762:
+  repository_id: 89
+  position: 0
+  id: 370025762
+  architecture: i586
+repository_architectures_370951643:
+  repository_id: 82
+  position: 1
+  id: 370951643
+  architecture: x86_64
+repository_architectures_416656660:
+  repository_id: 141
+  position: 0
+  id: 416656660
+  architecture: i586
+repository_architectures_554243513:
+  repository_id: 90
+  position: 0
+  id: 554243513
+  architecture: i586
+repository_architectures_555447630:
+  repository_id: 82
+  position: 0
+  id: 555447630
+  architecture: i586
+repository_architectures_606742361:
+  repository_id: 144
+  position: 1
+  id: 606742361
+  architecture: x86_64
+repository_architectures_644141490:
+  repository_id: 94
+  position: 0
+  id: 644141490
+  architecture: i586
+repository_architectures_645312853:
+  repository_id: 86
+  position: 0
+  id: 645312853
+  architecture: i586
+repository_architectures_802332039:
+  repository_id: 141
+  position: 1
+  id: 802332039
+  architecture: x86_64
+repository_architectures_919186632:
+  repository_id: 88
+  position: 0
+  id: 919186632
+  architecture: i586
+repository_architectures_939541517:
+  repository_id: 91
+  position: 0
+  id: 939541517
+  architecture: i586
+repository_architectures_940713210:
+  repository_id: 81
+  position: 0
+  id: 940713210
+  architecture: i586
+repository_architectures_broken_publishing:
+  repository_id: 97
+  position: 0
+  id: 940713216
+  architecture: i586
+kde4_repo_arch:
+  repository_id: 98
+  position: 0
+  id: 940713217
+  architecture: s390

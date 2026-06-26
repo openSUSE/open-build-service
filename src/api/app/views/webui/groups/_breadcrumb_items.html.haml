@@ -1,0 +1,26 @@
+- case action_name
+- when 'index'
+  -# This page is only reachable from the configuration, so it's based on configuration
+  = render partial: 'webui/configuration/breadcrumb_items'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Manage Groups
+- when 'new'
+  = render partial: 'webui/configuration/breadcrumb_items'
+  %li.breadcrumb-item
+    = link_to 'Manage Groups', groups_path
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Create Group
+- when 'edit'
+  = render partial: 'webui/configuration/breadcrumb_items'
+  %li.breadcrumb-item
+    = link_to('Manage Groups', groups_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    = @group
+- when 'show'
+  %li.breadcrumb-item
+    - if User.admin_session?
+      = link_to 'Manage Groups', groups_path
+    - else
+      Groups
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    = @group

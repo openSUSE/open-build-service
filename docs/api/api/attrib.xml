@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<attribute name="list" namespace="OBS">
+   <value>A</value>
+   <value>B</value>
+   <issue name="123" tracker="bnc" />
+</attribute>

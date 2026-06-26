@@ -1,0 +1,9 @@
+%li
+  = link_to('#', aria: { controls: 'collapse-checkout', expanded: false },
+    'data-bs-toggle': 'collapse', 'data-bs-target': '#collapse-checkout-package', role: 'button') do
+    %i.fas.fa-download
+    Checkout Package
+  .collapse.collapse-checkout.border#collapse-checkout-package
+    %code
+      - api_url = Configuration.api_url ? " -A #{Configuration.api_url}" : ''
+      osc#{api_url} checkout #{project}/#{package} && cd $_

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar
+    xmlns="http://relaxng.org/ns/structure/1.0"
+    xmlns:a="http://www.example.com/annotation"
+    ns="http://buildservice.org/api"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng"/>
+
+  <start>
+    <ref name="status-element"/>
+  </start>
+
+  <define ns="" name="status-element">
+    <element ns="" name="status">
+      <a:documentation>
+        This element stores the information of the current build state.
+      </a:documentation>
+
+      <attribute name="package">
+        <data type="string"/>
+      </attribute>
+      <attribute name="code">
+        <ref name="repository-code"/>
+      </attribute>
+
+      <optional>
+        <attribute name="dirty">
+          <data type="boolean"/>
+          <a:documentation>
+            Defaults to false and is omitted then.
+          </a:documentation>
+        </attribute>
+      </optional>
+
+      <optional>
+        <element name="details">
+          <a:documentation>
+            Optionally this element contains additional information about the
+            current state of the build (e.g. on which worker it is being built)
+          </a:documentation>
+          <text/>
+        </element>
+      </optional>
+
+    </element>
+  </define>
+</grammar>

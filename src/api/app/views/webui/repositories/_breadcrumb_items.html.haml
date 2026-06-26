@@ -1,0 +1,14 @@
+- if defined?(@package)
+  = render partial: 'webui/package/breadcrumb_items'
+- else
+  = render partial: 'webui/project/breadcrumb_items'
+
+- if current_page?(repositories_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Repositories
+- else
+  %li.breadcrumb-item
+    = link_to 'Repositories', repositories_path
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    - if defined?(@repository) && current_page?(project_repository_state_path)
+      Repository State

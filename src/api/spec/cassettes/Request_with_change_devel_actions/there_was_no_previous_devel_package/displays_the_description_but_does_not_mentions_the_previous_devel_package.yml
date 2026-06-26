@@ -1,0 +1,258 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>A Farewell to Arms</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>A Farewell to Arms</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 30 Mar 2023 16:48:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/package_2/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="project_4">
+          <title>Blithe Spirit</title>
+          <description>Ratione minus deserunt impedit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="project_4">
+          <title>Blithe Spirit</title>
+          <description>Ratione minus deserunt impedit.</description>
+        </package>
+  recorded_at: Thu, 30 Mar 2023 16:48:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_5/_meta?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>Brandy of the Damned</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>Brandy of the Damned</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 30 Mar 2023 16:48:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_5/package_2/_meta?user=user_10
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="project_5">
+          <title>Many Waters</title>
+          <description>Facere veniam soluta in.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '141'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="project_5">
+          <title>Many Waters</title>
+          <description>Facere veniam soluta in.</description>
+        </package>
+  recorded_at: Thu, 30 Mar 2023 16:48:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_5/package_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Thu, 30 Mar 2023 16:48:10 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/project_5/package_2?cmd=diff&expand=1&filelimit=10000&opackage=package_2&oproject=project_4&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '275'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="8361c35ae213e87a5a6e186d70d37d12">
+          <old project="project_4" package="package_2" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="project_5" package="package_2" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Thu, 30 Mar 2023 16:48:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/project_5/_result?package=package_2&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 7e9e04be-e045-4786-80d9-9971e87141dd
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 30 Mar 2023 16:48:10 GMT
+recorded_with: VCR 6.1.0

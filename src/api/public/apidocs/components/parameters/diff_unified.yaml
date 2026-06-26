@@ -1,0 +1,14 @@
+in: query
+name: unified
+schema:
+  type: string
+  enum:
+    - 1
+    - 0
+description: |
+  Set to `1` to use unified diff format. Same as setting `view=unified`.
+
+  Setting `unified` to `1` takes precedence on the setting of the `view` parameter.
+
+  See `view` parameter for details on the unified format.
+example: 1

@@ -1,0 +1,38 @@
+get:
+  summary: List all distributions.
+  description: |
+    List all distributions that can be build against.
+    This will not list distributions that are available via
+    [interconnect](https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-concepts#id-1.2.10.3.5).
+    Check /distributions/include_remotes for this.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      $ref: '../components/responses/distributions.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Distributions
+
+post:
+  summary: Create a distribution.
+  description: |
+    Create a distribution.
+
+    This is only for admins.
+  security:
+    - basic_authentication: []
+  requestBody:
+    description: Distribution definition
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/distribution.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/distribution.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Distributions

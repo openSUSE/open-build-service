@@ -1,0 +1,35 @@
+@import 'datatables/dataTables.bootstrap5';
+@import 'datatables/extensions/Responsive/responsive.bootstrap5';
+@import 'datatables/extensions/FixedColumns/fixedColumns.bootstrap5';
+
+table.table-fixed {
+  table-layout: fixed
+}
+
+// TODO: Delete when bug is fixed: https://github.com/mkhairi/jquery-datatables/issues/17
+table.dataTable.table-sm {
+  min-width: 100%;
+  // This added margin breaks layout
+  margin: 0!important;
+
+  td {
+    white-space: normal !important;
+    @extend .text-break;
+  }
+  // Fixed columns need a solid background to work properly
+  &.DTFC_Cloned {
+    background: $card-bg;
+    thead.header th {
+      &:before, &:after { display: none }
+    }
+  }
+}
+
+.table-hover tbody tr:hover {
+  background-color: $custom-gray-100;
+}
+
+#projects-datatable_wrapper .dataTables_paginate {
+  @extend .d-flex;
+  @extend .justify-content-center;
+}

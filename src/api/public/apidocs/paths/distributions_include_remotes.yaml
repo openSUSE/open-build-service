@@ -1,0 +1,12 @@
+get:
+  summary: List all distributions including remote.
+  description: List all distributions that can be build against, including the ones provided by the interconnect.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      $ref: '../components/responses/distributions.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Distributions

@@ -1,0 +1,57 @@
+get:
+  summary: Return build statistics from the last performed build.
+  description: Get specifics of build statistics from the last performed build.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/buildstatistics.yaml'
+          example:
+            disk:
+              usage:
+                size:
+                  unit: M
+                io_requests: 7750
+                io_sectors: 1248010
+            memory:
+              usage:
+                size:
+                  unit: M
+            times:
+              total:
+                time:
+                  unit: s
+              preinstall:
+                time:
+                  unit: s
+            download:
+              size:
+                unit: k
+              binaries: 5
+              cachehits: 131
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'unknown_project'
+            summary: 'Project not found: 1'
+
+  tags:
+    - Build

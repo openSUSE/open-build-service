@@ -1,0 +1,28 @@
+description: |
+  OK. The request has succeeded.
+
+  XML Schema used for body validation: [distribution.rng](../schema/distribution.rng)
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/distribution.yaml'
+    example:
+      distribution:
+        - vendor: 'opensuse'
+          version: 'Tumbleweed'
+          id: 16626
+          name: 'openSUSE Tumbleweed'
+          project: 'openSUSE:Factory'
+          reponame: 'openSUSE_Tumbleweed'
+          repository: 'snapshot'
+          link: 'http://www.opensuse.org/'
+          icon:
+            - url: 'https://static.opensuse.org/distributions/logos/opensuse.png'
+              width: 8
+              height: 8
+            - url: 'https://static.opensuse.org/distributions/logos/opensuse.png'
+              width: 16
+              height: 16
+          architecture:
+            - 'i586'
+            - 'x86_64'

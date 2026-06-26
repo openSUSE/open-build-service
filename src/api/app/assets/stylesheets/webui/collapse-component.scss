@@ -1,0 +1,13 @@
+[data-bs-toggle="collapse"] {
+  &[aria-expanded="false"] {
+    .collapser {
+      display: none !important;
+    }
+  }
+
+  &[aria-expanded="true"] {
+    .expander {
+      display: none !important;
+    }
+  }
+}

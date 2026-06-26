@@ -1,0 +1,21 @@
+description: OK. The request has succeeded.
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/status_messages.yaml'
+    example:
+      count: 2
+      status_message:
+        - id: 2
+          message: OBS 3.0 is released!
+          user: Iggy
+          severity: announcement
+          scope: all_users
+          created_at: 2021-10-15 13:28:22 UTC
+        - id: 1
+          message: Feature number 42 was implemented!
+          user: Iggy
+          severity: announcement
+          scope: all_users
+          created_at: 2021-10-12 11:18:12 UTC
+

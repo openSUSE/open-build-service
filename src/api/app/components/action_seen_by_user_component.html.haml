@@ -1,0 +1,13 @@
+- if @render_only
+  = render_icon_status
+
+- else
+  - button_text = 'Seen'
+
+  = link_to(toggle_request_path(action_id: @action.id),
+      class: 'btn btn-sm btn-outline-info',
+      title: 'Whether the action has been marked "as seen" or not yet',
+      method: :put, remote: true,
+      'data-disable-with': tag.i(class: 'fa-solid fa-spinner fa-spin') + button_text) do
+    = render_icon_status
+    = button_text

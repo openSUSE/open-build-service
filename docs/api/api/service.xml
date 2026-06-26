@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services>
+  <service name="verify_file">
+    <param name="checksum">12312313212</param>
+  </service>
+  <service name="download_url" mode="trylocal">
+    <param name="path">foo</param>
+    <param name="host">bar</param>
+  </service>
+</services>

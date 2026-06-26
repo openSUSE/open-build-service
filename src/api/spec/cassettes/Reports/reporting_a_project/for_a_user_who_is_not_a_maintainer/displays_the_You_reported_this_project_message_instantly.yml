@@ -1,0 +1,109 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/some_random_project/_meta?user=jane_doe
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="some_random_project">
+          <title>To Say Nothing of the Dog</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '121'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="some_random_project">
+          <title>To Say Nothing of the Dog</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 06 Dec 2023 11:07:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/some_random_project/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - b204cc0b-2edd-493b-88b2-2aaa3998c3ef
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Wed, 06 Dec 2023 11:07:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/some_random_project/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 55d7107d-a2ec-4759-b5bb-ffa13babc486
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Wed, 06 Dec 2023 11:07:33 GMT
+recorded_with: VCR 6.2.0

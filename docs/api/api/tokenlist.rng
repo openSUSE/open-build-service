@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api"
+         xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+         xmlns:a="http://www.example.com/annotation">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="directory-element"/>
+  </start>
+
+  <define name="directory-element">
+   <element ns="" name="directory">
+    <a:documentation>
+     Listing of all existing tokens
+    </a:documentation>
+
+    <attribute name="count">
+     <a:documentation>
+      Total number of tokens returned by this query.
+     </a:documentation>
+     <data type="nonNegativeInteger"/>
+    </attribute>
+
+    <zeroOrMore>
+     <element ns="" name="entry">
+      <a:documentation>
+       Each entry corresponds to a individual token. Each token is identified by
+       its id attribute.
+      </a:documentation>
+
+      <attribute name="id">
+       <data type="nonNegativeInteger"/>
+       <a:documentation>
+        The unique id of this token.
+       </a:documentation>
+      </attribute>
+
+      <attribute name="string">
+       <a:documentation>
+        The token secret. This string can be used instead of the password to
+        authenticate the user or to trigger service runs via the
+        `POST /trigger/runservice` route.
+       </a:documentation>
+       <data type="string"/>
+      </attribute>
+
+      <optional>
+       <attribute name="description">
+        <a:documentation>
+         This attribute can be used to identify a token from the list of tokens
+         of a user.
+        </a:documentation>
+        <data type="string"/>
+       </attribute>
+      </optional>
+
+     <attribute name="enabled">
+      <a:documentation>
+       Indicates whether a token can accept trigger requests or not. A token is
+       created with the `enabled` attribute set to `true`, but this attribute may
+       be automatically set to `false` depending on the number of failed trigger
+       requests associated with the token.
+      </a:documentation>
+      <data type="boolean"/>
+     </attribute>
+
+      <optional>
+       <attribute name="project">
+        <a:documentation>
+         If this token is bound to a specific package, then the packages'
+         project is available in this attribute.
+        </a:documentation>
+        <data type="string"/>
+       </attribute>
+       <attribute name="package">
+        <a:documentation>
+         The package name to which this token is bound, if it has been created
+         for a specific package. Otherwise this attribute and the project
+         attribute are omitted.
+        </a:documentation>
+        <data type="string"/>
+       </attribute>
+      </optional>
+
+      <attribute name="kind">
+       <a:documentation>
+        This attribute specifies which actions can be performed via this token.
+        - rss: used to retrieve the notification RSS feed
+        - rebuild: trigger rebuilds of packages
+        - release: trigger project releases
+        - runservice: run a service via the POST /trigger/runservice route
+        - workflow: trigger SCM/CI workflows, see https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-scm-ci-workflow-integration
+       </a:documentation>
+       <ref name="token-kind"/>
+      </attribute>
+
+      <attribute name="triggered_at">
+       <a:documentation>
+        The date and time a token got triggered the last time.
+       </a:documentation>
+       <data type="string"/>
+      </attribute>
+     </element>
+    </zeroOrMore>
+   </element>
+  </define>
+</grammar>

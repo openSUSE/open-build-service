@@ -1,0 +1,7 @@
+in: path
+name: namespace
+schema:
+  type: string
+required: true
+description: The namespace
+example: OBS_TEST

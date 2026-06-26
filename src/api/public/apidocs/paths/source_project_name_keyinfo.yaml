@@ -1,0 +1,39 @@
+get:
+  summary: Get a projects signing keys
+  description: Read information about the signing keys for the specified project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/source/project_keyinfo.yaml'
+          example:
+            project: openSUSE:Leap
+            pubkey:
+              keyid: b88b2fd43dbdc284
+              userid: "openSUSE Project Signing Key &lt;opensuse@opensuse.org&gt;"
+              algo: rsa
+              keysize: 2048
+              expires: 1887851113
+              fingerprint: 22c0 7ba5 3417 8cd0 2efe 22aa b88b 2fd4 3dbd c284
+            sslcert:
+              serial: 0xfabed8bf409a5e65
+              issuer: CN=openSUSE Secure Boot CA, C=DE, L=Nuremberg, O=openSUSE Project, emailAddress=build@opensuse.org
+              subject: CN=openSUSE Secure Boot Signkey, C=DE, L=Nuremberg, O=openSUSE Project, emailAddress=build@opensuse.org
+              algo: rsa
+              keysize: 2048
+              begins: 1655126536
+              expires: 1966166536
+              fingerprint: 1f67 3297 da56 8ae0 dedf db7c 8cc6 8f9e cb85 7275
+              keyid: fd9f 2c12 e599 d67c c7f9 0675 41ad f426 b712 469e
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects

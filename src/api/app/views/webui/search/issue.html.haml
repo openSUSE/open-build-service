@@ -1,0 +1,25 @@
+- @pagetitle = 'Search Issues'
+
+.card.mb-3
+  = render partial: 'tabs'
+  .card-body
+    %h3 Search issues:
+    .d-flex.justify-content-center
+      = form_tag(search_issue_path, method: :get, class: 'my-3 w-75') do
+        .mb-3.d-flex
+          .w-50
+            = select_tag(:issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker),
+                          class: 'form-select rounded-end-0')
+          .w-50
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'issue',
+                                                                  value: params[:issue],
+                                                                  placeholder: 'Issue ID',
+                                                                  required: true,
+                                                                  autofocus: true,
+                                                                  input_class: 'rounded-start-0',
+                                                                  button: { type: 'submit', class: 'btn-primary' } }
+
+        = render(partial: 'search_for')
+
+    - if @results.present?
+      = render(partial: 'results_issue', locals: { results: @results, per_page: @per_page })

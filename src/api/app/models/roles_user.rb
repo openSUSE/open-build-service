@@ -1,0 +1,36 @@
+class RolesUser < ApplicationRecord
+  belongs_to :user
+  belongs_to :role
+
+  validates :role, uniqueness: { scope: :user }
+  after_create { create_global_role_assignment_update_event('enabled') }
+  after_destroy { create_global_role_assignment_update_event('disabled') }
+
+  private
+
+  def create_global_role_assignment_update_event(action)
+    return if Role.global_roles.exclude?(role.title)
+
+    Event::GlobalRoleAssignmentUpdate.create(role: role.title, user: user.login, who: User.session&.login, action: action)
+  end
+end
+
+# == Schema Information
+#
+# Table name: roles_users
+#
+#  id         :integer          not null, primary key
+#  created_at :datetime
+#  role_id    :integer          default(0), not null, indexed, uniquely indexed => [user_id]
+#  user_id    :integer          default(0), not null, uniquely indexed => [role_id]
+#
+# Indexes
+#
+#  role_id                (role_id)
+#  roles_users_all_index  (user_id,role_id) UNIQUE
+#
+# Foreign Keys
+#
+#  roles_users_ibfk_1  (user_id => users.id)
+#  roles_users_ibfk_2  (role_id => roles.id)
+#

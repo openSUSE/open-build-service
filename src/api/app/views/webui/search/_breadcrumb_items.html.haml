@@ -1,0 +1,8 @@
+%li.breadcrumb-item.active{ 'aria-current' => 'page' }
+  - case action_name
+  - when 'index'
+    Search
+  - when 'issue'
+    Search Issues
+  - when 'owner'
+    Search Owners

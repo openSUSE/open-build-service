@@ -1,0 +1,13 @@
+%h2 Server Status
+- workerstatus.elements('partition') do |partition|
+  - if partition['name'].present?
+    %h3= partition['name']
+  - if partition.key?('daemon')
+    .row.p-2.g-0
+      - partition.elements('daemon') do |daemon|
+        .col-6.col-sm-3.col-md-2.col-lg-1.p-1
+          .h-100.p-2.border.text-center
+            %i.fa{ class: icon_for_daemon(daemon['state']), title: "#{daemon['state']}" }
+            %span.d-block= daemon['arch'] || daemon['type']
+  - else
+    %p No daemons running!

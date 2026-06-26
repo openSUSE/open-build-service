@@ -1,0 +1,17 @@
+.card.border-0.border-bottom.rounded-0.mb-3.sticky-top#notification-action-bar
+  .py-3
+    .d-flex.px-0.px-md-1
+      .form-check
+        = check_box_tag('select-all-notifications', 1, false, class: 'form-check-input')
+        %label.form-check-label.align-middle.me-4#select-all-label{ for: 'select-all-notifications' } Select All
+      .me-auto
+        - if state != 'read'
+          = button_tag("Mark selected as 'Read'", type: 'submit', class: 'btn btn-sm btn-outline-success px-3', id: 'read-button',
+                       disabled: 'disabled', 'data-disable-with': disable_with_content, value: 'read')
+        - if state != 'unread'
+          = button_tag("Mark selected as 'Unread'", type: 'submit', class: 'btn btn-sm btn-outline-success px-3', id: 'unread-button',
+                       disabled: 'disabled', 'data-disable-with': disable_with_content, value: 'unread')
+      - if total_count_notifications > Notification.max_per_page
+        .ms-4
+          = link_to(button_text(all: true), @update_path, method: :put, remote: true,
+                    class: 'btn btn-sm btn-outline-secondary px-3', 'data-disable-with': disable_with_content(all: true))

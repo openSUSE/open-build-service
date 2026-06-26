@@ -1,0 +1,16 @@
+<service name="set_version">
+  <summary>Updates version in spec file</summary>
+  <description>This service updates a spec file according to the existing files.
+Can be used after download_url or tar_scm service.
+</description>
+  <parameter name="version">
+    <description>Set version to this value, otherwise autodetection is running.</description>
+  </parameter>
+  <parameter name="basename">
+    <description>Limit version detection to files which start with given name.</description>
+  </parameter>
+  <parameter name="file">
+    <description>Update only the given file.</description>
+  </parameter>
+</service>
+

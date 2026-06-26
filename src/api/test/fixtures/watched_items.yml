@@ -1,0 +1,17 @@
+record_0:
+  id: 1
+  user: fred
+  watchable: kde4
+  watchable_type: 'Project'
+
+record_1:
+  id: 2
+  user: adrian
+  watchable: CopyTest
+  watchable_type: 'Project'
+
+record_2:
+  id: 3
+  user: Iggy
+  watchable: home_coolo
+  watchable_type: 'Project'

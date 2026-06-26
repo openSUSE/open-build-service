@@ -1,0 +1,51 @@
+.modal.fade{ id: "settings#{uid}" }
+  .modal-dialog
+    .modal-content
+      .modal-header
+        %h5.modal-title Editor settings
+        %button.btn.btn-close.float-end{ type: 'button', 'data-bs-dismiss': 'modal' }
+      .modal-body
+        .input-group
+          .input-group-text
+            Text size
+          = select_tag("fontsize_#{uid}", options_for_select(%w[0.5em 0.6em 0.75em 0.9em 1em 1.2em 1.5em]),
+            onchange: "editors[#{uid}].updateFontsize(this)", class: 'form-select')
+
+      .modal-body
+        .input-group
+          .input-group-text
+            Highlighting
+          :ruby
+            modes = [
+              ['changes', 'rpm-changes', { id: "rpm-changes_#{uid}" }],
+              ['spec', 'rpm-spec', { id: "rpm-spec-#{uid}" }],
+              ['diff', { id: "diff_#{uid}" }],
+              ['shell', 'text/x-sh', { id: "shell_#{uid}" }],
+              ['prjconf', 'prjconf', { id: "prjconf_#{uid}" }],
+              ['baselibs', 'baselibsconf', { id: "baselibs_#{uid}" }],
+              ['perl', { id: "perl_#{uid}" }],
+              ['css', 'css', { id: "css_#{uid}" }],
+              ['html', 'htmlmixed', { id: "html_#{uid}" }],
+              ['js', 'javascript', { id: "js_#{uid}" }],
+              ['php', 'application/x-httpd-php-open', { id: "php_#{uid}" }],
+              ['xml', { id: "xml_#{uid}" }],
+              ['---', '', { id: "x_#{uid}", selected: true }]
+            ]
+          = select_tag("mode_#{uid}", options_for_select(modes),
+            onchange: "editors[#{uid}].updateMode(this)", class: 'form-select')
+      .modal-body
+        .input-group
+          .input-group-text
+            Tab width
+          = select_tag("tabsize_#{uid}", options_for_select(2..8),
+            onchange: "editors[#{uid}].updateTabsize(this)", class: 'form-select')
+      .modal-body
+        .row
+          .col
+            %label Line wrapping:
+            %button.btn.d-block.w-100.btn-danger{ onclick: "editors[#{uid}].Wrap(this)" }
+              off
+          .col
+            %label Parenthesis matching:
+            %button.btn.d-block.w-100.btn-danger{ id: "match_#{uid}", onclick: "editors[#{uid}].Match(this);" }
+              off

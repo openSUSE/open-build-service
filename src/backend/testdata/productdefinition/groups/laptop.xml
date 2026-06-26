@@ -1,0 +1,22 @@
+<group name="laptop" version="10" release="215"
+       pattern:ordernumber="1070"
+       pattern:category="Base Technologies"
+       pattern:summary="Laptop"
+       pattern:description="Tools designed specifically for laptop computers."
+       pattern:visible="false"
+>
+    <pattern name="Laptop" relationship="provides" />
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="recommended">
+            <package name="atmel-firmware" />
+            <package name="ipw-firmware" />
+            <package name="ipw3945d" />
+            <package name="irda" />
+            <package name="madwifi" />
+            <package name="pcmciautils" />
+            <package name="suspend" />
+            <package name="tpctl" />
+            <package name="wpa_supplicant" />
+            <package name="xkvbd" />
+    </group>
+</group>

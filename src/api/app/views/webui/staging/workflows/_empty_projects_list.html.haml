@@ -1,0 +1,7 @@
+- if projects.empty?
+  None
+- else
+  %ul.ps-4
+    - projects.sort.each do |project|
+      %li
+        = render StagingProjectLinkComponent.new(staging_project: project, staging_workflow: staging_workflow)

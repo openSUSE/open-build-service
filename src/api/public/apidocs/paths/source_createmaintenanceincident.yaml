@@ -1,0 +1,39 @@
+post:
+  summary: Create maintenance incident projects
+  description: Create a maintenance incident project based on the project defined by the attribute `OBS:MaintenanceProject`.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: ok
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+            summary: Ok
+            data:
+              - MaintenanceProject:1
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: incident_has_no_maintenance_project
+            summary: incident projects shall only create below maintenance projects
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: modify_project_no_permission
+            summary: no permission to modify project 'MaintenanceProject'
+  tags:
+    - Sources

@@ -1,0 +1,7 @@
+$('#action-seen-by-user-wrapper').html(
+  "<%= escape_javascript(render ActionSeenByUserComponent.new(action: @action, user: @user)) %>"
+);
+
+$('#action-seen-by-user-wrapper-in-select-<%= @action.id %>').html(
+  "<%= escape_javascript(render ActionSeenByUserComponent.new(action: @action, user: @user, render_only: true)) %>"
+);

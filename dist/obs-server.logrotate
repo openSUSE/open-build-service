@@ -1,0 +1,20 @@
+/srv/obs/log/[^s]*.log /srv/obs/log/s[^r]*.log /srv/obs/log/srcrep.log /srv/obs/log/sourcepublisher.log /srv/obs/log/src_server.log {
+    su obsrun obsrun
+    compress
+    dateext
+    rotate 14
+    daily
+    missingok
+    copytruncate
+}
+
+/srv/obs/log/src_service.log {
+    su obsservicerun obsrun
+    compress
+    dateext
+    rotate 14
+    daily
+    missingok
+    copytruncate
+}
+

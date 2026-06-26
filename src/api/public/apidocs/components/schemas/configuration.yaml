@@ -1,0 +1,86 @@
+type: object
+properties:
+  title:
+    type: string
+    example: Open Build Service
+  description:
+    type: string
+    example: The openSUSE Build Service is the public instance of the Open Build Service (OBS)
+  name:
+    type: string
+    example: private
+  download_on_demand:
+    type: string
+    example: on
+  enforce_project_keys:
+    type: string
+    example: off
+  anonymous:
+    type: string
+    example: on
+  registration:
+    type: string
+    example: allow
+  default_access_disabled:
+    type: string
+    example: off
+  allow_user_to_create_home_project:
+    type: string
+    example: on
+  disallow_group_creation:
+    type: string
+    example: off
+  change_password:
+    type: string
+    example: on
+  obs_url:
+    type: string
+    example: 'https://unconfigured.openbuildservice.org'
+  tos_url:
+    type: string
+    example: 'https://en.opensuse.org/Terms_of_site'
+  hide_private_options:
+    type: string
+    example: off
+  gravatar:
+    type: string
+    example: on
+  cleanup_empty_projects:
+    type: string
+    example: on
+  disable_publish_for_branches:
+    type: string
+    example: on
+  admin_email:
+    type: string
+    example: unconfigured@openbuildservice.org
+  unlisted_projects_filter:
+    type: string
+    example: '^home:.+'
+  unlisted_projects_filter_description:
+    type: string
+    example: home projects
+  default_tracker:
+    type: string
+    example: bnc
+  code_of_conduct:
+    type: string
+    example: |
+      This is an example of a "Code of Conduct".
+
+      1. First point.
+
+      2. Second point.
+  schedulers:
+    type: object
+    properties:
+      arch:
+        type: array
+        items:
+          type: string
+        example:
+          - armv7l
+          - i586
+          - x86_64
+xml:
+  name: configuration

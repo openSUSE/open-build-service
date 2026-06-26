@@ -1,0 +1,43 @@
+- @pagetitle = 'Manage Beta Features'
+
+.card
+  .card-body
+    %h2= @pagetitle
+
+    .my-4
+      - if @user.in_beta?
+        %p
+          Thank you for joining the beta program! Give us
+          = link_to('feedback', 'https://openbuildservice.org/2018/10/04/the-beta-program/#how-to-provide-feedback')
+          on the features before they go live.
+      - else
+        %p
+          Join the beta program to try the latest features we develop and give us feedback on them before they go live.
+          Read our
+          = link_to('blog post', 'https://openbuildservice.org/2018/10/04/the-beta-program/')
+          on the beta program for more details.
+
+      = form_with(url: user_path(@user), method: :patch) do |_form|
+        .form-check.form-switch
+          = hidden_field_tag('user[in_beta]', false, id: nil)
+          = check_box_tag('user[in_beta]', !@user.in_beta, @user.in_beta, class: 'form-check-input', onChange: 'this.form.submit()')
+          = label_tag('user[in_beta]', 'Beta program', class: 'form-check-label')
+
+    - if @user.in_beta?
+      %hr
+
+      %p By default, all beta features are enabled as soon as you join the beta program.
+      %p
+        You can disable a specific beta feature if you want.
+        Enabling back a beta feature is always possible if you change your mind later.
+
+      - @beta_features.each do |feature_toggle|
+        - feature_toggle_name, feature_toggle_description = feature_toggle.values_at(:name, :description).map(&:to_s)
+        .mb-2
+          %h3= feature_toggle_name.humanize
+          = form_with(url: my_beta_feature_path, method: :put) do |_form|
+            .form-check.form-switch
+              = hidden_field_tag("feature[#{feature_toggle_name}]", 'disable', id: nil)
+              = check_box_tag("feature[#{feature_toggle_name}]", 'enable', @disabled_beta_features.exclude?(feature_toggle_name),
+                              class: 'form-check-input', onChange: 'this.form.submit()')
+              = label_tag("feature[#{feature_toggle_name}]", feature_toggle_description, class: 'form-check-label')

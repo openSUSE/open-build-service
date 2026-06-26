@@ -1,0 +1,21 @@
+- @pagetitle = 'Search'
+
+.card.mb-3
+  = render partial: 'tabs'
+  .card-body
+    %h3 Search for packages or projects:
+    .d-flex.justify-content-center
+      = form_tag(search_path, method: :get, class: 'my-3 w-75') do
+        .mb-3
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'search_input',
+                                                                value: params[:search_text],
+                                                                html_name: 'search_text', required: true,
+                                                                minlength: 2, autofocus: true,
+                                                                button: { type: 'submit', class: 'btn-primary' } }
+        = render(partial: 'search_for')
+        = render(partial: 'advanced_search', locals: { attrib_type_list: @attrib_type_list,
+                                                         issue_tracker_list: @issue_tracker_list,
+                                                         default_tracker: @default_tracker })
+
+    - if @results.present?
+      = render(partial: 'results', locals: { results: @results, per_page: @per_page, search_text: @search_text })

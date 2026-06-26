@@ -1,0 +1,43 @@
+- @pagetitle = "Blame #{truncate(@filename, length: 50)} of Package #{truncate(@package.name, length: 50)}"
+
+.card.mb-3
+  = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+  .card-body
+    %h3.text-word-break-all
+      Blame #{@filename} of Package #{@package}
+      - if @rev
+        (Revision #{@rev})
+    - if params[:rev]
+      %p
+        Currently displaying revision
+        %i= @rev
+        ,
+        = link_to('Show latest', expand: @expand)
+    // Coderay doesn't support rpmspec, which would be prerequisite here
+    -# code = CodeRay.scan(@file, :ruby).html.each_line.to_a
+    .blame
+      - @blame_info.each do |revision|
+        .revision
+          .info
+            - info = revision.first
+            .time= render TimeComponent.new(time: "#[info['date']} #{info['time']}".to_datetime)
+            .user
+              - if (user = User.find_by_login(info['login']))
+                = link_to(user_path(user)) do
+                  = render AvatarComponent.new(name: info['login'], email: user.email)
+            .commit.text-truncate
+              - rev = @revisions[info['revision']]
+              - if rev
+                = link_to(package_show_path(@project, @package_name, rev: info['revision'])) do
+                  - if rev['comment']
+                    = rev['comment']
+                  - else
+                    %i No commit message
+            .button
+              - if info['revision'].present? && info['revision'] != @rev
+                = link_to(project_package_file_blame_path(@project, @package_name, @filename, rev: info['revision'])) do
+                  %i.fas.fa-eye
+          .code.CodeRay<>
+            - revision.each do |line|
+              .number= line['line']
+              .content= line['content']

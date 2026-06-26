@@ -1,0 +1,14 @@
+%span.dropdown.ms-1
+  (edited
+  = link_to('#', role: 'button', data: { 'bs-toggle': 'dropdown' }, 'aria-expanded': false, class: 'dropdown-toggle') do
+    = render TimeComponent.new(time: @comment.versions.last.created_at)
+  )
+  .d-block
+    %ul.dropdown-menu
+      - @comment.versions.each do |version|
+        %li.dropdown-item
+          = link_to(comment_history_path(@comment, version_id: version.id, format: 'js'), data: { remote: true }) do
+            - if version.whodunnit
+              = User.find(version.whodunnit).login
+            = paper_trail_event(version.event)
+            = render TimeComponent.new(time: version.created_at)

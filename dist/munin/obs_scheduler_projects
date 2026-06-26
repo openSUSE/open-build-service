@@ -1,0 +1,24 @@
+#!/bin/sh
+# https://github.com/openSUSE/open-build-service/blob/master/src/backend/bs_sched
+
+sched=`grep arch /srv/obs/configuration.xml |sed -e 's/<[^>]*>//g'`
+
+case $1 in
+  config)
+       cat <<'EOM'
+graph_title OBS Scheduler: Projects
+graph_vlabel Number of projects
+graph_category obs
+EOM
+for i in $sched; do
+ echo "sched_"$i"_projects.label" "sched_"$i"_projects"
+ echo "sched_"$i"_projects.type GAUGE" 
+done
+       exit 0;;
+esac
+
+
+for i in $sched; do
+ val=`grep 'projects' /srv/obs/info/schedulerinfo.$i | sed 's/[^0-9]*//g'`
+ echo "sched_"$i"_projects.value $val"
+done

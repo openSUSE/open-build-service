@@ -1,0 +1,35 @@
+:ruby
+  @pagetitle = "Rebuild Time for Project #{@project}"
+  @metarobots = 'noindex'
+  p1 = @longestpaths[0].reverse
+  p2 = @longestpaths[1].reverse
+  p3 = @longestpaths[2].reverse
+
+.card
+  = render(partial: 'webui/project/tabs', locals: { project: @project })
+  .card-body
+    %h3
+      Rebuildtime:
+      = distance_of_time_in_words(Time.zone.now, Time.zone.now - @rebuildtime)
+      (#{format_seconds(@rebuildtime)})
+    %p
+      %img.rebuildgraph{ alt: 'Rebuild time graph', src: rebuild_time_png_project_rebuild_time_path(project_name: @project, key: @pngkey) }/
+    %p
+      Note that the above graph is based on real dependencies and real build times, but it is only a simulation of what
+      may happen when there is no other trouble and with a fixed set of build jobs associated to the project (usually not the
+      case). To see what happens with less or more build hosts, play with these numbers:
+    = form_tag(project_rebuild_time_path(project_name: @project), method: :get, class: 'row row-cols-auto mb-2') do
+      = hidden_field_tag(:arch, @arch)
+      = hidden_field_tag(:repository, @repository)
+      %p.mb-3
+        = label_tag(:hosts, 'Jobs:', class: 'me-1')
+        = select_tag(:hosts, options_for_select((2..100).to_a, @hosts), class: 'form-select me-1')
+        %button.btn.btn-primary{ type: 'submit' } Check
+    %h3 Longest Paths
+    %table.grid_16.alpha.omega
+      %tbody
+        - while (p1.size + p2.size + p3.size).positive?
+          %tr
+            %td= rebuild_time_col(p1.shift)
+            %td= rebuild_time_col(p2.shift)
+            %td= rebuild_time_col(p3.shift)

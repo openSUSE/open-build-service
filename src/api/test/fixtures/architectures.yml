@@ -1,0 +1,87 @@
+armv4l:
+  name: armv4l
+  available: 0
+armv5el:
+  name: armv5el
+  available: 0
+armv5l:
+  name: armv5l
+  available: 0
+armv6el:
+  name: armv6el
+  available: 0
+armv6l:
+  name: armv6l
+  available: 0
+armv7el:
+  name: armv7el
+  available: 0
+armv7l:
+  name: armv7l
+  available: 0
+armv7hl:
+  name: armv7hl
+  available: 0
+armv8el:
+  name: armv8el
+  available: 0
+hppa:
+  name: hppa
+  available: 0
+i586:
+  name: i586
+  available: 1
+i686:
+  name: i686
+  available: 0
+ia64:
+  name: ia64
+  available: 0
+local:
+  name: local
+  available: 0
+mips:
+  name: mips
+  available: 0
+mips32:
+  name: mips32
+  available: 0
+mips64:
+  name: mips64
+  available: 0
+ppc:
+  name: ppc
+  available: 0
+ppc64:
+  name: ppc64
+  available: 0
+ppc64le:
+  name: ppc64le
+  available: 0
+s390:
+  name: s390
+  available: 0
+s390x:
+  name: s390x
+  available: 0
+sparc:
+  name: sparc
+  available: 0
+sparc64:
+  name: sparc64
+  available: 0
+sparc64v:
+  name: sparc64v
+  available: 0
+sparcv8:
+  name: sparcv8
+  available: 0
+sparcv9:
+  name: sparcv9
+  available: 0
+sparcv9v:
+  name: sparcv9v
+  available: 0
+x86_64:
+  name: x86_64
+  available: 1

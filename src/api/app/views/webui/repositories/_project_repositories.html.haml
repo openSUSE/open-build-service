@@ -1,0 +1,36 @@
+.card.mb-3
+  = render partial: 'webui/project/tabs', locals: { project: project }
+  .card-body
+    %h3.pb-2= pagetitle
+
+    .d-flex.flex-wrap.gap-4.align-self-stretch#repositories
+      - repositories.each do |repository|
+        = render partial: 'repository_entry', locals: { repository: repository, project: project, download_url: configuration['download_url'],
+                    user_can_modify: user_can_modify, available_architectures: available_architectures }
+
+    %ul.nav.mb-0
+      - if user_can_modify
+        - if Distribution.any? || User.admin_session?
+          %li.nav-item
+            = link_to(new_project_distribution_path(project_name: project), class: 'nav-link') do
+              %i.fas.fa-plus-circle.text-primary
+              Add from a Distribution
+        %li.nav-item
+          = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-repository-from-project' }, class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Add from a Project
+      - if User.admin_session?
+        %li.nav-item
+          = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-dod-repository-modal' }, class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Add DoD Repository
+
+.card.mb-3
+  .card-header.d-flex.justify-content-between
+    %h5 Repositories Flags
+  .card-body
+    %p
+      You can configure individual flags for this project here.
+    = render partial: 'webui/shared/repositories',
+             locals: { project: project, package: package, flags: flags,
+                       architectures: architectures, user_can_modify: user_can_modify }

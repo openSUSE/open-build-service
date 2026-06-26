@@ -1,0 +1,15 @@
+= render partial: 'webui/project/breadcrumb_items'
+
+-# The package doesn't exist when the user is selecting which package to branch into
+  their project, so we don't check other paths below to avoid exceptions
+- if current_page?(project_new_packages_branch_path(@project))
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Branch Package
+- else
+  %li.breadcrumb-item.text-word-break-all
+    %i.fa.fa-archive
+    = link_to(@package, package_show_path(@project, @package))
+
+  - if current_page?(new_package_branches_path(package_name: @package, project: @project))
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Branch Package

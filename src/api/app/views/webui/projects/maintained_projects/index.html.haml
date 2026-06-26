@@ -1,0 +1,40 @@
+:ruby
+  @pagetitle = "Projects Maintained by #{@project}"
+  update_policy = policy(@project).update?
+  data_source = project_maintained_projects_path(@project, :json)
+
+.card
+  = render partial: 'webui/project/tabs', locals: { project: @project }
+  .card-body
+    %h3 Maintained Projects
+
+    .table-responsive
+      %table.table.table-sm.table-striped.table-bordered.w-100#maintained-projects-datatable{ 'data-source': data_source }
+        %thead
+          %tr
+            %th Name
+            %th Actions
+        %tbody
+
+    - if update_policy
+      .pt-4
+        = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#new-maintenance-project-modal' }, title: 'Add Project to Maintain') do
+          %i.fas.fa-plus-circle.text-primary
+          Add Project to Maintain
+
+- if update_policy
+  = render partial: 'delete_dialog'
+  = render partial: 'create_dialog', locals: { project_name: @project.name }
+
+= content_for :ready_function do
+  :plain
+    $('#maintained-projects-datatable').DataTable({
+      responsive: true,
+      processing: true,
+      serverSide: true,
+      ajax: $('#maintained-projects-datatable').data('source'),
+      columns: [
+        { data: 'name' },
+        { data: 'actions', orderable: false, searchable: false }
+      ]
+    });

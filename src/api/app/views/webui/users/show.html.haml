@@ -1,0 +1,36 @@
+:ruby
+  @pagetitle = @is_displayed_user ? 'Your Profile' : "Profile of #{@displayed_user}"
+
+  content_for(:meta_title, @pagetitle)
+  content_for(:meta_image, gravatar_url(@displayed_user.email))
+
+.row
+  .col-12.col-md-4.col-xxl-3
+    = render partial: 'webui/user/info', locals: { user: @displayed_user,
+                                                   is_user: @is_displayed_user,
+                                                   groups: @groups,
+                                                   role_titles: @role_titles,
+                                                   account_edit_link: @account_edit_link }
+  .col-12.col-md-8.col-xxl-9.ps-md-0
+    - locals = { involved_items_service: @involved_items_service,
+                 comments: @comments,
+                 displayed_user: @displayed_user }
+    - locals.merge!({ activities_per_year: @activities_per_year,
+                      first_day: @first_day,
+                      last_day: @last_day,
+                      date: @date,
+                      activities_per_day: @activities_per_day }) if contribution_graph?
+    = render partial: 'webui/user/involvement_and_activity', locals: locals
+  - content_for :ready_function do
+    :plain
+        // Show biography characters counter
+        $('body').on('focus keyup keydown', '#user_biography', function(e) {
+          updateCharactersCount(e);
+        });
+        // Hide biography characters counter
+        $('body').on('focusout', '#user_biography', function() {
+          $('#bio-chars-counter').css("visibility", "hidden");
+        });
+
+- if @is_displayed_user
+  = render partial: 'webui/user/password_dialog', locals: { user: @displayed_user }

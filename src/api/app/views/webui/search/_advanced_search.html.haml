@@ -1,0 +1,19 @@
+.mb-3
+  .card.mt-2.collapse#advanced-container
+    .card-body
+      %label Search in:
+      .mb-3
+        .form-check
+          = check_box_tag('name', 1, params[:name].nil? || params[:name] == '1', class: 'form-check-input')
+          %label.form-check-label{ for: 'name' } Name
+        .form-check
+          = check_box_tag('title', 1, params[:title] == '1', class: 'form-check-input')
+          %label.form-check-label{ for: 'title' } Title
+        .form-check
+          = check_box_tag('description', 1, params[:description] == '1', class: 'form-check-input')
+          %label.form-check-label{ for: 'description' } Description
+      .mb-3.row
+        .col-12.col-md-6
+          %label.d-block{ for: 'attrib_list' } Require attribute:
+          = select_tag(:attrib_type_id, options_for_select(attrib_type_list, params[:attrib_type_id]),
+                       id: 'attribute_list', class: 'form-select')

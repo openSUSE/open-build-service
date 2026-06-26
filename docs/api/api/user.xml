@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<person>
+  <login>cinderella</login>
+  <email>cindy@example.com</email>
+  <realname>Cinderella</realname>
+  <state>confirmed</state>
+  <globalrole>Admin</globalrole>
+  <watchlist>
+    <project name="ASCIIParadize"/>
+    <project name="crashtest"/>
+    <package name="emacs" project="Editors"/>
+    <request number="123456789"/>
+  </watchlist>
+</person>

@@ -1,0 +1,12 @@
+type: object
+properties:
+  status_message:
+    type: array
+    items:
+      $ref: 'status_message.yaml'
+  count:
+    type: integer
+    xml:
+      attribute: true
+xml:
+  name: status_messages

@@ -1,0 +1,5 @@
+- if CONFIG['software_opensuse_url']
+  %li
+    %i.fas.fa-download.text-secondary
+    - url = Addressable::URI.parse(CONFIG['software_opensuse_url']).join("download.html?project=#{u project.name}&package=#{u package.name}").to_s
+    = link_to('Download package', url)

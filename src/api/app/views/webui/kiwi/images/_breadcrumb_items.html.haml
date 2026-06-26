@@ -1,0 +1,9 @@
+- @project = @image.package.try(:project)
+- @package = @image.package
+
+%li.breadcrumb-item
+  = link_to(@image.package.try(:project), project_show_path(project: @image.package.try(:project)))
+%li.breadcrumb-item
+  = link_to(@package, package_show_path(project: @project, package: @package))
+%li.breadcrumb-item.active{ 'aria-current' => 'page' }
+  = @image.name

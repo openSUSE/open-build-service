@@ -1,0 +1,722 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>The Widening Gyre</title>
+          <description/>
+          <person userid="dimstar" role="maintainer"/>
+          <group groupid="factory-staging" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '210'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>The Widening Gyre</title>
+          <description></description>
+          <person userid="dimstar" role="maintainer"/>
+          <group groupid="factory-staging" role="reviewer"/>
+        </project>
+  recorded_at: Tue, 03 Jun 2025 14:52:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>The Lathe of Heaven</title>
+          <description/>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>The Lathe of Heaven</title>
+          <description></description>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 03 Jun 2025 14:52:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="factory-staging">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1">
+          <srcmd5>f52d2fa228da5a7a62608afca232acfe</srcmd5>
+          <time>1748962378</time>
+          <user>user_3</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:52:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="factory-staging">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+          <staging_project name="openSUSE:Factory:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2">
+          <srcmd5>709bb8e6a36709d62f4b7877d2ee542a</srcmd5>
+          <time>1748962378</time>
+          <user>user_3</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:52:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 03 Jun 2025 14:52:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>The Widening Gyre</title>
+          <description/>
+          <person userid="dimstar" role="maintainer"/>
+          <group groupid="factory-staging" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '210'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>The Widening Gyre</title>
+          <description></description>
+          <person userid="dimstar" role="maintainer"/>
+          <group groupid="factory-staging" role="reviewer"/>
+        </project>
+  recorded_at: Tue, 03 Jun 2025 14:52:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:something/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel:something">
+          <title>Dulce et Decorum Est</title>
+          <description/>
+          <person userid="user_4" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel:something">
+          <title>Dulce et Decorum Est</title>
+          <description></description>
+          <person userid="user_4" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 03 Jun 2025 14:52:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:something/source_package/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="devel:something">
+          <title>The Violent Bear It Away</title>
+          <description>Molestias et accusamus velit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="devel:something">
+          <title>The Violent Bear It Away</title>
+          <description>Molestias et accusamus velit.</description>
+        </package>
+  recorded_at: Tue, 03 Jun 2025 14:52:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:something/source_package/_config
+    body:
+      encoding: UTF-8
+      string: Id voluptas assumenda. Voluptatem vel delectus. Sapiente facere voluptatibus.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>c68aaf70a6a0b8fba995c85772b9cf62</srcmd5>
+          <version>unknown</version>
+          <time>1748962379</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:52:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:something/source_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: b
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>5815b29d0b92737ef4b413b09addf2cd</srcmd5>
+          <version>unknown</version>
+          <time>1748962379</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:52:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>The Skull Beneath the Skin</title>
+          <description>Ipsum culpa possimus consequatur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>The Skull Beneath the Skin</title>
+          <description>Ipsum culpa possimus consequatur.</description>
+        </package>
+  recorded_at: Tue, 03 Jun 2025 14:52:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_config
+    body:
+      encoding: UTF-8
+      string: Maiores voluptatibus dolorem. Voluptatum officia consequatur. Aut tempora
+        aut.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>af872f5eb0bed48ee8753e1893ab0205</srcmd5>
+          <version>unknown</version>
+          <time>1748962379</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:52:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: a
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>77ae9b1d0eb991f13e3e62ea02be68cb</srcmd5>
+          <version>unknown</version>
+          <time>1748962380</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:53:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel:something/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="2" vrev="2" srcmd5="5815b29d0b92737ef4b413b09addf2cd">
+          <entry name="_config" md5="ceb615a0bf4cf56e75142a29499401a2" size="77" mtime="1748962379"/>
+          <entry name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1" mtime="1748962379"/>
+        </directory>
+  recorded_at: Tue, 03 Jun 2025 14:53:00 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/devel:something/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=openSUSE:Factory&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1094'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="2ae6510798ed7a591e8eb0bab250c91b">
+          <old project="openSUSE:Factory" package="target_package" rev="2" srcmd5="77ae9b1d0eb991f13e3e62ea02be68cb"/>
+          <new project="devel:something" package="source_package" rev="2" srcmd5="5815b29d0b92737ef4b413b09addf2cd"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="b7e5663f3a9299408da28931a4a75930" size="78"/>
+              <new name="_config" md5="ceb615a0bf4cf56e75142a29499401a2" size="77"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Maiores voluptatibus dolorem. Voluptatum officia consequatur. Aut tempora aut.
+        \ No newline at end of file
+        +Id voluptas assumenda. Voluptatem vel delectus. Sapiente facere voluptatibus.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="0cc175b9c0f1b6a831c399e269772661" size="1"/>
+              <new name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -a
+        \ No newline at end of file
+        +b
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 03 Jun 2025 14:53:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel:something/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="2" vrev="2" srcmd5="5815b29d0b92737ef4b413b09addf2cd">
+          <entry name="_config" md5="ceb615a0bf4cf56e75142a29499401a2" size="77" mtime="1748962379"/>
+          <entry name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1" mtime="1748962379"/>
+        </directory>
+  recorded_at: Tue, 03 Jun 2025 14:53:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/target_package/_meta?user=ana
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory:Staging:A">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory:Staging:A">
+          <title></title>
+          <description></description>
+        </package>
+  recorded_at: Tue, 03 Jun 2025 14:53:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/target_package/_link?user=ana
+    body:
+      encoding: UTF-8
+      string: <link project="devel:something" package="source_package" rev="5815b29d0b92737ef4b413b09addf2cd"
+        vrev="2"/>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>f0d55af0b7d75588fb2893da40036073</srcmd5>
+          <version>unknown</version>
+          <time>1748962380</time>
+          <user>ana</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:53:00 GMT
+recorded_with: VCR 6.3.1

@@ -1,0 +1,21 @@
+= text_field_tag(nil, @input_text, readonly: true, id: 'copy-to-clipboard-readonly', class: 'form-control')
+%span.input-group-text#copy-to-clipboard
+  %i.fas.fa-clipboard
+
+:javascript
+  function copyToClipboard() {
+    document.getElementById('copy-to-clipboard-readonly').select();
+    document.execCommand('copy');
+  }
+
+- content_for :ready_function do
+  :plain
+    // Definition of the tooltip and click event handler for the "Copy to clipboard" icon
+    $('#copy-to-clipboard').tooltip({ title: 'Copy to clipboard' }).on('click', function () {
+      copyToClipboard();
+
+      // Shows "Copied!" tooltip. Later on shows the previous message 'Copy to clipboard' as tooltip.
+      $(this).tooltip('dispose').tooltip({ title: 'Copied!' }).tooltip('show').on('hidden.bs.tooltip', function () {
+        $(this).tooltip('dispose').tooltip({ title: 'Copy to clipboard' });
+      });
+    });

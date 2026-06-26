@@ -1,0 +1,9 @@
+- case action_name
+- when 'index'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Monitor
+- when 'old'
+  %li.breadcrumb-item
+    = link_to('Monitor', monitor_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Detailed

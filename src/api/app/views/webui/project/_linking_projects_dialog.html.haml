@@ -1,0 +1,13 @@
+.modal.fade#linking-projects-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'linking-projects-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#linking-projects-modal-label Projects linking to #{project}
+      .modal-body
+        %ul
+          - linking_projects.each do |linking_project|
+            %li
+              = link_to linking_project, project_show_path(linking_project)
+      .modal-footer
+        %button.btn.btn-sm.btn-outline-danger.px-4{ data: { 'bs-dismiss': 'modal' } }
+          Close

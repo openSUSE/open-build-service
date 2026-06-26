@@ -1,0 +1,89 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project/_meta?user=user_10
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 03 Jan 2024 15:43:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project/_meta?user=user_10
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+          <repository name="repository_6">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '249'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+          <repository name="repository_6">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Wed, 03 Jan 2024 15:43:58 GMT
+recorded_with: VCR 6.2.0

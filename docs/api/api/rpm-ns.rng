@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://linux.duke.edu/metadata/rpm" xmlns:ns1="http://linux.duke.edu/metadata/common" xmlns:rpm="http://linux.duke.edu/metadata/rpm" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <define name="element-format">
+    <element name="ns1:format">
+      <ref name="format"/>
+    </element>
+  </define>
+  <define name="format">
+    <interleave>
+      <ref name="element-license"/>
+      <ref name="element-vendor"/>
+      <ref name="element-group"/>
+      <ref name="element-buildhost"/>
+      <ref name="element-sourcerpm"/>
+      <ref name="element-header-range"/>
+    </interleave>
+    <zeroOrMore>
+      <choice>
+        <ref name="element-provides"/>
+        <ref name="element-conflicts"/>
+        <ref name="element-obsoletes"/>
+        <ref name="element-requires"/>
+        <ref name="element-recommends"/>
+        <ref name="element-enhances"/>
+        <ref name="element-supplements"/>
+        <ref name="element-suggests"/>
+      </choice>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="element-file"/>
+    </zeroOrMore>
+  </define>
+  <define name="element-license">
+    <element name="license">
+      <text/>
+    </element>
+  </define>
+  <define name="element-vendor">
+    <element name="vendor">
+      <text/>
+    </element>
+  </define>
+  <define name="element-group">
+    <element name="group">
+      <text/>
+    </element>
+  </define>
+  <define name="element-buildhost">
+    <element name="buildhost">
+      <text/>
+    </element>
+  </define>
+  <define name="element-sourcerpm">
+    <element name="sourcerpm">
+      <text/>
+    </element>
+  </define>
+  <define name="element-header-range">
+    <element name="header-range">
+      <ref name="header-range"/>
+    </element>
+  </define>
+  <define name="header-range">
+    <attribute name="start">
+      <data type="nonNegativeInteger"/>
+    </attribute>
+    <attribute name="end">
+      <data type="nonNegativeInteger"/>
+    </attribute>
+    <empty/>
+  </define>
+  <!-- rel="1" flags="LE" pre="1" ver="4.0" name -->
+  <define name="attribute-kind">
+    <attribute name="kind">
+      <choice>
+        <value>package</value>
+        <value>patch</value>
+        <value>script</value>
+        <value>message</value>
+        <value>product</value>
+        <value>atom</value>
+      </choice>
+    </attribute>
+  </define>
+  <!--
+    attribute-flags-provides =
+     attribute flags { "EQ" | "LE" | "GE" }
+    attribute-flags-obsoletes =
+     attribute flags { "EQ" | "LE" | "GE" | "LT" }
+  -->
+  <define name="attribute-flags">
+    <attribute name="flags">
+      <choice>
+        <value>EQ</value>
+        <value>LE</value>
+        <value>GE</value>
+        <value>LT</value>
+        <value>GT</value>
+      </choice>
+    </attribute>
+  </define>
+  <define name="attribute-name">
+    <attribute name="name"/>
+  </define>
+  <define name="shared-entry-attributes">
+    <interleave>
+      <optional>
+        <ref name="attribute-kind"/>
+      </optional>
+      <ref name="attribute-name"/>
+      <optional>
+        <attribute name="epoch">
+          <data type="nonNegativeInteger"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="rel"/>
+      </optional>
+      <optional>
+        <attribute name="ver"/>
+      </optional>
+    </interleave>
+  </define>
+  <define name="usual-entry-content">
+    <interleave>
+      <ref name="shared-entry-attributes"/>
+      <optional>
+        <ref name="attribute-flags"/>
+      </optional>
+    </interleave>
+    <empty/>
+  </define>
+  <!--
+    element-obsoletes-entry = 
+    (
+     element entry {
+       (shared-entry-attributes & attribute-flags-obsoletes?)
+       , empty
+     }
+    )  
+     
+    element-provides-entry = 
+    (
+     element entry {
+       (shared-entry-attributes & attribute-flags-provides?)
+       , empty
+    }
+    )  
+  -->
+  <define name="element-requires-entry">
+    <element name="entry">
+      <interleave>
+        <ref name="shared-entry-attributes"/>
+        <optional>
+          <ref name="attribute-flags"/>
+        </optional>
+        <optional>
+          <attribute name="pre">
+            <choice>
+              <value>1</value>
+              <value>0</value>
+            </choice>
+          </attribute>
+        </optional>
+      </interleave>
+      <empty/>
+    </element>
+  </define>
+  <define name="element-entry">
+    <element name="entry">
+      <ref name="usual-entry-content"/>
+    </element>
+  </define>
+  <define name="element-provides">
+    <element name="provides">
+      <ref name="provides"/>
+    </element>
+  </define>
+  <define name="provides">
+    <zeroOrMore>
+      <ref name="element-entry"/>
+    </zeroOrMore>
+  </define>
+  <define name="element-conflicts">
+    <element name="conflicts">
+      <ref name="conflicts"/>
+    </element>
+  </define>
+  <define name="conflicts">
+    <zeroOrMore>
+      <ref name="element-entry"/>
+    </zeroOrMore>
+  </define>
+  <define name="element-obsoletes">
+    <element name="obsoletes">
+      <ref name="obsoletes"/>
+    </element>
+  </define>
+  <define name="obsoletes">
+    <zeroOrMore>
+      <ref name="element-entry"/>
+    </zeroOrMore>
+  </define>
+  <define name="element-requires">
+    <element name="requires">
+      <ref name="requires"/>
+    </element>
+  </define>
+  <define name="requires">
+    <zeroOrMore>
+      <ref name="element-requires-entry"/>
+    </zeroOrMore>
+  </define>
+  <define name="element-suggests">
+    <element name="suggests">
+      <ref name="suggests"/>
+    </element>
+  </define>
+  <define name="suggests">
+    <zeroOrMore>
+      <ref name="element-entry"/>
+    </zeroOrMore>
+  </define>
+  <define name="element-recommends">
+    <element name="recommends">
+      <ref name="recommends"/>
+    </element>
+  </define>
+  <define name="recommends">
+    <zeroOrMore>
+      <ref name="element-entry"/>
+    </zeroOrMore>
+  </define>
+  <define name="element-enhances">
+    <element name="enhances">
+      <ref name="enhances"/>
+    </element>
+  </define>
+  <define name="enhances">
+    <zeroOrMore>
+      <ref name="element-entry"/>
+    </zeroOrMore>
+  </define>
+  <define name="element-supplements">
+    <element name="supplements">
+      <ref name="supplements"/>
+    </element>
+  </define>
+  <define name="supplements">
+    <zeroOrMore>
+      <ref name="element-entry"/>
+    </zeroOrMore>
+  </define>
+  <define name="element-file">
+    <element name="ns1:file">
+      <ref name="file"/>
+    </element>
+  </define>
+  <define name="file">
+    <optional>
+      <attribute name="type">
+        <choice>
+          <value>dir</value>
+          <value>ghost</value>
+        </choice>
+      </attribute>
+    </optional>
+    <text/>
+  </define>
+  <define name="dependencies">
+    <interleave>
+      <optional>
+        <ref name="element-provides"/>
+      </optional>
+      <optional>
+        <ref name="element-conflicts"/>
+      </optional>
+      <optional>
+        <ref name="element-obsoletes"/>
+      </optional>
+      <optional>
+        <ref name="element-requires"/>
+      </optional>
+      <optional>
+        <ref name="element-suggests"/>
+      </optional>
+      <optional>
+        <ref name="element-enhances"/>
+      </optional>
+      <optional>
+        <ref name="element-supplements"/>
+      </optional>
+      <optional>
+        <ref name="element-recommends"/>
+      </optional>
+    </interleave>
+  </define>
+</grammar>
+<!--
+  dependencies =
+     element-provides?,
+     element-conflicts?,
+     element-obsoletes?,
+     element-requires?,
+     element-suggests?,
+     element-enhances?,
+     element-supplements?,
+     element-recommends?
+-->

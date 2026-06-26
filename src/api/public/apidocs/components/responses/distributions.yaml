@@ -1,0 +1,62 @@
+description: |
+  OK. The request has succeeded.
+
+  XML Schema used for body validation: [distributions.rng](../schema/distributions.rng)
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/distributions.yaml'
+    example:
+      distribution:
+        - vendor: 'opensuse'
+          version: 'Tumbleweed'
+          id: 16626
+          name: 'openSUSE Tumbleweed'
+          project: 'openSUSE:Factory'
+          reponame: 'openSUSE_Tumbleweed'
+          repository: 'snapshot'
+          link: 'http://www.opensuse.org/'
+          icon:
+            - url: 'https://static.opensuse.org/distributions/logos/opensuse.png'
+              width: 8
+              height: 8
+            - url: 'https://static.opensuse.org/distributions/logos/opensuse.png'
+              width: 16
+              height: 16
+          architecture:
+            - 'i586'
+            - 'x86_64'
+        - vendor: 'openSUSE'
+          version: '15.3'
+          id: 16629
+          name: 'openSUSE Leap 15.3'
+          project: 'openSUSE:Leap:15.3'
+          reponame: 'openSUSE_Leap_15.3'
+          repository: 'standard'
+          link: 'http://www.opensuse.org/'
+          icon:
+            - url: 'https://static.opensuse.org/distributions/logos/opensuse.png'
+              width: 8
+              height: 8
+            - url: 'https://static.opensuse.org/distributions/logos/opensuse.png'
+              width: 16
+              height: 16
+          architecture: 'x86_64'
+        - vendor: 'Fedora'
+          version: '33'
+          id: 16731
+          name: 'Fedora 33'
+          project: 'Fedora:33'
+          reponame: 'Fedora_33'
+          repository: 'standard'
+          link: 'http://www.fedoraproject.org/'
+          icon:
+            - url: 'https://static.opensuse.org/distributions/logos/fedora.png'
+              width: 8
+              height: 8
+            - url: 'https://static.opensuse.org/distributions/logos/fedora.png'
+              width: 16
+              height: 16
+          architecture:
+            - 'i586'
+            - 'x86_64'

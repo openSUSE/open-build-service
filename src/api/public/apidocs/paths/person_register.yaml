@@ -1,0 +1,29 @@
+post:
+  summary: Registers a new person
+  deprecated: true
+  description: This endpoint is exactly the same as `POST /person?cmd=register`, please use that one.
+  requestBody:
+    description: Data for the person to register.
+    required: true
+    content:
+      application/xml:
+        schema:
+          $ref: '../components/schemas/unregistered_person.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: permission_denied
+            summary: |
+              User accounts can not be registered via OBS when in LDAP mode. Please refer
+              to your LDAP server to create new users.
+  tags:
+    - Person

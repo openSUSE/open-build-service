@@ -1,0 +1,34 @@
+- if User.session
+  :ruby
+    mail_subject = "#{home_title} - #{project}"
+    mail_subject += "/#{package}" if package
+- records.each do |record|
+  %tr
+    %td.align-middle
+      = image_tag_for(record, size: 20)
+      = link_to(display_name(record), user_or_group_path(record))
+    - roles.each do |role|
+      %td.align-middle
+        .form-check
+          = check_box_tag("#{type}_#{role}_#{record}", '',
+            (package || project).send("#{type}_has_role?", record, role), disabled: !user_is_maintainer,
+            data: { "#{type}": record.to_s, role: role.title, type: type }, class: 'trigger form-check-input')
+          %label.form-check-label{ for: "#{type}_#{role}_#{record}" }
+          %i.fas.fa-spinner.fa-spin.d-none
+          - if package && project.send("#{type}_has_role?", record, role)
+            = link_to(project_users_path(project: project)) do
+              %i.fa.fa-cubes.text-secondary{ title: 'inherited from project' }
+    - if User.session
+      %td.text-nowrap<
+        - if mail_subject && record.email
+          = mail_to(record.email, subject: mail_subject) do
+            %i.far.fa-envelope.me-1{ title: "Send email to #{type}" }
+        - if user_is_maintainer
+          = link_to('#', class: "remove-#{type}",
+            data: { 'bs-toggle': 'modal',
+                    'bs-target': '#delete-role-modal',
+                    modal_title: "Delete all roles of '#{type}'",
+                    confirmation_text: "Please confirm deletion of all roles of the '#{record}' #{type}.",
+                    action: user_or_groups_roles_delete_path(project, type, record, package),
+                    object: record.to_s }) do
+            %i.fas.fa-times-circle.text-danger{ title: "Delete all roles for #{type}" }

@@ -1,0 +1,100 @@
+:ruby
+  @pagetitle = "Status of #{@project}"
+  parsed_result = {}
+
+.card
+  = render partial: 'webui/project/tabs', locals: { project: @project }
+
+  .card-body
+    %h3
+      = @pagetitle
+
+    = form_tag(project_status_path, method: :get) do
+      = hidden_field_tag(:project, @project.name)
+      = hidden_field_tag(:limit_to_fails, 'false', id: 'fails_hidden')
+      = hidden_field_tag(:include_versions, 'false', id: 'versions_hidden')
+      - if @develprojects.size > 2
+        .mb-3
+          = label_tag(:filter_devel, 'Devel project:')
+          .col-sm-10
+            = select_tag(:filter_devel, options_for_select(@develprojects, @current_develproject), class: 'form-control')
+      .form-check
+        = check_box_tag(:ignore_pending, true, @ignore_pending, class: 'form-check-input')
+        = label_tag(:ignore_pending, 'Ignore packages with pending requests to this project', class: 'form-check-label')
+      .form-check
+        = check_box_tag(:limit_to_fails, true, @limit_to_fails, class: 'form-check-input')
+        = label_tag(:limit_to_fails, 'Limit to currently failing packages', class: 'form-check-label')
+      .form-check
+        = check_box_tag(:include_versions, true, @include_versions, class: 'form-check-input')
+        = label_tag(:include_versions, 'Include version updates', class: 'form-check-label')
+      = submit_tag('Filter results', class: 'btn btn-primary mt-2')
+
+    - if @packages.present?
+      .mt-4
+        %p
+          Displaying #{@packages.size} packages that need handling, including:
+          #{@packages.count { |p| p['firstfail'].to_i.positive? }} not building,
+          #{@packages.count { |p| !p['problems'].empty? }} with a diff in the devel project,
+          #{@packages.count { |p| !p['requests_to'].empty? || !p['requests_from'].empty? }} with a pending request.
+
+        - show_devel_project = @packages.any? { |p| p['develproject'].present? }
+
+        %table.responsive.table.table-sm.table-bordered.table-hover.w-100#status-table
+          %thead
+            %tr
+              %th
+                Name
+              - if show_devel_project
+                %th
+                  Devel project
+              %th
+                Summary
+              %th
+                Comments
+          %tbody
+            - @packages.each do |package|
+              - parsed_result = parse_status(@project.name, package)
+
+              %tr
+                %td.nowrap
+                  - case parsed_result[:icon_type]
+                  - when 'error'
+                    %i.fa.fa-exclamation-circle.text-danger{ title: 'Error' }
+                  - when 'ok'
+                    %i.fa.fa-check-circle.text-success{ title: 'Ok' }
+                  - else
+                    %i.fa.fa-info-circle.text-info{ title: 'Info' }
+                  = link_to(truncate(package['name']), package_show_path(project: @project.name, package: package['name']))
+                - if show_devel_project
+                  %td
+                    - if package['develproject']
+                      = link_to(truncate(package['develproject']), package_show_path(project: package['develproject'], package: package['name']))
+                %td
+                  %span.d-none
+                    = parsed_result[:sortkey]
+                  - parsed_result[:summary].each do |summary|
+                    = summary
+                    %br
+                %td{ data: { package_name: package['name'] } }
+                  = render partial: 'webui/project/status_comment', locals: { package_name: package['name'], editable: package['firstfail'].present?,
+                                                                comment: package['failedcomment'], project: @project }
+        - content_for :ready_function do
+          :plain
+            $('#status-table').dataTable({
+              iDisplayLength: 50,
+              responsive: true,
+              columnDefs: [ { 'width': '20%', 'targets': 0 } ],
+              stateSave: true,
+              stateDuration: 0, // forever
+              // Save the state of the columns sort and the number of shown entries per page
+              stateSaveParams: function (_settings, data) {
+                // Do not keep the selected page in the datatable state
+                data.start = 0;
+                // Do not save the state of the search string
+                data.search.search = "";
+              }
+            });
+
+- if User.possibly_nobody.can_modify?(@project) && parsed_result[:comments_to_clear].present?
+  = link_to("Clear all comments of not failing packages (#{parsed_result[:comments_to_clear].join(',')})",
+    clear_failed_comment_path(@project.name), package: parsed_result[:comments_to_clear])

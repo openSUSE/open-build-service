@@ -1,0 +1,194 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 31 Jan 2024 11:54:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_one_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_file" project="home:tom">
+          <title>The Mermaids Singing</title>
+          <description>Quis sit sit provident.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_file" project="home:tom">
+          <title>The Mermaids Singing</title>
+          <description>Quis sit sit provident.</description>
+        </package>
+  recorded_at: Wed, 31 Jan 2024 11:54:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_one_file/_service
+    body:
+      encoding: UTF-8
+      string: |
+        <services>
+          <service name="download_url">
+            <param name="host">openbuildservice.org</param>
+            <param name="protocol">https</param>
+            <param name="path">/images/obs-logo.svg</param>
+          </service>
+        </services>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>28bf6bb4a6c58dec8c26bcc15568963f</srcmd5>
+          <version>unknown</version>
+          <time>1706702050</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 31 Jan 2024 11:54:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_one_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '241'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_one_file" rev="1" vrev="1" srcmd5="28bf6bb4a6c58dec8c26bcc15568963f">
+          <serviceinfo code="running"/>
+          <entry name="_service" md5="79173416b7727f83e37313c3aa5c164e" size="213" mtime="1706702050"/>
+        </directory>
+  recorded_at: Wed, 31 Jan 2024 11:54:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_one_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '241'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_one_file" rev="1" vrev="1" srcmd5="28bf6bb4a6c58dec8c26bcc15568963f">
+          <serviceinfo code="running"/>
+          <entry name="_service" md5="79173416b7727f83e37313c3aa5c164e" size="213" mtime="1706702050"/>
+        </directory>
+  recorded_at: Wed, 31 Jan 2024 11:54:10 GMT
+recorded_with: VCR 6.2.0

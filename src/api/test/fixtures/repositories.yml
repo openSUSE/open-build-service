@@ -1,0 +1,90 @@
+deleted:
+  id: 1
+  name: deleted
+  project: deleted
+BaseDistro2LinkedUpdateProject_repo:
+  id: 86
+  name: BaseDistro2LinkedUpdateProject_repo
+  rebuild: local
+  project: BaseDistro2.0_LinkedUpdateProject
+repositories_141:
+  id: 141
+  name: home_coolo_standard
+  project: home_tom
+repositories_142:
+  id: 142
+  name: SourceprotectedProject_repo
+  project: home_tom
+repositories_144:
+  id: 144
+  name: home_adrian_ProtectionTest_repo
+  project: home_tom
+repositories_75:
+  id: 75
+  name: SUSE_Linux_10.1
+  project: Apache
+repositories_81:
+  id: 81
+  name: SUSE_Linux_Factory
+  project: Apache
+repositories_82:
+  id: 82
+  name: standard
+  project: home_coolo
+repositories_83:
+  id: 83
+  name: home_coolo
+  project: home_coolo_test
+UseRemoteInstance_pop:
+  id: 87
+  name: pop
+  project: UseRemoteInstance
+  linkedbuild: all
+repositories_88:
+  id: 88
+  name: pop
+  project: LocalProject
+repositories_89:
+  id: 89
+  name: nada
+  project: HiddenProject
+repositories_90:
+  id: 90
+  name: nada
+  project: BinaryprotectedProject
+BaseDistro_repo:
+  id: 91
+  name: BaseDistro_repo
+  project: BaseDistro
+repositories_92:
+  id: 92
+  name: BaseDistro2_repo
+  project: BaseDistro2.0
+BaseDistro3_repo:
+  id: 93
+  name: BaseDistro3_repo
+  project: BaseDistro3
+repositories_94:
+  id: 94
+  name: repo
+  project: home_adrian_ProtectionTest
+repositories_95:
+  id: 95
+  name: BaseDistroUpdateProject_repo
+  project: BaseDistro_Update
+repositories_96:
+  id: 96
+  name: repo
+  project: SourceprotectedProject
+repositories_home_Iggy:
+  id: 85
+  name: '10.2'
+  project: home_Iggy
+repositories_97:
+  id: 97
+  name: BrokenPublishing_repo
+  project: BrokenPublishing
+kde4_standard:
+  id: 98
+  name: kde4_standard
+  project: kde4

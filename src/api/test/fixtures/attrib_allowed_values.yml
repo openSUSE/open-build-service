@@ -1,0 +1,28 @@
+OwnerRootProject_BugownerOnly:
+  id: 78
+  attrib_type_id: 77
+  value: BugownerOnly
+OwnerRootProject_DisableDevel:
+  id: 77
+  attrib_type_id: 77
+  value: DisableDevel
+QualityCategory_development:
+  id: 84
+  attrib_type_id: 75
+  value: Development
+QualityCategory_private:
+  id: 85
+  attrib_type_id: 75
+  value: Private
+QualityCategory_stable:
+  id: 82
+  attrib_type_id: 75
+  value: Stable
+QualityCategory_testing:
+  id: 83
+  attrib_type_id: 75
+  value: Testing
+attrib_allowed_values_67:
+  id: 67
+  attrib_type_id: 59
+  value: neutral

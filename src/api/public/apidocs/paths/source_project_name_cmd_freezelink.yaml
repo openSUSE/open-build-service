@@ -1,0 +1,22 @@
+post:
+  summary: Freeze a project link.
+  description: Freeze a project link, either creating the freeze or updating it.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: A comment that will appear in the project's comment section explaining the reason behind the freezing.
+      example: Project link frozen due to some important reason.
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects

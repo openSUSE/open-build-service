@@ -1,0 +1,16 @@
+%li.list-group-item.table-list-group-item
+  = link_to("#{name}:", package_show_path(package: name, project: staging_project))
+  - build_states_without_logs = ['unresolvable', 'broken']
+  - states.each do |state, values|
+    = state
+    = surround '(', ')' do
+      - values.each do |value|
+        - coma = ', ' unless values.last == value
+        = succeed coma do
+          - if build_states_without_logs.include?(state)
+            = value[:arch]
+          - else
+            = link_to(value[:arch], package_live_build_log_path(package: name,
+                                                                repository: value[:repository],
+                                                                project: staging_project,
+                                                                arch: value[:arch]))

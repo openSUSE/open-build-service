@@ -1,0 +1,17 @@
+- diff_content = file.dig('diff', '_content')
+.position-relative
+  = render partial: 'webui/package/revision_diff_detail_buttons',
+  locals: { file_view_path: file_view_path, filename: filename, index: index, last: last, has_content: diff_content.present?, linkinfo: linkinfo }
+  - if diff_content.present?
+    %details.card{ open: expand_diff?(filename, file['state']), id: "revision_details_#{index}", data: { package: package } }
+      %summary.card-header.py-3
+        .diff-card-header
+          = calculate_filename(filename, file)
+          %span.badge{ class: "badge-#{file['state']}" }= file['state'].capitalize
+      = render_diff(diff_content, file_index: index)
+  - else
+    .card{ id: "revision_details_#{index}" }
+      .card-header.py-3
+        .div.w-75
+          = calculate_filename(filename, file)
+          %span.badge{ class: "badge-#{file['state']}" }= file['state'].capitalize

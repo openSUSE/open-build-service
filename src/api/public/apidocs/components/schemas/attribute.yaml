@@ -1,0 +1,40 @@
+type: object
+properties:
+  name:
+    type: string
+    example: 'OBS_TEST'
+    xml:
+      attribute: true
+  namespace:
+    type: string
+    example: 'OwnerRootProjectTest'
+    xml:
+      attribute: true
+  description:
+    type: string
+    example: 'An example description for an attribute.'
+  allowed:
+    type: object
+    properties:
+      value:
+        type: array
+        items:
+          type: string
+        example:
+          - 'DisableDevelTest'
+          - 'BugownerOnlyTest'
+  count:
+    type: integer
+    example: 0
+  modifiable_by:
+    type: array
+    items:
+      type: object
+      properties:
+        user:
+          type: string
+          example: 'user_login_name'
+          xml:
+            attribute: true
+xml:
+  name: definition

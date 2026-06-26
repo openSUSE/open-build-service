@@ -1,0 +1,129 @@
+#!/usr/bin/env perl
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+
+}
+
+use strict;
+use Data::Dumper;
+use BSUtil;
+use BSConfiguration;
+use File::Basename;
+
+if ( @ARGV && $ARGV[0] =~ /--log=(.*)/ ) {
+  my $logfile = $1;
+  my $dirname = dirname($logfile);
+  -d $dirname || BSUtil::mkdir_p($dirname);
+
+  close STDOUT;
+  open(STDOUT,">> $logfile") || die "Cannot open $logfile\n";
+
+}
+
+my $cachedir       = "$BSConfig::servicetempdir/scm-cache";
+my $high_watermark = $BSConfig::scm_cache_high_watermark;
+my $low_watermark  = $BSConfig::scm_cache_low_watermark;
+
+if ( ! -d $cachedir ) {
+  BSUtil::printlog("Could not find cachedir: $cachedir");
+  BSUtil::printlog("Exiting ...");
+  exit 0;
+}
+
+if ( ! disk_utilization_check($cachedir,$high_watermark) ) {
+  BSUtil::printlog("Not over high watermark: $high_watermark%");
+  BSUtil::printlog("Exiting ...");
+  exit 0;
+}
+
+
+my $directory_list = create_directory_list($cachedir);
+
+cleanup_cache($directory_list);
+
+BSUtil::printlog("Nothing left to cleanup. Please fix manually");
+BSUtil::printlog("Exiting ...");
+
+exit 1;
+
+sub cleanup_cache {
+  my ($directory_list) = @_;
+
+  my $total_dirs 	= scalar(@{$directory_list});
+  my $current_dir	= 1;
+
+  for my $set (@{$directory_list}) {
+    my $org_file 	= "$cachedir/$set->{name}";
+    my @stat 	= stat($org_file);
+    my $rm_file 	= "$org_file.remove";
+
+    if ( $stat[9] > $set->{mtime}) {
+      BSUtil::printlog("$org_file has changed mtime since first check");
+      next;
+    }
+
+    BSUtil::printlog("Proceeding with directory $current_dir of $total_dirs");
+    BSUtil::printlog("Renaming '$org_file' -> '$rm_file'");
+
+    rename $org_file, $rm_file;
+    BSUtil::cleandir($rm_file);
+    rmdir $rm_file;
+
+    if (! disk_utilization_check($cachedir, $low_watermark) ) {
+      BSUtil::printlog("Reached Low Watermark: $low_watermark%");
+      BSUtil::printlog("Exiting ...");
+      exit 0;
+    }
+
+    $current_dir++;
+  }
+}
+
+sub disk_utilization_check {
+  my ($cachedir,$hwm) = @_;
+
+  #Filesystem       1B-blocks        Used  Available Use% Mounted on
+  #/dev/vdc1      42931847168 34969563136 7962284032  82% /srv/obs/service
+  my $out = `LANG=C df -B1 $cachedir|tail -1`;
+  chomp($out);
+  my $res = {};
+
+  ($res->{device}, $res->{size}, $res->{used}, $res->{avail},
+    $res->{percentage}, $res->{mountpoint}) = split(/\s+/,$out);
+
+  $res->{percentage} =~ s/(\%)//;
+  if (! $1 ) {
+    die "Something went wrong: Could not find percent sign in output\n";
+  }
+
+  BSUtil::printlog("Current disk utilization: $res->{percentage}%");
+  return undef if ( $res->{percentage} < $hwm );
+
+  return $res;
+}
+
+sub create_directory_list {
+  my ($cachedir) = @_;
+  my @unsorted_dirs = ();
+  opendir(CD,$cachedir);
+
+  while (my $dn = readdir(CD)) {
+    my @stat = stat("$cachedir/$dn");
+    next if $dn =~ /^\./;
+    push(
+      @unsorted_dirs,
+      {
+	name => $dn,
+	mtime => $stat[9]
+      }
+    );
+  }
+
+  my @sorted_dirs = sort { $a->{mtime} <=> $b->{mtime} } @unsorted_dirs;
+
+  return \@sorted_dirs;
+}

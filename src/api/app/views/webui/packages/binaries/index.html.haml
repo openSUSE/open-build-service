@@ -1,0 +1,62 @@
+- @pagetitle = "State of #{@repository} for #{@project} / #{@package_name}"
+
+.card
+  = render partial: 'webui/package/tabs', locals: { package: @package, project: @project }
+  .card-body
+    %h3= @pagetitle
+    %ul.list-inline
+      - if @configuration['download_url']
+        = render DownloadRepositoryLinkComponent.new(project: @project, repository: @repository, configuration: @configuration)
+      - if @buildresults.present? && policy(@package).update?
+        %li.list-inline-item
+          = link_to('#', title: 'Delete all built binaries', data: { 'bs-toggle': 'modal',
+                                                                     'bs-target': '#delete-all-binaries-modal' }) do
+            %i.fas.fa-times-circle.text-danger
+            Delete all built binaries
+          = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-all-binaries-modal',
+                                                         method: :delete,
+                                                         options: { modal_title: 'Delete all built binaries?',
+                                                                    confirmation_text: 'Please confirm deletion of all built binaries',
+                                                                    action: project_package_repository_binaries_path(project_name: @project,
+                                                                                                                     package_name: @package_name,
+                                                                                                                     repository_name: @repository) })
+          = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-binaries-modal',
+                                                         method: :delete,
+                                                         options: { modal_title: 'Do you want to remove these binaries?' })
+
+    - @buildresults.each do |result|
+      %h5.bg-body-secondary.p-2.mb-0
+        = repository_status_icon(status: result[:repocode].to_s, html_class: 'fa-xs')
+        = result[:arch]
+      - if result[:binaries].empty?
+        %p.ps-2
+          %i No built binaries
+      - else
+        .table-responsive
+          %table.table.table-hover.table-sm
+            %thead
+            %tbody
+            - result[:binaries].each do |binary|
+              %tr
+                %td.px-2 #{binary[:filename]} (#{number_to_human_size(binary[:size])})
+                %td.text-nowrap.text-end.px-2
+                  - render_partial = h(render partial: 'binaries_actions', locals: { project: @project,
+                                                                                   package_name: @package_name,
+                                                                                   package: @package,
+                                                                                   binary: binary,
+                                                                                   repository: @repository,
+                                                                                   architecture: result[:arch] })
+                  .d-none.d-sm-block
+                    = render_partial
+                  .d-sm-none
+                    .dropdown
+                      %i.fas.fa-ellipsis-h.text-secondary{ type: 'button', 'data-bs-toggle': 'dropdown' }
+                      .dropdown-menu
+                        = render_partial
+      %ul.nav
+        - if User.possibly_nobody.can_modify?(@package)
+          = render partial: 'trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
+                                                            package: @package_name, repository: @repository }
+
+        = render partial: 'show_statistics_job_history_build_reason', locals: { result: result,
+          project: @project, package: @package_name, repository: @repository }

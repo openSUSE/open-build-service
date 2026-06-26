@@ -1,0 +1,9 @@
+in: query
+name: withissues
+schema:
+  type: string
+  enum:
+    - 1
+    - 0
+description: Set to `1` to include parsed issue tracker issues and their change state.
+example: 1

@@ -1,0 +1,52 @@
+.tab-pane.sourcediff.fade.show{ id: valid_xml_id(@action[:name]), class: active_class }
+  .row
+    .col
+      = request_action_header(@action, @bs_request.creator)
+  - if release_info
+    %i
+      Release in #{@action[:releaseproject]}
+  %hr
+  .row
+    - if @action[:diff_not_cached]
+      .col-lg-12
+        .clearfix.mb-2.text-center
+          .btn.btn-outline-primary.cache-refresh{ title: 'Refresh results', onclick: "reloadRequestAction(#{@index})" }
+            Crunching the latest data. Refresh again in a few seconds
+            %i.fas.fa-sync-alt{ id: "cache#{@index}-reload" }
+    - else
+      - (@action[:sourcediff] || []).each do |sourcediff|
+        .col-lg-8
+          .clearfix.mb-2
+            .btn-group.float-end
+              %button.btn.btn-outline-secondary.expand-diffs{ data: { package: @action[:spkg] } }
+                Expand all
+              %button.btn.btn-outline-secondary.collapse-diffs{ data: { package: @action[:spkg] } }
+                Collapse all
+
+          - if sourcediff[:error]
+            %p
+              %i.error
+                = sourcediff[:error]
+          - else
+            - if @action[:sourcediff].length > 1
+              %h4
+                #{diff_label(sourcediff['new'])} – #{diff_label(sourcediff['old'])}
+            - if sourcediff['filenames'].present?
+              - sourcediff['filenames'].each_with_index do |filename, file_index|
+                .mb-2
+                  = render partial: 'webui/package/revision_diff_detail', locals: { file_view_path: file_view_path(filename, sourcediff),
+                                                                                          filename: filename,
+                                                                                          file: sourcediff['files'][filename],
+                                                                                          index: file_index,
+                                                                                          last: sourcediff['filenames'].last == filename,
+                                                                                          package: @action[:spkg],
+                                                                                          linkinfo: nil }
+            - else
+              .mb-2
+                %p.lead
+                  No source changes.
+        .col-lg-4
+          = render partial: 'webui/shared/buildresult_box',
+                  locals: { project: @action[:sprj], package: @action[:spkg], bs_request: @bs_request, index: @index }
+          - if sourcediff['issues'].present?
+            = render partial: 'issues_table', locals: { issues: sourcediff['issues'] }

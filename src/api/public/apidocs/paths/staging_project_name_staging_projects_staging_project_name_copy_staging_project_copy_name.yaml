@@ -1,0 +1,36 @@
+post:
+  summary: Copy a staging project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/staging_project_name.yaml'
+    - in: path
+      name: staging_project_copy_name
+      schema:
+        type: string
+      required: true
+      description: The name of the staging project's copy
+      example: "openSUSE:Factory:Staging:B"
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not_found:
+              summary: Staging Workflow Project Not Found
+              value:
+                code: not_found
+                summary: 'Project home:Adminn not found.'
+            staging_project_not_found:
+              summary: Staging Project Name Not Found
+              value:
+                code: staging_project_not_found
+                details: 'Staging Project "home:Admin:Staging:AA" does not exist.'
+  tags:
+    - Staging Workflow

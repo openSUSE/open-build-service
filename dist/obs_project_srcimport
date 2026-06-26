@@ -1,0 +1,48 @@
+#!/bin/sh
+
+##########################################################
+#Setup Vars
+###########################################################
+
+#
+usage="usage:  $0 <target obs> <target project> <ftp server> [listfile]"
+
+targetobs=$1
+targetprj=$2
+
+urlbase=$3
+listfile=$4
+
+prjlist=$(cat $listfile)
+mkdir -p tmp && curl -s -l $urlbase >& tmp/.listing
+ftplist=$(cat tmp/.listing)
+
+echo "$0 $targetobs $targetprj $urlbase $listfile"
+echo "Projects:"
+echo "$prjlist"
+echo
+echo "Urllist:"
+echo "$ftplist"
+echo
+
+##########################################################
+# Check out target packages
+###########################################################
+
+(cd tmp && set -x ; rm -rf $targetprj/*)
+for f in $prjlist
+do
+  (cd tmp &&
+   for j in $(grep "$f" .listing|sort -n -r)
+   do
+     (set -x &&
+      rm -rf $targetprj/$f && osc -A $targetobs deletepac $targetprj $f >& /dev/null
+      osc -A $targetobs importsrcpkg --delete-old-files -n $f -p $targetprj $urlbase/$j >& /dev/null
+      chmod -R u+rw $targetprj/$f && cd  $targetprj/$f && osc -A $targetobs addremove && osc -A $targetobs ci -m"added: imported $f @ $(date) from $urlbase/$j"
+     )
+     break
+   done
+  )
+done
+
+#rm -rf tmp

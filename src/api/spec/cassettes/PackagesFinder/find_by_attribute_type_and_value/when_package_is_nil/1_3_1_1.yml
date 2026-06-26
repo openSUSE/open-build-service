@@ -1,0 +1,165 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/foo/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo">
+          <title>A Farewell to Arms</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '98'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo">
+          <title>A Farewell to Arms</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 20 Jan 2020 14:38:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo/foo_pack/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo_pack" project="foo">
+          <title>The Golden Apples of the Sun</title>
+          <description>Voluptas repellat mollitia facilis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo_pack" project="foo">
+          <title>The Golden Apples of the Sun</title>
+          <description>Voluptas repellat mollitia facilis.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 20 Jan 2020 14:38:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:superbad/_meta?user=superbad
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:superbad">
+          <title/>
+          <description/>
+          <person userid="superbad" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '138'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:superbad">
+          <title></title>
+          <description></description>
+          <person userid="superbad" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Mon, 20 Jan 2020 14:38:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo/foo_pack/_attribute?meta=1&user=superbad
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="EmbargoDate" namespace="OBS">
+            <value>2021-11-11</value>
+          </attribute>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="60">
+          <srcmd5>a9632a4f9cda0a71fee350b061101c06</srcmd5>
+          <time>1579531101</time>
+          <user>superbad</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 20 Jan 2020 14:38:21 GMT
+recorded_with: VCR 5.0.0

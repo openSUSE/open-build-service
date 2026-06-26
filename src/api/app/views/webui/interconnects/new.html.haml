@@ -1,0 +1,33 @@
+- @pagetitle = 'Interconnect'
+
+.card.mb-3
+  = render partial: 'webui/configuration/tabs'
+  .card-body
+    %h3= @pagetitle
+    %p Connect a remote Open Build Service instance.
+    .list-group
+      = render partial: 'interconnect_button', locals: { name: 'openSUSE.org',
+                                                         remoteurl: 'https://api.opensuse.org/public',
+                                                         title: 'Standard OBS instance at build.opensuse.org',
+                                                         description: 'This instance delivers the default build targets for OBS.',
+                                                         type: 'opensuse',
+                                                         exists: Project.exists?(name: 'openSUSE.org') }
+      = render partial: 'interconnect_button', locals: { name: 'tizen.org',
+                                                         remoteurl: 'https://api.tizen.org/public',
+                                                         title: 'Standard OBS instance at build.tizen.org',
+                                                         description: 'This instance can be used to access resources from Tizen.',
+                                                         type: 'tizen',
+                                                         exists: Project.exists?(name: 'tizen.org') }
+      = render partial: 'interconnect_button', locals: { name: 'Packman',
+                                                         remoteurl: 'https://pmbs-api.links2linux.de/public',
+                                                         title: 'Packman Build Service PMBS',
+                                                         description: 'This instance can be used to access resources from Packman.',
+                                                         type: 'packman',
+                                                         exists: Project.exists?(name: 'Packman') }
+      .list-group-item
+        .d-flex.w-100.justify-content-between
+          %h5 Custom OBS instance
+          = button_tag 'Add', class: 'btn btn-primary', data: { 'bs-toggle': 'modal', 'bs-target': '#interconnect-modal' }
+        %div This project is representing a remote build service instance.
+
+= render partial: 'interconnect_modal'

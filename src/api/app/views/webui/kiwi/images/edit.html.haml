@@ -1,0 +1,41 @@
+:ruby
+  @layouttype = 'custom'
+  @package = @image.package
+  @pagetitle = 'Edit Kiwi Image'
+
+= form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
+  .row
+    .col-12
+      .card.mb-3
+        = render partial: 'webui/kiwi/tabs'
+        .card-body
+          = render partial: 'base_info', locals: { f: f, author: @author, contact: @contact,
+                                                   image: @image, description: @description, package: @package,
+                                                   is_edit_software_action: @is_edit_software_action,
+                                                   is_edit_details_action: @is_edit_details_action }
+
+    .col-12#kiwi-preferences{ class: "#{'d-none' unless @is_edit_details_action}" }
+      = render partial: 'webui/kiwi/images/preferences', locals: { f: f, image: @image }
+
+    .col-12#kiwi-image-profiles-section{ class: "#{'d-none' unless @is_edit_software_action}" }
+      .card.mb-3
+        = render partial: 'webui/kiwi/images/profiles', locals: { f: f, image: @image }
+
+    .col-12#kiwi-image-repositories-section{ class: "#{'d-none' unless @is_edit_software_action}" }
+      .card.mb-3
+        = render partial: 'webui/kiwi/images/repositories', locals: { f: f, image: @image }
+
+    .col-12#kiwi-image-packages-section{ class: "#{'d-none' unless @is_edit_software_action}" }
+      .card.mb-3
+        = render partial: 'webui/kiwi/images/packages', locals: { f: f, package_groups: @package_groups }
+
+    .col-12.d-flex.justify-content-end
+      .btn.btn-primary.disabled#kiwi-image-update-form-save
+        %i.fas.fa-save
+        Save
+      .btn.btn-danger.ms-3#kiwi-image-update-form-revert{ class: "#{'disabled' unless flash[:error]}" }
+        %i.fas.fa-undo
+        Revert
+
+- content_for :ready_function do
+  initializeKiwi('#{url_for(controller: 'kiwi/images', action: :show, id: @image)}')

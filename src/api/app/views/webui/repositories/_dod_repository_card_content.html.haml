@@ -1,0 +1,24 @@
+Download on demand sources:
+%ul.list-unstyled.ms-3
+  - repository.download_repositories.each do |dod_element|
+    %li
+      %small.fw-bold
+        = dod_element.arch
+        = link_to("#{dod_element.url}", target: '_blank', rel: 'noopener', title: 'Go to the repository') do
+          = dod_element.url
+        (#{dod_element.repotype})
+      - if User.possibly_nobody.can_modify?(project)
+        = link_to('#', title: 'Edit Download on Demand Source', data: { 'bs-toggle': 'modal',
+                                                                        'bs-target': "#edit-dod-source-modal-#{dod_element.id}" }) do
+          %i.fas.fa-edit.text-secondary
+        = link_to('#', title: 'Delete Download on Demand Source',
+                        data: { 'bs-toggle': 'modal', 'bs-target': "#delete-dod-source-modal-#{dod_element.id}" }) do
+          %i.fas.fa-times-circle.text-danger
+        = render partial: 'edit_dod_source_modal', locals: { repository: repository, project: project,
+                  download_on_demand: dod_element, available_architectures: available_architectures }
+        = render partial: 'delete_dod_source_modal', locals: { repository: repository, project: project, download_on_demand: dod_element }
+
+= render partial: 'add_dod_source_modal', locals: { repository: repository,
+                                                    project: project,
+                                                    available_architectures: available_architectures,
+                                                    download_on_demand: DownloadRepository.new(repository_id: repository.id) }

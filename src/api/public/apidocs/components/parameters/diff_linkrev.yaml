@@ -1,0 +1,6 @@
+in: query
+name: linkrev
+schema:
+  type: string
+description: Link revision in base package. Set to `base` to use the commit revision.
+example: base

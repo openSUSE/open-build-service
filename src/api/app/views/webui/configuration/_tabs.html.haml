@@ -1,0 +1,12 @@
+.card-header.p-0
+  .scrollable-tabs
+    = tab_link('Configuration', configuration_path, 'scrollable-tab-link')
+    = tab_link('Architectures', architectures_path, 'scrollable-tab-link')
+    = tab_link('Manage Users', users_path, 'scrollable-tab-link')
+    = tab_link('Manage Groups', groups_path, 'scrollable-tab-link')
+    = tab_link('Manage News', news_items_path, 'scrollable-tab-link')
+    = tab_link('Notifications', notifications_path, 'scrollable-tab-link')
+    - if Flipper.enabled?(:labels, User.session)
+      = tab_link('Label Templates', label_templates_path, 'scrollable-tab-link')
+    = tab_link('Feature Toggles', global_feature_toggles_path, 'scrollable-tab-link')
+    = tab_link('Interconnect', new_interconnect_path, 'scrollable-tab-link')

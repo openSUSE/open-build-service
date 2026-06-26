@@ -1,0 +1,17 @@
+:ruby
+  html_name = local_assigns.fetch(:html_name, html_id)
+  input_class = local_assigns.fetch(:class, '')
+  value = local_assigns.fetch(:value, '')
+  placeholder = local_assigns.fetch(:placeholder, '')
+  label = local_assigns.fetch(:label, nil)
+  type = local_assigns.fetch(:type, 'text')
+
+= render(InputComponent.new) do |component|
+  = text_field_tag(html_id, '', type: type,
+                   name: html_name,
+                   class: "form-control #{input_class}",
+                   value: value,
+                   placeholder: placeholder)
+  - unless label.nil?
+    - component.with_label do
+      = label_tag(html_id, label)

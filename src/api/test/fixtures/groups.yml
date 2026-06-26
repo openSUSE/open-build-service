@@ -1,0 +1,19 @@
+maint_coord:
+  created_at: 2014-04-07 06:50:56.000000000 Z
+  updated_at: 2014-04-07 06:50:56.000000000 Z
+  title: maint_coord
+test_group:
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
+  title: test_group
+  email: test_group@testsuite.org
+test_group_b:
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
+  title: test_group_b
+test_group_empty:
+  created_at: 2011-07-29 14:00:21.000000000 Z
+  updated_at: 2011-07-29 14:00:21.000000000 Z
+  title: test_group_empty
+honks:
+  title: honks

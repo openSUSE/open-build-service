@@ -1,0 +1,627 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kody/_meta?user=kody
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kody">
+          <title/>
+          <description/>
+          <person userid="kody" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kody">
+          <title></title>
+          <description></description>
+          <person userid="kody" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 22 May 2023 15:58:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/watchlist_test_project_a/_meta?user=kody
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="watchlist_test_project_a">
+          <title>As I Lay Dying</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '115'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="watchlist_test_project_a">
+          <title>As I Lay Dying</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 22 May 2023 15:58:21 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 10d84560-ffb5-48d4-8c32-33fef5196898
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 May 2023 15:58:21 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/watchlist_test_project_a/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 10d84560-ffb5-48d4-8c32-33fef5196898
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '11'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo/>\n"
+  recorded_at: Mon, 22 May 2023 15:58:21 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - c68a74b6-c072-433c-80e2-8d38e83c9d07
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 May 2023 15:58:22 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/watchlist_test_project_b/_meta?user=kody
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="watchlist_test_project_b">
+          <title>Arms and the Man</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="watchlist_test_project_b">
+          <title>Arms and the Man</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 22 May 2023 15:58:22 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_b/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - fef1f267-7e76-4895-927c-ca3e934843dc
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 May 2023 15:58:22 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/watchlist_test_project_b/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - fef1f267-7e76-4895-927c-ca3e934843dc
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '11'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo/>\n"
+  recorded_at: Mon, 22 May 2023 15:58:22 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_b/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 8fe1141b-a845-4beb-a940-80c1552dee97
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 May 2023 15:58:22 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package/_meta?user=kody
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="watchlist_test_package" project="watchlist_test_project_a">
+          <title>The Needle's Eye</title>
+          <description>Fugit labore eum sequi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '173'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="watchlist_test_package" project="watchlist_test_project_a">
+          <title>The Needle's Eye</title>
+          <description>Fugit labore eum sequi.</description>
+        </package>
+  recorded_at: Mon, 22 May 2023 15:58:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 543b0c19-0737-4009-ab9f-fe8096aaad85
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="watchlist_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 22 May 2023 15:58:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="watchlist_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 22 May 2023 15:58:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package/_history?deleted=0&meta=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 543b0c19-0737-4009-ab9f-fe8096aaad85
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '31'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+        </revisionlist>
+  recorded_at: Mon, 22 May 2023 15:58:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - d8136d46-954b-4bf1-a4bc-29667538d00e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="watchlist_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 22 May 2023 15:58:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?lastbuild=1&locallink=1&multibuild=1&package=watchlist_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - d8136d46-954b-4bf1-a4bc-29667538d00e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 May 2023 15:58:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/watchlist_test_project_a/watchlist_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - '090f35ea-32bd-4d5f-b0dc-dc69fcefa6ae'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="watchlist_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 22 May 2023 15:58:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?lastbuild=1&locallink=1&multibuild=1&package=watchlist_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - '090f35ea-32bd-4d5f-b0dc-dc69fcefa6ae'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 May 2023 15:58:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/watchlist_test_project_a/_result?package=watchlist_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 37c14b8d-346a-4bf4-8389-117a25ae406a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Mon, 22 May 2023 15:58:23 GMT
+recorded_with: VCR 6.1.0

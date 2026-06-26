@@ -1,0 +1,22 @@
+:ruby
+  @pagetitle = "Subprojects of #{@project}"
+  render partial: 'subprojects_actions', locals: { project: @project }
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project }
+  .card-body
+    .row
+      .col-md-12
+        - if @project.ancestors.exists?
+          = render partial: 'projects_table', locals: { table_title: 'Parent Project', project: @project }
+    .row{ class: ('mt-3' if @project.ancestors.exists?) }
+      .col-md-12
+        - if @project.subprojects.exists?
+          = render partial: 'projects_table', locals: { table_title: 'Subproject', project: @project }
+        - else
+          %p
+            %i This project has no subprojects
+    .row.mt-3
+      .col-md-12
+        - if @project.siblingprojects.exists?
+          = render partial: 'projects_table', locals: { table_title: 'Sibling Project', project: @project }

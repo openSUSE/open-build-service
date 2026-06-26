@@ -1,0 +1,237 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/BaseDistro/_meta?user=user_13
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="BaseDistro">
+          <title>Pale Kings and Princes</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="BaseDistro">
+          <title>Pale Kings and Princes</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 17 Aug 2021 11:02:15 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/BaseDistro/test_package/_meta?user=user_14
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro">
+          <title>The Sun Also Rises</title>
+          <description>Ducimus consequuntur quis qui.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro">
+          <title>The Sun Also Rises</title>
+          <description>Ducimus consequuntur quis qui.</description>
+        </package>
+  recorded_at: Tue, 17 Aug 2021 11:02:15 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/BaseDistro:Update/_meta?user=user_15
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="BaseDistro:Update">
+          <title>In a Dry Season</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="BaseDistro:Update">
+          <title>In a Dry Season</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 17 Aug 2021 11:02:15 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/BaseDistro:Update/test_package/_meta?user=user_16
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro:Update">
+          <title>The Needle's Eye</title>
+          <description>Enim pariatur alias debitis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro:Update">
+          <title>The Needle's Eye</title>
+          <description>Enim pariatur alias debitis.</description>
+        </package>
+  recorded_at: Tue, 17 Aug 2021 11:02:16 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 17 Aug 2021 11:02:16 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/BaseDistro/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="UpdateProject" namespace="OBS">
+            <value>BaseDistro:Update</value>
+          </attribute>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="56">
+          <srcmd5>8de44291415b624222f17fa0a0c2baf4</srcmd5>
+          <time>1629198136</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 17 Aug 2021 11:02:16 GMT
+recorded_with: VCR 6.0.0

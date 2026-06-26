@@ -1,0 +1,122 @@
+get:
+  deprecated: true
+  summary: Show an announcement.
+  description: Show the content of an announcement.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/announcement_id.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/status_message.yaml'
+          example:
+            id: 16
+            message: Feature number 42 was implemented!
+            user: Iggy
+            severity: announcement
+            scope: all_users
+            created_at: 2021-10-12 11:18:12 UTC
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'not_found'
+            summary: "Couldn't find StatusMessage with 'id'=0 [WHERE `status_messages`.`severity` = ?]"
+  tags:
+    - Announcements
+
+put:
+  deprecated: true
+  summary: Update an announcement.
+  description: |
+    Update the content of an announcement.
+
+    This is only for users with roles "Admin" or "Staff".
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/announcement_id.yaml'
+  requestBody:
+    description: Announcement definition.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/announcement.yaml'
+        examples:
+          update_title:
+            summary: Update only the title
+            value:
+              title: New title!
+          update_title_and_content:
+            summary: Update title and content
+            value:
+              title: New title!
+              content: New content.
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Invalid Announcement.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            message_cant_be_blank:
+              summary: Message can't be blank
+              value:
+                code: invalid_announcement
+                summary: '["Message can''t be blank"]'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'not_found'
+            summary: "Couldn't find StatusMessage with 'id'=0 [WHERE `status_messages`.`severity` = ?]"
+  tags:
+    - Announcements
+
+delete:
+  deprecated: true
+  summary: Delete an announcement.
+  description: |
+    Delete an announcement.
+
+    This is only for users with roles "Admin" or "Staff".
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/announcement_id.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'not_found'
+            summary: "Couldn't find StatusMessage with 'id'=0 [WHERE `status_messages`.`severity` = ?]"
+  tags:
+    - Announcements

@@ -1,0 +1,47 @@
+-# haml-lint:disable LineLength
+- if raw_data.size.positive?
+  .m-4
+    .mb-4
+      .btn.btn-outline-primary.float-end{ onclick: 'updateChartBuildResults()', accesskey: 'r', title: 'Refresh Chart Build Results' }
+        Refresh
+        %i.fas.fa-sync-alt{ id: 'chart-build-reload' }
+      %h4
+        Build Results Summary
+    - if distinct_repositories.size > ChartComponent::MINIMUM_DISTINCT_BUILD_REPOSITORIES || raw_data.size > ChartComponent::MINIMUM_BUILD_RESULTS
+      = helpers.column_chart( chart_data,
+                              id: 'build-summary-chart',
+                              width: '100%',
+                              height: '300px',
+                              stacked: true,
+                              responsive: true,
+                              colors: ['#008000', '#DC3545', '#FFCC00'],
+                            )
+      :javascript
+        linkBuildSummaryChartToBuildResultsTab();
+    - else
+      %div
+        - distinct_package_names.each do |package_name|
+          %h5
+            = package_name
+          - distinct_repositories.each do |repo|
+            .row.p-1.align-items-start
+              .col-3
+                = repo
+              .col-9.d-flex.flex-wrap.gap-1.justify-content-start.align-items-start
+                - raw_data.each do |result|
+                  - if result[:repository] == repo && result[:package_name] == package_name
+                    = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
+                                                                                  text: result[:status].humanize,
+                                                                                  details: result[:details],
+                                                                                  architecture: result[:architecture],
+                                                                                  buildtype: result[:buildtype],
+                                                                                  url: helpers.live_build_log_url(result[:status],
+                                                                                                          result[:project_name],
+                                                                                                          result[:package_name],
+                                                                                                          result[:repository],
+                                                                                                          result[:architecture]),
+                                                                                  rpm_lint_url: rpmlint_result_path(result[:project_name],
+                                                                                                result[:package_name],
+                                                                                                "repo_#{result[:repository]}": 1,
+                                                                                                "arch_#{result[:architecture]}": 1) }
+-# haml-lint:enable LineLength

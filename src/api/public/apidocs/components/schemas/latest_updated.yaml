@@ -1,0 +1,12 @@
+type: object
+properties:
+  project:
+    type: array
+    items:
+      $ref: 'statistics/project.yaml'
+  package:
+    type: array
+    items:
+      $ref: 'statistics/package.yaml'
+xml:
+  name: latest_updated

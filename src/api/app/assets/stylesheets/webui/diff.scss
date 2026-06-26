@@ -1,0 +1,149 @@
+.diff-card-header {
+  inline-size: 75%;
+  display: inline-block
+}
+
+.diff-menu-buttons {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.55rem;
+  z-index: 4;
+}
+
+.line-new-comment {
+  display: none;
+}
+
+.diff-accordion {
+  --bs-accordion-active-bg: var(--bs-secondary-bg);
+}
+
+.accordion-button.disabled-accordion::after {
+  display: none;
+}
+
+.pre.scroll {
+  --line-index-digits: 6ch;
+  --additional-padding: 0px;
+  @for $i from 1 through 10 {
+    .digits-#{$i} {
+      --line-index-digits: #{$i}ch;
+    }
+    
+  }
+  overflow: auto;
+  border-bottom-left-radius: calc(var(--bs-border-radius) - var(--bs-border-width));
+  border-bottom-right-radius: calc(var(--bs-border-radius) - var(--bs-border-width));
+  .diff {
+    min-width: 100%;
+    width: max-content;
+    .line-container {
+      .line-new-comment {
+        display: none;
+      }
+      .comments-thread .line-new-comment {
+        --additional-padding: 1rem;
+      }
+      &:hover .line-new-comment {
+        display: block;
+        position: absolute;
+        z-index: 1000;
+        margin-left: calc(2 * (var(--line-index-digits) + 2rem + var(--bs-border-width)) + 0.5rem + var(--bs-border-width) - var(--additional-padding));
+        margin-top: -1.75rem !important;
+      }
+      // TODO: This is hard-coding 65% of the viewport width. Find a proper solution once the code is refactored.
+      .line-comment {
+        width: 65vw;
+      }
+      // TODO: This is hard-coding 75% of the viewport width. Find a proper solution once the code is refactored.
+      @include media-breakpoint-between(xs,sm) {
+        .line-comment {
+          width: 75vw;
+        }
+      }
+      .line-comment .fa-comment {
+        display: none;
+      }
+      .line-comment .timeline-item-comment {
+        @extend .ms-4;
+      }
+      .line-comment .comments-thread {
+        &:first-child {
+          > :first-child { margin-top: 1rem; }
+        }
+        &:last-child {
+          > :last-child { margin-bottom: 1rem; }
+        }
+        @extend .px-3;
+      }
+      .line-comment .comment-diff { display: none; }
+      &:target, &.highlighted {
+        .number {
+          background-color: rgba($editor-warning, 0.5)!important
+        }
+        .value {
+          background-color: rgba($editor-warning, 0.1);
+          width: 100%
+        }
+      }
+    }
+    .line {
+      font-family: $font-family-monospace;
+      display: flex;
+      .character {
+        width: 1ch;
+        white-space: pre;
+        padding-left: 1rem
+      }
+      a {
+        flex-shrink: 0;
+        position: sticky;
+        left: 0;
+        background-color: $card-bg;
+        .number {
+          color: $text-muted;
+          font-family: monospace;
+          width: calc(var(--line-index-digits) + 2rem + var(--bs-border-width));
+          text-align: right;
+          padding: 0 1rem 0 0;
+          border-right: var(--bs-border-width) solid var(--bs-border-color);
+          user-select: none;
+        }
+      }
+      &.added, &.added .number {
+        background-color: rgba($success, 0.2);
+        .inline-diff {
+          background-color: rgba($success, 0.5);
+        }
+      }
+      &.removed, &.removed .number {
+        background-color: rgba($danger, 0.2);
+        .inline-diff {
+          background-color: rgba($danger, 0.5);
+        }
+      }
+      &.range, &.comment {
+        border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+        border-top: var(--bs-border-width) solid var(--bs-border-color);
+        .offset {
+          font-family: monospace;
+          padding-left: calc(4rem + (2 * var(--line-index-digits)) + var(--bs-border-width));
+          position: sticky;
+          left: 0;
+          .text {
+            padding-left: 1rem;
+            border-left: var(--bs-border-width) solid var(--bs-border-color);
+          }
+        }
+      }
+      .content {
+        margin-left: 1rem;
+        white-space: pre;
+        display: inline-block;
+        .inline-diff {
+          border-radius: 4px;
+        }
+      }
+    }
+  }
+}

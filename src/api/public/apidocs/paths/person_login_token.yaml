@@ -1,0 +1,161 @@
+get:
+  summary: List the authentication tokens of a person.
+  description: List the authentication tokens of a person.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/login.yaml'
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [tokenlist.rng](../schema/tokenlist.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/person_tokens.yaml'
+          example:
+            count: 2
+            entry:
+              - id: 3
+                enabled: true
+                string: FK49K39DKK
+                kind: rss
+                triggered_at: '2021-10-28 12:32:18 UTC'
+              - id: 25
+                description: Release ghcz
+                enabled: false
+                string: 4T04JGI691
+                kind: release
+                triggered_at: '2021-09-21 11:12:18 UTC'
+                project: 'devel:languages:haskell'
+                package: 'ghcz'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Forbidden.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: view_user_not_authorized
+            summary: 'You are not authorized to view this User.'
+  tags:
+    - Person
+
+post:
+  summary: Create a new authentication token for a person.
+  description: |
+    Create a new authentication token for a person.
+
+    The token may be limited to a specific package. In this case the query parameters
+    `project` and `package` should be provided.
+
+    With an empty request body, a token of the default kind 'runservice' is created.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/login.yaml'
+    - in: query
+      name: description
+      schema:
+        type: string
+      description: |
+        Token description. It helps to identify a token from the rest of the tokens of a user.
+      example: Rebuild gchz
+    - in: query
+      name: project
+      schema:
+        type: string
+      description: |
+        Project name. Should be provided, together with the package query parameter,
+        to limit the token to a specific package.
+      example: home:hans
+    - in: query
+      name: package
+      schema:
+        type: string
+      description: |
+        Package name. Should be provided, together with the project query parameter,
+        to limit the token to a specific package.
+      example: gchz
+    - in: query
+      name: operation
+      schema:
+        type: string
+        enum: [runservice, rebuild, release]
+      description: |
+        Operation indicates the kind of token that is going to be created.
+
+        When operation is not specified, 'runservice' is the default value.
+      example: runservice
+    - in: query
+      name: scm_token
+      schema:
+        type: string
+      description: |
+        **(Beta/Unstable)**
+
+        SCM token used in OBS workflows to report back the workflow status, when the operation is workflow.
+
+        It's normally possible to generate SCM tokens directly on the SCM's website like GitHub or GitLab.
+      example: ghp_fake_token_123
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+
+        **NOTE:** This is an example of a valid response. It should include the attribute 'name'
+        in every 'data' tag, which is missing in the example using the schema.
+        ```
+          <status code="ok">
+            <summary>Ok</summary>
+            <data name="token">i6iF4M5cn</data>
+            <data name="id">5</data>
+          </status>
+        ```
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+            summary: Ok
+            data:
+              - i6iF4M5cn
+              - 5
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: invalid_token
+            summary: 'Failed to create token: Name is too long (maximum is 64 characters).'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Forbidden.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: update_user_not_authorized
+            summary: 'You are not authorized to update this User.'
+  tags:
+    - Person

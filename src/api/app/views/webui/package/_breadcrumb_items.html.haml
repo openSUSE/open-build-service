@@ -1,0 +1,36 @@
+= render partial: 'webui/project/breadcrumb_items'
+
+-# The package doesn't exist in the context of package#new, so we don't check other paths below to avoid exceptions
+- if controller_name == 'package' && action_name == 'new'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Create Package
+- else
+  %li.breadcrumb-item.text-word-break-all
+    %i.fa.fa-archive
+    = link_to(package_show_path(@project, @package)) do
+      - if @package_name.present?
+        = @package_name
+      - else
+        = @package
+        - if @multibuild_flavor.present?
+          %span.active :#{@multibuild_flavor}
+  - if current_page?(package_view_revisions_path(@project, @package))
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Revisions
+  - if current_page?(packages_requests_path(@project, @package))
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Requests
+  - if current_page?(package_requests_path(@project, @package))
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Requests
+  - if current_page?(package_users_path(@project, @package))
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Users
+  - if current_page?(package_show_path(@project, @package))
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Overview
+  - if controller_name == 'package' && action_name == 'statistics'
+    %li.breadcrumb-item
+      = link_to 'Repository State', project_package_repository_binaries_path(@project, @package_name, @repository)
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Statistics

@@ -1,0 +1,7 @@
+in: path
+name: distribution_id
+schema:
+  type: integer
+required: true
+description: The id of the distribution
+example: 16626

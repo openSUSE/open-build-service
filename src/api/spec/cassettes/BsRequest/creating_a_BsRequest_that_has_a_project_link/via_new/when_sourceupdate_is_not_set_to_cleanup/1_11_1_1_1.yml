@@ -1,0 +1,489 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/_meta?user=user_193
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base">
+          <title>I Sing the Body Electric</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base">
+          <title>I Sing the Body Electric</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/package_11/_meta?user=user_194
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_11" project="Base">
+          <title>The Wives of Bath</title>
+          <description>Eius quibusdam modi velit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_11" project="Base">
+          <title>The Wives of Bath</title>
+          <description>Eius quibusdam modi velit.</description>
+        </package>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/package_11/_meta?user=user_194
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_11" project="Base">
+          <title>The Wives of Bath</title>
+          <description>Eius quibusdam modi velit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_11" project="Base">
+          <title>The Wives of Bath</title>
+          <description>Eius quibusdam modi velit.</description>
+        </package>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/source_package/_meta?user=user_195
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="Base">
+          <title>Cover Her Face</title>
+          <description>Ut culpa exercitationem consequuntur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="Base">
+          <title>Cover Her Face</title>
+          <description>Ut culpa exercitationem consequuntur.</description>
+        </package>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/source_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
+          <version>unknown</version>
+          <time>1686759807</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/_meta?user=project_link_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:project_link_test_user">
+          <title/>
+          <description/>
+          <person userid="project_link_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:project_link_test_user">
+          <title></title>
+          <description></description>
+          <person userid="project_link_test_user" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/target_package/_meta?user=user_196
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:project_link_test_user">
+          <title>A Handful of Dust</title>
+          <description>Natus maxime laudantium eos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:project_link_test_user">
+          <title>A Handful of Dust</title>
+          <description>Natus maxime laudantium eos.</description>
+        </package>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/target_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5" vrev="5">
+          <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
+          <version>unknown</version>
+          <time>1686759807</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/target_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '1'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
+          <version>unknown</version>
+          <time>1686759807</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base:my_project/_meta?user=project_link_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base:my_project">
+          <title>In a Glass Darkly</title>
+          <description/>
+          <link project="Base"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base:my_project">
+          <title>In a Glass Darkly</title>
+          <description></description>
+          <link project="Base"/>
+        </project>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Base:my_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="3" vrev="3" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
+          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1686759805"/>
+        </directory>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Base:my_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="3" vrev="3" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
+          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1686759805"/>
+        </directory>
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/Base:my_project/source_package?cmd=diff&expand=1&nodiff=1&opackage=target_package&oproject=home:project_link_test_user
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        ++++++ somefile.txt
+        --- somefile.txt
+        +++ somefile.txt
+  recorded_at: Wed, 14 Jun 2023 16:23:27 GMT
+recorded_with: VCR 6.1.0

@@ -1,0 +1,30 @@
+.card.collapse.position-absolute.mt-2.shadow-lg#review-form-collapse
+  .card-body
+    %h5
+      Give a review for
+      %i
+    %ul.list-group.list-group-flush
+      %li.list-group-item#review-reason
+      %li.list-group-item
+        = form_tag(request_modify_review_path) do
+          = hidden_field_tag('review_id')
+          .mb-3{ data: { 'canned-controller': '' } }
+            - if Flipper.enabled?(:canned_responses, User.session)
+              .d-flex.justify-content-end
+                - request_canned_responses = bs_request.canned_responses.where(decision_type: nil)
+                - user_canned_responses = User.session.canned_responses.where(decision_type: nil)
+                = render CannedResponsesDropdownComponent.new(user_canned_responses.or(request_canned_responses).order(:title))
+            = text_area_tag('comment', '', rows: 4, class: 'w-100 form-control', placeholder: 'Please comment on your decision')
+          .mb-3
+            .form-check
+              = radio_button_tag('new_state', 'Decline', true, class: 'form-check-input', aria: { describedby: 'decline-description' })
+              = label_tag('Decline', 'Decline', for: 'new_state_Decline', class: 'form-check-label')
+              %small.form-text.text-muted#decline-description
+                Veto the review. This will also decline the request.
+            .form-check
+              = radio_button_tag('new_state', 'Approve', false, class: 'form-check-input', aria: { describedby: 'approve-description' })
+              = label_tag('Approve', for: 'new_state_Approve', class: 'form-check-label') do
+                Approve
+              %small.form-text.text-muted#approve-description
+                Give your consent for the review. The request will move forward.
+          = submit_tag 'Submit review', title: 'Submit the review.', class: 'btn btn-primary'

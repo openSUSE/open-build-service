@@ -1,0 +1,47 @@
+$notifications-filter-box-height: 3.5rem;
+$avatars-counter-size: 1.4375rem;
+
+.avatars-counter, .simulated-avatar {
+  display: inline-block;
+  text-align: center;
+  width: $avatars-counter-size;
+  height: $avatars-counter-size;
+  line-height: 1.4rem;
+  cursor: default;
+}
+
+.avatars-counter { font-size: 0.6rem; }
+
+ul.avatars{
+  li {
+    margin-right: 0;
+    &:not(:first-child) { margin-right: -.25rem; }
+  }
+}
+
+#notification-action-bar {
+  &.sticky-top { top: $top-navigation-height; }
+}
+
+@include media-breakpoint-between(xs, md) {
+  #notification-action-bar {
+    &.sticky-top { top: calc(#{$top-navigation-height} + #{$notifications-filter-box-height}); }
+  }
+}
+
+.notifications-counter {
+  position: relative;
+  margin: 0 auto;
+  width: 6rem;
+  .badge {
+    position: absolute;
+    top: -0.4rem;
+    left: 3.1rem;
+    border: 0.1rem solid $dark;
+    padding: 0.1rem 0.3rem;
+  }
+}
+
+.notification-bar-offset {
+  top: calc(#{$top-navigation-height} + 3rem) !important;
+}

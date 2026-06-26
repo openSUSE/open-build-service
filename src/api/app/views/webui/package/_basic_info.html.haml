@@ -1,0 +1,28 @@
+.editing-form.d-none
+  = render partial: 'edit', locals: { package: package, project: package.project }
+
+.basic-info
+  - if package.url.present?
+    = link_to(package.url, package.url, class: 'mb-3 d-block')
+  #description-text
+    - if package.description.blank?
+      %i No description set
+    - else
+      = render partial: 'webui/shared/collapsible_text', locals: { text: package.description,
+                                                                   render_markdown: Flipper.enabled?('foster_collaboration', User.session) }
+
+  - if policy(package).update?
+    .pt-4
+      = link_to('javascript:void(0);', id: 'toggle-in-place-editing', class: 'ps-0', title: 'Edit') do
+        %i.fas.fa-edit
+        %span.nav-item-name Edit
+
+:javascript
+  $('#toggle-in-place-editing').on('click', function () {
+    $('.in-place-editing .basic-info').toggleClass('d-none');
+    $('.in-place-editing .editing-form').toggleClass('d-none');
+  });
+  $('#cancel-in-place-editing').on('click', function () {
+    $('.in-place-editing .basic-info').toggleClass('d-none');
+    $('.in-place-editing .editing-form').toggleClass('d-none');
+  });

@@ -1,0 +1,65 @@
+%ul.side_links.list-unstyled
+  - if project.maintenance?
+    = render partial: 'webui/project/side_links/maintenance_project', locals: { open_maintenance_incidents: open_maintenance_incidents,
+                                                                                project: project,
+                                                                                maintained_projects: maintained_projects }
+  - else
+    - if nr_of_problem_packages&.positive?
+      = render partial: 'webui/project/side_links/project_monitor', locals: { project: project,
+                                                                              nr_of_problem_packages: nr_of_problem_packages }
+
+    - if project.patchinfos.exists?
+      = render partial: 'webui/project/side_links/patchinfo_present', locals: { project: project }
+
+    - if project.maintenance_incident?
+      = render partial: 'webui/project/side_links/incident_project', locals: { project: project,
+                                                                               open_release_requests: open_release_requests }
+
+    - if release_targets.present?
+      = render partial: 'webui/project/side_links/release_targets', locals: { project: project,
+                                                                              release_targets: release_targets }
+
+  - if requests.present?
+    = render partial: 'webui/project/side_links/requests', locals: { requests: requests,
+                                                                     project: project,
+                                                                     package: package,
+                                                                     incoming_requests_size: incoming_requests_size,
+                                                                     outgoing_requests_size: outgoing_requests_size }
+
+  - if project.defines_remote_instance?
+    %li
+      %i.fas.fa-link
+      Links against the remote OBS instance at:
+      = link_to_if(project.remoteurl, project.remoteurl, project.remoteurl)
+
+  - if linking_projects.present?
+    %li
+      = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#linking-projects-modal' }) do
+        %i.fa.fa-info-circle.text-info
+        = pluralize(linking_projects.size, 'linking project')
+
+  - if project_maintenance_project
+    %li
+      %i.fa.fa-check-circle.text-success
+      Maintained by
+      = link_to(project_show_path(project_maintenance_project)) do
+        = project_maintenance_project
+
+  - if Flipper.enabled?(:package_version_tracking, User.session) && project.anitya_distribution_name.present?
+    %li
+      %i.fas.fa-sync-alt.text-info
+      - if project.anitya_distribution_synced_at.present?
+        Anitya distribution info updated
+        = time_ago_in_words(project.anitya_distribution_synced_at)
+        ago
+      - else
+        Anitya distribution info not synced yet
+
+  - if project.locked?
+    %li
+      %i.fa.fa-lock
+      is locked
+  - reports_component = ReportsNoticeComponent.new(reportable: project, user: User.session)
+  - if reports_component.render?
+    %li
+      = render reports_component

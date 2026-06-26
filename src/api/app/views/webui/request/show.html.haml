@@ -1,0 +1,70 @@
+:ruby
+  content_for(:meta_title, "Request #{@bs_request.number} (#{@bs_request.state})")
+  content_for(:meta_description, @bs_request.description)
+  content_for(:meta_image, gravatar_url(User.find_by_login(@bs_request.creator).email))
+  @pagetitle = "Request #{@bs_request.number}"
+  @pagetitle += ": #{@actions.first[:name]}" if @actions.count == 1
+
+- if @not_full_diff && User.session
+  = render partial: 'webui/shared/truncated_diff_hint', locals: { path: request_show_path(number: @bs_request.number, full_diff: true) }
+
+= render partial: 'superseded_by_message', locals: { superseded_by: @bs_request.superseded_by,
+                                                     number: @bs_request.number,
+                                                     diff_to_superseded: @diff_to_superseded,
+                                                     superseding: @bs_request.superseding }
+.card.mb-3
+  .card-header.d-flex.justify-content-between
+    %h5
+      Overview
+  .card-body
+    .row
+      .col-md-8#overview
+        = render partial: 'show_overview', locals: { bs_request: @bs_request,
+                                                     can_add_reviews: @can_add_reviews }
+      .col-md-4#side-links
+        = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers }
+      = render partial: 'actions', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews }
+
+.card.mb-3
+  .card-header.p-0
+    %ul.nav.nav-tabs.bs-request-actions.disable-link-generation{ role: 'tablist' }
+      - @actions.each_with_index do |action, index|
+        %li.nav-item.mw-100
+          - xml_id = action[:name] + action[:id].to_s
+          = link_to(action[:name], "##{valid_xml_id(xml_id)}",
+            class: "request-tab nav-link text-nowrap text-truncate #{'active' if index.zero?}",
+            data: { 'bs-toggle': 'tab', url: request_action_url(action[:number], action[:id]), tab_pane_id: valid_xml_id(xml_id), index: index,
+                    diff_to_superseded: @diff_to_superseded_id }, role: 'tab')
+  .card-body
+    .d-flex.justify-content-center.loading-diff
+      .spinner-border{ role: 'status' }
+        %span.visually-hidden Loading...
+    .tab-content.sourcediff{ data: { diff_limit: @diff_limit } }
+
+.row
+  .col-md-8
+    .card.mb-3#comments-list
+      = render partial: 'request_comments', locals: { comments: @comments, bs_request: @bs_request,
+                                                      superseded_requests: @bs_request.superseding.includes(:comments) }
+    = render partial: 'handle_request', locals: { is_target_maintainer: @is_target_maintainer,
+                                                        is_author: @is_author,
+                                                        bs_request: @bs_request,
+                                                        can_handle_request: @can_handle_request,
+                                                        can_add_reviews: @can_add_reviews,
+                                                        my_open_reviews: @my_open_reviews,
+                                                        show_project_maintainer_hint: @show_project_maintainer_hint,
+                                                        package_maintainers: @package_maintainers,
+                                                        actions: @actions }
+
+  .col-md-4
+    .card#request-history
+      .card-header.d-flex.justify-content-between
+        %h5
+          Request History
+      .card-body
+        = render partial: 'request_history', locals: { bs_request: @bs_request, history: @history }
+
+- if @can_add_reviews
+  = render partial: 'webui/request/add_reviewer_dialog', locals: { bs_request: @bs_request }
+= render partial: 'webui/request/show_maintainers', locals: { modal_id: 'show-package-maintainers-modal',
+                                                              entity_type: 'Package', maintainers: @package_maintainers }

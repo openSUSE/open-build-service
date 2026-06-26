@@ -1,0 +1,35 @@
+get:
+  summary: List the repositories of a project with published binaries
+  description: Get a list of the repositories of the project that already have published binaries.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            entry:
+              - name: 'SLE_15_SP3'
+              - name: 'containers'
+              - name: 'images'
+              - name: 'openSUSE_15.2'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/download_binary_forbidden.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: "Couldn't find Project"
+  tags:
+    - Published Binaries

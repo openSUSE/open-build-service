@@ -1,0 +1,28 @@
+:ruby
+  max_shown = 5
+  project_class = staging_project.name.tr(':.', '_')
+  item_project_class = "hidden-item-#{project_class}"
+  build_problems = merge_broken_packages(staging_project.broken_packages)
+  checks, build_problems, remaining_checks, remaining_build_problems =
+    pick_max_problems(staging_project.checks.failed.to_a, build_problems, max_shown)
+
+- if checks.empty? && build_problems.empty?
+  .text-center
+    %i.fas.fa-check-circle.text-success
+- else
+  %ul.list-group.list-group-flush
+    - checks.each do |check|
+      = render partial: 'status_problems', locals: { check: check }
+    - build_problems.each do |name, states|
+      = render partial: 'build_problems', locals: { name: name, states: states, staging_project: staging_project }
+    - remain_count = remaining_checks.length + remaining_build_problems.length
+    - if remain_count.positive?
+      %span.collapse{ id: item_project_class }
+        - remaining_checks.each do |check|
+          = render partial: 'status_problems', locals: { check: check }
+        - remaining_build_problems.each do |name, states|
+          = render partial: 'build_problems', locals: { name: name, states: states, staging_project: staging_project }
+      %li.list-group-item.table-list-group-item
+        %a{ 'data-bs-toggle': 'collapse', href: "##{item_project_class}", 'aria-expanded': 'false' }
+          %span.expander See #{remain_count} more
+          %span.collapser See #{remain_count} less

@@ -1,0 +1,75 @@
+- project_labels(project) do |label|
+  - label_template = label.label_template
+  :css
+    .label-#{label_template.id} {
+      color: #{h(contrast_text(label_template.color))};
+      background-color: #{h(label_template.color)};
+    }
+
+.card-body
+  - if project.scmsync.present?
+    %p
+    = link_to project.scmsync do
+      This project is managed in SCM
+  - elsif packages.present?
+    - if Flipper.enabled?(:labels, User.session)
+      .mb-2
+        Filters:
+        .dropdown.d-inline
+          %button.btn.btn-sm.btn-outline-primary.dropdown-toggle{ type: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false' }
+            Labels
+            %span.d-none#label-filter
+              %span.badge
+          .dropdown-menu
+            - project.label_templates.each do |label|
+              .py-1.px-2
+                %span.label-filter{ role: 'button', data: { label: label.name, label_id: label.id } }
+                  = render partial: 'webui/shared/label', locals: { label: label }
+        %span.d-none#label-clear{ data: { label: '' } }
+          = link_to('Clear filters', '#', id: 'label-clear', class: 'label-filter btn btn-sm btn-primary')
+    .obs-dataTable
+      %table.table.table-sm.table-bordered.table-hover.w-100#packages-table{ data: { source: package_index_path(project: project) } }
+        %thead
+          %tr
+            %th.w-30 Name
+            - if Flipper.enabled?(:package_version_tracking, User.session) && project.anitya_distribution_name.present?
+              %th.w-30 Version
+            - if Flipper.enabled?(:labels, User.session)
+              %th.w-30 Labels
+            %th.w-20 Changed
+        %tbody
+  - else
+    %p This project does not contain any packages
+
+  - if User.possibly_nobody.can_modify?(project) && show_package_actions?
+    .pt-4
+      %ul.nav
+        %li.nav-item
+          = link_to(new_package_path(project), class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Create Package
+        %li.nav-item
+          = link_to(project_new_packages_branch_path(project), class: 'nav-link') do
+            %i.fas.fa-code-branch.text-primary
+            Branch Package
+
+- content_for :ready_function do
+  :plain
+    var package_datatable_columns = [{"data": "name"}]
+
+  - if Flipper.enabled?(:package_version_tracking, User.session) && project.anitya_distribution_name.present?
+    :plain
+      package_datatable_columns.push({"data": "version", "orderable": false})
+
+  - if Flipper.enabled?(:labels, User.session)
+    :plain
+      package_datatable_columns.push({"data": "labels", "name": "labels", "orderable": false})
+
+  :plain
+    package_datatable_columns.push({"data": "changed"})
+    initializeRemoteDatatable('#packages-table', {
+        "columns": package_datatable_columns
+      });
+  - if Flipper.enabled?(:labels, User.session)
+    :plain
+      labelFiltering('#packages-table');

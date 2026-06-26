@@ -1,0 +1,79 @@
+type: object
+properties:
+  filename:
+    type: string
+    xml:
+      attribute: true
+  name:
+    type: string
+  version:
+    type: string
+  release:
+    type: string
+  arch:
+    type: string
+  source:
+    type: string
+  summary:
+    type: string
+  description:
+    type: string
+  size:
+    type: string
+  mtime:
+    type: string
+  provides:
+    type: array
+    items:
+      type: string
+  requires:
+    type: array
+    items:
+      type: string
+  provides_ext:
+    type: array
+    items:
+      type: object
+      properties:
+        dep:
+          type: string
+          xml:
+            attribute: true
+  requires_ext:
+    type: array
+    items:
+      type: object
+      properties:
+        dep:
+          type: string
+          xml:
+            attribute: true
+        provided_by:
+          type: object
+          properties:
+            name:
+              type: string
+              xml:
+                attribute: true
+            version:
+              type: string
+              xml:
+                attribute: true
+            release:
+              type: string
+              xml:
+                attribute: true
+            arch:
+              type: string
+              xml:
+                attribute: true
+            project:
+              type: string
+              xml:
+                attribute: true
+            repository:
+              type: string
+              xml:
+                attribute: true
+xml:
+  name: fileinfo

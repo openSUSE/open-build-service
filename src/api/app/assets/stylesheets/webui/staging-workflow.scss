@@ -1,0 +1,132 @@
+ul .table-list-group-item {
+  padding: 0.5rem 0.75rem;
+  background-color: transparent;
+}
+
+.bg-staging-state-accepting {
+  background-color: #ca57ce;
+}
+
+#staging-projects-datatable td,
+#staging-project-package-list,
+.legend {
+  span.badge {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  &.project {
+    min-width: 9rem;
+
+    > span.badge {
+      @extend .w-100;
+
+      > span.badge {
+        @extend .m-1;
+        max-width: 15rem;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        display: inline-block;
+        white-space: normal;
+      }
+    }
+
+    span.badge {
+      &.state-unacceptable {
+        @extend .text-bg-dark;
+      }
+
+      &.state-acceptable {
+        @extend .text-bg-success;
+      }
+
+      &.state-accepting {
+        @extend .bg-staging-state-accepting;
+        color: white;
+      }
+
+      &.state-testing {
+        @extend .text-bg-info;
+      }
+
+      &.state-building {
+        @extend .text-bg-warning;
+
+        span {
+          @extend .text-dark;
+        }
+      }
+
+      &.state-failed {
+        @extend .text-bg-danger;
+      }
+
+      &.state-review {
+        @extend .text-bg-secondary;
+      }
+
+      &.state-empty {
+        @extend .bg-body-secondary;
+        @extend .border;
+
+        span {
+          @extend .text-dark;
+        }
+      }
+    }
+  }
+  &.requests, &.child {
+    .request-elements { min-width: 20rem; }
+
+    span.badge {
+      margin-left: 10px;
+
+      a.request {
+        min-height: 1.3rem;
+        @extend .text-white;
+        padding: 0 0.125rem 0;
+        display: flex;
+        align-items: center;
+
+        &:hover {
+          text-decoration: none;
+        }
+
+        img {
+          @extend .text-bg-light;
+          border-radius: 50%;
+          height: 20px;
+          width: 20px;
+        }
+
+        img, i {
+          margin-left: 5px;
+        }
+      }
+
+      &.state-ready {
+        @extend .text-bg-success;
+      }
+
+      &.state-review {
+        @extend .text-bg-secondary;
+      }
+
+      &.state-obsolete {
+        @extend .text-bg-custom-gray;
+      }
+
+      &.delete {
+        a.request {
+          text-decoration: line-through;
+        }
+      }
+    }
+  }
+  .problem-elements { min-width: 12rem; }
+}
+
+li.missing-check {
+  margin-left: 1.25rem;
+  list-style: disc;
+}

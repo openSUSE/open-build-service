@@ -1,0 +1,12 @@
+in: query
+name: withdownloadurl
+schema:
+  type: integer
+  enum:
+    - 0
+    - 1
+description: |
+  Add the download url in the results as attribute `downloadurl`.
+
+  A value `0` means without the download url. A value `1` means with the download url.
+example: 1

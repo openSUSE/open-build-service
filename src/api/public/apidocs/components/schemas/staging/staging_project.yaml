@@ -1,0 +1,86 @@
+type: object
+properties:
+  name:
+    type: string
+    example: openSUSE:Factory
+    xml:
+      attribute: true
+  state:
+    type: string
+    example: empty
+    xml:
+      attribute: true
+  staged_requests:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 0
+        xml:
+          attribute: true
+  untracked_requests:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 0
+        xml:
+          attribute: true
+  obsolete_requests:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 0
+        xml:
+          attribute: true
+  missing_reviews:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 0
+        xml:
+          attribute: true
+  building_repositories:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 0
+        xml:
+          attribute: true
+  broken_packages:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 0
+        xml:
+          attribute: true
+  checks:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 0
+        xml:
+          attribute: true
+  missing_checks:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 0
+        xml:
+          attribute: true
+  history:
+    type: object
+    properties:
+      count:
+        type: integer
+        example: 0
+        xml:
+          attribute: true
+xml:
+  name: staging_project

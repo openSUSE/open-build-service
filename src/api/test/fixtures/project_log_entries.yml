@@ -1,0 +1,34 @@
+record_0:
+  datetime: 2013-08-31 14:56:50.000000000 Z
+  event_type: update_project_config
+  project: BaseDistro
+record_1:
+  user_name: Iggy
+  package_name: pack1
+  datetime: 2013-08-08 14:00:00.000000000 Z
+  event_type: commit
+  project: BaseDistro
+record_2:
+  user_name: king
+  package_name: pack
+  datetime: 2013-08-12 14:00:00.000000000 Z
+  event_type: commit
+  project: SourceprotectedProject
+record_3:
+  user_name: adrian
+  package_name: packCopy
+  datetime: 2013-08-18 14:00:00.000000000 Z
+  event_type: commit
+  project: HiddenProject
+record_4:
+  user_name: Iggy
+  package_name: kdelibs
+  datetime: 2013-08-29 14:00:00.000000000 Z
+  event_type: commit
+  project: kde4
+record_5:
+  user_name: Iggy
+  package_name: pack1
+  datetime: 2013-08-12 14:00:00.000000000 Z
+  event_type: commit
+  project: BaseDistro

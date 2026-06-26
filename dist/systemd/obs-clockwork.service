@@ -1,0 +1,17 @@
+[Unit]
+Description = Open Build Service Clockwork Daemon
+BindsTo = obs-api-support.target
+After = mariadb.service obsapisetup.service
+
+[Service]
+Environment = "RAILS_ENV=production"
+User = @@APACHE_USER@@
+Group = @@APACHE_GROUP@@
+WorkingDirectory = @@OBS_API_PREFIX@@
+ExecStart = @@OBS_API_PREFIX@@/bin/clockworkd --log-dir=log -l -c config/clock.rb start
+ExecStop = @@OBS_API_PREFIX@@/bin/clockworkd -l -c config/clock.rb stop
+Type = forking
+PIDFile = @@OBS_API_PREFIX@@/tmp/clockworkd.clock.pid
+
+[Install]
+WantedBy = obs-api-support.target

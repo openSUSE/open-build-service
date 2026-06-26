@@ -1,0 +1,26 @@
+.modal.fade{ id: 'delete-path-modal', tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-repository-path-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Delete repository path?
+      .modal-body
+        %p
+          Please confirm deletion of
+          = surround "'" do
+            %span.path-name
+          repository path from
+          %span.repository
+      .modal-footer
+        = form_tag(nil, method: :post) do
+          %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+            Cancel
+          = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')
+- content_for :ready_function do
+  :plain
+    $('#delete-path-modal').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('.path-name').text(link.data('path-name'));
+      $(this).find('.repository').text(link.data('repository'));
+      $(this).find('form').attr('action', link.data('action'));
+    });

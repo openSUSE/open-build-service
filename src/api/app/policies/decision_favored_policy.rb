@@ -1,0 +1,2 @@
+class DecisionFavoredPolicy < DecisionPolicy
+end

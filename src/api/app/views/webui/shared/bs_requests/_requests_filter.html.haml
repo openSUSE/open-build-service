@@ -1,0 +1,272 @@
+-# haml-lint:disable ViewLength
+.accordion.accordion-flush
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-involvement' },
+                                             aria: { expanded: 'true', controls: 'request-filter-involvement' } }
+      %b Involvement
+      %span.ms-1
+        = render partial: 'webui/shared/bs_requests/filter_help_involvement', locals: { viewed_object: viewed_object }
+
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-involvement
+      = render partial: 'webui/shared/check_box', locals: { label: "To #{viewed_object}",
+                                                            key: 'involvement[incoming]', name: 'involvement[]', value: 'incoming',
+                                                            checked: selected_filter[:involvement]&.include?('incoming'),
+                                                            turbo_stream_counter_id: 'request_counter_for_incoming_requests'}
+      = render partial: 'webui/shared/check_box', locals: { label: "From #{viewed_object}",
+                                                            key: 'involvement[outgoing]', name: 'involvement[]', value: 'outgoing',
+                                                            checked: selected_filter[:involvement]&.include?('outgoing'),
+                                                            turbo_stream_counter_id: 'request_counter_for_outgoing_requests' }
+      = render partial: 'webui/shared/check_box', locals: { label: "Review for #{viewed_object}",
+                                                            key: 'involvement[review]', name: 'involvement[]', value: 'review',
+                                                            checked: selected_filter[:involvement]&.include?('review'),
+                                                            turbo_stream_counter_id: 'request_counter_for_reviews' }
+
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-state' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-state' } }
+      %b States
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-state
+      - BsRequest::VALID_REQUEST_STATES.each do |state|
+        = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: state)),
+                                                              key: "states[#{state}]", name: 'states[]',
+                                                              value: state,
+                                                              checked: selected_filter[:states]&.include?(state.to_s),
+                                                              turbo_stream_counter_id: "request_counter_for_state_#{state}" }
+
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-action' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-action' } }
+      %b Types
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-action
+      = render partial: 'webui/shared/check_box', locals: { label: 'Bugowner Change', key: 'action_types[set_bugowner]',
+                                                            name: 'action_types[]', value: 'set_bugowner',
+                                                            label_icon: action_type_icon('set_bugowner'),
+                                                            checked: selected_filter[:action_types]&.include?('set_bugowner'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_set_bugowner' }
+
+      = render partial: 'webui/shared/check_box', locals: { label: 'Change Devel Project', key: 'action_types[change_devel]',
+                                                            name: 'action_types[]', value: 'change_devel',
+                                                            label_icon: action_type_icon('change_devel'),
+                                                            checked: selected_filter[:action_types]&.include?('change_devel'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_change_devel' }
+
+      = render partial: 'webui/shared/check_box', locals: { label: 'Delete', key: 'action_types[delete]',
+                                                            name: 'action_types[]', value: 'delete',
+                                                            label_icon: action_type_icon('delete'),
+                                                            checked: selected_filter[:action_types]&.include?('delete'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_delete' }
+
+      = render partial: 'webui/shared/check_box', locals: { label: 'Maintenance Incident', key: 'action_types[maintenance_incident]',
+                                                            name: 'action_types[]', value: 'maintenance_incident',
+                                                            label_icon: action_type_icon('maintenance_incident'),
+                                                            checked: selected_filter[:action_types]&.include?('maintenance_incident'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_maintenance_incident' }
+
+      = render partial: 'webui/shared/check_box', locals: { label: 'Maintenance Release', key: 'action_types[maintenance_release]',
+                                                            name: 'action_types[]', value: 'maintenance_release',
+                                                            label_icon: action_type_icon('maintenance_release'),
+                                                            checked: selected_filter[:action_types]&.include?('maintenance_release'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_maintenance_release' }
+
+      = render partial: 'webui/shared/check_box', locals: { label: 'Release', key: 'action_types[release]',
+                                                            name: 'action_types[]', value: 'release',
+                                                            label_icon: action_type_icon('release'),
+                                                            checked: selected_filter[:action_types]&.include?('release'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_release' }
+
+      = render partial: 'webui/shared/check_box', locals: { label: 'Role Change', key: 'action_types[add_role]',
+                                                            name: 'action_types[]', value: 'add_role',
+                                                            label_icon: action_type_icon('add_role'),
+                                                            checked: selected_filter[:action_types]&.include?('add_role'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_add_role' }
+
+      = render partial: 'webui/shared/check_box', locals: { label: 'Submit', key: 'action_types[submit]',
+                                                            name: 'action_types[]', value: 'submit',
+                                                            label_icon: action_type_icon('submit'),
+                                                            checked: selected_filter[:action_types]&.include?('submit'),
+                                                            turbo_stream_counter_id: 'request_counter_for_type_submit' }
+
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-priority' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-priority' } }
+      %b Priorities
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-priority
+      - BsRequest::VALID_REQUEST_PRIORITIES.each do |priority|
+        = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestPriorityBadgeComponent.new(priority: priority)),
+                                                              key: "priorities[#{priority}]", name: 'priorities[]',
+                                                              value: priority,
+                                                              checked: selected_filter[:priorities]&.include?(priority.to_s) }
+
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-labels' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-labels' } }
+      %b Labels
+      %span.ms-1
+        = render partial: 'webui/shared/info_popover',
+                 locals: { position: 'bottom',
+                           text: "<p>Filter the requests by involvement of this label.</p>" }
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-labels
+      #request-labels-dropdown
+        = render partial: 'webui/shared/search_box', locals: { html_id: 'labels_search',
+                                                                 html_name: 'labels[]', required: false,
+                                                                 data: { source: autocomplete_labels_path },
+                                                                 button: { type: 'submit' } }
+        .scroll-list-wrapper.auto-submit-on-change
+          - selected_filter[:labels].each do |label|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: label,
+                                                                    key: "labels[#{label}]", name: 'labels[]',
+                                                                    value: label,
+                                                                    checked: selected_filter[:labels]&.include?(label) }
+
+
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-project-name' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-project-name' } }
+      %b Projects
+      %span.ms-1
+        = render partial: 'webui/shared/info_popover',
+                 locals: { position: 'bottom',
+                           text: "<p>Filter the requests by involvement of this project as target or source.</p>" }
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-project-name
+      #request-project-name-dropdown
+        = render partial: 'webui/shared/search_box', locals: { html_id: 'project_names_search',
+                                                                 html_name: 'project_names[]', required: false,
+                                                                 data: { source: autocomplete_projects_path },
+                                                                 button: { type: 'submit' } }
+        .scroll-list-wrapper.auto-submit-on-change
+          - selected_filter[:project_names].each do |project_name|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: project_name,
+                                                                    key: "project_names[#{project_name}]", name: 'project_names[]',
+                                                                    value: project_name,
+                                                                    checked: selected_filter[:project_names]&.include?(project_name) }
+
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-package-name' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-package-name' } }
+      %b Packages
+      %span.ms-1
+        = render partial: 'webui/shared/info_popover',
+                 locals: { position: 'bottom',
+                           text: "<p>Filter the requests by involvement of this package as target or source.</p>" }
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-package-name
+      #request-package-name-dropdown
+        = render partial: 'webui/shared/search_box', locals: { html_id: 'package_names_search',
+                                                                 html_name: 'package_names[]', required: false,
+                                                                 data: { source: package_autocomplete_path },
+                                                                 button: { type: 'submit' } }
+        .scroll-list-wrapper.auto-submit-on-change
+          - selected_filter[:package_names].each do |package_name|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: package_name,
+                                                                    key: "package_names[#{package_name}]", name: 'package_names[]',
+                                                                    value: package_name,
+                                                                    checked: selected_filter[:package_names]&.include?(package_name) }
+
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-creator' } }
+      %b Creators
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-creator
+      #request-creator-dropdown
+        = render partial: 'webui/shared/search_box', locals: { html_id: 'creators_search',
+                                                                 html_name: 'creators[]', required: false,
+                                                                 data: { source: autocomplete_users_path },
+                                                                 button: { type: 'submit' } }
+        .scroll-list-wrapper.auto-submit-on-change
+          - if selected_filter[:creators].include?(User.session.login)
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
+                                                                    key: "creators[#{User.session.login}]", name: 'creators[]',
+                                                                    value: User.session.login,
+                                                                    checked: selected_filter[:creators]&.include?(User.session.login) }
+          - selected_filter[:creators].each do |creator|
+            - next if creator == User.session.login
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: creator,
+                                                                    key: "creators[#{creator}]", name: 'creators[]',
+                                                                    value: creator,
+                                                                    checked: selected_filter[:creators]&.include?(creator) }
+
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-reviewer' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-reviewer' } }
+      %b Reviewers
+      .px-1 (Users and Groups)
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-reviewer
+      #request-reviewer-dropdown
+        = render partial: 'webui/shared/search_box', locals: { html_id: 'reviewer_search',
+                                                                 html_name: 'reviewers[]', required: false,
+                                                                 data: { source: autocomplete_reviewers_path },
+                                                                 button: { type: 'submit' } }
+
+        .scroll-list-wrapper.auto-submit-on-change
+          - if selected_filter[:reviewers].include?(User.session.login)
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
+                                                                    key: "reviewers[#{User.session.login}]", name: 'reviewers[]',
+                                                                    value: User.session.login,
+                                                                    checked: selected_filter[:reviewers]&.include?(User.session.login) }
+          - selected_filter[:reviewers].each do |reviewer|
+            - next if reviewer == User.session.login
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: reviewer,
+                                                                    key: "reviewers[#{reviewer}]", name: 'reviewers[]',
+                                                                    value: reviewer,
+                                                                    checked: selected_filter[:reviewers]&.include?(reviewer) }
+
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-staging-project' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-staging-project' } }
+      %b Staging  Projects
+      %span.ms-1
+        = render partial: 'webui/shared/bs_requests/filter_help_staging_projects'
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-staging-project
+      #request-staging-project-dropdown
+        = render partial: 'webui/shared/search_box', locals: { html_id: 'staging_project_search',
+                                                                 html_name: 'staging_projects[]', required: false,
+                                                                 data: { source: autocomplete_staging_projects_path },
+                                                                 button: { type: 'submit' } }
+        .scroll-list-wrapper.auto-submit-on-change
+          - selected_filter[:staging_projects].each do |staging_project|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: staging_project,
+                                                                    key: "staging_projects[#{staging_project}]", name: 'staging_projects[]',
+                                                                    value: staging_project,
+                                                                    checked: selected_filter[:staging_projects]&.include?(staging_project) }
+
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-created-at' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-created-at' } }
+      %b Created
+      %span.ms-1
+        = render partial: 'webui/shared/bs_requests/filter_help_created_at'
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-created-at
+      = render partial: 'webui/shared/input', locals: { html_id: 'created_at_from', type: 'datetime-local',
+                                                        class: 'auto-submit-on-change',
+                                                        label: 'From', value: selected_filter[:created_at_from] }
+      .mt-1
+        = render partial: 'webui/shared/input', locals: { html_id: 'created_at_to', type: 'datetime-local',
+                                                          class: 'auto-submit-on-change',
+                                                          label: 'To', value: selected_filter[:created_at_to] }
+
+.text-center.mt-4.mb-4
+  = link_to('Clear', url, class: 'btn btn-light border')
+
+- content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
+-# turbo frame used to trigger the turbo stream which updates the request filter counters
+= turbo_frame_tag("request_filter_counts_processor", src: url_for(controller_path: controller_path,
+                                                                  action: 'counts', format: :turbo_stream))
+
+-# haml-lint:enable ViewLength

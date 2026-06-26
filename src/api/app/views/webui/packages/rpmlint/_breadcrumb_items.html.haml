@@ -1,0 +1,11 @@
+= render partial: 'webui/package/breadcrumb_items'
+%li.breadcrumb-item
+  = link_to(@repository, project_package_repository_binaries_path(project_name: @project,
+                                                                  package_name: @package_name,
+                                                                  repository_name: @repository))
+%li.breadcrumb-item
+  = link_to(@architecture, project_package_repository_binaries_path(project_name: @project,
+                                                                    package_name: @package_name,
+                                                                    repository_name: @repository))
+%li.breadcrumb-item.active{ 'aria-current' => 'page' }
+  RPM Lint

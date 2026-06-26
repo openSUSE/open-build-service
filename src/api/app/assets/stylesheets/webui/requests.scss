@@ -1,0 +1,144 @@
+.badge-added {
+  @extend .text-bg-success;
+}
+
+.badge-deleted {
+  @extend .text-bg-danger;
+}
+
+.badge-changed, .badge-renamed {
+  @extend .text-bg-info;
+}
+
+.bg-staging {
+  background-color: $pink-300;
+  > a {
+    color: $white;
+  }
+}
+
+.bg-maintenance {
+  background-color: $orange;
+  > a {
+    color: $white;
+  }
+}
+
+.req-description-box {
+  word-break: break-all;
+  white-space: pre-line;
+  font-size: 14px;
+  padding-right: 1em;
+}
+
+.request-flag-new {
+  @extend .text-success;
+}
+
+.request-flag-review {
+  @extend .text-warning;
+}
+
+.request-flag-declined {
+  @extend .text-danger;
+}
+
+.scrollable-dropdown {
+  overflow-y: scroll;
+  height: 400px;
+}
+
+.fa-stack-slash {
+  left: -2px;
+}
+
+.request_link {
+  @extend .d-block;
+  @extend .btn;
+  @extend .btn-link;
+  @extend .border;
+  max-width: 90px;
+  margin: auto;
+}
+
+.request-index-description {
+  height: calc(var(--bs-body-line-height) * 1em);
+  overflow: hidden;
+}
+
+.col-with-icon {
+  max-width: calc(100% - 2.5rem)
+}
+
+#filter-desktop, #requests-filter-search-text {
+  &.sticky-top { top: $top-navigation-height; }
+}
+
+#request-accept-buttons-dropdown-menu {
+  width: 35rem;
+}
+
+#request-header-actions-list {
+  max-height: 12rem;
+  overflow-y: scroll;
+}
+
+@include media-breakpoint-up(sm) {
+  .order-sm-1 {
+    order: 1;
+  }
+
+  .order-sm-2 {
+    order: 2;
+  }
+}
+
+@include media-breakpoint-up(md) {
+  .order-md-1 {
+    order: 1;
+  }
+
+  .order-md-2 {
+    order: 2;
+  }
+
+  #decision-buttons-row {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+@include media-breakpoint-between(xs, md) {
+  #filter-desktop {
+    &.sticky-top { top: $top-navigation-height; }
+    height: $top-navigation-height;
+    // To not overlap with the notification action bar
+    z-index: calc(#{$zindex-sticky} + 1);
+
+    #content-selector-filters {
+      max-height: 100vw;
+      overflow: auto;
+    }
+  }
+  #requests-filter-search-text {
+    &.sticky-top { top: calc(#{$top-navigation-height} * 2); }
+  }
+
+  @media (orientation: landscape) {
+    #filter-desktop {
+      #content-selector-filters { max-height: 20vw; }
+    }
+  }
+}
+
+.fa-custom-pr-closed {
+  position: relative;
+  .fa-code-pull-request {
+    clip-path: polygon(0 0, 30% 0, 30% 50%, 100% 50%, 100% 100%, 0 100%);
+  }
+  .fa-times {
+    position: absolute;
+    top: 25%;
+    right: -10%;
+  }
+}

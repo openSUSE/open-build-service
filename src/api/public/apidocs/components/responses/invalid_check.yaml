@@ -1,0 +1,13 @@
+description: |
+  Unprocessable Content.
+
+  XML Schema used for body validation: [status.rng](../schema/status.rng)
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/api_response.yaml'
+    examples:
+      Invalid State:
+        value:
+          code: invalid_check
+          summary: "Could not save check: State State '🚀' is not a valid. Valid states are: pending, error, failure, success"

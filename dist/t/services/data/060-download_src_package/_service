@@ -1,0 +1,12 @@
+<services>
+  <service name="download_src_package">
+    <param name="protocol">http</param>
+    <param name="host">download.opensuse.org</param>
+    <param name="path">/source/distribution/leap/42.1/repo/oss/suse/src/Vc-0.7.4-5.5.src.rpm</param>
+  </service>
+  <service name="verify_file">
+    <param name="verifier">sha256</param>
+    <param name="checksum">a4e5c5d7b51b4b04e6ef87e28a5b8b0108c9788739b044f96fb64f274d249063</param>
+    <param name="file">_service:download_src_package:Vc-0.7.4.tar.gz</param>
+  </service>
+</services>

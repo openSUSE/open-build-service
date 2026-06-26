@@ -1,0 +1,37 @@
+type: object
+properties:
+  entry:
+    type: object
+    properties:
+      rev:
+        type: string
+        example: "4"
+        xml:
+          attribute: true
+      srcmd5:
+        type: string
+        example: "63a6f075d3d420c6c1160a7b5dc31354"
+        xml:
+          attribute: true
+      versrel:
+        type: string
+        example: "0.42.1-4"
+        xml:
+          attribute: true
+      bcnt:
+        type: string
+        example: "1"
+        xml:
+          attribute: true
+      time:
+        type: string
+        example: "1617812788"
+        xml:
+          attribute: true
+      duration:
+        type: string
+        example: "222"
+        xml:
+          attribute: true
+xml:
+  name: buildhistory

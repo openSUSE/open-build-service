@@ -1,0 +1,10 @@
+- @pagetitle = 'Build Status Monitor'
+- @metarobots = 'nofollow'
+.card
+  .card-body
+    - if @workerstatus
+      = render partial: 'lights', locals: { workerstatus: @workerstatus }
+      = render partial: 'workers_table', locals: { workers_sorted: @workers_sorted }
+      = render partial: 'events', locals: { available_arch_list: @available_arch_list, default_architecture: @default_architecture }
+    - else
+      %p.fw-bold Unable to determine status of workers

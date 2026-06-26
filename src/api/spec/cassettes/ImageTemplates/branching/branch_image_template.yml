@@ -1,0 +1,2297 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>In Dubious Battle</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>In Dubious Battle</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/first_package/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="first_package" project="my_project">
+          <title>a</title>
+          <description>Voluptas aperiam iure similique.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="first_package" project="my_project">
+          <title>a</title>
+          <description>Voluptas aperiam iure similique.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/first_package/_config
+    body:
+      encoding: UTF-8
+      string: Quia corrupti sint. Reiciendis animi consequatur. Eligendi tenetur quia.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>2265b1ed461af3197720a25b50b7ca3c</srcmd5>
+          <version>unknown</version>
+          <time>1684410580</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/first_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Commodi recusandae illo. Quisquam sed iste. Quia dolores ratione.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>63a573c9bdd2d5c01e9caa0cc00e71ae</srcmd5>
+          <version>unknown</version>
+          <time>1684410580</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/second_package/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="second_package" project="my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="second_package" project="my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/second_package/_config
+    body:
+      encoding: UTF-8
+      string: Itaque impedit et. Molestias quisquam ab. Et impedit exercitationem.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>5fcf13e7db7a4716667614c960dd8caa</srcmd5>
+          <version>unknown</version>
+          <time>1684410580</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/second_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Eum unde magnam. Vitae quae molestias. Rem dicta blanditiis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>7d091fa836670ad9e58065521548e09c</srcmd5>
+          <version>unknown</version>
+          <time>1684410581</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Iusto eius enim magni.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="third_package" project="my_project">
+          <title>b</title>
+          <description>Iusto eius enim magni.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/_config
+    body:
+      encoding: UTF-8
+      string: Rerum delectus sed. Repudiandae molestias a. Qui dolor ipsa.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>5d6ae99f29a1b87798ca506a76269849</srcmd5>
+          <version>unknown</version>
+          <time>1684410581</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/third_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Temporibus et blanditiis. Cumque aperiam aut. Adipisci et tempore.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>3678d49f4584dfc0c29ec25859e54c79</srcmd5>
+          <version>unknown</version>
+          <time>1684410581</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Antic Hay</title>
+          <description>Natus qui ducimus et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Antic Hay</title>
+          <description>Natus qui ducimus et.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/package_with_kiwi_image.kiwi
+    body:
+      encoding: UTF-8
+      string: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n  <image schemaversion=\"6.2\"
+        name=\"suse-13.2-live\">\n    <description type=\"system\">\n    </description>\n
+        \   <preferences>\n      <version>0.0.1</version>\n      <type image=\"oem\"
+        primary=\"true\" boot=\"oemboot/suse-13.2\"/>\n    </preferences>\n  </image>\n
+        \ "
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>801c545be09c1c468ff2d99b40415aac</srcmd5>
+          <version>0.0.1</version>
+          <time>1684410581</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Antic Hay</title>
+          <description>Natus qui ducimus et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_kiwi_image" project="my_project">
+          <title>Antic Hay</title>
+          <description>Natus qui ducimus et.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '231'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1677064926"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ImageTemplates" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10">
+          <srcmd5>6256d54b1876aa627babd0b7a0c7872a</srcmd5>
+          <time>1684410581</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/first_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="first_package" rev="8" vrev="8" srcmd5="63a573c9bdd2d5c01e9caa0cc00e71ae">
+          <entry name="_config" md5="739535ed2ca0b9feb299f8da2502d8be" size="72" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="d45db0d967e37f65544337564cc4de0c" size="65" mtime="1684410580"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/first_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="first_package" rev="8" vrev="8" srcmd5="63a573c9bdd2d5c01e9caa0cc00e71ae">
+          <entry name="_config" md5="739535ed2ca0b9feb299f8da2502d8be" size="72" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="d45db0d967e37f65544337564cc4de0c" size="65" mtime="1684410580"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/second_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/second_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/third_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="third_package" rev="8" vrev="8" srcmd5="3678d49f4584dfc0c29ec25859e54c79">
+          <entry name="_config" md5="561ae18d2ae0326875a132a184142a11" size="60" mtime="1684410581"/>
+          <entry name="somefile.txt" md5="045c590a12881c5eb95caa2777ab3137" size="66" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/third_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="third_package" rev="8" vrev="8" srcmd5="3678d49f4584dfc0c29ec25859e54c79">
+          <entry name="_config" md5="561ae18d2ae0326875a132a184142a11" size="60" mtime="1684410581"/>
+          <entry name="somefile.txt" md5="045c590a12881c5eb95caa2777ab3137" size="66" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '231'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1677064926"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 17b72a88-dda3-48d8-85e3-8f9ec457915c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '231'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1677064926"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 28f13683-1dc2-478f-9dc7-11e8f50f4ed1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 18 May 2023 11:49:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 28f13683-1dc2-478f-9dc7-11e8f50f4ed1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1639'
+    body:
+      encoding: UTF-8
+      string: |
+        <keyinfo project="home:tom">
+          <pubkey keyid="cfaa8e084a26fafa" userid="home:tom OBS Project &lt;home:tom@private&gt;" algo="rsa" keysize="2048" expires="1741880605" fingerprint="5c29 f588 f5b8 c2c4 6069 ff08 cfaa 8e08 4a26 fafa">-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+        mQENBGO0TR0BCADlQ4FwIb9gBi9DUkkC7MvIpu1QI6n1yLdv93X53Tc4kRmE0F5v
+        LD3qihj+ENLuF+CpK15JXzM5pwswcO/UzNs1pJjEDBef8Bw10RTQZy88qGdwaEbH
+        v+LZnt/8UzH1DfTccN/7ana/ZnZFDkztHq1syw2VL+dK2w+JcA7xmD4SzD4DBhgJ
+        UfxvZT9prdXbr8GyIqYdInDqnmexdeYZCaVJlcLlIHI/z2k9/Yfofnu4tA0GBXVJ
+        MnRfkdLEyRPaVNMBz8ITw+5naiv+pj9jV3dKKxaMblCMPOPoUWrT8hEUZyravYtR
+        uiKjl/4nCePyRypatKJUL6i1i93UoF2JGI0BABEBAAG0J2hvbWU6dG9tIE9CUyBQ
+        cm9qZWN0IDxob21lOnRvbUBwcml2YXRlPokBVAQTAQgAPhYhBFwp9Yj1uMLEYGn/
+        CM+qjghKJvr6BQJjtE0dAhsDBQkEHrAABQsJCAcCBhUKCQgLAgQWAgMBAh4BAheA
+        AAoJEM+qjghKJvr6+pwIAN/0N8BgUOIUpsx2oOx7z5+CoJb9kEBgeIZeQ/HSvfYR
+        0Lec22ztbuNehj0OpP6inL7lfREThEKlc0u/wKMB9VgtsVyQfUrEuDQUQyxU4SvO
+        JWdo05+nSfX5x7tU33uMc9YPy/VfJs/E0boJJuwR/OexCa4U96Qz2fQnj2WHgt3t
+        SXUMkxbUd3RU24PCdfJnDq/hl75tx8uI01f/IcIimEoHLsNPotPGELnstHKrMpUp
+        gjkWouCSq4VlE8Wrr8kvsf+/lD4rOqCTTcSqs6Pj9ytEDr6pYZGMj0gmGrSWd25G
+        o1YyY/rmenLKH9WQJ4f8AojkVnqt9YVzxgwXvMu42biJATMEEwEIAB0WIQQGTN2V
+        wCe8seo248C/9fknuEcc6wUCY7RNHgAKCRC/9fknuEcc6xEkCACvwrBh1UlV9EM/
+        p5hqlzT+VOlcXSAtLRfAElPtyYY0mleof0+AxDM32z2cPiGieUOAW/HK7eXHJCb2
+        uYosjrO1D8CLUPZ9DM0X5bLicxux2JBtbxV0F9kkEc+p0a+jbi/sE8Ao0vStZD5r
+        cJoUSEiglRKS+uC+VsJbqpDhL7+w7lvL9ItG5uszkTukLb7eMlpi6yve3WWapEiN
+        eXyF09dSJbe0B9wOB8ilw8qOmmCEVElug0044fxq+0Aam6LXCfuC8BEx8YqmGnED
+        jYotxAOCpnQ01KzF4PbGogHn8G86s0btjiayWfed3Cs42O1UC9i+USPe0D2L5lXg
+        QDgCOz2L
+        =nUQx
+        -----END PGP PUBLIC KEY BLOCK-----
+        </pubkey>
+        </keyinfo>
+  recorded_at: Thu, 18 May 2023 11:49:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 825ac5cb-e99d-4ad9-83bc-2c38166b19af
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 18 May 2023 11:49:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/first_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="first_package" rev="8" vrev="8" srcmd5="63a573c9bdd2d5c01e9caa0cc00e71ae">
+          <entry name="_config" md5="739535ed2ca0b9feb299f8da2502d8be" size="72" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="d45db0d967e37f65544337564cc4de0c" size="65" mtime="1684410580"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/first_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="first_package" rev="8" vrev="8" srcmd5="63a573c9bdd2d5c01e9caa0cc00e71ae">
+          <entry name="_config" md5="739535ed2ca0b9feb299f8da2502d8be" size="72" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="d45db0d967e37f65544337564cc4de0c" size="65" mtime="1684410580"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/second_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/second_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/third_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="third_package" rev="8" vrev="8" srcmd5="3678d49f4584dfc0c29ec25859e54c79">
+          <entry name="_config" md5="561ae18d2ae0326875a132a184142a11" size="60" mtime="1684410581"/>
+          <entry name="somefile.txt" md5="045c590a12881c5eb95caa2777ab3137" size="66" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/third_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="third_package" rev="8" vrev="8" srcmd5="3678d49f4584dfc0c29ec25859e54c79">
+          <entry name="_config" md5="561ae18d2ae0326875a132a184142a11" size="60" mtime="1684410581"/>
+          <entry name="somefile.txt" md5="045c590a12881c5eb95caa2777ab3137" size="66" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '231'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1677064926"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/package_with_kiwi_image
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af518ceb-4882-4ccb-bc24-6c1d2bcf2ea5
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '231'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_image" rev="4" vrev="4" srcmd5="801c545be09c1c468ff2d99b40415aac">
+          <entry name="package_with_kiwi_image.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1677064926"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:49 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/second_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/second_package?rev=8
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22second_package%22%20and%20linkinfo/@project=%22my_project%22%20and%20@project=%22my_project%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:my_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '269'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:my_project/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="AutoCleanup" namespace="OBS">
+            <value>2023-06-01 11:49:50 +0000</value>
+          </attribute>
+        </attributes>
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="11">
+          <srcmd5>8c49a2e4d47d07c13800527f0259d2d6</srcmd5>
+          <time>1684410590</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:tom:branches:my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:tom:branches:my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=branch&noservice=1&opackage=second_package&oproject=my_project&orev=7d091fa836670ad9e58065521548e09c&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>e196019a6d32d2024c34dd71ca9ddfcd</srcmd5>
+          <version>unknown</version>
+          <time>1684410590</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:tom:branches:my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="custom_name" project="home:tom:branches:my_project">
+          <title>c</title>
+          <description>Minus et sapiente et.</description>
+        </package>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '659'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '330'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="custom_name" rev="6" vrev="6" srcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd" verifymd5="7d091fa836670ad9e58065521548e09c">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="my_project" package="second_package"/>
+        </sourceinfo>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '659'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '340'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="f935aac6bb47e7c03ba331697f72d644">
+          <old project="home:tom:branches:my_project" package="custom_name" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:branches:my_project" package="custom_name" rev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '387'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="068a2209949035877b0277e7838f6288">
+          <old project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c"/>
+          <new project="home:tom:branches:my_project" package="custom_name" rev="50b049d063dda2f82b87fac70f47c8f8" srcmd5="50b049d063dda2f82b87fac70f47c8f8"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:my_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '309'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:my_project">
+          <title>Branch project for package second_package</title>
+          <description>This project was created for package second_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 8de66a45-e61c-4273-811b-37d45da83566
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '659'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/second_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '232'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c" verifymd5="7d091fa836670ad9e58065521548e09c">
+          <error>bad build configuration, no build type defined or detected</error>
+        </sourceinfo>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/my_project/second_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="second_package" rev="8" vrev="8" srcmd5="7d091fa836670ad9e58065521548e09c">
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/my_project/second_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '310'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="0cbd4d28bdc94fd677c7e4092cd67923">
+          <old project="my_project" package="second_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="my_project" package="second_package" rev="8" srcmd5="7d091fa836670ad9e58065521548e09c"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Thu, 18 May 2023 11:49:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '659'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name?expand=1&rev=6
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '554'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="50b049d063dda2f82b87fac70f47c8f8" vrev="6" srcmd5="50b049d063dda2f82b87fac70f47c8f8">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name/_history?deleted=0&meta=0&rev=6
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="6" vrev="6">
+            <srcmd5>e196019a6d32d2024c34dd71ca9ddfcd</srcmd5>
+            <version>unknown</version>
+            <time>1684410590</time>
+            <user>tom</user>
+          </revision>
+        </revisionlist>
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '659'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:my_project/custom_name
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - dff25c3b-48b0-4638-83dc-be448ab4cf1e
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '659'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="custom_name" rev="6" vrev="6" srcmd5="e196019a6d32d2024c34dd71ca9ddfcd">
+          <linkinfo project="my_project" package="second_package" rev="7d091fa836670ad9e58065521548e09c" srcmd5="7d091fa836670ad9e58065521548e09c" baserev="7d091fa836670ad9e58065521548e09c" xsrcmd5="50b049d063dda2f82b87fac70f47c8f8" lsrcmd5="e196019a6d32d2024c34dd71ca9ddfcd"/>
+          <entry name="_config" md5="09d6e680a08aea1aa39804599c811a6c" size="68" mtime="1684410580"/>
+          <entry name="_link" md5="a5bffb62f7c05e1f683137f1bcea5780" size="182" mtime="1684410590"/>
+          <entry name="somefile.txt" md5="23b7b51ce46759f38d1d2ba242e124f2" size="60" mtime="1684410581"/>
+        </directory>
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:my_project/_result?lastbuild=1&locallink=1&multibuild=1&package=custom_name&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - a1d0e453-4fc8-4b0d-945d-4630b35e57c3
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:my_project/_result?lastbuild=1&locallink=1&multibuild=1&package=custom_name&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - b4cfbe02-b008-479e-bec5-35095d88a30f
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:my_project/_result?package=custom_name&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - fb814314-d85c-4359-a340-867dff5b4321
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 18 May 2023 11:49:51 GMT
+recorded_with: VCR 6.1.0

@@ -1,0 +1,34 @@
+delete:
+  summary: Delete a label of a request.
+  description: |
+    **(Unstable)** Delete a label of a request.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestNumber'
+    - $ref: '../components/parameters/label_id.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Label Not Found:
+              value:
+                code: not_found
+                summary: Unable to find label '42'
+            Request Not Found:
+              value:
+                code: not_found
+                summary: Unable to find request '420'
+  tags:
+    - Labels

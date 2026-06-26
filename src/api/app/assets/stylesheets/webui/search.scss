@@ -1,0 +1,20 @@
+#search-results {
+  .search-result {
+    min-width: 22rem;
+  }
+}
+
+@include media-breakpoint-down(md) {
+  .dataTables_wrapper .dataTables_filter { 
+    input[type=search] {
+      margin-left: 0;
+      width: 100%;
+    }
+    label { width: 100%; }
+  }
+}
+#assignment-search {
+  .dropdown-menu {
+    min-width: 20rem;
+  }
+}

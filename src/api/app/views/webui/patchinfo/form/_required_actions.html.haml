@@ -1,0 +1,11 @@
+.mb-3.col-md-6
+  = form.label(:required_actions, 'Required Actions')
+  .form-check
+    = form.check_box(:zypp_restart_needed, class: 'form-check-input')
+    = form.label(:zypp_restart_needed, 'Package manager restart suggested', class: 'form-check-label')
+  .form-check
+    = form.check_box(:relogin_needed, class: 'form-check-input')
+    = form.label(:relogin_needed, 'Relogin suggested', class: 'form-check-label')
+  .form-check
+    = form.check_box(:reboot_needed, class: 'form-check-input')
+    = form.label(:reboot_needed, 'Reboot suggested', class: 'form-check-label')

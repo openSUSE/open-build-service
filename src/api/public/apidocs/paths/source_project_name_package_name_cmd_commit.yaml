@@ -1,0 +1,96 @@
+post:
+  summary: Commit package changes.
+  description: Create a new revision of the package, committing package changes.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Provide a comment to the revision in history.
+      example: This was changed to improve foobar.
+    - in: query
+      name: linkrev
+      schema:
+        type: string
+      description: |
+        Link revision in base package. Set to `base` to use the commit revision.
+
+        Used together with the `keeplink` parameter.
+      example: base
+    - in: query
+      name: rev
+      schema:
+        type: string
+      description: Revision of the package.
+    - in: query
+      name: keeplink
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to preserve the link (`_link` file) on the source.
+      example: 1
+    - in: query
+      name: repairlink
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: |
+        Set to `1` to solve conflicts.
+
+        Used together with `keeplink` parameter.
+      example: 1
+  responses:
+    '200':
+      description: OK. Revision created with this commit.
+      content:
+        text/xml:
+          schema:
+            $ref: '../components/schemas/revision.yaml'
+          example:
+            rev: 86
+            vrev: 86
+            srcmd5: 55452f7326fe90cb67ca96bf9e9ffabc
+            version: 2.10~pre
+            time: 1665060711
+            user: Admin
+            comment:
+            requestid:
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Boolean:
+              description: Passing a value different than `0` or `1` to `keeplink`, for example.
+              value: |
+                <xml version="1.0" encoding="UTF-8"?>
+                <status code="400" origin="backend">
+                  <summary>not boolean</summary>
+                </status>
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: cmd_execution_no_permission
+            summary: no permission to modify package test in project home:Admin
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages

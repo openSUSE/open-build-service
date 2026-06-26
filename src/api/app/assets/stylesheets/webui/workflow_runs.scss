@@ -1,0 +1,11 @@
+$workflow-runs-filter-box-height: 3.5rem;
+
+#request-payload {
+  max-height: 20rem;
+}
+
+@include media-breakpoint-up(md) {
+  #request-payload {
+    max-height: 30rem;
+  }
+}

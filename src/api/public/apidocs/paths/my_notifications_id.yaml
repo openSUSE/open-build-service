@@ -1,0 +1,32 @@
+put:
+  summary: Mark a notification as read/unread.
+  description: |
+    **(Unstable)** If a notification is unread, it will be marked as read. If a notification is read, it will be marked as unread.
+
+    **NOTE:** Available only in OBS Unstable.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '403':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Found:
+              value:
+                code: not_found
+                summary: Couldn't find Notification with 'id'=213453
+  tags:
+    - Notifications

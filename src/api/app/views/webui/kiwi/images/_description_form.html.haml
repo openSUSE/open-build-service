@@ -1,0 +1,26 @@
+.modal.fade#description-edit{ tabindex: '-1', role: 'dialog' }
+  .modal-dialog{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title Edit Kiwi Details
+
+      #flash-messages
+        %p.ui-state-error.alert-danger.p-3.mb-0.d-none
+          Kiwi Image name cannot be empty!
+      .modal-body
+        .dialog
+          = f.label :name
+          = f.text_field :name, data: { default: f.object.name }, class: 'form-control'
+
+          = f.fields_for :description, f.object.description do |description_fields|
+            = description_fields.label :author
+            = description_fields.text_field :author, data: { default: description_fields.object.author }, class: 'form-control'
+            = description_fields.label :contact
+            = description_fields.text_field :contact, data: { default: description_fields.object.contact }, class: 'form-control'
+            = description_fields.label :specification
+            = description_fields.text_field :specification, data: { default: description_fields.object.specification }, class: 'form-control'
+
+      .modal-footer
+        %a.btn.btn-sm.btn-outline-danger.px-4{ data: { 'bs-dismiss': 'modal' } }
+          Cancel
+        = link_to('Continue', '#', title: 'Continue', class: 'btn btn-sm btn-primary px-4 close-description-dialog')

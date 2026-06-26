@@ -1,0 +1,17 @@
+.btn-group.diff-menu-buttons{ role: :group }
+  %a.btn.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' if index.zero?),
+  href: "#revision_details_#{index - 1}",
+  title: 'Go up to the previous diff' }
+    %i.fas.fa-chevron-up
+  %a.btn.btn-outline-secondary.d-none.d-sm-none.d-md-block{ class: ('disabled' if last),
+  href: "#revision_details_#{index + 1}",
+  title: 'Go down to the next diff' }
+    %i.fas.fa-chevron-down
+  - if file_view_path && has_content && !linkinfo && viewable_file?(filename)
+    = link_to(file_view_path, class: 'btn btn-outline-secondary', title: 'View the whole file') do
+      %span.d-none.d-sm-none.d-md-block View file
+      %i.far.fa-file.d-block.d-sm-block.d-md-none
+  - else
+    %a.btn.btn-outline-secondary.disabled{ href: '' }
+      %span.d-none.d-sm-none.d-md-block View file
+      %i.far.fa-file.d-block.d-sm-block.d-md-none

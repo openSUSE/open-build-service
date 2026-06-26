@@ -1,0 +1,15 @@
+= render partial: "webui/#{@container.model_name.singular}/breadcrumb_items"
+
+- if current_page?(index_attribs_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Attributes
+- else
+  %li.breadcrumb-item
+    = link_to('Attributes', index_attribs_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    - if controller_name == 'attributes'
+      - case action_name
+      - when 'new'
+        Add
+      - when 'edit'
+        = @attribute.fullname

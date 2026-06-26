@@ -1,0 +1,19 @@
+resetFormValidation();
+- if @displayed_user.errors.any?
+  - @displayed_user.errors.messages.each do |field, messages|
+    element = $("##{@displayed_user.class.name.underscore}_#{field}"); // Create strings like "user_email"
+    setFormValidation(element, "#{messages.to_sentence}");
+- else
+  - locals = { user: @displayed_user, role_titles: @role_titles, account_edit_link: @account_edit_link, configuration: @configuration }
+  :plain
+    $('.in-place-editing').animate({
+      opacity: 0.25
+    }, 400, function() {
+      scrollToInPlace();
+      $('.in-place-editing').html(
+        "#{escape_javascript(render(partial: 'webui/user/basic_info', locals: locals))}");
+      setCollapsible();
+      $('.in-place-editing').animate({ opacity: 1 }, 400, function() {
+        $('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}");
+      });
+    });

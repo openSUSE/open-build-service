@@ -1,0 +1,7 @@
+- @pagetitle = 'API Documentation'
+
+.card
+  .card-body
+    -# rubocop:disable Rails/OutputSafety
+    = render(file: @filename).html_safe
+    -# rubocop:enable Rails/OutputSafety

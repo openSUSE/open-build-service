@@ -1,0 +1,42 @@
+class ChannelTarget < ApplicationRecord
+  belongs_to :channel
+  belongs_to :repository
+  has_one :project, through: :repository
+
+  def self._sync_keys
+    %i[project repository]
+  end
+
+  def self.find_by_repo(repo, project_filter = nil)
+    if project_filter.nil?
+      ChannelTarget.distinct.where(repository: repo)
+    else
+      ChannelTarget.joins(channel: :package)
+                   .distinct
+                   .where('repository_id = ? AND project_id IN (?)', repo, project_filter.map(&:id))
+    end
+  end
+end
+
+# == Schema Information
+#
+# Table name: channel_targets
+#
+#  id             :integer          not null, primary key
+#  disabled       :boolean          default(FALSE)
+#  id_template    :string(255)
+#  prefix         :string(255)
+#  requires_issue :boolean
+#  channel_id     :integer          not null, uniquely indexed => [repository_id]
+#  repository_id  :integer          not null, uniquely indexed => [channel_id], indexed
+#
+# Indexes
+#
+#  index_channel_targets_on_channel_id_and_repository_id  (channel_id,repository_id) UNIQUE
+#  repository_id                                          (repository_id)
+#
+# Foreign Keys
+#
+#  channel_targets_ibfk_1  (channel_id => channels.id)
+#  channel_targets_ibfk_2  (repository_id => repositories.id)
+#

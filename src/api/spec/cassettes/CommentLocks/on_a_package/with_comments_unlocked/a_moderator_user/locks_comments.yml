@@ -1,0 +1,427 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 50a04cad-e5d8-4e80-8b28-2c5bfbe284ea
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 50a04cad-e5d8-4e80-8b28-2c5bfbe284ea
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal?expand=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:45 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:titan/_result?lastbuild=1&locallink=1&multibuild=1&package=goal&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - b142ef3d-5feb-43c4-b7f9-74f9a56b149d
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:titan/_result?package=goal&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - be59d5b6-0225-4411-a497-4374473a72c7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 368929b1-f044-4040-a514-630c14650713
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 368929b1-f044-4040-a514-630c14650713
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal?expand=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:titan/_result?lastbuild=1&locallink=1&multibuild=1&package=goal&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - a5804716-71f1-4237-a288-fd0bcd78f296
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:titan/_result?package=goal&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - cf3c0446-f85e-456f-9117-c6cefa6b2af1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 09 Sep 2024 09:29:46 GMT
+recorded_with: VCR 6.3.1

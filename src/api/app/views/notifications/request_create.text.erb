@@ -1,0 +1,21 @@
+<%- bs_request = notification.notifiable %>
+Visit <%= url_for(controller: 'webui/request', action: :show, number: bs_request.number, host: @host, only_path: false) %>
+
+<% if bs_request.description -%>
+Description:
+<%= bs_request.description %>
+
+<%-end-%>
+<%= render partial: 'notifications/actions', locals: { actions: bs_request.bs_request_actions } %>
+
+To REVIEW against the previous version:
+   osc request show --diff <%= bs_request.number %>
+
+To ACCEPT the request:
+   osc request accept <%= bs_request.number %> --message="reviewed ok."
+
+To DECLINE the request:
+   osc request decline <%= bs_request.number %> --message="declined for reason xyz (see ... for background / policy / ...)."
+
+To REVOKE the request:
+   osc request revoke <%= bs_request.number %> --message="retracted because ..., sorry / thx / see better version ..."

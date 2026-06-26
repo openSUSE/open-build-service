@@ -1,0 +1,25 @@
+:ruby
+  index ||= ''
+  ajax_data = {}
+  ajax_data['project'] = h(project) if defined?(project)
+  ajax_data['package'] = h(package) if defined?(package)
+  ajax_data['index'] = h(index) if defined?(index)
+
+.card
+  #buildresult-urls{ data: { buildresult_url: defined?(package) ? package_buildresult_path : project_buildresult_path } }
+    %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.disable-link-generation#buildresult-box{ role: 'tablist', data: ajax_data }
+      %li.nav-item
+        = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active text-nowrap',
+          data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: "build#{index}", selected: true }) do
+          Build Results
+  .card-body
+    .tab-content
+      .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
+        .btn.btn-sm.btn-outline-primary.mb-2.build-refresh{ accesskey: 'r', title: 'Refresh Build Results' }
+          Refresh
+          %i.fas.fa-sm.fa-sync-alt{ id: "build#{index}-reload" }
+        .result
+
+:javascript
+  updateBuildResult('#{index}');
+  $('.build-refresh').click(function() { updateBuildResult('#{index}'); });

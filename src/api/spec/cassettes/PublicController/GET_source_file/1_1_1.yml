@@ -1,0 +1,185 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/_meta?user=user_56
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 15 Dec 2021 16:31:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=user_57
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>To Your Scattered Bodies Go</title>
+          <description>Quia laborum soluta est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '189'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>To Your Scattered Bodies Go</title>
+          <description>Quia laborum soluta est.</description>
+        </package>
+  recorded_at: Wed, 15 Dec 2021 16:31:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_config
+    body:
+      encoding: UTF-8
+      string: Sed vitae labore. Reiciendis velit voluptas. Reprehenderit harum assumenda.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="35" vrev="35">
+          <srcmd5>658345e146815a0872325fea3102b5f7</srcmd5>
+          <version>unknown</version>
+          <time>1639585861</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 15 Dec 2021 16:31:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Et ex enim. Et vitae rerum. Similique possimus occaecati.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="36" vrev="36">
+          <srcmd5>f113ffcd32df0f84f716a124414adc68</srcmd5>
+          <version>unknown</version>
+          <time>1639585861</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 15 Dec 2021 16:31:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '57'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: Et ex enim. Et vitae rerum. Similique possimus occaecati.
+  recorded_at: Wed, 15 Dec 2021 16:31:01 GMT
+recorded_with: VCR 6.0.0

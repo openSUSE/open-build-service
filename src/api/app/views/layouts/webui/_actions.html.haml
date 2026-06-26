@@ -1,0 +1,5 @@
+.section-delimiter
+%h5.text-light{ class: navigation == :left ? 'ps-2' : 'pt-2' }
+  %span.section-name Actions on this page
+%ul.ms-auto.pt-0.text-nowrap.menu-options.mb-5{ class: navigation == :left ? 'nav flex-column' : 'navbar-nav' }
+  = yield :actions

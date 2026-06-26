@@ -1,0 +1,40 @@
+put:
+  summary: Bulk replace all distributions.
+  description: |
+    Bulk replace all distributions.
+
+    This is only for admins.
+  security:
+    - basic_authentication: []
+  requestBody:
+    description: Distributions definition
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/distributions.yaml'
+  responses:
+    '200':
+      description: |
+        OK. The Request has succeeded.
+
+        XML Schema used for body validation: [distributions.rng](../schema/distributions.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'ok'
+            summary: 'Ok'
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'validation_failed'
+            summary: 'distributions validation error: 40:0: ERROR: Expecting an element name, got nothing'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Distributions

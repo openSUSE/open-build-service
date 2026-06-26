@@ -1,0 +1,20 @@
+.modal.fade{ tabindex: -1, id: "reports-modal-#{reportable_name}-#{reportable.id}" }
+  .modal-dialog
+    .modal-content
+      .modal-header
+        %h5.modal-title Reports
+        %button.btn-close{ type: 'button', 'data-bs-dismiss': 'modal', 'aria-label': 'Close' }
+      .modal-body
+        - reports.each do |report|
+          .info
+            = render UserAvatarComponent.new(report.reporter)
+            reported
+            = render TimeComponent.new(time: report.created_at)
+            as
+            = report.category.humanize
+          .ms-4
+            %p.mb-1= report.reason
+            - comments = Comment.where(commentable: report)
+            = link_to(pluralize(comments.count, 'comment'), report_path(report), class: 'mb-2')
+      - if policy(Decision.new).create?
+        = render 'webui/shared/decision_form', canned_responses: canned_responses, reportable: reportable, reports: reports

@@ -1,0 +1,16 @@
+type: object
+properties:
+  assignment:
+    type: array
+    items:
+      $ref: 'assignment.yaml'
+  count:
+    type: string
+    xml:
+      attribute: true
+  project:
+    type: string
+    xml:
+      attribute: true
+xml:
+  name: assignments

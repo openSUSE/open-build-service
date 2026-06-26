@@ -1,0 +1,57 @@
+Directory App Integration Interface
+===================================
+
+To attract projects to build in the Build Service we implement an
+interface that returns pathes to binary packages according to one
+project name and a list of package names.
+
+The usecase is to invite application directory pages such as
+http://kde-apps.org to offer their user the following service: If the
+user builds in the OBS, the directory app takes an OBS project- and
+package name. On the fly, the directory app uses the integration
+interface of the OBS with these two parameters and gets a list of the
+available binary packages for the package, see example structure
+below. The directory app can render a nice download box for the
+users to pick rpms from the OBS for their system.
+
+Example communication:
+
+Input: project, package names
+
+
+Result-XML File:
+<integrate project="home:kfreitag">
+  <ymp>
+    http://download.opensuse.org/repositories/home:/kfreitag/kraft.ymp
+  </ymp>
+  <system id="os11">
+    <name>openSUSE 11.0</name>
+    <icon width="16" height="16">http://opensuse.org/static/os11logo16.png"/>
+    <link>http://www.opensuse.org</link>
+
+    <pack name="kraft">
+      <summary lang="en">Kraft is software for people...</lang>  
+      <rpm>http://download.opensuse.org/repositories/home:/kfreitag/openSUSE_11.0/i586/kraft-0.25-6.4.i586.rpm</rpm>
+    </pack>
+
+    <pack name="trmltools">
+      <summary lang="en">Trmltools convert rml to pdf</lang>  
+      <rpm>http://download.opensuse.org/repositories/home:/kfreitag/Fedora9/noarch/trmltools-1.1-5.4.noarch.rpm</rpm>  
+    </pack>
+  </system>
+  <system id="fed9">
+    <name>Fedora 9</name>
+    <icon width="16" height="16">http://opensuse.org/static/fed9logo16.png"/>
+    <link>http://www.fedoraproject.org</link>
+
+    <pack name="kraft">
+      <summary lang="en">Kraft is software for people...</lang>  
+      <rpm>http://download.opensuse.org/repositories/home:/kfreitag/fedora9/i586/kraft-0.25-6.4.i586.rpm</rpm>
+    </pack>
+
+    <pack name="trmltools">
+      <summary lang="en">Trmltools convert rml to pdf</lang>  
+      <rpm>http://download.opensuse.org/repositories/home:/kfreitag/fedora9/i586/trmltools-1.1-5.4.noarch.rpm</rpm>  
+    </pack>
+  </system>
+</integrate>

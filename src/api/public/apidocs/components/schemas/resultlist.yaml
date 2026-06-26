@@ -1,0 +1,105 @@
+type: object
+properties:
+  state:
+    type: string
+    example: 'e096d16554264fa553ca0aa3226cf189'
+    xml:
+      attribute: true
+  result:
+    type: array
+    items:
+      type: object
+      properties:
+        project:
+          type: string
+          example: 'home:foo'
+          xml:
+            attribute: true
+        repository:
+          type: string
+          example: 'openSUSE_Leap_15.3'
+          xml:
+            attribute: true
+        arch:
+          type: string
+          example: 'x86_64'
+          xml:
+            attribute: true
+        code:
+          type: string
+          example: 'published'
+          xml:
+            attribute: true
+        state:
+          type: string
+          example: 'published'
+          xml:
+            attribute: true
+        status:
+          type: array
+          items:
+            type: object
+            properties:
+              package:
+                type: string
+                example: 'ctris'
+                xml:
+                  attribute: true
+              code:
+                type: string
+                example: 'succeeded'
+                xml:
+                  attribute: true
+              details:
+                type: string
+                example: 'package whitelist'
+        binarylist:
+          type: array
+          items:
+            type: object
+            properties:
+              package:
+                type: string
+                example: 'ctris'
+                xml:
+                  attribute: true
+              binary:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    filename:
+                      type: string
+                      example: 'hello-2.10-3.1.x86_64.rpm'
+                      xml:
+                        attribute: true
+                    size:
+                      type: string
+                      example: '58352'
+                      xml:
+                        attribute: true
+                    mtime:
+                      type: string
+                      example: '1617270174'
+                      xml:
+                        attribute: true
+        summary:
+          type: object
+          properties:
+            statuscount:
+              type: array
+              items:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: 'disabled'
+                    xml:
+                      attribute: true
+                  count:
+                    type: string
+                    example: '2'
+                    xml:
+                      attribute: true
+xml:
+  name: resultlist

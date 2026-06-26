@@ -1,0 +1,53 @@
+#building-list
+  - if worker_status.key?('building')
+    .table-responsive
+      %table.table.table-sm.table-bordered.table-hover.w-100#building-table
+        %thead
+          %tr
+            %th Project
+            %th Package
+            %th Repository - Build Arch
+            %th Job Time
+            %th Build Host
+            %th Host Arch
+        %tbody
+          - worker_status.elements('building').sort { |a, b| b['starttime'] <=> a['starttime'] }.each do |building|
+            :ruby
+              project = building['project']
+              package = building['package']
+              repository = building['repository']
+              architecture = building['arch']
+            %tr
+              %td.project
+                - if project.include? '---'
+                  \-------
+                - else
+                  = link_to(project, project_show_path(project))
+              %td.package
+                - if package.include? '---'
+                  \-------
+                - else
+                  = link_to(package, package_show_path(project, package))
+              %td.repository.arch
+                - if repository.include? '---'
+                  \-------
+                - else
+                  = link_to("#{repository} - #{architecture}", package_live_build_log_path(project, package, repository, architecture))
+              - start_time = Time.zone.at(building['starttime'].to_i)
+              - warning_style = nil
+              - if start_time < dead_line
+                :ruby
+                  n = ((start_time - dead_line).abs / 60 / interval_steps).round
+                  n = (max_color < n ? 0 : max_color - n)
+                  warning_style = "background-color: rgb(255,#{n},0);"
+              -# haml-lint:disable InlineStyles
+              %td.starttime{ style: warning_style, title: "start time: #{start_time.iso8601}" }
+                -# haml-lint:enable InlineStyles
+                %span.sorttime.d-none
+                  = building['starttime'].to_i
+                = distance_of_time_in_words(time_now, start_time)
+              %td.uri= building['workerid']
+              %td.hostarch= building['hostarch']
+
+- content_for :ready_function do
+  initializeDataTable('#building-table', { order: [[3, 'desc']], lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]] });

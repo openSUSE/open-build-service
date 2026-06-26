@@ -1,0 +1,19 @@
+.card
+  .card-header
+    - if delete_button?
+      .row
+        .col
+          = header
+        .col.col-auto
+          = delete_button
+    - else
+      = header
+  .card-body
+    = content
+
+  .card-footer.bg-transparent.border-0
+    - if actions?
+      .nav.justify-content-end
+        - actions.each do |action|
+          .nav-item
+            = action

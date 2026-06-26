@@ -1,0 +1,39 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin;
+use UUID qw/uuid/;
+use Data::Dumper;
+BEGIN {
+  push @INC, "$FindBin::Bin/../src/backend";
+};
+
+use BSAirBrake;
+
+BSUtil::setdebuglevel(7);
+
+raise();
+
+exit 0;
+
+sub raise {
+
+  my $ab = BSAirBrake->new(
+    api_key    => $::ENV{ERRBIT_API_KEY},
+    base_url   => $::ENV{ERRBIT_BASE_URL},
+    project_id => 1
+  );
+
+  my $error     = "Hello World from BSAirBrake";
+  my $options   = {
+     environment => { SCRIPT => $0 },
+     session     => { "session-id" => uuid() },
+     params      => { 'param1' => 'value1' },
+  };
+
+  my $backtrace =1;
+
+  print Dumper($ab->notify($error, $options, $backtrace));
+
+}

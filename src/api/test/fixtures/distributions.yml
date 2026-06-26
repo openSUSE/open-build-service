@@ -1,0 +1,19 @@
+one:
+  id: 1
+  vendor: openSUSE
+  version: '1.0'
+  name: openSUSE Factory
+  project: BaseDistro
+  reponame: standard
+  repository: BaseDistro_repo
+  link: http://www.opensuse.org/
+two:
+  id: 2
+  vendor: OBS
+  version: Base
+  name: OBS Base 2.0
+  project: BaseDistro2.0
+  reponame: Base_repo
+  repository: BaseDistro2_repo
+  link: http://www.openbuildservice.org/
+  architectures: i586, x86_64

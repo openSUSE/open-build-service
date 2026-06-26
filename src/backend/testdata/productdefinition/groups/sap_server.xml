@@ -1,0 +1,15 @@
+<group name="sap_server" version="10" release="215"
+       pattern:ordernumber="3080"
+       pattern:category="Primary Functions"
+       pattern:summary="SAP Application Server Base"
+       pattern:description="Set up the server for installing SAP systems."
+       pattern:visible="true"
+>
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="required">
+            <package name="sapconf" />
+    </group>
+    <group relationship="recommended">
+            <package name="sap-locale" />
+    </group>
+</group>

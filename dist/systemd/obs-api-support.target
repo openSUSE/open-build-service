@@ -1,0 +1,8 @@
+[Unit]
+Description = Open Build Service API Support Daemons
+Wants = obs-clockwork.service obs-delayedjob-queue-consistency_check.service obs-delayedjob-queue-default.service obs-delayedjob-queue-issuetracking.service obs-delayedjob-queue-mailers.service obs-delayedjob-queue-project_log_rotate.service obs-delayedjob-queue-quick@0.service obs-delayedjob-queue-quick@1.service obs-delayedjob-queue-quick@2.service obs-delayedjob-queue-releasetracking.service obs-delayedjob-queue-staging.service obs-delayedjob-queue-scm.service obs-sphinx.service
+After = network.target
+AllowIsolate = yes
+
+[Install]
+WantedBy = multi-user.target

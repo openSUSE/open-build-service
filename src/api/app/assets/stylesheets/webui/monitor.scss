@@ -1,0 +1,36 @@
+#graphs {
+  #building,
+  #events,
+  #jobs {
+    height: 300px;
+  }
+}
+
+
+.builderbox {
+  width: 168px;
+  border: 8px transparent;
+}
+
+.monitorboxrow {
+  li {
+    margin-top: 3px !important;
+  }
+}
+
+.monitorpb_text {
+  left: 4px;
+}
+
+.monitorpb {
+  height: 22px;
+  left: 0;
+  top: 0;
+  max-height: 22px;
+  a {
+    color: black ! important;
+  }
+  .progress-bar {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,27 @@
+= form_tag({ action: 'changerequest' }, remote: true, id: 'request_handle_form') do
+  = hidden_field_tag(:number, request_number)
+  %p
+    = text_area_tag(:reason, nil, placeholder: 'Please add a comment', rows: 4, class: 'w-100 form-control')
+  - if single_action_request && is_target_maintainer && state.in?(['new', 'review'])
+    - if !action[:creator_is_target_maintainer] && action[:type] == :submit
+      .form-check
+        = check_box_tag('add_submitter_as_maintainer_0', "#{action[:tprj]}_#_#{action[:tpkg]}", false, class: 'form-check-input')
+        %label.form-check-label{ for: 'add_submitter_as_maintainer_0' }
+          Add #{link_to(request_creator, user_path(request_creator))} as maintainer for
+          #{project_or_package_link(project: action[:tprj], package: action[:tpkg], short: true)}
+    - (action[:forward] || []).each_with_index do |forward, index|
+      .form-check
+        = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, class: 'form-check-input')
+        %label.form-check-label{ for: "forward-#{index}" }
+          Forward submit request to
+          #{project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
+    %hr
+  - if is_author && state.in?(['new', 'review', 'declined'])
+    = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger me-2'
+  - if state == 'declined'
+    = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2'
+  - if state.in?(['new', 'review']) && is_target_maintainer
+    - unless is_author
+      = submit_tag 'Decline request', name: 'declined', class: 'btn btn-danger me-2'
+    - confirmation = (state == 'review' ? { confirm: 'Do you really want to approve this request, despite of open review requests?' } : {})
+    = submit_tag 'Accept request', name: 'accepted', class: 'btn btn-primary', data: confirmation

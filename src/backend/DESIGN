@@ -1,0 +1,49 @@
+
+System layout
+-------------
+
+1) one source server
+
+   Maintains the source repository and project/package configurations.
+   It is the only interface for api stack and it may forward requests to
+   one of the repository servers
+
+2) N repository servers
+
+   a repository server provides access to the repositories of
+   some projects/packages/architectures. It also maintains the
+   build client worker pool, sending jobs to the clients and informing
+   the schedulers about finished jobs.
+
+3) N*A schedulers
+
+   A scheduler maintains all projects/packages of the corresponding
+   repository server, but for just one architecture. It is responsible
+   for starting jobs in the right order, collecting the built
+   binary packages and creating the external repository if a
+   project's repository is completely built.
+   The schedulers need to run on the same system as the repository
+   servers.
+
+4) M build clients
+
+   The build clients contact the repository servers for jobs, build
+   the jobs and send the result back to the repository server.
+
+The most simple setup is one source server, one repository server and
+schedulers for every involved architecture.
+
+
+Code conventions
+----------------
+
+standard variable names:
+
+$proj    project structure
+$projid  project name ($proj->{'name'})
+$repoid  repository name
+$arch    architecture
+$pack    package structure
+$packid  package name
+$prp     "$projid/$repoid"
+$prpa    "$projid/$repoid/$arch"

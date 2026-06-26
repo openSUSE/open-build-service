@@ -1,0 +1,35 @@
+.mb-3
+  - if local_assigns.key?(:namespace)
+    = hidden_field_tag(:namespace, namespace)
+    = form.label(:name, 'Subproject Name:')
+    = render partial: 'webui/shared/required_label_mark'
+    .input-group
+      %span.input-group-text
+        #{namespace}:
+      = form.text_field(:name, required: true, class: 'form-control', autofocus: true)
+  - else
+    = form.label(:name, 'Project Name:')
+    = render partial: 'webui/shared/required_label_mark'
+    = form.text_field(:name, required: true, class: 'form-control', autofocus: true)
+.mb-3
+  = form.label(:title, 'Title:')
+  = form.text_field(:title, class: 'form-control')
+.mb-3
+  = form.label(:description, 'Description:')
+  = render WriteAndPreviewComponent.new(form: form, preview_message_url: project_preview_description_path,
+                                        message_body_param: 'project[description]',
+                                        text_area_attributes: { rows: 8, placeholder: 'Write your description here... (Markdown markup is supported)',
+                                        required: false, object_name: :description})
+- unless configuration['hide_private_options']
+  .mb-3.form-check
+    = check_box_tag(:access_protection, 1, false, class: 'form-check-input')
+    = label_tag(:access_protection, 'Hide the entire project', class: 'form-check-label')
+  .mb-3.form-check
+    = check_box_tag(:source_protection, 1, false, class: 'form-check-input')
+    = label_tag(:source_protection, 'Deny access to sources of project', class: 'form-check-label')
+.mb-3.form-check
+  = check_box_tag(:disable_publishing, 1, false, class: 'form-check-input')
+  = label_tag(:disable_publishing, 'Disable build results publishing', class: 'form-check-label')
+
+- if show_restore_message
+  = hidden_field_tag(:restore_option_provided, true)

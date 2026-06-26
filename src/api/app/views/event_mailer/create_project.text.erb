@@ -1,0 +1,4 @@
+A new Project was created: <%= event['project']%>
+
+<%= url_for(project: event['project'], controller: 'webui/project', action: :show, only_path: false, host: @host) %>
+

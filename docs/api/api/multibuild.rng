@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <start>
+    <ref name="multibuild-element"/>
+  </start>
+
+  <define name="multibuild-element">
+    <element ns="" name="multibuild">
+      <optional>
+        <attribute name="buildemptyflavor">
+          <choice>
+            <value>true</value>
+            <value>false</value>
+          </choice>
+        </attribute>
+      </optional>
+      <choice>
+        <oneOrMore>
+          <element ns="" name="flavor">
+            <text/>
+          </element>
+        </oneOrMore>
+        <oneOrMore> <!-- obsolete, but needs to stay for compability -->
+          <element ns="" name="package">
+            <text/>
+          </element>
+        </oneOrMore>
+      </choice>
+
+    </element>
+  </define>
+</grammar>

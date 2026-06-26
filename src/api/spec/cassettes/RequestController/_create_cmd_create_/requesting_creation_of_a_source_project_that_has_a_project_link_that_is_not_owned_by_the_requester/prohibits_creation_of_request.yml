@@ -1,0 +1,489 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base">
+          <title>The Far-Distant Oxus</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '101'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base">
+          <title>The Far-Distant Oxus</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 25 Sep 2024 09:26:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/package_1/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="Base">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Error dignissimos architecto labore.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="Base">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Error dignissimos architecto labore.</description>
+        </package>
+  recorded_at: Wed, 25 Sep 2024 09:26:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/package_1/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="Base">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Error dignissimos architecto labore.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="Base">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Error dignissimos architecto labore.</description>
+        </package>
+  recorded_at: Wed, 25 Sep 2024 09:26:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/source_package/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="Base">
+          <title>Time To Murder And Create</title>
+          <description>Molestiae quis velit enim.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="Base">
+          <title>Time To Murder And Create</title>
+          <description>Molestiae quis velit enim.</description>
+        </package>
+  recorded_at: Wed, 25 Sep 2024 09:26:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/source_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
+          <version>unknown</version>
+          <time>1727256403</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 25 Sep 2024 09:26:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/_meta?user=project_link_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:project_link_test_user">
+          <title/>
+          <description/>
+          <person userid="project_link_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:project_link_test_user">
+          <title></title>
+          <description></description>
+          <person userid="project_link_test_user" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 25 Sep 2024 09:26:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/target_package/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:project_link_test_user">
+          <title>The Green Bay Tree</title>
+          <description>Optio sapiente molestias vitae.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:project_link_test_user">
+          <title>The Green Bay Tree</title>
+          <description>Optio sapiente molestias vitae.</description>
+        </package>
+  recorded_at: Wed, 25 Sep 2024 09:26:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/target_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
+          <version>unknown</version>
+          <time>1727256404</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 25 Sep 2024 09:26:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/target_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '1'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
+          <version>unknown</version>
+          <time>1727256404</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 25 Sep 2024 09:26:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base:my_project/_meta?user=project_link_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base:my_project">
+          <title>Frequent Hearses</title>
+          <description/>
+          <link project="Base"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '133'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base:my_project">
+          <title>Frequent Hearses</title>
+          <description></description>
+          <link project="Base"/>
+        </project>
+  recorded_at: Wed, 25 Sep 2024 09:26:44 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Base:my_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="1" vrev="1" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
+          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1727256403"/>
+        </directory>
+  recorded_at: Wed, 25 Sep 2024 09:26:44 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Base:my_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="1" vrev="1" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
+          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1727256403"/>
+        </directory>
+  recorded_at: Wed, 25 Sep 2024 09:26:44 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/Base:my_project/source_package?cmd=diff&expand=1&nodiff=1&opackage=target_package&oproject=home:project_link_test_user
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        ++++++ somefile.txt
+        --- somefile.txt
+        +++ somefile.txt
+  recorded_at: Wed, 25 Sep 2024 09:26:44 GMT
+recorded_with: VCR 6.3.1

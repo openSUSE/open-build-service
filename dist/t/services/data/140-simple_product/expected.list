@@ -1,0 +1,4 @@
+_service:product_converter:simple-release.spec
+_service:product_converter:_multibuild
+_service:product_converter:simple-cd-cd-i586_x86_64.kiwi
+_service:product_converter:simple-cd-cd-i586_x86_64.kwd

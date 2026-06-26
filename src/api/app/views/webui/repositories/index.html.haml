@@ -1,0 +1,25 @@
+= render partial: 'add_repository_from_project_modal', locals: { project: @project } if @user_can_modify
+= render partial: 'add_dod_repository_modal', locals: { project: @project, available_architectures: @available_architectures } if User.admin_session?
+= render partial: 'delete_repository_modal'
+= render partial: 'request_delete_repository_modal'
+= render partial: 'delete_repository_path_modal'
+
+- if @package
+  - @pagetitle = "Repositories for #{@package}"
+  = render partial: 'package_repositories', locals: { project: @project,
+                                                      package: @package,
+                                                      flags: @flags,
+                                                      architectures: @architectures,
+                                                      user_can_modify: @user_can_modify,
+                                                      pagetitle: @pagetitle }
+- else
+  - @pagetitle = "Repositories for #{@project}"
+  = render partial: 'project_repositories', locals: { project: @project,
+                                                      package: @package,
+                                                      flags: @flags,
+                                                      architectures: @architectures,
+                                                      user_can_modify: @user_can_modify,
+                                                      available_architectures: @available_architectures,
+                                                      repositories: @repositories,
+                                                      configuration: @configuration,
+                                                      pagetitle: @pagetitle }

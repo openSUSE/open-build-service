@@ -1,0 +1,151 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 10 Apr 2024 10:43:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>The Waste Land</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>The Waste Land</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 10 Apr 2024 10:43:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/apache2/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:foo:Apache">
+          <title>The Skull Beneath the Skin</title>
+          <description>Vel et voluptas dignissimos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:foo:Apache">
+          <title>The Skull Beneath the Skin</title>
+          <description>Vel et voluptas dignissimos.</description>
+        </package>
+  recorded_at: Wed, 10 Apr 2024 10:43:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:foo:Apache/apache2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '82'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="apache2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 10 Apr 2024 10:43:23 GMT
+recorded_with: VCR 6.2.0

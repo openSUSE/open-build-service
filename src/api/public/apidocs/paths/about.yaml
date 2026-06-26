@@ -1,0 +1,15 @@
+get:
+  summary: Get information about API.
+  description: Get generic information about the API.
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [about.xsd](../schema/about.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/about.yaml'
+  tags:
+    - General Information

@@ -1,0 +1,108 @@
+#
+# openSUSE Build Service 2.0
+#
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://en.opensuse.org/Build_Service/OBS-Appliance
+
+README.UPDATERS file has informations for updaters.
+
+OBS Appliance users who have setup their LVM can just replace 
+their appliance image without data loss. The migration will 
+happen automatically.
+
+
+Known Regressions:
+==================
+
+* read access feature enhancements of MeeGo branch (named 1.8 in git)
+  are not included with this release. 
+
+  Do *NOT* update from 1.8 to this release.
+
+  We will merge these branches in a later release.
+
+
+* API calls which got deprecated with 1.0 release got removed:
+  /platform       (use /build or /search/repository_id instead)
+  /repository     (use /build or /search/repository_id instead)
+  /project        (use /source instead)
+  /package        (use /source instead)
+
+* The OBS Appliance comes with package signing enabled by default now.
+  As consequence some operations like project creation may take a 
+  long time if your hardware has no hardware random number generator.
+  (gpg key creation needs a safe random generator source).
+
+
+Features:
+=========
+
+* Revised webui, new layout with more funcationality.
+
+* Anonymous access mode for webui
+  => to be configured in api  config/options.yml
+
+* Improved permission system:
+  - User group support for roles and requests
+
+* Improved request system:
+  - Review mechanism
+    - New "reviewer" role to set default reviewers for a package or project.
+      These can be users or groups.
+    http://en.opensuse.org/Build_Service/Concepts/Review
+
+  - New requests types for
+    - set bugowner
+    - add role
+
+* Project link mechanism
+  http://en.opensuse.org/Build_Service/Concepts/ProjectLinking
+
+* Build job scheduling strategies got configurable
+  http://en.opensuse.org/Build_Service/Concepts/BuildSchedulingStrategies
+
+* New fair build job dispatcher is distributing the jobs based on importance
+  and former used build times now.
+
+* Build cycle dependencies are accessable via api and webui now.
+
+* History for meta files like _meta and _prjconf
+
+* Project/Package undelete feature
+
+* Source service are stabelized and enabled by default.
+  - default services for downloading files and to verify them are available.
+  - basic support in webui for source services
+
+* Lots of smaller improvements and bugfixes
+
+
+
+Changes:
+========
+
+* xml files are validated by the api
+
+* "expansion error" state got renamed to "unresolved".
+
+* New "signing" state.
+
+* For cross architecture compiling support:
+  CBpreinstall and CBinstall prjconf directives added.
+  - CBPreinstall: add to preinstall section if emulator_arch
+  - CBinstall: add to install section if emulator_arch
+  - as with VMinstall, there's no dependency resolution. 
+    Add all needed dependencies manually.
+
+
+Requirements:
+=============
+
+* The OBS server should not run on a system with less than 2GB memory. 
+  4GB is recommended, esp. when the same system is also building packages.
+
+* Use osc 0.127 or later to get access to the new features.
+

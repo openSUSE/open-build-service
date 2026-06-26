@@ -1,0 +1,17 @@
+.card.mt-3
+  .card-body
+    %h5 Mentioned Issues (#{issues.length})
+    .list-group.list-group-flush
+      - issues.each do |long_name, issue|
+        .list-group-item
+          - if issue[:owner] && issue[:state]
+            .row
+              = link_to(long_name, issue[:url], target: '_blank', rel: 'noopener')
+              %span.ms-3= issue[:state]&.capitalize
+              %span.ms-3= user_with_realname_and_icon issue[:owner], short: true
+          - else
+            .row
+              = link_to(long_name, issue[:url], target: '_blank', rel: 'noopener')
+          - if issue[:summary]
+            .row.mt-2#issue-summary
+              = render partial: 'webui/shared/collapsible_text', locals: { text: issue[:summary] }

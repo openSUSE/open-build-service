@@ -1,0 +1,203 @@
+get:
+  summary: Shows attribute.
+  description: Shows attribute.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/attribute.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            namespace:
+              value:
+                code: not_found
+                summary: Couldn't find AttribNamespace
+              summary: Not Found (Namespace)
+            unknown_attribute:
+              value:
+                code: unknown_attribute
+                summary: "Unknown attribute 'OBS_TEST':'OwnerRootProjectTest'"
+              summary: Unknown Attribute
+  tags:
+    - Attributes
+
+post:
+  # 'post' and 'put' operations must be in sync
+  summary: Change attribute data. Create an attribute if it doesn't exist.
+  description: |
+    This endpoint can be used for both, creating an attribute and updating it:
+      * If the attribute passed as parameter doesn't exist, it will create the attribute.
+      * If the attribute passed as parameter already exists, it will update the attribute.
+
+    This operation is the same as the one defined with [PUT](#/Attributes/put_attribute__namespace___attribute_name___meta).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+  requestBody:
+    description: Attribute definition.
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/attribute.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Validation Failed.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            empty_body:
+              value:
+                code: validation_failed
+                summary: Document is empty, not allowed for attrib_type
+              summary: Validation Failed (Empty Body)
+            wrong_xml_element:
+              value:
+                code: validation_failed
+                summary: 'attrib_type validation error: 1:0: ERROR: Element definition failed to validate attributes'
+              summary: Validation Failed (Wrong XML Attributes)
+            illegal_request:
+              value:
+                code: illegal_request
+                summary: 'Illegal request: PUT/POST /attribute/OBS_TEST/OwnerRootProjectTest/_meta: path does not match content'
+              summary: Illegal Request
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            namespace:
+              value:
+                code: not_found
+                summary: Couldn't find AttribNamespace
+              summary: Not Found (Namespace)
+            unknown_attribute:
+              value:
+                code: unknown_attribute
+                summary: "Unknown attribute 'OBS_TEST':'OwnerRootProjectTest'"
+              summary: Unknown Attribute
+  tags:
+    - Attributes
+
+put:
+  # 'post' and 'put' operations must be in sync
+  summary: Change attribute data. Create an attribute if it doesn't exist.
+  description: |
+    This endpoint can be used for both, creating an attribute and updating it:
+      * If the attribute passed as parameter doesn't exist, it will create the attribute.
+      * If the attribute passed as parameter already exists, it will update the attribute.
+
+    This operation is the same as the one defined with [POST](#/Attributes/post_attribute__namespace___attribute_name___meta).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+  requestBody:
+    description: Attribute definition.
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/attribute.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Validation Failed.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            empty_body:
+              value:
+                code: validation_failed
+                summary: Document is empty, not allowed for attrib_type
+              summary: Validation Failed (Empty Body)
+            wrong_xml_element:
+              value:
+                code: validation_failed
+                summary: 'attrib_type validation error: 1:0: ERROR: Element definition failed to validate attributes'
+              summary: Validation Failed (Wrong XML Attributes)
+            illegal_request:
+              value:
+                code: illegal_request
+                summary: 'Illegal request: PUT/POST /attribute/OBS_TEST/OwnerRootProjectTest/_meta: path does not match content'
+              summary: Illegal Request
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            namespace:
+              value:
+                code: not_found
+                summary: Couldn't find AttribNamespace
+              summary: Not Found (Namespace)
+            unknown_attribute:
+              value:
+                code: unknown_attribute
+                summary: "Unknown attribute 'OBS_TEST':'OwnerRootProjectTest'"
+              summary: Unknown Attribute
+  tags:
+    - Attributes
+
+delete:
+  summary: Delete an attribute and all its values in projects or packages.
+  description: |
+    Delete an attribute and all its values in projects or packages.
+
+    This operation is the same as the one defined with [DELETE /attribute/{namespace}/{attribute_name}](#/Attributes/delete_attribute__namespace___attribute_name_)
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            namespace:
+              value:
+                code: not_found
+                summary: Couldn't find AttribNamespace
+              summary: Not Found (Namespace)
+  tags:
+    - Attributes

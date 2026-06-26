@@ -1,0 +1,22 @@
+delete:
+  summary: Delete a required check from the project repository
+  description: Delete a required checks from the project repository
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/check_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/status_report/delete_repository_forbidden.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_repository.yaml'
+    '422':
+      $ref: '../components/responses/invalid_required_check.yaml'
+  tags:
+    - Status Reports - Required Checks

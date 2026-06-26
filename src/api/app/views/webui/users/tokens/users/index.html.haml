@@ -1,0 +1,86 @@
+:ruby
+  @pagetitle = if @token.description.blank?
+                 'Share token'
+               else
+                 "Share '#{@token.description}' token"
+               end
+
+.card.mb-3
+  .card-body
+    %h3 Token Sharing
+
+    %p The users and groups you share this token with will have complete access to the token.
+
+    %p
+      They will be able to trigger the token in their SCM/CI integrations as if they were you.
+      But they will also be able to modify, regenerate and even delete the token.
+
+    %p
+      %i.fa.fa-exclamation-triangle.text-warning{ title: 'Warning' }
+      %span Please don't share your token with others if you don't understand what that implies.
+
+    #involved-users
+      %h4 Share with Users
+      - if @users.present?
+        %table.responsive.table.table-sm.table-bordered.table-hover.w-100#user-table
+          %thead
+            %tr
+              %td Username
+              - if User.session
+                %td
+          %tbody
+            - @users.each do |user|
+              %tr
+                %td.align-middle
+                  = image_tag_for(user, size: 20)
+                  = link_to(display_name(user), user_or_group_path(user))
+                - if User.session
+                  %td.text-nowrap
+                    = link_to('#', class: 'text-light ms-auto',
+                                   data: { 'bs-toggle': 'modal',
+                                           'bs-target': '#delete-user-from-token-modal',
+                                           action: token_user_path(token_id: @token.id, id: user.id),
+                                           confirmation_text: "Please confirm you want to remove this user #{user.login} from the token." }) do
+                      %i.fa.fa-times-circle.text-danger{ title: 'Remove user from token' }
+      .pt-4
+        = render(partial: 'webui/users/tokens/users/add_user_to_token_dialog', locals: { token: @token })
+        = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-user-to-token-modal' }, id: 'add-user-to-token') do
+          %i.fas.fa-plus-circle.text-primary
+          Add User
+
+  .card-body
+    #involved-groups
+      %h4 Share with Groups
+      - if @groups.present?
+        %table.responsive.table.table-sm.table-bordered.table-hover.w-100#group-table
+          %thead
+            %tr
+              %td Name
+              - if User.session
+                %td
+          %tbody
+            - @groups.each do |group|
+              %tr
+                %td.align-middle
+                  = image_tag_for(group, size: 20)
+                  = link_to(display_name(group), user_or_group_path(group))
+                - if User.session
+                  %td.text-nowrap
+                    = link_to('#', class: 'text-light ms-auto',
+                                   data: { 'bs-toggle': 'modal',
+                                           'bs-target': '#delete-group-from-token-modal',
+                                           action: token_group_path(token_id: @token.id, id: group.id),
+                                           confirmation_text: "Please confirm you want to remove this group '#{group.title}' from the token." }) do
+                      %i.fa.fa-times-circle.text-danger{ title: 'Remove group from token' }
+      .pt-4
+        = render(partial: 'webui/users/tokens/users/add_group_to_token_dialog', locals: { token: @token })
+        = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-group-to-token-modal' }, id: 'add-group-to-token') do
+          %i.fas.fa-plus-circle.text-primary
+          Add Group
+
+= render DeleteConfirmationDialogComponent.new(modal_id: 'delete-user-from-token-modal',
+                                               method: :delete,
+                                               options: { modal_title: 'Do you really want to remove this user?' })
+= render DeleteConfirmationDialogComponent.new(modal_id: 'delete-group-from-token-modal',
+                                               method: :delete,
+                                               options: { modal_title: 'Do you really want to remove this group?' })

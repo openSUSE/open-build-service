@@ -1,0 +1,39 @@
+- if commit.nil?
+  No revision found
+- else
+  - user = User.find_by_login(commit['user'])
+  - if user
+    = image_tag_for(user, size: 20)
+    = link_to(user_path(user)) do
+      = realname_with_login(user)
+  - else
+    %i= commit['user'] || '-'
+
+  - if commit['requestid']
+    accepted
+    = link_to("request #{commit['requestid']}", request_show_path(commit['requestid']))
+    - creator = BsRequest.find_by(number: commit['requestid'])&.creator
+    - if creator
+      from
+      = user_with_realname_and_icon(creator)
+  - else
+    committed
+
+  %u= render TimeComponent.new(time: Time.zone.at(commit['time'].to_i))
+
+  (revision #{commit['rev']})
+
+  - if commit['comment'].present?
+    %pre.plain.mb-0.text-pre-wrap
+      = commit['comment']
+
+  %ul.nav.float-end
+    - if commit['rev'] != '1'
+      %li.nav-item
+        = link_to(package_rdiff_path(project, package, rev: commit['rev'], linkrev: 'base'), class: 'nav-link') do
+          %i.fas.fa-copy.text-custom-gray-500
+          Files Changed
+    %li.nav-item
+      = link_to(package_show_path(project, package, rev: commit['rev']), class: 'nav-link') do
+        %i.fas.fa-folder-open.text-warning
+        Browse Source

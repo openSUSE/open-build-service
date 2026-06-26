@@ -1,0 +1,119 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE_41/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_41">
+          <title>Lilies of the Field</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE_41">
+          <title>Lilies of the Field</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 18 Jul 2018 13:42:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE.org/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE.org">
+          <title>The Grapes of Wrath</title>
+          <description>Mollitia maxime nemo minima.</description>
+          <remoteurl>http://toywisozk.info/delmer</remoteurl>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE.org">
+          <title>The Grapes of Wrath</title>
+          <description>Mollitia maxime nemo minima.</description>
+          <remoteurl>http://toywisozk.info/delmer</remoteurl>
+        </project>
+    http_version: 
+  recorded_at: Wed, 18 Jul 2018 13:42:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/openSUSE_41/_config
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '82'
+    body:
+      encoding: UTF-8
+      string: |
+        %if "%_repository" == "images"
+        Type: kiwi
+        Repotype: none
+        Patterntype: none
+        %endif
+    http_version: 
+  recorded_at: Wed, 18 Jul 2018 13:42:29 GMT
+recorded_with: VCR 4.0.0

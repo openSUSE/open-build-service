@@ -1,0 +1,93 @@
+inherit_from: .rubocop_todo.yml
+
+plugins:
+  - rubocop-capybara
+  - rubocop-performance
+  - rubocop-rspec
+  - rubocop-rspec_rails
+
+AllCops:
+  NewCops: enable
+  UseCache: true
+  CacheRootDirectory: src/api/tmp/rubocop_cache_root_dir
+  MaxFilesInCache: 2000
+  Exclude:
+    - 'src/api/**/*'
+    - 'docs/api/restility/**/*'
+    - 'src/backend/**/*'
+    # These files are RPM spec files
+    - 'dist/*.spec'
+    - 'dist/t/spec/fixtures/hello_world.spec'
+    - 'dist/t/services/data/**/*.spec'
+  SuggestExtensions:
+    # We don't want extra cops for minitest since we want to migrate those tests to RSpec
+    rubocop-minitest: false
+    # We lint our rails code with the setup in src/api/.rubocop.yml
+    rubocop-rails: false
+    # We don't use factories in dist/t/spec
+    rubocop-factory_bot: false
+
+#################### Layout ###########################
+
+Layout/HashAlignment:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+  EnforcedLastArgumentHashStyle: ignore_implicit
+
+# We decide disable this cop because we can't reach an agreement
+Layout/DotPosition:
+  Enabled: false
+
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: variable
+
+#################### Style ###########################
+
+Style/Alias:
+  EnforcedStyle: 'prefer_alias_method'
+
+Style/CommandLiteral:
+  EnforcedStyle: percent_x
+
+Style/Documentation:
+  Enabled: false
+
+# Using an empty case is sometimes clearer than `if/elsif/elsif/else`
+Style/EmptyCaseCondition:
+  Enabled: false
+
+Style/RedundantReturn:
+  Enabled: false
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/WordArray:
+  EnforcedStyle: brackets
+
+# At the moment, the default configuration of the previous cops are pending
+# and, the autocorrect are unsafe. So for now, we will disable them.
+Style/HashEachMethods:
+  Enabled: false
+Style/HashTransformKeys:
+  Enabled: false
+Style/HashTransformValues:
+  Enabled: false
+Style/HashSyntax:
+  EnforcedShorthandSyntax: either
+
+# We agreed on disabling this cop since it's often a sign of a code smell when we need to use `something&.my_method`
+Style/SafeNavigation:
+  Enabled: false
+
+##################### Metrics ##################################
+
+Metrics/ClassLength:
+  Severity: refactor
+
+Layout/LineLength:
+  Max: 150
+
+Metrics/ModuleLength:
+  Severity: refactor
+

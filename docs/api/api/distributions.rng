@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" ns="http://buildservice.org/api" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="distribution.rng"/>
+  <start combine="choice">
+    <ref name="distributions-element"/>
+  </start>
+  <define ns="" name="distributions-element">
+    <element name="distributions">
+      <zeroOrMore>
+        <ref name="distribution-element"/>
+      </zeroOrMore>
+    </element>
+  </define>
+</grammar>

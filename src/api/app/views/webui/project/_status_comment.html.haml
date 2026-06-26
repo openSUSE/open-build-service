@@ -1,0 +1,14 @@
+- if comment
+  = h(comment)
+  - if User.possibly_nobody.can_modify?(project) && editable
+    = link_to(edit_comment_form_path(project: project, package: package_name, comment: comment), remote: true, title: 'Edit Comment') do
+      %i.fas.fa-edit.text-secondary
+    = link_to(clear_failed_comment_path(project: project, package: package_name), remote: true, title: 'Delete Comment') do
+      %i.fas.fa-times-circle.text-danger
+
+- elsif editable
+  %span.unknown_failure
+    Unknown build failure
+    - if User.possibly_nobody.can_modify?(project)
+      = link_to(edit_comment_form_path(project: project, package: package_name, comment: ''), remote: true, title: 'Edit Comment') do
+        %i.fas.fa-edit.text-secondary

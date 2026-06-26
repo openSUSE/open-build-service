@@ -1,0 +1,37 @@
+get:
+  summary: List the content of the directory tree where the binaries are published at the level project/repository/architecture.
+  description: |
+    Get a list of binaries and other files present at the level project/repository/architecture of the directory
+    tree as a result of successful building and publishing processes.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            entry:
+              - name: 'apache2-mod_auth_memcookie-1.1.1-lp152.2.1.x86_64.rpm'
+              - name: 'obs-api-testsuite-rspec-2.11~alpha.20200618T200341.d42d8310aa-lp152.10515.1.x86_64.rpm'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/download_binary_forbidden.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: "Couldn't find Project"
+  tags:
+    - Published Binaries

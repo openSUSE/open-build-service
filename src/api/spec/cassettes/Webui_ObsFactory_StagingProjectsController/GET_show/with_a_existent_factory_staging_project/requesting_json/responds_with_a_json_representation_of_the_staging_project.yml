@@ -1,0 +1,473 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging">
+          <title>The Heart Is a Lonely Hunter</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging">
+          <title>The Heart Is a Lonely Hunter</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>In Dubious Battle</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>In Dubious Battle</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>The Widening Gyre</title>
+          <description>Qui ut unde odio.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>The Widening Gyre</title>
+          <description>Qui ut unde odio.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>The Widening Gyre</title>
+          <description>Qui ut unde odio.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>The Widening Gyre</title>
+          <description>Qui ut unde odio.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_12/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_12">
+          <title>This Side of Paradise</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_12">
+          <title>This Side of Paradise</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_12/package_12/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_12" project="project_12">
+          <title>When the Green Woods Laugh</title>
+          <description>Expedita molestiae modi aperiam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_12" project="project_12">
+          <title>When the Green Woods Laugh</title>
+          <description>Expedita molestiae modi aperiam.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_12/package_12/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_12" project="project_12">
+          <title>When the Green Woods Laugh</title>
+          <description>Expedita molestiae modi aperiam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_12" project="project_12">
+          <title>When the Green Woods Laugh</title>
+          <description>Expedita molestiae modi aperiam.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_12/_project/_attribute?meta=1&user=
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="33">
+          <srcmd5>ab6cedbbf1aa03b55a4cba3b5970372c</srcmd5>
+          <time>1548081929</time>
+          <user></user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_27/_meta?user=user_27
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_27">
+          <title/>
+          <description/>
+          <person userid="user_27" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_27">
+          <title></title>
+          <description></description>
+          <person userid="user_27" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_27
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>Pale Kings and Princes</title>
+          <description>      requests:
+                - { id: 1 }
+        </description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>Pale Kings and Princes</title>
+          <description>      requests:
+                - { id: 1 }
+        </description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_27
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title>No Country for Old Men</title>
+          <description>Factory staging project B</description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title>No Country for Old Men</title>
+          <description>Factory staging project B</description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?code=unresolvable
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:30 GMT
+recorded_with: VCR 4.0.0

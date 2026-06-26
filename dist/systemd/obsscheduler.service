@@ -1,0 +1,16 @@
+[Unit]
+Description=OBS job scheduler
+Requires=obsrepserver.service
+After=network-online.target obssrcserver.service obsrepserver.service obsapisetup.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/sbin/obsscheduler start
+ExecStop=/usr/sbin/obsscheduler stop
+KillMode=none
+TimeoutStopSec=infinity
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,1314 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2009 Michael Schroeder, Novell Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Sign the built packages
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use POSIX;
+use Data::Dumper;
+use Digest;
+use Digest::MD5 ();
+use Digest::SHA ();
+use XML::Structured ':bytes';
+use Build;
+use Storable;
+use JSON::XS ();
+
+use BSConfiguration;
+use BSRPC ':https';
+use BSUtil;
+use BSXML;
+use BSHTTP;
+use BSVerify;
+use BSPGP;
+use BSStdRunner;
+use BSRedisnotify;
+
+use strict;
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+
+my $jobsdir = "$BSConfig::bsdir/jobs";
+my $eventdir = "$BSConfig::bsdir/events";
+my $myeventdir = "$eventdir/signer";
+my $uploaddir = "$BSConfig::bsdir/upload";
+
+my $maxchild = 4;
+my $maxchild_flavor;
+
+$maxchild = $BSConfig::signer_maxchild if defined $BSConfig::signer_maxchild;
+$maxchild_flavor = $BSConfig::signer_maxchild_flavor if defined $BSConfig::signer_maxchild_flavor;
+
+my $max_followupsteps = 3;
+
+my $sign_supports_S;
+my $sign_supports_bulk_cpio;
+my $sign_supports_delsign;
+
+sub check_sign_S {
+  my $pid = BSUtil::xfork();
+  return unless defined $pid;
+  if (!$pid) {
+    open(STDOUT, ">/dev/null");
+    open(STDERR, ">&STDOUT");
+    my @signargs;
+    push @signargs, '--project', 'dummy' if $BSConfig::sign_project;
+    exec($BSConfig::sign, @signargs, '-S', '/dev/null', '-k');
+    die("$BSConfig::sign: $!\n");
+  }
+  $sign_supports_S = 1 if waitpid($pid, 0) == $pid && !$?;
+}
+
+sub check_sign_bulk_cpio {
+  my $pid = BSUtil::xfork();
+  return unless defined $pid;
+  if (!$pid) {
+    open(STDOUT, ">/dev/null");
+    open(STDERR, ">&STDOUT");
+    my @signargs;
+    push @signargs, '--project', 'dummy' if $BSConfig::sign_project;
+    exec($BSConfig::sign, @signargs, '--bulk-cpio', '--hashfile', '/dev/null');
+    die("$BSConfig::sign: $!\n");
+  }
+  $sign_supports_bulk_cpio = 1 if waitpid($pid, 0) == $pid && !$?;
+}
+
+sub check_sign_delsign {
+  my $pid = BSUtil::xfork();
+  return unless defined $pid;
+  if (!$pid) {
+    open(STDOUT, ">/dev/null");
+    open(STDERR, ">&STDOUT");
+    my @signargs;
+    push @signargs, '--project', 'dummy' if $BSConfig::sign_project;
+    exec($BSConfig::sign, @signargs, '--delsign', '--hashfile', '/dev/null');
+    die("$BSConfig::sign: $!\n");
+  }
+  $sign_supports_delsign = 1 if waitpid($pid, 0) == $pid && !$?;
+}
+
+sub readblk {
+  my ($fd, $blk, $num, $blksize) = @_;
+  $blksize ||= 2048;
+  sysseek($fd, $blk * $blksize, SEEK_SET) || die("sysseek: $!\n");
+  $num ||= 1;
+  $num *= $blksize;
+  my $ret = '';
+  (sysread($fd, $ret, $num) || 0) == $num || die("sysread: $!\n");
+  return $ret;
+}
+
+sub writeblk {
+  my ($fd, $blk, $cnt, $blksize) = @_;
+  $blksize ||= 2048;
+  sysseek($fd, $blk * $blksize, SEEK_SET) || die("sysseek: $!\n");
+  (syswrite($fd, $cnt) || 0) == length($cnt) || die("syswrite: $!\n");
+}
+
+sub readisodir {
+  my ($fd, $dirpos) = @_;
+
+  my $dirblk = readblk($fd, $dirpos);
+  my $dirlen = unpack('@10V', $dirblk);
+  die("bad directory len\n") if $dirlen & 0x7ff;
+  my $sp_bytes_skip = 0;
+  my @contents;
+  my $entryoff = 0;
+  while ($dirlen) {
+    if ($dirblk eq '' || unpack('C', $dirblk) == 0) {
+      $dirlen -= 0x800;
+      $dirblk = readblk($fd, ++$dirpos) if $dirlen;
+      $entryoff = 0;
+      next;
+    }
+    my ($l, $fpos, $flen, $f, $inter, $nl) = unpack('C@2V@10V@25Cv@32C', $dirblk);
+    die("bad dir entry\n") if $l > length($dirblk);
+    if ($f & 2) {
+      $dirblk = substr($dirblk, $l);
+      $entryoff += $l;
+      next;
+    }
+    die("associated file\n") if $f & 4;
+    die("interleaved file\n") if $inter;
+    die("bad dir entry\n") if !$nl || $nl + 33 > length($dirblk);
+    $nl++ unless $nl & 1;
+    my $e = substr($dirblk, $nl + 33, $l - $nl - 33);
+    if (length($e) >= 7 && substr($e, 0, 2) eq 'SP') {
+      ($sp_bytes_skip) = unpack('@6C', $e);
+    } else {
+      $e = substr($e, $sp_bytes_skip) if $sp_bytes_skip;
+    }
+    my ($ce_len, $ce_blk, $ce_off) = (0, 0, 0);
+    my $fname = '';
+    my $nmf = 0;
+    while ($e ne '') {
+      if (length($e) <= 2) {
+        last unless $ce_len;
+	$e = readblk($fd, $ce_blk);
+        $e = substr($e, $ce_off, $ce_len);
+        $ce_len = 0;
+	next;
+      }
+      if (substr($e, 0, 2) eq 'CE') {
+	($ce_blk, $ce_off, $ce_len) = unpack('@4V@12V@20V', $e);
+      } elsif (substr($e, 0, 2) eq 'NM') {
+	my $nml = (unpack('@2C', $e))[0] - 5;
+	$fname = '' unless $nmf & 1;
+	($nmf) = unpack('@4C', $e);
+        $fname .= substr($e, 5, $nml) if $nml > 0;
+      }
+      $e = substr($e, (unpack('@2C', $e))[0]);
+    }
+    push @contents, [$fname, $fpos, $flen, $dirpos, $entryoff];
+    $dirblk = substr($dirblk, $l);
+    $entryoff += $l;
+  }
+  return @contents;
+}
+
+sub signisofiles {
+  my ($fd, $data, @signargs) = @_;
+
+  my $pubkey = $data->{'pubkey'};
+  my $signed = 0;
+  my $vol = readblk($fd, 16);
+  die("fatal: primary volume descriptor missing\n") if substr($vol, 0, 6) ne "\001CD001";
+  my ($path_table_size, $path_table_pos) = unpack('@132V@140V', $vol);
+  my $path_table = readblk($fd, $path_table_pos * 2048, $path_table_size, 1);
+  my $cmscertfile;
+  while ($path_table ne '') {
+    my ($l, $dirpos) = unpack('C@2V', $path_table);
+    die("fatal: empty dir in path table\n") unless $l;
+    $path_table = substr($path_table, 8 + $l + ($l & 1));
+    my @c;
+    eval { @c = readisodir($fd, $dirpos) };
+    die("fatal: $@") if $@;
+    for my $e (@c) {
+      #print "$e->[0] $e->[1] $e->[2] $e->[3] $e->[4]\n";
+      if ($e->[0] =~ /^(.*)\.(asc|p7s)$/i && $e->[2] == ($2 eq 'p7s' ? 8192 : 2048)) {
+	my $n = $1;
+	my $signfilesuf = $2; 
+	my $signfile = readblk($fd, $e->[1]);
+	next if substr($signfile, 0, 8) ne "sIGnMe!\n";
+	my $len = hex(substr($signfile, 8, 8));
+	my $sum = hex(substr($signfile, 16, 8));
+	my @se = grep {$_->[0] =~ /^\Q$n\E$/i && $_->[2] == $len} @c;
+	die("fatal: could not find a file named $n with size $_->[2]\n") unless @se;
+	my $sf;
+	for my $se (@se) {
+	  $sf = substr(readblk($fd, $se->[1], ($len + 0x7ff) >> 11), 0, $len);
+	  last if $sum == unpack("%32C*", $sf);
+	  undef $sf;
+	}
+	die("fatal: content of $n does not match signature\n") unless defined $sf;
+	my @signmode = ('-d');
+	my @signargs_cpy = @signargs;
+	if ($signfilesuf eq 'p7s') {
+	  $data->{'cmscert'} ||= getsslcert($data->{'projid'}, 'cms', $data->{'signflavor'});
+	  $cmscertfile = "$uploaddir/signer.cmscert.iso.$$";
+	  writestr($cmscertfile, undef, $data->{'cmscert'});
+	  @signmode = ('--cmssign', '--cert', $cmscertfile, '--cms-nocerts', '-h', 'sha512');
+	  setsigntype(\@signargs_cpy, 'cms') if $BSConfig::sign_type;
+	}
+	my $sig = BSUtil::xsystem($sf, $BSConfig::sign, @signargs_cpy, @signmode);
+	die("fatal: returned signature is empty\n") unless $sig;
+	die("fatal: returned signature is too big\n") if length($sig) > $e->[2];
+	# replace old content
+	writeblk($fd, $e->[1], $sig . ("\0" x ($e->[2] - length($sig))));
+	my $dirblk = readblk($fd, $e->[3]);
+	# patch in new content len
+	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($sig)); # little endian
+	substr($dirblk, $e->[4] + 14, 4) = pack('N', length($sig)); # big endian
+	writeblk($fd, $e->[3], $dirblk);
+	$signed++;
+      }
+      if ($e->[0] =~ /\.key$/i && $e->[2] == 8192) {
+	my $signfile = readblk($fd, $e->[1]);
+	next if substr($signfile, 0, 8) ne "sIGnMeP\n";
+	$pubkey ||= BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p');
+	die("fatal: pubkey is not available\n") unless $pubkey;
+	die("fatal: pubkey is too big\n") if length($pubkey) > $e->[2];
+	# replace old content
+	writeblk($fd, $e->[1], $pubkey . ("\0" x ($e->[2] - length($pubkey))));
+	my $dirblk = readblk($fd, $e->[3]);
+	# patch in new content len
+	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($pubkey)); # little endian
+	substr($dirblk, $e->[4] + 14, 4) = pack('N', length($pubkey)); # big endian
+	writeblk($fd, $e->[3], $dirblk);
+	$signed++;
+      }
+    }
+  }
+  unlink($cmscertfile) if $cmscertfile;
+  return $signed;
+}
+
+sub signisotag {
+  my ($fd, $pubkey, @signargs) = @_;
+  my $blk = readblk($fd, 0, 17);
+  die("fatal: primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
+  my $tags = ';'.substr($blk, 0x8373, 0x200);
+  return unless $tags =~ /;signature ?= ?(\d+)/i;
+  my $sigblkno = $1;
+  my $b = readblk($fd, $sigblkno, 4, 512);
+  return if ord(substr($b, 64, 1));	# do not re-sign already signed isos
+  my $sig = BSUtil::xsystem(substr($blk, 0x8373, 0x200), $BSConfig::sign, @signargs, '-d');
+  die("fatal: returned signature is empty\n") unless $sig;
+  die("fatal: returned signature is too big\n") if length($sig) > 2048 - 64;
+  $sig .= "\0" x (2048 - 64 - length($sig));
+  return if substr($b, 64, 2048 - 64) eq $sig;
+  substr($b, 64, 2048 - 64) = $sig;
+  writeblk($fd, $sigblkno, $b, 512);
+}
+
+sub retagiso_rh {
+  my ($fd) = @_;
+  my $blk = readblk($fd, 0, 17);
+  die("fatal: primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
+  my $tags = ';'.substr($blk, 0x8373, 0x200);
+  return unless $tags =~ /;(ISO MD5SUM = [0-9a-fA-F]{32})/;
+  my $sum = $1;
+  my ($frag_count, $frags, $skip_sect);
+  $frag_count = $1 if $tags =~ /;FRAGMENT COUNT = (\d+)/;
+  $frags = $1 if $tags =~ /;FRAGMENT SUMS = ([0-9a-fA-F]+)/;
+  my $frag_len = 3;
+  undef $frags if $frags && $frag_count * $frag_len != length($frags);
+  $skip_sect = $1 if $tags =~ /;SKIPSECTORS = (\d+)/;
+  print "updating rh iso tags\n";
+  if ($tags =~ /;SIGNATURE = (\d+)/) {
+    # remove old signature
+    my $sigblkno = $1;
+    my $b = readblk($fd, $sigblkno, 4, 512);
+    substr($b, 64, 2048 - 64) = "\0" x (2048 - 64);
+    writeblk($fd, $sigblkno, $b, 512);
+  }
+  substr($blk, 0x8373, 0x200) = ' ' x 0x200;
+  my $numblks = unpack("V", substr($blk, 0x8050, 4));
+  die("fatal: bad block number\n") if $numblks < 17;
+  my $ctx = Digest::MD5->new();
+  $numblks -= $skip_sect if $skip_sect; 
+  my $blkno = 0;
+  my $newfrags = '';
+  my $frag_bytes = $frags ? int(($numblks * 2048) / ($frag_count + 1)) : 0;
+  my $last_fragment = 0;
+  while ($numblks > 0) {
+    my $bc = $numblks > 16 ? 16 : $numblks;
+    my $b = readblk($fd, $blkno, $bc);
+    substr($b, 0, 0x0800, substr($blk, 0x8000, 0x0800)) if $blkno == 16;
+    $ctx->add($b);
+    $numblks -= $bc;
+    if ($frags && $numblks) {
+      my $fragment = int(($blkno * 2048) / $frag_bytes);
+      if ($fragment != $last_fragment) {
+        my @d = unpack("C$frag_len", $ctx->clone->digest);
+        $newfrags .= substr(sprintf("%x", $_), 0, 1) for @d;
+	$last_fragment = $fragment;
+      }
+    }
+    $blkno += $bc;
+  }
+  my $newsum = "ISO MD5SUM = ".$ctx->hexdigest;
+  $tags =~ s/;\Q$sum\E/;$newsum/;
+  if ($frags) {
+    die unless length($frags) == length($newfrags);
+    $tags =~ s/;FRAGMENT SUMS = [0-9a-fA-F]+/;FRAGMENT SUMS = $newfrags/;
+  }
+  substr($blk, 0x8373, 0x200) = substr($tags, 1);
+  writeblk($fd, 16, substr($blk, 0x8000, 0x800));
+}
+
+sub retagiso {
+  my ($fd) = @_;
+  my $blk = readblk($fd, 0, 17);
+  die("fatal: primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
+  my $tags = ';'.substr($blk, 0x8373, 0x200);
+  if ($tags =~ /^;(?:SKIPSECTORS|RHLISOSTATUS|ISO [A-Z0-9]*SUM)/) {
+    retagiso_rh($fd);
+    return;
+  }
+  return unless $tags =~ /;(md5sum=[0-9a-fA-F]{32}|sha1sum=[0-9a-fA-F]{40}|sha256sum=[0-9a-fA-F]{64})/;
+  my $sum = $1;
+  my $sumtype = (split('=', $sum, 2))[0];
+  print "updating $sumtype tag\n";
+  my ($oldpartition, $oldpartitionsum, $partitionstart, $partitionlen);
+  if ($tags =~ /;(partition=(\d+),(\d+),([0-9a-fA-F]+))/) {
+    ($oldpartition, $partitionstart, $partitionlen, $oldpartitionsum) = ($1, $2, $3, $4);
+  }
+  if ($tags =~ /;signature=(\d+)/) {
+    # remove old signature
+    my $sigblkno = $1;
+    my $b = readblk($fd, $sigblkno, 4, 512);
+    substr($b, 64, 2048 - 64) = "\0" x (2048 - 64);
+    writeblk($fd, $sigblkno, $b, 512);
+  }
+  substr($blk, 0x0000, 0x200) = "\0" x 0x200;
+  substr($blk, 0x8373, 0x200) = ' ' x 0x200;
+  my $numblks = unpack("V", substr($blk, 0x8050, 4));
+  die("fatal: bad block number\n") if $numblks < 17;
+  my $chkmap = { 'md5sum' => 'MD5', 'sha1sum' => 'SHA-1', 'sha256sum' => 'SHA-256' };
+  my $ctx = Digest->new($chkmap->{$sumtype});
+  $ctx->add($blk);
+  $numblks -= 17;
+  my $blkno = 17;
+  while ($numblks-- > 0) {
+    my $b = readblk($fd, $blkno++);
+    $ctx->add($b);
+  }
+  my $newsum = "$sumtype=".$ctx->hexdigest;
+  die unless length($sum) == length($newsum);
+  $tags =~ s/;\Q$sum\E/;$newsum/;
+
+  if ($oldpartition) {
+    $ctx = Digest->new($chkmap->{$sumtype});
+    $blkno = $partitionstart;
+    $numblks = $partitionlen;
+    while ($numblks > 16) {
+      my $b = readblk($fd, $blkno, 16, 512);
+      $ctx->add($b);
+      $blkno += 16;
+      $numblks -= 16;
+    }
+    while ($numblks-- > 0) {
+      my $b = readblk($fd, $blkno++, 1, 512);
+      $ctx->add($b);
+    }
+    my $newpartitionsum = $ctx->hexdigest;
+    die unless length($newpartitionsum) == length($oldpartitionsum);
+    my $newpartition = $oldpartition;
+    substr($newpartition, -length($oldpartitionsum), length($oldpartitionsum), $newpartitionsum);
+    $tags =~ s/;\Q$oldpartition\E/;$newpartition/;
+  }
+  substr($blk, 0x8373, 0x200) = substr($tags, 1);
+  writeblk($fd, 16, substr($blk, 0x8000, 0x800));
+}
+
+sub signiso {
+  my ($data, $signfile, @signargs) = @_;
+  local *ISO;
+  open(ISO, '+<', $signfile) || die("$signfile: $!\n");
+  my $signed = signisofiles(\*ISO, $data, @signargs);
+  retagiso(\*ISO) if $signed;
+  signisotag(\*ISO, $data->{'pubkey'}, @signargs);
+  close(ISO) || die("close $signfile: $!\n");
+}
+
+sub signrsa {
+  my ($data, $signfile, @signargs) = @_;
+  my @opensslsignargs = ('-h', 'sha256');
+  if ($signfile !~ /\.cpio\.rsasign$/) {
+    BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-O', @opensslsignargs, $signfile);
+    return;
+  }
+  if ($sign_supports_bulk_cpio) {
+    BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-O', @opensslsignargs, '--bulk-cpio', $signfile);
+    return;
+  }
+  # cpio case, sign every plain file in the archive
+  my $retrysign;
+  eval {
+    local *CPIOFILE;
+    my @res;
+    open(CPIOFILE, '<', $signfile) || die("open $signfile: $!\n");
+    my $param = {
+      'acceptsubdirs' => 1,
+      'cpiopostfile' => sub {
+	my ($par, $ent) = @_;
+	return unless ($ent->{'mode'} & 0xf000) == 0x8000;	# files only
+	$retrysign = 1;
+	my $sig = BSUtil::xsystem($ent->{'data'}, $BSConfig::sign, @signargs, '-O', @opensslsignargs);
+	undef $retrysign;
+	$ent->{'data'} = '';	# free mem
+	push @res, { 'name' => "$ent->{'name'}.sig", 'data' => $sig };
+      },
+    };
+    BSHTTP::cpio_receiver(BSHTTP::fd2req(\*CPIOFILE), $param);
+    close CPIOFILE;
+    $retrysign = 1;
+    open(CPIOFILE, '>', "$signfile.sig") || die("open $signfile.sig: $!\n");
+    BSHTTP::cpio_sender({ 'cpiofiles' => \@res }, \*CPIOFILE);
+    close(CPIOFILE) || die("close $signfile.sig: $!\n");
+  };
+  if ($@) {
+    $data->{'jobstatus'}->{'result'} = 'failed' unless $retrysign;
+    die("signrsa: $@");
+  }
+}
+
+sub signappx {
+  my ($data, $signfile, @signargs) = @_;
+
+  my $cert = $data->{'cert'};
+  if ((!$data->{'signkey'}|| length($data->{'signkey'}) <= 2) && $BSConfig::sign_type) {
+    # special signkey, ask for cert again with signtype appx
+    $cert = getsslcert($data->{'projid'}, 'appx', $data->{'signflavor'});
+  }
+  setsigntype(\@signargs, 'appx') if $BSConfig::sign_type;
+  my $jobdir = $data->{'jobdir'};
+  my $ocfile = "$jobdir/othercerts.der";
+  my @othercerts;
+  push @othercerts, '--othercerts', $ocfile if -f $ocfile && -s _ < 100000;
+  my $certfile = "$uploaddir/signer.cert.$$";
+  mkdir_p($uploaddir);
+  writestr($certfile, undef, $cert);
+  eval { BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '--appx', '--cert', $certfile, @othercerts, $signfile) };
+  unlink($certfile);
+  die($@) if $@;
+}
+
+sub signapk {
+  my ($data, $signfile, @signargs) = @_;
+  my $pk = BSPGP::unarmor($data->{'pubkey'});
+  my $keydata = BSPGP::pk2keydata($pk);
+  my $algo = $keydata->{'algo'};
+  die("signapk: unsupported signing algo '$algo'\n") if $algo ne 'rsa';
+  my $times = BSPGP::pk2times($pk);
+  my $userid = BSPGP::pk2userid($pk);
+  die("signapk: missing userid\n") unless $userid;
+  die("signapk: missing email in userid\n") unless $userid =~ /\<(.+?)\>/;
+  my $email = $1;
+  my $tbsdata = Build::Apk::gettbsdata($signfile);
+  # if the first byte of tbsdata is not 0x1f, it's an apkv3 package
+  my $hash = ord($tbsdata) == 0x1f ? 'sha1' : 'sha512';
+  my $sig = BSUtil::xsystem($tbsdata, $BSConfig::sign, @signargs, '-O', '-h', $hash);
+  my $keyname = sprintf("%s-%08x.%s.pub", $email, $times->{'key_create'}, $algo);
+  my $tmpfile = "$signfile.sIgN$$";
+  unlink($tmpfile);
+  Build::Apk::replacesignature($signfile, $tmpfile, $sig, $data->{'time'}, $algo, $hash, $keyname);
+  rename($tmpfile, $signfile) || die("rename $tmpfile $signfile: $!\n");
+}
+
+sub signhelm {
+  my ($data, $signfile, @signargs) = @_;
+  my $chart = $signfile;
+  $chart =~ s/.*\///;
+  return unless $chart =~ s/\.helminfo$/\.tgz/;
+  my $jobdir = $data->{'jobdir'};
+  return unless -s "$jobdir/$chart";
+  # read helminfo
+  my $helminfo_json;
+  my $helminfo;
+  return unless -e $signfile && -s _ < 1000000;
+  $helminfo_json = readstr($signfile);
+  eval { $helminfo = JSON::XS::decode_json($helminfo_json) };
+  return unless $helminfo && ref($helminfo) eq 'HASH';
+  my $config_yaml = $helminfo->{'config_yaml'};
+  my $chart_sha256 = $helminfo->{'chart_sha256'};
+  return unless $config_yaml && ref($config_yaml) eq '';
+  return unless $chart_sha256 && ref($chart_sha256) eq '' && $chart_sha256 =~ /^[0-9a-f]{64}$/s;
+  # escape filename
+  if ($chart =~ /[\x00-\x1f\x7f-\x9f\']/) {
+    $chart =~ s/\\/\\\\/g;
+    $chart =~ s/\"/\\\"/g;
+    $chart =~ s/[\x00-\x1f\x7f-\x9f]/'\x'.sprintf("%X",ord($1))/ge;
+    $chart = "\"$chart\"";
+  } elsif ($chart =~ /(?:^[~!@#%&*|>?:,'"`{}\[\]]|^-+$|\s|:\z)/) {
+    $chart = "'$chart'";
+  }
+  # generate provenance file and clearsign it
+  my $prov = "$config_yaml\n...\nfiles:\n  $chart: sha256:$chart_sha256\n";
+  setsigntype(\@signargs, 'helm') if $BSConfig::sign_type;
+  my $prov_signed = BSUtil::xsystem($prov, $BSConfig::sign, @signargs, '-c');
+  writestr("$jobdir/$chart.prov", undef, $prov_signed);
+}
+
+sub dsse_pae {
+  my ($type, $payload) = @_;
+  return sprintf("DSSEv1 %d %s %d ", length($type), $type, length($payload))."$payload";
+}
+
+sub dsse_sign {
+  my ($payload, $payloadtype, $signfunc) = @_;
+  my $dsse = dsse_pae($payloadtype, $payload);
+  my $sig = $signfunc->($dsse);
+  # hack: prepend _ to payloadType so it comes first
+  my $envelope = {
+    '_payloadType' => $payloadtype,
+    'payload' => MIME::Base64::encode_base64($payload, ''),
+    'signatures' => [ { 'sig' => MIME::Base64::encode_base64($sig, '') } ],
+  };
+  my $envelope_json = JSON::XS->new->utf8->canonical->encode($envelope);;
+  $envelope_json =~ s/_payloadType/payloadType/;
+  return $envelope_json;
+}
+
+# this works for both v02 and v1 predicates
+my $slsa_json_template = {
+  '_order' => [ '_type', 'subject', 'predicateType', 'predicate' ],
+  'subject' => {
+    '_order' => [ 'name', 'digest' ],
+  },
+  'predicate' => {
+    '_order' => [ 'buildDefinition', 'runDetails', 'builder', 'buildType', 'invocation', 'buildConfig', 'metadata', 'materials' ],
+    # v1
+    'buildDefinition' => {
+      '_order' => [ 'buildType', 'externalParameters', 'internalParameters', 'resolvedDependencies' ],
+      'resolvedDependencies' => {
+	'_order' => [ 'name', 'uri', 'digest', 'content', 'downloadLocation', 'mediaType', 'annotations' ],
+      }
+    },
+    'runDetails' => {
+      '_order' => [ 'builder', 'metadata', 'byproducts' ],
+      'builder' => {
+	'_order' => [ 'id', 'builderDependencies', 'version' ],
+      },
+      'metadata' => {
+	'_order' => [ 'invocationId', 'startedOn', 'finishedOn' ],
+      },
+    },
+    # v02
+    'invocation' => {
+      '_order' => [ 'configSource', 'parameters', 'environment' ],
+      'configSource' => {
+	'_order' => [ 'uri', 'digest', 'entryPoint' ],
+      }
+    },
+    'metadata' => {
+      '_order' => [ 'buildInvocationId', 'buildStartedOn', 'buildFinishedOn', 'completeness', 'reproducible' ],
+      'completeness' => {
+	'_order' => [ 'parameters', 'environment', 'materials' ],
+	'*' => 'bool',
+      },
+      'reproducible' => 'bool',
+    },
+    'materials' => {
+      '_order' => ['uri', 'digest', 'intent' ],
+    }
+  }
+};
+
+sub provenance_tojson {
+  my ($provenance) = @_;
+  require Build::SimpleJSON;
+  return Build::SimpleJSON::unparse($provenance,  'template' => $slsa_json_template, 'keepspecial' => 1);
+}
+
+sub signslsaprovenance {
+  my ($data, $signfile, @signargs) = @_;
+  my $jobdir = $data->{'jobdir'};
+  # for now just do reposerver communication
+  return unless -e $signfile && -s _ < 1000000000;
+  my $provenance_json = readstr($signfile);
+  # not user generated, so we die() on error
+  my $provenance = JSON::XS::decode_json($provenance_json);
+  die unless $provenance && ref($provenance) eq 'HASH';
+  my $alreadysigned;
+  if ($provenance->{'payload'}) {
+    $alreadysigned = 1;
+    die("bad payload type\n") unless $provenance->{'payloadType'} eq 'application/vnd.in-toto+json';
+    $provenance_json = MIME::Base64::decode_base64($provenance->{'payload'});
+    $provenance = JSON::XS::decode_json($provenance_json);
+  }
+  my $predicate = $provenance->{'predicate'};
+  die("no predicate in provenance file?\n") unless $predicate && ref($predicate) eq 'HASH';
+
+  # pin all binaries from the materials
+  my $materials = $predicate->{'buildDefinition'} ? $predicate->{'buildDefinition'}->{'resolvedDependencies'} : $predicate->{'materials'};
+  die("no resolvedDependencies/materials in provenance file?\n") unless ref($materials) eq 'ARRAY';
+  my %todo;
+  for my $material (@$materials) {
+    die("bad material in provenance file?\n") unless ref($material) eq 'HASH';
+    my $uri = $material->{'uri'};
+    die("bad material uri in provenance file?\n") unless $uri;
+    $uri = BSHTTP::urldecode($uri);
+    # .../_slsa/<proj>/<repo>/<arch>/<filename>/<digest>
+    next unless $uri =~ /\/_?slsa\/([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\/]+)$/s;
+    my $prpa = "$1/$2/$3";
+    my $bin = $4;
+    die("material with bad digest\n") unless ref($material->{'digest'}) eq 'HASH' && $material->{'digest'}->{'sha256'};
+    $todo{$prpa}->{$material->{'digest'}->{'sha256'}} = $bin;
+  }
+  if ($signfile =~ /\/_slsa_provenance.json$/) {
+    # also send the config if we have one
+    my $config = readstr("$jobdir/_slsa_provenance.config", 1);
+    if (!defined $config) {
+      my $buildinfo = readxml("$jobdir/_buildenv", $BSXML::buildinfo, 1) || {};
+      $config = $buildinfo->{'config'};
+    }
+    if (defined($config)) {
+      my $digest = Digest::SHA::sha256_hex($config);
+      $todo{'_config'}->{$digest} = $config;
+    }
+  }
+  
+  my $param = {
+    'uri' => "$BSConfig::srcserver/slsa",
+    'request' => 'POST',
+    'data' => BSUtil::tostorable(\%todo),
+  };
+  eval { BSRPC::rpc($param, undef, "cmd=addrefs", "prpa=$data->{'refprpa'}") };
+  $data->{'jobstatus'}->{'result'} = 'rebuild' if $@ && $@ =~ /^404/;	# rebuild if a binary is missing
+  die($@) if $@;
+
+  # fixup digests in subject list
+  my $patched;
+  for my $subject (@{$provenance->{'subject'} || []}) {
+    next unless $subject->{'digest'} && $subject->{'name'} =~ /\.rpm$/;
+    next unless -e "$jobdir/$subject->{'name'}";
+    my $newdigest = sha256file("$jobdir/$subject->{'name'}");
+    next if $subject->{'digest'}->{'sha256'} eq $newdigest;
+    $subject->{'digest'}->{'sha256'} = $newdigest;
+    $patched = 1;		# need to rewrite file
+  }
+  if ($patched) {
+    $provenance_json = provenance_tojson($provenance);
+    $alreadysigned = 0;		# no longer signed
+  }
+
+  # now sign the provenance statement
+  if (!$alreadysigned) {
+    my $signfunc = sub { BSUtil::xsystem($_[0], $BSConfig::sign, @signargs, '-D') };
+    my $envelope_json = dsse_sign($provenance_json, 'application/vnd.in-toto+json', $signfunc);
+    writestr("$jobdir/.slsa_provenance.sIgN$$", $signfile, $envelope_json);
+  }
+}
+
+sub sha256file {
+  my ($file) = @_;
+  my $fd;
+  open($fd, '<', $file) || die("$file: $!\n");
+  my $ctx = Digest->new('SHA-256');
+  $ctx->addfile($fd);
+  close $fd;
+  return $ctx->hexdigest();
+}
+
+sub fixup_sha256_checksum {
+  my ($jobdir, $shafile, $isofile) = @_;
+  return if ((-s "$jobdir/$shafile") || 0) > 65536;
+  my $sha = readstr("$jobdir/$shafile", 1);
+  return unless $sha;
+  return unless $sha =~ /[ \/]\Q$isofile\E\n/s;
+  # ok, needs patching...
+  if ($sha =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
+    # de-pgp
+    $sha =~ s/.*-----BEGIN PGP SIGNED MESSAGE-----//s;
+    $sha =~ s/.*?\n\n//s;
+    $sha =~ s/-----BEGIN PGP SIGNATURE-----.*//s;
+  }
+  return unless -e "$jobdir/$isofile";
+  my $newdigest = sha256file("$jobdir/$isofile");
+  $sha =~ s/^.{64}(  (?:.*\/)?\Q$isofile\E)$/$newdigest$1/m;
+  writestr("$jobdir/$shafile", undef, $sha);
+}
+
+sub sha512file {
+  my ($file) = @_;
+  my $fd;
+  open($fd, '<', $file) || die("$file: $!\n");
+  my $ctx = Digest->new('SHA-512');
+  $ctx->addfile($fd);
+  close $fd;
+  return $ctx->hexdigest();
+}
+
+sub fixup_sha512_checksum {
+  my ($jobdir, $shafile, $isofile) = @_;
+  return if ((-s "$jobdir/$shafile") || 0) > 65536;
+  my $sha = readstr("$jobdir/$shafile", 1);
+  return unless $sha;
+  return unless $sha =~ /[ \/]\Q$isofile\E\n/s;
+  # ok, needs patching...
+  if ($sha =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
+    # de-pgp
+    $sha =~ s/.*-----BEGIN PGP SIGNED MESSAGE-----//s;
+    $sha =~ s/.*?\n\n//s;
+    $sha =~ s/-----BEGIN PGP SIGNATURE-----.*//s;
+  }
+  return unless -e "$jobdir/$isofile";
+  my $newdigest = sha512file("$jobdir/$isofile");
+  $sha =~ s/^.{128}(  (?:.*\/)?\Q$isofile\E)$/$newdigest$1/m;
+  writestr("$jobdir/$shafile", undef, $sha);
+}
+
+sub updateredisjobstatus {
+  my ($arch, $job, $info, $details) = @_;
+  return unless $BSConfig::redisserver;
+  BSRedisnotify::updatejobstatus("$info->{'project'}/$info->{'repository'}/$info->{'arch'}", $job, $details) if $info;
+}
+
+sub getsslcert {
+  my ($projid, $signtype, $signflavor) = @_;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getsslcert",
+    'timeout' => 60,
+  };
+  my @args;
+  push @args, "project=$projid";
+  push @args, "signtype=$signtype" if $signtype;
+  push @args, "signflavor=$signflavor" if $signflavor;
+  push @args, "autoextend=1" unless $signtype;
+  my $cert = BSRPC::rpc($param, undef, @args);
+  die("returned cert is empty") unless $cert && length($cert) >= 16;
+  return $cert;
+}
+
+sub getsignkey {
+  my ($projid, $packid, $needpubkey, $needcert, $signtype, $signflavor) = @_;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getsignkey",
+    'timeout' => 60,
+  };
+  my @args;
+  push @args, "project=$projid";
+  push @args, "signtype=$signtype" if $signtype;
+  push @args, "signflavor=$signflavor" if $signflavor;
+  push @args, "withpubkey=1" if $needpubkey;
+  push @args, "autoextend=1" if $needpubkey;
+  push @args, "withalgo=1";
+  my $signkey = BSRPC::rpc($param, undef, @args);
+  my $pubkey;
+  my $algo;
+  if ($signkey) {
+    ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
+    undef $pubkey unless $pubkey && length($pubkey) > 10;
+    $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
+    undef $algo if $algo && $algo eq '?';
+  }
+  if (($needpubkey || !$algo) && !$pubkey) {
+    if ($BSConfig::sign_project && $BSConfig::sign) {
+      my @signargs;
+      push @signargs, '--project', $projid;
+      push @signargs, '--package', $packid if $packid && $BSConfig::sign_package;
+      push @signargs, '--signtype', $signtype if $signtype;
+      push @signargs, '--signflavor', $signflavor if $signflavor;
+      local *S;
+      open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
+      $pubkey = ''; 
+      1 while sysread(S, $pubkey, 4096, length($pubkey));
+      if (!close(S)) {
+	print "sign -p failed: $?\n";
+	$pubkey = undef;
+      }
+    } elsif ($BSConfig::keyfile) {
+      $pubkey = readstr($BSConfig::keyfile, 1);
+    }
+    undef $pubkey unless $pubkey && length($pubkey) > 10;
+    die("pubkey is empty\n") if $needpubkey && !$pubkey;
+  }
+  if ($pubkey && !$algo) {
+    # try to get algo from public key
+    eval { $algo = BSPGP::pk2algo(BSPGP::unarmor($pubkey)) };
+  }
+  # this is kind of racy. should add a "withcert" option to the above call.
+  my $cert = $needcert ? getsslcert($projid, $signtype, $signflavor) : undef;
+  return ($algo, $signkey, $pubkey, $cert);
+}
+
+sub getsignflavor {
+  my ($projid, $repoid, $arch) = @_;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getconfig",
+    'timeout' => 300,
+  };
+  my $config = BSRPC::rpc($param, undef, "project=$projid", "repository=$repoid");
+  my $bconf = Build::read_config($arch, [ split("\n", $config) ]);
+  return $bconf->{'buildflags:signflavor'};
+}
+
+sub setsigntype {
+  my ($signargs, $signtype) = @_;
+  return unless $BSConfig::sign_type;
+  my $off = 0;
+  $off += 2 if @$signargs >= $off + 2 && $signargs->[$off] eq '--project';
+  $off += 2 if @$signargs >= $off + 2 && $signargs->[$off] eq '--package';
+  if (@$signargs >= $off + 2 && $signargs->[$off] eq '--signtype') {
+    $signargs->[$off + 1] = $signtype;
+  } else {
+    splice(@$signargs, $off, 0, '--signtype', $signtype);
+  }
+}
+
+sub getsigdata {
+  my ($rpm) = @_;
+  my $sigdata;
+  eval {
+    my %res = Build::Rpm::rpmq($rpm, 'SIGTAG_GPG', 'SIGTAG_PGP');
+    my $sig = $res{'SIGTAG_PGP'} || $res{'SIGTAG_GPG'};
+    $sig = $sig->[0] if $sig;
+    $sigdata = BSPGP::pk2sigdata($sig) if $sig;
+  };
+  warn("getsigdata $rpm: $@") if $@;
+  return $sigdata ? $sigdata : {};
+}
+
+sub rpmdelsign {
+  my ($rpm) = @_;
+  # rpm --delsign clobbers the lead data, so copy it over
+  my ($rfd, $wfd);
+  if (!open($rfd, '<', $rpm)) {
+    warn("rpmdelsign $rpm: $!\n");
+    return;
+  }
+  my $lead = '';
+  sysread($rfd, $lead, 96);
+  close($rfd);
+  system('rpm', '--delsign', $rpm) && warn("delsign $rpm failed: $?\n");
+  if (length($lead) == 96) {
+    if (!open($wfd, '+<', $rpm)) {
+      warn("rpmdelsign $rpm: $!\n");
+      return;
+    }
+    syswrite($wfd, $lead, 96);
+    close($wfd);
+  }
+}
+
+my $prpa_stats;		# saved for statistic printing
+
+sub signjob {
+  my ($job, $arch) = @_;
+
+  BSUtil::printlog("signing $arch/$job");
+  local *F;
+  if (! -e "$jobsdir/$arch/$job") {
+    print "no such job\n";
+    return undef;
+  }
+  if (! -e "$jobsdir/$arch/$job:status") {
+    print "job is not done\n";
+    return undef;
+  }
+  my $jobstatus = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
+  # finished can be removed here later, but running jobs shall not be lost on code update.
+  if ($jobstatus->{'code'} ne 'finished' && $jobstatus->{'code'} ne 'signing') {
+    print "job is not assigned for signing\n";
+    close F;
+    return undef;
+  }
+  my $jobdir = "$jobsdir/$arch/$job:dir";
+  die("jobdir does not exist\n") unless -d $jobdir;
+  my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
+  my $projid = $info->{'project'};
+  my $packid = $info->{'package'};
+  $prpa_stats = "$projid/$info->{'repository'}/$arch";
+  my @files = sort(ls($jobdir));
+  my @signfiles = grep {$_ eq '_slsa_provenance.json' || /\.(?:d?rpm|sha256|sha512|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo|apk)$/} @files;
+  my $needpubkey;
+  if (grep {$_ eq '.kiwitree_tosign'} @files) {
+    for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
+      next if $f eq '';
+      $f =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+      die("bad file in kiwitree_tosign: $f\n") if "/$f/" =~ /\/\.{0,2}\//s;
+      if ($f =~ /.\.key$/) {
+	next unless ((-s "$jobdir/$f") || 0) == 8192;
+	$needpubkey = 1;
+	push @signfiles, $f;
+	next;
+      }
+      die("bad file in kiwitree_tosign: $f\n") unless $f =~ /^(.*)\.(?:asc|p7s)$/s;
+      push @signfiles, $f if -s "$jobdir/$f" && -e "$jobdir/$1";
+    }
+  }
+  if (@signfiles) {
+    my $signflavor;
+    if (($info->{'signflavor'} || '') eq '_unknown') {
+      $info->{'signflavor'} = getsignflavor($info->{'project'}, $info->{'repository'}, $info->{'arch'});
+      delete $info->{'signflavor'} unless $info->{'signflavor'};
+    }
+    if (($info->{'signflavor'} || '') eq '_buildenv') {
+      # take the signflavor from the generated _buildenv file
+      my $buildenv = readxml("$jobdir/_buildenv", $BSXML::buildinfo);
+      delete $info->{'signflavor'};
+      $info->{'signflavor'} = $buildenv->{'signflavor'} if $buildenv->{'signflavor'};
+    }
+    if ($info->{'signflavor'}) {
+      $signflavor = $info->{'signflavor'};
+      die("Signflavor is not configured\n") unless $BSConfig::sign_flavor;
+      die("Illegal signflavor '$signflavor'\n") unless grep {$_ eq $signflavor} @{$BSConfig::sign_flavor || []};
+    }
+    my $needcert = grep {/\.appx$/} @signfiles;
+    $needpubkey ||= grep {/\.(?:iso|apk)$/} @signfiles;
+    $needpubkey = 1 if $info->{'file'} eq '_aggregate' && grep {/\.d?rpm$/} @signfiles;
+    my $needcmscert = grep {/\.p7s$/} @signfiles;
+    my ($algo, $signkey, $pubkey, $cert) = getsignkey($projid, $packid, $needpubkey, $needcert, undef, $signflavor);
+    my $cmscert;
+    $cmscert = getsslcert($projid, 'cms', $signflavor) if $needcmscert;
+    my $cmscertfile;
+    if ($cmscert) {
+      $cmscertfile = "$uploaddir/signer.cmscert.$$";
+      writestr($cmscertfile, undef, $cmscert);
+    }
+    my $pubkey_create_time;
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--package', $packid if $BSConfig::sign_project && $BSConfig::sign_package && $packid;
+    push @signargs, '--signflavor', $signflavor if $signflavor;
+    if ($signkey) {
+      mkdir_p($uploaddir);
+      writestr("$uploaddir/signer.$$", undef, $signkey);
+      push @signargs, '-P', "$uploaddir/signer.$$";
+    }
+    push @signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
+
+    unlink("$jobdir/.checksums");
+
+    # check for followup files
+    my $followupfile;
+    if (($info->{'file'} || '') ne '_aggregate') {
+      if (grep {/\.rsasign$/} @signfiles) {
+        $followupfile = (grep {/\.(spec|dsc)$/} @files)[0];
+        @signfiles = grep {/\.rsasign$/} @signfiles if $followupfile;
+      }
+      if (!$followupfile && grep {/\.followup.spec$/} @files) {
+	$followupfile = (grep {/\.followup.spec$/} @files)[0];
+      }
+      if (!$followupfile && grep {/^mkosi\./} @files) {
+	$followupfile = (grep {/^mkosi\./} @files)[0];
+      }
+    }
+
+    push @signargs, '-S', "$jobdir/.checksums" if !$followupfile && $sign_supports_S && grep {/\.d?rpm$/} @signfiles;
+
+    if (grep {$_ eq '_slsa_provenance.json'} @signfiles) {
+      # do this last as we need to update the digests in the subject list
+      @signfiles = grep {$_ ne '_slsa_provenance.json'} @signfiles;
+      push @signfiles, '_slsa_provenance.json';
+    }
+
+    my $data = {
+      'projid' => $projid,
+      'refprpa' => "$projid/$info->{'repository'}/$info->{'arch'}",
+      'jobdir' => $jobdir,
+      'jobstatus' => $jobstatus,
+      'pubkey' => $pubkey,
+      'signkey' => $signkey,
+      'cert' => $cert,
+      'cmscert' => $cmscert,
+      'signflavor' => $signflavor,
+      'time' => time(),
+    };
+
+    eval {
+      # don't allow more than $max_followupsteps steps to avoid loops
+      if ($followupfile && ($info->{'followupsteps'} || 0) >= $max_followupsteps) {
+	die("fatal: maximum followup steps reached\n");
+      }
+      for my $signfile (@signfiles) {
+	if ($signfile eq '_slsa_provenance.json') {
+	  signslsaprovenance($data, "$jobdir/$signfile", @signargs);
+	  next;
+	}
+	if ($signfile =~ /\.helminfo$/) {
+	  signhelm($data, "$jobdir/$signfile", @signargs);
+	  next;
+	}
+	if ($signfile =~ /\.appx$/) {
+	  signappx($data, "$jobdir/$signfile", @signargs);
+	  next;
+        }
+	if ($signfile =~ /\.apk$/) {
+	  signapk($data, "$jobdir/$signfile", @signargs);
+	  next;
+	}
+	if ($signfile =~ /\.iso$/) {
+	  signiso($data, "$jobdir/$signfile", @signargs);
+	  next;
+	}
+	if ($signfile =~ /\.rsasign$/) {
+	  signrsa($data, "$jobdir/$signfile", @signargs) if $followupfile;
+	  next;
+	}
+	my $signfilefinal;
+	my ($signtime, $signissuer);
+	if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.d?rpm$/)) {
+	  # special aggregate handling: remove old sigs
+	  # but get old sig time first
+	  my $sigdata = getsigdata("$jobdir/$signfile");
+	  $signtime = $sigdata->{'signtime'};
+	  $signissuer = $sigdata->{'issuer'};
+	  if ($sign_supports_delsign) {
+	    if (system($BSConfig::sign, @signargs, '--delsign', '-r', "$jobdir/$signfile")) {
+	      die("sign --delsign $jobdir/$signfile failed\n");
+	    }
+	  } else {
+	    # newer rpm versions sometimes do in-place signature replacement,
+	    # so create a copy first
+	    BSUtil::cp("$jobdir/$signfile", "$jobdir/.$signfile");
+	    $signfilefinal = $signfile;
+	    $signfile = ".$signfile";
+	    rpmdelsign("$jobdir/$signfile");
+	  }
+	  if ($signtime && $pubkey) {
+	    if (!defined($pubkey_create_time)) {
+	      eval {
+		$pubkey_create_time = 0;
+		my $keyinfo = BSPGP::pk2times(BSPGP::unarmor($pubkey));
+		$pubkey_create_time = $keyinfo->{'key_create'} || 0 if $keyinfo;
+	      };
+	      print "pubkey creation time: $pubkey_create_time\n";
+	    }
+	    if ($signtime < $pubkey_create_time) {
+	      print "clamping signtime $signtime to $pubkey_create_time\n";
+	      $signtime = $pubkey_create_time;
+	    }
+	  }
+	  print "using signtime $signtime\n" if $signtime;
+	}
+	my @signmode;
+	@signmode = ('-r', '-T', $signtime) if $signtime;
+	@signmode = ('-r', '-T', 'buildtime') if $signfile =~ /\.drpm$/;
+	@signmode = ('-D', '-4') if $signfile =~ /\.pkg\.tar\.(?:gz|xz|zst)$/;
+	@signmode = ('-a') if $signfile =~ /\.AppImage$/;
+	@signmode = ('-d') if $signfile =~ /\.sha256$/ || $signfile =~ /\.sha512$/;
+	if ($signfile =~ /\.key$/s) {
+	  next unless (-s "$jobdir/$signfile") == 8192;
+	  my $signfilec = readstr("$jobdir/$signfile");
+	  next if substr($signfilec, 0, 8) ne "sIGnMeP\n";
+	  $pubkey ||= BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p');
+	  die("pubkey is not available\n") unless $pubkey;
+	  writestr("$jobdir/$signfile.tmp$$", "$jobdir/$signfile", $pubkey);
+	  next;
+	}
+	if ($signfile =~ /^(.*\.iso)\.sha256$/) {
+	  fixup_sha256_checksum($jobdir, $signfile, $1);
+	}
+	if ($signfile =~ /^(.*\.iso)\.sha512$/) {
+	  fixup_sha512_checksum($jobdir, $signfile, $1);
+	}
+	my @signargs_cpy = @signargs;
+	if ($signfile =~ /\.(asc|p7s)$/s) {
+	  my $signfilesuf = $1;
+	  next unless (-s "$jobdir/$signfile") == ($signfilesuf eq 'p7s' ? 8192 : 2048);
+	  my $signfilec = readstr("$jobdir/$signfile");
+	  next if substr($signfilec, 0, 8) ne "sIGnMe!\n";
+	  @signmode = ('-d');
+	  if ($signfilesuf eq 'p7s') {
+	    die("cms cert is not available\n") unless $cmscertfile;
+	    @signmode = ('--cmssign', '--cert', $cmscertfile, '--cms-nocerts', '-h', 'sha512') if $signfilesuf eq 'p7s';
+	    setsigntype(\@signargs_cpy, 'cms') if $BSConfig::sign_type;
+	  }
+	  $signfile =~ s/\.(?:asc|p7s)$//s;
+	  # fallthrough...
+	}
+	if (system($BSConfig::sign, @signargs_cpy, @signmode, "$jobdir/$signfile")) {
+	  if ($signfile =~ /\.rpm$/) {
+	    print("sign failed: $? - checking digest\n");
+	    if (system('rpm', '--checksig', '--nosignature', "$jobdir/$signfile")) {
+	      print("rpm checksig failed: $? - restarting job\n");
+	      $jobstatus->{'result'} = 'rebuild';
+	    }
+	  }
+	  unlink("$jobdir/$signfile") if $signfilefinal;	# delete tmp file
+	  die("sign $jobdir/$signfile failed\n");
+	}
+	if ($signfilefinal) {
+	  # check if the signed rpm has the same issuer
+	  my $sigdata = getsigdata("$jobdir/$signfile");
+	  if ($sigdata->{'issuer'} && $signissuer && $sigdata->{'issuer'} eq $signissuer) {
+	    # old rpm was already signed with the same issuer, reuse
+	    print "same issuer, reusing old rpm\n";
+	    unlink("$jobdir/$signfile");
+	  } else {
+	    rename("$jobdir/$signfile", "$jobdir/$signfilefinal");
+	  }
+	  $signfile = $signfilefinal;
+	  undef $signfilefinal;
+	}
+	if ($signfile =~ /\.AppImage$/ && -e "$jobdir/$signfile.zsync") {
+	  print("regenerating zsync file\n");
+	  # re-generate zsync data
+	  if (system('zsyncmake', '-u', $signfile, '-o', "$jobdir/$signfile.zsync.new", "$jobdir/$signfile")) {
+	    print("zync file recreation failed: $?\n");
+	    unlink("$jobdir/$signfile.zsync.new");
+	  } else {
+	    rename("$jobdir/$signfile.zsync.new", "$jobdir/$signfile.zsync");
+	  }
+	}
+	if ($signfile =~ /\.AppImage$/ && -e "$jobdir/$signfile.digest") {
+	  my $newdigest = sha256file("$jobdir/$signfile");
+	  writestr("$jobdir/$signfile.digest", undef, "$newdigest\n");
+	}
+      }
+    };
+    if ($@) {
+      # signing failed, either retry, rebuild or fail
+      my $error = $@;
+      unlink("$uploaddir/signer.$$") if $signkey;
+      if ($error =~ /Need RSA key for openssl sign/i || $error =~ /Not an? RSA key/i) {
+	$error = "Need an RSA key for openssl signing, please create a new key\n";
+	$jobstatus->{'result'} = 'failed';
+      }
+      $jobstatus->{'result'} = 'failed' if $error =~ s/^fatal: //;
+      if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'rebuild') {
+        warn("rebuilding: $error\n");
+	if ($info->{'followupfile'}) {
+	  delete $info->{'followupfile'};
+	  delete $info->{'followupsteps'};
+          writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
+	}
+	BSUtil::cleandir($jobdir);
+	rmdir($jobdir);
+	updateredisjobstatus($arch, $job, $info);
+	unlink("$jobsdir/$arch/$job:status");
+	close F;
+	return undef;
+      }
+      if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'failed') {
+        warn("failed: $error\n");
+	BSUtil::appendstr("$jobdir/logfile", "\n\nsigning failed: $error");
+	$jobstatus->{'code'} = 'finished';
+	writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+	updateredisjobstatus($arch, $job, $info, 'finished');
+	close F;
+	return 1;
+      }
+      close(F);
+      die($error);
+    }
+
+    # all files signed now
+    unlink("$uploaddir/signer.$$") if $signkey;
+    unlink($cmscertfile) if $cmscertfile;
+
+    if ($followupfile) {
+      # we need to create a followup job to integrate the signatures
+      $info->{'followupfile'} = $followupfile;
+      $info->{'readytime'} = time();
+      # to avoid loops keep track of how many steps we have done for this job
+      $info->{'followupsteps'}++;
+      writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
+      updateredisjobstatus($arch, $job, $info);
+      unlink("$jobsdir/$arch/$job:status");
+      close F;
+      return 0;
+    }
+
+    # we have changed the file ids, thus we need to re-create
+    # the entries in the .bininfo file
+    my $oldbininfo = BSUtil::retrieve("$jobdir/.bininfo", 1);
+    if ($oldbininfo) {
+      my $bininfo = {};
+      for my $file (@files) {
+	my @s = stat("$jobdir/$file");
+	my $id = "$s[9]/$s[7]/$s[1]";
+	next unless @s;
+	if ($file !~ /\.(?:rpm|deb)$/) {
+	  $bininfo->{$file} = $oldbininfo->{$file} if $oldbininfo->{$file};
+	  next;
+	}
+	my $data = Build::query("$jobdir/$file", 'evra' => 1);
+	die("$jobdir/$file: query failed") unless $data;
+	eval {
+	  BSVerify::verify_nevraquery($data);
+	};
+	die("$jobdir/$file: $@") if $@;
+	my $leadsigmd5;
+	die("$jobdir/$file: queryhdrmd5 failed\n") unless Build::queryhdrmd5("$jobdir/$file", \$leadsigmd5);
+	$data->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+	$data->{'filename'} = $file;
+	$data->{'id'} = $id;
+	$bininfo->{$file} = $data;
+      }
+      $bininfo->{'.bininfo'} = {};	# mark new version
+      BSUtil::store("$jobdir/.bininfo", undef, $bininfo);
+    }
+  }
+  
+  # write finished job status and release lock
+  $jobstatus->{'code'} = 'finished';
+  writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+  updateredisjobstatus($arch, $job, $info, 'finished');
+  close F;
+
+  unlink("$jobdir/.kiwitree_tosign");
+
+  return 1;
+}
+
+sub signstats {
+  my ($req, $job, $prpa, $code, $starttime, $endtime) = @_;
+  my $ev = $req->{'ev'};
+  return unless $ev && $prpa;
+  my $createtime = $ev->{'time'} || $starttime;
+  my $flavor = $req->{'flavor'} || '-'; 
+  $flavor =~ s/\s/_/g;
+  $job =~ s/\s/_/g;
+  print "sign statistics: $job $prpa $code $createtime-$starttime-$endtime $flavor\n";
+}
+
+sub signevent {
+  my ($req, $job, $arch) = @_;
+
+  my $starttime = time();
+  undef $prpa_stats;
+  my $res = eval { signjob($job, $arch) };
+  if ($@) {
+    signstats($req, $job, $prpa_stats, 'failed', $starttime, time());
+    # retry in 3 minutes
+    BSStdRunner::setdue($req, time() + 3 * 60);
+    die("sign failed: $@");
+  }
+  if (defined($res)) {
+    signstats($req, $job, $prpa_stats, 'succeeded', $starttime, time());
+  }
+  if ($res) {
+    my $ev = $req->{'ev'};
+    my $type = $ev->{'type'} eq 'built' ? 'finished' : $ev->{'type'};
+    writexml("$eventdir/$arch/.${type}:$job$$", "$eventdir/$arch/${type}:$job", $ev, $BSXML::event);
+    BSUtil::ping("$eventdir/$arch/.ping");
+  }
+  return 1;	# event is processed
+}
+
+# we currently support two flavors, rsasign and iso
+sub getflavor {
+  my ($req) = @_;
+  
+  my $ev = $req->{'ev'};
+  my @dir = ls("$jobsdir/$ev->{'arch'}/$ev->{'job'}:dir");
+  return undef unless @dir;
+  return 'iso' if grep {/\.iso$/} @dir;
+  return 'rsasign' if grep {/\.rsasign$/} @dir;
+  return undef;
+}
+
+my $dispatches = [
+  'built $job $arch' => \&signevent,
+  'uploadbuild $job $arch' => \&signevent,
+];
+
+my $conf = {
+  'runname' => 'bs_signer',
+  'eventdir' => $myeventdir,
+  'dispatches' => $dispatches,
+  'maxchild' => $maxchild,
+  'maxchild_flavor' => $maxchild_flavor,
+  'getflavor' => \&getflavor,
+  'inprogress' => 1,
+};
+$conf->{'getflavor'} = $BSConfig::signer_getflavor if $BSConfig::signer_getflavor;
+
+die("sign program is not configured!\n") unless $BSConfig::sign;
+check_sign_S();
+print "warning: sign does not seem to support checksum files, please update\n" unless $sign_supports_S;
+check_sign_bulk_cpio();
+print "warning: sign does not seem to support bulk-cpio mode, please update\n" unless $sign_supports_bulk_cpio;
+check_sign_delsign();
+print "warning: sign does not seem to support delsign mode, please update\n" unless $sign_supports_delsign;
+
+BSStdRunner::run('signer', \@ARGV, $conf);
+

@@ -1,0 +1,123 @@
+.flash-and-announcement.sticky-top { top: $top-navigation-height + .25rem; }
+
+// Place CodeMirror editor header under the top navigation
+#top_0.sticky-top { top: $top-navigation-height; }
+
+// NAVIGATION
+
+#top-navigation-area {
+  .fixed-top { height: $top-navigation-height; }
+  .toggler {
+    @extend .ms-2;
+    @extend .d-none;
+    @extend .d-xl-flex;
+    @extend .align-items-center;
+    cursor: pointer;
+    &.text-center { min-width: 3.875rem; }
+    &:first-of-type { @extend .ms-3;  }
+  }
+
+  .nav .nav-link {
+    color: $custom-gray-300;
+    &:hover { color: white; }
+  }
+
+  .menu-options { font-size: 1.1rem }
+
+  .navbar-brand img { height: 1.875rem; }
+}
+
+#top-navigation-area, #bottom-navigation-area {
+  a.nav-link {
+    span.d-block { line-height: 1rem; }
+
+    &.active {
+      background-color: $gray-900;
+
+      @extend .rounded;
+    }
+  }
+}
+
+#top-navigation-area {
+  .fixed-top {
+    z-index: calc(#{$zindex-modal} - 5);
+  }
+}
+
+#top-navigation-search {
+  @extend .flex-grow-1;
+  @extend .ms-4;
+  @extend .my-auto;
+  max-width: 500px;
+}
+
+#bottom-navigation-area {
+  z-index: calc(#{$zindex-modal} - 5);
+  .fixed-bottom {
+    z-index: calc(#{$zindex-modal} - 5);
+  }
+}
+
+.watchlist-collapse {
+  z-index: $zindex-fixed;
+}
+
+// BREADCRUMBS
+
+.breadcrumb {
+  padding-bottom: 0;
+  @extend .mt-2;
+  .breadcrumb-item {
+    display: block;
+    line-height: 1.5rem;
+  }
+  .breadcrumb-item::after {
+    display: inline-block;
+    padding: 0 0.5rem 0 0.25rem;
+    color: #6c757d;
+    content: "/";
+  }
+  .breadcrumb-item:last-child::after { content: ''; }
+  .breadcrumb-item + .breadcrumb-item { padding-left: 0; }
+
+  // FIXME: This could be done overriding the variable $breadcrumb-divider: none;
+  .breadcrumb-item + .breadcrumb-item::before { display: none; }
+}
+
+// LOG IN AND SIGN UP
+
+.access-modal {
+  background-color: #00000080;
+}
+
+.login-separator {
+  position: relative;
+  span {
+    position: absolute;
+    top: -.7rem;
+    left: 50%;
+    padding: 0 .5rem;
+    margin-left: -1.5rem;
+  }
+}
+
+// FOOTER
+
+#footer, #footer-legal {
+  & a {
+    color: var(--bs-secondary-color);
+    &:hover { color: var(--bs-body-color); }
+  }
+}
+
+#footer {
+  strong { color: var(--bs-secondary-color); }
+  ul { @extend .list-unstyled; }
+  li { @extend .my-2; }
+}
+
+#footer-legal {
+  font-size: .9rem;
+  p { color: var(--bs-secondary-color); }
+}

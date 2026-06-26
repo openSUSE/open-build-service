@@ -1,0 +1,15 @@
+.nested-fields
+  %h5.card-header
+    Profiles
+  .card-body
+    %p Select one or more profiles to build. At least one profile needs to be selected to trigger builds.
+    - if image.profiles.empty?
+      %p There are no profiles
+    - else
+      %ul.list-unstyled
+        - image.profiles.each do |profile|
+          %li
+            = f.fields_for(:profiles, profile) do |profile_fields|
+              .form-check
+                = profile_fields.check_box(:selected, class: 'form-check-input')
+                = profile_fields.label(:selected, profile.name, class: 'form-check-label')

@@ -1,0 +1,396 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Let Us Now Praise Famous Men</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Let Us Now Praise Famous Men</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/package_with_changes_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="Apache">
+          <title>Vanity Fair</title>
+          <description>Ut voluptas debitis eos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="Apache">
+          <title>Vanity Fair</title>
+          <description>Ut voluptas debitis eos.</description>
+        </package>
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>7c4fdaed1748a8e72e84c2141a00f19d</srcmd5>
+          <version>unknown</version>
+          <time>1712745805</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 10 Apr 2024 10:43:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>The Millstone</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>The Millstone</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 10 Apr 2024 10:43:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>His Dark Materials</title>
+          <description>Eum voluptatum sit ut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>His Dark Materials</title>
+          <description>Eum voluptatum sit ut.</description>
+        </package>
+  recorded_at: Wed, 10 Apr 2024 10:43:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+
+        - Testing the submit diff
+        - Fixing issues boo#1111111 and CVE-2011-1111 among others.
+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>12a2163a9553f928891173a6ebc749a7</srcmd5>
+          <version>unknown</version>
+          <time>1712745805</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 10 Apr 2024 10:43:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '238'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_changes_file" rev="4" vrev="4" srcmd5="12a2163a9553f928891173a6ebc749a7">
+          <entry name="package_with_changes_file.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1712745803"/>
+        </directory>
+  recorded_at: Wed, 10 Apr 2024 10:43:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '340'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+
+        - Testing the submit diff
+        - Fixing issues boo#1111111 and CVE-2011-1111 among others.
+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+
+  recorded_at: Wed, 10 Apr 2024 10:43:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '136'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+
+  recorded_at: Wed, 10 Apr 2024 10:43:25 GMT
+recorded_with: VCR 6.2.0

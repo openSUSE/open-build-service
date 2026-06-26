@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  elementFormDefault="qualified">
+
+
+  <xs:element name="redirect_stats">
+    <xs:annotation>
+      <xs:documentation>
+        Detailed download statistics from redirector.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="project" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="project">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="package" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="name" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="package">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="repository" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="name" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="repository">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="arch" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="name" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="arch">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="count" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="name" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="count" >
+    <xs:complexType mixed="true">
+      <xs:attribute name="filename" use="required" type="xs:string" />
+      <xs:attribute name="filetype" use="required" type="xs:string" />
+      <xs:attribute name="version" use="required" type="xs:string" />
+      <xs:attribute name="release" use="required" type="xs:string" />
+      <xs:attribute name="created_at" use="required" type="xs:dateTime" />
+      <xs:attribute name="counted_at" use="required" type="xs:dateTime" />
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+

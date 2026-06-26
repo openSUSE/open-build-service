@@ -1,0 +1,35 @@
+<project name="OBS:Server:$VERSION">
+  <title>$VERSION version of the Open Build Service Server</title>
+  <description>This is the maintained version $VERSION of OBS.</description>
+  <build>
+    <disable/>
+  </build>
+  <publish>
+    <enable/>
+  </publish>
+  <debuginfo>
+    <enable/>
+  </debuginfo>
+  <repository name="openSUSE_15.2">
+    <path project="openSUSE:Leap:15.2:Update" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="images" block="local">
+    <path project="OBS:Server:$VERSION" repository="openSUSE_15.2"/>
+    <path project="openSUSE:Tools" repository="openSUSE_15.2"/>
+    <path project="openSUSE:Leap:15.2:Update" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="containment" block="local">
+    <path project="OBS:Server:$VERSION" repository="openSUSE_15.2"/>
+    <path project="openSUSE:Tools" repository="openSUSE_15.2"/>
+    <path project="openSUSE:Leap:15.2:Update" repository="standard"/>
+    <path project="openSUSE:Leap:15.2:NonFree" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="SLE_15_SP2">
+    <path project="openSUSE:Tools" repository="SLE_15_SP2"/>
+    <path project="SUSE:SLE-15_SP2:Update" repository="standard"/>
+    <arch>x86_64</arch>
+  </repository>
+</project>

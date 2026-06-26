@@ -1,0 +1,26 @@
+type: object
+properties:
+  name:
+    type: string
+    xml:
+      attribute: true
+  schemaversion:
+    type: string
+    xml:
+      attribute: true
+  repository:
+    type: array
+    items:
+      type: object
+      properties:
+        source:
+          type: object
+          properties:
+            path:
+              type: string
+              xml:
+                attribute: true
+    xml:
+      name: repository
+xml:
+  name: image

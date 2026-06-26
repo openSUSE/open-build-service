@@ -1,0 +1,22 @@
+type: object
+properties:
+  login:
+    type: string
+    example: jane
+  realname:
+    type: string
+    example: Jane Doe
+  email:
+    type: string
+    example: janedoe@example.com
+  password:
+    type: string
+    example: superpassword123
+  note:
+    type: string
+    example: Jane works in the Engineering team
+  state:
+    type: string
+    example: confirmed
+xml:
+  name: unregisteredperson

@@ -1,0 +1,407 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>Tiger! Tiger!</title>
+          <description>Ipsam qui nihil provident.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>Tiger! Tiger!</title>
+          <description>Ipsam qui nihil provident.</description>
+        </package>
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '170'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="kiwi_import"/>
+        <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test_package/_service?comment=Modified%20via%20webui&user=tom
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="kiwi_import"/>
+        <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '223'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="14" vrev="14">
+          <srcmd5>b88490c90f7aa2577722e72fd7db4cc5</srcmd5>
+          <version>unknown</version>
+          <time>1602831784</time>
+          <user>tom</user>
+          <comment>Modified via webui</comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/test_package?cmd=runservice&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>Tiger! Tiger!</title>
+          <description>Ipsam qui nihil provident.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title>Tiger! Tiger!</title>
+          <description>Ipsam qui nihil provident.</description>
+        </package>
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '426'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="15" vrev="15" srcmd5="5a9267e8740979573ea095bd1470e3b9">
+          <serviceinfo code="running"/>
+          <entry name="_service" md5="f781a9bad33dc786ec296064b97d7c88" size="199" mtime="1602831784"/>
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602686251"/>
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602699960"/>
+        </directory>
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test_package" rev="15" vrev="15" srcmd5="5a9267e8740979573ea095bd1470e3b9">
+          <error>service in progress</error>
+        </sourceinfo>
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '426'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="15" vrev="15" srcmd5="5a9267e8740979573ea095bd1470e3b9">
+          <serviceinfo code="running"/>
+          <entry name="_service" md5="f781a9bad33dc786ec296064b97d7c88" size="199" mtime="1602831784"/>
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602686251"/>
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602699960"/>
+        </directory>
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '303'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="26e802b726afe07287d9dbfb4ca8bebe">
+          <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom" package="test_package" rev="15" srcmd5="5a9267e8740979573ea095bd1470e3b9"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/test_package?cmd=waitservice
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: "/usr/lib/obs/service//kiwi_import 34 in `<main>'  No API url defined.
+        This might be caused by using an older osc version. (RuntimeError)"
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '194'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>/usr/lib/obs/service//kiwi_import:34:in `&lt;main&gt;': No API url defined. This might be caused by using an older osc version. (RuntimeError)</summary>
+        </status>
+  recorded_at: Fri, 16 Oct 2020 07:03:05 GMT
+recorded_with: VCR 6.0.0

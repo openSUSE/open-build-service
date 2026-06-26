@@ -1,0 +1,2279 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_59
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_24">
+          <staging_project name="home:tom:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="49">
+          <srcmd5>11bcef28377dcffa433dbc8b53841314</srcmd5>
+          <time>1658762198</time>
+          <user>user_59</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=user_59
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_24" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_24" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_59
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_24">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="50">
+          <srcmd5>71637360387d7e3a1cbb5390fb5c1060</srcmd5>
+          <time>1658762198</time>
+          <user>user_59</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:B/_meta?user=user_59
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="group_24" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="group_24" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=user_59
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <group groupid="group_24" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+          <group groupid="group_24" role="reviewer"/>
+        </project>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/_meta?user=user_60
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom:Staging:A">
+          <title>Wildfire at Midnight</title>
+          <description>Totam fugiat officia perferendis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom:Staging:A">
+          <title>Wildfire at Midnight</title>
+          <description>Totam fugiat officia perferendis.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Quia enim dicta. Ipsum quos molestias. Officiis sunt dignissimos.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="41" vrev="41">
+          <srcmd5>28dc3e81cea6d550be989a4d5a4b1382</srcmd5>
+          <version>unknown</version>
+          <time>1658762198</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Minima labore ipsa. Beatae optio ea. Beatae tempora eum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="42" vrev="42">
+          <srcmd5>90f1a2553cbe0cb1710dd7b1ea2e80ee</srcmd5>
+          <version>unknown</version>
+          <time>1658762198</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Mr Standfast</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Mr Standfast</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package_2/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="target_project">
+          <title>Taming a Sea Horse</title>
+          <description>Sint qui voluptas sunt.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="target_project">
+          <title>Taming a Sea Horse</title>
+          <description>Sint qui voluptas sunt.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Pale Kings and Princes</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Pale Kings and Princes</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="40">
+          <srcmd5>a01db2e2a46621786c1426ba7c000814</srcmd5>
+          <time>1658762198</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Some Buried Caesar</title>
+          <description>Ea eos ut tenetur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Some Buried Caesar</title>
+          <description>Ea eos ut tenetur.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:38 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package_2&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '330'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="bc54e20e225eaab5c4d602c0ab976b87">
+          <old project="target_project" package="target_package_2" rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22source_package%22%20and%20linkinfo/@project=%22source_project%22%20and%20@project=%22source_project%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="home:tom:Staging:A">
+          <title>Some Buried Caesar</title>
+          <description>Ea eos ut tenetur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="home:tom:Staging:A">
+          <title>Some Buried Caesar</title>
+          <description>Ea eos ut tenetur.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?cmd=branch&noservice=1&opackage=source_package&oproject=source_project&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>8e451641a827df5f4f409d1d543fdb7b</srcmd5>
+          <version>unknown</version>
+          <time>1658762199</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="home:tom:Staging:A">
+          <title>Some Buried Caesar</title>
+          <description>Ea eos ut tenetur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="home:tom:Staging:A">
+          <title>Some Buried Caesar</title>
+          <description>Ea eos ut tenetur.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '436'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package_2" rev="1" vrev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+          <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
+          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1658762120"/>
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '339'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="target_package_2" rev="1" vrev="1" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="source_project" package="source_package"/>
+        </sourceinfo>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '436'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package_2" rev="1" vrev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+          <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
+          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1658762120"/>
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '330'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="a38f4b4e228bc555381cec0d7cc141f9">
+          <old project="home:tom:Staging:A" package="target_package_2" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:Staging:A" package="target_package_2" rev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '386'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="7dc9dd01ab22419fb02e1d6b3a4624fc">
+          <old project="source_project" package="source_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:Staging:A" package="target_package_2" rev="7eae9f6b12a2579550692e1b40dfc7d6" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_24">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="51">
+          <srcmd5>71637360387d7e3a1cbb5390fb5c1060</srcmd5>
+          <time>1658762199</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_24" role="maintainer"/>
+          <repository name="staging_repository">
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '224'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_24" role="maintainer"/>
+          <repository name="staging_repository">
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Tirra Lirra by the River</title>
+          <description>Enim quidem laborum laudantium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Tirra Lirra by the River</title>
+          <description>Enim quidem laborum laudantium.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '328'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="90c2818903ec79ac4d2d2c85b08f3eba">
+          <old project="target_project" package="target_package" rev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22source_package%22%20and%20linkinfo/@project=%22source_project%22%20and%20@project=%22source_project%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:tom:Staging:A">
+          <title>Some Buried Caesar</title>
+          <description>Ea eos ut tenetur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:tom:Staging:A">
+          <title>Some Buried Caesar</title>
+          <description>Ea eos ut tenetur.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package?cmd=branch&noservice=1&opackage=source_package&oproject=source_project&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>8e451641a827df5f4f409d1d543fdb7b</srcmd5>
+          <version>unknown</version>
+          <time>1658762199</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:tom:Staging:A">
+          <title>Some Buried Caesar</title>
+          <description>Ea eos ut tenetur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:tom:Staging:A">
+          <title>Some Buried Caesar</title>
+          <description>Ea eos ut tenetur.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '434'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="1" vrev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+          <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
+          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1658490907"/>
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '337'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="target_package" rev="1" vrev="1" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="source_project" package="source_package"/>
+        </sourceinfo>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '434'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="1" vrev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+          <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
+          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1658490907"/>
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '326'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="5dfe55c12f42686a4baa4848578c0c31">
+          <old project="home:tom:Staging:A" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:Staging:A" package="target_package" rev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '384'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="e2aa173bdc5146fd8267ec8952bfb1a1">
+          <old project="source_project" package="source_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:Staging:A" package="target_package" rev="7eae9f6b12a2579550692e1b40dfc7d6" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_24">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="52">
+          <srcmd5>71637360387d7e3a1cbb5390fb5c1060</srcmd5>
+          <time>1658762199</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_24" role="maintainer"/>
+          <repository name="staging_repository">
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '224'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_24" role="maintainer"/>
+          <repository name="staging_repository">
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=user_59
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_24">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="53">
+          <srcmd5>71637360387d7e3a1cbb5390fb5c1060</srcmd5>
+          <time>1658762199</time>
+          <user>user_59</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_24" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <repository name="staging_repository">
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '260'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_24" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <repository name="staging_repository">
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/target_project/target_package_2?cmd=copy&comment=Request%20for%20package%20target_package_2&expand=1&keeplink=1&noservice=1&opackage=source_package&oproject=source_project&requestid=1&user=tom&withacceptinfo=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '360'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1658762199</time>
+          <user>tom</user>
+          <comment>Request for package target_package_2</comment>
+          <requestid>1</requestid>
+          <acceptinfo rev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package_2/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="target_project">
+          <title>Taming a Sea Horse</title>
+          <description>Sint qui voluptas sunt.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package_2" project="target_project">
+          <title>Taming a Sea Horse</title>
+          <description>Sint qui voluptas sunt.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package_2" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package_2?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="target_package_2" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package_2" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:39 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/target_project/target_package_2?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="5be59e44e9eaef38cd1f31195e3cfcce">
+          <old project="target_project" package="target_package_2" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="target_project" package="target_package_2" rev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+- request:
+    method: delete
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package_2?comment&user=tom
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/target_project/target_package?cmd=copy&comment=Request%20for%20package%20target_package&expand=1&keeplink=1&noservice=1&opackage=source_package&oproject=source_project&requestid=2&user=tom&withacceptinfo=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '358'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1658762200</time>
+          <user>tom</user>
+          <comment>Request for package target_package</comment>
+          <requestid>2</requestid>
+          <acceptinfo rev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        </revision>
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Tirra Lirra by the River</title>
+          <description>Enim quidem laborum laudantium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Tirra Lirra by the River</title>
+          <description>Enim quidem laborum laudantium.</description>
+        </package>
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="4" vrev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="target_package" rev="4" vrev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="4" vrev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/target_project/target_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '295'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="85635bd52082081a63fe3a348a498059">
+          <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="target_project" package="target_package" rev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+- request:
+    method: delete
+    uri: http://backend:5352/source/home:tom:Staging:A/target_package?comment&user=tom
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Mon, 25 Jul 2022 15:16:40 GMT
+recorded_with: VCR 6.1.0

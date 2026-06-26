@@ -1,0 +1,14 @@
+<services>
+  <service name="obs_scm">
+    <param name="versionformat">%ad</param>
+    <param name="url">https://github.com/openSUSE/obs-testpackage.git</param>
+    <param name="scm">git</param>
+    <param name="extract">dist/obs-testpackage.spec</param>
+  </service>
+  <service name="tar" mode="buildtime"/>
+  <service name="recompress" mode="buildtime">
+    <param name="compression">gz</param>
+    <param name="file">*.tar</param>
+  </service>
+  <service name="set_version" mode="buildtime"/>
+</services>

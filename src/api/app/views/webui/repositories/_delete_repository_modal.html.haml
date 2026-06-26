@@ -1,0 +1,24 @@
+.modal.fade{ id: 'delete-repository', tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-repository-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Delete repository?
+      .modal-body
+        %p
+          Please confirm deletion of
+          = surround "'" do
+            %span.repository
+          repository
+      .modal-footer
+        = form_tag(nil, method: :post) do
+          %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+            Cancel
+          = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')
+- content_for :ready_function do
+  :plain
+    $('#delete-repository').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('.repository').text(link.data('repository'));
+      $(this).find('form').attr('action', link.data('action'));
+    });

@@ -1,0 +1,23 @@
+- if is_user
+  = render partial: 'webui/user/index_actions', locals: { user: user, account_edit_link: account_edit_link }
+
+.card.mb-3
+  .card-body
+    .in-place-editing
+      = render partial: 'webui/user/basic_info',
+               locals: { user: user, role_titles: role_titles, account_edit_link: account_edit_link }
+
+    - if is_user && user.rss_secret.present?
+      = link_to(user_rss_notifications_path(secret: user.rss_secret, format: 'rss'),
+                                            title: 'RSS Feed for Notifications', class: 'd-block') do
+        %i.fas.fa-rss.me-1
+        RSS for Notifications
+
+    - if groups.any?
+      .h5.mt-4.mb-0 Member of the #{'group'.pluralize(groups.size)}
+      %ul.list-group.list-group-flush
+        - groups.each do |group|
+          %li.list-group-item.d-flex.justify-content-between.align-items-center.p-2
+            = link_to(group.title, group_path(group))
+            %span.badge.text-bg-primary
+              #{group.tasks} #{'task'.pluralize(group.tasks)}

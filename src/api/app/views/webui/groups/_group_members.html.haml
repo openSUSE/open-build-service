@@ -1,0 +1,66 @@
+- write_access = policy(group).update?
+- display_group_email = policy(group).display_email? && group.email.present?
+
+- if group.users.empty?
+  %p
+    This group does not have members.
+- else
+  .d-flex.flex-wrap.gap-4.align-self-stretch#group-users
+    - group.users.order(:login).each do |user|
+      = render(CardComponent.new) do |component|
+        .row.g-0
+          .col-md-3
+            = image_tag_for(user, size: 80, custom_class: 'align-self-center')
+          .col-md-9
+            .card-body.py-1
+              .form-check.mt-2
+                = check_box_tag("maintainer_#{user.login}", true, group.maintainer?(user), class: 'form-check-input group-maintainership',
+                  name: :maintainer, disabled: !write_access, data: { method: :patch,
+                  url: group_user_path(group_title: group.title, user_login: user.login), remote: true })
+                %label.form-check-label{ for: "maintainer_#{user.login}" }
+                  Maintainer
+                %i.fas.fa-spinner.fa-spin.d-none
+
+        - component.with_header do
+          = link_to(user_path(user)) do
+            = display_name(user)
+
+        - component.with_delete_button do
+          - if policy(GroupsUser.new(group: group, user: user)).destroy?
+            = link_to('#',
+                      title: 'Remove member from group',
+                      data: { 'bs-toggle': 'modal',
+                              'bs-target': '#delete-group-members-modal',
+                              confirmation_text: "Please confirm deletion of '#{user}' from this group",
+                              action: group_user_path(group_title: group.title, user_login: user.login) }) do
+              %i.fas.fa-sm.fa-times-circle.text-danger
+
+- if write_access || display_group_email
+  .pt-4
+    %ul.list-inline
+      - if write_access
+        %li.list-inline-item
+          = link_to('#', class: 'nav-link', title: 'Add Member', data: { 'bs-toggle': 'modal', 'bs-target': '#add-group-user-modal' }) do
+            %i.fas.fa-plus-circle.text-primary
+            Add Member
+      - if display_group_email
+        %li.list-inline-item
+          = mail_to(group.email, class: 'nav-link') do
+            %i.far.fa-envelope.text-secondary{ title: "Send email to #{group}" }
+            Send email to group
+            %em= group.title
+
+  = render partial: 'add_group_user_modal', locals: { group: group }
+
+= render DeleteConfirmationDialogComponent.new(modal_id: 'delete-group-members-modal',
+                                               method: :delete,
+                                               options: { modal_title: 'Do you want to remove this group member?' })
+
+- content_for :ready_function do
+  :plain
+    $('#group-users').on('ajax:before ajax:complete', '.group-maintainership', function() {
+      $(this).siblings('i.fa-spinner').toggleClass('d-none');
+    });
+    $('#group-users').on('ajax:success', '.group-member-removal', function() {
+      $(this).parents('.card').remove();
+    });

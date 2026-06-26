@@ -1,0 +1,29 @@
+%li
+  :ruby
+    path = if requests.size == 1
+             request_show_path(requests.first)
+           elsif package
+             if Flipper.enabled?(:request_index, User.session)
+              packages_requests_path(project, package)
+             else
+              package_requests_path(project, package)
+             end
+           elsif Flipper.enabled?(:request_index, User.session)
+             projects_requests_path(project)
+           else
+             project_requests_path(project)
+           end
+  %i.fa.fa-info-circle.text-info
+  = link_to(path) do
+    = pluralize(requests.size, 'open request')
+
+  %small
+    (
+    %span{ title: 'incoming' }
+      %i.fa.fa-arrow-down
+      #{incoming_requests_size}
+    %span /
+    %span{ title: 'outgoing' }
+      %i.fa.fa-arrow-up
+      #{outgoing_requests_size}
+    )

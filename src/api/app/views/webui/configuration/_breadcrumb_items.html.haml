@@ -1,0 +1,6 @@
+- if current_page?(configuration_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Configuration
+- else
+  %li.breadcrumb-item
+    = link_to('Configuration', configuration_path)

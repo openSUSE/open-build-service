@@ -1,0 +1,65 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 16626
+    xml:
+      attribute: true
+  vendor:
+    type: string
+    example: opensuse
+    xml:
+      attribute: true
+  version:
+    type: string
+    example: Tumbleweed
+    xml:
+      attribute: true
+  name:
+    type: string
+    example: openSUSE Tumbleweed
+  project:
+    type: string
+    example: 'openSUSE:Factory'
+  repository:
+    type: string
+    example: snapshot
+  reponame:
+    type: string
+    example: openSUSE_Tumbleweed
+  link:
+    type: string
+    example: 'http://www.opensuse.org/'
+  architecture:
+    type: array
+    example:
+      - i586
+      - x86_64
+    items:
+      type: string
+  icon:
+    type: array
+    example:
+      - width: 8
+        height: 8
+        url: 'https://static.opensuse.org/distributions/logos/opensuse.png'
+      - width: 16
+        height: 16
+        url: 'https://static.opensuse.org/distributions/logos/opensuse.png'
+    items:
+      type: object
+      properties:
+        width:
+          type: integer
+          xml:
+            attribute: true
+        height:
+          type: integer
+          xml:
+            attribute: true
+        url:
+          type: string
+          xml:
+            attribute: true
+xml:
+  name: distribution

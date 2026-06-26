@@ -1,0 +1,27 @@
+- if worker_status.elements('waiting').empty?
+  %p
+    %i No scheduler statistics
+- else
+  %table.responsive.table.table-sm.table-bordered.table-hover
+    %thead
+      %tr
+        %th Host Arch
+        %th Packages in waiting queue
+        %th Packages in blocked queue
+        %th Average Job time
+    %tbody
+      - worker_status.elements('waiting').sort_by { |a| a['arch'] }.each do |entrywaiting|
+        - outblocked = nil
+        - outbuildavg = nil
+        %tr
+          %td.arch= entrywaiting['arch']
+          %td.waiting= entrywaiting['jobs']
+          %td.blocked
+            - worker_status.elements('blocked') do |blocked|
+              - outblocked = blocked['jobs'] if blocked['arch'] == entrywaiting['arch']
+            = outblocked || ' - '
+          %td.avgjobtime
+            - worker_status.elements('buildavg') do |build_avg|
+              - if build_avg['arch'] == entrywaiting['arch']
+                - outbuildavg = distance_of_time_in_words(Time.zone.at(build_avg['buildavg'].to_i), Time.zone.at(0), include_seconds: true)
+            = outbuildavg || ' - '

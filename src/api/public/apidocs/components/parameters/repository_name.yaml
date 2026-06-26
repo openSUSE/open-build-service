@@ -1,0 +1,7 @@
+in: path
+name: repository_name
+schema:
+  type: string
+required: true
+description: Repository name
+example: 'openSUSE_Tumbleweed'

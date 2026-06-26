@@ -1,0 +1,10 @@
+%li.breadcrumb-item
+  = link_to('Projects', projects_path)
+%li.breadcrumb-item
+  = link_to(@project, project_show_path(@project))
+%li.breadcrumb-item.active{ 'aria-current' => 'page' }
+  - case action_name
+  - when 'show'
+    Details
+  - when 'edit'
+    Edit Patchinfo

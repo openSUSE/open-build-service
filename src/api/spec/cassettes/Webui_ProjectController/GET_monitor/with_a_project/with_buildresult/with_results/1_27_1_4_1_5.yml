@@ -1,0 +1,83 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Fri, 06 Sep 2019 07:45:03 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_2/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="home:tom">
+          <title>The Mermaids Singing</title>
+          <description>Dolores natus et earum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_2" project="home:tom">
+          <title>The Mermaids Singing</title>
+          <description>Dolores natus et earum.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Sep 2019 07:45:03 GMT
+recorded_with: VCR 5.0.0

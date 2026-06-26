@@ -1,0 +1,12 @@
+$('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}");
+- if defined? interconnect
+  :plain
+    $('.list-group-item[data-interconnect="#{interconnect[:name]}"]')
+      .replaceWith("#{escape_javascript(render(layout: false,
+                                               partial: 'interconnect_button',
+                                               locals: {
+                                                 title: interconnect[:title],
+                                                 exists: true,
+                                                 name: interconnect[:name],
+                                                 remoteurl: interconnect[:remoteurl]
+                                               }))}");

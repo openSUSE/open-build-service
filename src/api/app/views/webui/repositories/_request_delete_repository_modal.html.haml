@@ -1,0 +1,27 @@
+.modal.fade{ id: 'request-delete-repository', tabindex: -1, role: 'dialog', aria: { labelledby: 'request-delete-repository-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(nil, method: :post) do
+        .modal-header
+          %h5.modal-title
+            Do you really want to request the deletion of repository
+            = succeed '?' do
+              %span.repository
+        .modal-body
+          %p
+            Please confirm deletion of
+            = surround "'" do
+              %span.repository
+            repository
+          .mb-3
+            = label_tag :description
+            = text_area_tag :description, '', row: 3, class: 'form-control'
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Request' }
+- content_for :ready_function do
+  :plain
+    $('#request-delete-repository').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('.repository').text(link.data('repository'));
+      $(this).find('form').attr('action', link.data('action'));
+    });

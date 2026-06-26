@@ -1,0 +1,22 @@
+get:
+  summary: List all the logged in user's comments
+  description: List all the comments for the currently logged in user.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/comments.yaml'
+          example: |
+            <comments user="Iggy">
+              <comment who="Iggy" when="2021-10-15 13:28:22 UTC" id="1" bsrequest="115">This is a pretty cool request!</comment>
+              <comment who="Iggy" when="2021-10-15 13:49:39 UTC" id="2" project="home:Admin">This is a pretty cool project!</comment>
+              <comment who="Iggy" when="2021-10-15 13:54:38 UTC" id="3" project="home:Admin" package="0ad">This is a pretty cool package!</comment>
+            </comments>
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Comments

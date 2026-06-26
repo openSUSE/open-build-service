@@ -1,0 +1,5 @@
+= render partial: 'webui/project/breadcrumb_items'
+%li.breadcrumb-item
+  = link_to 'Staging', staging_workflow_path(@staging_workflow.project)
+%li.breadcrumb-item.active{ 'aria-current' => 'page' }
+  Excluded requests

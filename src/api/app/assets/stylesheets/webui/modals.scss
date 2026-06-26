@@ -1,0 +1,13 @@
+.modal {
+  font-size: var(--bs-body-font-size);
+  color: var(--bs-body-color);
+
+  .modal-header h5 {
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+  }
+
+  .bg-modal {
+    background-color: var(--bs-modal-bg)
+  }
+}

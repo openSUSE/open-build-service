@@ -1,0 +1,5 @@
+<resultlist state="419f421a283c8b2da091368f09811c8f">
+  <result project="my_project" repository="my_repository" arch="x86_64" code="published" state="published">
+    <status package="my_package" code="succeeded"/>
+  </result>
+</resultlist>

@@ -1,0 +1,190 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/_meta?user=user_52
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 15 Dec 2021 16:31:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_meta?user=user_53
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>Things Fall Apart</title>
+          <description>Et possimus tempore voluptatibus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '188'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="public_controller_package" project="public_controller_project">
+          <title>Things Fall Apart</title>
+          <description>Et possimus tempore voluptatibus.</description>
+        </package>
+  recorded_at: Wed, 15 Dec 2021 16:31:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/_config
+    body:
+      encoding: UTF-8
+      string: Mollitia eligendi repellendus. Doloremque enim in. Repellendus recusandae
+        numquam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="31" vrev="31">
+          <srcmd5>b892f335b17b0480d29de0207baeb270</srcmd5>
+          <version>unknown</version>
+          <time>1639585861</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 15 Dec 2021 16:31:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/public_controller_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Deleniti exercitationem sit. Sint quia voluptatem. Deserunt sed hic.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="32" vrev="32">
+          <srcmd5>5618a389ea4622756459275bb4fb2973</srcmd5>
+          <version>unknown</version>
+          <time>1639585861</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 15 Dec 2021 16:31:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/public_controller_project/public_controller_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '312'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="public_controller_package" rev="32" vrev="32" srcmd5="5618a389ea4622756459275bb4fb2973">
+          <entry name="_config" md5="d8452e8a63be2a80e00f53e8a5d8559c" size="82" mtime="1639585861"/>
+          <entry name="somefile.txt" md5="3ba4513d4019a859ad670e2b1745b838" size="68" mtime="1639585861"/>
+        </directory>
+  recorded_at: Wed, 15 Dec 2021 16:31:01 GMT
+recorded_with: VCR 6.0.0

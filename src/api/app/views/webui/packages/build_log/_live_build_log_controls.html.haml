@@ -1,0 +1,38 @@
+%p.d-flex
+  = link_to('#', class: 'start_refresh d-none live-link-action btn-info') do
+    %i.far.fa-play-circle
+    Start refresh
+  = link_to('#', class: 'stop_refresh live-link-action btn-dark') do
+    %i.far.fa-pause-circle
+    Stop refresh
+
+  - if User.session
+    = link_to(raw_logfile_path(package: package_name, project: project, arch: arch, repository: repo),
+              target: :_blank,
+              rel: 'noopener',
+              class: 'live-link-action btn-secondary') do
+      %i.fas.fa-download
+      Download logfile
+  - else
+    = link_to(public_build_path(package: package_name, project: project, arch: arch, repository: repo, filename: '_log'),
+              target: :_blank,
+              rel: 'noopener',
+              class: 'live-link-action btn-secondary') do
+      %i.fas.fa-download
+      Download logfile
+  - if policy(object_to_authorize).update?
+    = link_to(rebuild_project_package_trigger_path(project_name: project, package_name: package_name, arch: arch, repository: repo),
+              class: 'link_trigger_rebuild live-link-action btn-warning d-none',
+              method: :post) do
+      %i.fas.fa-redo
+      Trigger Rebuild
+    = link_to(abort_build_project_package_trigger_path(project_name: project, package_name: package_name, arch: arch, repository: repo),
+              class: 'link_abort_build live-link-action btn-danger d-none',
+              method: :post) do
+      %i.far.fa-times-circle
+      Abort Build
+
+  = link_to('#', class: 'link_notifications live-link-action btn-secondary ms-auto text-capitalize',
+            title: 'Request permission for browser notifications') do
+    %i.far.fa-bell
+    Request Browser Notifications

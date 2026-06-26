@@ -1,0 +1,212 @@
+#!/usr/bin/perl
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use XML::Structured ':bytes';
+use POSIX;
+
+use BSConfiguration;
+use BSRPC ':https';
+use BSUtil;
+use BSSrcrep;
+use BSRevision;
+use BSNotify;
+use BSStdRunner;
+use BSVerify;
+
+use BSSrcServer::Service;
+
+$BSSrcServer::Service::notify = \&BSNotify::notify;
+$BSSrcServer::Service::notify_repservers = \&notify_repservers;
+$BSSrcServer::Service::commitobsscm = \&commitobsscm;
+
+use strict;
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+
+my $eventdir = "$BSConfig::bsdir/events";
+my $srcrep = "$BSConfig::bsdir/sources";
+my $uploaddir = "$srcrep/:upload";
+my $rundir = $BSConfig::rundir || $BSConfig::rundir || "$BSConfig::bsdir/run";
+
+my $maxchild = 4;
+$maxchild = $BSConfig::servicedispatch_maxchild if defined $BSConfig::servicedispatch_maxchild;
+
+my $myeventdir = "$eventdir/servicedispatch";
+
+sub notify_repservers {
+  my ($type, $projid, $packid) = @_;
+  BSRPC::rpc({
+    'uri'       => "$BSConfig::srcserver/source/$projid/$packid",
+    'request'   => 'POST',
+    'timeout'   => 60,
+  }, undef, 'cmd=notifypackagechange');
+}
+
+sub commitobsscm {
+  my ($projid, $packid, $servicemark, $rev, $files) = @_;
+  my $data = BSSrcrep::readobsscmdata($projid, $packid, $servicemark);
+  return if !$data || $data->{'run'} ne $rev->{'run'};
+  my $srcmd5 = BSSrcrep::addmeta($projid, $packid, $files);
+  my @args = ("servicemark=$servicemark", "run=$rev->{'run'}");
+  if (!$rev->{'cpiofd'}) {
+    my $srcmd5 = BSSrcrep::addmeta($projid, $packid, $files);
+    push @args, "srcmd5=$srcmd5";
+  }
+  my $info = $rev->{'_service_info'};
+  chomp $info if $info;
+  push @args, "info=$info" if $info && $info =~ /\A[0-9a-f]{1,128}\z/s;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/source/$projid/$packid",
+    'request' => 'POST',
+    'timeout'   => 300,
+  };
+  if ($rev->{'cpiofd'}) {
+    sysseek($rev->{'cpiofd'}, 0, 0);
+    $param->{'chunked'} = 1;
+    $param->{'filename'} = $rev->{'cpiofd'};
+    $param->{'data'} = \&BSHTTP::file_sender;
+    $param->{'headers'} = [ 'Content-Type: application/x-cpio' ];
+  }
+  BSRPC::rpc($param, undef, "cmd=commitobsscm", @args);
+}
+
+sub getrev {
+  my ($projid, $packid, $revid) = @_;
+  my $rev = BSRevision::getrev_local($projid, $packid, $revid);
+  $rev = BSRevision::getrev_deleted_srcmd5($projid, $packid, $revid) if !$rev && $revid && $revid =~ /^[0-9a-f]{32}$/;
+  return $rev;
+}
+
+sub runservice_obsscm {
+  my ($projid, $packid, $servicemark, $run) = @_;
+  my $data = BSSrcrep::readobsscmdata($projid, $packid, $servicemark);
+  return undef unless $data && $data->{'run'} eq $run;	# obsolete run?
+  my $rev = BSSrcServer::Service::generate_obsscm_rev($projid, $packid, $data);
+  my @send;
+  push @send, { 'name' => '_service', 'data' => BSSrcServer::Service::generate_obs_scm_bridge_service($data) };
+  my $files = {};
+  my $error = BSSrcServer::Service::doservicerpc($rev, $files, \@send, 1);
+  return 'retry' if $error && $error =~ /^Transient error/;		# from the service dispatch
+  return 'retry' if $error && $error =~ /\nTRANSIENT ERROR:[^\n]+\z/s;	# from the service run itself
+  eval { BSSrcServer::Service::addrev_service($rev, $servicemark, $files, $error) };
+  if ($@) {
+    return 'retry' if $@ =~ /^Transient error/;				# could not send result to src server
+    die($@);
+  }
+  return $error ? 'failed' : 'succeeded';
+}
+
+sub runservice {
+  my ($projid, $packid, $servicemark, $srcmd5, $revid, $lxservicemd5, $projectservicesmd5, $oldsrcmd5) = @_;
+
+  BSUtil::printlog("dispatching service (timeout: $BSConfig::service_timeout) $projid/$packid $servicemark $srcmd5");
+  return runservice_obsscm($projid, $packid, $servicemark, $srcmd5) if $revid && $revid eq 'obsscm';
+  # get revision and file list
+  my $rev;
+  if ($revid) {
+    eval {
+      $rev = getrev($projid, $packid, $revid);
+    };
+  }
+  if (!$rev || $rev->{'srcmd5'} ne $srcmd5) {
+    $rev = getrev($projid, $packid, $srcmd5);
+  }
+  my $linkinfo = {};
+  my $files = BSRevision::lsrev($rev, $linkinfo);
+  die("servicemark mismatch\n") unless ($linkinfo->{'xservicemd5'} || '') eq $servicemark;
+
+  # check if in progress
+  my $serviceerror = BSSrcrep::getserviceerror($projid, $packid, $servicemark);
+  return undef if $serviceerror ne 'service in progress';
+ 
+  # get files to send to service daemon
+  my $sendfiles = $files;
+  if ($lxservicemd5) {
+    my $lrev = getrev($projid, $packid, $lxservicemd5);
+    $sendfiles = BSRevision::lsrev($lrev);
+    # drop all service files
+    delete $sendfiles->{$_} for grep {/^_service:/} keys %$sendfiles;
+  }
+
+  # get old files
+  my $oldfiles;
+  if ($oldsrcmd5) {
+    my $oldrev = getrev($projid, $packid, $oldsrcmd5);
+    $oldfiles = BSRevision::lsrev($oldrev);
+    delete $oldfiles->{$_} for grep {!/^_service:/} keys %$oldfiles;
+  }
+  $oldfiles ||= {};
+
+  my @send = map {BSRevision::revcpiofile($rev, $_, $sendfiles->{$_})} sort(keys %$sendfiles);
+  push @send, BSRevision::revcpiofile({'project' => $projid, 'package' => '_project'}, '_serviceproject', $projectservicesmd5) if $projectservicesmd5;
+  push @send, map {BSRevision::revcpiofile($rev, $_, $oldfiles->{$_})} grep {!$sendfiles->{$_}} sort(keys %$oldfiles);
+
+  my $error = BSSrcServer::Service::doservicerpc($rev, $files, \@send);
+  return 'retry' if $error && $error =~ /^Transient error/;		# from the service dispatch
+  return 'retry' if $error && $error =~ /\nTRANSIENT ERROR:[^\n]+\z/s;	# from the service run itself
+  BSSrcServer::Service::addrev_service($rev, $servicemark, $files, $error, $lxservicemd5);
+  return $error ? 'failed' : 'succeeded';
+}
+
+sub getevent {
+  my ($req, $notdue, $nofork) = BSStdRunner::getevent(@_);
+  if ($req && $req->{'ev'} && $req->{'conf'}->{'limitinprogress'}) {
+    my $projid = $req->{'ev'}->{'project'};
+    if ($projid) {
+      my @inprogress = grep {/^servicedispatch:\Q$projid\E::.*::inprogress$/} ls($req->{'conf'}->{'eventdir'});
+      if (@inprogress >= $req->{'conf'}->{'limitinprogress'}) {
+        return (undef, 1);
+      }
+    }
+  }
+  return ($req, $notdue, $nofork);
+}
+
+sub servicedispatchstats {
+  my ($req, $job, $projid, $packid, $code, $starttime, $endtime) = @_;
+  my $ev = $req->{'ev'};
+  return unless $ev;
+  my $createtime = $ev->{'time'} || $starttime;
+  $job =~ s/\s/_/g;
+  print "servicedispatch statistics: $job $projid/$packid/- $code $createtime-$starttime-$endtime\n";
+}
+
+sub servicedispatchevent {
+  my ($req, $projid, $packid, $job, @args) = @_;
+  my $starttime = time();
+  my $code;
+  eval {
+    $code = runservice($projid, $packid, $job, @args);
+    die("retrying service run...\n") if $code && $code eq 'retry';
+  };
+  if ($@) {
+    # retry in 10 minutes
+    servicedispatchstats($req, $job, $projid, $packid, 'retry', $starttime, time());
+    BSStdRunner::setdue($req, time() + 10 * 60);
+    die($@);
+  }
+  servicedispatchstats($req, $job, $projid, $packid, $code, $starttime, time()) if $code;
+  return 1;
+}
+
+my $dispatches = [
+  'servicedispatch $project $package $job $srcmd5 $rev? $linksrcmd5? $projectservicesmd5? $oldsrcmd5?' => \&servicedispatchevent,
+];
+
+my $conf = {
+  'runname' => 'bs_servicedispatch',
+  'eventdir' => $myeventdir,
+  'dispatches' => $dispatches,
+  'maxchild' => $maxchild,
+  'getevent' => \&getevent,
+  'inprogress' => 1,
+};
+$conf->{'limitinprogress'} = $BSConfig::servicedispatch_limitinprogress if $BSConfig::servicedispatch_limitinprogress;
+
+BSStdRunner::run('servicedispatch', \@ARGV, $conf);

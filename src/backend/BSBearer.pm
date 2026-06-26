@@ -1,0 +1,92 @@
+#
+# Copyright (c) 2018 SUSE Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# Bearer authentification
+#
+
+package BSBearer;
+
+use BSRPC ':https';
+use BSHTTP;
+use MIME::Base64;
+use JSON::XS ();
+
+use strict;
+
+sub decode_reply {
+  my ($state, $json) = @_;
+  my $reply = JSON::XS::decode_json($json);
+  my $token = $reply->{'token'} || $reply->{'access_token'};
+  die("bearer auth rpc did not return a token\n") unless $token;
+  return $state->{'auth'} = "Bearer $token";
+}
+
+sub creds_to_json {
+  my ($creds) = @_;
+  my $cr = {};
+  ($cr->{'username'}, $cr->{'password'}) = split(':', $creds, 2) if defined $creds;
+  delete $cr->{'password'} unless defined $cr->{'password'};
+  return JSON::XS->new->utf8->canonical->encode($cr);
+}
+
+sub authenticator_function {
+  my ($state, $param, $wwwauthenticate) = @_; 
+  return $state->{'auth'} if !$wwwauthenticate;		# return last auth
+  delete $state->{'auth'};
+  my $creds = $state->{'creds'};
+  my $auth;
+  my %auth = BSHTTP::parseauthenticate($wwwauthenticate);
+  if ($auth{'basic'} && defined($creds)) {
+    $auth = 'Basic '.MIME::Base64::encode_base64($creds, '');
+    $state->{'auth'} = $auth;
+  } elsif ($auth{'bearer'}) {
+    my $bearer = $auth{'bearer'};
+    my $realm = ($bearer->{'realm'} || [])->[0];
+    return '' unless $realm && $realm =~ /^https?:\/\//i;
+    my @args = BSRPC::args($bearer, 'service', 'scope');
+    push @args, "account=$state->{'account'}" if $state->{'account'} && $state->{'account'} ne '';
+    print "requesting bearer auth from $realm [@args]\n" if $state->{'verbose'};
+    my $bparam = { 'uri' => $realm };
+    $bparam->{'proxy'} = $state->{'proxy'} if $state->{'proxy'};
+    $bparam->{'ssl_verify'} = $state->{'ssl_verify'} if $state->{'ssl_verify'};
+    if ($bearer->{'post_creads'}) {
+      $bparam->{'data'} = creds_to_json($creds);
+      $bparam->{'request'} = 'POST';
+      push @{$bparam->{'headers'}}, 'Content-Type: application/json';
+    } else {
+      push @{$bparam->{'headers'}}, 'Authorization: Basic '.MIME::Base64::encode_base64($creds, '') if defined($creds);
+    }
+    my $rpc = $state->{'rpccall'} || \&BSRPC::rpc;
+    my $decoder = sub {decode_reply($state, $_[0])};
+    eval { $auth = $rpc->($bparam, $decoder, @args) };
+    warn($@) if $@; 
+    return undef unless defined $auth;		# in progress
+  }
+  return $auth || '';
+}
+
+sub generate_authenticator {
+  my ($creds, %opts) = @_;
+  my $state = { %opts };
+  $state->{'creds'} = $creds if defined $creds;
+  $state->{'account'} ||= $1 if defined($creds) && $creds =~ /^([^:]+):/;
+  return sub { authenticator_function($state, @_) };
+}
+
+1;

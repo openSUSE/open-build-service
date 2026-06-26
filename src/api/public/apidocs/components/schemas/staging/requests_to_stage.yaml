@@ -1,0 +1,14 @@
+type: object
+properties:
+  request:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 42
+          xml:
+            attribute: true
+xml:
+  name: requests

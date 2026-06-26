@@ -1,0 +1,7 @@
+in: path
+name: staging_project_name
+schema:
+  type: string
+required: true
+description: Staging Project Name
+example: "openSUSE:Factory:Staging:A"

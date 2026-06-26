@@ -1,0 +1,115 @@
+post:
+  summary: Return the diff of the linked package.
+  description: |
+    For a package with a link to another package, return the diff of the linked package.
+
+    Despite using the method `POST`, this endpoint doesn't alter any data.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/diff_file_deprecated.yaml'
+    - $ref: '../components/parameters/diff_file.yaml'
+    - $ref: '../components/parameters/diff_filelimit.yaml'
+    - $ref: '../components/parameters/diff_linkrev.yaml'
+    - $ref: '../components/parameters/diff_onlyissues.yaml'
+    - $ref: '../components/parameters/diff_rev.yaml'
+    - $ref: '../components/parameters/diff_tarlimit.yaml'
+    - $ref: '../components/parameters/diff_unified.yaml'
+    - $ref: '../components/parameters/diff_view.yaml'
+    - $ref: '../components/parameters/diff_withissues.yaml'
+  responses:
+    '200':
+      description: OK
+      content:
+        text/plain:
+          schema:
+            type: string
+          examples:
+            Without parameters. One word change:
+              value: |
+
+                spec files:
+                -----------
+                --- hello_world.spec
+                +++ hello_world.spec
+                @@ -1,7 +1,7 @@
+                 Name:       hello_world
+                 Version:    1
+                 Release:    1
+                -Summary:    Most simple RPM package
+                +Summary:    Most simple RPM package branched
+                 License:    CC0-1.0
+
+                 %description
+            With view=unified:
+              value: |
+                Index: hello_world.spec
+                ===================================================================
+                --- hello_world.spec (revision d1f45c7c7b5bf91353a4ec2042cbc53c)
+                +++ hello_world.spec (revision f03477e1b083c6499ee2c195e3340cdf)
+                @@ -1,7 +1,7 @@
+                 Name:       hello_world
+                 Version:    1
+                 Release:    1
+                -Summary:    Most simple RPM package
+                +Summary:    Most simple RPM package branched
+                 License:    CC0-1.0
+
+                 %description
+            # Representing a `sourcediff` xml with a schema is not possible.
+            # The `diff` element has both: content and an attribute (`lines`).
+            # OpenAPI specification 3.0 doesn't allow to represent XML elements with both content and attributes.
+            # See https://github.com/OAI/OpenAPI-Specification/issues/630
+            # Therefore we use the type string to represent xml, instead of defining a schema.
+            With view=xml:
+              value: |
+                <?xml version="1.0" encoding="UTF-8"?>
+                <sourcediff key="6eac2a5a0ac0e75ba854a2569b3b24f8">
+                  <old project="home:Admin" package="hello_world" rev="d1f45c7c7b5bf91353a4ec2042cbc53c" srcmd5="d1f45c7c7b5bf91353a4ec2042cbc53c"/>
+                  <new project="home:Admin:branches:home:Admin" package="hello_world" rev="f03477e1b083c6499ee2c195e3340cdf" srcmd5="f03477e1b083c6499ee2c195e3340cdf"/>
+                  <files>
+                    <file state="changed">
+                      <old name="hello_world.spec" md5="40f5f87134e806a20123821a3442f176" size="464"/>
+                      <new name="hello_world.spec" md5="5729ac8ecab5452b777b4a596332a6f4" size="473"/>
+                      <diff lines="9">@@ -1,7 +1,7 @@
+                 Name:       hello_world
+                 Version:    1
+                 Release:    1
+                -Summary:    Most simple RPM package
+                +Summary:    Most simple RPM package branched
+                 License:    CC0-1.0
+
+                 %description
+                </diff>
+                    </file>
+                  </files>
+                </sourcediff>
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Not Boolean:
+              description: Passing a value different than `0` or `1` to `unified`, for example.
+              value: |
+                <xml version="1.0" encoding="UTF-8"?>
+                <status code="400" origin="backend">
+                  <summary>not boolean</summary>
+                </status>
+            Not a Link:
+              description: The package doesn't cotain a `_link` file.
+              value: |
+                <xml version="1.0" encoding="UTF-8"?>
+                <status code="400" origin="backend">
+                  <summary>not a link</summary>
+                </status>
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_package.yaml'
+  tags:
+    - Sources - Packages

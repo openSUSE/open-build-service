@@ -1,0 +1,14 @@
+= render partial: 'webui/package/breadcrumb_items'
+- if action_name == 'index'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Repository State
+- if action_name == 'show'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Binary
+- if action_name == 'dependency'
+  %li.breadcrumb-item
+    = link_to('Binary', project_package_repository_binary_path(project_name: @dependant_project, package_name: @package_name,
+                                                               repository: @dependant_repository,
+                                                               arch: @architecture.name, filename: @filename))
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Dependency

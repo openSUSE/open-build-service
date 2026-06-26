@@ -1,0 +1,10 @@
+- if comments.any?
+  And
+  - people = comments.group(:user_name).count
+  %b
+    = pluralize(people.count, 'person')
+  added
+  = link_to(pluralize(comments.count, 'comment'), '#pulse-collaboration')
+  in here.
+- else
+  And no one commented in here.

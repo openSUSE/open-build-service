@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element name="comment_history" xmlns="http://relaxng.org/ns/structure/1.0">
+  <attribute name="comment">
+    <data type="string"/>
+  </attribute>
+  <oneOrMore>
+    <element name="comment">
+      <attribute name="who">
+        <data type="string"/>
+      </attribute>
+      <attribute name="when">
+        <data type="string"/>
+      </attribute>
+      <attribute name="id">
+        <data type="string"/>
+      </attribute>
+      <text/>
+    </element>
+  </oneOrMore>
+</element>

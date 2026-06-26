@@ -1,0 +1,16 @@
+ol.breadcrumb {
+  padding-top: 0.5rem;
+
+  & li {
+    font-size: 0.9rem;
+
+    .active, &.active {
+      color: var(--breadcrumbs-item-text-color);
+      font-weight: bold;
+    }
+
+    & a {
+      color: var(--breadcrumbs-item-text-color);
+    }
+  }
+}

@@ -1,0 +1,93 @@
+#
+# Open Build Service 2.11
+#
+
+WARNING:
+WARNING: This is a development release, not for production usage!
+WARNING:
+
+
+
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+There is also an install medium which installs OBS on hard disk now.
+
+dist/README.UPDATERS file has information for updaters.
+
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
+happen automatically.
+
+
+Features
+========
+
+Generic:
+ * Search was improved: New and updated projects/packages are indexed directly instead
+   of once every hour. As configuration files for Thinking Sphinx were changed, running
+   a 'ts:rt:rebuild' task is needed after deployment, as user wwwrun:
+   'chroot --userspec=wwwrun:www / /bin/bash -c "cd /srv/www/obs/api/ && /usr/bin/bundle.ruby2.5 exec rails ts:rt:rebuild RAILS_ENV=production"'
+ * Add the 'limit_for_search_results' configuration variable, to allow limiting the results
+   returned by calls to API endpoints starting by '/search/...' and not ending in '.../id'.
+
+User Interface:
+ * Colors were adjusted to improve contrast thus improving readability
+ * The diff box from requests are now being rendered with ruby and coderay instead of CodeMirror
+ * New Terms link, configure the link target in the OBS configuration
+
+Backend & build support:
+ *
+
+Bugfixes:
+ *
+
+
+Intentional changes:
+====================
+
+Generic:
+ * Remove Amazon EC2/ Microsoft Azure cloud upload support
+
+Backend:
+ * .sha256 files get gpg signed in detached mode now
+ * Switched from OR to AND when checking CPU flags in _constraints file
+ * internal .packages files are not published anymore
+
+Webui:
+  Features enabled by default:
+    * Image Template
+    * Kiwi Image Editor
+
+ * Removed the following routes:
+
+    - /home/my_work
+    - /home/home_project
+    - /home/list_my
+
+maintenance_release request actions takes default reviewers only from package
+and update project. Not from GA project anymore.
+
+Breaking API changes:
+=====================
+
+ * Status messages endpoints. Check the API documentation for the new format.
+ * Updated /distributions endpoints. Check the API documentation for the new format.
+ * The API endpoint '/announcements' is deprecated and will be removed in the
+   next version. Announcements can be created through Status Messages by using
+   'announcement' severity. Check the API documentation about Status Messages.
+ * The API endpoints '/statistics/download_counter', '/search/attribute' and '/statistics/newest_stats'
+   have been removed. They have been non-functional or unused for a long time.
+ * Messages (for projects/packages) removed. The API routes below '/message'
+   were deprecated in the previous release. They are now removed.
+ * Remove Ratings. The following API routes were already deprecated in the
+   previous release, and are now removed:
+   - GET /statistics/highest_rated?limit=<limit>
+   - GET /statistics/rating/<project>/<package>
+ * The API endpoints '/search/*' with the HTTP method POST are deprecated
+   since they are exactly the same as their GET counterparts.
+ * The LDAP connection feature has been temporarily removed. As a workaround,
+   administrators can migrate to an authentication proxy setup.

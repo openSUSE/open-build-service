@@ -1,0 +1,7 @@
+in: path
+name: architecture_name
+schema:
+  type: string
+required: true
+description: Architecture name
+example: x86_64

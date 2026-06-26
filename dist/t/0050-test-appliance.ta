@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Test::More;
+
+our @services = ('obsapisetup.service');
+
+plan tests => 2 * scalar(@services);
+
+my $TIMEOUT = 300;
+
+for my $srv (@services) {
+  my $enabled = `systemctl is-enabled $srv 2>/dev/null`;
+  chomp($enabled);
+  is($enabled, 'enabled', "Checking $srv enabled");
+
+  my $success = 'timeout';
+  my $tmp     = $TIMEOUT;
+
+  my ($legacy, $trash) = split /\./, $srv, 2;
+  my $is_legacy = ( -f "/etc/init.d/$legacy") ? 1 : 0;
+
+  while ($tmp > 0) {
+    $tmp--;
+    my $result;
+    if ($is_legacy) {
+      $result = `systemctl is-active $srv`;
+      chomp $result;
+      if ($result eq 'active') {
+        $success=$result;
+        last
+      }
+    } else {
+      $result = `systemctl status $srv|grep "(code=exited, status=0/SUCCESS)"`;
+      if ($result) {
+        $success = 'active';
+        last
+      }
+    }
+    print ".";
+    sleep 1;
+  }
+
+  is($success, 'active', "Checking if $srv startup succeed");
+}
+
+exit 0;

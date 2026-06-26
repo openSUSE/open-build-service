@@ -1,0 +1,547 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging">
+          <title>The Far-Distant Oxus</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '121'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging">
+          <title>The Far-Distant Oxus</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title/>
+          <description/>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title></title>
+          <description></description>
+          <person userid="user_1" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>No Highway</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>No Highway</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>His Dark Materials</title>
+          <description>Alias repudiandae harum voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>His Dark Materials</title>
+          <description>Alias repudiandae harum voluptatem.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>His Dark Materials</title>
+          <description>Alias repudiandae harum voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>His Dark Materials</title>
+          <description>Alias repudiandae harum voluptatem.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Oh! To be in England</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Oh! To be in England</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title>An Instant In The Wind</title>
+          <description>Quia quis doloremque sed.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '153'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title>An Instant In The Wind</title>
+          <description>Quia quis doloremque sed.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title>An Instant In The Wind</title>
+          <description>Quia quis doloremque sed.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '153'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title>An Instant In The Wind</title>
+          <description>Quia quis doloremque sed.</description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_project/_attribute?meta=1&user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="17">
+          <srcmd5>aa8125a0b6301635c3a01eff90e114ef</srcmd5>
+          <time>1548314212</time>
+          <user>user_1</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2">
+          <title/>
+          <description/>
+          <person userid="user_2" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2">
+          <title></title>
+          <description></description>
+          <person userid="user_2" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>Waiting for the Barbarians</title>
+          <description>      requests:
+                - { id: 1 }
+        </description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>Waiting for the Barbarians</title>
+          <description>      requests:
+                - { id: 1 }
+        </description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title>To a God Unknown</title>
+          <description>Factory staging project B</description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title>To a God Unknown</title>
+          <description>Factory staging project B</description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?code=unresolvable
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Staging:B/_result?code=unresolvable
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+recorded_with: VCR 4.0.0

@@ -1,0 +1,12 @@
+Visit <%= url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false) %>
+
+State of request <%= event['number']%> was changed by <%= event['who']%>:
+
+  <%= event['oldstate']%> -> <%= event['state']%>
+
+<% if event['comment'].present? -%>
+Comment:
+  <%= event['comment'] %>
+
+<% end -%>
+<%= render partial: 'event_mailer/actions', locals: { event: event } %>

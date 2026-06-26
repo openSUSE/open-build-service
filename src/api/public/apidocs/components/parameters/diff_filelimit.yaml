@@ -1,0 +1,11 @@
+in: query
+name: filelimit
+schema:
+  type: string
+description: |
+  Limit the size of the diff to this amount of lines.
+
+  By default it takes a built-in value of 200.
+
+  Set to `0` to disable the limit.
+example: 20

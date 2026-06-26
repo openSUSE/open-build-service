@@ -1,0 +1,23 @@
+<group name="xen_server" version="10" release="215"
+       pattern:ordernumber="3100"
+       pattern:category="Primary Functions"
+       pattern:icon="yast-uml"
+       pattern:summary="Xen Virtual Machine Host Server"
+       pattern:description="Software to set up a server for configuring, managing, and monitoring virtual machines on a single physical machine."
+       pattern:visible="true"
+>
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="recommended">
+            <package name="xen" />
+            <package name="xen-libs" />
+            <package name="xen-doc-html" />
+            <package name="xen-doc-pdf" />
+            <package name="xen-tools" />
+            <package name="xen-tools-ioemu" />
+            <package name="bridge-utils" />
+            <package name="virt-manager" />
+            <package name="virt-viewer" />
+            <package name="libvirt-cim" />
+            <package name="xterm" />
+    </group>
+</group>

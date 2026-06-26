@@ -1,0 +1,178 @@
+type: object
+properties:
+  id:
+    type: string
+    example: 12
+    xml:
+      attribute: true
+  actions:
+    type: string
+    example: 0
+    xml:
+      attribute: true
+  action:
+    type: object
+    properties:
+      type:
+        type: string
+        example: submit
+        xml:
+          attribute: true
+      source:
+        type: object
+        properties:
+          project:
+            type: string
+            example: 'home:Iggy:branches:home:Admin'
+            xml:
+              attribute: true
+          package:
+            type: string
+            example: ruby
+            xml:
+              attribute: true
+          rev:
+            type: string
+            example: 3
+            xml:
+              attribute: true
+      target:
+        type: object
+        properties:
+          project:
+            type: string
+            example: 'home:Admin'
+            xml:
+              attribute: true
+          package:
+            type: string
+            example: ruby
+            xml:
+              attribute: true
+      options:
+        type: object
+        properties:
+          sourceupdate:
+            example: cleanup
+            type: string
+      sourcediff:
+        type: object
+        properties:
+          key:
+            type: string
+            example: '9dbe9eb1767c5e12c69839af893dc239'
+            xml:
+              attribute: true
+          old:
+            $ref: '#/components/schemas/NewOldDestination'
+          new:
+            $ref: '#/components/schemas/NewOldDestination'
+          files:
+            type: array
+            items:
+              type: object
+              properties:
+                file:
+                  type: object
+                  properties:
+                    state:
+                      type: string
+                      example: changed
+                      xml:
+                        attribute: true
+                    old:
+                      $ref: '#/components/schemas/OldNewFile'
+                    new:
+                      $ref: '#/components/schemas/OldNewFile'
+                    diff:
+                      # FIXME: 'lines' attribute missing due to https://github.com/OAI/OpenAPI-Specification/issues/630
+                      type: string
+                      example: |
+                        spec files:
+                        -----------
+                        --- test.spec
+                        +++ test.spec
+                        @@ -0,0 +1 @@
+                        +# NEW COMMENT
+                        \ No newline at end of file
+          issues:
+            type: array
+            items:
+              type: object
+              properties:
+                issue:
+                  type: object
+                  properties:
+                    state:
+                      type: string
+                      example: 'added'
+                      xml:
+                        attribute: true
+                    tracker:
+                      type: string
+                      example: bnc
+                      xml:
+                        attribute: true
+                    name:
+                      type: string
+                      example: 922894
+                      xml:
+                        attribute: true
+                    label:
+                      type: string
+                      example: 'boo#944302'
+                      xml:
+                        attribute: true
+                    url:
+                      type: string
+                      example: 'https://bugzilla.opensuse.org/show_bug.cgi?id=944302'
+                      xml:
+                        attribute: true
+
+components:
+  schemas:
+    NewOldDestination:
+      type: object
+      properties:
+        project:
+          type: string
+          example: 'home:Iggy:branches:home:Admin'
+          xml:
+            attribute: true
+        package:
+          type: string
+          example: ruby
+          xml:
+            attribute: true
+        rev:
+          type: string
+          example: 3
+          xml:
+            attribute: true
+        srcmd5:
+          type: string
+          example: '59300f4ba65f53334b2e2a39f87ba3a0'
+          xml:
+            attribute: true
+
+    OldNewFile:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'ruby.spec'
+          xml:
+            attribute: true
+        md5:
+          type: string
+          example: 'd4f573d2bf9a0e306f87dad7eee0cf56'
+          xml:
+            attribute: true
+        size:
+          type: string
+          example: 70
+          xml:
+            attribute: true
+xml:
+  name: diff
+

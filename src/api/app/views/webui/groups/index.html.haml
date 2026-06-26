@@ -1,0 +1,34 @@
+- @pagetitle = 'Manage Groups'
+
+.card.mb-3
+  = render partial: 'webui/configuration/tabs'
+  .card-body
+    %h3
+      = @pagetitle
+    %table.responsive.table.table-sm.table-bordered.table-hover.w-100#manage-groups-table
+      %thead
+        %tr
+          %th Group Name
+          %th Members
+          %th Actions
+      %tbody
+        - @groups.each do |group|
+          %tr
+            %td
+              = link_to(group, group_path(title: group))
+            %td
+              - users_links = group.users.order(:login).map { |user| link_to(truncate(user.login, length: 20), user_path(user), title: user.login) }
+              = safe_join(users_links, ', ')
+            %td
+              = link_to(edit_group_path(title: group.title)) do
+                %i.fas.fa-edit.text-secondary.pe-1{ title: 'Edit Group\'s Email' }
+              - if group.email.present?
+                = mail_to(group.email) do
+                  %i.fas.fa-envelope.text-secondary.pe-1{ title: 'Send Email to Group' }
+    .pt-4
+      = link_to(new_group_path, title: 'Create Group') do
+        %i.fas.fa-plus-circle.text-primary
+        Create Group
+
+- content_for :ready_function do
+  initializeDataTable('#manage-groups-table', { columnDefs: [{ orderable: false, searchable: false, targets: -1 }] });

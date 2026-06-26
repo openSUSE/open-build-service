@@ -1,0 +1,24 @@
+.row.justify-content-center
+  .col-12
+    - flash.each do |type, content|
+      .alert.alert-dismissible.fade.show{ class: "alert-#{type}" }
+        %i.fas
+        - if content.is_a?(Hash)
+          %span= content.delete(:title)
+          %ul
+            - content.each do |name, messages|
+              %li.no-bullet= name
+              %ul
+                - messages.each do |message|
+                  %li= message
+        - else
+          = sanitize(content.gsub('\\n', ''), tags: ['a', 'b', 'ul', 'li', 'br', 'u'], attributes: ['href', 'title'])
+        -# haml-lint:disable InstanceVariables
+           FIXME: This is used in only one action of the package controller
+        - if @more_info
+          = link_to('more info', 'javascript:void(0)', class: 'btn-more alert-link')
+          .more_info.d-none
+            .more-info-content
+              = sanitize(simple_format(@more_info), tags: %w[br p])
+        -# haml-lint:enable InstanceVariables
+        %button.btn.btn-close.float-end{ type: 'button', 'data-bs-dismiss': 'alert', 'aria-label': 'Close' }

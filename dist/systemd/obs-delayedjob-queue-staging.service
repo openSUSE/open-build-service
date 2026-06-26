@@ -1,0 +1,18 @@
+[Unit]
+Description = Open Build Service DelayedJob Queue: staging
+BindsTo = obs-api-support.target
+After = mariadb.service obsapisetup.service
+
+[Service]
+Environment = "RAILS_ENV=production"
+User = @@APACHE_USER@@
+Group = @@APACHE_GROUP@@
+WorkingDirectory = @@OBS_API_PREFIX@@
+ExecStart = @@OBS_BUNDLE_BIN@@ exec script/delayed_job.api.rb --queue=staging start -i 1060
+ExecStop  = @@OBS_BUNDLE_BIN@@ exec script/delayed_job.api.rb --queue=staging stop -i 1060
+Type = forking
+PIDFile = @@OBS_API_PREFIX@@/tmp/pids/delayed_job.1060.pid
+Restart=on-failure
+
+[Install]
+WantedBy = obs-api-support.target

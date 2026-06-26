@@ -1,0 +1,7 @@
+:ruby
+  url = if event['package']
+          link_to("#{event['project']}/#{event['package']}", package_users_url(event['project'], event['package'], only_path: false, host: @host))
+        else
+          link_to(event['project'], project_users_url(event['project'], only_path: false, host: @host))
+        end
+#{event['who']} removed #{event_relationship_recipient(event)} as #{event['role']} of #{url}.

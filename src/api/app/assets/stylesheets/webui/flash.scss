@@ -1,0 +1,41 @@
+.flash-and-announcement.sticky-top {
+  z-index: $zindex-fixed;
+
+  &.sticking {
+    .alert { margin-bottom: 0; }
+  }
+}
+
+.alert {
+  &.alert-success i.fas {
+    @extend .fa-check-circle;
+  }
+
+  &.alert-error {
+    @extend .alert-danger;
+
+    i.fas {
+      @extend .fa-exclamation-circle;
+    }
+  }
+
+  &.alert-alert {
+    @extend .alert-warning;
+
+    i.fas {
+      @extend .fa-exclamation-triangle;
+    }
+  }
+
+  &.alert-notice {
+    @extend .alert-info;
+
+    i.fas {
+      @extend .fa-info-circle;
+    }
+  }
+
+  &.alert-dismissible {
+    padding-right: 3rem;
+  }
+}

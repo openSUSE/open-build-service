@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://linux.duke.edu/metadata/common" xmlns:suse="http://novell.com/package/metadata/suse/common" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <!-- defines element-format and format -->
+  <include href="rpm-ns.rng"/>
+  <start>
+    <ref name="element-metadata"/>
+  </start>
+  <define name="element-metadata">
+    <element name="metadata">
+      <ref name="metadata"/>
+    </element>
+  </define>
+  <define name="metadata">
+    <optional>
+      <attribute name="packages">
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </optional>
+    <oneOrMore>
+      <ref name="element-package"/>
+    </oneOrMore>
+  </define>
+  <define name="element-package">
+    <element name="package">
+      <ref name="package"/>
+    </element>
+  </define>
+  <!-- ?: for package in atoms (suse-broken) -->
+  <define name="package">
+    <interleave>
+      <attribute name="type">
+        <value>rpm</value>
+      </attribute>
+      <ref name="element-name"/>
+      <ref name="element-arch"/>
+      <ref name="element-version"/>
+      <ref name="element-checksum"/>
+      <zeroOrMore>
+        <ref name="element-summary"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="element-description"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="element-packager"/>
+      </optional>
+      <optional>
+        <ref name="element-url"/>
+      </optional>
+      <ref name="element-time"/>
+      <ref name="element-size"/>
+      <ref name="element-location"/>
+      <ref name="element-format"/>
+      <optional>
+        <element name="suse:license-to-confirm">
+          <text/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="element-name">
+    <element name="name">
+      <text/>
+    </element>
+  </define>
+  <define name="element-arch">
+    <element name="arch">
+      <ref name="arch"/>
+    </element>
+  </define>
+  <define name="arch">
+    <choice>
+      <value>noarch</value>
+      <value>athlon</value>
+      <value>i386</value>
+      <value>i486</value>
+      <value>i586</value>
+      <value>i686</value>
+      <value>ia64</value>
+      <value>ppc</value>
+      <value>ppc64</value>
+      <value>s390</value>
+      <value>s390x</value>
+      <value>x86_64</value>
+      <value>src</value>
+    </choice>
+  </define>
+  <define name="element-version">
+    <element name="version">
+      <ref name="version"/>
+    </element>
+  </define>
+  <define name="version">
+    <optional>
+      <attribute name="epoch">
+        <data type="nonNegativeInteger"/>
+      </attribute>
+    </optional>
+    <attribute name="ver"/>
+    <attribute name="rel"/>
+    <empty/>
+  </define>
+  <define name="element-checksum">
+    <element name="checksum">
+      <ref name="checksum"/>
+    </element>
+  </define>
+  <define name="checksum">
+    <attribute name="type">
+      <choice>
+        <value>md5</value>
+        <value>sha</value>
+      </choice>
+    </attribute>
+    <attribute name="pkgid">
+      <choice>
+        <value>YES</value>
+        <value>NO</value>
+      </choice>
+    </attribute>
+    <text/>
+  </define>
+  <define name="localized-string">
+    <optional>
+      <attribute name="lang"/>
+    </optional>
+    <text/>
+  </define>
+  <define name="element-summary">
+    <element name="summary">
+      <ref name="localized-string"/>
+    </element>
+  </define>
+  <define name="element-description">
+    <element name="description">
+      <ref name="localized-string"/>
+    </element>
+  </define>
+  <define name="element-packager">
+    <element name="packager">
+      <text/>
+    </element>
+  </define>
+  <define name="element-url">
+    <element name="url">
+      <data type="anyURI"/>
+    </element>
+  </define>
+  <define name="element-time">
+    <element name="time">
+      <ref name="time"/>
+    </element>
+  </define>
+  <define name="time">
+    <attribute name="file">
+      <data type="nonNegativeInteger"/>
+    </attribute>
+    <attribute name="build">
+      <data type="nonNegativeInteger"/>
+    </attribute>
+    <empty/>
+  </define>
+  <define name="element-size">
+    <element name="size">
+      <ref name="size"/>
+    </element>
+  </define>
+  <define name="size">
+    <attribute name="package">
+      <data type="nonNegativeInteger"/>
+    </attribute>
+    <attribute name="installed">
+      <data type="nonNegativeInteger"/>
+    </attribute>
+    <attribute name="archive">
+      <data type="nonNegativeInteger"/>
+    </attribute>
+    <empty/>
+  </define>
+  <define name="element-location">
+    <element name="location">
+      <ref name="location"/>
+    </element>
+  </define>
+  <define name="location">
+    <optional>
+      <attribute name="xml:base">
+        <data type="anyURI"/>
+      </attribute>
+    </optional>
+    <attribute name="href">
+      <data type="anyURI"/>
+    </attribute>
+    <empty/>
+  </define>
+</grammar>

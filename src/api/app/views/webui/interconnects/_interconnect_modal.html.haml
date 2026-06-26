@@ -1,0 +1,26 @@
+.modal.fade#interconnect-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'interconnect-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_for(RemoteProject.new, as: :project, url: interconnects_path) do |f|
+        .modal-header
+          %h5.modal-title#interconnect-modal-label Add custom OBS instance
+        .modal-body
+          .mb-3
+            = f.label :name, 'Local Project Name'
+            = render partial: 'webui/shared/required_label_mark'
+            = f.text_field :name, class: 'form-control', required: true, placeholder: 'Add a name for your project'
+          .mb-3
+            = f.label :remote_url, 'Remote OBS api url'
+            = render partial: 'webui/shared/required_label_mark'
+            = f.text_field :remoteurl, class: 'form-control', required: true, placeholder: 'Add an OBS api url'
+          .mb-3
+            = f.label :title
+            = render partial: 'webui/shared/required_label_mark'
+            = f.text_field :title, class: 'form-control', required: true, placeholder: 'Remote OBS instance'
+          .mb-3
+            = f.label :description
+            = render partial: 'webui/shared/required_label_mark'
+            = f.text_field :description, class: 'form-control', required: true,
+                                         placeholder: 'This project is representing a remote build service instance.'
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons'

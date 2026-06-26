@@ -1,0 +1,11 @@
+$('#flash').html("<%= escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash)) %>");
+<% if flash[:error].blank? %>
+  $('#regenerate-token-modal').modal('hide');
+  $('#regenerate-token-group,#scm-token-group,#workflow-configuration-path-group,#workflow-configuration-url-group,#token-name-text-field').addClass('d-none');
+  $('#original-token-name').removeClass('d-none');
+  $('#copy-to-clipboard-readonly').val("<%= escape_javascript(string) %>");
+  $('.actions').html("<%= escape_javascript(render partial: 'actions') %>");
+  $('#created-token').removeClass('d-none').hide().slideDown('slow', function() {
+    $('#copy-to-clipboard-readonly').focus();
+  });
+<% end %>

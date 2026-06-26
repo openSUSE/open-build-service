@@ -1,0 +1,15 @@
+#kiwi-description
+  .nested-fields
+    %h2#image-name= image.name
+    %p.fill{ data: { tag: 'specification' } }= description
+    .detailed-info{ class: "#{'d-none' unless is_edit_details_action}" }
+      %ul.list-inline
+        %li.list-inline-item
+          %strong Author:
+          %span.fill{ data: { tag: 'author' } }= author
+        %li.list-inline-item
+          %strong Contact:
+          %span.fill{ data: { tag: 'contact' } }= contact
+    = render partial: 'actions', locals: { package: package, is_edit_details_action: is_edit_details_action }
+    - if action_name == 'edit'
+      = render partial: 'description_form', locals: { f: f }

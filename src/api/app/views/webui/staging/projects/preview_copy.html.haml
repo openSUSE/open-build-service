@@ -1,0 +1,21 @@
+- @pagetitle = "Copy #{@staging_project.name}"
+
+.row
+  .col-xl-10
+    .card.mb-3
+      = render(partial: 'webui/project/tabs', locals: { project: @staging_project })
+      .card-body
+        %h3= @pagetitle
+        %p The following data will be copied:
+        %ul
+          %li Project Configuration
+          %li Repositories
+          %li Users and Groups
+
+        = form_tag(copy_staging_workflow_staging_project_path(@staging_workflow.project, @staging_project), method: :post) do
+          .mb-3
+            = label_tag(:staging_project_copy_name, 'Name of the Staging Project Copy:')
+            = text_field_tag(:staging_project_copy_name, nil, placeholder: "Eg: #{@staging_project}-copy", class: 'form-control')
+
+          = link_to('Back', edit_staging_workflow_path(@staging_workflow.project), class: 'btn btn-outline-secondary', role: 'button')
+          = submit_tag('Copy', class: 'btn btn-primary')

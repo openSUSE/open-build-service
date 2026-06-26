@@ -1,0 +1,13 @@
+       <group name="gnome">
+            <include group="mozilla" />
+            <include group="banshee" />
+            <!--
+            <include group="gnome_with_baselibs" />
+                or inline groups:
+            -->
+            <group name="gnome_with_baselibs">
+                <conditional name="baselibs_only_x86_64" />
+                <package name="gnome-main-menu-32bit" />
+            </group>
+            <pattern name="yast" relationship="required" />
+        </group>

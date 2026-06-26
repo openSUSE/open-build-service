@@ -1,0 +1,33 @@
+============================ rpmlint session starts ============================
+rpmlint: 2.5.0
+configuration:
+    /opt/testing/lib64/python3.11/rpmlint/configdefaults.toml
+    /opt/testing/share/rpmlint/cron-whitelist.toml
+    /opt/testing/share/rpmlint/dbus-services.toml
+    /opt/testing/share/rpmlint/device-files-whitelist.toml
+    /opt/testing/share/rpmlint/licenses.toml
+    /opt/testing/share/rpmlint/opensuse.toml
+    /opt/testing/share/rpmlint/pam-modules.toml
+    /opt/testing/share/rpmlint/permissions-whitelist.toml
+    /opt/testing/share/rpmlint/pie-executables.toml
+    /opt/testing/share/rpmlint/polkit-rules-whitelist.toml
+    /opt/testing/share/rpmlint/scoring.toml
+    /opt/testing/share/rpmlint/security.toml
+    /opt/testing/share/rpmlint/sudoers-whitelist.toml
+    /opt/testing/share/rpmlint/sysctl-whitelist.toml
+    /opt/testing/share/rpmlint/systemd-tmpfiles.toml
+    /opt/testing/share/rpmlint/users-groups.toml
+    /opt/testing/share/rpmlint/world-writable-whitelist.toml
+    /opt/testing/share/rpmlint/zypper-plugins.toml
+checks: 41, packages: 2
+
+ctris.x86_64: W: unstripped-binary-or-object /usr/bin/ctris
+This executable should be stripped from debugging symbols, in order to take
+less space and be loaded faster. This is usually done automatically at
+buildtime by rpm.
+
+Check time report (>1% & >0.1s):
+    Check                            Duration (in s)   Fraction (in %)  Checked files
+    TOTAL                                        0.1             100.0              8
+
+ 2 packages and 0 specfiles checked; 0 errors, 1 warnings, 6 filtered, 0 badness; has taken 0.1 s 

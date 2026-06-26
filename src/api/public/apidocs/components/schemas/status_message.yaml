@@ -1,0 +1,18 @@
+type: object
+properties:
+  id:
+    type: integer
+    xml:
+      attribute: true
+  message:
+    type: string
+  user:
+    type: string
+  severity:
+    type: string
+  scope:
+    type: string
+  created_at:
+    type: string
+xml:
+  name: status_message

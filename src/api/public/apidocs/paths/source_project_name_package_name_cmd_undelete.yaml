@@ -1,0 +1,78 @@
+post:
+  summary: Undelete the package.
+  description: Undelete the package.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Set a comment.
+      default: package was undeleted
+      example: The package was removed by mistake. Undeleting.
+    - in: query
+      name: time
+      schema:
+        type: integer
+      description: |
+        Set the time of the undelete operation, expressed in seconds since the epoch.
+
+        Set to `1` to set the time of the undelete operation to the same time the package was deleted.
+      examples:
+        Seconds Since Epoch:
+          value: 1664912989
+        Same as Delete Time:
+          value: 1
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Package Exists:
+              value:
+                code: package_exists
+                summary: the package exists already home:Admin hello_world
+            Time is Not a Number:
+              value:
+                code: 400
+                origin: backend
+                summary: "not a number: 'RANDOM_STRING'"
+            Time is Less than Time in Last Commit:
+              value:
+                code: 400
+                origin: backend
+                summary: specified time is less than time in last commit
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Package Was Not Deleted:
+              value:
+                code: 403
+                summary: package 'hello_world' was not deleted
+                details: 403 package 'hello_world' was not deleted
+            No Permission to Create Package:
+              value:
+                code: cmd_execution_no_permission
+                summary: no permission to create package in project home:Admin
+            No Permission to Set the Time:
+              value:
+                code: cmd_execution_no_permission
+                summary: Only administrators are allowed to set the time
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Packages

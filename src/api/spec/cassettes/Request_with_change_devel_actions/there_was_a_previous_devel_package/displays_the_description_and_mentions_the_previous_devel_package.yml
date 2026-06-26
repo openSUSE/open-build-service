@@ -1,0 +1,374 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Rosemary Sutcliff</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Rosemary Sutcliff</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 30 Mar 2023 16:48:03 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title>The Wives of Bath</title>
+          <description>Unde in consequuntur quo.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title>The Wives of Bath</title>
+          <description>Unde in consequuntur quo.</description>
+        </package>
+  recorded_at: Thu, 30 Mar 2023 16:48:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>The Far-Distant Oxus</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>The Far-Distant Oxus</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 30 Mar 2023 16:48:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/package_1/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_2">
+          <title>Down to a Sunless Sea</title>
+          <description>Porro pariatur aut laudantium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_2">
+          <title>Down to a Sunless Sea</title>
+          <description>Porro pariatur aut laudantium.</description>
+        </package>
+  recorded_at: Thu, 30 Mar 2023 16:48:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title>The Wives of Bath</title>
+          <description>Unde in consequuntur quo.</description>
+          <devel project="project_2" package="package_1"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_1">
+          <title>The Wives of Bath</title>
+          <description>Unde in consequuntur quo.</description>
+          <devel project="project_2" package="package_1"/>
+        </package>
+  recorded_at: Thu, 30 Mar 2023 16:48:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_3/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_3">
+          <title>Edna O'Brien</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '98'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_3">
+          <title>Edna O'Brien</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 30 Mar 2023 16:48:04 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_3/package_1/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_3">
+          <title>The Needle's Eye</title>
+          <description>Maiores optio ut distinctio.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="project_3">
+          <title>The Needle's Eye</title>
+          <description>Maiores optio ut distinctio.</description>
+        </package>
+  recorded_at: Thu, 30 Mar 2023 16:48:04 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_3/package_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Thu, 30 Mar 2023 16:48:04 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/project_3/package_1?cmd=diff&expand=1&filelimit=10000&opackage=package_1&oproject=project_1&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '275'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="17e1309522cc4f8026b3eb37543b449b">
+          <old project="project_1" package="package_1" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="project_3" package="package_1" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Thu, 30 Mar 2023 16:48:04 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/project_3/_result?package=package_1&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - f61d47ec-1189-479a-85d3-7e9fd9865504
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 30 Mar 2023 16:48:08 GMT
+recorded_with: VCR 6.1.0

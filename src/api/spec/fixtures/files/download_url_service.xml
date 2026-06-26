@@ -1,0 +1,7 @@
+<services>
+  <service name="download_url">
+    <param name="host">openbuildservice.org</param>
+    <param name="protocol">https</param>
+    <param name="path">/images/obs-logo.svg</param>
+  </service>
+</services>

@@ -1,0 +1,4 @@
+%li
+  %i.fas.fa-info-circle.text-info
+  Developed at
+  = link_to(elide(devel_package.project.name, 44), package_show_path(project: devel_package.project.name, package: devel_package.name))

@@ -1,0 +1,76 @@
+/* exported initializeDataTable, initializeRemoteDatatable, labelFiltering */
+
+//= require datatables/jquery.dataTables
+//= require datatables/dataTables.bootstrap5
+//= require datatables/extensions/Responsive/dataTables.responsive
+//= require datatables/extensions/Responsive/responsive.bootstrap5
+//= require datatables/extensions/FixedColumns/fixedColumns.bootstrap5
+//= require datatables/extensions/FixedColumns/dataTables.fixedColumns
+
+var DEFAULT_DT_PARAMS = {
+  language: {
+    search: '', searchPlaceholder: "Search...",
+    zeroRecords: "Nothing found",
+    infoEmpty: "No records available",
+    info: "page _PAGE_ of _PAGES_ (_TOTAL_ records)",
+    infoFiltered: ""
+  },
+  responsive: true,
+  pageLength: 25,
+  stateSave: true,
+  pagingType: 'full',
+  stateDuration: 0, // forever
+  // Save the state of the columns sort and the number of shown entries per page
+  stateSaveParams: function (_settings, data) {
+    // Do not keep the selected page in the datatable state
+    data.start = 0;
+    // Do not save the state of the search string
+    data.search.search = "";
+  }
+};
+
+function initializeDataTable(cssSelector, params){
+  var newParams = $.extend({}, DEFAULT_DT_PARAMS, params);
+  $(cssSelector).DataTable(newParams);
+}
+
+function initializeRemoteDatatable(cssSelector, params) {
+  var defaultRemoteParams = {
+    processing: true,
+    serverSide: true,
+    ajax: $(cssSelector).data('source')
+  };
+  var newParams = $.extend(defaultRemoteParams, DEFAULT_DT_PARAMS, params);
+
+  $(cssSelector).dataTable(newParams);
+}
+
+function labelFiltering(tableId) {
+  var table = $(tableId).DataTable();
+  var labelColumn = table.column('labels:name');
+  var labelClear = $('#label-clear');
+  var labelFilter = $('#label-filter');
+  var labelFilterBadge = $('#label-filter .badge');
+  $('.obs-dataTable').parent().on('click', '.label-filter', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var label = e.target.parentElement.dataset.label;
+    var labelId = e.target.parentElement.dataset.labelId;
+    labelFilter.addClass('d-none');
+    labelClear.addClass('d-none');
+    if (label === labelColumn.search())
+      labelColumn.search('').draw();
+    else
+      labelColumn.search(label).draw();
+
+    if (labelColumn.search() !== '') {
+      labelFilter.removeClass('d-none');
+      labelClear.removeClass('d-none');
+      labelFilterBadge.removeClass();
+      labelFilterBadge.addClass(['badge', `label-${labelId}`]);
+      labelFilterBadge.html(label);
+    }
+  });
+  if (labelColumn.search() !== '')
+    labelColumn.search('').draw();
+}

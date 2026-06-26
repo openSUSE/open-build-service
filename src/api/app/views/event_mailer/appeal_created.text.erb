@@ -1,0 +1,6 @@
+<%- appellant = User.find(event['appellant_id']) %>
+<%- decision = Decision.find(event['decision_id']) %>
+'<%= appellant %>' decided to appeal to the decision '<%= decision.reason %>'. This is the reason:
+<%= event['reason'] %>
+
+<%= link_to_reportables(report_id: event['report_last_id'], reportable_type: event['reportable_type'], host: @host) %>

@@ -1,0 +1,11 @@
+.card
+  .card-body
+    %h3 Reports
+    %ul
+      - decision.reports.each do |report|
+        %li
+          = report.category
+          report for a
+          = link_to report.reportable_type, report.reportable
+          received. The reason was:
+          = report.reason

@@ -1,0 +1,21 @@
+#tokens {
+  .card {
+    width: 100%;
+
+    .card-title {
+      @extend .text-break;
+    }
+
+    @include media-breakpoint-up(lg) {
+      width: 48%;
+    }
+
+    @include media-breakpoint-up(xl) {
+      width: 32%;
+    }
+
+    @include media-breakpoint-up(xxl) {
+      width: 23%;
+    }
+  }
+}

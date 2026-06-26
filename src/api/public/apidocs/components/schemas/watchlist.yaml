@@ -1,0 +1,31 @@
+type: array
+items:
+  type: object
+  properties:
+    project:
+      type: object
+      properties:
+        name:
+          type: string
+          xml:
+            attribute: true
+    package:
+      type: object
+      properties:
+        name:
+          type: string
+          xml:
+            attribute: true
+        project:
+          type: string
+          xml:
+            attribute: true
+    request:
+      type: object
+      properties:
+        number:
+          type: string
+          xml:
+            attribute: true
+xml:
+  name: watchlist

@@ -1,0 +1,15 @@
+.d-flex
+  .flex-shrink-0
+    - user = User.find_by_login(bs_request.creator)
+    = image_tag_for(user, size: 38, custom_class: 'me-3')
+  .flex-grow-1.text-break.history
+    %p
+      = link_to(user, user_path(user))
+      created request
+      = link_to('#request-creation', title: I18n.l(bs_request.created_at.utc), name: 'request-creation') do
+        = render TimeComponent.new(time: bs_request.created_at)
+
+
+    = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
+
+= render partial: 'request_history_element', collection: history, as: :element

@@ -1,0 +1,7 @@
+- @pagetitle = "File #{@filename} of Package #{@package}"
+
+.card.mb-3
+  = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+  .card-body
+    %h3= @pagetitle
+    %pre.border.border-dotted.bg-body-secondary.p-2.mb-0= force_utf8_and_transform_nonprintables(@file)

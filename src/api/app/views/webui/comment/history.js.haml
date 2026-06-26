@@ -1,0 +1,9 @@
+$('body').append("#{escape_javascript(render(partial: 'webui/comment/history', locals: { version: @version }))}")
+var historyModalElement = document.getElementById('comment-history-modal-#{ @version.id }');
+var historyModal = new bootstrap.Modal(historyModalElement, {})
+historyModal.show();
+
+// Remove after use
+historyModalElement.addEventListener('hidden.bs.modal', event => {
+historyModalElement.remove();
+});

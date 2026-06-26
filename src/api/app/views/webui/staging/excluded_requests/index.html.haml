@@ -1,0 +1,40 @@
+- @pagetitle = 'Excluded Requests'
+- request_exclusion_policy = Staging::RequestExclusionPolicy.new(User.possibly_nobody, @staging_workflow).create?
+.row
+  .col-xl-12
+    .card.mb-3
+      .card-body
+        %h3= @pagetitle
+        -# haml-lint:disable MultilinePipe
+        %table.responsive.table.table-sm.table-bordered.table-hover.w-100#excluded-requests-datatable{ |
+        data: excluded_requests_remote_url(@staging_workflow.project) } |
+          -# haml-lint:enable MultilinePipe
+          %thead
+            %tr.text-center
+              %th Request
+              %th Description
+              %th Actions
+          %tbody
+
+        - if request_exclusion_policy
+          = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#exclude-request-modal' }) do
+            %i.fas.fa-plus-circle.text-primary
+            Exclude request
+
+- if request_exclusion_policy
+  = render partial: 'create_dialog', locals: { staging_workflow_project: @staging_workflow.project }
+  = render partial: 'delete_dialog'
+
+- content_for :ready_function do
+  :plain
+    $('#excluded-requests-datatable').DataTable({
+      responsive: true,
+      processing: true,
+      serverSide: true,
+      ajax: $('#excluded-requests-datatable').data('source'),
+      columns: [
+        { data: 'request' },
+        { data: 'description' },
+        { data: 'actions', orderable: false }
+      ]
+    });

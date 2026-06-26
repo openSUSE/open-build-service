@@ -1,0 +1,13 @@
+#patchinfo-details
+  %h4.my-3 Patches
+  - bs_request.bs_request_actions.where(source_package: 'patchinfo').each do |patchinfo|
+    - patchinfo_source_package = Package.find_by_project_and_name(patchinfo.source_project, patchinfo.source_package)
+    - patchinfo_target_package = patchinfo.target_package_object
+    - if patchinfo_source_package.present?
+      - patchinfo_text = patchinfo_source_package.source_file('_patchinfo', rev: patchinfo.source_rev || patchinfo_source_package.rev)
+      = render PatchinfoComponent.new(patchinfo_text, request_changes_path(number: bs_request.number, request_action_id: patchinfo.id))
+    - elsif patchinfo.bs_request_action_accept_info.present? && patchinfo_target_package.present?
+      - patchinfo_text = patchinfo_target_package.source_file('_patchinfo', rev: patchinfo.bs_request_action_accept_info.rev)
+      = render PatchinfoComponent.new(patchinfo_text, request_changes_path(number: bs_request.number, request_action_id: patchinfo.id))
+    - else
+      %p The source and target of #{patchinfo.target_project}/#{patchinfo.target_package} does not exist anymore.

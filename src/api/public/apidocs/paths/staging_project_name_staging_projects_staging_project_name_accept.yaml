@@ -1,0 +1,46 @@
+post:
+  summary: Accept a staging project
+  description: |
+    This accepts all staged requests and sets the project state back to 'empty'.
+    Will return in an error if staging project is not acceptable, unless force is given. You can force
+    accept staging projects with building or failing packages, but not with missing reviews
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/staging_project_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            staging_project_not_in_acceptable_state:
+              summary: Staging Project is not in an acceptable state
+              value:
+                code: staging_project_not_in_acceptable_state
+                summary: 'Staging Project is not acceptable: empty is not an acceptable state'
+
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not_found:
+              summary: Staging Workflow Project Not Found
+              value:
+                code: not_found
+                summary: 'Project home:Adminn not found.'
+            staging_project_not_found:
+              summary: Staging Project Name Not Found
+              value:
+                code: staging_project_not_found
+                details: 'Staging Project "home:Admin:Staging:AA" does not exist.'
+  tags:
+    - Staging Workflow

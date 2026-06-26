@@ -1,0 +1,14 @@
+/srv/www/obs/api/log/*log /srv/www/obs/api/log/clock*output {
+  compress
+  dateext
+  maxage 365
+  rotate 50
+  size +8096k
+  notifempty
+  missingok
+  copytruncate
+  create 664 wwwrun www
+  su wwwrun www
+  sharedscripts
+}
+

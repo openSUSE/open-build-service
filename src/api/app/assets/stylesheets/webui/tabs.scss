@@ -1,0 +1,48 @@
+// Scrollable tabs
+
+// When the scrollable tabs are formed  by div and many a.
+.scrollable-tabs {
+  overflow: auto;
+  white-space: nowrap;
+  padding: 0.5rem 1rem 0rem 1rem;
+  margin-bottom: calc(-1 * var(--bs-border-width));
+
+  a.scrollable-tab-link {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    text-decoration: none;
+    &.active {
+      font-weight: 600;
+      border: 1px solid;
+      border-color: $card-border-color;
+      border-bottom-color: $card-bg;
+      background-color: $card-bg;
+      @include border-top-radius($nav-tabs-border-radius);
+    }
+  }
+}
+
+// When the scrollable tabs are formed  by ul and many li.
+ul.scrollable-tabs {
+  display: block;
+  overflow-y: hidden;
+  margin-bottom: calc(-1 * var(--bs-border-width));
+
+  li.scrollable-tab-link {
+    display: inline-block;
+    padding: 0.5rem 0 0 0;
+    text-align: center;
+    a {
+      text-decoration: none;
+    }
+    & > a.active {
+      font-weight: 600;
+      border: 1px solid;
+      border-color: $card-border-color;
+      border-bottom-color: $card-bg;
+      background-color: $card-bg;
+      @include border-top-radius($nav-tabs-border-radius);
+    }
+  }
+}

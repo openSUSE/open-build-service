@@ -1,0 +1,20 @@
+.list-group-item
+  .row
+    .col-auto.pe-1
+      %i.fa.fa-lg.fa-fw{ helpers.icon_for_severity(@status_message.severity) }
+    .col.ps-1
+      = helpers.user_with_realname_and_icon(@status_message.user, short: true)
+      wrote
+      %u
+        = render TimeComponent.new(time: @status_message.created_at)
+      - if policy(@status_message).update? && policy(@status_message).destroy?
+        .float-end<
+          = link_to(edit_news_item_path(@status_message), title: 'Edit news item', class: 'me-2') do
+            %i.fas.fa-edit.text-secondary
+          = link_to('#', title: 'Delete news item', data: { 'bs-toggle': 'modal',
+                                                       'bs-target': '#delete-news-item-modal',
+                                                       action: news_item_path(@status_message) }) do
+
+            %i.fas.fa-times-circle.text-danger
+      .mt-2.mb-0
+        = helpers.render_as_markdown(@status_message.message)

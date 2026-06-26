@@ -1,0 +1,7 @@
+in: path
+name: file_name
+schema:
+  type: string
+required: true
+description: "The file name"
+example: "ctris-0.42.1-4.1.x86_64.rpm"

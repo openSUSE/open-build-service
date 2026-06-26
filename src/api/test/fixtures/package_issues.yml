@@ -1,0 +1,8 @@
+record_0:
+  issue_id: 1
+  change: kept
+  package: BaseDistro_patchinfo
+record_1:
+  issue_id: 3
+  change: kept
+  package: BaseDistro_patchinfo

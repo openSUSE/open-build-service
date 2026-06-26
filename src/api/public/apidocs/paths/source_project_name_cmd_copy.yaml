@@ -1,0 +1,139 @@
+post:
+  summary: Copy an entire project.
+  description: Copy the source project provided by the required parameter `oproject` to the target project provided by the path parameter `project_name`.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: path
+      name: project_name
+      schema:
+        type: string
+      required: true
+      description: |
+        Target project name
+
+        The target project must exist. Otherwise, the copy is not performed and a not found error (404) is returned.
+      example: home:Iggy:target
+    - in: query
+      name: oproject
+      schema:
+        type: string
+      required: true
+      description: Origin project name
+      example: home:Iggy:source
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Comment to be added in the revision history.
+      example: Copy project for testing.
+    - in: query
+      name: makeolder
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Make target older. Set to `1` to bump the source vrev by two numbers and the target by one.
+      example: 1
+    - in: query
+      name: makeoriginolder
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Make origin older. Set to `1` to extend the source vrev.
+      example: 1
+    - in: query
+      name: nodelay
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: By default the copying is done as a deferred job. Set to `1` to perform the copy right away.
+      example: 1
+    - in: query
+      name: noservice
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` not to run source services.
+      example: 1
+    - in: query
+      name: resign
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to resign all binaries with the target project key.
+      example: 1
+    - in: query
+      name: withbinaries
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to also copy binaries.
+      example: 1
+    - in: query
+      name: withhistory
+      schema:
+        type: string
+        enum:
+          - 1
+          - 0
+      default: 0
+      description: Set to `1` to also copy the revision history.
+      example: 1
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [about.xsd](../schema/about.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            job_invoked:
+              summary: Job Invoked
+              value:
+                code: invoked
+                summary: Job invoked
+            ok:
+              summary: Ok
+              description: Response given when `nodelay` is set to `1`.
+              value:
+                code: ok
+                summary: Ok
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            cmd_execution_no_permission:
+              summary: No Permission to Execute Command
+              value:
+                code: cmd_execution_no_permission
+                summary: no permission to execute command 'copy'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects

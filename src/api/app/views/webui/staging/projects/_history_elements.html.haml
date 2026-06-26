@@ -1,0 +1,16 @@
+%ul
+  - elements.each do |element|
+    %li
+      = element.event_type.humanize
+      - case element.event_type
+      - when 'unstaged_request', 'staged_request'
+        = link_to("##{element.bs_request.number}", request_show_path(element.bs_request.number))
+        for package
+        %b= element.package_name
+        by
+        %b= element.user_name
+      - when 'staging_project_created'
+        %b
+          = render TimeComponent.new(time: Time.zone.at(element.datetime.to_i))
+        by
+        %b= element.user_name

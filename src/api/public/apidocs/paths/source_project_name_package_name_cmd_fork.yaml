@@ -1,0 +1,91 @@
+post:
+  summary: Create a fork of a package taking the source from the scmsync parameter
+  description: |
+    Create a fork of a package taking the source from the scmsync parameter.
+    For forking entire scmsync project the package name needs to be '_project'.
+    The target project is by default below home:<user>:branches namespace.
+    The target project will be setup to include the source project repository setup.
+    The source project must exists, the source package may not exist.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - name: scmsync
+      description: Checkout url for the source
+      in: query
+      required: true
+      schema:
+        type: string
+    - name: target_project
+      description: target project name, optional (default home:<user>:branches:<project>)
+      in: query
+      schema:
+        type: string
+    - name: target_package
+      description: target package name
+      in: query
+      schema:
+        type: string
+    - in: query
+      name: force
+      schema:
+        type: string
+      description: |
+        Set to 1 to allow overwriting of a pre-existing package.
+      example: 1
+    - name: add_repositories_rebuild
+      in: query
+      schema:
+        type: string
+        enum:
+          - transitive
+          - direct
+          - local
+          - copy
+      description: Set one of the defined rebuild policies for new repositories (`transitive`, `direct` or `local`) or copy it from the source project (`copy`)
+    - in: query
+      name: add_repositories_block
+      schema:
+        type: string
+        enum:
+          - all
+          - local
+          - never
+      description: Set to use defined block policy for new repositories.
+
+  responses:
+    '200':
+      description: ok
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+            summary: Ok
+            data:
+              - home:Admin
+              - hello_world
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                xml:
+                  attribute: true
+              summary:
+                type: string
+            xml:
+              name: status
+          example:
+            code: not_found
+            summary: project not found
+  tags:
+    - Sources - Packages

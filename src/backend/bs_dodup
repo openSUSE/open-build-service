@@ -1,0 +1,1113 @@
+#!/usr/bin/perl -w
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use POSIX;
+use Data::Dumper;
+use Digest;
+use Digest::MD5 ();
+use Encode;
+use Fcntl qw(:DEFAULT :flock);
+use XML::Structured ':bytes';
+use Getopt::Long ();
+use JSON::XS;
+use MIME::Base64 ();
+
+use BSConfiguration;
+use BSRPC ':https';
+use BSHTTP;
+use BSXML;
+use BSUtil;
+use BSContar;
+use BSBearer;
+use BSASN1;
+use BSX509;
+use File::Temp ();
+
+use Build::Repo;
+use Build::Rpmmd;
+use Build::Deb;
+use Build::Debrepo;
+use Build::Rpm;
+use Build::Modules;
+
+use strict;
+
+$BSRPC::logtimeout = 1;         # see better errors
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+my $reporoot = "$bsdir/build";
+my $rundir = "$bsdir/run";
+my $eventdir = "$bsdir/events";
+my $dodsdir = "$bsdir/dods";
+my $faileddir = "$dodsdir/.failed";
+my $pubkeydir;
+
+my $runname = 'bs_dodup';
+
+my $timeout_small = 60;
+my $timeout_large = 300;
+
+my $checkinterval_ok = 60 * 60;
+my $checkinterval_error = 10 * 60;
+
+$checkinterval_ok = $BSConfig::dodup_checkinterval_ok if $BSConfig::dodup_checkinterval_ok;
+$checkinterval_error = $BSConfig::dodup_checkinterval_error if $BSConfig::dodup_checkinterval_error;
+$pubkeydir = $BSConfig::dodup_pubkeydir if $BSConfig::dodup_pubkeydir;
+
+my $proxy;
+$proxy = $BSConfig::proxy if defined($BSConfig::proxy);
+
+sub parse_options {
+  my %opts;
+  if (!Getopt::Long::GetOptionsFromArray(\@_, \%opts,
+    'stop|exit',
+    'restart',
+    'logfile=s',
+    'dodfile=s',
+    'unparsed',
+    'pubkey=s',
+    'master=s',
+    'masterfingerprint=s',
+    'archfilter=s',
+  )) {
+    print_usage();
+    die("Invalid option(s)\n");
+  }
+  return (\%opts, @_);
+}
+
+sub print_usage {
+  $0 =~ /([^\/]+$)/;
+  print "Usage: $1 [options]
+
+Options:
+  --stop|--exit          - graceful shutdown daemon
+  --restart              - restart daemon
+  --logfile file         - redirect output to logfile
+  --dodfile              - test using a given dod file
+  --unparsed             - pass dod file unparsed
+  --pubkey               - file containing public key
+  --master               - master url
+  --masterfingerprint    - master gpg fingerprint
+  --archfilter           - filter for architectures
+
+";
+}
+
+sub fetch {
+  my ($url, $peerfp, $timeout, $filename, $withmd5) = @_;
+  my $param = {
+    'uri' => $url,
+    'maxredirects' => 10,
+  };
+  $param->{'withmd5'} = 1 if $withmd5;
+  $param->{'sslpeerfingerprint'} = $peerfp if $peerfp;
+  $param->{'timeout'} = $timeout if $timeout;
+  $param->{'proxy'} = $proxy;
+  if ($filename) {
+    $param->{'receiver'} = \&BSHTTP::file_receiver;
+    $param->{'filename'} = $filename;
+  }
+  #print "-- $url\n";
+  my $r;
+  eval { $r = BSRPC::rpc($param); };
+  die("$url: $@") if $@;
+  return $r;
+}
+
+sub chkverify {
+  my ($file, $sum) = @_;
+  die unless $sum =~ /^(.+?):(.+)$/;
+  my ($type, $res) = ($1, $2);
+  my %resmap = ('md5' => 'MD5', 'sha1' => 'SHA-1', 'sha256' => 'SHA-256', 'sha512' => 'SHA-512');
+  die("unknown checksum $type\n") unless $resmap{$type};
+  my $ctx = Digest->new($resmap{$type});
+  die("cannot create checksum object for type $type\n") unless $ctx;
+  local *F;
+  open(F, '<', $file) || die("$file: $!\n");
+  $ctx->addfile(\*F);
+  close F;
+  my $chk = $ctx->hexdigest();
+  die("checksum mismatch for $file: $chk != $res\n") unless lc($chk) eq lc($res);
+}
+
+sub expandpubkeys {
+  my ($pubkey) = @_;
+  if ($pubkeydir) {
+    # expand pubkeys coming from pubkeydir
+    my $extradata = '';
+    while ($pubkey =~ /\A([0-9a-zA-Z_\-\#][0-9a-zA-Z_\.\-]*)$/m) {
+      my $file = $1;
+      if (substr($file, 0, 1) ne '#') {
+        last unless -s "$pubkeydir/$file";
+        $extradata .= readstr("$pubkeydir/$file")."\n" if -s "$pubkeydir/$file";
+      }
+      $pubkey = substr($pubkey, length($file));
+      $pubkey =~ s/\A\n//s;
+    }
+    $pubkey = "$extradata$pubkey";
+  }
+  return $pubkey;
+}
+
+sub gpgverify {
+  my ($data, $sig, $pubkey) = @_;
+  $pubkey = expandpubkeys($pubkey) if $pubkeydir;
+  my $tempdir = File::Temp->newdir();
+  writestr("$tempdir/pubkey", undef, $pubkey);
+  system('gpg2', '-q', '--homedir', $tempdir, '--import', "$tempdir/pubkey") && die("gpg2 key import failed: $?\n");
+  writestr("$tempdir/data", undef, $data);
+  writestr("$tempdir/data.asc", undef, $sig);
+  my $pubring = "$tempdir/pubring.gpg";
+  $pubring = "$tempdir/pubring.kbx" if -e "$tempdir/pubring.kbx";
+  system('gpgv', '-q', '--homedir', $tempdir, '--keyring', $pubring, "$tempdir/data.asc", "$tempdir/data") && die("signature verification failed: $?\n");
+}
+
+sub rsa_verify {
+  my ($keydata, $hash, $digest, $signature) = @_;
+  return 0 unless $keydata->{'algo'} eq 'rsa';
+  my $prefix;
+  $prefix = "3021300906052b0e03021a05000414" if $hash eq 'sha1';
+  $prefix = "3031300d060960864801650304020105000420" if $hash eq 'sha256';
+  $prefix = "3051300d060960864801650304020305000440" if $hash eq 'sha512';
+  return 0 unless $prefix;
+  require Math::BigInt;
+  die("weird number of mpis in rsa pubkey\n") unless @{$keydata->{'mpis'} || []} == 2;
+  my $n = Math::BigInt->from_bytes($keydata->{'mpis'}->[0]->{'data'});
+  my $e = Math::BigInt->from_bytes($keydata->{'mpis'}->[1]->{'data'});
+  my $s = Math::BigInt->from_bytes($signature);
+  return 0 if $s >= $n;
+  my $c = $s->bmodpow($e, $n)->as_bytes();
+  $c = unpack('H*', $c);
+  return 0 unless substr($c, 0, 8) eq '01ffffff';
+  $c =~ s/^01(?:ff)+//;
+  return $c eq "00$prefix$digest" ? 1 : 0
+}
+
+# uncompress file in-place
+sub uncompress {
+  my ($file, $reffile, $appendfile) = @_;
+  $reffile ||= $file;
+  if ($reffile =~ /\.cz$/) {
+    # can be gz or xz, need to probe
+    local *F;
+    open(F, '<', $file) || die("$file: $!\n");
+    my $probe;
+    sysread(F, $probe, 5);
+    close F;
+    $reffile = $probe && $probe eq "\xFD7zXZ" ? '.xz' : '.gz';
+  }
+  if ($reffile =~ /\.(gz|xz|zst|zstd|bz2)$/) {
+    die("bzip2 is unimplemented\n") if $1 eq 'bz2';
+    local *F;
+    my $decmp = 'xzdec';
+    $decmp = 'gunzip' if $1 eq 'gz';
+    $decmp = 'zstd' if $1 eq 'zst' || $1 eq 'zstd';
+    my $nfile = $appendfile ? $appendfile : "$file.$$";
+    my $pid;
+    if (!($pid = BSUtil::xfork())) {
+      open(STDOUT, $appendfile ? '>>' : '>', $nfile) || die("$nfile: $!\n");
+      exec($decmp, '-dc', $file);
+      die("$decmp: $!\n");
+    }
+    waitpid($pid, 0) == $pid || die("waitpid: $!\n");
+    die("$decmp $?\n") if $?;
+    if (!$appendfile) {
+      rename($nfile, $file) || die("rename $nfile, $file\n");
+    }
+  } else {
+    die("unknown compression suffix for $reffile\n");
+  }
+}
+
+sub mastercheck {
+  my ($doddata, $urlpath, $data) = @_;
+  my $master = $doddata->{'master'};
+  return unless $master && $master->{'url'};
+  return if $master->{'url'} eq $doddata->{'url'};	# mirror is master
+  my $masterurl = $master->{'url'};
+  $masterurl .= '/' unless $masterurl =~ /\/$/;
+  my $masterdata = fetch("$masterurl$urlpath", $master->{'sslfingerprint'}, $timeout_small);
+  die("mirror is out of date\n") unless $data eq $masterdata;
+}
+
+sub signaturecheck {
+  my ($doddata, $url, $sslfingerprint, $data, $strip) = @_;
+  return unless $doddata->{'pubkey'};
+  my $data_asc = fetch($url, $sslfingerprint, $timeout_small);
+  if ($strip) {
+    # remove stable key sig
+    $data_asc =~ s/-----END PGP SIGNATURE-----\n.*$/-----END PGP SIGNATURE-----\n/s;
+  }
+  gpgverify($data , $data_asc, $doddata->{'pubkey'});
+}
+
+sub getsslfingerprint {
+  my ($doddata) = @_;
+  my $master = $doddata->{'master'};
+  return undef unless $master;
+  return undef if $master->{'url'} && $master->{'url'} ne $doddata->{'url'};
+  return $master->{'sslfingerprint'};	# mirror is master
+}
+
+sub mkdodcookie {
+  my ($doddata, $url, $content) = @_;
+  my $cookie = "$url\n";
+  $cookie .= "archfilter=$doddata->{'archfilter'}\n" if $doddata->{'archfilter'};
+  $cookie .= $content if defined $content;
+  return Digest::MD5::md5_hex($cookie);
+}
+
+sub dod_susetags {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
+  my $descrdir = 'suse/setup/descr';
+  my $datadir = 'suse';
+  $url .= '/' unless $url =~ /\/$/;
+  my $content = fetch("${url}content", $sslfingerprint, $timeout_small);
+  my $newcookie = mkdodcookie($doddata, $url, $content);
+  return undef if ($cookie || '') eq $newcookie;
+  mastercheck($doddata, 'content', $content);
+  signaturecheck($doddata, "${url}content.asc", $sslfingerprint, $content);
+  my ($packages, $packages_sum);
+  for (split("\n", $content)) {
+    next unless /^META (\S+) (\S+)  (packages(?:.gz)?)$/s;
+    next unless $1 eq 'MD5' || $1 eq 'SHA1' || $1 eq 'SHA256' || $1 eq 'SHA512';
+    $packages = $3;
+    $packages_sum = lc($1).":$2";
+  }
+  die("no packages file in META section of content file\n") unless $packages;
+  fetch("${url}$descrdir/$packages", $sslfingerprint, $timeout_large, $file);
+  chkverify($file, $packages_sum);
+  uncompress($file, $packages);
+  return ($newcookie, $url);
+}
+
+sub dod_rpmmd {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
+  $url .= '/' unless $url =~ /\/$/;
+  my $repomd = fetch("${url}repodata/repomd.xml", $sslfingerprint, $timeout_small);
+  my $newcookie = mkdodcookie($doddata, $url, $repomd);
+  return undef if ($cookie || '') eq $newcookie;
+  mastercheck($doddata, 'repodata/repomd.xml', $repomd);
+  signaturecheck($doddata, "${url}repodata/repomd.xml.asc", $sslfingerprint, $repomd);
+  writestr("$file.repomd", undef, $repomd);
+  my @files;
+  Build::Rpmmd::parse_repomd("$file.repomd", \@files);
+  unlink("$file.repomd");
+  my $primaryfile = (grep {$_->{'type'} eq 'primary' && defined($_->{'location'})} @files)[0];
+  die("no primary file in repomd.xml\n") unless $primaryfile;
+  die("primary file has no checksum\n") if $doddata->{'pubkey'} && !$primaryfile->{'checksum'};
+  fetch("${url}$primaryfile->{'location'}", $sslfingerprint, $timeout_large, $file);
+  chkverify($file, $primaryfile->{'checksum'}) if $primaryfile->{'checksum'};
+  uncompress($file, $primaryfile->{'location'});
+  my $moduleinfo;
+  my $moduleinfofile = (grep {$_->{'type'} eq 'modules' && defined($_->{'location'})} @files)[0];
+  if ($moduleinfofile) {
+    die("module file has no checksum\n") if $doddata->{'pubkey'} && !$moduleinfofile->{'checksum'};
+    my $tmp = "$file.tmp";
+    fetch("${url}$moduleinfofile->{'location'}", $sslfingerprint, $timeout_large, $tmp);
+    chkverify($tmp, $moduleinfofile->{'checksum'}) if $moduleinfofile->{'checksum'};
+    uncompress($tmp, $moduleinfofile->{'location'});
+    $moduleinfo = {};
+    Build::Modules::parse($tmp, $moduleinfo);
+    unlink($tmp);
+  }
+  return ($newcookie, $url, $moduleinfo);
+}
+
+# url layout:
+#   distribution:   <baseurl>/<dist>/[components]
+#     or:           <baseurl>?dist=<dist>[&component=comp1&component=comp2...]
+#   flat repo:      <baseurl>/.[/subdir]
+#     components:   comp1,comp2... (main if empty)
+sub dod_deb {
+  my ($doddata, $cookie, $file) = @_;
+  my ($baseurl, $url, $components) = Build::Debrepo::parserepourl($doddata->{'url'});
+  my $sslfingerprint = getsslfingerprint($doddata);
+  my $release = fetch("${url}Release", $sslfingerprint, $timeout_small);
+  my $newcookie = mkdodcookie($doddata, $baseurl, join(',',@$components)."\n$release");
+  return undef if ($cookie || '') eq $newcookie;
+  mastercheck($doddata, 'Release', $release);
+  signaturecheck($doddata, "${url}Release.gpg", $sslfingerprint, $release, 1);
+  my %files;
+  my %csums = ('md5sum' => 'md5', 'sha1' => 'sha1', 'sha256' => 'sha256', 'sha512' => 'sha512');
+  my $csum;
+  for (split("\n", $release)) {
+    $csum = $csums{lc($1)} if /^(\S+):/;
+    next unless $csum;
+    next unless /^ (\S+) +\d+ +(.*)$/s;
+    next if $files{$2} && length($files{$2}) > length("$csum:$1");	# bigger is better...
+    $files{$2} = "$csum:$1";
+  }
+  writestr($file, undef, '');
+  my $basearch = Build::Deb::basearch($doddata->{'arch'});
+  for my $component (@$components) {
+    my $pfile;
+    for ('Packages.xz', 'Packages.gz') {
+      $pfile = $component eq '.' ? $_ : "$component/binary-$basearch/$_";
+      last if $files{$pfile};
+    }
+    die("$pfile not in Release\n") if $doddata->{'pubkey'} && !$files{$pfile};
+    my $tmp = "$file.tmp";
+    fetch("$url$pfile", $sslfingerprint, $timeout_large, $tmp);
+    chkverify($tmp, $files{$pfile}) if $files{$pfile};
+    uncompress($tmp, $pfile, $file);
+    unlink($tmp);
+  }
+  return ($newcookie, $baseurl);
+}
+
+sub dod_arch {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
+  $url .= '/' unless $url =~ /\/$/;
+  die("cannot determine repo name\n") unless $url =~ /.*\/([^\/]+)\/os\//;
+  my $reponame = $1;
+  my $r = fetch("${url}$reponame.db", $sslfingerprint, $timeout_large, $file, 1);
+  die unless $r->{'md5'};
+  my $newcookie = mkdodcookie($doddata, $url, $r->{'md5'});
+  return undef if ($cookie || '') eq $newcookie;
+  return ($newcookie, $url);
+}
+
+sub dod_apk_sigverify {
+  my ($file, $pubkey) = @_;
+  $pubkey = expandpubkeys($pubkey) if $pubkeydir;
+  my $ok = 0;
+  my @sigs = Build::Apk::getsignatures($file);
+  die("apk file is not signed\n") unless @sigs;
+  my @pub;
+  push @pub, "$1\n" while $pubkey =~ s/(-----BEGIN PUBLIC KEY-----\n.*?\n-----END PUBLIC KEY-----)//s;
+  for my $pub (@pub) {
+    for my $sig (@sigs) {
+      my $keydata = BSX509::pubkey2keydata(BSASN1::pem2der($pub, 'PUBLIC KEY'));
+      next unless $keydata->{'algo'} eq $sig->{'algo'};
+      my $digest = Build::Apk::calcapkchksum($file, $sig->{'hash'});
+      return if $sig->{'algo'} eq 'rsa' && rsa_verify($keydata, $sig->{'hash'}, $digest, $sig->{'signature'});
+    }
+  }
+  die("signature verification failed\n");
+}
+
+sub dod_apk {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
+  $url .= '/' unless $url =~ /\/$/;
+  my $r = fetch("${url}APKINDEX.tar.gz", $sslfingerprint, $timeout_large, $file, 1);
+  die unless $r->{'md5'};
+  dod_apk_sigverify($file, $doddata->{'pubkey'}) if $doddata->{'pubkey'};
+  my $newcookie = mkdodcookie($doddata, $url, $r->{'md5'});
+  return undef if ($cookie || '') eq $newcookie;
+  return ($newcookie, $url);
+}
+
+sub dod_mdk {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
+  $url .= '/' unless $url =~ /\/$/;
+  my $r = fetch("${url}media_info/synthesis.hdlist.cz", $sslfingerprint, $timeout_large, $file, 1);
+  die unless $r->{'md5'};
+  my $newcookie = mkdodcookie($doddata, $url, $r->{'md5'});
+  return undef if ($cookie || '') eq $newcookie;
+  uncompress($file, 'synthesis.hdlist.cz');
+  return ($newcookie, $url);
+}
+
+sub getdodresources {
+  my ($doddata) = @_;
+  my $projid = $doddata->{'project'};
+  my $repoid = $doddata->{'repository'};
+  my $arch = $doddata->{'arch'};
+  my $repodir = "$reporoot/$projid/$repoid/$arch/:full";
+  my $needed = BSUtil::retrieve("$repodir/doddata.needed", 1);
+  return () unless ref($needed) eq 'HASH';
+  my %dodresources;
+  for (values(%$needed)) {
+    next unless ref($_) eq 'ARRAY';
+    $dodresources{$_} = 1 for @$_;
+  }
+  return sort keys %dodresources;
+}
+
+my %registry_authenticators;
+my $registry_timeout = 60;
+
+sub registry_arch2goarch {
+  my ($arch) = @_;
+  return ('amd64') if $arch eq 'x86_64';
+  return ('386') if $arch =~ /^i[3456]86$/;
+  return ('arm64', 'v8') if $arch eq 'aarch64';
+  return ('arm', "v$1") if $arch =~ /^armv(\d+)/;
+  return $arch;
+}
+
+sub registry_select_manifest {
+  my ($manifests, $arch) = @_;
+  my ($goarch, $govariant) = registry_arch2goarch($arch);
+  my $goos = 'linux';
+  for my $m (@{$manifests || []}) {
+    next unless $m->{'digest'};
+    my $platform = $m->{'platform'};
+    if ($platform) {
+      next if $goarch && $platform->{'architecture'} && $platform->{'architecture'} ne $goarch;
+      next if $govariant && $platform->{'variant'} && $platform->{'variant'} ne $govariant;
+      next if $goos && $platform->{'os'} && $platform->{'os'} ne $goos;
+    }
+    return $m;
+  }
+  return undef;
+}
+
+sub registry_valid_digest {
+  my ($what, $digest) = @_;
+  die("$what: missing digest\n") unless $digest;
+  return $digest if $digest =~ /^sha512:[a-fA-F0-9]{128}$/s;
+  return $digest if $digest =~ /^sha256:[a-fA-F0-9]{64}$/s;
+  die("$what: unknown digest '$digest'\n");
+}
+
+sub registry_fetch_manifest {
+  my ($url, $arch, $repo, $tag, $olddigest, $oldfatdigest, $fatdigest) = @_;
+
+  my $authenticator = $registry_authenticators{"$url/$repo"};
+  if (!$authenticator) {
+    my $creds = $BSConfig::dodcreds ? $BSConfig::dodcreds->{$url} : undef;
+    $authenticator = $registry_authenticators{"$url/$repo"} = BSBearer::generate_authenticator($creds, 'verbose' => 1, 'proxy' => $proxy);
+  }
+
+  my $accept_hdr = "Accept: $BSContar::mt_docker_manifest, $BSContar::mt_docker_manifestlist, $BSContar::mt_oci_manifest, $BSContar::mt_oci_index";
+  my $replyheaders;
+  my $param = {
+    'uri' => "$url/v2/$repo/manifests/$tag",
+    'headers' => [ $accept_hdr ],
+    'authenticator' => $authenticator,
+    'replyheaders' => \$replyheaders,
+    'timeout' => $registry_timeout,
+    'maxredirects' => 5,
+    'proxy' => $proxy,
+  };
+
+  # try a HEAD request first if we already have a digest
+  if ($olddigest || ($oldfatdigest && !$fatdigest)) {
+    $param->{'request'} = 'HEAD';
+    eval { BSRPC::rpc($param) };
+    # docker returns 401 for non-existing repositories
+    return (undef, undef, $fatdigest) if !$fatdigest && $@ && $@ =~ /^401/;
+    return (undef, undef, $fatdigest) if $@ && $@ =~ /^404/;
+    die($@) if $@;
+    my $ct = $replyheaders->{'content-type'};
+    die("$repo/$tag: no content-type\n") unless $ct;
+    my $digest = $replyheaders->{'docker-content-digest'};
+    die("$repo/$tag: no docker-content-digest\n") unless $digest;
+    if ($ct eq $BSContar::mt_docker_manifestlist || $ct eq $BSContar::mt_oci_index) {
+      die("$repo/$tag: fat manifest points to another fat manifest\n") if $fatdigest;
+      return (undef, $olddigest, $oldfatdigest) if $olddigest && $oldfatdigest && $digest eq $oldfatdigest;
+    } else {
+      die("$repo/$tag: unknown content-type '$ct'\n") unless $ct eq $BSContar::mt_docker_manifest || $ct eq $BSContar::mt_oci_manifest;
+      return (undef, $digest, $fatdigest) if $olddigest && $olddigest eq $digest;
+    }
+    delete $param->{'request'};
+    undef $replyheaders;
+  }
+
+  my $mani_json;
+  eval { $mani_json = BSRPC::rpc($param) };
+  return (undef, undef, $fatdigest) if !$fatdigest && $@ && $@ =~ /^401/;
+  return (undef, undef, $fatdigest) if $@ && $@ =~ /^404/;
+  die($@) if $@;
+  my $ct = $replyheaders->{'content-type'};
+  die("$repo/$tag: no content-type\n") unless $ct;
+  my $digest = $replyheaders->{'docker-content-digest'};
+  die("$repo/$tag: no docker-content-digest\n") unless $digest;
+  registry_valid_digest("$repo/$tag docker-content-digest", $digest);
+  if ($ct eq $BSContar::mt_docker_manifestlist || $ct eq $BSContar::mt_oci_index) {
+    die("$repo/$tag: fat manifest points to another fat manifest\n") if $fatdigest;
+    $fatdigest = $digest;
+    my $mani = JSON::XS::decode_json($mani_json);
+    my $manifest = registry_select_manifest($mani->{'manifests'}, $arch);
+    return (undef, undef, $fatdigest) unless $manifest;
+    $digest = registry_valid_digest("$repo/$tag", $manifest->{'digest'});
+    return (undef, $digest, $fatdigest) if $olddigest && $olddigest eq $digest;
+    return registry_fetch_manifest($url, $arch, $repo, $digest, $olddigest, $oldfatdigest, $fatdigest);
+  }
+  die("$repo/$tag: unknown content-type '$ct'\n") unless $ct eq $BSContar::mt_docker_manifest || $ct eq $BSContar::mt_oci_manifest;
+  my $mani = JSON::XS::decode_json($mani_json);
+  my $config = $mani->{'config'};
+  die("$repo/$tag: missing config\n") unless $config;
+  my @blobs;
+  push @blobs, registry_valid_digest("$repo/$tag config", $config->{'digest'});
+  for my $l (@{$mani->{'layers'} || []}) {
+    push @blobs, registry_valid_digest("$repo/$tag layer", $l->{'digest'});
+  }
+  return (\@blobs, $digest, $fatdigest);
+}
+
+sub registry_fetch_att {
+  my ($url, $arch, $repo, $digest, $repodir) = @_;
+
+  my $authenticator = $registry_authenticators{"$url/$repo"};
+  if (!$authenticator) {
+    my $creds = $BSConfig::dodcreds ? $BSConfig::dodcreds->{$url} : undef;
+    $authenticator = $registry_authenticators{"$url/$repo"} = BSBearer::generate_authenticator($creds, 'verbose' => 1, 'proxy' => $proxy);
+  }
+  my $tag = "$digest.att";
+  $tag =~ s/:/-/g;
+  my $replyheaders;
+  my $param = {
+    'uri' => "$url/v2/$repo/manifests/$tag",
+    'headers' => [ "Accept: $BSContar::mt_oci_manifest" ],
+    'authenticator' => $authenticator,
+    'replyheaders' => \$replyheaders,
+    'timeout' => $registry_timeout,
+    'maxredirects' => 5,
+    'proxy' => $proxy,
+  };
+  my $mani_json;
+  eval { $mani_json = BSRPC::rpc($param) };
+  return undef if $@ && $@ =~ /^404/;
+  die($@) if $@;
+  die("$repo/$tag: no docker-content-digest\n") unless $replyheaders->{'docker-content-digest'};
+  my $ct = $replyheaders->{'content-type'};
+  die("$repo/$tag: unknown content-type '$ct'\n") unless $ct eq $BSContar::mt_docker_manifest || $ct eq $BSContar::mt_oci_manifest;
+  my $mani = JSON::XS::decode_json($mani_json);
+  my $att_digest;
+  for my $l (@{$mani->{'layers'} || []}) {
+    next if ($l->{'mediaType'} || '') ne "application/vnd.dsse.envelope.v1+json";
+    next if ($l->{'size'} || 0) > 200 * 1024 * 1024;
+    my $annotations = $l->{'annotations'} || {};
+    my $is_att;
+    $is_att = 1 if ($annotations->{'org.open-build-service.intoto.predicatetype'} || '') eq 'https://cyclonedx.org/bom';
+    next unless $is_att;
+    $att_digest = $l->{'digest'};
+  }
+  return undef unless $att_digest;
+  registry_valid_digest("$repo/$tag layer", $att_digest);
+  my $newfile = "$repodir/$digest.att";
+  $param = {
+    'uri' => "$url/v2/$repo/blobs/$att_digest",
+    'authenticator' => $authenticator,
+    'timeout' => 300,
+    'maxredirects' => 5,
+    'receiver' => \&BSHTTP::file_receiver,
+    'filename' => $newfile,
+    'proxy' => $proxy,
+  };
+  BSRPC::rpc($param);
+  chkverify($newfile, $att_digest);
+  my $envelope_json = readstr($newfile);
+  unlink($newfile);
+  my $envelope = JSON::XS::decode_json($envelope_json);
+  undef $envelope_json;	# free mem
+  die("bad payload type\n") unless ($envelope->{'payloadType'} || '') eq 'application/vnd.in-toto+json';
+  die("no payload\n") unless exists $envelope->{'payload'};
+  my $att_json = MIME::Base64::decode_base64($envelope->{'payload'});
+  undef $envelope;	# free mem
+  my $att = JSON::XS::decode_json($att_json);
+  die("missing predicate\n") unless $att->{'predicate'};
+  return $att->{'predicate'};
+}
+
+sub att2installed {
+  my ($att) = @_;
+  my @inst;
+  for my $comp (@{$att->{'components'} || []}) {
+    next unless $comp->{'type'} eq 'library' && $comp->{'name'} && $comp->{'version'} && $comp->{'purl'};
+    next unless $comp->{'purl'} =~ /^pkg:(?:rpm|deb|apk|alpm)\//;	# filter out golang et al
+    next if $comp->{'name'} eq 'gpg-pubkey';
+    my $epoch = '';
+    $epoch = "$1:" if $comp->{'purl'} =~ /[\?\&]epoch=(\d+)/ && $1;
+    push @inst, "$comp->{'name'} = $epoch$comp->{'version'}";
+  }
+  return @inst ? \@inst : undef;
+}
+
+sub mangle_container_name {
+  my ($name) = @_;
+  $name =~ s/^container://;
+  # keep in sync with BSRepServer::Containerinfo::readcontainerinfo()
+  $name =~ s/[:\/]/-/g;
+  $name = "_$name" if $name =~ /^_/;	# just in case
+  return $name;
+}
+
+sub dod_registry {
+  my ($doddata, $cookie, $file) = @_;
+  my $arch = $doddata->{'arch'};
+  my @dodresources = getdodresources($doddata);
+  my $url = $doddata->{'url'};
+  $url =~ s/\/+$//;
+  my $cache = {};
+  my $urldomain = $url;
+  $urldomain =~ s/^[^\/]+\/\///;
+  $urldomain =~ s/\/.*//;
+
+  $cookie ||= '0';
+  my $repodir = $file;
+  $repodir =~ s/\/[^\/]+$//;	# hack
+
+  my $oldcache = BSUtil::retrieve("$repodir/doddata", 1) || {};
+  my %olddodresources = map {$_ => 1} @{$oldcache->{'/dodresources'} || []};
+  my $oldfatmissing = ($oldcache->{'/fatmissing'} || [])->[0] || {};
+
+  my @newdodresources;
+  my %newfatmissing;
+
+  my ($changed, $unchanged, $missing, $broken) = (0, 0, 0, 0);
+
+  for my $resource (@dodresources) {
+    next unless $resource =~ /^container:(.*):([^\/:]+)$/s;
+    my ($repo, $tag) = ($1, $2);
+    my $refname = "$repo:$tag";
+    if ($repo !~ /\//) {
+      $repo = "library/$repo" if $url =~ /docker\.io$/;
+    } else {
+      $repo = $2 if $repo =~ /^([^\/]+)\/(.+)$/s && $1 eq $urldomain;
+      $refname = "$repo:$tag";
+    }
+    my $oldentry;
+    $oldentry = $oldcache->{$resource} if $olddodresources{$resource};
+    my ($olddigest, $oldfatdigest);
+    ($olddigest, $oldfatdigest) = ($oldentry->{'digest'}, $oldentry->{'fatdigest'}) if $oldentry;
+    $oldfatdigest = $oldfatmissing->{$resource} if !$oldentry;
+    eval {
+      registry_valid_digest("olddigest of $resource", $olddigest) if $olddigest;
+      registry_valid_digest("oldfatdigest of $resource", $oldfatdigest) if $oldfatdigest;
+    };
+    if ($@) {
+      warn($@);
+      undef $olddigest;
+      undef $oldfatdigest;
+    }
+    my ($blobs, $digest, $fatdigest);
+    eval { ($blobs, $digest, $fatdigest) = registry_fetch_manifest($url, $arch, $repo, $tag, $olddigest, $oldfatdigest) };
+    if ($@) {
+      # resource is broken, reuse old entry if we have it
+      warn($@);
+      $broken++;
+      next unless $olddodresources{$resource};
+      push @newdodresources, $resource;
+      $cache->{$resource} = $oldentry if $oldentry;
+      $newfatmissing{$resource} = $oldfatdigest if !$oldentry && $oldfatdigest;
+      next;
+    }
+    push @newdodresources, $resource;
+    if (!$digest) {
+      # resource does not exist
+      $missing++;
+      $newfatmissing{$resource} = $fatdigest if $fatdigest;
+      next;
+    }
+    my $installed;
+    if (!$blobs) {
+      # resource is unchanged, use blobs from old entry
+      die unless $oldentry && $oldentry->{'path'} =~ /\?([^\?\/]+)$/s;
+      $blobs = [ split(',', $1) ];
+      my $oldannotation = BSUtil::fromxml($oldentry->{'annotation'}, $BSXML::binannotation, 1);
+      $installed = $oldannotation->{'installed'} if $oldannotation;
+      $unchanged++;
+    } else {
+      # convert the sbom to a list of installed packages
+      eval {
+	my $att = registry_fetch_att($url, $arch, $repo, $digest, $repodir);
+	$installed = att2installed($att) if $att;
+      };
+      warn($@) if $@;
+      $changed++;
+    }
+    my $version = $digest;
+    $version =~ s/.*://;
+    my $mangled_name = mangle_container_name($resource);
+    my @provides;
+    push @provides, "container:$mangled_name = $version-0";
+    push @provides, $resource unless $resource eq "container:$mangled_name";
+    my $pkg = {
+      'name' => "container:$mangled_name",
+      'version' => $version,
+      'release' => 0,
+      'provides' => \@provides,
+      'arch' => 'noarch',
+      'path' => "$repo?".join(',', @$blobs),
+      'digest' => $digest,
+    };
+    $pkg->{'fatdigest'} = $fatdigest if $fatdigest;
+    my $annotation = {
+      'binaryid' => $blobs->[0],
+      'registry_refname' => ($urldomain =~ /docker\.io/ ? 'docker.io/' : "$urldomain/") . $refname,
+      'registry_digest' => $digest,
+    };
+    $annotation->{'binaryid'} =~ s/^sha256://;	# like with Containertar.pm
+    $annotation->{'registry_fatdigest'} = $fatdigest if $fatdigest;
+    $annotation->{'installed'} = $installed if @{$installed || []};
+    $pkg->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
+    $cache->{$resource} = $pkg;
+  }
+  $cache->{'/dodresources'} = \@newdodresources;
+  $cache->{'/fatmissing'} = [ \%newfatmissing ] if %newfatmissing;
+  $cache->{'/url'} = $url;
+  print "  unchanged $unchanged, changed $changed, missing $missing, broken $broken\n";
+  return undef if BSUtil::identical($cache, $oldcache);
+  BSUtil::store($file, undef, $cache);
+  return $cookie + 1, $url
+}
+
+my %handler = (
+  'arch'      => \&dod_arch,
+  'deb'       => \&dod_deb,
+  'susetags'  => \&dod_susetags,
+  'rpmmd'     => \&dod_rpmmd,
+  'mdk'       => \&dod_mdk,
+  'apk'       => \&dod_apk,
+  'registry'  => \&dod_registry,
+);
+
+sub cmppkg {
+  my ($op, $p) = @_; 
+  # reconstruct evr
+  my $evr = $p->{'epoch'} ? "$p->{'epoch'}:$p->{'version'}" : $p->{'version'};
+  $evr .= "-$p->{'release'}" if defined $p->{'release'};
+  my $oevr = $op->{'epoch'} ? "$op->{'epoch'}:$op->{'version'}" : $op->{'version'};
+  $oevr .= "-$op->{'release'}" if defined $op->{'release'};
+  if ($p->{'path'} =~ /\.deb$/) {
+    return Build::Deb::verscmp($oevr, $evr);
+  } elsif ($p->{'path'} =~ /\.apk$/ && defined(&Build::Apk::verscmp)) {
+    return Build::Apk::verscmp($oevr, $evr);
+  } else {
+    return Build::Rpm::verscmp($oevr, $evr);
+  }
+}
+
+sub addpkg {
+  my ($cache, $p, $archfilter, $moduleinfo) = @_; 
+
+  return unless $p->{'location'} && $p->{'name'} && $p->{'arch'};
+  return if $archfilter && !$archfilter->{$p->{'arch'}};
+  if ($BSConfig::dodupblacklist) {
+    return if grep {$p->{'name'} =~ /^$_/s } @$BSConfig::dodupblacklist;
+  }
+  $p->{'path'} = delete $p->{'location'};
+  if (!$p->{'hdrid'} && $p->{'apkchksum'}) {
+    # convert to hdrid
+    my $chk = delete $p->{'apkchksum'};
+    if (length($chk) == 30 && $chk =~ /^Q1/) {
+      $chk = unpack('H*', MIME::Base64::decode_base64(substr($chk, 2, 28)));
+    } elsif ($chk !~ /^[a-fA-F0-9]*$/) {
+      $chk = '';
+    }
+    $p->{'hdrid'} = "sha1:$chk" if length($chk) == 40;
+    $p->{'hdrid'} = "sha256:$chk" if length($chk) == 64;
+  }
+  my $name = $p->{'name'};
+  my $arch = $p->{'arch'};
+  my $key = "$name.$arch";
+  if ($moduleinfo) {
+    my $evr = $p->{'epoch'} ? "$p->{'epoch'}:$p->{'version'}" : $p->{'version'};
+    $evr .= "-$p->{'release'}" if defined $p->{'release'};
+    if ($moduleinfo->{"$name-$evr.$arch"}) {
+      $p->{'modules'} = $moduleinfo->{"$name-$evr.$arch"};
+      $key = "$name-$evr.$arch";
+    } else {
+      return if $p->{'release'} && $p->{'release'} =~ /\.module_/;
+    }
+  }
+  return if $cache->{$key} && cmppkg($cache->{$key}, $p) > 0;   # highest version only
+  $cache->{$key} = $p; 
+}
+
+sub parsemetadata {
+  my ($doddata, $file, $baseurl, $moduleinfo) = @_;
+  return if $doddata->{'repotype'} eq 'registry';
+  my $cache = {};
+  my $archfilter;
+  if ($doddata->{'archfilter'}) {
+    $archfilter = { map {$_ => 1} split(',', $doddata->{'archfilter'}) };
+    for (qw{noarch all any}) {
+      $archfilter->{$_} = 1 unless delete $archfilter->{"-$_"};
+    }
+  }
+  Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter, $moduleinfo) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1, 'testcaseformat' => 1);
+  $baseurl =~ s/\/$//;
+  $cache->{'/url'} = $baseurl;
+  $cache->{'/moduleinfo'} = $moduleinfo->{"/moduleinfo"} if $moduleinfo->{"/moduleinfo"};
+  BSUtil::store("$file.parsed", $file, $cache);
+}
+
+sub sendscanrepo {
+  my ($projid, $repoid, $arch) = @_;
+  my $ev= {
+    'type' => 'scanrepo',
+    'project' => $projid,
+    'repository' => $repoid,
+  };
+  my $evname = "scanrepo:${projid}::$repoid";
+  $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+  writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+  BSUtil::ping("$eventdir/$arch/.ping");
+}
+
+sub do_delayed_scanrepo {
+  my ($doddata) = @_;
+  my $delayed_scanrepo = delete $doddata->{'delayed_scanrepo'};
+  return unless $delayed_scanrepo && $delayed_scanrepo->{'newcookie'};
+  my ($projid, $repoid, $arch) = ($doddata->{'project'}, $doddata->{'repository'}, $doddata->{'arch'});
+  my $repodir = "$reporoot/$projid/$repoid/$arch/:full";
+  writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", $delayed_scanrepo->{'newcookie'});
+  sendscanrepo($projid, $repoid, $arch);
+}
+
+sub update_dod {
+  my ($doddata, $unparsed) = @_;
+
+  my ($projid, $repoid, $arch) = ($doddata->{'project'}, $doddata->{'repository'}, $doddata->{'arch'});
+  die("bad doddata\n") unless $projid && $repoid && $arch;
+  my $repotype = $doddata->{'repotype'} || '';
+  die("unknown repotype '$repotype'\n") unless $handler{$repotype};
+  print "updating metadata for $repotype repo at $doddata->{'url'}\n";
+
+  die("scheduler does not exist for arch '$arch'\n") unless -e "$eventdir/$arch/.ping";
+  my $repodir = "$reporoot/$projid/$repoid/$arch/:full";
+  mkdir_p($repodir) unless -d $repodir;
+
+  my $cookie = readstr("$repodir/doddata.cookie", 1);
+  chomp $cookie if $cookie;
+  $cookie =~ s/^(\d+ )//s if $cookie;	# strip lastcheck time
+  my $newfile = "$repodir/doddata.new.$$";
+  unlink($newfile);
+  my $now = time();
+  my ($newcookie, $baseurl, $moduleinfo) = $handler{$repotype}->($doddata, $cookie, $newfile);
+  if ($newcookie) {
+    if (!$unparsed) {
+      eval { parsemetadata($doddata, $newfile, $baseurl, $moduleinfo) };
+      if ($@) {
+	unlink($newfile);
+	die($@);
+      }
+    }
+    rename($newfile, "$repodir/doddata") || die("rename $newfile $repodir/doddata: $!\n");
+    $newcookie = "$now $newcookie\n";	# add lastcheck time
+    if ($doddata->{'delayed_scanrepo'}) {
+      $doddata->{'delayed_scanrepo'}->{'newcookie'} = $newcookie;
+      return;
+    }
+    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", $newcookie);
+    sendscanrepo($projid, $repoid, $arch);
+  } else {
+    print "repository is unchanged\n";
+    unlink($newfile);
+    # update the lastcheck time in the cookie
+    $cookie = '' unless defined $cookie;
+    $newcookie = "$now $cookie\n";
+    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", $newcookie);
+  }
+}
+
+sub scan_dodsdir {
+  my ($startup, $olddoddatas) = @_;
+  print "scanning doddatas directory...\n";
+  my %newdoddatas;
+  my %ids = map {$_->{'id'} => $_} values(%{$olddoddatas || {}});
+  my %rechecks;
+  for my $f (sort(grep {!/^\./s} ls($dodsdir))) {
+    if ($f =~ /.recheck$/) {
+      my $rc = readstr("$dodsdir/$f", 1);
+      chomp $rc;
+      $rechecks{$rc} = 1;
+      unlink("$dodsdir/$f");
+      next;
+    }
+    my @s = stat("$dodsdir/$f");
+    next unless @s;
+    my $id = "$s[9]/$s[7]/$s[1]";
+    my $olddoddata = $ids{$id};
+    if ($olddoddata) {
+      my $prpa = "$olddoddata->{'project'}/$olddoddata->{'repository'}/$olddoddata->{'arch'}";
+      $newdoddatas{$prpa} = $olddoddata;
+      next;
+    }
+    my $doddata = readxml("$dodsdir/$f", $BSXML::doddata, 1);
+    next unless $doddata;
+    $doddata->{'id'} = $id;
+    $doddata->{'failedfile'} = $f;
+    my $prpa = "$doddata->{'project'}/$doddata->{'repository'}/$doddata->{'arch'}";
+    if ($startup) {
+      # get lastcheck from old cookie
+      my $cookie = readstr("$reporoot/$prpa/:full/doddata.cookie", 1) || '';
+      $doddata->{'lastcheck'} = $1 if $cookie =~ /^(\d+) /s;
+    }
+    $doddata->{'lastcheck'} ||= 0;
+    $newdoddatas{$prpa} = $doddata;
+  }
+  if (%rechecks) {
+    for my $doddata (values %newdoddatas) {
+      my $recheck = 0;
+      for my $rc (sort keys %rechecks) {
+        if ($rc =~ /^https?:\/\//) {
+          $recheck = 1 if $doddata->{'url'} && $doddata->{'url'} =~ /^\Q$rc\E/;
+        } else {
+          $recheck = 1 if "$doddata->{'project'}/$doddata->{'repository'}" =~ /^\Q$rc\E/;
+        }
+      }
+      next unless $recheck;
+      print "force recheck of $doddata->{'project'}/$doddata->{'repository'}\n";
+      $doddata->{'lastcheck'} = 0;
+    }
+  }
+  if ($faileddir) {
+    my %knownf = map {$_->{'failedfile'} => 1} values %newdoddatas;
+    unlink("$faileddir/$_") for grep {!$knownf{$_}} sort(ls($faileddir));
+  }
+  return %newdoddatas;
+}
+
+sub check_dod {
+  my ($doddata) = @_;
+  my $prpa = "$doddata->{'project'}/$doddata->{'repository'}/$doddata->{'arch'}";
+  BSUtil::printlog("checking $prpa...");
+  eval { update_dod($doddata) };
+  my $now = time();
+  $doddata->{'lastcheck'} = $now;
+  if ($@) {
+    warn($@);
+    $doddata->{'haderror'} = 1;
+    if ($faileddir && $doddata->{'failedfile'}) {
+      mkdir_p($faileddir);
+      writestr("$faileddir/.$doddata->{'failedfile'}", "$faileddir/$doddata->{'failedfile'}", $@);
+    }
+    # update lastcheck time in cookie
+    my $cookie = readstr("$reporoot/$prpa/:full/doddata.cookie", 1) || '';
+    chomp $cookie;
+    $cookie =~ s/^(\d+ )//s if $cookie;	# strip lastcheck time
+    mkdir_p("$reporoot/$prpa/:full");
+    writestr("$reporoot/$prpa/:full/.doddata.cookie", "$reporoot/$prpa/:full/doddata.cookie", "$now $cookie\n");
+  } else {
+    unlink("$faileddir/$doddata->{'failedfile'}") if $faileddir && $doddata->{'failedfile'};
+  }
+}
+
+sub check_exitrestart {
+  if (-e "$rundir/$runname.exit") {
+    close(RUNLOCK);
+    unlink("$rundir/$runname.exit");
+    BSUtil::printlog("exiting...");
+    exit(0);
+  }
+  if (-e "$rundir/$runname.restart") {
+    close(RUNLOCK);
+    unlink("$rundir/$runname.restart");
+    BSUtil::printlog("restarting...");
+    exec($0, @ARGV);
+    die("$0: $!\n");
+  }
+}
+
+sub daemon {
+  my $startup = 1;
+  my %doddatas;
+  
+  while (1) {
+    if ($startup || -e "$dodsdir/.changed") {
+      unlink("$dodsdir/.changed");
+      %doddatas = scan_dodsdir($startup, \%doddatas);
+      print "checking state of dod entries...\n";
+      $startup = 0;
+    }
+    # find next dods to check
+    my %prp2prpas;
+    my %nextcheck;
+    for my $prpa (sort keys %doddatas) {
+      my $doddata = $doddatas{$prpa};
+      my $nc;
+      if ($doddata->{'haderror'}) {
+	$nc = $doddata->{'lastcheck'} + $checkinterval_error;
+      } else {
+        my $repodir = "$reporoot/$prpa/:full";
+        my @s = stat("$repodir/doddata.needed");
+        if (@s && $s[9] > $doddata->{'lastcheck'}) {
+          $nc = $doddata->{'lastcheck'};
+        } else {
+          $nc = $doddata->{'lastcheck'} + $checkinterval_ok;
+        }
+      }
+      my ($projid, $repoid) = split('/', $prpa, 3);
+      my $prp = "$projid/$repoid";
+      $nextcheck{$prp} = $nc if !defined($nextcheck{$prp}) || $nextcheck{$prp} > $nc;
+      push @{$prp2prpas{$prp}}, $prpa;
+    }
+    # check em
+    for my $prp (sort {$nextcheck{$a} <=> $nextcheck{$b} || $a cmp $b} keys %nextcheck) {
+      last if $nextcheck{$prp} > time();
+      # check the architectures in one go, but delay the scanrepo call
+      for my $prpa (@{$prp2prpas{$prp}}) {
+	my $doddata = $doddatas{$prpa};
+	$doddata->{'delayed_scanrepo'} = {} if @{$prp2prpas{$prp}} > 1;
+	check_dod($doddata);
+      }
+      # now do the scanrepo calls
+      do_delayed_scanrepo($doddatas{$_}) for @{$prp2prpas{$prp}};
+      check_exitrestart();
+    }
+    # good work! now rest a bit
+    for (1 .. 10) {
+      sleep(1);
+      check_exitrestart();
+    }
+  }
+}
+
+# copy @ARGV to keep it untouched in case of restart
+my ($options,@args) = parse_options(@ARGV);
+
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
+# Open logfile if requested
+BSUtil::openlog($options->{'logfile'}, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+
+if ($options->{dodfile}) {
+  check_dod(readxml($options->{dodfile}, $BSXML::doddata));
+  exit(0);
+}
+
+if (@args) {
+  my ($prpa, $repotype, $url) = @args;
+  my ($projid, $repoid, $arch) = split('/', ($prpa || ''), 3);
+  die("Usage: bs_dodup [--stop|--restart]\n       bs_dodup --dodfile <dodfile>\n       bs_dodup [--pubkey <pubkeyfile>] <prpa> <repotype> <url>\n") unless @args == 3 && defined($arch);
+
+  my $doddata = {
+    'project' => $projid,
+    'repository' => $repoid,
+    'arch' => $arch,
+    'repotype' => $repotype,
+    'url' => $url,
+  };
+  $doddata->{'archfilter'} = $options->{archfilter} if $options->{archfilter};
+  $doddata->{'master'}->{'url'} = $options->{master} if $options->{master};
+  $doddata->{'master'}->{'sslfingerprint'} = $options->{masterfingerprint} if $options->{masterfingerprint};
+  $doddata->{'pubkey'} = readstr($options->{pubkey}) if defined $options->{pubkey};
+
+  update_dod($doddata, $options->{unparsed});
+  exit(0);
+}
+
+$| = 1;
+$SIG{'PIPE'} = 'IGNORE';
+BSUtil::restartexit($options, 'dodup', "$rundir/$runname");
+BSUtil::printlog("starting build service DoD updater");
+
+mkdir_p($rundir);
+open(RUNLOCK, '>>', "$rundir/$runname.lock") || die("$rundir/$runname.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dodup is already running!\n");
+utime undef, undef, "$rundir/$runname.lock";
+daemon();
+

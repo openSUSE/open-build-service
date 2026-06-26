@@ -1,0 +1,1796 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title/>
+          <description/>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title></title>
+          <description></description>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 27 Sep 2024 13:02:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/templates/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="templates">
+          <title>Rosemary Sutcliff</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="templates">
+          <title>Rosemary Sutcliff</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 27 Sep 2024 13:02:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/templates/_project/_attribute?meta=1&user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="PackageTemplates" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5">
+          <srcmd5>60004f7729b03dde55a44afd2b1d9ef9</srcmd5>
+          <time>1727442145</time>
+          <user>user_1</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 27 Sep 2024 13:02:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/templates/template/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template" project="templates">
+          <title>Where Angels Fear to Tread</title>
+          <description>Facilis placeat dicta rem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template" project="templates">
+          <title>Where Angels Fear to Tread</title>
+          <description>Facilis placeat dicta rem.</description>
+        </package>
+  recorded_at: Fri, 27 Sep 2024 13:02:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/templates/template/%7B%7B%20project.name%20%7D%7D.test.liquid?user=user_1
+    body:
+      encoding: UTF-8
+      string: Soluta assumenda distinctio. Amet eligendi ipsam. Voluptas animi alias.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '206'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>2bb12467e44e2428631707776916618e</srcmd5>
+          <version>unknown</version>
+          <time>1727442145</time>
+          <user>user_1</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 27 Sep 2024 13:02:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/templates/template/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template" project="templates">
+          <title>Where Angels Fear to Tread</title>
+          <description>Facilis placeat dicta rem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template" project="templates">
+          <title>Where Angels Fear to Tread</title>
+          <description>Facilis placeat dicta rem.</description>
+        </package>
+  recorded_at: Fri, 27 Sep 2024 13:02:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '217'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template" rev="1" vrev="1" srcmd5="2bb12467e44e2428631707776916618e">
+          <entry name="{{ project.name }}.test.liquid" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442145"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '226'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="template" rev="1" vrev="1" srcmd5="2bb12467e44e2428631707776916618e" verifymd5="2bb12467e44e2428631707776916618e">
+          <error>bad build configuration, no build type defined or detected</error>
+        </sourceinfo>
+  recorded_at: Fri, 27 Sep 2024 13:02:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '217'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template" rev="1" vrev="1" srcmd5="2bb12467e44e2428631707776916618e">
+          <entry name="{{ project.name }}.test.liquid" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442145"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:25 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/templates/template?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '296'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="55df84b2ac6473b943bb51c7f67e5a8b">
+          <old project="templates" package="template" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="templates" package="template" rev="1" srcmd5="2bb12467e44e2428631707776916618e"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/templates/template/%7B%7B%20package.name%20%7D%7D.spec.liquid?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        Name:       {{ package.name }}
+        Version:    1
+        Release:    1
+        Summary:    {{ package.title }}
+        License:    CC0-1.0
+
+        %description
+        {{ package.description }}
+
+        %prep
+        # we have no source, so nothing here
+
+        %build
+        cat > factory_package.sh <<EOF
+        #!/usr/bin/bash
+        echo Hello world, from factory_package.
+        EOF
+
+        %install
+        mkdir -p %{buildroot}/usr/bin/
+        install -m 755 factory_package.sh %{buildroot}/usr/bin/factory_package.sh
+
+        %files
+        /usr/bin/factory_package.sh
+
+        %changelog
+        # let skip this for now
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '206'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>3a1c92f6ce92228e349d261a7165d638</srcmd5>
+          <version>unknown</version>
+          <time>1727442146</time>
+          <user>user_1</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/templates/template/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template" project="templates">
+          <title>Where Angels Fear to Tread</title>
+          <description>Facilis placeat dicta rem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template" project="templates">
+          <title>Where Angels Fear to Tread</title>
+          <description>Facilis placeat dicta rem.</description>
+        </package>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '335'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template" rev="2" vrev="2" srcmd5="3a1c92f6ce92228e349d261a7165d638">
+          <entry name="{{ package.name }}.spec.liquid" md5="95f0e6f36239a6104c123915e10321fd" size="481" mtime="1727436629"/>
+          <entry name="{{ project.name }}.test.liquid" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442145"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '226'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="template" rev="2" vrev="2" srcmd5="3a1c92f6ce92228e349d261a7165d638" verifymd5="3a1c92f6ce92228e349d261a7165d638">
+          <error>bad build configuration, no build type defined or detected</error>
+        </sourceinfo>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '335'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template" rev="2" vrev="2" srcmd5="3a1c92f6ce92228e349d261a7165d638">
+          <entry name="{{ package.name }}.spec.liquid" md5="95f0e6f36239a6104c123915e10321fd" size="481" mtime="1727436629"/>
+          <entry name="{{ project.name }}.test.liquid" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442145"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/templates/template?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '296'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="2b21d98ef5c16b100d66f03d6bc16b40">
+          <old project="templates" package="template" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="templates" package="template" rev="2" srcmd5="3a1c92f6ce92228e349d261a7165d638"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/templates/template/%7B%7B%20package.name%20%7D%7D.changes.liquid?user=user_1
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        {{ "now" | date: "%a %_b %e %_k:%M:%S UTC %Y" }} - {{ user.name }} <{{ user.email }}>
+
+        - Initial package
+
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '206'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>8ca55e3f71d23558dba8af6870ea17f5</srcmd5>
+          <version>unknown</version>
+          <time>1727442146</time>
+          <user>user_1</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/templates/template/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template" project="templates">
+          <title>Where Angels Fear to Tread</title>
+          <description>Facilis placeat dicta rem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template" project="templates">
+          <title>Where Angels Fear to Tread</title>
+          <description>Facilis placeat dicta rem.</description>
+        </package>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '456'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template" rev="3" vrev="3" srcmd5="8ca55e3f71d23558dba8af6870ea17f5">
+          <entry name="{{ package.name }}.changes.liquid" md5="74d5b4ecb7f4e374d946765bbc1b0212" size="174" mtime="1727436630"/>
+          <entry name="{{ package.name }}.spec.liquid" md5="95f0e6f36239a6104c123915e10321fd" size="481" mtime="1727436629"/>
+          <entry name="{{ project.name }}.test.liquid" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442145"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '226'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="template" rev="3" vrev="3" srcmd5="8ca55e3f71d23558dba8af6870ea17f5" verifymd5="8ca55e3f71d23558dba8af6870ea17f5">
+          <error>bad build configuration, no build type defined or detected</error>
+        </sourceinfo>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '456'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template" rev="3" vrev="3" srcmd5="8ca55e3f71d23558dba8af6870ea17f5">
+          <entry name="{{ package.name }}.changes.liquid" md5="74d5b4ecb7f4e374d946765bbc1b0212" size="174" mtime="1727436630"/>
+          <entry name="{{ package.name }}.spec.liquid" md5="95f0e6f36239a6104c123915e10321fd" size="481" mtime="1727436629"/>
+          <entry name="{{ project.name }}.test.liquid" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442145"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/templates/template?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '296'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="24a6f42a9d6a2e54def6c6568e1b5e88">
+          <old project="templates" package="template" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="templates" package="template" rev="3" srcmd5="8ca55e3f71d23558dba8af6870ea17f5"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 27 Sep 2024 13:02:26 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 27273b49-0e88-411d-ac0d-e73e8fc1cd79
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Fri, 27 Sep 2024 13:02:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 509a68a2-7454-445b-82e1-00d53d8c483a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Fri, 27 Sep 2024 13:02:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/template_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template_1" project="home:tom">
+          <title>Non aspernatur velit quia.</title>
+          <description>Omnis aperiam accusamus. Iste veniam et. Et ut corporis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '188'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template_1" project="home:tom">
+          <title>Non aspernatur velit quia.</title>
+          <description>Omnis aperiam accusamus. Iste veniam et. Et ut corporis.</description>
+        </package>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ebd26425-e76d-43fe-991b-1f4b0f6b9dba
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '456'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template" rev="3" vrev="3" srcmd5="8ca55e3f71d23558dba8af6870ea17f5">
+          <entry name="{{ package.name }}.changes.liquid" md5="74d5b4ecb7f4e374d946765bbc1b0212" size="174" mtime="1727436630"/>
+          <entry name="{{ package.name }}.spec.liquid" md5="95f0e6f36239a6104c123915e10321fd" size="481" mtime="1727436629"/>
+          <entry name="{{ project.name }}.test.liquid" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442145"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template/%7B%7B%20package.name%20%7D%7D.changes.liquid
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '174'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        {{ "now" | date: "%a %_b %e %_k:%M:%S UTC %Y" }} - {{ user.name }} <{{ user.email }}>
+
+        - Initial package
+
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template/%7B%7B%20package.name%20%7D%7D.spec.liquid
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '481'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        Name:       {{ package.name }}
+        Version:    1
+        Release:    1
+        Summary:    {{ package.title }}
+        License:    CC0-1.0
+
+        %description
+        {{ package.description }}
+
+        %prep
+        # we have no source, so nothing here
+
+        %build
+        cat > factory_package.sh <<EOF
+        #!/usr/bin/bash
+        echo Hello world, from factory_package.
+        EOF
+
+        %install
+        mkdir -p %{buildroot}/usr/bin/
+        install -m 755 factory_package.sh %{buildroot}/usr/bin/factory_package.sh
+
+        %files
+        /usr/bin/factory_package.sh
+
+        %changelog
+        # let skip this for now
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/templates/template/%7B%7B%20project.name%20%7D%7D.test.liquid
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '71'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: Soluta assumenda distinctio. Amet eligendi ipsam. Voluptas animi alias.
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/template_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ebd26425-e76d-43fe-991b-1f4b0f6b9dba
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '85'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template_1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/template_1/template_1.changes?rev=repository&user=tom
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Fri Sep 27 13:02:29 UTC 2024 - Dirk <frank@volkman-walker.test>
+
+        - Initial package
+
+    headers:
+      X-Request-Id:
+      - ebd26425-e76d-43fe-991b-1f4b0f6b9dba
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '92'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="repository">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+        </revision>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/template_1/template_1.spec?rev=repository&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        Name:       template_1
+        Version:    1
+        Release:    1
+        Summary:    Non aspernatur velit quia.
+        License:    CC0-1.0
+
+        %description
+        Omnis aperiam accusamus. Iste veniam et. Et ut corporis.
+
+        %prep
+        # we have no source, so nothing here
+
+        %build
+        cat > factory_package.sh <<EOF
+        #!/usr/bin/bash
+        echo Hello world, from factory_package.
+        EOF
+
+        %install
+        mkdir -p %{buildroot}/usr/bin/
+        install -m 755 factory_package.sh %{buildroot}/usr/bin/factory_package.sh
+
+        %files
+        /usr/bin/factory_package.sh
+
+        %changelog
+        # let skip this for now
+    headers:
+      X-Request-Id:
+      - ebd26425-e76d-43fe-991b-1f4b0f6b9dba
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '92'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="repository">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+        </revision>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/template_1/home:tom.test?rev=repository&user=tom
+    body:
+      encoding: UTF-8
+      string: Soluta assumenda distinctio. Amet eligendi ipsam. Voluptas animi alias.
+    headers:
+      X-Request-Id:
+      - ebd26425-e76d-43fe-991b-1f4b0f6b9dba
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '92'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="repository">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+        </revision>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/template_1?cmd=commitfilelist&comment=Created%20from%20a%20template&user=tom
+    body:
+      encoding: UTF-8
+      string: <directory><entry name="template_1.changes" md5="77803bdc1efaaffbd2b80eae0e95a077"
+        hash="sha256:641fc5b0a996bfef173650c6064a15a3e43478184c0f8529ade0ad93dd3cb1bb"/><entry
+        name="template_1.spec" md5="9815bd94d0ef37857adec44deb36bb53" hash="sha256:7a9b2af4e4e405a6fcbc811e262a59b1bf22a8e317c9fdfd8cadf490c965efa9"/><entry
+        name="home:tom.test" md5="33caafed6da94f8b85d6ce17f1de1fb2" hash="sha256:df745f63d3f6f91bdc0bde273a34f863c1bec98ce6202741496f1b6d0053c891"/></directory>
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - ebd26425-e76d-43fe-991b-1f4b0f6b9dba
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '411'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template_1" rev="1" vrev="1" srcmd5="819bf60eab4bbca428a1de93dc72cb75">
+          <entry name="home:tom.test" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442149"/>
+          <entry name="template_1.changes" md5="77803bdc1efaaffbd2b80eae0e95a077" size="152" mtime="1727442149"/>
+          <entry name="template_1.spec" md5="9815bd94d0ef37857adec44deb36bb53" size="511" mtime="1727442149"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/template_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template_1" project="home:tom">
+          <title>Non aspernatur velit quia.</title>
+          <description>Omnis aperiam accusamus. Iste veniam et. Et ut corporis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '188'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="template_1" project="home:tom">
+          <title>Non aspernatur velit quia.</title>
+          <description>Omnis aperiam accusamus. Iste veniam et. Et ut corporis.</description>
+        </package>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/template_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '411'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template_1" rev="1" vrev="1" srcmd5="819bf60eab4bbca428a1de93dc72cb75">
+          <entry name="home:tom.test" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442149"/>
+          <entry name="template_1.changes" md5="77803bdc1efaaffbd2b80eae0e95a077" size="152" mtime="1727442149"/>
+          <entry name="template_1.spec" md5="9815bd94d0ef37857adec44deb36bb53" size="511" mtime="1727442149"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/template_1?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ebd26425-e76d-43fe-991b-1f4b0f6b9dba
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '191'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="template_1" rev="1" vrev="1" srcmd5="819bf60eab4bbca428a1de93dc72cb75" verifymd5="819bf60eab4bbca428a1de93dc72cb75">
+          <filename>template_1.spec</filename>
+        </sourceinfo>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/template_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - ebd26425-e76d-43fe-991b-1f4b0f6b9dba
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '411'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template_1" rev="1" vrev="1" srcmd5="819bf60eab4bbca428a1de93dc72cb75">
+          <entry name="home:tom.test" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442149"/>
+          <entry name="template_1.changes" md5="77803bdc1efaaffbd2b80eae0e95a077" size="152" mtime="1727442149"/>
+          <entry name="template_1.spec" md5="9815bd94d0ef37857adec44deb36bb53" size="511" mtime="1727442149"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/template_1?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '298'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="480a07aca2b99d4d64ab7a6d83bfa238">
+          <old project="home:tom" package="template_1" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom" package="template_1" rev="1" srcmd5="819bf60eab4bbca428a1de93dc72cb75"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/template_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 3bdcb518-d267-487e-8a02-6f9926c987a1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '411'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template_1" rev="1" vrev="1" srcmd5="819bf60eab4bbca428a1de93dc72cb75">
+          <entry name="home:tom.test" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442149"/>
+          <entry name="template_1.changes" md5="77803bdc1efaaffbd2b80eae0e95a077" size="152" mtime="1727442149"/>
+          <entry name="template_1.spec" md5="9815bd94d0ef37857adec44deb36bb53" size="511" mtime="1727442149"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/template_1?expand=1&rev=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '411'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template_1" rev="1" vrev="1" srcmd5="819bf60eab4bbca428a1de93dc72cb75">
+          <entry name="home:tom.test" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442149"/>
+          <entry name="template_1.changes" md5="77803bdc1efaaffbd2b80eae0e95a077" size="152" mtime="1727442149"/>
+          <entry name="template_1.spec" md5="9815bd94d0ef37857adec44deb36bb53" size="511" mtime="1727442149"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/template_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 3bdcb518-d267-487e-8a02-6f9926c987a1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '411'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template_1" rev="1" vrev="1" srcmd5="819bf60eab4bbca428a1de93dc72cb75">
+          <entry name="home:tom.test" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442149"/>
+          <entry name="template_1.changes" md5="77803bdc1efaaffbd2b80eae0e95a077" size="152" mtime="1727442149"/>
+          <entry name="template_1.spec" md5="9815bd94d0ef37857adec44deb36bb53" size="511" mtime="1727442149"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/template_1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 3bdcb518-d267-487e-8a02-6f9926c987a1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '411'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="template_1" rev="1" vrev="1" srcmd5="819bf60eab4bbca428a1de93dc72cb75">
+          <entry name="home:tom.test" md5="33caafed6da94f8b85d6ce17f1de1fb2" size="71" mtime="1727442149"/>
+          <entry name="template_1.changes" md5="77803bdc1efaaffbd2b80eae0e95a077" size="152" mtime="1727442149"/>
+          <entry name="template_1.spec" md5="9815bd94d0ef37857adec44deb36bb53" size="511" mtime="1727442149"/>
+        </directory>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/template_1/_history?deleted=0&meta=0&rev=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 3bdcb518-d267-487e-8a02-6f9926c987a1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '250'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>819bf60eab4bbca428a1de93dc72cb75</srcmd5>
+            <version>1</version>
+            <time>1727442149</time>
+            <user>tom</user>
+            <comment>Created from a template</comment>
+          </revision>
+        </revisionlist>
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?lastbuild=1&locallink=1&multibuild=1&package=template_1&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 32ad37fd-d1a4-4338-a34d-77e0b71ae2ce
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?package=template_1&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - f92a5589-8b6e-4806-8f7c-33ec28972b06
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Fri, 27 Sep 2024 13:02:29 GMT
+recorded_with: VCR 6.3.1

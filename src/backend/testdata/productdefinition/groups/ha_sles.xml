@@ -1,0 +1,16 @@
+<group name="ha_sles" version="10" release="215"
+       pattern:ordernumber="1050"
+       pattern:category="Base Technologies"
+       pattern:summary="High Availability"
+       pattern:description="Provide tools to ensure a high degree of operational continuity and reduce the downtimes of your system."
+       pattern:visible="true"
+>
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="required">
+            <package name="drbd" />
+            <package name="heartbeat" />
+            <package name="heartbeat-ldirectord" />
+            <package name="ocfs2console" />
+            <package name="ocfs2-tools" />
+    </group>
+</group>

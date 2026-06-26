@@ -1,0 +1,10 @@
+<% target_object, url = if event['package']
+    ["#{event['project']}/#{event['package']}",
+     url_for(controller: 'webui/package', action: :users, project: event['project'], package: event['package'], only_path: false, host: @host)]
+  else
+    [event['project'],
+     url_for(controller: 'webui/project', action: :users, project: event['project'], only_path: false, host: @host)]
+  end
+-%>
+<%= "#{event['who']} made #{event_relationship_recipient(event)} #{event['role']} of #{target_object}" %>
+Visit <%= url %>.

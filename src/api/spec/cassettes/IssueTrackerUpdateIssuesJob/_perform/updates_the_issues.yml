@@ -1,0 +1,70 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://github.com/opensuse/issues
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Fri, 28 Jul 2017 09:09:54 GMT
+      Content-Type:
+      - text/plain; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Status:
+      - 404 Not Found
+      Cache-Control:
+      - no-cache
+      Vary:
+      - X-PJAX
+      X-Ua-Compatible:
+      - IE=Edge,chrome=1
+      Set-Cookie:
+      - _gh_sess=eyJzZXNzaW9uX2lkIjoiZDlkNzQxYTRkM2ViZGIxMjliMDdjYzYzZDliODIwODIiLCJsYXN0X3JlYWRfZnJvbV9yZXBsaWNhcyI6MTUwMTIzMjk5NDgxNn0%3D--e6d8d15ed02ebb22dbfc8e9e2549b7c97e27d9e6;
+        path=/; secure; HttpOnly
+      X-Request-Id:
+      - 526d6169396930c9ff4d3829fbdc248e
+      X-Runtime:
+      - '0.009508'
+      Content-Security-Policy:
+      - default-src 'none'; base-uri 'self'; connect-src 'self'; form-action 'self';
+        img-src data:; script-src 'self'; style-src 'unsafe-inline'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      Public-Key-Pins:
+      - max-age=5184000; pin-sha256="WoiWRyIOVNa9ihaBciRSC7XHjliYS9VwUGOIud4PB18=";
+        pin-sha256="RRM1dGqnDFsCJXBTHky16vi1obOlCgFFn/yOhI/y+ho="; pin-sha256="k2v657xBsOVe1PQRwOsHsw3bsGT2VzIqz5K+59sNQws=";
+        pin-sha256="K87oWBWM9UZfyddvDfoxL+8lpNyoUB2ptGtn0fv6G2Q="; pin-sha256="IQBnNBEiFuhj+8x6X8XLgh01V9Ic5/V3IRQLNFFc7v4=";
+        pin-sha256="iie1VXtL7HzAMF+/PVPR9xzT80kQxdZeJ+zduCB3uj0="; pin-sha256="LvRiGEjRqfzurezaWuj8Wie2gyHMrW5Q06LspMnox7A=";
+        includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Runtime-Rack:
+      - '0.014023'
+      X-Github-Request-Id:
+      - E820:1517:3520401:5A4A7BA:597AFF62
+    body:
+      encoding: ASCII-8BIT
+      string: Not Found
+    http_version: 
+  recorded_at: Fri, 28 Jul 2017 09:09:54 GMT
+recorded_with: VCR 3.0.3

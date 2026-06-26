@@ -1,0 +1,38 @@
+= render(partial: 'webui/shared/flag_popover', locals: { project: project, package: package })
+
+.row.mt-5
+  .col
+    %h5
+      Build Flag
+      %span.flagerror
+    = render partial: 'webui/shared/repositories_flag_table',
+      locals: { flags: flags[:build], project: project, package: package,
+                architectures: architectures, table_id: 'flag_table_build' }
+  .col
+    %h5
+      Publish Flag
+      %span.flagerror
+    = render partial: 'webui/shared/repositories_flag_table',
+      locals: { flags: flags[:publish], project: project, package: package,
+                architectures: architectures, table_id: 'flag_table_publish' }
+.row
+  .col
+    %h5
+      Debuginfo Flag
+      %span.flagerror
+    = render partial: 'webui/shared/repositories_flag_table',
+      locals: { flags: flags[:debuginfo], project: project, package: package,
+                architectures: architectures, table_id: 'flag_table_debuginfo' }
+  .col
+    %h5
+      Use for Build Flag
+      %span.flagerror
+    = render partial: 'webui/shared/repositories_flag_table',
+      locals: { flags: flags[:useforbuild], project: project, package: package,
+                architectures: architectures, table_id: 'flag_table_useforbuild' }
+
+- if user_can_modify
+  - content_for :ready_function do
+    :plain
+      setSpinnersForFlags();
+      setupFlagPopup();

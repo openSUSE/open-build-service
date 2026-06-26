@@ -1,0 +1,84 @@
+get:
+  summary: List projects that match a XPath condition.
+  description: |
+    Return a collection of project names that match a XPath condition.
+
+    This operation is the same as the one defined with [GET /search/project](#/Search/get_search_project) with the exception of the results returned.
+    While the former operation returns a list of project objects, this one return a list of project names. See example values of a succeeded request below.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: match
+      schema:
+        type: string
+      description: |
+        Expression based in XPath.
+
+        Not providing a value or providing a value of `*` will return all projects.
+
+        Available predicates are:
+          - Project fields: `@name`, `@kind`, `title`, `description`, `scmsync`, `url`, and `remoteurl`.
+          - `package/@name`: name of the packages of the project.
+          - `attribute/@name`: name of the attributes of the project.
+          - Users and groups:
+            - `person/@userid`: login of a user related to this project.
+            - `person/@role`: name of the role which a user could be related with this project.
+            - `group/@groupid`: name (title) of a group related to this project.
+            - `group/@role`: name of the role which a group could be related with this project.
+          - More complex predicates are: `maintenance/maintains/@project`, `repository/@name`,
+            `repository/path/@project`, `repository/releasetarget/@trigger`.
+      examples:
+        all:
+          summary: All
+          value: '*'
+        name:
+          summary: Project name
+          value: "@name='my:project:name'"
+        function_contains:
+          summary: Funcion contains
+          value: contains(@name,'Test')
+        combination:
+          summary: User and role
+          value: person/@userid='iggy' and person/@role='reviewer'
+    - $ref: '../components/parameters/search_limit.yaml'
+    - $ref: '../components/parameters/search_offset.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/search/collection_projects.yaml'
+          examples:
+            no_results:
+              summary: No matching results
+              value:
+                matches: 0
+            two_results:
+              summary: Two matching results
+              value:
+                matches: 2
+                project:
+                  - name: home:Admin
+                  - name: openSUSE.org
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: illegal_xpath_error
+            summary: unable to evaluate 'foo' for 'projects'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Search
+
+post:
+  deprecated: true
+  summary: List projects that match a XPath condition.
+  description: This endpoint is exactly the same as `GET /search/project/id`, please use that one.
+  tags:
+    - Search
