@@ -36,7 +36,7 @@ module ProjectLinks
     if Project.remote_project?(project_name_to_link_against)
       linking_to.find_or_create_by(linked_remote_project_name: project_name_to_link_against)
     else
-      project_to_link_against = Project.find_by_name(project_name_to_link_against)
+      project_to_link_against = Project.get_by_name(project_name_to_link_against)
       linking_to.find_or_create_by(linked_db_project: project_to_link_against)
     end
   end
@@ -45,7 +45,7 @@ module ProjectLinks
     if Project.remote_project?(linked_project_name)
       linking_to.destroy_by(linked_remote_project_name: linked_project_name)
     else
-      linked_project = Project.find_by_name(linked_project_name)
+      linked_project = Project.get_by_name(linked_project_name)
       linking_to.destroy_by(linked_db_project: linked_project)
     end
   end

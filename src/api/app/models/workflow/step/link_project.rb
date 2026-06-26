@@ -30,8 +30,7 @@ class Workflow::Step::LinkProject < Workflow::Step
   def validate_existence_of_projects
     return if project_name.blank? || project_name_to_link_against.blank?
 
-    @project = Project.find_by_name(project_name)
-    errors.add(:base, "The project '#{project_name}' does not exist.") if @project.blank?
+    @project = Project.get_by_name(project_name)
 
     # exists_by_name handles both local and remote (interconnect) projects
     return if Project.exists_by_name(project_name_to_link_against)

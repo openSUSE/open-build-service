@@ -55,6 +55,12 @@ RSpec.describe ProjectLinks do
         expect(project.linking_to.last.linked_db_project).to be_nil
       end
     end
+
+    context 'with a non-existing project' do
+      it 'fails with an exception' do
+        expect { project.add_project_link(project_name_to_link_against: 'nonexisting') }.to raise_error(Project::Errors::UnknownObjectError)
+      end
+    end
   end
 
   describe '#remove_project_link' do
@@ -91,6 +97,12 @@ RSpec.describe ProjectLinks do
 
       it 'removes the existing remote link' do
         expect { project.remove_project_link(linked_project_name: remote_project_name) }.to change(LinkedProject, :count).by(-1)
+      end
+    end
+
+    context 'with a non-existing project' do
+      it 'fails with an exception' do
+        expect { project.remove_project_link(linked_project_name: 'nonexisting') }.to raise_error(Project::Errors::UnknownObjectError)
       end
     end
   end
