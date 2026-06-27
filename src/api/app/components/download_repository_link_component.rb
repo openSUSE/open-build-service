@@ -5,17 +5,15 @@ class DownloadRepositoryLinkComponent < ApplicationComponent
     super()
 
     download_url = configuration['download_url']
-    return unless download_url
-
-    return unless published_repository?(project: project, repository: repository)
-
-    @download_area_url = "#{download_url}/#{project.to_s.gsub(/:/, ':/')}/#{repository}"
+    @download_area_url = if download_url && published_repository?(project.to_s, repository.to_s)
+      "#{download_url}/#{project.to_s.gsub(/:/, ':/')}/#{repository}"
+    end
   end
 
   private
 
-  def published_repository?(project:, repository:)
-    Backend::Api::Published.published_repository_exist?(project.to_s, repository.to_s)
+  def published_repository?(project_name, repository_name)
+    Backend::Api::Published.published_repository_exist?(project_name, repository_name)
   rescue Backend::NotFoundError
     false
   end
