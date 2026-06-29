@@ -426,7 +426,7 @@ GEM
     rainbow (3.1.1)
     rake (13.2.1)
     rantly (3.0.0)
-    rbtree (0.4.6)
+    rbtree (0.4.7)
     rbtree3 (0.7.1)
     rdoc (7.2.0)
       erb
