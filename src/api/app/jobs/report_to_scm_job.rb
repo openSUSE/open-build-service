@@ -6,18 +6,18 @@ class ReportToSCMJob < ApplicationJob
   # Transient errors that are worth retrying: SCM-side 5xx, rate limits, network glitches and auth failures.
   # 4xx config errors, and SSL problems are not retried.
   RETRYABLE_EXCEPTIONS = [
+    Faraday::ConnectionFailed,
+    Faraday::TimeoutError,
     Gitlab::Error::BadGateway,
     Gitlab::Error::ConnectionTimedOut,
     Gitlab::Error::InternalServerError,
     Gitlab::Error::ServiceUnavailable,
     Gitlab::Error::Unauthorized,
-    Octokit::InternalServerError,
     Octokit::BadGateway,
-    Octokit::ServiceUnavailable,
+    Octokit::InternalServerError,
     Octokit::ServerError,
-    Octokit::Unauthorized,
-    Faraday::ConnectionFailed,
-    Faraday::TimeoutError
+    Octokit::ServiceUnavailable,
+    Octokit::Unauthorized
   ].freeze
   # Transient errors that are worth retrying, but with longer wait times
   RETRYABLE_LONG_WAIT_EXCEPTIONS = [Gitlab::Error::TooManyRequests, Octokit::TooManyRequests].freeze
