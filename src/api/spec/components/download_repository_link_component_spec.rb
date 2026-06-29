@@ -1,7 +1,7 @@
 RSpec.describe DownloadRepositoryLinkComponent, type: :component do
   let(:project) { create(:project, name: 'home:Admin') }
   let(:repository) { create(:repository, project: project, name: 'images') }
-  let(:configuration) { { 'download_url' => 'https://download.opensuse.org/repositories' } }
+  let(:app_configuration) { { 'download_url' => 'https://download.opensuse.org/repositories' } }
 
   def mock_published_repository_exist(return_value: nil, raise_error: nil)
     if raise_error
@@ -21,7 +21,7 @@ RSpec.describe DownloadRepositoryLinkComponent, type: :component do
     before do
       mock_published_repository_exist(return_value: true)
 
-      render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
+      render_inline(described_class.new(project: project, repository: repository, configuration: app_configuration))
     end
 
     it 'renders the download repository link' do
@@ -37,7 +37,7 @@ RSpec.describe DownloadRepositoryLinkComponent, type: :component do
     before do
       mock_published_repository_exist(return_value: false)
 
-      render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
+      render_inline(described_class.new(project: project, repository: repository, configuration: app_configuration))
     end
 
     include_examples 'hides the download link'
@@ -47,7 +47,7 @@ RSpec.describe DownloadRepositoryLinkComponent, type: :component do
     before do
       mock_published_repository_exist(raise_error: Backend::NotFoundError)
 
-      render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
+      render_inline(described_class.new(project: project, repository: repository, configuration: app_configuration))
     end
 
     include_examples 'hides the download link'
