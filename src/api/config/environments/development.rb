@@ -1,18 +1,23 @@
 require "active_support/core_ext/integer/time"
 
-OBSApi::Application.configure do
+Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   # In the development environment your application's code is reloaded any time
   # it changes. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
-  config.cache_classes = false
+  # Make code changes take effect immediately without server restart.
+  config.cache_classes = true
 
   # Do not eager load code on boot.
   config.eager_load = false
 
   # Server timing middleware (https://github.com/rails/rails/pull/36289)
   config.server_timing = true
+
+  # Show full error reports.
+  config.consider_all_requests_local = true
+
 
   # Eager load sub-classes we use in associations
   # (ack class_name app/models |ack ::)
@@ -64,11 +69,20 @@ OBSApi::Application.configure do
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
 
+  # Append comments with runtime information tags to SQL queries in logs.
+  config.active_record.query_log_tags_enabled = true
+
+  # Highlight code that enqueued background job in logs.
+  config.active_job.verbose_enqueue_logs = true
+
   # Do not compress assets
   config.assets.compress = false
 
   # Expands the lines which load the assets
   config.assets.logger = nil
+
+  # Raise error when a before_action's only/except options reference missing actions.
+  config.action_controller.raise_on_missing_callback_actions = true
 
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
