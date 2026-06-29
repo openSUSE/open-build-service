@@ -3,8 +3,8 @@ class ReportToSCMJob < ApplicationJob
 
   ALLOWED_EVENTS = ['Event::BuildFail', 'Event::BuildSuccess', 'Event::RequestStatechange'].freeze
 
-  # Transient errors that are worth retrying: SCM-side 5xx, rate limits, and network glitches.
-  # Auth failures, 4xx config errors, and SSL problems are not retried.
+  # Transient errors that are worth retrying: SCM-side 5xx, rate limits, network glitches and auth failures.
+  # 4xx config errors, and SSL problems are not retried.
   RETRYABLE_EXCEPTIONS = [
     Octokit::InternalServerError,
     Octokit::BadGateway,
