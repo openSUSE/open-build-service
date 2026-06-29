@@ -3,24 +3,31 @@ class ReportToSCMJob < ApplicationJob
 
   ALLOWED_EVENTS = ['Event::BuildFail', 'Event::BuildSuccess', 'Event::RequestStatechange'].freeze
 
-  # Transient errors that are worth retrying: SCM-side 5xx, rate limits, and network glitches.
-  # Auth failures, 4xx config errors, and SSL problems are not retried.
+  # Transient errors that are worth retrying: SCM-side 5xx, rate limits, network glitches and auth failures.
+  # 4xx config errors, and SSL problems are not retried.
   RETRYABLE_EXCEPTIONS = [
-    Octokit::InternalServerError,
-    Octokit::BadGateway,
-    Octokit::ServiceUnavailable,
-    Octokit::ServerError,
-    Octokit::Unauthorized,
     Faraday::ConnectionFailed,
-    Faraday::TimeoutError
+    Faraday::TimeoutError,
+    Gitlab::Error::BadGateway,
+    Gitlab::Error::ConnectionTimedOut,
+    Gitlab::Error::InternalServerError,
+    Gitlab::Error::ServiceUnavailable,
+    Gitlab::Error::Unauthorized,
+    Octokit::BadGateway,
+    Octokit::InternalServerError,
+    Octokit::ServerError,
+    Octokit::ServiceUnavailable,
+    Octokit::Unauthorized
   ].freeze
+  # Transient errors that are worth retrying, but with longer wait times
+  RETRYABLE_LONG_WAIT_EXCEPTIONS = [Gitlab::Error::TooManyRequests, Octokit::TooManyRequests].freeze
 
   # Progressive time before retrying the job in case of retryable exceptions
   RETRY_WAIT_TIMES = { 1 => 0, 2 => 1.minute, 3 => 2.minutes, 4 => 5.minutes, 5 => 10.minutes }.freeze
   retry_on(*RETRYABLE_EXCEPTIONS, wait: ->(executions) { RETRY_WAIT_TIMES.fetch(executions) }, attempts: 6)
 
   RETRY_LONG_WAIT_TIMES = { 1 => 1.minute, 2 => 5.minutes, 3 => 10.minutes, 4 => 15.minutes, 5 => 30.minutes }.freeze
-  retry_on(Octokit::TooManyRequests, wait: ->(executions) { RETRY_LONG_WAIT_TIMES.fetch(executions) }, attempts: 6)
+  retry_on(*RETRYABLE_LONG_WAIT_EXCEPTIONS, wait: ->(executions) { RETRY_LONG_WAIT_TIMES.fetch(executions) }, attempts: 6)
 
   queue_as :scm
 
