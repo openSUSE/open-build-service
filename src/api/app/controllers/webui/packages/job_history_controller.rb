@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class JobHistoryController < Webui::WebuiController
+    class JobHistoryController < WebuiController
       include ScmsyncChecker
 
       before_action :set_project

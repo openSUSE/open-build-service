@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class BadgeController < Webui::WebuiController
+    class BadgeController < WebuiController
       include ScmsyncChecker
 
       before_action :set_project

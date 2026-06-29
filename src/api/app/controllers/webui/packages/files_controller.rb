@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class FilesController < Webui::WebuiController
+    class FilesController < WebuiController
       include Webui::PackageHelper
       include ScmsyncChecker
 

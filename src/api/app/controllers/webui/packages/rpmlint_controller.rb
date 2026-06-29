@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class RpmlintController < Webui::WebuiController
+    class RpmlintController < WebuiController
       include ScmsyncChecker
 
       before_action :set_project
