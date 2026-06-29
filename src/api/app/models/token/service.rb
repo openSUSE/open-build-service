@@ -16,6 +16,7 @@ end
 # Table name: tokens
 #
 #  id                          :integer          not null, primary key
+#  allowed_branches            :text(65535)
 #  description                 :string(64)       default("")
 #  enabled                     :boolean          default(TRUE), not null, indexed
 #  scm_token                   :string(255)      indexed
