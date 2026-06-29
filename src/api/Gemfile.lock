@@ -365,9 +365,6 @@ GEM
       pry (>= 0.13, < 0.17)
     pry-rails (0.3.11)
       pry (>= 0.13.0)
-    psych (5.4.0)
-      date
-      stringio
     public_suffix (7.0.5)
     puma (8.0.2)
       nio4r (~> 2.0)
@@ -426,11 +423,16 @@ GEM
     rainbow (3.1.1)
     rake (13.2.1)
     rantly (3.0.0)
+    rbs (4.0.3)
+      logger
+      prism (>= 1.6.0)
+      tsort
     rbtree (0.4.7)
     rbtree3 (0.7.1)
-    rdoc (7.2.0)
+    rdoc (8.0.0)
       erb
-      psych (>= 4.0.0)
+      prism (>= 1.6.0)
+      rbs (>= 4.0.0)
       tsort
     redcarpet (3.6.1)
     regexp_parser (2.12.0)
