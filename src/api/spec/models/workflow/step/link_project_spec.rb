@@ -7,12 +7,12 @@ RSpec.describe Workflow::Step::LinkProject do
 
   let(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:token) { create(:workflow_token, executor: user) }
-  let!(:project) { create(:project, name: 'source_project', maintainer: user) }
+  let!(:source_project) { create(:project, name: 'source_project', maintainer: user) }
   let!(:project_to_link_against) { create(:project, name: 'target_project', maintainer: user) }
   let(:step_instructions) do
     {
-      project: project.name,
-      project_to_link_against: project_to_link_against.name
+      target_project: project_to_link_against.name,
+      project_to_link_against: source_project.name
     }
   end
 
@@ -35,22 +35,42 @@ RSpec.describe Workflow::Step::LinkProject do
     end
 
     context 'when the project does not exist' do
-      let(:step_instructions) do
-        {
-          project: 'does_not_exist',
-          project_to_link_against: project_to_link_against.name
-        }
+      context 'and you are authorized to access that project' do
+        let(:step_instructions) do
+          {
+            target_project: "#{user.home_project.name}:does_not_exist",
+            project_to_link_against: project_to_link_against.name
+          }
+        end
+
+        it 'creates a LinkedProject' do
+          expect { subject.call }.to change(LinkedProject, :count).by(1)
+        end
+
+        it 'links the source project to the target project' do
+          subject.call
+          expect(Project.get_by_name("#{user.home_project.name}:does_not_exist").projects_linking_to).to include(project_to_link_against)
+        end
       end
 
-      it 'raises an error' do
-        expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError)
+      context 'but you are not authorized to access that project' do
+        let(:step_instructions) do
+          {
+            target_project: "does_not_exist",
+            project_to_link_against: project_to_link_against.name
+          }
+        end
+
+        it 'raises an error' do
+          expect { subject.call }.to raise_error(Pundit::NotAuthorizedError)
+        end
       end
     end
 
     context 'when the project to link against does not exist' do
       let(:step_instructions) do
         {
-          project: project.name,
+          target_project: source_project.name,
           project_to_link_against: 'does_not_exist'
         }
       end
@@ -69,7 +89,7 @@ RSpec.describe Workflow::Step::LinkProject do
       let!(:interconnect) { create(:remote_project, name: 'remote_obs') }
       let(:step_instructions) do
         {
-          project: project.name,
+          target_project: source_project.name,
           project_to_link_against: 'remote_obs:remote_project'
         }
       end
@@ -87,7 +107,7 @@ RSpec.describe Workflow::Step::LinkProject do
 
   describe '#call' do
     context 'when a required key is missing' do
-      let(:step_instructions) { { project: project.name } }
+      let(:step_instructions) { { target_project: source_project.name } }
 
       it 'does not change any project link' do
         expect { subject.call }.not_to change(LinkedProject, :count)
@@ -102,7 +122,7 @@ RSpec.describe Workflow::Step::LinkProject do
 
         it 'links the source project to the target project' do
           subject.call
-          expect(project.reload.projects_linking_to).to include(project_to_link_against)
+          expect(project_to_link_against.reload.projects_linking_to).to include(source_project)
         end
       end
 
@@ -144,7 +164,7 @@ RSpec.describe Workflow::Step::LinkProject do
 
     context 'when removing a link' do
       before do
-        project.add_project_link(project_name_to_link_against: project_to_link_against.name)
+        project_to_link_against.add_project_link(project_name_to_link_against: source_project.name)
       end
 
       shared_examples 'an scm event that removes a project link' do
@@ -154,7 +174,7 @@ RSpec.describe Workflow::Step::LinkProject do
 
         it 'unlinks the source project from the target project' do
           subject.call
-          expect(project.reload.projects_linking_to).not_to include(project_to_link_against)
+          expect(source_project.reload.projects_linking_to).not_to include(project_to_link_against)
         end
       end
 

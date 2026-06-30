@@ -1,6 +1,6 @@
 class Workflow::Step::LinkProject < Workflow::Step
 
-  REQUIRED_KEYS = %i[project project_to_link_against].freeze
+  REQUIRED_KEYS = %i[target_project project_to_link_against].freeze
 
   validate :validate_existence_of_projects
 
@@ -19,22 +19,40 @@ class Workflow::Step::LinkProject < Workflow::Step
 
   private
 
-  def project_name
-    step_instructions[:project]
+  # This is the project the packages are going to land into
+  def target_project_base_name
+    step_instructions[:target_project]
   end
 
+  # This is the project the packages are going to be pulled from
   def project_name_to_link_against
     step_instructions[:project_to_link_against]
   end
 
   def validate_existence_of_projects
+    project_name = target_project_base_name
     return if project_name.blank? || project_name_to_link_against.blank?
 
-    @project = Project.get_by_name(project_name)
+    if Project.exists_by_name(project_name)
+      @project = Project.get_by_name(project_name)
+    else
+      @project = create_target_project(project_name)
+    end
 
     # exists_by_name handles both local and remote (interconnect) projects
     return if Project.exists_by_name(project_name_to_link_against)
 
     errors.add(:base, "The project '#{project_name_to_link_against}' does not exist.")
+  end
+
+  def create_target_project(project_name)
+    project = Project.new(name: target_project_base_name, url: workflow_run.event_source_url)
+    Pundit.authorize(@token.executor, project, :create?)
+
+    project.relationships.build(user: @token.executor,
+                                role: Role.find_by_title('maintainer'))
+    project.commit_user = User.session
+    project.store(comment: 'SCI/CI integration, link_project step')
+    project
   end
 end
