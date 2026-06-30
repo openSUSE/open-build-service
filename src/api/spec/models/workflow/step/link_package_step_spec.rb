@@ -44,6 +44,49 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
     create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload)
   end
 
+  describe 'Validations' do
+    describe '#validate_target_project_or_package_are_not_scmsynced' do
+      context 'when the target project is developed in SCM' do
+        before do
+          allow(subject).to receive(:target_project).and_return(target_project)
+          target_project.update(scmsync: 'https://github.com/foo/bar')
+          subject.valid?
+        end
+
+        it 'adds a validation error' do
+          expect(subject.errors[:base]).to include("project '#{step_instructions[:target_project]}' is developed in SCM. Branch it instead.")
+        end
+      end
+
+      context 'when the target package is developed in SCM' do
+        let(:step_instructions) { super().merge(target_package: 'hello_world_linked') }
+        let!(:target_package) { create(:package, project: target_project, name: 'hello_world_linked', scmsync: 'https://github.com/foo/bar') }
+
+        before do
+          allow(subject).to receive(:target_package).and_return(target_package)
+          subject.valid?
+        end
+
+        it 'adds a validation error' do
+          expect(subject.errors[:base]).to include("package 'hello_world_linked' is developed in SCM. Branch it instead.")
+        end
+      end
+
+      context 'when target_package is not specified in step_instructions' do
+        let!(:target_package) { create(:package, project: target_project, name: package.name, scmsync: 'https://github.com/foo/bar') }
+
+        before do
+          allow(subject).to receive(:target_package).and_return(target_package)
+          subject.valid?
+        end
+
+        it 'does not add a validation error for the package' do
+          expect(subject.errors[:base]).not_to include(/package .* is developed in SCM/)
+        end
+      end
+    end
+  end
+
   describe '#call' do
     before do
       login(user)

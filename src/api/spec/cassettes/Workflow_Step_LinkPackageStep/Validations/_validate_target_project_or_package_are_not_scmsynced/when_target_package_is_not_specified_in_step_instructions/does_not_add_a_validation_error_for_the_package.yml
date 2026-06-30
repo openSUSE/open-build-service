@@ -1,0 +1,249 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title/>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1782473812'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy">
+          <title></title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 26 Jun 2026 11:36:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/_meta?user=user_25
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>Precious Bane</title>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1782473812'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>Precious Bane</title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 26 Jun 2026 11:36:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_26
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="foo_project">
+          <title>A Handful of Dust</title>
+          <description>Aut alias veniam iure.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1782473812'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="foo_project">
+          <title>A Handful of Dust</title>
+          <description>Aut alias veniam iure.</description>
+        </package>
+  recorded_at: Fri, 26 Jun 2026 11:36:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/_config
+    body:
+      encoding: UTF-8
+      string: Sequi totam id. Minima error sit. Ea quis aut.
+    headers:
+      X-Frontend-Start:
+      - '1782473812'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="95" vrev="95">
+          <srcmd5>297012509a5601b12d55e437992ef37d</srcmd5>
+          <version>unknown</version>
+          <time>1782473812</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 26 Jun 2026 11:36:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Et assumenda error. In magni aliquid. Labore ut et.
+    headers:
+      X-Frontend-Start:
+      - '1782473812'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="96" vrev="96">
+          <srcmd5>707151cce769985feb19fb899ec432f1</srcmd5>
+          <version>unknown</version>
+          <time>1782473812</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 26 Jun 2026 11:36:52 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy/bar_package/_meta?user=user_27
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="home:Iggy">
+          <title>A Summer Bird-Cage</title>
+          <description>Officia inventore illum cumque.</description>
+          <scmsync>https://github.com/foo/bar</scmsync>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1782473812'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="home:Iggy">
+          <title>A Summer Bird-Cage</title>
+          <description>Officia inventore illum cumque.</description>
+          <scmsync>https://github.com/foo/bar</scmsync>
+        </package>
+  recorded_at: Fri, 26 Jun 2026 11:36:52 GMT
+recorded_with: VCR 6.4.0
