@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class BsRequestsController < Webui::WebuiController
+    class BsRequestsController < WebuiController
       include Webui::RequestsFilter
       include Webui::RequestsCount
 

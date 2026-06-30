@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class BuildLogController < Webui::WebuiController
+    class BuildLogController < WebuiController
       include BuildLogSupport
       include Webui::NotificationsHandler
 

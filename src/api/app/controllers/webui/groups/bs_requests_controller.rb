@@ -1,12 +1,12 @@
 module Webui
   module Groups
     class BsRequestsController < WebuiController
+      include Webui::RequestsFilter
+      include Webui::RequestsCount
+
       before_action :set_group
       before_action :redirect_legacy
       before_action :set_bs_request
-
-      include Webui::RequestsFilter
-      include Webui::RequestsCount
 
       REQUEST_METHODS = {
         'all_requests_table' => :requests,

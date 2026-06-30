@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class AssignmentsController < Webui::WebuiController
+    class AssignmentsController < WebuiController
       before_action :require_login
       before_action :set_package
       before_action :set_assignee, except: :destroy
