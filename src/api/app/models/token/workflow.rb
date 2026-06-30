@@ -42,6 +42,9 @@ class Token::Workflow < Token
       ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'success', initial_report: true)
       return []
     end
+
+    return [] unless branch_allowed?(workflow_run)
+
     yaml_file = Workflows::YAMLDownloader.new(workflow_run, token: self).call
     @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: self, workflow_run: workflow_run).call
 
@@ -110,6 +113,13 @@ class Token::Workflow < Token
     return if allowed_branches.is_a?(Array) && allowed_branches.all? { |b| b.is_a?(String) }
 
     errors.add(:allowed_branches, 'must be a comma-separated list of branch names')
+  end
+
+  def branch_allowed?(workflow_run)
+    return true if workflow_run.generic_event_type == 'tag_push'
+    return true if allowed_branches.blank?
+
+    allowed_branches.include?(workflow_run.target_branch.to_s)
   end
 end
 
