@@ -20,6 +20,12 @@ class WriteAndPreviewComponent < ApplicationComponent
 
   private
 
+  def request_canned_responses
+    return CannedResponse.none if bs_request.nil?
+
+    bs_request.canned_responses.where(decision_type: nil)
+  end
+
   def text_area_attributes_defaults
     { rows: 4, placeholder: 'Write your message here... (Markdown markup is supported)', required: true,
       object_name: :message, id_suffix: 'message' }
