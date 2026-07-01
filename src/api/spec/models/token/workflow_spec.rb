@@ -254,6 +254,18 @@ RSpec.describe Token::Workflow do
     end
   end
 
+  describe '#allowed_branches=' do
+    it { expect(build(:workflow_token, allowed_branches: [])).to have_attributes(allowed_branches: nil) }
+    it { expect(build(:workflow_token, allowed_branches: [''])).to have_attributes(allowed_branches: nil) }
+  end
+
+  describe '#allowed_branches_valid' do
+    it { expect(build(:workflow_token, allowed_branches: nil)).to be_valid }
+    it { expect(build(:workflow_token, allowed_branches: 'main')).to be_valid }
+    it { expect(build(:workflow_token, allowed_branches: ['main', 'master'])).to be_valid }
+    it { expect(build(:workflow_token, allowed_branches: [1, 'main'])).not_to be_valid }
+  end
+
   describe 'token sharing' do
     let(:other_user) { create(:confirmed_user, :with_home, login: 'Peter') }
 

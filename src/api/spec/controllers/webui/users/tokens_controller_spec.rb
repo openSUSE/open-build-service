@@ -100,6 +100,13 @@ RSpec.describe Webui::Users::TokensController do
 
         it { expect { subject }.not_to change(Token, :count) }
       end
+
+      context 'with allowed_branches as a comma-separated string' do
+        let(:form_parameters) { { token: { type: 'workflow', scm_token: 'test_SCM_token_string', allowed_branches: 'main, master' } } }
+
+        it { expect { subject }.to change(Token, :count).from(0).to(1) }
+        it { expect { subject }.to change { Token::Workflow.last&.allowed_branches }.to(['main', 'master']) }
+      end
     end
   end
 
@@ -116,6 +123,20 @@ RSpec.describe Webui::Users::TokensController do
       it { expect { subject }.to change { token.reload.scm_token }.from('something').to('something_else') }
       it { expect { subject }.to change { token.reload.description }.from('').to('My first token') }
       it { expect { subject }.to change { token.reload.enabled }.from(true).to(false) }
+    end
+
+    context 'updates allowed_branches of a workflow token' do
+      let(:token) { create(:workflow_token, executor: user, scm_token: 'something') }
+      let(:update_parameters) { { id: token.id, token: { allowed_branches: 'main, master' } } }
+
+      it { expect { subject }.to change { token.reload.allowed_branches }.from(nil).to(['main', 'master']) }
+    end
+
+    context 'clears allowed_branches when an empty string is submitted' do
+      let(:token) { create(:workflow_token, executor: user, scm_token: 'something', allowed_branches: ['main']) }
+      let(:update_parameters) { { id: token.id, token: { allowed_branches: '' } } }
+
+      it { expect { subject }.to change { token.reload.allowed_branches }.from(['main']).to(nil) }
     end
 
     context 'updates the token string of a token belonging to the logged-in user' do
