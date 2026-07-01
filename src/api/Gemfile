@@ -129,6 +129,9 @@ gem 'toml-rb'
 # to upgrade your Rails application
 gem 'next_rails'
 
+# Result object pattern gem
+gem "resonad"
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
