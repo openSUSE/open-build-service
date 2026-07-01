@@ -83,8 +83,6 @@ module OBSApi
     # (by default production uses :info, the others :debug)
     # config.log_level = :debug
 
-    config.log_tags = [:uuid]
-
     # Use the database for sessions instead of the file system
     # (create the session table with 'rails create_sessions_table')
     # config.action_controller.session_store :active_record_store
