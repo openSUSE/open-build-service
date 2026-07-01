@@ -1,6 +1,6 @@
 class Workflow::Step::LinkProject < Workflow::Step
 
-  REQUIRED_KEYS = %i[target_project project_to_link_against].freeze
+  REQUIRED_KEYS = %i[target_project source_project].freeze
 
   validate :validate_existence_of_projects
 
@@ -11,9 +11,9 @@ class Workflow::Step::LinkProject < Workflow::Step
 
     case
     when workflow_run.closed_merged_pull_request?, workflow_run.unlabeled_pull_request?
-      @project.remove_project_link(linked_project_name: project_name_to_link_against)
+      @project.remove_project_link(linked_project_name: source_project_name)
     when workflow_run.new_pull_request?, workflow_run.reopened_pull_request?, workflow_run.push_event?, workflow_run.tag_push_event?, workflow_run.labeled_pull_request?
-      @project.add_project_link(project_name_to_link_against: project_name_to_link_against)
+      @project.add_project_link(source_project_name: source_project_name)
     end
   end
 
@@ -25,13 +25,13 @@ class Workflow::Step::LinkProject < Workflow::Step
   end
 
   # This is the project the packages are going to be pulled from
-  def project_name_to_link_against
-    step_instructions[:project_to_link_against]
+  def source_project_name
+    step_instructions[:source_project]
   end
 
   def validate_existence_of_projects
     project_name = target_project_base_name
-    return if project_name.blank? || project_name_to_link_against.blank?
+    return if project_name.blank? || source_project_name.blank?
 
     if Project.exists_by_name(project_name)
       @project = Project.get_by_name(project_name)
@@ -40,9 +40,9 @@ class Workflow::Step::LinkProject < Workflow::Step
     end
 
     # exists_by_name handles both local and remote (interconnect) projects
-    return if Project.exists_by_name(project_name_to_link_against)
+    return if Project.exists_by_name(source_project_name)
 
-    errors.add(:base, "The project '#{project_name_to_link_against}' does not exist.")
+    errors.add(:base, "The project '#{source_project_name}' does not exist.")
   end
 
   def create_target_project(project_name)

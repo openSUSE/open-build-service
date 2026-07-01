@@ -30,14 +30,14 @@ module ProjectLinks
     end
   end
 
-  def add_project_link(project_name_to_link_against:)
+  def add_project_link(source_project_name:)
     # The position is handled automatically by acts_as_list on LinkedProject,
     # which appends new links to the bottom of the list.
-    if Project.remote_project?(project_name_to_link_against)
-      linking_to.find_or_create_by(linked_remote_project_name: project_name_to_link_against)
+    if Project.remote_project?(source_project_name)
+      linking_to.find_or_create_by(linked_remote_project_name: source_project_name)
     else
-      project_to_link_against = Project.get_by_name(project_name_to_link_against)
-      linking_to.find_or_create_by(linked_db_project: project_to_link_against)
+      source_project = Project.get_by_name(source_project_name)
+      linking_to.find_or_create_by(linked_db_project: source_project)
     end
   end
 
