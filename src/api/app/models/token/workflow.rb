@@ -40,7 +40,9 @@ class Token::Workflow < Token
       return []
     end
     yaml_file = Workflows::YAMLDownloader.new(workflow_run, token: self).call
-    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: self, workflow_run: workflow_run).call
+    raise Token::Errors::NonExistentWorkflowsFile, yaml_file.error if yaml_file.failure?
+
+    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file.value, token: self, workflow_run: workflow_run).call
 
     return validation_errors unless validation_errors.none?
 
