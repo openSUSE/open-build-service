@@ -45,8 +45,6 @@ module OBSApi
     # like if you have constraints or database-specific column types
     config.active_record.schema_format = :ruby
 
-    config.log_tags = [:uuid]
-
     # required since rails 4.2
     config.active_job.queue_adapter = :delayed_job
 
