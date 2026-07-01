@@ -1,13 +1,13 @@
 RSpec.describe DownloadRepositoryLinkComponent, type: :component do
   let(:project) { create(:project, name: 'home:Admin') }
   let(:repository) { create(:repository, project: project, name: 'images') }
-  let(:app_configuration) { { 'download_url' => 'https://download.opensuse.org/repositories' } }
+  let(:configuration) { {} }
 
-  def mock_published_repository_exist(return_value: nil, raise_error: nil)
+  def mock_download_url_for_repository(return_value: nil, raise_error: nil)
     if raise_error
-      allow(Backend::Api::Published).to receive(:published_repository_exist?).and_raise(raise_error)
+      allow(Backend::Api::Published).to receive(:download_url_for_repository).and_raise(raise_error)
     else
-      allow(Backend::Api::Published).to receive(:published_repository_exist?).and_return(return_value)
+      allow(Backend::Api::Published).to receive(:download_url_for_repository).and_return(return_value)
     end
   end
 
@@ -17,37 +17,46 @@ RSpec.describe DownloadRepositoryLinkComponent, type: :component do
     end
   end
 
-  context 'when published artifacts exist for the repository' do
-    before do
-      mock_published_repository_exist(return_value: true)
+  context 'when the backend returns a download URL for the repository' do
+    let(:published_xml) { '<published><url>https://download.opensuse.org/repositories/home:/Admin/images</url></published>' }
 
-      render_inline(described_class.new(project: project, repository: repository, configuration: app_configuration))
+    before do
+      mock_download_url_for_repository(return_value: published_xml)
+      render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
     end
 
-    it 'renders the download repository link' do
-      expect(rendered_content).to have_link('Go to download repository', href: 'https://download.opensuse.org/repositories/home:/Admin/images')
+    it 'renders the download repository link with the URL from the backend' do
+      expect(rendered_content).to have_link('Go to download repository',
+                                            href: 'https://download.opensuse.org/repositories/home:/Admin/images')
     end
 
     it 'calls the backend with the correct project and repository names' do
-      expect(Backend::Api::Published).to have_received(:published_repository_exist?).with('home:Admin', 'images')
+      expect(Backend::Api::Published).to have_received(:download_url_for_repository).with('home:Admin', 'images')
     end
   end
 
-  context 'when no published artifacts exist for the repository' do
+  context 'when the backend returns no URL for the repository' do
     before do
-      mock_published_repository_exist(return_value: false)
-
-      render_inline(described_class.new(project: project, repository: repository, configuration: app_configuration))
+      mock_download_url_for_repository(return_value: '<published></published>')
+      render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
     end
 
     include_examples 'hides the download link'
   end
 
-  context 'when the published repository is missing' do
+  context 'when the published repository does not exist on the backend' do
     before do
-      mock_published_repository_exist(raise_error: Backend::NotFoundError)
+      mock_download_url_for_repository(raise_error: Backend::NotFoundError)
+      render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
+    end
 
-      render_inline(described_class.new(project: project, repository: repository, configuration: app_configuration))
+    include_examples 'hides the download link'
+  end
+
+  context 'when the backend raises an error' do
+    before do
+      mock_download_url_for_repository(raise_error: Backend::Error)
+      render_inline(described_class.new(project: project, repository: repository, configuration: configuration))
     end
 
     include_examples 'hides the download link'
