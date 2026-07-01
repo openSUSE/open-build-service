@@ -1,5 +1,9 @@
 - if show_link?
-  = link_to(@build_status, package_live_build_log_path(project: @project_name, package: @package_name, repository: @repository_name,
-                                                       arch: @architecture_name), rel: 'nofollow', class: css_class)
+  = link_to(package_live_build_log_path(project: @project_name, package: @package_name, repository: @repository_name,
+                                        arch: @architecture_name), rel: 'nofollow', class: css_class, title: @build_status.to_s.humanize) do
+    %i.fa{ class: status_icon_class }
+    %span.visually-hidden= @build_status
 - else
-  %span{ id: span_id, class: "#{css_class} toggle-build-info", title: 'Click to keep it open' }= @build_status
+  %span{ id: span_id, class: "#{css_class} toggle-build-info", title: @build_status.to_s.humanize }
+    %i.fa{ class: status_icon_class }
+    %span.visually-hidden= @build_status
