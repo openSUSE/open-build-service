@@ -3,8 +3,8 @@ class DownloadRepositoryLinkComponentPreview < ViewComponent::Preview
   def preview
     view_component = DownloadRepositoryLinkComponent.new(project: Project.new(name: 'home:Admin'),
                                                          repository: Repository.new(name: 'openSUSE_Tumbleweed'),
-                                                         configuration: { 'download_url' => 'https://download.opensuse.org' })
-    # Ensure the link is displayed since the repository won't be published if the project and repository don't exist.
+                                                         configuration: {})
+    # Bypass the backend call for preview purposes since the project and repository don't exist.
     view_component.instance_variable_set(:@download_area_url, 'https://download.opensuse.org/repositories/home:/Admin/openSUSE_Tumbleweed')
 
     render(view_component)
