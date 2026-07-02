@@ -126,13 +126,13 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   end
 
   def artifacts_for_link_project(parsed_artifacts)
-    project_path = helpers.project_show_path(project: parsed_artifacts[:project])
-    linked_project_path = helpers.project_show_path(project: parsed_artifacts[:project_to_link_against])
+    project_path = helpers.project_show_path(project: parsed_artifacts[:target_project])
+    linked_project_path = helpers.project_show_path(project: parsed_artifacts[:source_project])
     tag.li do
       concat('Linked project ')
-      concat(link_to(parsed_artifacts[:project_to_link_against_path], linked_project_path))
+      concat(link_to(parsed_artifacts[:source_project], linked_project_path))
       concat(' to project ')
-      concat(link_to(parsed_artifacts[:project], project_path))
+      concat(link_to(parsed_artifacts[:target_project], project_path))
     end
   end
 
