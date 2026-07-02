@@ -2,7 +2,6 @@ class Workflow::Step::LinkProject < Workflow::Step
 
   REQUIRED_KEYS = %i[target_project source_project].freeze
 
-  validate :validate_required_keys_not_empty
   validate :validate_source_project_exists
 
   def call
@@ -29,11 +28,6 @@ class Workflow::Step::LinkProject < Workflow::Step
   # This is the project the packages are going to be pulled from
   def source_project_name
     step_instructions[:source_project]
-  end
-
-  def validate_required_keys_not_empty
-    errors.add(:base, 'The target_project is empty') if target_project_base_name.blank?
-    errors.add(:base, 'The source_project is empty') if source_project_name.blank?
   end
 
   def validate_source_project_exists
