@@ -84,6 +84,18 @@
           .row
             .col
               .mb-3
+                %label.fw-bold
+                  Allowed Branches:
+                %span
+                  - if @token.allowed_branches.present?
+                    = @token.allowed_branches.join(', ')
+                  - else
+                    %small.fst-italic.text-muted
+                      All branches
+
+          .row
+            .col
+              .mb-3
                 %label.col-form-label.me-2.fw-bold
                   Token trigger url:
                 .input-group

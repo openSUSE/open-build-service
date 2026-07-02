@@ -9,6 +9,9 @@
       = token_package_link
   %p.card-text
     Runs as: #{link_to(@token.executor.login, user_path(@token.executor))}
+  - if @token.is_a?(Token::Workflow)
+    %p.card-text
+      Allowed branches: #{@token.allowed_branches.present? ? @token.allowed_branches.join(', ') : 'all'}
   - if @token.triggered_at.present?
     %p.card-text
       Last trigger on #{@token.triggered_at}
