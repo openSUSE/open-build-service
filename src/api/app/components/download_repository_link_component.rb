@@ -1,14 +1,22 @@
 class DownloadRepositoryLinkComponent < ApplicationComponent
-  attr_reader :published_repository_exist, :download_area_url
+  attr_reader :download_area_url
 
   def initialize(project:, repository:, configuration:)
     super()
 
-    @published_repository_exist = false
-    download_url = configuration['download_url']
-    return unless download_url
+    @download_area_url = get_published_url(project.name, repository.name)
+  end
 
-    @published_repository_exist = Backend::Api::Published.published_repository_exist?(project.to_s, repository.to_s)
-    @download_area_url = "#{download_url}/#{project.to_s.gsub(':', ':/')}/#{repository}"
+  private
+
+  def get_published_url(project_name, repository_name)
+    xml_data = Backend::Api::Published.download_url_for_repository(project_name, repository_name)
+    return nil if xml_data.blank?
+
+    xml = Xmlhash.parse(xml_data)
+    url = xml.elements('url').last&.to_s
+    url.presence
+  rescue Backend::NotFoundError, Backend::Error
+    nil
   end
 end
