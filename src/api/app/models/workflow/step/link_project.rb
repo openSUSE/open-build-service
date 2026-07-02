@@ -12,9 +12,9 @@ class Workflow::Step::LinkProject < Workflow::Step
 
     case
     when workflow_run.closed_merged_pull_request?, workflow_run.unlabeled_pull_request?
-      @target_project.remove_project_link(linked_project_name: source_project_name)
+      @target_project.remove_project_link(linked_project_name: step_instructions[:source_project])
     when workflow_run.new_pull_request?, workflow_run.reopened_pull_request?, workflow_run.push_event?, workflow_run.tag_push_event?, workflow_run.labeled_pull_request?
-      @target_project.add_project_link(source_project_name: source_project_name)
+      @target_project.add_project_link(source_project_name: step_instructions[:source_project])
     end
   end
 
@@ -25,15 +25,10 @@ class Workflow::Step::LinkProject < Workflow::Step
     step_instructions[:target_project]
   end
 
-  # This is the project the packages are going to be pulled from
-  def source_project_name
-    step_instructions[:source_project]
-  end
-
   def validate_source_project_exists
     # exists_by_name handles both local and remote (interconnect) projects
-    return if Project.exists_by_name(source_project_name)
+    return if Project.exists_by_name(step_instructions[:source_project])
 
-    errors.add(:base, "The project '#{source_project_name}' does not exist.")
+    errors.add(:base, "The project '#{step_instructions[:source_project]}' does not exist.")
   end
 end
