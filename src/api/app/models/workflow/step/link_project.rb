@@ -7,13 +7,13 @@ class Workflow::Step::LinkProject < Workflow::Step
   def call
     return unless valid?
 
-    Pundit.authorize(@token.executor, @project, :update?)
+    Pundit.authorize(@token.executor, @target_project, :update?)
 
     case
     when workflow_run.closed_merged_pull_request?, workflow_run.unlabeled_pull_request?
-      @project.remove_project_link(linked_project_name: source_project_name)
+      @target_project.remove_project_link(linked_project_name: source_project_name)
     when workflow_run.new_pull_request?, workflow_run.reopened_pull_request?, workflow_run.push_event?, workflow_run.tag_push_event?, workflow_run.labeled_pull_request?
-      @project.add_project_link(source_project_name: source_project_name)
+      @target_project.add_project_link(source_project_name: source_project_name)
     end
   end
 
@@ -32,7 +32,7 @@ class Workflow::Step::LinkProject < Workflow::Step
   def validate_existence_of_projects
     return if target_project_base_name.blank? || source_project_name.blank?
 
-    @project = target_project
+    @target_project = target_project
 
     # exists_by_name handles both local and remote (interconnect) projects
     return if Project.exists_by_name(source_project_name)
