@@ -25,6 +25,11 @@ module Workflows
                     {
                       request_numbers_and_state: @step.artifact
                     }
+                  when 'Workflow::Step::LinkProject'
+                    {
+                      source_project: @step.step_instructions[:source_project],
+                      target_project: @step.step_instructions[:target_project]
+                    }
                   end
       WorkflowArtifactsPerStep.find_or_create_by(workflow_run_id: @workflow_run_id, step: @step.class.name, artifacts: artifacts.to_json) if artifacts
     end

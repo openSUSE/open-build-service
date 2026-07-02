@@ -29,6 +29,8 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
       artifacts_for_submit_request(parsed_artifacts)
     when 'Workflow::Step::SetFlags'
       artifacts_for_set_flag(parsed_artifacts)
+    when 'Workflow::Step::LinkProject'
+      artifacts_for_link_project(parsed_artifacts)
     end
   rescue JSON::ParserError, ActionController::UrlGenerationError => e
     Airbrake.notify(e, artifacts_per_step_id: artifacts_per_step.id)
@@ -120,6 +122,17 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
       concat(link_to(parsed_artifacts[:project].to_s, project_path))
       concat(': ')
       concat(list_of_repositories(parsed_artifacts[:repositories]))
+    end
+  end
+
+  def artifacts_for_link_project(parsed_artifacts)
+    project_path = helpers.project_show_path(project: parsed_artifacts[:target_project])
+    linked_project_path = helpers.project_show_path(project: parsed_artifacts[:source_project])
+    tag.li do
+      concat('Linked project ')
+      concat(link_to(parsed_artifacts[:source_project], linked_project_path))
+      concat(' to project ')
+      concat(link_to(parsed_artifacts[:target_project], project_path))
     end
   end
 
