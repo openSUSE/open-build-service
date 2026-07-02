@@ -1,10 +1,10 @@
 require "active_support/core_ext/integer/time"
 
-OBSApi::Application.configure do
+Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
-  config.cache_classes = true
+  config.enable_reloading = false
 
   # Use memcache for cache/session storage
   config.cache_store = if CONFIG['memcached_host']
@@ -50,10 +50,10 @@ OBSApi::Application.configure do
   # config.action_cable.allowed_request_origins = [ 'http://example.com', /http:\/\/example.*/ ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  config.force_ssl = true
 
   # Prepend all log lines with the following tags.
-  # config.log_tags = [:request_id]
+  config.log_tags = [:request_id]
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
