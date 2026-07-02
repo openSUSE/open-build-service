@@ -67,7 +67,8 @@ class WorkflowRun < ApplicationRecord
   enum :status, {
     running: 0,
     success: 1,
-    fail: 2
+    fail: 2,
+    skipped: 3
   }
 
   # Marks the workflow run as failed and records the relevant debug information in response_body
