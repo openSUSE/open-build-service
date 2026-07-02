@@ -2,8 +2,6 @@ class Workflow::Step::LinkProject < Workflow::Step
 
   REQUIRED_KEYS = %i[target_project source_project].freeze
 
-  validate :validate_source_project_exists
-
   def call
     return unless valid?
 
@@ -23,12 +21,5 @@ class Workflow::Step::LinkProject < Workflow::Step
   # This is the project the packages are going to land into
   def target_project_base_name
     step_instructions[:target_project]
-  end
-
-  def validate_source_project_exists
-    # exists_by_name handles both local and remote (interconnect) projects
-    return if Project.exists_by_name(step_instructions[:source_project])
-
-    errors.add(:base, "The project '#{step_instructions[:source_project]}' does not exist.")
   end
 end

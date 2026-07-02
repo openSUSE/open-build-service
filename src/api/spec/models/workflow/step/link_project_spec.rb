@@ -46,13 +46,8 @@ RSpec.describe Workflow::Step::LinkProject do
         }
       end
 
-      it 'is invalid' do
-        expect(subject).not_to be_valid
-      end
-
       it 'adds an error' do
-        subject.valid?
-        expect(subject.errors.full_messages).to include("The project 'does_not_exist' does not exist.")
+        expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError)
       end
     end
 
