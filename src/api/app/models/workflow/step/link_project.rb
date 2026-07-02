@@ -5,14 +5,13 @@ class Workflow::Step::LinkProject < Workflow::Step
   def call
     return unless valid?
 
-    @target_project = target_project
-    Pundit.authorize(@token.executor, @target_project, :update?)
+    Pundit.authorize(@token.executor, target_project, :update?)
 
     case
     when workflow_run.closed_merged_pull_request?, workflow_run.unlabeled_pull_request?
-      @target_project.remove_project_link(linked_project_name: step_instructions[:source_project])
+      target_project.remove_project_link(linked_project_name: step_instructions[:source_project])
     when workflow_run.new_pull_request?, workflow_run.reopened_pull_request?, workflow_run.push_event?, workflow_run.tag_push_event?, workflow_run.labeled_pull_request?
-      @target_project.add_project_link(source_project_name: step_instructions[:source_project])
+      target_project.add_project_link(source_project_name: step_instructions[:source_project])
     end
   end
 
