@@ -2,11 +2,13 @@ class Workflow::Step::LinkProject < Workflow::Step
 
   REQUIRED_KEYS = %i[target_project source_project].freeze
 
-  validate :validate_existence_of_projects
+  validate :validate_required_keys_not_empty
+  validate :validate_source_project_exists
 
   def call
     return unless valid?
 
+    @target_project = target_project
     Pundit.authorize(@token.executor, @target_project, :update?)
 
     case
@@ -29,11 +31,12 @@ class Workflow::Step::LinkProject < Workflow::Step
     step_instructions[:source_project]
   end
 
-  def validate_existence_of_projects
-    return if target_project_base_name.blank? || source_project_name.blank?
+  def validate_required_keys_not_empty
+    errors.add(:base, 'The target_project is empty') if target_project_base_name.blank?
+    errors.add(:base, 'The source_project is empty') if source_project_name.blank?
+  end
 
-    @target_project = target_project
-
+  def validate_source_project_exists
     # exists_by_name handles both local and remote (interconnect) projects
     return if Project.exists_by_name(source_project_name)
 
