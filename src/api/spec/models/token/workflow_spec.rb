@@ -128,6 +128,68 @@ RSpec.describe Token::Workflow do
       end
     end
 
+    context 'with allowed_branches filter' do
+      subject { workflow_token.call(workflow_run) }
+
+      let(:yaml_downloader) { instance_double(Workflows::YAMLDownloader) }
+      let(:yaml_file) { file_fixture('workflows.yml') }
+      let(:yaml_to_workflows_service) { instance_double(Workflows::YAMLToWorkflowsService) }
+      let(:workflow_run) do
+        create(:workflow_run, token: workflow_token, scm_vendor: 'github', hook_event: 'pull_request',
+                              request_payload: file_fixture('request_payload_github_pull_request_opened.json').read)
+      end
+
+      before do
+        allow(Workflows::YAMLDownloader).to receive(:new).and_return(yaml_downloader)
+        allow(yaml_downloader).to receive(:call).and_return(yaml_file)
+        allow(ReportToSCMJob).to receive(:perform_later)
+        allow(Workflows::YAMLToWorkflowsService).to receive(:new).and_return(yaml_to_workflows_service)
+        allow(yaml_to_workflows_service).to receive(:call).and_return([])
+      end
+
+      context 'when the branch is in the allowed list' do
+        # The request payload (fixture) has master as target_branch
+        let(:workflow_token) { create(:workflow_token, executor: token_user, allowed_branches: ['master']) }
+
+        it 'proceeds to download the YAML' do
+          subject
+          expect(yaml_downloader).to have_received(:call)
+        end
+      end
+
+      context 'when the branch is not in the allowed list' do
+        let(:workflow_token) { create(:workflow_token, executor: token_user, allowed_branches: ['gh-pages']) }
+
+        before do
+          allow(yaml_downloader).to receive(:call)
+        end
+
+        it 'returns early without downloading the YAML' do
+          expect(subject).to eq([])
+          expect(yaml_downloader).not_to have_received(:call)
+        end
+      end
+
+      context 'when allowed_branches is nil (all branches allowed)' do
+        let(:workflow_token) { create(:workflow_token, executor: token_user, allowed_branches: nil) }
+
+        it 'proceeds to download the YAML' do
+          subject
+          expect(yaml_downloader).to have_received(:call)
+        end
+      end
+
+      context 'when the event is a tag push (filter never applies)' do
+        let(:workflow_token) { create(:workflow_token, executor: token_user, allowed_branches: ['gh-pages']) }
+        let(:workflow_run) { create(:workflow_run, :tag_push, token: workflow_token) }
+
+        it 'proceeds to download the YAML regardless of allowed_branches' do
+          subject
+          expect(yaml_downloader).to have_received(:call)
+        end
+      end
+    end
+
     context 'validates presence of either workflow configuration path or url' do
       let(:workflow_run) do
         create(:workflow_run, token: workflow_token, scm_vendor: 'github', hook_event: 'pull_request',
@@ -252,6 +314,18 @@ RSpec.describe Token::Workflow do
         expect { perform_enqueued_jobs { subject } }.not_to(change(SCMStatusReport, :count))
       end
     end
+  end
+
+  describe '#allowed_branches=' do
+    it { expect(build(:workflow_token, allowed_branches: [])).to have_attributes(allowed_branches: nil) }
+    it { expect(build(:workflow_token, allowed_branches: [''])).to have_attributes(allowed_branches: nil) }
+  end
+
+  describe '#allowed_branches_valid' do
+    it { expect(build(:workflow_token, allowed_branches: nil)).to be_valid }
+    it { expect(build(:workflow_token, allowed_branches: 'main')).to be_valid }
+    it { expect(build(:workflow_token, allowed_branches: ['main', 'master'])).to be_valid }
+    it { expect(build(:workflow_token, allowed_branches: [1, 'main'])).not_to be_valid }
   end
 
   describe 'token sharing' do

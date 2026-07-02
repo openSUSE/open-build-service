@@ -60,6 +60,11 @@
                                                               placeholder: 'Eg: https://example.com/.my_subdir/my_workflows_file.yml')
                 .form-text.text-muted
                   When the URL is given, the path will be ignored. The URL should be accessible for the OBS instance.
+              .mb-3
+                = f.label(:allowed_branches, 'Allowed Branches:')
+                = f.text_field(:allowed_branches, class: 'form-control', placeholder: 'Eg: main, master, develop')
+                .form-text.text-muted
+                  Optional: comma-separated list of branch names that trigger the workflow. Leave empty to allow all branches.
           .actions
             = link_to('Cancel', tokens_path, title: 'Cancel', class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
             = f.submit('Create', class: 'btn btn-primary px-4 mt-3 mt-sm-0')

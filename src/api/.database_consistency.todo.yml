@@ -1991,6 +1991,9 @@ Token:
   workflow_configuration_path:
     LengthConstraintChecker:
       enabled: false
+  allowed_branches:
+    LengthConstraintChecker:
+      enabled: false
   workflow_configuration_url:
     LengthConstraintChecker:
       enabled: false

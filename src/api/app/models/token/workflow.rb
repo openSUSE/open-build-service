@@ -21,11 +21,14 @@ class Token::Workflow < Token
 
   attr_writer :reason
 
+  serialize :allowed_branches, coder: JSON
+
   validates :scm_token, presence: true
   # Either a url referring to the worklflow configuration file or a filepath to the config inside the
   # SCM repository has to be provided
   validates :workflow_configuration_path, presence: true, unless: -> { workflow_configuration_url.present? }
   validates :workflow_configuration_url, presence: true, unless: -> { workflow_configuration_path.present? }
+  validate :allowed_branches_valid, if: -> { allowed_branches.present? }
 
   after_save :state_change_event, if: :enabled_previously_changed?
 
@@ -39,6 +42,9 @@ class Token::Workflow < Token
       ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'success', initial_report: true)
       return []
     end
+
+    return [] unless branch_allowed?(workflow_run)
+
     yaml_file = Workflows::YAMLDownloader.new(workflow_run, token: self).call
     @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: self, workflow_run: workflow_run).call
 
@@ -74,6 +80,16 @@ class Token::Workflow < Token
     [users, groups&.map(&:users)&.flatten].flatten.compact.uniq
   end
 
+  def allowed_branches=(value)
+    super(
+      case value
+      when String then value.split(',').map(&:strip).reject(&:empty?).presence
+      when Array  then value.map { |b| b.is_a?(String) ? b.strip : b }.reject { |b| b == '' }.presence
+      else             value.presence
+      end
+    )
+  end
+
   private
 
   def validation_errors
@@ -91,6 +107,20 @@ class Token::Workflow < Token
   def state_change_event
     Event::TokenStateChange.create(id: workflow_runs.last&.id, token_id: id, reason: @reason, enabled: enabled)
   end
+
+  def allowed_branches_valid
+    # At this point the value is formated as an array or nil after calling allowed_branches=(value)
+    return if allowed_branches.is_a?(Array) && allowed_branches.all? { |b| b.is_a?(String) }
+
+    errors.add(:allowed_branches, 'must be a comma-separated list of branch names')
+  end
+
+  def branch_allowed?(workflow_run)
+    return true if workflow_run.generic_event_type == 'tag_push'
+    return true if allowed_branches.blank?
+
+    allowed_branches.include?(workflow_run.target_branch.to_s)
+  end
 end
 
 # == Schema Information
@@ -98,6 +128,7 @@ end
 # Table name: tokens
 #
 #  id                          :integer          not null, primary key
+#  allowed_branches            :text(65535)
 #  description                 :string(64)       default("")
 #  enabled                     :boolean          default(TRUE), not null, indexed
 #  scm_token                   :string(255)      indexed

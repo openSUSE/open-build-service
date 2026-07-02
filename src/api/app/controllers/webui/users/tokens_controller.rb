@@ -85,16 +85,27 @@ class Webui::Users::TokensController < Webui::WebuiController
 
   def set_parameters
     @params = params.except(:project_name, :package_name).require(:token).except(:string_readonly)
-                    .permit(:type, :description, :scm_token, :workflow_configuration_path, :workflow_configuration_url).tap do |token_parameters|
+                    .permit(:type, :description, :scm_token, :workflow_configuration_path, :workflow_configuration_url, :allowed_branches).tap do |token_parameters|
       token_parameters.require(:type)
     end
-    @params = @params.except(:scm_token, :workflow_configuration_path, :workflow_configuration_url) unless @params[:type] == 'workflow'
+    @params = @params.except(:scm_token, :workflow_configuration_path, :workflow_configuration_url, :allowed_branches) unless @params[:type] == 'workflow'
+    @params = @params.merge(allowed_branches: parse_allowed_branches(@params[:allowed_branches])) if @params[:type] == 'workflow'
     @extra_params = params.slice(:project_name, :package_name).permit!
   end
 
   def update_parameters
-    params.require(:token).except(:string_readonly).permit(:description, :enabled, :scm_token, :workflow_configuration_path, :workflow_configuration_url)
-          .reject! { |k, v| k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?) }
+    permitted = params.require(:token).except(:string_readonly)
+                      .permit(:description, :enabled, :scm_token, :workflow_configuration_path, :workflow_configuration_url, :allowed_branches)
+                      .reject! { |k, v| k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?) }
+    return permitted unless @token.is_a?(Token::Workflow) && permitted.key?(:allowed_branches)
+
+    permitted.merge(allowed_branches: parse_allowed_branches(permitted[:allowed_branches]))
+  end
+
+  def parse_allowed_branches(value)
+    return nil if value.nil?
+
+    value.to_s.split(',').map(&:strip).reject(&:empty?).presence
   end
 
   def set_package
