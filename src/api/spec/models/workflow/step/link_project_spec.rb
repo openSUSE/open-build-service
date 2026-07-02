@@ -28,42 +28,13 @@ RSpec.describe Workflow::Step::LinkProject do
   end
 
   describe '#validate_existence_of_projects' do
+    before do
+      create(:project, name: subject.target_project_name)
+    end
+
     context 'when both projects exist' do
       it 'is valid' do
         expect(subject).to be_valid
-      end
-    end
-
-    context 'when the target project does not exist' do
-      context 'and you are authorized to access that project' do
-        let(:step_instructions) do
-          {
-            target_project: "#{user.home_project.name}:does_not_exist",
-            source_project: source_project.name
-          }
-        end
-
-        it 'creates a LinkedProject' do
-          expect { subject.call }.to change(LinkedProject, :count).by(1)
-        end
-
-        it 'links the source project to the target project' do
-          subject.call
-          expect(Project.get_by_name("#{user.home_project.name}:does_not_exist").projects_linking_to).to include(source_project)
-        end
-      end
-
-      context 'but you are not authorized to access that project' do
-        let(:step_instructions) do
-          {
-            target_project: "does_not_exist",
-            source_project: source_project.name
-          }
-        end
-
-        it 'raises an error' do
-          expect { subject.call }.to raise_error(Pundit::NotAuthorizedError)
-        end
       end
     end
 
@@ -122,23 +93,35 @@ RSpec.describe Workflow::Step::LinkProject do
 
         it 'links the source project to the target project' do
           subject.call
-          expect(target_project.reload.projects_linking_to).to include(source_project)
+          expect(subject.target_project.reload.projects_linking_to).to include(source_project)
         end
       end
 
       context 'for a new pull request' do
+        before do
+          create(:project, name: subject.target_project_name)
+        end
+
         let(:hook_action) { 'opened' }
 
         it_behaves_like 'an scm event that adds a project link'
       end
 
       context 'for a reopened pull request' do
+        before do
+          create(:project, name: subject.target_project_name)
+        end
+
         let(:hook_action) { 'reopened' }
 
         it_behaves_like 'an scm event that adds a project link'
       end
 
       context 'for a labeled pull request' do
+        before do
+          create(:project, name: subject.target_project_name)
+        end
+
         let(:hook_action) { 'labeled' }
         let(:request_payload) { file_fixture('request_payload_github_pull_request_labeled.json').read }
 
@@ -164,7 +147,8 @@ RSpec.describe Workflow::Step::LinkProject do
 
     context 'when removing a link' do
       before do
-        target_project.add_project_link(source_project_name: source_project.name)
+        create(:project, name: subject.target_project_name)
+        subject.target_project.add_project_link(source_project_name: source_project.name)
       end
 
       shared_examples 'an scm event that removes a project link' do

@@ -30,29 +30,13 @@ class Workflow::Step::LinkProject < Workflow::Step
   end
 
   def validate_existence_of_projects
-    project_name = target_project_base_name
-    return if project_name.blank? || source_project_name.blank?
+    return if target_project_base_name.blank? || source_project_name.blank?
 
-    if Project.exists_by_name(project_name)
-      @project = Project.get_by_name(project_name)
-    else
-      @project = create_target_project(project_name)
-    end
+    @project = target_project
 
     # exists_by_name handles both local and remote (interconnect) projects
     return if Project.exists_by_name(source_project_name)
 
     errors.add(:base, "The project '#{source_project_name}' does not exist.")
-  end
-
-  def create_target_project(project_name)
-    project = Project.new(name: target_project_base_name, url: workflow_run.event_source_url)
-    Pundit.authorize(@token.executor, project, :create?)
-
-    project.relationships.build(user: @token.executor,
-                                role: Role.find_by_title('maintainer'))
-    project.commit_user = User.session
-    project.store(comment: 'SCI/CI integration, link_project step')
-    project
   end
 end
