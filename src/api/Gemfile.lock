@@ -440,6 +440,7 @@ GEM
       io-console (~> 0.5)
     request_store (1.7.0)
       rack (>= 1.4)
+    resonad (1.4.0)
     rexml (3.4.4)
     riddle (2.4.3)
     rspec (3.13.2)
@@ -693,6 +694,7 @@ DEPENDENCIES
   rails-controller-testing
   rantly
   redcarpet
+  resonad
   rexml
   rspec
   rspec-rails

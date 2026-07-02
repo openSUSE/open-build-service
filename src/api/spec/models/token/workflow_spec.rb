@@ -45,7 +45,7 @@ RSpec.describe Token::Workflow do
         allow(workflow).to receive(:call).and_return(true)
 
         allow(Workflows::YAMLDownloader).to receive(:new).with(workflow_run, token: workflow_token).and_return(yaml_downloader)
-        allow(yaml_downloader).to receive(:call).and_return(yaml_file)
+        allow(yaml_downloader).to receive(:call).and_return(Resonad.Success(yaml_file))
         allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, token: workflow_token,
                                                                        workflow_run: workflow_run).and_return(yaml_to_workflows_service)
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
@@ -81,7 +81,7 @@ RSpec.describe Token::Workflow do
 
       before do
         allow(Workflows::YAMLDownloader).to receive(:new).with(workflow_run, token: workflow_token).and_return(yaml_downloader)
-        allow(yaml_downloader).to receive(:call).and_return(yaml_file)
+        allow(yaml_downloader).to receive(:call).and_return(Resonad.Success(yaml_file))
         allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, token: workflow_token,
                                                                        workflow_run: workflow_run).and_return(yaml_to_workflows_service)
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
@@ -200,7 +200,7 @@ RSpec.describe Token::Workflow do
         # Skipping call since it's tested in the Workflow model
         allow(workflow).to receive(:call).and_return(true)
         allow(Workflows::YAMLDownloader).to receive(:new).with(workflow_run, token: workflow_token).and_return(yaml_downloader)
-        allow(yaml_downloader).to receive(:call).and_return(yaml_file)
+        allow(yaml_downloader).to receive(:call).and_return(Resonad.Success(yaml_file))
         allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, token: workflow_token,
                                                                        workflow_run: workflow_run).and_return(yaml_to_workflows_service)
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
@@ -240,7 +240,7 @@ RSpec.describe Token::Workflow do
         allow(workflow).to receive(:call).and_return(true)
 
         allow(Workflows::YAMLDownloader).to receive(:new).with(workflow_run, token: workflow_token).and_return(yaml_downloader)
-        allow(yaml_downloader).to receive(:call).and_return(yaml_file)
+        allow(yaml_downloader).to receive(:call).and_return(Resonad.Success(yaml_file))
         allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, token: workflow_token,
                                                                        workflow_run: workflow_run).and_return(yaml_to_workflows_service)
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)

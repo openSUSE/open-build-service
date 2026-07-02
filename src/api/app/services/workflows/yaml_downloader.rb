@@ -38,13 +38,12 @@ module Workflows
       begin
         content = client.content(@workflow_run.target_repository_full_name, path: "/#{@token.workflow_configuration_path}", ref: @workflow_run.target_branch)[:content]
       rescue Octokit::InvalidRepository => e
-        raise Token::Errors::NonExistentRepository, e.message
+        return Resonad.Failure(e.message)
       rescue Octokit::NotFound => e
         # 'target_branch' can contain a commit sha (when tag push) instead of a branch name
-        raise Token::Errors::NonExistentWorkflowsFile,
-              "#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@workflow_run.target_branch}: #{e.message}"
+        return Resonad.Failure("#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@workflow_run.target_branch}: #{e.message}")
       end
-      create_temp_file(Base64.decode64(content))
+      Resonad.Success(create_temp_file(Base64.decode64(content)))
     end
 
     # Note: For GitLab we still use the Down gem when workflow_configuration_url is present
@@ -53,9 +52,9 @@ module Workflows
         gitlab_client = Gitlab.client(endpoint: "#{@workflow_run.api_endpoint}/api/v4", private_token: @token.scm_token)
         gitlab_file = gitlab_client.file_contents(@workflow_run.gitlab_project_id, @token.workflow_configuration_path, @workflow_run.target_branch)
       rescue Gitlab::Error::NotFound => e
-        raise Token::Errors::NonExistentRepository, e.message
+        return Resonad.Failure(e.message)
       end
-      create_temp_file(gitlab_file)
+      Resonad.Success(create_temp_file(gitlab_file))
     end
 
     def create_temp_file(content)
@@ -66,13 +65,13 @@ module Workflows
     end
 
     def download_from_url(url)
-      Down.download(url, max_size: MAX_FILE_SIZE)
+      Resonad.Success(Down.download(url, max_size: MAX_FILE_SIZE))
     rescue Down::Error => e
-      raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}" if @token.workflow_configuration_url.present?
+      return Resonad.Failure("#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}") if @token.workflow_configuration_url.present?
 
       # 'target_branch' can contain a commit sha (when tag push) instead of a branch name
-      raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@workflow_run.target_branch}." \
-                                                     "\nIs the configuration file in the expected place? Check #{DOCUMENTATION_LINK}\n#{e.message}"
+      Resonad.Failure("#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@workflow_run.target_branch}." \
+                      "\nIs the configuration file in the expected place? Check #{DOCUMENTATION_LINK}\n#{e.message}")
     end
   end
 end
