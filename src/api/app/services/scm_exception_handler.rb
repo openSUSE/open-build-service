@@ -48,11 +48,12 @@ class SCMExceptionHandler
     log_to_workflow_run(exception, 'Gitea') if @workflow_run.present?
   end
 
-  def initialize(event_payload, event_subscription_payload, scm_token, workflow_run = nil)
+  def initialize(event_payload, event_subscription_payload, scm_token, workflow_run = nil, initial_report: false)
     @event_payload = event_payload.deep_symbolize_keys
     @event_subscription_payload = event_subscription_payload.deep_symbolize_keys
     @scm_token = scm_token
     @workflow_run = workflow_run
+    @initial_report = initial_report
   end
 
   private
@@ -77,6 +78,7 @@ class SCMExceptionHandler
                                             # GitLab
                                             project_id: @event_subscription_payload[:project_id],
                                             path_with_namespace: @event_subscription_payload[:path_with_namespace]
-                                          })
+                                          },
+                                          disable_token: @initial_report)
   end
 end

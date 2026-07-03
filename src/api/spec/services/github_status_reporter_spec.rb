@@ -88,6 +88,30 @@ RSpec.describe GithubStatusReporter, type: :service do
           expect(workflow_run.last_response_body).to eq('Failed to report back to GitHub: Sorry. Your account is suspended.')
         end
       end
+
+      context 'when GitHub rejects a follow-up report' do
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_raise(Octokit::Forbidden)
+        end
+
+        it 'keeps the token enabled' do
+          expect { subject }.not_to(change { workflow_run.token.reload.enabled })
+        end
+      end
+
+      context 'when GitHub rejects the initial report' do
+        let(:scm_status_reporter) { GithubStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, initial_report: true) }
+
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:create_status).and_raise(Octokit::Forbidden)
+        end
+
+        it 'disables the token' do
+          expect { subject }.to change { workflow_run.token.reload.enabled }.from(true).to(false)
+        end
+      end
     end
 
     context 'when sending a report back to GitHub' do

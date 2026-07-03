@@ -2,7 +2,7 @@ class GithubStatusReporter < SCMExceptionHandler
   attr_accessor :state, :initial_report, :event_type
 
   def initialize(event_payload, event_subscription_payload, scm_token, state, workflow_run = nil, event_type = nil, initial_report: false)
-    super(event_payload, event_subscription_payload, scm_token, workflow_run)
+    super(event_payload, event_subscription_payload, scm_token, workflow_run, initial_report: initial_report)
 
     @state = state
     @initial_report = initial_report

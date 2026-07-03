@@ -92,8 +92,20 @@ RSpec.describe WorkflowRun, :vcr do
       end
     end
 
-    context 'when the SCM responds with a forbidden message' do
+    context 'when the SCM responds with a forbidden message during a follow-up report' do
       subject { workflow_run.save_scm_report_failure('Failed to report back to GitHub: Request is forbidden.', { api_endpoint: 'https://api.github.com' }) }
+
+      it 'does not disable the token of the token workflow' do
+        expect { subject }.not_to(change { workflow_run.token.reload.enabled })
+      end
+    end
+
+    context 'when the SCM responds with a forbidden message during the initial report' do
+      subject do
+        workflow_run.save_scm_report_failure('Failed to report back to GitHub: Request is forbidden.',
+                                             { api_endpoint: 'https://api.github.com' },
+                                             disable_token: true)
+      end
 
       it 'disables the token of the token workflow' do
         expect { subject }.to change { workflow_run.token.reload.enabled }.from(true).to(false)
