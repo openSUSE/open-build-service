@@ -4,10 +4,42 @@ RSpec.describe Token::Workflow do
   let(:workflow_token) { create(:workflow_token, executor: token_user) }
 
   describe '#call' do
-    context 'with wrong SCM token' do
-      let(:yaml_downloader) { instance_double(Workflows::YAMLDownloader) }
-      let(:workflow_run) { create(:workflow_run, token: workflow_token, response_url: 'https://example.com') }
+    let(:yaml_downloader) { instance_double(Workflows::YAMLDownloader) }
+    let(:workflow_run) { create(:workflow_run, token: workflow_token, response_url: 'https://example.com') }
 
+    context 'when the workflow configuration file is not found on the branch' do
+      before do
+        allow(Workflows::YAMLDownloader).to receive(:new).and_return(yaml_downloader)
+        allow(yaml_downloader).to receive(:call).and_return(Resonad.Failure(:not_found))
+      end
+
+      it 'marks the workflow_run as skipped' do
+        workflow_token.call(workflow_run)
+        expect(workflow_run.reload.skipped?).to be(true)
+      end
+
+      it 'stores a descriptive message in response_body' do
+        workflow_token.call(workflow_run)
+        expect(workflow_run.reload.response_body).to include("No workflow configuration found on branch '#{workflow_run.target_branch}'")
+      end
+
+      it 'does not return other errors' do
+        expect(workflow_token.call(workflow_run)).to eq([])
+      end
+    end
+
+    context 'when the workflow configuration file cannot be downloaded due to another error' do
+      before do
+        allow(Workflows::YAMLDownloader).to receive(:new).and_return(yaml_downloader)
+        allow(yaml_downloader).to receive(:call).and_return(Resonad.Failure('connection refused'))
+      end
+
+      it 'raises NonExistentWorkflowsFile' do
+        expect { workflow_token.call(workflow_run) }.to raise_error(Token::Errors::NonExistentWorkflowsFile, 'connection refused')
+      end
+    end
+
+    context 'with wrong SCM token' do
       before do
         allow(Workflows::YAMLDownloader).to receive(:new).and_return(yaml_downloader)
         allow(yaml_downloader).to receive(:call).and_raise(Octokit::Unauthorized)

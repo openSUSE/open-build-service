@@ -40,7 +40,14 @@ class Token::Workflow < Token
       return []
     end
     yaml_file = Workflows::YAMLDownloader.new(workflow_run, token: self).call
-    raise Token::Errors::NonExistentWorkflowsFile, yaml_file.error if yaml_file.failure?
+    if yaml_file.failure?
+      if yaml_file.error == :not_found
+        workflow_run.update(status: :skipped,
+                            response_body: "No workflow configuration found on branch '#{workflow_run.target_branch}'. Skipping.")
+        return []
+      end
+      raise Token::Errors::NonExistentWorkflowsFile, yaml_file.error
+    end
 
     @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file.value, token: self, workflow_run: workflow_run).call
 

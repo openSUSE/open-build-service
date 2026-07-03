@@ -63,7 +63,7 @@ class TriggerWorkflowController < ApplicationController
     @token.executor.run_as do
       validation_errors = @token.call(@workflow_run)
 
-      unless @workflow_run.status == 'fail' # The SCMStatusReporter might already set the status to 'fail', lets not overwrite it
+      unless @workflow_run.fail? || @workflow_run.skipped? # Do not overwrite a status already set during token#call
         if validation_errors.none?
           @workflow_run.update(status: 'success', response_body: render_ok)
         else
