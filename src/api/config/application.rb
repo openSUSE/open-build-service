@@ -30,8 +30,6 @@ else
   Bundler.require(*Rails.groups(assets: %w[development test]))
 end
 
-require_relative '../lib/rabbitmq_bus'
-
 module OBSApi
   class Application < Rails::Application
     # Enable rails version 7.0 defaults
