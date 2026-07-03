@@ -35,16 +35,12 @@ RSpec.describe TriggerWorkflowController do
         post :create, body: github_payload
       end
 
-      it { expect(response).to have_http_status(:not_found) }
+      it { expect(response).to have_http_status(:ok) }
+      it { expect(WorkflowRun.count).to eq(0) }
 
-      it "displays a user-friendly error message in the response's body" do
-        expect(response.body).to include("<status code=\"non_existent_workflows_file\">\n  " \
-                                         "<summary>.obs/workflows.yml could not be downloaded from the SCM branch/commit master: Octokit::NotFound</summary>\n</status>\n")
+      it 'returns an informative message with the branch name without leaving a WorkflowRun behind' do
+        expect(response.body).to include("There is no workflow configuration file in branch 'master'.")
       end
-
-      it { expect(WorkflowRun.count).to eq(1) }
-      it { expect(WorkflowRun.last.status).to eq('fail') }
-      it { expect(response.body).to include(WorkflowRun.last.response_body) }
     end
 
     context 'token different type' do
