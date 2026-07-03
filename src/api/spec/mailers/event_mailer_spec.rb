@@ -472,7 +472,7 @@ RSpec.describe EventMailer, :vcr do
 
       context 'when the workflow run fails' do
         before do
-          workflow_run.update_as_failed('Unauthorized request')
+          workflow_run.update_as_failed('Unauthorized request', disable_token: true)
         end
 
         it 'gets delivered' do
