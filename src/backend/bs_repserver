@@ -1946,8 +1946,8 @@ sub readschedulerstate {
 
 sub getpublisherstate {
   my ($projid, $repoid) = @_;
-  return 'scheduled' if -e "$eventdir/publish/${projid}::$repoid";
   return 'building' if -e "$eventdir/publish/${projid}::${repoid}::inprogress";
+  return 'scheduled' if -e "$eventdir/publish/${projid}::$repoid";
   return 'succeeded';
 }
 
