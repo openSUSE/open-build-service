@@ -85,6 +85,48 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
       end
     end
 
+    context 'when the file is not found on the branch' do
+      context 'github' do
+        let(:scm_vendor) { 'github' }
+        let(:hook_event) { 'push' }
+        let(:request_payload) { file_fixture('request_payload_gitea_push.json').read }
+        let(:octokit_client) { instance_double(Octokit::Client) }
+
+        before do
+          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+          allow(octokit_client).to receive(:content).and_raise(Octokit::NotFound)
+        end
+
+        it { expect(yaml_downloader.call.error).to eq(:not_found) }
+      end
+
+      context 'gitlab' do
+        let(:gitlab_client) { instance_spy(Gitlab::Client) }
+        let(:scm_vendor) { 'gitlab' }
+        let(:hook_event) { 'Push Hook' }
+        let(:request_payload) { file_fixture('request_payload_gitlab_push.json').read }
+
+        before do
+          allow(Gitlab).to receive(:client).and_return(gitlab_client)
+          allow(gitlab_client).to receive(:file_contents).and_raise(Gitlab::Error::NotFound.new(double.as_null_object))
+        end
+
+        it { expect(yaml_downloader.call.error).to eq(:not_found) }
+      end
+
+      context 'gitea' do
+        let(:scm_vendor) { 'gitea' }
+        let(:hook_event) { 'push' }
+        let(:request_payload) { file_fixture('request_payload_gitea_push.json').read }
+
+        before do
+          allow(Down).to receive(:download).and_raise(Down::NotFound, 'Not Found')
+        end
+
+        it { expect(yaml_downloader.call.error).to eq(:not_found) }
+      end
+    end
+
     context 'given workflow_configuration_url' do
       before do
         workflow_token.workflow_configuration_url = 'https://example.com/subdir/config_file.yml'

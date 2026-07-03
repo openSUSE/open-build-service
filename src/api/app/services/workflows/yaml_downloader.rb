@@ -39,9 +39,9 @@ module Workflows
         content = client.content(@workflow_run.target_repository_full_name, path: "/#{@token.workflow_configuration_path}", ref: @workflow_run.target_branch)[:content]
       rescue Octokit::InvalidRepository => e
         return Resonad.Failure(e.message)
-      rescue Octokit::NotFound => e
+      rescue Octokit::NotFound
         # 'target_branch' can contain a commit sha (when tag push) instead of a branch name
-        return Resonad.Failure("#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@workflow_run.target_branch}: #{e.message}")
+        return Resonad.Failure(:not_found)
       end
       Resonad.Success(create_temp_file(Base64.decode64(content)))
     end
@@ -51,8 +51,8 @@ module Workflows
       begin
         gitlab_client = Gitlab.client(endpoint: "#{@workflow_run.api_endpoint}/api/v4", private_token: @token.scm_token)
         gitlab_file = gitlab_client.file_contents(@workflow_run.gitlab_project_id, @token.workflow_configuration_path, @workflow_run.target_branch)
-      rescue Gitlab::Error::NotFound => e
-        return Resonad.Failure(e.message)
+      rescue Gitlab::Error::NotFound
+        return Resonad.Failure(:not_found)
       end
       Resonad.Success(create_temp_file(gitlab_file))
     end
@@ -66,6 +66,10 @@ module Workflows
 
     def download_from_url(url)
       Resonad.Success(Down.download(url, max_size: MAX_FILE_SIZE))
+    rescue Down::NotFound => e
+      return Resonad.Failure("#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}") if @token.workflow_configuration_url.present?
+
+      Resonad.Failure(:not_found)
     rescue Down::Error => e
       return Resonad.Failure("#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}") if @token.workflow_configuration_url.present?
 
