@@ -1944,19 +1944,28 @@ sub readschedulerstate {
   return $schedulerstate;
 }
 
+sub getpublisherstate {
+  my ($projid, $repoid) = @_;
+  return 'scheduled' if -e "$eventdir/publish/${projid}::$repoid";
+  return 'building' if -e "$eventdir/publish/${projid}::${repoid}::inprogress";
+  return 'succeeded';
+}
+
 sub getschedulerstate {
-  my ($projid, $repoid, $arch) = @_;
+  my ($projid, $repoid, $arch, $publisherstate) = @_;
 
   my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
-  my $details = $schedulerstate->{'details'};
+  my $schedulerdetails = $schedulerstate->{'details'};
   $schedulerstate = $schedulerstate->{'code'} || 'unknown';
-  if ($schedulerstate eq 'finished' && !$details) {
-    return 'finished'     if -e "$eventdir/publish/${projid}::$repoid";
-    return 'publishing'   if -e "$eventdir/publish/${projid}::${repoid}::inprogress";
-    return 'unpublished'  if (readstr("$reporoot/$projid/$repoid/$arch/:repodone", 1) || '') =~ /^disabled/;
-    return 'published';
+  if ($publisherstate && $schedulerstate eq 'finished' && !$schedulerdetails) {
+    return 'unpublished' if (readstr("$reporoot/$projid/$repoid/$arch/:repodone", 1) || '') =~ /^disabled/;
+    my ($code, $details) = @{$publisherstate->{"$projid/$repoid"} ||= [ getpublisherstate($projid, $repoid) ]};
+    $schedulerstate = 'published' if $code eq 'succeeded';
+    $schedulerstate = 'publishing' if $code eq 'building';
+    $schedulerstate = 'publishfailed' if $code eq 'failed';
+    $schedulerdetails = $details if $details && $code eq 'failed';
   }
-  return ($schedulerstate, $details);
+  return ($schedulerstate, $schedulerdetails);
 }
 
 sub workerstatus {
@@ -3038,6 +3047,7 @@ sub getresult {
       $prpas_repro{$prpa} = undef if $repoid =~ /._reproduciblecheck$/;
     }
   }
+  my %publisherstate;
   for my $prpa (keys %prpas_repro, @$prpas) {
     if ($prpas_repro{$prpa}) {
       push @$r, delete $prpas_repro{$prpa};
@@ -3056,7 +3066,7 @@ sub getresult {
 	$ps->{'packststus'}->{$_} ||= 'unknown';
       }
     }
-    my ($schedulerstate, $schedulerdetails) = getschedulerstate($projid, $repoid, $arch);
+    my ($schedulerstate, $schedulerdetails) = getschedulerstate($projid, $repoid, $arch, \%publisherstate);
     my $sl = {'project' => $projid, 'repository' => $repoid, 'arch' => $arch, 'code' => $schedulerstate, 'state' => $schedulerstate };
     $sl->{'details'} = $schedulerdetails if defined $schedulerdetails;
     $sl->{'dirty'} = 'true' if -e "$reporoot/$prpa/:schedulerstate.dirty";
