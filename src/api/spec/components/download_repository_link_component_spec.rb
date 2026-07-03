@@ -1,7 +1,7 @@
 RSpec.describe DownloadRepositoryLinkComponent, type: :component do
   let(:project) { create(:project, name: 'home:Admin') }
   let(:repository) { create(:repository, project: project, name: 'images') }
-  let(:configuration) { { 'download_url' => 'https://download.opensuse.org/repositories' } }
+  let(:configuration) { { 'download_url' => 'https://download.opensuse.org' } }
 
   context 'when published artifacts exist for the repository' do
     before do
@@ -11,7 +11,7 @@ RSpec.describe DownloadRepositoryLinkComponent, type: :component do
     end
 
     it 'renders the download repository link' do
-      expect(rendered_content).to have_link('Go to download repository', href: 'https://download.opensuse.org/repositories/home:/Admin/images')
+      expect(rendered_content).to have_link('Go to download repository', href: 'https://download.opensuse.org/home:/Admin/images')
     end
   end
 
