@@ -194,20 +194,22 @@ sub create_cosign_attestation_ent_newbundle {
 
 sub add_cosign_bundle_annotation {
   my ($ent, $rekorentry, $keyid) = @_;
-  return unless $rekorentry->{'verification'};
+  return unless $rekorentry->{'verification'} || $rekorentry->{'inclusionProof'};
 
   if ($ent->{'mimetype'} eq $mt_cosign_bundle) {
+    my $tle = $rekorentry->{'verification'} ? rekorentry_to_tle($rekorentry) : $rekorentry;
     # entry is in new bundle format
     my $pki = defined($keyid) ? {} : undef;
     $pki->{'hint'} = $keyid if $keyid;
     my $bundle = JSON::XS::decode_json($ent->{'data'});
-    $bundle->{'verificationMaterial'} = { 'tlogEntries' => [ rekorentry_to_tle($rekorentry) ] };
+    $bundle->{'verificationMaterial'} = { 'tlogEntries' => [ $tle ] };
     $bundle->{'verificationMaterial'}->{'publicKeyIdentifier'} = $pki if $pki;
     my $bundle_json = canonical_json($bundle);
     %$ent = (%$ent, %{ create_entry($bundle_json) });	# patch in new values
     return;
   }
 
+  die("addbundleannotation: rekor entry is a tle, need new bundle format to support this\n") unless $rekorentry->{'verification'};
   die("addbundleannotation: rekor entry is incomplete\n") unless $rekorentry->{'body'} && $rekorentry->{'integratedTime'} && $rekorentry->{'logIndex'} && $rekorentry->{'logID'} && $rekorentry->{'verification'}->{'signedEntryTimestamp'};
   # see cosign's EntryToBundle function
   my $bundle = {};
