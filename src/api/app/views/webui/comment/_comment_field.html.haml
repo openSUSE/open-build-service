@@ -11,12 +11,14 @@
     = f.hidden_field :target_rev, value: target_rev, id: "#{element_suffix}_target_rev"
   = f.hidden_field :parent_id, value: comment.parent_id, id: "#{element_suffix}_parent_id"
 
-  = render WriteAndPreviewComponent.new(form: f, preview_message_url: preview_comments_path, canned_responses_enabled: true,
-                                        message_body_param: 'comment[body]', text_area_attributes: { object_name: 'body', id_suffix: element_suffix,
-                                        placeholder: 'Write your comment here... (Markdown markup is supported)',
-                                        commentable_type: commentable.class.name.underscore, commentable_id: commentable.id,
-                                        diff_file_index: defined?(diff_file_index) ? diff_file_index : nil,
-                                        diff_line_number: defined?(line_number) ? line_number : nil }, bs_request: commentable)
+  = render WriteAndPreviewComponent.new(form: f, preview_message_url: preview_comments_path,
+                                        canned_responses_enabled: true, message_body_param: 'comment[body]',
+                                        text_area_attributes: { object_name: 'body', id_suffix: element_suffix,
+                                                                placeholder: 'Write your comment here... (Markdown markup is supported)',
+                                                                commentable_type: commentable.class.name.underscore, commentable_id: commentable.id,
+                                                                diff_file_index: defined?(diff_file_index) ? diff_file_index : nil,
+                                                                diff_line_number: defined?(line_number) ? line_number : nil },
+                                        bs_request: commentable)
   .comment-controls.my-3
     - case form_method
     - when :post
