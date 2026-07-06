@@ -14,6 +14,7 @@ RSpec.describe "Package" do
       click_link('Home Project')
     end
     click_link('Create Package')
+    expect(page).to have_field('name', visible: true)
     fill_in 'name', with: 'hello_world'
     fill_in 'title', with: 'hello_world'
     fill_in 'description', with: 'hello_world'
@@ -38,6 +39,7 @@ RSpec.describe "Package" do
     end
     click_link('Branch Existing Package')
     within('#new-package-branch-modal') do
+      expect(page).to have_field('linked_project', visible: true)
       fill_in 'linked_project', with: 'openSUSE.org:openSUSE:Tools'
       fill_in 'linked_package', with: 'build'
       click_button('Accept')
