@@ -1,9 +1,7 @@
 class WriteAndPreviewComponent < ApplicationComponent
-  attr_reader :form, :preview_message_url, :message_body_param, :text_area_attributes, :canned_responses_enabled, :commentable_id,
-              :commentable_type, :diff_file_index, :diff_line, :bs_request
+  attr_reader :form, :preview_message_url, :message_body_param, :text_area_attributes, :canned_responses_enabled, :bs_request
 
-  def initialize(form:, preview_message_url:, message_body_param:, text_area_attributes: {}, canned_responses_enabled: false,
-                 commentable_id: nil, commentable_type: nil, diff_file_index: nil, diff_line: nil, bs_request: nil)
+  def initialize(form:, preview_message_url:, message_body_param:, text_area_attributes: {}, canned_responses_enabled: false, bs_request: nil)
     super()
 
     @form = form
@@ -11,10 +9,6 @@ class WriteAndPreviewComponent < ApplicationComponent
     @message_body_param = message_body_param
     @text_area_attributes = text_area_attributes_defaults.merge(text_area_attributes)
     @canned_responses_enabled = canned_responses_enabled
-    @commentable_id = commentable_id
-    @commentable_type = commentable_type
-    @diff_file_index = diff_file_index
-    @diff_line = diff_line
     @bs_request = bs_request
   end
 
