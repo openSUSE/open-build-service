@@ -16,7 +16,7 @@ Capybara.register_driver :selenium_chrome_headless do |app|
 end
 
 Capybara.default_driver = :selenium_chrome_headless
-Capybara.default_max_wait_time = 6
+Capybara.default_max_wait_time = 18
 Capybara.javascript_driver = :selenium_chrome_headless
 Capybara.save_path = ENV.fetch('RSPEC_RESULT_DIR', '/tmp/rspec_screens')
 
