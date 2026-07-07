@@ -8,7 +8,7 @@ RSpec.describe StatusMessagesController do
   end
 
   describe 'GET #show' do
-    let!(:status_message) { create(:status_message, user: user) }
+    let!(:status_message) { create(:status_message, creator: user) }
 
     before { get :show, params: { id: status_message.id }, format: :xml }
 
@@ -68,7 +68,7 @@ RSpec.describe StatusMessagesController do
       XML
     end
     let(:admin) { create(:admin_user) }
-    let!(:status_message) { create(:status_message, user: user) }
+    let!(:status_message) { create(:status_message, creator: user) }
 
     before do
       login admin
@@ -81,7 +81,7 @@ RSpec.describe StatusMessagesController do
   describe '#destroy' do
     subject { delete :destroy, params: { id: status_message.id }, format: :xml }
 
-    let!(:status_message) { create(:status_message, user: user) }
+    let!(:status_message) { create(:status_message, creator: user) }
     let(:admin) { create(:admin_user) }
 
     before do

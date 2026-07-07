@@ -79,7 +79,7 @@ RSpec.describe Webui::StatusMessagesController do
   end
 
   describe 'DELETE destroy' do
-    let!(:message) { create(:status_message, user: admin_user) }
+    let!(:message) { create(:status_message, creator: admin_user) }
 
     it { is_expected.to use_after_action(:verify_authorized) }
 
@@ -111,7 +111,7 @@ RSpec.describe Webui::StatusMessagesController do
   end
 
   describe 'POST acknowledge' do
-    let(:message) { create(:status_message, user: admin_user) }
+    let(:message) { create(:status_message, creator: admin_user) }
 
     it { is_expected.to use_after_action(:verify_authorized) }
 
@@ -140,7 +140,7 @@ RSpec.describe Webui::StatusMessagesController do
     end
 
     context 'when the news item is already acknowledged' do
-      let(:message) { create(:status_message, user: admin_user, users: [admin_user]) }
+      let(:message) { create(:status_message, creator: admin_user, users: [admin_user]) }
 
       before do
         login(admin_user)

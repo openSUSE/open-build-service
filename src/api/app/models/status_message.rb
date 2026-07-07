@@ -1,5 +1,5 @@
 class StatusMessage < ApplicationRecord
-  belongs_to :user # TODO: rename as creator
+  belongs_to :creator, class_name: 'User', foreign_key: 'user_id'
   has_many :status_message_acknowledgements, dependent: :destroy
   has_many :users, through: :status_message_acknowledgements
 

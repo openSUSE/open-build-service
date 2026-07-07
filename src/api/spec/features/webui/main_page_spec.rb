@@ -8,7 +8,7 @@ RSpec.describe 'OBS main page', :js, :vcr do
     it 'shows the latest four status messages' do
       (1..5).each do |n|
         # Make sure created_at timestamps differ
-        travel_to((5 - n).seconds.ago) { create(:status_message, message: "message #{n}", user: admin_user) }
+        travel_to((5 - n).seconds.ago) { create(:status_message, message: "message #{n}", creator: admin_user) }
       end
 
       visit root_path
