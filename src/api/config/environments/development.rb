@@ -72,6 +72,9 @@ Rails.application.configure do
   # Append comments with runtime information tags to SQL queries in logs.
   config.active_record.query_log_tags_enabled = true
 
+  # Prepend all log lines with the following tags.
+  config.log_tags = [:request_id]
+
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
 
