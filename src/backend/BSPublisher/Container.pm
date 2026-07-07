@@ -742,6 +742,7 @@ sub upload_to_registry {
     unlink($pubkeyfile);
     writestr($pubkeyfile, undef, $cosign->{'pubkey'});
     push @opts, '--cosign', '--cosigncookie', $cosign->{'cookie'};
+    push @opts, '--cosignbundle' if $cosign->{'cosignbundle'};
     push @opts, '-p', $pubkeyfile, '-G', $cosign->{'gun'}, @signargs;
     push @opts, '--rekor', $cosign->{'rekorserver'} if $cosign->{'rekorserver'};
     push @opts, '--force-rekor-upload' if $cosign->{'rekorserver'} && $cosign->{'force_rekor_upload'};
@@ -1059,6 +1060,7 @@ sub do_remote_uploads {
     $cosign->{'pubkey_fp'} = BSPGP::pk2fingerprint(BSPGP::unarmor($data->{'pubkey'}));
     $cosign->{'cookie'} = BSConSign::create_cosign_cookie($data->{'pubkey'}, $gun, $cosign->{'creator'});
     $cosign->{'rekorserver'} = $registry->{'rekorserver'};
+    $cosign->{'cosignbundle'} = $registry->{'cosignbundle'};
     print "cosign cookie: $cosign->{'cookie'}\n";
     my $cosign_attestation = defined($registry->{'cosign_attestation'}) ? $registry->{'cosign_attestation'} : 1;
     $cosign_attestation = $cosign_attestation->($repository, $projid) if $cosign_attestation && ref($cosign_attestation) eq 'CODE';
