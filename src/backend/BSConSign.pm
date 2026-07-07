@@ -29,7 +29,6 @@ use JSON::XS ();
 use Digest::MD5 ();
 use Digest::SHA ();
 use MIME::Base64 ();
-use IO::Compress::RawDeflate;
 
 our $mt_cosign = 'application/vnd.dev.cosign.simplesigning.v1+json';
 our $mt_dsse   = 'application/vnd.dsse.envelope.v1+json';
@@ -73,6 +72,7 @@ sub create_atomic_signature {
   my $packets = BSPGP::onepass_signed_message($payload, $sig, 'rpmsig-req.bin');
   # compress packets like gpg does
   my $compressed_pkts;
+  require IO::Compress::RawDeflate;
   IO::Compress::RawDeflate::rawdeflate(\$packets, \$compressed_pkts);
   $packets = pack('CC', 0xa3, 1).$compressed_pkts;
   return $packets;
@@ -121,6 +121,16 @@ sub create_cosign_attestation_ent {
   $annotations{'dev.cosignproject.cosign/signature'} = '';	# why?
   $annotations{'org.open-build-service.intoto.predicatetype'} = $predicatetype if $predicatetype;
   return create_entry($attestation, 'mimetype' => $mt_dsse, 'annotations' => \%annotations);
+}
+
+sub create_cosign_attestation_ent_newbundle {
+  my ($attestation, $annotations, $predicatetype) = @_;
+  my %annotations = %{$annotations || {}};
+  $annotations{'dev.sigstore.bundle.content'} = 'dsse-envelope';
+  $annotations{'dev.sigstore.bundle.predicateType'} = $predicatetype if $predicatetype;
+  # $annotations{'org.opencontainers.image.created'} = ...;
+  my $bundle_json = cosign_create_newbundle($attestation);
+  return create_entry($bundle_json, 'mimetype' => $mt_cosign_bundle, 'annotations' => \%annotations);
 }
 
 sub dsse_pae {
@@ -187,38 +197,29 @@ sub create_cosign_cookie {
   return Digest::SHA::sha256_hex("$creator/$pubkeyid/$reference");
 }
 
-sub create_cosign_attestation_ent_newbundle {
-  my ($attestation, $annotations, $predicatetype) = @_;
-  my $dsse = JSON::XS::decode_json($attestation);
+# create newbundle data from a dsse envelope
+sub cosign_create_newbundle {
+  my ($dsse_envelope) = @_;
   my $bundle = { 'mediaType' => $mt_cosign_bundle };
-  $bundle->{'dsseEnvelope'} = JSON::XS::decode_json($attestation);
-  my $bundle_json = canonical_json($bundle);
-  my %annotations = %{$annotations || {}};
-  $annotations{'dev.sigstore.bundle.content'} = 'dsse-envelope';
-  $annotations{'dev.sigstore.bundle.predicateType'} = $predicatetype if $predicatetype;
-  # $annotations{'org.opencontainers.image.created'} = ...;
-  return create_entry($bundle_json, 'mimetype' => $mt_cosign_bundle, 'annotations' => \%annotations);
+  $bundle->{'dsseEnvelope'} = JSON::XS::decode_json($dsse_envelope);
+  return canonical_json($bundle);
 }
 
-sub add_cosign_bundle_annotation {
-  my ($ent, $rekorentry, $keyid) = @_;
-  return unless $rekorentry->{'verification'} || $rekorentry->{'inclusionProof'};
+# add a rekor tle to the newbundle data
+sub cosign_add_newbundle_tle {
+  my ($bundle_json, $tle, $keyid) = @_;
+  my $bundle = JSON::XS::decode_json($bundle_json);
+  my $pki = defined($keyid) ? {} : undef;
+  $pki->{'hint'} = $keyid if $keyid;
+  $bundle->{'verificationMaterial'} = { 'tlogEntries' => [ $tle ] };
+  $bundle->{'verificationMaterial'}->{'publicKeyIdentifier'} = $pki if $pki;
+  return canonical_json($bundle);
+}
 
-  if ($ent->{'mimetype'} eq $mt_cosign_bundle) {
-    my $tle = $rekorentry->{'verification'} ? rekorentry_to_tle($rekorentry) : $rekorentry;
-    # entry is in new bundle format
-    my $pki = defined($keyid) ? {} : undef;
-    $pki->{'hint'} = $keyid if $keyid;
-    my $bundle = JSON::XS::decode_json($ent->{'data'});
-    $bundle->{'verificationMaterial'} = { 'tlogEntries' => [ $tle ] };
-    $bundle->{'verificationMaterial'}->{'publicKeyIdentifier'} = $pki if $pki;
-    my $bundle_json = canonical_json($bundle);
-    %$ent = (%$ent, %{ create_entry($bundle_json) });	# patch in new values
-    return;
-  }
-
-  $rekorentry = tle_to_rekorentry($rekorentry) unless $rekorentry->{'verification'};
-  die("addbundleannotation: rekor entry is incomplete\n") unless $rekorentry->{'body'} && $rekorentry->{'integratedTime'} && $rekorentry->{'logIndex'} && $rekorentry->{'logID'} && $rekorentry->{'verification'}->{'signedEntryTimestamp'};
+# create oldbundle data, see cosign's EntryToBundle function
+sub cosign_create_oldbundle {
+  my ($rekorentry, $keyid) = @_;
+  die("cosign_create_oldbundle: rekor entry is incomplete\n") unless $rekorentry->{'verification'} && $rekorentry->{'body'} && $rekorentry->{'integratedTime'} && $rekorentry->{'logIndex'} && $rekorentry->{'logID'} && $rekorentry->{'verification'}->{'signedEntryTimestamp'};
   # see cosign's EntryToBundle function
   my $bundle = {};
   $bundle->{'Payload'} = {
@@ -228,9 +229,27 @@ sub add_cosign_bundle_annotation {
     'logID' => $rekorentry->{'logID'},
   };
   $bundle->{'SignedEntryTimestamp'} = $rekorentry->{'verification'}->{'signedEntryTimestamp'};
-  $ent->{'annotations'}->{'dev.sigstore.cosign/bundle'} = canonical_json($bundle);
+  return canonical_json($bundle);
 }
 
+# add rekor data as bundle to an attestation or signature ent
+# the rekorentry argument can be either a rekor entry or a tle
+sub add_cosign_bundle_annotation {
+  my ($ent, $rekorentry, $keyid) = @_;
+  return unless $rekorentry && ($rekorentry->{'verification'} || $rekorentry->{'inclusionProof'});
+  if ($ent->{'mimetype'} eq $mt_cosign_bundle) {
+    # ent is an attestation in the new bundle format, patch in tle data
+    my $tle = $rekorentry->{'verification'} ? rekorentry_to_tle($rekorentry) : $rekorentry;
+    my $bundle_json = cosign_add_newbundle_tle($ent->{'data'}, $tle, $keyid);
+    %$ent = (%$ent, %{ create_entry($bundle_json) });	# patch in new values
+  } else {
+    # ent is an attestation or a signature, add annotation in old bundle format
+    $rekorentry = tle_to_rekorentry($rekorentry) unless $rekorentry->{'verification'};
+    $ent->{'annotations'}->{'dev.sigstore.cosign/bundle'} = cosign_create_oldbundle($rekorentry, $keyid);
+  }
+}
+
+# convert a rekor record into a tle
 sub rekorentry_to_tle {
   my ($rekorentry) = @_;
   # see rekor's GenerateTransparencyLogEntry function
@@ -256,6 +275,7 @@ sub rekorentry_to_tle {
   return $tle;
 }
 
+# convert a tle into a rekor record
 sub tle_to_rekorentry {
   my ($tle) = @_;
   die("tle_to_rekorentry: tle is incomplete\n") unless $tle->{'canonicalizedBody'} && $tle->{'inclusionProof'} && $tle->{'inclusionPromise'} && $tle->{'logId'} && $tle->{'logIndex'};
@@ -279,6 +299,7 @@ sub tle_to_rekorentry {
   return $rekorentry;
 }
 
+# extract the dsse envelope from an entry, handling the new bundle format 
 sub dsse_envelope_from_ent {
   my ($ent) = @_;
   if ($ent->{'mimetype'} eq $mt_cosign_bundle) {
@@ -291,8 +312,8 @@ sub dsse_envelope_from_ent {
     $envelope_json =~ s/_payloadType/payloadType/;
     return $envelope_json;
   }
-  die("dsse_envelope_from_ent: not a dsse type\n") if $ent->{'mimetype'} ne $mt_dsse;
-  return $ent->{'data'};
+  return $ent->{'data'} if $ent->{'mimetype'} eq $mt_dsse;
+  die("dsse_envelope_from_ent: unsypported mimetype $ent->{'mimetype'}\n");
 }
 
 1;
