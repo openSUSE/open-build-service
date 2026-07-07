@@ -9,11 +9,11 @@
           Commenting on this is locked.
           - if CommentLockPolicy.new(User.session, @bs_request).create?
             = helpers.comment_lock_alert(@bs_request)
-      - decision_placeholder = "Write your comment or decision...(markdown is only supported for comments, not for decisions)"
       = render WriteAndPreviewComponent.new(form: form, preview_message_url: preview_comments_path, canned_responses_enabled: true,
                                             message_body_param: 'comment[body]',
-                                            text_area_attributes: { object_name: 'reason', id_suffix: 'new_comment',
-                                            placeholder: decision_placeholder}, canned_response_object: @bs_request)
+                                            text_area_object_name: :reason,
+                                            text_area_id_suffix: 'new_comment',
+                                            canned_response_object: @bs_request)
       .mt-2#decision-buttons-row
         %div
           - if policy(Comment.new(commentable:@bs_request)).create?
