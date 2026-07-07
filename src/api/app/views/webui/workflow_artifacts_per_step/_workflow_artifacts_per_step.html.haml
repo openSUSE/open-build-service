@@ -1,0 +1,70 @@
+:ruby
+  step = workflow_artifacts_per_step.step
+  raw_artifacts = workflow_artifacts_per_step.artifacts
+  artifacts = (raw_artifacts.is_a?(String) ? JSON.parse(raw_artifacts) : raw_artifacts).deep_symbolize_keys
+
+- if step == 'Workflow::Step::BranchPackageStep'
+  %li
+    Branched package from
+    = link_to "#{artifacts[:source_project]}/#{artifacts[:source_package]}",
+              package_show_path(project: artifacts[:source_project], package: artifacts[:source_package])
+    = ' to '
+    = link_to "#{artifacts[:target_project]}/#{artifacts[:target_package]}",
+              package_show_path(project: artifacts[:target_project], package: artifacts[:target_package])
+    \.
+- elsif step == 'Workflow::Step::LinkPackageStep'
+  %li
+    Linked package from
+    = link_to "#{artifacts[:source_project]}/#{artifacts[:source_package]}",
+              package_show_path(project: artifacts[:source_project], package: artifacts[:source_package])
+    = ' to '
+    = link_to "#{artifacts[:target_project]}/#{artifacts[:target_package]}",
+              package_show_path(project: artifacts[:target_project], package: artifacts[:target_package])
+    \.
+- elsif step == 'Workflow::Step::RebuildPackage'
+  %li
+    Rebuilt package
+    = link_to "#{artifacts[:project]}/#{artifacts[:package]}", package_show_path(project: artifacts[:project], package: artifacts[:package])
+    \.
+- elsif step == 'Workflow::Step::TriggerServices'
+  %li
+    Triggered services on package
+    = link_to "#{artifacts[:project]}/#{artifacts[:package]}", package_show_path(project: artifacts[:project], package: artifacts[:package])
+    \.
+- elsif step == 'Workflow::Step::ConfigureRepositories'
+  %li
+    Configured
+    = link_to 'repositories', project_repositories_path(project: artifacts[:project])
+    on project
+    = link_to artifacts[:project], project_show_path(project: artifacts[:project])
+    \:
+    %ul
+      - artifacts[:repositories].each do |repository|
+        %li
+          %span.fst-italic= repository[:name]
+          for architectures
+          %span.fst-italic= repository[:architectures].to_sentence
+          for the paths:
+          %span.fst-italic= paths_sentence(repository)
+          \.
+- elsif step == 'Workflow::Step::SubmitRequest'
+  %span
+    - artifacts[:request_numbers_and_state].each do |key, number|
+      %li= link_to "Request #{number} -> #{key}", request_show_path(number: number)
+- elsif step == 'Workflow::Step::SetFlags'
+  %span
+    - artifacts[:flags].each do |flag|
+      %li
+        Set flag
+        %b= flag[:type]
+        #{flag[:status]}d
+        on
+        - if flag[:package]
+          = link_to "#{flag[:project]}/#{flag[:package]}", repositories_path(project: flag[:project], package: flag[:package])
+        - else
+          = link_to flag[:project], project_repositories_path(project: flag[:project])
+        - if flag[:repository]
+          for repository #{flag[:repository]}
+        - if flag[:architecture]
+          and architecture #{flag[:architecture]}
+        \.

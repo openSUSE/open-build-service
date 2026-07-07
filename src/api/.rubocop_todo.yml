@@ -157,7 +157,6 @@ Metrics/ClassLength:
 # Configuration parameters: AllowedMethods, AllowedPatterns, Max.
 Metrics/CyclomaticComplexity:
   Exclude:
-    - 'app/components/workflow_artifacts_per_step_component.rb'
     - 'app/controllers/application_controller.rb'
     - 'app/controllers/build_controller.rb'
     - 'app/controllers/concerns/backend_proxy.rb'
