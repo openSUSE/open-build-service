@@ -143,6 +143,14 @@ sub dsse_sign {
   return $envelope_json;
 }
 
+sub dsse_parse_envelope {
+  my ($envelope_json) = @_;
+  my $envelope = JSON::XS::decode_json($envelope_json);
+  die("bad dsse envelope\n") unless $envelope->{'payloadType'} && $envelope->{'signatures'} && defined($envelope->{'payload'});
+  my $sig = $envelope->{'signatures'}->[0] || {};
+  return (MIME::Base64::decode_base64($envelope->{'payload'}), $envelope->{'payloadType'}, MIME::Base64::decode_base64($sig->{'sig'}));
+}
+
 # change the subject so that it matches the reference/digest and re-sign
 sub fixup_intoto_attestation {
   my ($attestation, $signfunc, $digest, $reference) = @_;
@@ -209,7 +217,7 @@ sub add_cosign_bundle_annotation {
     return;
   }
 
-  die("addbundleannotation: rekor entry is a tle, need new bundle format to support this\n") unless $rekorentry->{'verification'};
+  $rekorentry = tle_to_rekorentry($rekorentry) unless $rekorentry->{'verification'};
   die("addbundleannotation: rekor entry is incomplete\n") unless $rekorentry->{'body'} && $rekorentry->{'integratedTime'} && $rekorentry->{'logIndex'} && $rekorentry->{'logID'} && $rekorentry->{'verification'}->{'signedEntryTimestamp'};
   # see cosign's EntryToBundle function
   my $bundle = {};
@@ -232,7 +240,7 @@ sub rekorentry_to_tle {
   my $tle = {};
   # the stringifys below are needed because protojson encodes 64bit numbers as strings
   $tle->{'logIndex'} = "$rekorentry->{'logIndex'}";			# stringify
-  $tle->{'logId'} = { 'keyid' => MIME::Base64::encode_base64(pack('H*', $rekorentry->{'logID'}), '') };
+  $tle->{'logId'} = { 'keyId' => MIME::Base64::encode_base64(pack('H*', $rekorentry->{'logID'}), '') };
   $tle->{'kindVersion'} = { 'kind' => $body->{'kind'}, 'version' => $body->{'apiVersion'} };
   $tle->{'integratedTime'} = "$rekorentry->{'integratedTime'}";		# stringify
   $tle->{'inclusionPromise'} = { 'signedEntryTimestamp' => $rekorentry->{'verification'}->{'signedEntryTimestamp'} };
@@ -246,6 +254,29 @@ sub rekorentry_to_tle {
   };
   $tle->{'canonicalizedBody'} = $rekorentry->{'body'};
   return $tle;
+}
+
+sub tle_to_rekorentry {
+  my ($tle) = @_;
+  die("tle_to_rekorentry: tle is incomplete\n") unless $tle->{'canonicalizedBody'} && $tle->{'inclusionProof'} && $tle->{'inclusionPromise'} && $tle->{'logId'} && $tle->{'logIndex'};
+  my $tip = $tle->{'inclusionProof'};
+  my $rekorentry = {
+    'body' => $tle->{'canonicalizedBody'},
+    'integratedTime' => 0 + $tle->{'integratedTime'},
+    'logIndex' => 0 + $tle->{'logIndex'},
+    'logID' => unpack('H*', MIME::Base64::decode_base64($tle->{'logId'}->{'keyId'})),
+    'verification' => {
+      'signedEntryTimestamp' => $tle->{'inclusionPromise'}->{'signedEntryTimestamp'},
+      'inclusionProof' => {
+	'logIndex' => 0 + $tip->{'logIndex'},
+	'rootHash' => unpack('H*', MIME::Base64::decode_base64($tip->{'rootHash'})),
+	'treeSize' => 0 + $tip->{'treeSize'},
+	'hashes' => [ map {unpack('H*', MIME::Base64::decode_base64($_))} @{$tip->{'hashes'} || []} ],
+	'checkpoint' => $tip->{'checkpoint'}->{'envelope'},
+      }
+    },
+  };
+  return $rekorentry;
 }
 
 sub dsse_envelope_from_ent {
