@@ -420,7 +420,7 @@ sub cosign_upload {
 sub cosign_upload_rekor_ent {
   my ($sslpubkey, $hashtype, $sig, $ent) = @_;
   die("cosign_upload_rekor_ent: unsupported hash type $hashtype\n") unless $hashtype eq 'sha256';
-  if ($sig) {
+  if ($sig && $sig ne 'intoto') {
     my $hash = 'sha256:'.Digest::SHA::sha256_hex($ent->{'data'});
     return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $sig) if $rekor_v2;
     return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
@@ -453,6 +453,11 @@ sub cosign_upload_rekor {
       BSConSign::add_cosign_bundle_annotation($attestation_ent, $rekorentry);
     }
   }
+}
+
+sub create_cosign_signature_ent {
+  my ($signfunc, $digest, $reference, $creator, $timestamp, $annotations) = @_;
+  return BSConSign::create_cosign_signature_ent($signfunc, $digest, $reference, $creator, $timestamp, $annotations);
 }
 
 sub create_cosign_attestation_ent {
@@ -1325,7 +1330,7 @@ if ($cosign && %digests_to_sign) {
     print "creating cosign signature for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
-    my ($cosign_ent, $sig) = BSConSign::create_cosign_signature_ent($signfunc, $digest, $gun, $creator, undef, $annotations);
+    my ($cosign_ent, $sig) = create_cosign_signature_ent($signfunc, $digest, $gun, $creator, undef, $annotations);
     cosign_upload_rekor($gpgpubkey, $sig, $cosign_ent) if $rekorserver && $sig;
     cosign_upload($sig_tag, $cosign_ent);
   }

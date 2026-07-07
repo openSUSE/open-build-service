@@ -37,6 +37,7 @@ our $mt_cosign_bundle = 'application/vnd.dev.sigstore.bundle.v0.3+json';
 
 our $intoto_predicate_spdx      = 'https://spdx.dev/Document';
 our $intoto_predicate_cyclonedx = 'https://cyclonedx.org/bom';
+our $intoto_predicate_cosign_sign_v1 = 'https://sigstore.dev/cosign/sign/v1';
 our $intoto_stmt_v01            = 'https://in-toto.io/Statement/v0.1';
 our $intoto_stmt_v1             = 'https://in-toto.io/Statement/v1';
 
@@ -121,6 +122,24 @@ sub create_cosign_attestation_ent {
   $annotations{'dev.cosignproject.cosign/signature'} = '';	# why?
   $annotations{'org.open-build-service.intoto.predicatetype'} = $predicatetype if $predicatetype;
   return create_entry($attestation, 'mimetype' => $mt_dsse, 'annotations' => \%annotations);
+}
+
+sub create_cosign_signature_ent_newbundle {
+  my ($signfunc, $digest, $reference, $creator, $timestamp, $annotations) = @_;
+  my $sha256digest = $digest;
+  die("not a sha256 digest\n") unless $sha256digest =~ s/^sha256://;
+  my $attestation = {
+    '_type' => $intoto_stmt_v1,
+    'subject' => [ { 'name' => $reference, 'digest' => { 'sha256' => $sha256digest } } ],
+    'predicate_type' => $intoto_predicate_cosign_sign_v1,
+  };
+  $attestation = canonical_json($attestation);
+  my $att = dsse_sign($attestation, $mt_intoto, $signfunc);
+  my %annotations = %{$annotations || {}};
+  $annotations{'dev.sigstore.bundle.content'} = 'dsse-envelope';
+  $annotations{'dev.sigstore.bundle.predicateType'} = $intoto_predicate_cosign_sign_v1;
+  my $bundle_json = cosign_create_newbundle($attestation);
+  return (create_entry($bundle_json, 'mimetype' => $mt_cosign_bundle, 'annotations' => \%annotations), 'intoto');
 }
 
 sub create_cosign_attestation_ent_newbundle {

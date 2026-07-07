@@ -453,7 +453,7 @@ sub cosign_upload_rekor_ent {
   my ($rekorserver, $sslpubkey, $hashtype, $sig, $ent) = @_;
   die("cosign_upload_rekor_ent: unsupported hash type $hashtype\n") unless $hashtype eq 'sha256';
   my $rekor_v2 = $rekorserver =~ /\/api\/v2$/ ? 1 : 0;
-  if ($sig) {
+  if ($sig && $sig ne 'intoto') {
     my $hash = 'sha256:'.Digest::SHA::sha256_hex($ent->{'data'});
     return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $sig) if $rekor_v2;
     return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
