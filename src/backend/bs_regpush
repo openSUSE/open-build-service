@@ -67,6 +67,7 @@ my $use_head_for_list;
 
 my $cosign;
 my $cosigncookie;
+my $cosignbundle;
 my $slsaprovenance;
 my $sbom;
 my $gun;
@@ -74,6 +75,7 @@ my @signcmd;
 my $pubkeyfile;
 
 my $rekorserver;
+my $rekor_v2;
 my $force_rekor_upload;
 
 my $registryserver;
@@ -415,20 +417,39 @@ sub cosign_upload {
   manifest_append_listfile($mani_json, $tag, $mani->{'mediaType'}, $extra) if defined $listfile;
 }
 
+sub cosign_upload_rekor_ent {
+  my ($sslpubkey, $hashtype, $sig, $ent) = @_;
+  die("cosign_upload_rekor_ent: unsupported hash type $hashtype\n") unless $hashtype eq 'sha256';
+  if ($sig) {
+    my $hash = 'sha256:'.Digest::SHA::sha256_hex($ent->{'data'});
+    return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $sig) if $rekor_v2;
+    return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
+  } else {
+    my $dsse_envelope = BSConSign::dsse_envelope_from_ent($ent);
+    if ($rekor_v2) {
+      # dsse is no longer supported, use a hashedrecord instead
+      my ($payload, $payloadtype, $dssesig) = BSConSign::dsse_parse_envelope($dsse_envelope);
+      my $hash = 'sha256:'.Digest::SHA::sha256_hex(BSConSign::dsse_pae($payloadtype, $payload));
+      return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $dssesig);
+    }
+    return BSRekor::upload_intoto($rekorserver, $dsse_envelope, $sslpubkey);
+  }
+}
+
 sub cosign_upload_rekor {
   my ($gpgpubkey, $sig, @layer_ents) = @_;
   my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
   $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
+  my $hashtype = 'sha256';	# must match signfunc
   if ($sig) {
     print "uploading cosign signature to $rekorserver\n";
     die unless @layer_ents == 1;
-    my $hash = 'sha256:'.Digest::SHA::sha256_hex($layer_ents[0]->{'data'});	# must match signfunc
-    my ($rekorkey, $rekorentry) = BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
+    my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $sig, $layer_ents[0]);
     BSConSign::add_cosign_bundle_annotation($layer_ents[0], $rekorentry);
   } else {
     print "uploading cosign attestations to $rekorserver\n";
     for my $attestation_ent (@layer_ents) {
-      my ($rekorkey, $rekorentry) = BSRekor::upload_intoto($rekorserver, $attestation_ent->{'data'}, $sslpubkey);
+      my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $sig, $attestation_ent);
       BSConSign::add_cosign_bundle_annotation($attestation_ent, $rekorentry);
     }
   }
@@ -437,6 +458,7 @@ sub cosign_upload_rekor {
 sub create_cosign_attestation_ent {
   my ($attestation, $signfunc, $digest, $reference, $annotations) = @_;
   my ($att, $predicatetype) = BSConSign::fixup_intoto_attestation($attestation, $signfunc, $digest, $reference);
+  return BSConSign::create_cosign_attestation_ent_newbundle($att, $annotations, $predicatetype) if $cosignbundle;
   return BSConSign::create_cosign_attestation_ent($att, $annotations, $predicatetype);
 }
 
@@ -949,6 +971,9 @@ while (@ARGV) {
     shift @ARGV;
   } elsif ($ARGV[0] eq '--cosigncookie') {
     (undef, $cosigncookie) = splice(@ARGV, 0, 2);
+  } elsif ($ARGV[0] eq '--cosignbundle') {
+    $cosignbundle = 1;
+    shift @ARGV;
   } elsif ($ARGV[0] eq '--slsaprovenance') {
     $slsaprovenance = 1;
     shift @ARGV;
@@ -990,6 +1015,8 @@ while (@ARGV) {
     last;
   }
 }
+
+$rekor_v2 = 1 if $rekorserver && $rekorserver =~ /\/api\/v2$/;	# rekor-tiles
 
 if (@ARGV && $ARGV[0] =~ /^config:(.+)/) {
   my $regname = $1;
