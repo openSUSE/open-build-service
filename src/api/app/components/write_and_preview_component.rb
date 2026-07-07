@@ -14,10 +14,11 @@ class WriteAndPreviewComponent < ApplicationComponent
 
   private
 
-  def request_canned_responses
-    return CannedResponse.none if bs_request.nil?
+  def canned_responses
+    user_canned_responses = User.session.canned_responses.where(decision_type: nil)
+    return user_canned_responses unless [Project, Package, BsRequest, BsRequestAction].include?(@canned_response_object.class)
 
-    bs_request.canned_responses.where(decision_type: nil)
+    user_canned_responses.or(@canned_response_object.canned_responses.where(decision_type: nil)).order(:title)
   end
 
   def text_area_attributes_defaults
