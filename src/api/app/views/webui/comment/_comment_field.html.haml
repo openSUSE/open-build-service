@@ -15,7 +15,7 @@
                                         canned_responses_enabled: true, message_body_param: 'comment[body]',
                                         text_area_attributes: { object_name: 'body', id_suffix: element_suffix,
                                                                 placeholder: 'Write your comment here... (Markdown markup is supported)'},
-                                        bs_request: commentable)
+                                        canned_response_object: commentable)
   .comment-controls.my-3
     - case form_method
     - when :post
