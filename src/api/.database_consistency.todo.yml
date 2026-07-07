@@ -1950,7 +1950,7 @@ StatusMessage:
   severity:
     ColumnPresenceChecker:
       enabled: false
-  user:
+  creator:
     ColumnPresenceChecker:
       enabled: false
     ForeignKeyChecker:
