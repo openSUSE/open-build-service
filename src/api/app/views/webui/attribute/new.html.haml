@@ -16,7 +16,8 @@
           = form.collection_select(:attrib_type_id, @attribute_types, :id, :fullname, {}, class: 'form-control form-select')
         .col-form-label.col-12.col-md
           - @attribute_types.each do |attribute_type|
-            %p.d-none{ id: "attribute_type-description-#{attribute_type.id}" }
+            - is_selected = attribute_type.id == (@attribute.attrib_type_id || @attribute_types.first&.id)
+            %p{ id: "attribute_type-description-#{attribute_type.id}", class: ('d-none' unless is_selected) }
               = attribute_type.description.presence || 'Sorry, this attribute has no description'
       = link_to('Back', index_attribs_path, class: 'btn btn-outline-secondary', role: 'button')
       = form.submit('Add', class: 'btn btn-primary')
