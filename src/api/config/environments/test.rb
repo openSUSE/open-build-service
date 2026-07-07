@@ -14,7 +14,7 @@ end
 
 # This isn't going to change since this is how we configure Rails
 # rubocop:disable Metrics/BlockLength
-OBSApi::Application.configure do
+Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
   config.cache_classes = true
 
@@ -38,6 +38,9 @@ OBSApi::Application.configure do
 
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
+
+  # Prepend all log lines with the following tags.
+  config.log_tags = [:request_id]
 
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
