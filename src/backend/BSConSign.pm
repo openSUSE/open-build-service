@@ -72,10 +72,7 @@ sub create_atomic_signature {
   my $sig = $signfunc->($payload);
   my $packets = BSPGP::onepass_signed_message($payload, $sig, 'rpmsig-req.bin');
   # compress packets like gpg does
-  my $compressed_pkts;
-  require IO::Compress::RawDeflate;
-  IO::Compress::RawDeflate::rawdeflate(\$packets, \$compressed_pkts);
-  $packets = pack('CC', 0xa3, 1).$compressed_pkts;
+  $packets = BSPGP::compress_packets($packets);
   return $packets;
 }
 

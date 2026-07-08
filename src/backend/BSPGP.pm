@@ -299,4 +299,12 @@ sub onepass_signed_message {
   return pkencodepacket(4, $onepass_sig).pkencodepacket(11, $literal_data).$sig;
 }
 
+sub compress_packets {
+  my ($packets) = @_;
+  require IO::Compress::RawDeflate;
+  my $compressed_pkts;
+  IO::Compress::RawDeflate::rawdeflate(\$packets, \$compressed_pkts);
+  return pack('CC', 0xa3, 1).$compressed_pkts;
+}
+
 1;
