@@ -13,8 +13,8 @@
 
   = render WriteAndPreviewComponent.new(form: f, preview_message_url: preview_comments_path,
                                         canned_responses_enabled: true, message_body_param: 'comment[body]',
-                                        text_area_attributes: { object_name: 'body', id_suffix: element_suffix,
-                                                                placeholder: 'Write your comment here... (Markdown markup is supported)'},
+                                        text_area_object_name: :body,
+                                        text_area_id_suffix: element_suffix,
                                         canned_response_object: commentable)
   .comment-controls.my-3
     - case form_method
