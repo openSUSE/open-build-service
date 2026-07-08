@@ -61,7 +61,7 @@ sub make_blob_entry {
   Encode::_utf8_off($blob);
   my $blobid = blobid($blob);
   my $ent = { %extra, 'name' => $name, 'size' => length($blob), 'data' => $blob, 'blobid' => $blobid };
-  return ($ent, $blobid);
+  return $ent;
 }
 
 sub checksum_entry {
@@ -485,7 +485,7 @@ sub container_from_helm {
     $chart_ent->{'layer_compression'} = '';
   }
   # create ent for the config
-  my ($config_ent) = make_blob_entry('config.json', $config_json, 'mtime' => $mtime, 'mimetype' => $mt_helm_config);
+  my $config_ent = make_blob_entry('config.json', $config_json, 'mtime' => $mtime, 'mimetype' => $mt_helm_config);
   # create ent for the manifest
   my $manifest = create_tar_manifest_data('config.json', [ $chartbasename ], $repotags);
   my $manifest_ent = create_tar_manifest_entry($manifest, $mtime);
@@ -629,6 +629,10 @@ sub make_platformstr {
   $str .= "\@$goos" if $goos && $goos ne 'linux';
   $str =~ s/[\/\s,]/_/g;
   return $str;
+}
+
+sub make_oci_empty_config_entry {
+  return make_blob_entry('config.json', '{}', 'mediaType' => $mt_oci_empty, @_);
 }
 
 1;
