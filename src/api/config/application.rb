@@ -34,8 +34,6 @@ module OBSApi
   class Application < Rails::Application
     # Enable rails version 7.0 defaults
     config.load_defaults 7.0
-    # FIXME: This is a known isue in RAILS 6.1 https://github.com/rails/rails/issues/40867
-    config.active_record.has_many_inversing = false
 
     # Configure the default encoding used in templates for Ruby 1.9.
     config.encoding = 'utf-8'
