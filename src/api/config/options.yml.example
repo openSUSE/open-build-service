@@ -3,8 +3,6 @@
 #
 
 default: &default
-  #read_only_hosts: [ "build.opensuse.org", "software.opensuse.org" ]
-
   # Make use of mod_xforward module in apache
   #use_xforward: true
 
