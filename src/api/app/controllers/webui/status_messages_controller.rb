@@ -83,7 +83,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
   end
 
   def status_message_params
-    params.require(:status_message).permit(:message, :severity, :communication_scope).merge(user: User.session)
+    params.require(:status_message).permit(:message, :severity, :communication_scope).merge(creator: User.session)
   end
 
   def index_params
