@@ -162,9 +162,6 @@ end
 # ActiveJob already logs everything we need
 Delayed::Worker.default_log_level = 'debug'
 
-# disabled on production for performance reasons
-# CONFIG['response_schema_validation'] = true
-
 # require 'memory_debugger'
 # dumps the objects after every request
 # config.middleware.insert(0, MemoryDebugger)
