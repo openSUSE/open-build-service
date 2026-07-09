@@ -6,8 +6,7 @@ RSpec.describe StatusHistoryRescalerJob do
   describe '#rescale' do
     context 'newer than 2 hours records' do
       before do
-        base_time = Time.now.utc
-        5.times { |i| StatusHistory.create(time: (base_time - i.seconds).to_i, key: 'busy_x86_64', value: i * 10) }
+        5.times { |i| StatusHistory.create(time: (Time.now.utc - i.seconds).to_i, key: 'busy_x86_64', value: i * 10) }
 
         StatusHistoryRescalerJob.perform_now
       end

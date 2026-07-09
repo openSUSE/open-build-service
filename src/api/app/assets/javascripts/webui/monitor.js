@@ -125,23 +125,10 @@ function processProgressBar(id, item)
     }
   }
   else {
-    var state = item["state"] || "idle";
-    el_text.html(state);
+    el_text.html("idle");
+    ctrl.css("width", "0%");
+    ctrl.css("aria-valuenow", 0)
     el_text.attr("href", "#");
-    ctrl.removeClass('text-bg-success text-bg-warning text-bg-danger');
-
-    if (state == 'dead' || state == 'down') {
-      ctrl.css("width", "100%");
-      ctrl.attr("aria-valuenow", 100);
-      ctrl.addClass('text-bg-danger');
-    } else if (state == 'away') {
-      ctrl.css("width", "100%");
-      ctrl.attr("aria-valuenow", 100);
-      ctrl.addClass('text-bg-warning');
-    } else {
-      ctrl.css("width", "0%");
-      ctrl.attr("aria-valuenow", 0);
-    }
   }
 }
 
