@@ -120,3 +120,5 @@ CONFIG['sponsors'] = [
     url: '#'
   )
 ]
+# Allow anonymous access
+CONFIG['allow_anonymous'] = true
