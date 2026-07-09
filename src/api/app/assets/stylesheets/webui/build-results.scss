@@ -40,9 +40,6 @@
   z-index: 900;
 }
 
-.toggle-build-info { cursor: pointer; }
-.toggle-build-info-parent { z-index: 2; }
-
 .build-info {
   @extend .d-flex;
   @extend .flex-column;
