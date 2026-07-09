@@ -3,10 +3,16 @@
 #
 
 default: &default
-  # Make use of mod_xforward module in apache
+  ### Backend Proxy Configuration
+  # The frontend and the backend share a lot of API endpoints.
+  # We often proxy/forward HTTP requests from the frontend to the backend.
+  # Below you can configure how, where to.
+  #
+  # Make use of mod_xforward module in apache to proxy HTTP requests.
+  # https://github.com/openSUSE/apache2-mod_xforward
   #use_xforward: true
-
-  # Make use of X-Accel-Redirect for Nginx.
+  #
+  # Make use of X-Accel-Redirect for Nginx to proxy HTTP requests.
   # http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
   #use_nginx_redirect: /internal_redirect
 
