@@ -24,6 +24,9 @@ end
 CONFIG['schema_location'] ||= "#{File.expand_path('public/schema')}/"
 CONFIG['global_write_through'] ||= true
 CONFIG['proxy_auth_mode'] ||= :off
+CONFIG['force_ssl'] ||= true
+CONFIG['assume_ssl'] ||= false
+
 
 # Initialize the rails application
 OBSApi::Application.initialize!

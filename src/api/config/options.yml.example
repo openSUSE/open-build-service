@@ -114,6 +114,11 @@ default: &default
 
   ### Miscellaneous settings...
   #
+  # Forces all requests to be served over HTTPS, and sets "https://" as the default protocol when generating URLs
+  #force_ssl: true
+  # This makes the server assume that a proxy in front already terminated SSL, and that the request really is HTTPS.
+  #assume_ssl: true
+  #
   # Location of the RelaxNG / XML Schema Definitions
   #schema_location: '/some/directory/some/where'
 
