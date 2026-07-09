@@ -14,7 +14,7 @@ RSpec.describe Webui::StatusMessagesController do
 
       post :create, params: { status_message: { message: 'Some message', severity: 'green' } }
       expect(response).to redirect_to(news_items_path)
-      message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'green')
+      message = StatusMessage.where(creator: admin_user, message: 'Some message', severity: 'green')
       expect(message).to exist
     end
 
@@ -44,7 +44,7 @@ RSpec.describe Webui::StatusMessagesController do
       it 'is not authorized to create a status message' do
         expect(response).to redirect_to(root_path)
         expect(flash[:error]).to eq('Requires staff privileges')
-        message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'green')
+        message = StatusMessage.where(creator: admin_user, message: 'Some message', severity: 'green')
         expect(message).not_to exist
       end
     end
@@ -79,7 +79,7 @@ RSpec.describe Webui::StatusMessagesController do
   end
 
   describe 'DELETE destroy' do
-    let!(:message) { create(:status_message, user: admin_user) }
+    let!(:message) { create(:status_message, creator: admin_user) }
 
     it { is_expected.to use_after_action(:verify_authorized) }
 
@@ -111,7 +111,7 @@ RSpec.describe Webui::StatusMessagesController do
   end
 
   describe 'POST acknowledge' do
-    let(:message) { create(:status_message, user: admin_user) }
+    let(:message) { create(:status_message, creator: admin_user) }
 
     it { is_expected.to use_after_action(:verify_authorized) }
 
@@ -140,7 +140,7 @@ RSpec.describe Webui::StatusMessagesController do
     end
 
     context 'when the news item is already acknowledged' do
-      let(:message) { create(:status_message, user: admin_user, users: [admin_user]) }
+      let(:message) { create(:status_message, creator: admin_user, users: [admin_user]) }
 
       before do
         login(admin_user)
