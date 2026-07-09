@@ -121,8 +121,6 @@ Rails.application.configure do
   # config.action_cable.disable_request_forgery_protection = true
 end
 
-CONFIG['response_schema_validation'] = true
-
 # Display fake sponsors above the footer on every page
 CONFIG['sponsors'] = [
   ActiveSupport::HashWithIndifferentAccess.new(

@@ -16,9 +16,6 @@ default: &default
   # http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
   #use_nginx_redirect: /internal_redirect
 
-  # Set to true to verify XML reponses comply to the schema
-  response_schema_validation: false
-
   # backend source server
   source_host: localhost
   # NOTE: the source_port setting is ignored and hardcoded for "test" and "development" env

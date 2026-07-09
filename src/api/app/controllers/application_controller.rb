@@ -30,7 +30,7 @@ class ApplicationController < ActionController::Base
   before_action :require_login
 
   before_action :validate_xml_request
-  after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
+  after_action :validate_xml_response unless Rails.env.production? # disabled on production for performance reasons
 
   def pundit_user
     User.session

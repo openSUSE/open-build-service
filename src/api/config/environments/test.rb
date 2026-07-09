@@ -87,7 +87,6 @@ Rails.application.configure do
 end
 # rubocop:enable Metrics/BlockLength
 
-CONFIG['response_schema_validation'] = true
 CONFIG['source_url'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
 
 # the default is not to write through, only once the backend started
