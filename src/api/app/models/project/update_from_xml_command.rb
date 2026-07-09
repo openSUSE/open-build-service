@@ -8,7 +8,7 @@ class Project
       @project = project
     end
 
-    def run(xmlhash, force = nil)
+    def run(xmlhash, force = nil, ignore_missing_links: false)
       project.check_write_access!
 
       # check for raising read access permissions, which can't get ensured atm
@@ -45,7 +45,7 @@ class Project
       update_maintained_prjs_from_xml(xmlhash)
       project.update_relationships_from_xml(xmlhash)
 
-      update_repositories(xmlhash, force)
+      update_repositories(xmlhash, force, ignore_missing_links)
 
       return if project.scmsync.blank?
 
@@ -134,11 +134,11 @@ class Project
       project.maintained_projects.delete(olds.values)
     end
 
-    def update_repositories(xmlhash, force)
+    def update_repositories(xmlhash, force, ignore_missing_links)
       fill_repo_cache
 
       xmlhash.elements('repository') do |repo_xml_hash|
-        update_repository_without_path_element(repo_xml_hash)
+        update_repository_without_path_element(repo_xml_hash, ignore_missing_links)
       end
       # Some repositories might be refered by path elements before they appear in the
       # xml tree. Thus we have 2 iterations. First one goes through all repository
@@ -147,7 +147,7 @@ class Project
       # repository uses another one, eg. importing an existing config from elsewhere.
       xmlhash.elements('repository') do |repo|
         current_repo = project.repositories.find_by_name(repo['name'])
-        update_path_elements(current_repo, repo)
+        update_path_elements(current_repo, repo, ignore_missing_links)
       end
 
       # delete remaining repositories in @repocache
@@ -177,7 +177,7 @@ class Project
       end
     end
 
-    def update_repository_without_path_element(xml_hash)
+    def update_repository_without_path_element(xml_hash, ignore_missing_links)
       current_repo = @repocache[xml_hash['name']]
       unless current_repo
         Rails.logger.debug { "adding repository '#{xml_hash['name']}'" }
@@ -186,7 +186,7 @@ class Project
       Rails.logger.debug { "modifying repository '#{xml_hash['name']}'" }
 
       update_repository_flags(current_repo, xml_hash)
-      update_release_targets(current_repo, xml_hash)
+      update_release_targets(current_repo, xml_hash, ignore_missing_links)
       current_repo.save! if current_repo.changed?
       update_repository_architectures(current_repo, xml_hash)
       update_download_repositories(current_repo, xml_hash)
@@ -196,7 +196,7 @@ class Project
       @repocache.delete(xml_hash['name'])
     end
 
-    def update_path_elements(current_repo, xml_hash)
+    def update_path_elements(current_repo, xml_hash, ignore_missing_links)
       # destroy all current pathelements
       current_repo.path_elements.destroy_all
       return unless xml_hash['path'] || xml_hash['hostsystem']
@@ -206,6 +206,8 @@ class Project
       xml_hash.elements('hostsystem') do |hostsystem|
         host_repo = Repository.find_by_project_and_name(hostsystem['project'], hostsystem['repository'])
         raise SaveError, 'Using same repository as hostsystem element is not allowed' if hostsystem['project'] == project.name && hostsystem['repository'] == xml_hash['name']
+        
+        next if !host_repo && ignore_missing_links
         raise SaveError, "Unknown hostsystem repository '#{hostsystem['project']}/#{hostsystem['repository']}'" unless host_repo
 
         current_repo.path_elements.new(link: host_repo, position: position, kind: :hostsystem)
@@ -217,6 +219,8 @@ class Project
       xml_hash.elements('path') do |path|
         link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
         raise SaveError, 'Using same repository as path element is not allowed' if path['project'] == project.name && path['repository'] == xml_hash['name']
+        
+        next if !link_repo && ignore_missing_links
         raise SaveError, "Cannot find repository '#{path['project']}/#{path['repository']}'" unless link_repo
 
         current_repo.path_elements.new(link: link_repo, position: position)
@@ -239,7 +243,7 @@ class Project
       current_repo.linkedbuild = xml_hash['linkedbuild']
     end
 
-    def update_release_targets(current_repo, xml_hash)
+    def update_release_targets(current_repo, xml_hash, ignore_missing_links)
       # destroy all current releasetargets
       current_repo.release_targets.destroy_all
 
@@ -249,12 +253,15 @@ class Project
         repository = release_target['repository']
         trigger    = release_target['trigger']
 
+        next if !project && ignore_missing_links
         raise SaveError, "Project '#{release_target['project']}' does not exist." unless project
 
+        next if project.defines_remote_instance? && ignore_missing_links
         raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'" if project.defines_remote_instance?
 
         target_repo = Repository.find_by_project_and_name(project.name, repository)
 
+        next if !target_repo && ignore_missing_links
         raise SaveError, "Unknown target repository '#{project}/#{repository}'" unless target_repo
 
         current_repo.release_targets.new(target_repository: target_repo, trigger: trigger)
