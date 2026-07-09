@@ -19,10 +19,7 @@ module MonitorControllerService
     end
 
     def initialize_workers
-      @workers = {}
-      %w[idle away dead down].each do |state|
-        @workers.merge!(worker_status.elements(state).to_h { |b| [worker_id(b), { 'state' => state }] })
-      end
+      @workers = worker_status.elements('idle').to_h { |b| [worker_id(b), {}] }
     end
 
     def update_workers

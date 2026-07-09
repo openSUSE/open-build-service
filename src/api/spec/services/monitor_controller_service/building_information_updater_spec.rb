@@ -43,7 +43,7 @@ RSpec.describe MonitorControllerService::BuildingInformationUpdater do
 
     it { expect(subject).not_to be_empty }
     it { expect(subject).to have_key('build01_1') }
-    it { expect(subject['build01_1']).to eq({ 'state' => 'idle' }) }
+    it { expect(subject['build01_1']).to be_empty }
     it { expect(subject).to have_key('build01_2') }
     it { expect(subject['build01_2']).to have_key('delta') }
     it { expect(subject['build01_2']['delta']).to eq('100') }
