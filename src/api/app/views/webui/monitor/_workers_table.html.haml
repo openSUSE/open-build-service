@@ -24,11 +24,16 @@
   .d-flex.flex-wrap
     - workers_sorted.each do |name, hash|
       %ul.monitorboxrow.list-unstyled.overflow-hidden.m-3
-        %li.builderbox.float-start
+        %li.builderbox.float-start{ data: { host: name } }
           %span.fw-bold #{name} (#{hash['_arch']})
+          .worker-badges.mt-1.mb-1
+            %span.badge.text-bg-secondary.idle-badge.d-none idle: 0
+            %span.badge.text-bg-warning.away-badge.d-none away: 0
+            %span.badge.text-bg-danger.dead-badge.d-none dead: 0
+            %span.badge.text-bg-danger.down-badge.d-none down: 0
           - hash.each do |subid, id|
             - if subid != '_arch'
-              .monitorpb.position-relative.mt-1{ id: "p#{id}" }
+              .monitorpb.worker-progress.d-none.position-relative.mt-1{ id: "p#{id}", data: { host: name } }
                 .progress
                   .progress-bar.progress-bar-striped{ 'aria-valuemax' => '100', 'aria-valuemin' => '0',
                                                       'role' => 'progressbar' }
