@@ -33,6 +33,14 @@ class DistributionsController < ApplicationController
 
   # POST /distributions
   def create
+    # Standard REST API design: Support 'refresh' action modifier via query params
+    # to trigger the FetchRemoteDistributionsJob on-demand.
+    if params[:cmd] == 'refresh'
+      FetchRemoteDistributionsJob.perform_now
+      render_ok
+      return
+    end
+
     distribution = Distribution.new_from_xmlhash(@body_xml)
 
     if distribution.save
@@ -104,7 +112,15 @@ class DistributionsController < ApplicationController
 
   private
 
+  def validate_xml_request(method = nil)
+    # Skip XML request schema validation for on-demand remote refresh triggers
+    return if params[:cmd] == 'refresh'
+    super
+  end
+
   def set_body_xml
+    # Skip XML parsing of empty request body for refresh command triggers
+    return if params[:cmd] == 'refresh'
     @body_xml = Xmlhash.parse(request.body.read)
   end
 end

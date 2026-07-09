@@ -19,6 +19,24 @@ RSpec.describe 'Project', type: :feature do
   end
 
   it 'is able to add repositories' do
+    # Standard REST API design: Trigger immediate fetch via 'cmd=refresh' query param
+    require 'net/http'
+    require 'uri'
+    uri = URI.parse("#{Capybara.app_host}/distributions?cmd=refresh")
+    http = Net::HTTP.new(uri.host, uri.port)
+    if uri.scheme == 'https'
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    end
+    request = Net::HTTP::Post.new(uri.request_uri)
+    request.basic_auth('Admin', 'opensuse')
+    begin
+      response = http.request(request)
+      puts "Triggered distributions refresh: #{response.code} #{response.body}"
+    rescue => e
+      puts "Failed to trigger distributions refresh: #{e}"
+    end
+
     Timeout.timeout(300) do
       loop do
         within('#left-navigation') do
