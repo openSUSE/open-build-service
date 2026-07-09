@@ -94,10 +94,6 @@ CONFIG['source_url'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}
 # we set this to true
 CONFIG['global_write_through'] = false
 
-CONFIG['frontend_host'] = 'localhost'
-CONFIG['frontend_port'] = 3203
-CONFIG['frontend_protocol'] = 'http'
-
 if ENV['RUNNING_MINITEST']
   CONFIG['source_host'] = 'localhost'
   CONFIG['source_port'] = '3200'

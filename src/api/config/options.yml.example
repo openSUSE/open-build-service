@@ -22,11 +22,6 @@ default: &default
   #source_protocol: https
   #source_protocol_ssl_verification: false
 
-  # api access to this instance
-  frontend_host: localhost
-  frontend_port: 443
-  frontend_protocol: https
-
   ### Public Access Configuration
   # Configure if this OBS is allowing people to browse it's content anonymously or not.
   # Disabling this also disables the interconnect feature.

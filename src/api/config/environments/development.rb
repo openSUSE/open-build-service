@@ -123,9 +123,6 @@ end
 
 CONFIG['response_schema_validation'] = true
 
-CONFIG['frontend_host'] = 'localhost'
-CONFIG['frontend_protocol'] = 'http'
-
 # Display fake sponsors above the footer on every page
 CONFIG['sponsors'] = [
   ActiveSupport::HashWithIndifferentAccess.new(
