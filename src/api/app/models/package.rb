@@ -768,7 +768,7 @@ class Package < ApplicationRecord
     self.scmsync = xmlhash.value('scmsync')
   end
 
-  def assign_devel_package_from_xml(xmlhash, ignore_missing_links)
+  def assign_devel_package_from_xml(xmlhash, ignore_missing_links = false)
     #--- devel project/package ---#
     devel = xmlhash['devel']
     self.develpackage = nil

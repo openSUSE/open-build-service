@@ -134,7 +134,7 @@ class Project
       project.maintained_projects.delete(olds.values)
     end
 
-    def update_repositories(xmlhash, force, ignore_missing_links)
+    def update_repositories(xmlhash, force, ignore_missing_links = false)
       fill_repo_cache
 
       xmlhash.elements('repository') do |repo_xml_hash|
@@ -196,7 +196,7 @@ class Project
       @repocache.delete(xml_hash['name'])
     end
 
-    def update_path_elements(current_repo, xml_hash, ignore_missing_links)
+    def update_path_elements(current_repo, xml_hash, ignore_missing_links = false)
       # destroy all current pathelements
       current_repo.path_elements.destroy_all
       return unless xml_hash['path'] || xml_hash['hostsystem']
