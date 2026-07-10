@@ -37,11 +37,6 @@ module OBSApi
 
     config.action_controller.action_on_unpermitted_parameters = :raise
 
-    config.assets.configure do |env|
-      # https://github.com/rails/sprockets/issues/581
-      env.export_concurrent = false
-    end
-
     # we're not threadsafe
     config.allow_concurrency = false
 
