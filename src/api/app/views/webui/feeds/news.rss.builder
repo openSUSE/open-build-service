@@ -8,7 +8,7 @@ xml.rss version: '2.0' do
       xml.item do
         xml.title message.message
         xml.pubDate message.created_at
-        xml.author message.user
+        xml.author message.creator
         xml.link url_for only_path: false, controller: 'main', action: 'index'
       end
     end
