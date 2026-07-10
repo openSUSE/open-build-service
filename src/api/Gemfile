@@ -135,8 +135,6 @@ gem "resonad"
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
-  # as memcache client
-  gem 'dalli'
   # to not rely on cron+rake
   gem 'clockwork'
   # to have better logs

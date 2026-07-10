@@ -145,8 +145,6 @@ GEM
     crass (1.0.7)
     csv (3.3.5)
     daemons (1.4.1)
-    dalli (5.0.5)
-      logger
     data_migrate (11.3.1)
       activerecord (>= 6.1)
       railties (>= 6.1)
@@ -641,7 +639,6 @@ DEPENDENCIES
   cocoon
   coderay
   daemons
-  dalli
   data_migrate
   database_cleaner-active_record
   database_consistency
