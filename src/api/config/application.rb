@@ -39,10 +39,6 @@ module OBSApi
 
     config.action_controller.action_on_unpermitted_parameters = :raise
 
-    config.action_dispatch.rescue_responses['Backend::Error'] = 500
-    config.action_dispatch.rescue_responses['Timeout::Error'] = 408
-    config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 403
-
     config.assets.configure do |env|
       # https://github.com/rails/sprockets/issues/581
       env.export_concurrent = false
