@@ -45,7 +45,6 @@ module OBSApi
 
     config.action_controller.perform_caching = true
 
-    config.active_record.cache_versioning = true
     config.active_record.collection_cache_versioning = false
 
     # Disable partial writes to avoid causing incorrect values
