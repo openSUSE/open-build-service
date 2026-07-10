@@ -75,6 +75,9 @@ Rails.application.configure do
   # Prepend all log lines with the following tags.
   config.log_tags = [:request_id]
 
+  # Use DelayedJob gem as queuing backend for Active Job
+  config.active_job.queue_adapter = :delayed_job
+
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
 

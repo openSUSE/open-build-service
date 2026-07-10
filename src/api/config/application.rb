@@ -35,9 +35,6 @@ module OBSApi
     # Enable rails version 7.0 defaults
     config.load_defaults 7.0
 
-    # required since rails 4.2
-    config.active_job.queue_adapter = :delayed_job
-
     config.action_controller.perform_caching = true
 
     config.action_controller.action_on_unpermitted_parameters = :raise
