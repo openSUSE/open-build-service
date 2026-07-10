@@ -56,8 +56,8 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
-  # Use a real queuing backend for Active Job (and separate queues per environment).
-  # config.active_job.queue_adapter     = :resque
+  # Use DelayedJob gem as qeuing backend for Active Job
+  config.active_job.queue_adapter = :delayed_job
   # config.active_job.queue_name_prefix = "obs_api_production"
 
   # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration
