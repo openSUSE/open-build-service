@@ -19,7 +19,7 @@
                     .form-check
                       %input{ name: 'image', type: 'radio', class: 'image_template form-check-input', id: "#{project}-#{index}",
                               checked: check_first(first_template), data: { project: project, package: template } }
-                      %label.form-check-label{ for: "#{project}-#{index}" }
+                      %label.form-check-label.w-100{ for: "#{project}-#{index}" }
                         - first_template ||= template
                         .d-flex
                           = image_template_icon(template)
