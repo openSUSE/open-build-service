@@ -1,3 +1,4 @@
+/* global setCollapsible */
 /* exported moveInvolvementToContainer */
 /* exported updateCharactersCount */
 
