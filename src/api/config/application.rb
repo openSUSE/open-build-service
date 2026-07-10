@@ -35,9 +35,6 @@ module OBSApi
     # Enable rails version 7.0 defaults
     config.load_defaults 7.0
 
-    # Configure the default encoding used in templates for Ruby 1.9.
-    config.encoding = 'utf-8'
-
     # Use SQL instead of Active Record's schema dumper when creating the database
     # if your schema can't be completely dumped by the schema dumper,
     # like if you have constraints or database-specific column types
