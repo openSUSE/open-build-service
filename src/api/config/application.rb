@@ -35,6 +35,8 @@ module OBSApi
     # Enable rails version 7.0 defaults
     config.load_defaults 7.0
 
+    # Raise ActionController::UnpermittedParameters when parameters that are not explicitly permitted are found.
+    # Makes it easier to debug in development/testing and less dangerous in production.
     config.action_controller.action_on_unpermitted_parameters = :raise
 
     # we're not threadsafe
