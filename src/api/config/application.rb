@@ -40,8 +40,6 @@ module OBSApi
 
     config.action_controller.perform_caching = true
 
-    config.active_record.collection_cache_versioning = false
-
     config.action_controller.action_on_unpermitted_parameters = :raise
 
     config.action_dispatch.rescue_responses['Backend::Error'] = 500
