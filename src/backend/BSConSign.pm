@@ -131,7 +131,7 @@ sub create_cosign_signature_ent_newbundle {
     'predicate_type' => $intoto_predicate_cosign_sign_v1,
   };
   $attestation = canonical_json($attestation);
-  my $att = dsse_sign($attestation, $mt_intoto, $signfunc);
+  $attestation = dsse_sign($attestation, $mt_intoto, $signfunc);
   my %annotations = %{$annotations || {}};
   $annotations{'dev.sigstore.bundle.content'} = 'dsse-envelope';
   $annotations{'dev.sigstore.bundle.predicateType'} = $intoto_predicate_cosign_sign_v1;
@@ -225,10 +225,10 @@ sub cosign_create_newbundle {
 sub cosign_add_newbundle_tle {
   my ($bundle_json, $tle, $keyid) = @_;
   my $bundle = JSON::XS::decode_json($bundle_json);
-  my $pki = defined($keyid) ? {} : undef;
+  my $pki = {};
   $pki->{'hint'} = $keyid if $keyid;
   $bundle->{'verificationMaterial'} = { 'tlogEntries' => [ $tle ] };
-  $bundle->{'verificationMaterial'}->{'publicKeyIdentifier'} = $pki if $pki;
+  $bundle->{'verificationMaterial'}->{'publicKey'} = $pki;
   return canonical_json($bundle);
 }
 

@@ -632,7 +632,7 @@ sub make_platformstr {
 }
 
 sub make_oci_empty_config_entry {
-  return make_blob_entry('config.json', '{}', 'mediaType' => $mt_oci_empty, @_);
+  return make_blob_entry('config.json', '{}', 'mimetype' => $mt_oci_empty, @_);
 }
 
 1;
