@@ -35,8 +35,6 @@ module OBSApi
     # Enable rails version 7.0 defaults
     config.load_defaults 7.0
 
-    config.action_controller.perform_caching = true
-
     config.action_controller.action_on_unpermitted_parameters = :raise
 
     config.assets.configure do |env|
