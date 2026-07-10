@@ -61,11 +61,6 @@ gem 'mousetrap-rails'
 gem 'xmlrpc'
 # Multiple feature switch
 gem 'feature'
-# for profiling
-gem 'peek'
-gem 'peek-dalli'
-gem 'peek-host'
-gem 'peek-mysql2'
 # for kerberos authentication
 gem 'gssapi', require: false
 # for sending events to rabbitmq
@@ -88,8 +83,6 @@ gem 'ajax-datatables-rails'
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
-  # as memcache client
-  gem 'dalli'
   # to document ruby code
   gem 'rdoc'
   # to not rely on cron+rake
@@ -98,6 +91,8 @@ group :development, :production do
   gem 'ruby-ldap', require: false
   # to have better logs
   gem 'lograge'
+  # as memcached backend for ActiveSupport::Cache::MemCacheStore
+  gem 'dalli'
 end
 
 group :production do
