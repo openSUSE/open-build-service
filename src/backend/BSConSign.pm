@@ -37,6 +37,7 @@ our $mt_cosign_bundle = 'application/vnd.dev.sigstore.bundle.v0.3+json';
 
 our $intoto_predicate_spdx      = 'https://spdx.dev/Document';
 our $intoto_predicate_cyclonedx = 'https://cyclonedx.org/bom';
+our $intoto_predicate_cosign_sign_v1 = 'https://sigstore.dev/cosign/sign/v1';
 our $intoto_stmt_v01            = 'https://in-toto.io/Statement/v0.1';
 our $intoto_stmt_v1             = 'https://in-toto.io/Statement/v1';
 
@@ -71,10 +72,7 @@ sub create_atomic_signature {
   my $sig = $signfunc->($payload);
   my $packets = BSPGP::onepass_signed_message($payload, $sig, 'rpmsig-req.bin');
   # compress packets like gpg does
-  my $compressed_pkts;
-  require IO::Compress::RawDeflate;
-  IO::Compress::RawDeflate::rawdeflate(\$packets, \$compressed_pkts);
-  $packets = pack('CC', 0xa3, 1).$compressed_pkts;
+  $packets = BSPGP::compress_packets($packets);
   return $packets;
 }
 
@@ -121,6 +119,24 @@ sub create_cosign_attestation_ent {
   $annotations{'dev.cosignproject.cosign/signature'} = '';	# why?
   $annotations{'org.open-build-service.intoto.predicatetype'} = $predicatetype if $predicatetype;
   return create_entry($attestation, 'mimetype' => $mt_dsse, 'annotations' => \%annotations);
+}
+
+sub create_cosign_signature_ent_newbundle {
+  my ($signfunc, $digest, $reference, $creator, $timestamp, $annotations) = @_;
+  my $sha256digest = $digest;
+  die("not a sha256 digest\n") unless $sha256digest =~ s/^sha256://;
+  my $attestation = {
+    '_type' => $intoto_stmt_v1,
+    'subject' => [ { 'name' => $reference, 'digest' => { 'sha256' => $sha256digest } } ],
+    'predicate_type' => $intoto_predicate_cosign_sign_v1,
+  };
+  $attestation = canonical_json($attestation);
+  $attestation = dsse_sign($attestation, $mt_intoto, $signfunc);
+  my %annotations = %{$annotations || {}};
+  $annotations{'dev.sigstore.bundle.content'} = 'dsse-envelope';
+  $annotations{'dev.sigstore.bundle.predicateType'} = $intoto_predicate_cosign_sign_v1;
+  my $bundle_json = cosign_create_newbundle($attestation);
+  return (create_entry($bundle_json, 'mimetype' => $mt_cosign_bundle, 'annotations' => \%annotations), 'intoto');
 }
 
 sub create_cosign_attestation_ent_newbundle {
@@ -209,10 +225,10 @@ sub cosign_create_newbundle {
 sub cosign_add_newbundle_tle {
   my ($bundle_json, $tle, $keyid) = @_;
   my $bundle = JSON::XS::decode_json($bundle_json);
-  my $pki = defined($keyid) ? {} : undef;
+  my $pki = {};
   $pki->{'hint'} = $keyid if $keyid;
   $bundle->{'verificationMaterial'} = { 'tlogEntries' => [ $tle ] };
-  $bundle->{'verificationMaterial'}->{'publicKeyIdentifier'} = $pki if $pki;
+  $bundle->{'verificationMaterial'}->{'publicKey'} = $pki;
   return canonical_json($bundle);
 }
 

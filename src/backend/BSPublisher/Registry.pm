@@ -453,7 +453,7 @@ sub cosign_upload_rekor_ent {
   my ($rekorserver, $sslpubkey, $hashtype, $sig, $ent) = @_;
   die("cosign_upload_rekor_ent: unsupported hash type $hashtype\n") unless $hashtype eq 'sha256';
   my $rekor_v2 = $rekorserver =~ /\/api\/v2$/ ? 1 : 0;
-  if ($sig) {
+  if ($sig && $sig ne 'intoto') {
     my $hash = 'sha256:'.Digest::SHA::sha256_hex($ent->{'data'});
     return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $sig) if $rekor_v2;
     return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
@@ -532,16 +532,16 @@ sub update_cosign {
       next;
     }
     print "creating cosign signature for $gun $digest\n";
-    my ($cosign_ent, $sig) = create_cosign_signature_ent($cosign, $signfunc, $digest, $gun);
-    cosign_upload_rekor($rekorserver, $gpgpubkey, $sig, $cosign_ent) if $rekorserver && $sig;
-    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $cosign_ent);
+    my ($sig_ent, $sig) = create_cosign_signature_ent($cosign, $signfunc, $digest, $gun);
+    cosign_upload_rekor($rekorserver, $gpgpubkey, $sig, $sig_ent) if $rekorserver && $sig;
+    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $sig_ent);
     $sigs->{'digests'}->{$digest} = $mani_id;
   }
 
   # update attestations
   for my $digest (sort keys %$digests_to_cosign) {
     my $oci = 1;	# always use oci mime types
-    my $containerinfo = $digests_to_cosign->{$digest}->[1];
+    my $containerinfo = $digests_to_cosign->{$digest}->[2];
     my $numlayers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
     if (!$numlayers) {
       delete $sigs->{'attestations'}->{$digest};
@@ -554,13 +554,13 @@ sub update_cosign {
     }
     print "creating $numlayers cosign attestations for $gun $digest\n";
     my $annotations;
-    my @attestation_ents;
-    push @attestation_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'slsa_provenance_file'};
-    push @attestation_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'spdx_file'};
-    push @attestation_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'cyclonedx_file'};
-    push @attestation_ents, create_cosign_attestation_ent($cosign, readstr($_), $signfunc, $digest, $gun, $annotations) for @{$containerinfo->{'intoto_files'} || []};
-    cosign_upload_rekor($rekorserver, $gpgpubkey, undef, @attestation_ents) if $rekorserver && @attestation_ents;
-    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, @attestation_ents);
+    my @att_ents;
+    push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'slsa_provenance_file'};
+    push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'spdx_file'};
+    push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'cyclonedx_file'};
+    push @att_ents, create_cosign_attestation_ent($cosign, readstr($_), $signfunc, $digest, $gun, $annotations) for @{$containerinfo->{'intoto_files'} || []};
+    cosign_upload_rekor($rekorserver, $gpgpubkey, undef, @att_ents) if $rekorserver && @att_ents;
+    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, @att_ents);
     $sigs->{'attestations'}->{$digest} = $mani_id;
   }
 
@@ -741,15 +741,20 @@ sub push_containers {
       my $mani_json = BSContar::create_dist_manifest($mani);
       my $mani_id = push_manifest($repodir, $mani_json);
       $knownmanifests{$mani_id} = 1;
-      $digests_to_cosign{$mani_id} = [ $oci, $containerinfo ];
 
+      # queue for cosign
+      my $subject = { 'mediaType' => $mani->{'mediaType'}, 'size' => length($mani_json), 'digest' => $mani_id };
+      $subject->{'artifactType'} = $mani->{'artifactType'} if $mani->{'artifactType'};
+      $digests_to_cosign{$mani_id} = [ $subject, $oci, $containerinfo ];
+
+      my $platform = { 'architecture' => $goarch, 'os' => $goos };
+      $platform->{'variant'} = $govariant if $govariant;
       my $multimani = {
 	'mediaType' => $mani->{'mediaType'},
 	'size' => length($mani_json),
 	'digest' => $mani_id,
-	'platform' => {'architecture' => $goarch, 'os' => $goos},
+	'platform' => $platform,
       };
-      $multimani->{'platform'}->{'variant'} = $govariant if $govariant;
       push @multimanifests, $multimani;
 
       my $imginfo = {
@@ -796,7 +801,8 @@ sub push_containers {
       $mani_size = length($mani_json);
       $knownmanifests{$mani_id} = 1;
       $taginfo->{'distmanifesttype'} = 'list';
-      $digests_to_cosign{$mani_id} = [ $oci ];
+      my $subject = { 'mediaType' => $mani->{'mediaType'}, 'size' => length($mani_json), 'digest' => $mani_id };
+      $digests_to_cosign{$mani_id} = [ $subject, $oci ];
     } else {
       $mani_id = $multimanifests[0]->{'digest'};
       $mani_size = $multimanifests[0]->{'size'};
