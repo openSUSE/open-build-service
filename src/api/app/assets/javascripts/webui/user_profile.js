@@ -8,6 +8,7 @@ function moveInvolvementToContainer() {
 
   container.prepend($('#involvement'));
   $('#involvement').removeClass('d-none');
+  setCollapsible();
 }
 
 function updateCharactersCount(e) {
