@@ -6,6 +6,24 @@ RSpec.describe 'Attributes', :js do
   # AttribTypes are part of the seeds, so we can reuse them
   let!(:attribute_type) { AttribType.find_by(name: 'ImageTemplates') }
 
+  describe 'expandable row hint' do
+    before do
+      User.session = user
+      create(:attrib, project: user.home_project)
+      User.session = nil
+      login user
+      visit index_attribs_path(project: user.home_project_name)
+    end
+
+    it 'shows expand hint on mobile screens' do
+      if mobile?
+        expect(page).to have_content('Click on a row to expand and see all details')
+      else
+        expect(page).to have_no_content('Click on a row to expand and see all details')
+      end
+    end
+  end
+
   describe 'for a project without packages' do
     it 'add attribute with values' do
       login user
