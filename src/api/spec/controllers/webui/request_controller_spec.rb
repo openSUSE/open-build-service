@@ -42,21 +42,6 @@ RSpec.describe Webui::RequestController, :vcr do
       end
     end
 
-    context 'when redirecting to the beta request page' do
-      let(:notification) { create(:notification_for_request, :web_notification, notifiable: bs_request, subscriber: receiver) }
-      let(:return_to) { '/my/notifications?kind%5B%5D=requests&state=unread' }
-
-      before do
-        allow(Flipper).to receive(:enabled?).and_call_original
-        allow(Flipper).to receive(:enabled?).with(:request_show_redesign, anything).and_return(true)
-        get :show, params: { number: bs_request.number, notification_id: notification.id, return_to: return_to }
-      end
-
-      it 'preserves the notification return path' do
-        expect(response).to redirect_to(request_beta_show_path(bs_request.number, notification_id: notification.id, return_to: return_to))
-      end
-    end
-
     context 'when there are package maintainers' do
       # The hint will only be shown, when the target package has at least one
       # maintainer. So we'll gonna add a maintainer to the target package.

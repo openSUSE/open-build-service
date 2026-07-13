@@ -39,7 +39,6 @@ http_interactions:
           <description></description>
           <person userid="kugelblitz" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:31 GMT
 - request:
     method: put
@@ -80,7 +79,6 @@ http_interactions:
           <description></description>
           <person userid="titan" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:31 GMT
 - request:
     method: put
@@ -119,7 +117,6 @@ http_interactions:
           <title>Ah, Wilderness!</title>
           <description>Voluptas et ex ab.</description>
         </package>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:31 GMT
 - request:
     method: put
@@ -158,7 +155,6 @@ http_interactions:
           <title>Ah, Wilderness!</title>
           <description>Voluptas et ex ab.</description>
         </package>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:31 GMT
 - request:
     method: put
@@ -197,7 +193,6 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:31 GMT
 - request:
     method: put
@@ -236,7 +231,6 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:31 GMT
 - request:
     method: put
@@ -275,7 +269,6 @@ http_interactions:
           <title>This Side of Paradise</title>
           <description>Dolor quo recusandae saepe.</description>
         </package>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:31 GMT
 - request:
     method: put
@@ -314,7 +307,6 @@ http_interactions:
           <title>This Side of Paradise</title>
           <description>Dolor quo recusandae saepe.</description>
         </package>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:31 GMT
 - request:
     method: get
@@ -347,7 +339,6 @@ http_interactions:
       string: |
         <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:32 GMT
 - request:
     method: post
@@ -402,7 +393,6 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:32 GMT
 - request:
     method: get
@@ -437,6 +427,93 @@ http_interactions:
           <entry name="_config" md5="e01ddb867c621dbd6f7ac518f2733695" size="59" mtime="1546679791" />
           <entry name="somefile.txt" md5="66bffb70674cd8b3fb9db5da36f157bc" size="51" mtime="1546679791" />
         </directory>
-    http_version: 
   recorded_at: Sat, 05 Jan 2019 09:16:32 GMT
-recorded_with: VCR 4.0.0
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>The House of Mirth</title>
+          <description>Illum iusto dolorum corporis.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1783945284'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 13 Jul 2026 12:21:25 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball?cacheonly=1&cmd=diff&expand=1&nodiff=1&opackage=goal&oproject=home:titan&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Frontend-Start:
+      - '1783945336'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '542'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="d63d52b52d922cdb1bd4e28514c8b75f">
+          <old project="home:titan" package="goal" rev="8" srcmd5="7055d2a8caa39ea1308b7879bf045337"/>
+          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+            <file state="deleted">
+              <old name="_config" md5="2075f13f46358d63594bfbb3c4f9c59c" size="67"/>
+            </file>
+            <file state="deleted">
+              <old name="somefile.txt" md5="fa355a850121d6b2be8b3008f2aacd09" size="53"/>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 13 Jul 2026 12:22:16 GMT
+recorded_with: VCR 6.4.0
