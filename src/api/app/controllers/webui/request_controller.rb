@@ -14,20 +14,14 @@ class Webui::RequestController < Webui::WebuiController
                 only: %i[changerequest show request_action request_action_changes request_action_details inline_comment build_results
                          changes changes_diff mentioned_issues chart_build_results complete_build_results]
   before_action :set_actions, only: %i[inline_comment show build_results changes changes_diff mentioned_issues chart_build_results complete_build_results
-                                       request_action_changes request_action_details],
-                              if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :set_action, only: %i[inline_comment show build_results changes changes_diff mentioned_issues request_action_details request_action_changes],
-                             if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :set_influxdb_data_request_actions, only: %i[show build_results changes changes_diff mentioned_issues],
-                                                    if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
+                                       request_action_changes request_action_details]
+  before_action :set_action, only: %i[inline_comment show build_results changes changes_diff mentioned_issues request_action_details request_action_changes]
+  before_action :set_influxdb_data_request_actions, only: %i[show build_results changes changes_diff mentioned_issues]
   before_action :set_superseded_request, only: %i[show request_action request_action_changes build_results changes changes_diff mentioned_issues]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_request_data, only: %i[show build_results changes mentioned_issues],
-                                       if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :prepare_request_header_data, only: %i[show build_results changes mentioned_issues],
-                                              if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :cache_diff_data, only: %i[changes request_action_changes],
-                                  if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
+  before_action :prepare_request_data, only: %i[show build_results changes mentioned_issues]
+  before_action :prepare_request_header_data, only: %i[show build_results changes mentioned_issues]
+  before_action :cache_diff_data, only: %i[changes request_action_changes]
   after_action :verify_authorized, only: [:create]
 
   def show
