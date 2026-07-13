@@ -65,7 +65,7 @@ sub containerinfo2installed {
   open($fd, '<', "$dir/$containerinfo.packages") || return undef;
   my @installed;
   while (<$fd>) {
-    my @s = split('|', $_);
+    my @s = split('\|', $_);
     next unless @s >= 5;
     next if $s[0] eq 'gpg-pubkey';
     my $epoch = $s[1] && ($s[1] =~ /^\d+$/) ? "$s[1]:" : '';
