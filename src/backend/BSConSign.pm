@@ -127,8 +127,9 @@ sub create_cosign_signature_ent_newbundle {
   die("not a sha256 digest\n") unless $sha256digest =~ s/^sha256://;
   my $attestation = {
     '_type' => $intoto_stmt_v1,
-    'subject' => [ { 'name' => $reference, 'digest' => { 'sha256' => $sha256digest } } ],
+    'subject' => [ { 'name' => $reference, 'digest' => { 'sha256' => $sha256digest }, 'annotations' => {} } ],
     'predicate_type' => $intoto_predicate_cosign_sign_v1,
+    'predicate' => {},
   };
   $attestation = canonical_json($attestation);
   $attestation = dsse_sign($attestation, $mt_intoto, $signfunc);
@@ -207,9 +208,18 @@ sub fixup_intoto_attestation {
 }
 
 sub create_cosign_cookie {
-  my ($gpgpubkey, $reference, $creator) = @_;
+  my ($pubkey, $reference, $creator) = @_;
   $creator ||= '';
-  my $pubkeyid = BSPGP::pk2fingerprint(BSPGP::unarmor($gpgpubkey));
+  my $pubkeyid;
+  if ($pubkey =~ /-----BEGIN PGP PUBLIC KEY/s) {
+    $pubkeyid = BSPGP::pk2fingerprint(BSPGP::unarmor($pubkey));
+  } elsif ($pubkey =~ /-----BEGIN PUBLIC KEY-----/) {
+    die unless $pubkey =~ s/^.*?-----BEGIN PUBLIC KEY-----\n//s;
+    die unless $pubkey =~ s/\n-----END PUBLIC KEY-----.*$//s;
+    $pubkeyid = Digest::SHA::sha256_hex(MIME::Base64::decode_base64($pubkey));	# rfc6962 keyid
+  } else {
+    die("create_cosign_cookie: unsupported pubkey type\n");
+  }
   return Digest::SHA::sha256_hex("$creator/$pubkeyid/$reference");
 }
 
