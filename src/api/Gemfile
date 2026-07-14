@@ -8,6 +8,7 @@ gem 'rails', '~> 5.2'
 gem 'mysql2'
 # for XML handling
 gem 'nokogiri'
+gem 'sprockets', '~> 3.7'
 # for delayed tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
 # to fill errbit
