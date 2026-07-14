@@ -50,8 +50,8 @@
 
               .build-state.d-flex.flex-column
                 - build_result.summary.each do |status_count|
-                  .toggle-build-info-parent.text-nowrap
-                    %i.fa.fa-question-circle.text-info.px-2.ps-lg-1.toggle-build-info{ title: 'Click to keep it open' }
+                  .collapsible-tooltip-parent.text-nowrap
+                    %i.fa.fa-question-circle.text-info.px-2.ps-lg-1.collapsible-tooltip{ title: 'Click to keep it open' }
                     = link_to("#{status_count.code}: #{status_count.count}",
                       { action: :monitor,
                         "#{valid_xml_id("repo_#{repository}")}": 1,
@@ -66,6 +66,3 @@
                       %div
                         = repository_status_icon(status: build_result.state)
                         %span.ps-1= repository_info(build_result.state)
-
-:javascript
-  toggleBuildInfo();
