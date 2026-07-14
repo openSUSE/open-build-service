@@ -26,13 +26,14 @@
       %ul.monitorboxrow.list-unstyled.overflow-hidden.m-3
         %li.builderbox.float-start{ data: { host: name } }
           %span.fw-bold #{name} (#{hash['_arch']})
+          - states = hash['_states'] || { 'idle' => 0, 'away' => 0, 'dead' => 0, 'down' => 0 }
           .worker-badges.mt-1.mb-1
-            %span.badge.text-bg-secondary.idle-badge.d-none idle: 0
-            %span.badge.text-bg-warning.away-badge.d-none away: 0
-            %span.badge.text-bg-danger.dead-badge.d-none dead: 0
-            %span.badge.text-bg-danger.down-badge.d-none down: 0
+            %span.badge.text-bg-secondary.idle-badge{ class: states['idle'] > 0 ? '' : 'd-none' } idle: #{states['idle']}
+            %span.badge.text-bg-warning.away-badge{ class: states['away'] > 0 ? '' : 'd-none' } away: #{states['away']}
+            %span.badge.text-bg-danger.dead-badge{ class: states['dead'] > 0 ? '' : 'd-none' } dead: #{states['dead']}
+            %span.badge.text-bg-danger.down-badge{ class: states['down'] > 0 ? '' : 'd-none' } down: #{states['down']}
           - hash.each do |subid, id|
-            - if subid != '_arch'
+            - if subid != '_arch' && subid != '_states'
               .monitorpb.worker-progress.d-none.position-relative.mt-1{ id: "p#{id}", data: { host: name } }
                 .progress
                   .progress-bar.progress-bar-striped{ 'aria-valuemax' => '100', 'aria-valuemin' => '0',
