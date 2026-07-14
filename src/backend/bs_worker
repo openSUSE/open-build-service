@@ -200,7 +200,7 @@ sub tail_logfile {
 sub cleanup_job {
   if ($vm_tmpfs_mode) {
     # no need to umount if $buildroot is already umounted
-    if (not qsystem('mountpoint', '-q', $buildroot)) {
+    if (!qsystem('mountpoint', '-q', $buildroot)) {
       qsystem("umount", "-l", $buildroot) && die("umount tmpfs failed: $!\n");
     }
   }
@@ -213,8 +213,11 @@ sub cleanup_job {
         mkdir_p($buildroot);
       };
       print "\n";
+  } elsif ($vm && -d $buildroot) {
+     rm_rf("$buildroot/.build-srcdir");
+     rm_rf("$buildroot/.build.packages");
+     rm_rf("$buildroot/.mount/.build.packages");
   }
-
 }
 
 sub kill_job {
