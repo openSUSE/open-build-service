@@ -66,6 +66,19 @@ sub create_signature_payload {
   return canonical_json($data);
 }
 
+sub create_cosign_signature_intoto_attestation {
+  my ($digest, $reference) = @_;
+  my $sha256digest = $digest;
+  die("create_signature_intoto_attestation: not a sha256 digest\n") unless $sha256digest =~ s/^sha256://;
+  my $attestation = {
+    '_type' => $intoto_stmt_v1,
+    'subject' => [ { 'name' => $reference, 'digest' => { 'sha256' => $sha256digest }, 'annotations' => {} } ],
+    'predicate_type' => $intoto_predicate_cosign_sign_v1,
+    'predicate' => {},
+  };
+  return canonical_json($attestation);
+}
+
 sub create_atomic_signature {
   my ($signfunc, $digest, $reference, $creator, $timestamp) = @_;
   my $payload = create_signature_payload('atomic container signature', $digest, $reference, $creator, $timestamp);
@@ -123,15 +136,7 @@ sub create_cosign_attestation_ent {
 
 sub create_cosign_signature_ent_newbundle {
   my ($signfunc, $digest, $reference, $creator, $timestamp, $annotations) = @_;
-  my $sha256digest = $digest;
-  die("not a sha256 digest\n") unless $sha256digest =~ s/^sha256://;
-  my $attestation = {
-    '_type' => $intoto_stmt_v1,
-    'subject' => [ { 'name' => $reference, 'digest' => { 'sha256' => $sha256digest }, 'annotations' => {} } ],
-    'predicate_type' => $intoto_predicate_cosign_sign_v1,
-    'predicate' => {},
-  };
-  $attestation = canonical_json($attestation);
+  my $attestation = create_cosign_signature_intoto_attestation($digest, $reference);
   $attestation = dsse_sign($attestation, $mt_intoto, $signfunc);
   my %annotations = %{$annotations || {}};
   $annotations{'dev.sigstore.bundle.content'} = 'dsse-envelope';
