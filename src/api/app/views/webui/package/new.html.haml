@@ -53,7 +53,9 @@
 - content_for :ready_function do
   :plain
     var templateSelector = document.getElementById("package-template-select");
-    templateSelector.addEventListener("input", function(e) {
-      var url = e.target.selectedOptions[0].dataset.url;
-      setTemplateData(url);
-    });
+    if (templateSelector) {
+      templateSelector.addEventListener("input", function(e) {
+        var url = e.target.selectedOptions[0].dataset.url;
+        setTemplateData(url);
+      });
+    }
