@@ -298,7 +298,11 @@ sub jobfinished {
     }
     for my $file (ls($origdst)) {
       next if $file eq 'logfile' || $file eq '_statistics' || $file eq 'meta' || $file eq 'status' || $file =~ /^\./;
-      next if $file =~ /\.obsbinlnk$/ || $file =~ /^_blob\./;
+      next if $file =~ /\.obsbinlnk$/;
+      if ($file =~ /^_blob\./) {
+	BSUtil::cp("$origdst/$file", "$jobdatadir/$file") unless -e "$jobdatadir/$file";
+	next;
+      }
       next if $file eq 'history' || $file eq 'reason' || $file eq 'rpmlint.log';
       next if $file =~ /^::import/;
       BSUtil::cp("$origdst/$file", "$jobdatadir/a_$file");
