@@ -66,5 +66,21 @@ RSpec.describe Webui::DistributionsController do
         expect(user.home_project.reload.repositories.where(name: distribution.reponame)).to be_any
       end
     end
+
+    context 'when the repository linking the distribution has a custom name' do
+      let!(:repository) do
+        create(:repository, project: user.home_project, name: 'custom_name',
+                            path_elements: [create(:path_element, link: Repository.find_by_project_and_name!(distribution.project, distribution.repository))])
+      end
+
+      before do
+        login user
+        get :toggle, params: { project_name: user.home_project_name, distribution: distribution }, xhr: true
+      end
+
+      it 'removes the repository regardless of its name' do
+        expect(user.home_project.reload.repositories.where(name: 'custom_name')).not_to be_any
+      end
+    end
   end
 end
