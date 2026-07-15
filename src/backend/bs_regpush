@@ -90,6 +90,7 @@ my $registry_blob_authenticator;
 my $keepalive;
 
 my $cosign_cookie_name = 'org.open-build-service.cosign.cookie';
+my $cosign_creator = 'OBS';
 
 sub warn_and_exit {
   warn($_[1]);
@@ -499,9 +500,8 @@ sub cosign_upload_rekor_ent {
 }
 
 sub cosign_upload_rekor {
-  my ($gpgpubkey, $sig, @layer_ents) = @_;
-  my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
-  $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
+  my ($pubkey, $sig, @layer_ents) = @_;
+  my $sslpubkey = get_sslpubkey($pubkey);
   my $hashtype = 'sha256';	# must match signfunc
   if ($sig) {
     print "uploading cosign signature to $rekorserver\n";
@@ -518,9 +518,9 @@ sub cosign_upload_rekor {
 }
 
 sub create_cosign_signature_ent {
-  my ($signfunc, $digest, $reference, $creator, $timestamp, $annotations) = @_;
-  return BSConSign::create_cosign_signature_ent_newbundle($signfunc, $digest, $reference, $creator, $timestamp, $annotations) if $cosignbundle;
-  return BSConSign::create_cosign_signature_ent($signfunc, $digest, $reference, $creator, $timestamp, $annotations);
+  my ($signfunc, $digest, $reference, $annotations) = @_;
+  return BSConSign::create_cosign_signature_ent_newbundle($signfunc, $digest, $reference, $cosign_creator, undef, $annotations) if $cosignbundle;
+  return BSConSign::create_cosign_signature_ent($signfunc, $digest, $reference, $cosign_creator, undef, $annotations);
 }
 
 sub create_cosign_attestation_ent {
@@ -893,7 +893,10 @@ sub tags_from_digestfile {
   while (<DIG>) {
     chomp;
     next if /^#/ || /^\s*$/;
-    push @ret, "$1-$2.sig", "$1-$2.att", "$1-$2" if $add_cosign_tags && /^([a-z0-9]+):([a-f0-9]+) (\d+)/;
+    if ($add_cosign_tags && /^([a-z0-9]+):([a-f0-9]+) (\d+)/) {
+      push @ret, "$1-$2" if !$cosign || $cosignbundle;
+      push @ret, "$1-$2.sig", "$1-$2.att" if !$cosign || !$cosignbundle;
+    }
     next if /^([a-z0-9]+):([a-f0-9]+) (\d+)\s*$/;	# ignore anonymous images
     die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
     push @ret, $4;
@@ -969,6 +972,20 @@ sub get_credentials {
     chomp $creds;
   }
   return $creds;
+}
+
+sub read_pubkey {
+  die("need a pubkey file\n") unless $pubkeyfile;
+  my $pubkey = readstr($pubkeyfile);
+  die("unsupported pubkey type\n") unless $pubkey =~ /-----BEGIN PGP PUBLIC KEY/s || $pubkey =~ /-----BEGIN PUBLIC KEY-----/;
+  return $pubkey;
+}
+
+sub get_sslpubkey {
+  my ($pubkey) = @_;
+  return $pubkey if $pubkey =~ /-----BEGIN PUBLIC KEY/;	# already a ssl pubkey
+  my $pubkey_der = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($pubkey)));
+  return BSASN1::der2pem($pubkey_der, 'PUBLIC KEY');
 }
 
 sub die_with_usage {
@@ -1196,13 +1213,18 @@ die_with_usage() unless @ARGV >= 2;
 if ($cosign) {
   require BSConfiguration;
   require BSConSign;
-  require BSPGP;
-  require BSX509 if $rekorserver;
-  require BSRekor if $rekorserver;
-  die("need a pubkey for cosign signature creation\n") unless $pubkeyfile;
+  if ($rekorserver) {
+    require BSRekor;
+    # next three for pgp -> ssl pubkey conversion
+    require BSPGP;
+    require BSX509;
+    require BSASN1;
+  }
+  die("need a pubkey for cosign signature creation\n") unless $pubkeyfile || (!$rekorserver && $cosigncookie);
   die("need a gun for cosign signature creation\n") unless $gun;
   die("sign program is not configured!\n") unless $signcmd || $BSConfig::sign;
   unshift @signcmd, $signcmd || $BSConfig::sign;
+  push @signcmd, '-O', '-h', 'sha256';
 }
 
 
@@ -1394,9 +1416,9 @@ if ($writeinfofile) {
 }
 
 if ($cosign && %digests_to_cosign) {
-  my $creator = 'OBS';
-  my $gpgpubkey = readstr($pubkeyfile);
-  $cosigncookie ||= BSConSign::create_cosign_cookie($gpgpubkey, $gun, $creator);
+  my $pubkey;
+  $pubkey = read_pubkey() if $rekorserver || !$cosigncookie;
+  $cosigncookie ||= BSConSign::create_cosign_cookie($pubkey, $gun, $cosign_creator);
   # upload signatures
   for my $digest (sort keys %digests_to_cosign) {
     next if $cosignbundle;	# a signature is just an extra attestation in newbundle mode
@@ -1404,10 +1426,10 @@ if ($cosign && %digests_to_cosign) {
     $sig_tag =~ s/:/-/;
     next if reuse_cosign_manifest($sig_tag, 1, $BSConSign::mt_cosign ? $BSConSign::mt_cosign : undef);
     print "creating cosign signature for $gun $digest\n";
-    my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
+    my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd) };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
-    my ($sig_ent, $sig) = create_cosign_signature_ent($signfunc, $digest, $gun, $creator, undef, $annotations);
-    cosign_upload_rekor($gpgpubkey, $sig, $sig_ent) if $rekorserver && $sig;
+    my ($sig_ent, $sig) = create_cosign_signature_ent($signfunc, $digest, $gun, $annotations);
+    cosign_upload_rekor($pubkey, $sig, $sig_ent) if $rekorserver && $sig;
     cosign_upload($sig_tag, undef, $sig_ent);
   }
   # upload attestations
@@ -1424,15 +1446,15 @@ if ($cosign && %digests_to_cosign) {
     $att_tag =~ s/:/-/;
     next if reuse_cosign_manifest($att_tag, $numlayers, $BSConSign::mt_dsse ? $BSConSign::mt_dsse : undef);
     print "creating $numlayers cosign attestations for $gun $digest\n";
-    my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
+    my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd) };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
     my @att_ents;
-    push @att_ents, (create_cosign_signature_ent($signfunc, $digest, $gun, $creator, undef, $annotations))[0] if $cosignbundle;
+    push @att_ents, (create_cosign_signature_ent($signfunc, $digest, $gun, $annotations))[0] if $cosignbundle;
     push @att_ents, create_cosign_attestation_ent($provenance_json, $signfunc, $digest, $gun, $annotations) if $provenance_json;
     push @att_ents, create_cosign_attestation_ent($spdx_json, $signfunc, $digest, $gun, $annotations) if $spdx_json;
     push @att_ents, create_cosign_attestation_ent($cyclonedx_json, $signfunc, $digest, $gun, $annotations) if $cyclonedx_json;
     push @att_ents, create_cosign_attestation_ent($_, $signfunc, $digest, $gun, $annotations) for @intoto_json;
-    cosign_upload_rekor($gpgpubkey, undef, @att_ents) if $rekorserver && @att_ents;
+    cosign_upload_rekor($pubkey, undef, @att_ents) if $rekorserver && @att_ents;
     cosign_upload($att_tag, $subject, @att_ents);
   }
 }
