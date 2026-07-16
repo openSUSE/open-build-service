@@ -18,7 +18,7 @@
             = element.action_target
         = user_action_suffix
       - elsif element.instance_of?(HistoryElement::RequestAccepted) && pending_reviews?
-        #{element.user_action} and dismissed pending reviews
+        #{user_action} and dismissed pending reviews
       - else
         = user_action
       - if element.is_a?(HistoryElement::Review) && element.review && !element.review.for_user?
