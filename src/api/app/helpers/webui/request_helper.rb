@@ -229,6 +229,27 @@ module Webui::RequestHelper
     { request_actions_popover: true, bs_html: 'true', bs_custom_class: 'request-actions-popover', bs_content: content }
   end
 
+  def history_element_user_action(element)
+    case element
+    when HistoryElement::ReviewAccepted
+      element.staged_review? ? 'staged request' : 'accepted review'
+    when HistoryElement::ReviewDeclined            then 'declined review'
+    when HistoryElement::ReviewAssigned            then 'assigned review'
+    when HistoryElement::ReviewObsoleted           then 'obsoleted review'
+    when HistoryElement::ReviewReopened            then 'reopened review'
+    when HistoryElement::RequestAccepted           then 'accepted request'
+    when HistoryElement::RequestDeclined           then 'declined request'
+    when HistoryElement::RequestRevoked            then 'revoked request'
+    when HistoryElement::RequestReopened           then 'reopened request'
+    when HistoryElement::RequestDeleted            then 'deleted request'
+    when HistoryElement::RequestSuperseded         then 'superseded request'
+    when HistoryElement::RequestAllReviewsApproved then 'accepted last open review'
+    when HistoryElement::RequestPriorityChange     then "changed priority to #{element.description_extension}"
+    when HistoryElement::RequestSetIncident        then "moved maintenance target to #{element.description_extension}"
+    when HistoryElement::RequestReviewAdded        then review_added_user_action(element)
+    end
+  end
+
   def action_type_icon(type)
     case type
     when 'maintenance_incident'
@@ -251,6 +272,13 @@ module Webui::RequestHelper
   private
 
   # Note: We don't allow labeling requests with more than 1 target project
+  def review_added_user_action(element)
+    return 'added a reviewer' unless element.review
+    return "set #{element.action_target} as a staging project" if element.review_by_staging_project?
+
+    "added #{element.action_target} as a reviewer"
+  end
+
   def project_for_labels(bs_request)
     target_project_ids = bs_request.bs_request_actions.pluck(:target_project_id).uniq
     return if target_project_ids.many?
