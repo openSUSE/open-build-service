@@ -604,6 +604,10 @@ class Project < ApplicationRecord
     remoteurl.present?
   end
 
+  def maintained_by_backend?
+    scmsync.present? || defines_remote_instance?
+  end
+
   def delegates_requests?
     find_attribute('OBS', 'DelegateRequestTarget').present?
   end
