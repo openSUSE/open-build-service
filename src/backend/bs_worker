@@ -4175,6 +4175,7 @@ sub dobuild {
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose') && -e "$statedir/build/signdummy";
   push @args, '--vcs', $vcs if $vcs;
+  push @args, '--buildtime', $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
     $packid =~ /^(.*):(.*?)$/;
     push @args, "--obspackage=$1" if $needsobspackage;
@@ -4285,7 +4286,8 @@ sub dobuild {
   }
 
   if (!$followupmode && $kiwiorigins) {
-    $buildinfo->{'buildtime'} = time();
+    my $report_buildtime = $buildinfo->{'buildtime'} || time();
+    local $buildinfo->{'buildtime'} = $report_buildtime;
     if (!$imagemode) {
       # some builds like python-venv also write a .packages file
       createreport($buildinfo, "$resultdir/OTHER", $kiwiorigins, $srcdir);
