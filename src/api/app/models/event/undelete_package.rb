@@ -2,6 +2,7 @@ module Event
   class UndeletePackage < Base
     include EventObjectPackage
     include UpdateBackendInfosCallback
+    include ReconcileLinkedPackageCallback
 
     self.message_bus_routing_key = 'package.undelete'
     self.description = 'Package undeleted'
