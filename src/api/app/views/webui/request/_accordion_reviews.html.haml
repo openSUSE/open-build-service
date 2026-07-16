@@ -9,7 +9,7 @@
           = pluralize(declined_reviews.count, 'Declined Review')
       .accordion-collapse.collapse.show#collapse-declined-reviews{ 'aria-labelledby': 'heading-declined-reviews' }
         .accordion-body
-          = render partial: 'webui/request/beta_show_tabs/review_summary', collection: declined_reviews, as: :review
+          = render partial: 'webui/request/review_summary', collection: declined_reviews, as: :review
 
   - if pending_reviews.count.positive?
     .accordion-item
@@ -21,7 +21,7 @@
           = pluralize(pending_reviews.count, 'Pending Review')
       .accordion-collapse.collapse.show#collapse-pending-reviews{ 'aria-labelledby': 'heading-pending-reviews' }
         .accordion-body
-          = render partial: 'webui/request/beta_show_tabs/review_summary', collection: pending_reviews, as: :review
+          = render partial: 'webui/request/review_summary', collection: pending_reviews, as: :review
 
   - if accepted_reviews.count.positive?
     .accordion-item
@@ -33,4 +33,4 @@
           = pluralize(accepted_reviews.count, 'Accepted Review')
       .accordion-collapse.collapse#collapse-accepted-reviews{ 'aria-labelledby': 'heading-accepted-reviews' }
         .accordion-body
-          = render partial: 'webui/request/beta_show_tabs/review_summary', collection: accepted_reviews, as: :review
+          = render partial: 'webui/request/review_summary', collection: accepted_reviews, as: :review
