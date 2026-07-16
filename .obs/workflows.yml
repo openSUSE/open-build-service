@@ -27,4 +27,4 @@ rebuild:
     event: push
     branches:
       only:
-        - 2.10
+        - '2.10'
