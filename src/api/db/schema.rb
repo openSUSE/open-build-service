@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_15_101229) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_16_120000) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -870,10 +870,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_101229) do
     t.string "report_bug_url", limit: 8192
     t.integer "comments_count", default: 0, null: false
     t.boolean "anitya_ignore", default: false, null: false
+    t.string "type"
     t.index ["comments_count"], name: "index_packages_on_comments_count"
     t.index ["develpackage_id"], name: "devel_package_id_index"
     t.index ["kiwi_image_id"], name: "index_packages_on_kiwi_image_id"
     t.index ["project_id", "name"], name: "packages_all_index", unique: true
+    t.index ["type"], name: "index_packages_on_type"
   end
 
   create_table "path_elements", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|

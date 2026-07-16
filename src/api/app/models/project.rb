@@ -42,6 +42,7 @@ class Project < ApplicationRecord
     end
   end
   has_many :patchinfos, -> { with_kind('patchinfo') }, class_name: 'Package'
+  has_many :linked_packages, class_name: 'LinkedPackage', inverse_of: :project
 
   has_many :issues, through: :packages
   has_many :attribs, dependent: :destroy do
@@ -713,7 +714,7 @@ class Project < ApplicationRecord
   # when we delete ourself. No need to delete packages
   # individually on backend
   def cleanup_packages
-    packages.each do |package|
+    (packages + linked_packages).each do |package|
       package.commit_opts = { no_backend_write: 1, project_destroy_transaction: 1, request: commit_opts[:request] }
       package.destroy
     end
