@@ -3580,6 +3580,32 @@ sub normalize_container {
   rename("$container.new", "$container") || die("rename $container.new $container: $!\n");
 }
 
+sub reconstruct_containers {
+  my ($dir) = @_;
+  eval {
+    require JSON::XS;
+    require BSTar;
+  };
+  return if $@;
+  for my $cifile (sort(grep {/\.containerinfo$/} ls($dir))) {
+    my $tarfile = $cifile;
+    $tarfile =~ s/\.containerinfo/\.tar/;
+    next if -e "$dir/$tarfile";
+    my $containerinfo = eval { JSON::XS::decode_json(readstr("$dir/$cifile")) };
+    next unless $containerinfo && ref($containerinfo) eq 'HASH';
+    next unless $containerinfo->{'tar_blobids'} && $containerinfo->{'tar_manifest'} && $containerinfo->{'tar_mtime'} && $containerinfo->{'tar_size'};
+    next unless ref($containerinfo->{'tar_blobids'}) eq 'ARRAY';
+    my $mtime = $containerinfo->{'tar_mtime'};
+    my @tar;
+    for my $blobid (@{$containerinfo->{'tar_blobids'}}) {
+      my $file = "$dir/_blob.$blobid";
+      push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => -s _} if -e $file;
+    }
+    push @tar, {'name' => 'manifest.json', 'data' => $containerinfo->{'tar_manifest'}, 'mtime' => $mtime, 'size' => length($containerinfo->{'tar_manifest'})};
+    BSTar::writetarfile("$dir/$tarfile", undef, \@tar, 'mtime' => $mtime);
+  }
+}
+
 # this works for both v02 and v1 predicates
 my $slsa_json_template = {
   '_order' => [ '_type', 'subject', 'predicateType', 'predicate' ],
@@ -3882,6 +3908,7 @@ sub dobuild {
     $buildinfo->{'file'} = 'deltagen.spec';
   } elsif ($ptfmode || $reproduciblecheckmode) {
     getjobdata($buildinfo, $srcdir);
+    reconstruct_containers($srcdir) if $reproduciblecheckmode;
     print "packages, ";
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
