@@ -130,7 +130,7 @@ class BuildController < ApplicationController
     # for permission check
     pkg = Package.get_by_project_and_name(params[:project], params[:package], follow_multibuild: true)
 
-    if pkg.instance_of?(Package) && pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
+    if pkg.is_a?(Package) && pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
        !User.possibly_nobody.can_download_binaries?(pkg.project)
       render_error status: 403, errorcode: 'download_binary_no_permission',
                    message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"

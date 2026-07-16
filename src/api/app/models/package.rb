@@ -269,7 +269,7 @@ class Package < ApplicationRecord
     end
 
     raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}" unless package
-    raise ReadAccessError, "#{project.name}/#{package.name}" unless package.instance_of?(Package) && package.project.check_access?
+    raise ReadAccessError, "#{project.name}/#{package.name}" unless package.is_a?(Package) && package.project.check_access?
 
     package.check_source_access! if opts[:use_source]
 
