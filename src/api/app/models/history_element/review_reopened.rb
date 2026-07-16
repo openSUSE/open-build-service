@@ -3,10 +3,6 @@ module HistoryElement
     def description
       'Review got reopened'
     end
-
-    def user_action
-      'reopened review'
-    end
   end
 end
 

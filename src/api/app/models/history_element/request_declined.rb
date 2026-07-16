@@ -7,10 +7,6 @@ module HistoryElement
     def description
       'Request got declined'
     end
-
-    def user_action
-      'declined request'
-    end
   end
 end
 

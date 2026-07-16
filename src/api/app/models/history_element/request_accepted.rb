@@ -7,10 +7,6 @@ module HistoryElement
     def description
       'Request got accepted'
     end
-
-    def user_action
-      'accepted request'
-    end
   end
 end
 
