@@ -862,4 +862,10 @@ RSpec.describe Project, :vcr do
 
     it { expect(project.bs_requests).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
   end
+
+  describe '#maintained_by_backend?' do
+    it { expect(create(:project, scmsync: 'https://example.com/repo.git')).to be_maintained_by_backend }
+    it { expect(create(:project, remoteurl: 'https://api.example.com/public')).to be_maintained_by_backend }
+    it { expect(create(:project)).not_to be_maintained_by_backend }
+  end
 end

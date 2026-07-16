@@ -197,18 +197,34 @@ RSpec.describe Package, '#get_by_project_and_name' do
     context 'enabled' do
       let(:arguments) { { follow_project_scmsync_links: true } }
 
-      before do
-        # Mock Package.exists_on_backend?
-        allow(Backend::Api::Sources::Package).to receive(:meta).and_return(package_xml)
+      context 'with the linked_packages beta feature enabled' do
+        # scmsync packages are persisted as LinkedPackage records (reconciled from backend events).
+        let!(:linked_package) { create(:linked_package, name: package.name, project: project, title: 'hans', description: 'franz') }
+
+        before { Flipper.enable(:linked_packages) }
+
+        it 'returns the persisted linked package' do
+          expect(subject).to eq(linked_package)
+        end
+
+        it 'reads attributes from the linked package' do
+          expect(subject).to have_attributes(title: 'hans', description: 'franz')
+        end
       end
 
-      it 'returns a readonly package' do
-        expect(subject).to be_readonly
-      end
+      context 'without the linked_packages beta feature' do
+        before do
+          allow(Backend::Api::Sources::Package).to receive(:meta).and_return(package_xml)
+        end
 
-      it 'reads attributes from the backend' do
-        expect(subject.title).to eq('hans')
-        expect(subject.description).to eq('franz')
+        it 'returns a readonly package' do
+          expect(subject).to be_readonly
+        end
+
+        it 'reads attributes from the backend' do
+          expect(subject.title).to eq('hans')
+          expect(subject.description).to eq('franz')
+        end
       end
     end
 
