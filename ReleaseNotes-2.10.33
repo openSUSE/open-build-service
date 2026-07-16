@@ -15,6 +15,10 @@ Bugfixes
 ========
 
 Frontend:
+ * Update websocket-driver RubyGem to version 0.8.2
+   - [GHSA-8j3g-f24p-4mpw] Memory exhaustion in HTTP header parser.
+   - [GHSA-33ph-fccm-39pj] Resource limit bypass via message compression.
+   - [GHSA-ghhp-3qvg-889p] Memory exhaustion via abuse of protocol length headers.
  * Update concurrent-ruby RubyGem to version 1.3.7
    - [GHSA-h8w8-99g7-qmvj] `AtomicReference#update` livelocks when the stored value is `Float::NAN`.
    - [GHSA-wv3x-4vxv-whpp] `ReentrantReadWriteLock` read-count overflow grants a write lock without exclusivity.
