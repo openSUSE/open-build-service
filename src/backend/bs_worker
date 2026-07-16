@@ -3913,6 +3913,7 @@ sub dobuild {
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
     $buildinfo->{'file'} = $ptfmode ? 'ptf.spec' : 'reproduciblecheck.spec';
+    $buildinfo->{'_no_container_normalization'} = 1 if $reproduciblecheckmode;
     @meta = split("\n", readstr("$srcdir/meta"));
   } elsif ($followupmode) {
     getfollowupsources($buildinfo, $srcdir);
@@ -4178,6 +4179,7 @@ sub dobuild {
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose') && -e "$statedir/build/signdummy";
   push @args, '--vcs', $vcs if $vcs;
+  push @args, '--buildtime', $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
     $packid =~ /^(.*):(.*?)$/;
     push @args, "--obspackage=$1" if $needsobspackage;
@@ -4288,7 +4290,8 @@ sub dobuild {
   }
 
   if (!$followupmode && $kiwiorigins) {
-    $buildinfo->{'buildtime'} = time();
+    my $report_buildtime = $buildinfo->{'buildtime'} || time();
+    local $buildinfo->{'buildtime'} = $report_buildtime;
     if (!$imagemode) {
       # some builds like python-venv also write a .packages file
       createreport($buildinfo, "$resultdir/OTHER", $kiwiorigins, $srcdir);
@@ -5017,7 +5020,7 @@ if ($ex == 0) {
     }
     @files = grep {! -l "$buildroot/.build.packages/$d/$_" && -f _} @files;
     # normalize/compress containers if we have /usr/bin/obs-gzip-go
-    if ($can_rewrite_containers && -x "/usr/bin/obs-gzip-go") {
+    if (!$buildinfo->{_no_container_normalization} && $can_rewrite_containers && -x "/usr/bin/obs-gzip-go") {
       for my $containerinfo (grep {/\.containerinfo$/} @files) {
 	my $container = "$buildroot/.build.packages/$d/$containerinfo";
         $container =~ s/\.containerinfo$/\.tar/;
