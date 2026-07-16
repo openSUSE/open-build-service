@@ -344,7 +344,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def complete_build_results
     filters = params.keys - %w[controller action number]
-    render partial: 'webui/request/beta_show_tabs/build_status', locals: { build_results_data: build_results_data, bs_request_number: @bs_request.number, filters: filters }
+    render partial: 'webui/request/build_status', locals: { build_results_data: build_results_data, bs_request_number: @bs_request.number, filters: filters }
   end
 
   def autocomplete_reviewers

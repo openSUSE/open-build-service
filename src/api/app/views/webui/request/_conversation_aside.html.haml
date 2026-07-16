@@ -10,9 +10,9 @@
       %h6
         Reviewers
     .mb-4
-      = render partial: 'webui/request/beta_show_tabs/review_summary', collection: request_reviews, as: :review
+      = render partial: 'webui/request/review_summary', collection: request_reviews, as: :review
   - if policy(bs_request).add_reviews?
-    = render partial: 'webui/request/beta_show_tabs/ask_for_review', locals: { bs_request: bs_request }
+    = render partial: 'webui/request/ask_for_review', locals: { bs_request: bs_request }
 
   -# PACKAGE MAINTAINERS
   - unless package_maintainers.empty?
