@@ -22,8 +22,10 @@ rescue StandardError
 end
 
 CONFIG['schema_location'] ||= "#{File.expand_path('public/schema')}/"
-CONFIG['global_write_through'] ||= true
+CONFIG['global_write_through'] = true if CONFIG['global_write_through'].nil?
 CONFIG['proxy_auth_mode'] ||= :off
+CONFIG['force_ssl'] = true if CONFIG['force_ssl'].nil?
+CONFIG['assume_ssl'] = false if CONFIG['assume_ssl'].nil?
 
 # Initialize the rails application
 OBSApi::Application.initialize!

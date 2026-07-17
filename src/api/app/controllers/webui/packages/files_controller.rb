@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class FilesController < Webui::WebuiController
+    class FilesController < WebuiController
       include Webui::PackageHelper
       include ScmsyncChecker
 
@@ -13,6 +13,15 @@ module Webui
       before_action :set_file, only: :show
 
       after_action :verify_authorized, except: %i[show blame]
+
+      # We rescue from unknown project and package errors here, because we want to show a 404 page
+      rescue_from Project::Errors::UnknownObjectError, Package::Errors::UnknownObjectError do
+        if request.xhr?
+          head :not_found
+        else
+          render file: Rails.public_path.join('404.html'), status: :not_found, layout: false
+        end
+      end
 
       def show
         @rev = params[:rev]

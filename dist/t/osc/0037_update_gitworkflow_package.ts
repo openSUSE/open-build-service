@@ -75,7 +75,7 @@ sub prepare_ssh {
     $key = <$fh>;
     close $fh;
   }
-
+  chomp($key);
   my $keys_param = {
     'headers' => [ 'Content-Type: application/json' ],
     'uri'     => "https://obsadmin:opensuse\@$fqhn/gitea/api/v1/user/keys",

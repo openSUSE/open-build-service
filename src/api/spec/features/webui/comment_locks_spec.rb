@@ -46,10 +46,11 @@ RSpec.describe 'CommentLocks', :vcr do
 
         it 'cannot lock comments' do
           if mobile?
-            expect(page).to have_no_link('Actions')
-          else
-            expect(page).to have_no_link('Lock Comments')
+            click_link_or_button('Actions')
+            # Wait for the Actions menu to actually be open before asserting the item is absent
+            expect(page).to have_link('Report Request')
           end
+          expect(page).to have_no_link('Lock Comments')
         end
 
         it 'can comment' do
@@ -92,10 +93,11 @@ RSpec.describe 'CommentLocks', :vcr do
 
         it 'cannot unlock comments' do # rubocop:disable RSpec/ExampleLength
           if mobile?
-            expect(page).to have_no_link('Actions')
-          else
-            expect(page).to have_no_link('Unlock Comments')
+            click_link_or_button('Actions')
+            # Wait for the Actions menu to actually be open before asserting the item is absent
+            expect(page).to have_link('Report Request')
           end
+          expect(page).to have_no_link('Unlock Comments')
           expect(page).to have_no_text('You can remove the lock by clicking on the button below.')
         end
 

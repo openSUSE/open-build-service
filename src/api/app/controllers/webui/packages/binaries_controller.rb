@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class BinariesController < Webui::WebuiController
+    class BinariesController < WebuiController
       include ScmsyncChecker
 
       # TODO: Keep in sync with Build::query in backend/build/Build.pm.

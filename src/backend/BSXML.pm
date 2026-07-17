@@ -584,6 +584,7 @@ our $buildinfo = [
 	'needed',       # number of blocked
 	'revtime',	# time of last commit
 	'readytime',
+	'buildtime',	# for reproducible builds
 	'specfile',	# obsolete
 	'file',
 	'versrel',
@@ -1628,6 +1629,15 @@ our $services = [
                 '_content'
          ]],
     ]],
+];
+
+# list of used services configured in a project. It can contain links to other projects.
+our $services_link = [
+    'services' =>
+     [[ 'link' =>
+	    'project',
+     ]],
+         $services->[1],
 ];
 
 # service type definitions

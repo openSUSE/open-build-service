@@ -30,6 +30,26 @@ module ProjectLinks
     end
   end
 
+  def add_project_link(source_project_name:)
+    # The position is handled automatically by acts_as_list on LinkedProject,
+    # which appends new links to the bottom of the list.
+    if Project.remote_project?(source_project_name)
+      linking_to.find_or_create_by(linked_remote_project_name: source_project_name)
+    else
+      source_project = Project.find_by!(name: source_project_name)
+      linking_to.find_or_create_by(linked_db_project: source_project)
+    end
+  end
+
+  def remove_project_link(linked_project_name:)
+    if Project.remote_project?(linked_project_name)
+      linking_to.destroy_by(linked_remote_project_name: linked_project_name)
+    else
+      linked_project = Project.find_by!(name: linked_project_name)
+      linking_to.destroy_by(linked_db_project: linked_project)
+    end
+  end
+
   def expand_linking_to
     expand_all_projects.map(&:id)
   end

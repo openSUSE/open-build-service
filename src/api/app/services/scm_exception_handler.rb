@@ -12,7 +12,6 @@ class SCMExceptionHandler
               Octokit::RepositoryUnavailable,
               Octokit::NotFound,
               Octokit::OneTimePasswordRequired,
-              Octokit::Unauthorized,
               Octokit::UnavailableForLegalReasons,
               Octokit::UnsupportedMediaType,
               Octokit::CommitIsNotPartOfPullRequest,
@@ -23,25 +22,15 @@ class SCMExceptionHandler
               Octokit::UnverifiedEmail,
               Octokit::InvalidRepository,
               Octokit::PathDiffTooLarge,
-              Octokit::UnprocessableEntity,
-              Octokit::InternalServerError,       # 500
-              Octokit::NotImplemented,            # 501
-              Octokit::BadGateway,                # 502
-              Octokit::ServiceUnavailable,        # 503
-              Octokit::ServerError do |exception| # 500..599
+              Octokit::UnprocessableEntity do |exception|
     log_to_workflow_run(exception, 'GitHub') if @workflow_run.present?
   end
 
-  rescue_from Gitlab::Error::BadGateway,
-              Gitlab::Error::BadRequest,
+  rescue_from Gitlab::Error::BadRequest,
               Gitlab::Error::Conflict,
               Gitlab::Error::Forbidden,
-              Gitlab::Error::InternalServerError,
               Gitlab::Error::MissingCredentials,
               Gitlab::Error::NotFound,
-              Gitlab::Error::ServiceUnavailable,
-              Gitlab::Error::TooManyRequests,
-              Gitlab::Error::Unauthorized,
               OpenSSL::SSL::SSLError do |exception|
     log_to_workflow_run(exception, 'GitLab') if @workflow_run.present?
   end

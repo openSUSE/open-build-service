@@ -67,13 +67,16 @@ my $use_head_for_list;
 
 my $cosign;
 my $cosigncookie;
+my $cosignbundle;
 my $slsaprovenance;
 my $sbom;
 my $gun;
+my $signcmd;
 my @signcmd;
 my $pubkeyfile;
 
 my $rekorserver;
+my $rekor_v2;
 my $force_rekor_upload;
 
 my $registryserver;
@@ -87,6 +90,7 @@ my $registry_blob_authenticator;
 my $keepalive;
 
 my $cosign_cookie_name = 'org.open-build-service.cosign.cookie';
+my $cosign_creator = 'OBS';
 
 sub warn_and_exit {
   warn($_[1]);
@@ -396,7 +400,8 @@ sub manifest_upload_tags {
 }
 
 sub cosign_upload {
-  my ($tag, @layer_ents) = @_;
+  my ($tag, $subject, @layer_ents) = @_;
+  return cosign_upload_newbundle($tag, $subject, @layer_ents) if $cosignbundle;
   my $oci = 1;
   my $config_ent = BSConSign::create_cosign_config_ent(\@layer_ents);
   my $config_data = BSContar::create_config_data($config_ent, $oci);
@@ -415,28 +420,113 @@ sub cosign_upload {
   manifest_append_listfile($mani_json, $tag, $mani->{'mediaType'}, $extra) if defined $listfile;
 }
 
+sub reuse_cosign_manifest {
+  my ($tag, $numlayers, $mt) = @_;
+  my $oci = 1;
+  return 0 if $force_rekor_upload && $rekorserver;
+  my ($mani) = get_manifest_for_tag($tag);
+  return 0 unless $mani;
+  if ($cosignbundle) {
+    return 0 unless $mani->{'mediaType'} && $mani->{'mediaType'} eq $BSContar::mt_oci_index;
+    return 0 unless @{$mani->{'manifests'} || []} == $numlayers;
+    for my $m (@{$mani->{'manifests'} || []}) {
+      return 0 if ($m->{'mediaType'} || '') ne $BSContar::mt_oci_manifest;
+      return 0 if ($m->{'artifactType'} || '') ne $BSConSign::mt_cosign_bundle;
+      return 0 if (($m->{'annotations'} || {})->{$cosign_cookie_name} || '') ne $cosigncookie;
+    }
+  } else {
+    return 0 unless @{$mani->{'layers'} || []} == $numlayers;
+    for my $l (@{$mani->{'layers'} || []}) {
+      return 0 if $mt && ($l->{'mediaType'} || '') ne $mt;
+      return 0 if (($l->{'annotations'} || {})->{$cosign_cookie_name} || '') ne $cosigncookie;
+    }
+  }
+  return 1;
+}
+
+sub cosign_upload_newbundle {
+  my ($tag, $subject, @layer_ents) = @_;
+  die("cosign_upload_newbundle: need a subject\n") unless $subject && $subject->{'digest'};
+  my $oci = 1;
+  my @multimanifests;
+  for my $layer_ent (@layer_ents) {
+    die("not an v3 bundle\n") unless $layer_ent->{'mimetype'} eq $BSConSign::mt_cosign_bundle;
+    my $config_ent = BSContar::make_oci_empty_config_entry('artifactType' => $layer_ent->{'mimetype'});
+    my $config_data = BSContar::create_config_data($config_ent, $oci);
+    blob_upload($config_data->{'digest'}, $config_ent);
+    my $layer_data = BSContar::create_layer_data($layer_ent, $oci);
+    blob_upload($layer_data->{'digest'}, $layer_ent);
+    my $mani = BSContar::create_dist_manifest_data($config_data, [ $layer_data ], $oci);
+    $mani->{'annotations'} = $layer_ent->{'annotations'} if $layer_ent->{'annotations'};
+    $mani->{'artifactType'} = $layer_ent->{'mimetype'};
+    $mani->{'subject'} = $subject;
+    my $mani_json = BSContar::create_dist_manifest($mani);
+    manifest_upload($mani_json, undef, $mani->{'mediaType'});
+    my $multimani = {
+      'mediaType' => $mani->{'mediaType'},
+      'size' => length($mani_json),
+      'digest' => BSContar::blobid($mani_json),
+      'artifactType' => $mani->{'artifactType'},
+    };
+    $multimani->{'annotations'} = $mani->{'annotations'} if $mani->{'annotations'};
+    push @multimanifests, $multimani;
+  }
+  my $mani = BSContar::create_dist_manifest_list_data(\@multimanifests, $oci);
+  my $mani_json = BSContar::create_dist_manifest_list($mani);
+  manifest_upload($mani_json, $tag, $mani->{'mediaType'});
+  my $extra = '';
+  $extra = manifest2extrainfo($mani, $tag) if $tag =~ /^[a-z0-9]+-[a-f0-9](40,)$/;
+  manifest_append_listfile($mani_json, $tag, $mani->{'mediaType'}, $extra) if defined $listfile;
+}
+
+sub cosign_upload_rekor_ent {
+  my ($sslpubkey, $hashtype, $sig, $ent) = @_;
+  die("cosign_upload_rekor_ent: unsupported hash type $hashtype\n") unless $hashtype eq 'sha256';
+  if ($sig && $sig ne 'intoto') {
+    my $hash = 'sha256:'.Digest::SHA::sha256_hex($ent->{'data'});
+    return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $sig) if $rekor_v2;
+    return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
+  } else {
+    my $dsse_envelope = BSConSign::dsse_envelope_from_ent($ent);
+    if ($rekor_v2) {
+      # dsse is no longer supported, use a hashedrecord instead
+      my ($payload, $payloadtype, $dssesig) = BSConSign::dsse_parse_envelope($dsse_envelope);
+      my $hash = 'sha256:'.Digest::SHA::sha256_hex(BSConSign::dsse_pae($payloadtype, $payload));
+      return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $dssesig);
+    }
+    return BSRekor::upload_dsse($rekorserver, $dsse_envelope, $sslpubkey) if $cosignbundle;
+    return BSRekor::upload_intoto($rekorserver, $dsse_envelope, $sslpubkey);
+  }
+}
+
 sub cosign_upload_rekor {
-  my ($gpgpubkey, $sig, @layer_ents) = @_;
-  my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
-  $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
+  my ($pubkey, $sig, @layer_ents) = @_;
+  my $sslpubkey = get_sslpubkey($pubkey);
+  my $hashtype = 'sha256';	# must match signfunc
   if ($sig) {
     print "uploading cosign signature to $rekorserver\n";
     die unless @layer_ents == 1;
-    my $hash = 'sha256:'.Digest::SHA::sha256_hex($layer_ents[0]->{'data'});	# must match signfunc
-    my ($rekorkey, $rekorentry) = BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
+    my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $sig, $layer_ents[0]);
     BSConSign::add_cosign_bundle_annotation($layer_ents[0], $rekorentry);
   } else {
     print "uploading cosign attestations to $rekorserver\n";
     for my $attestation_ent (@layer_ents) {
-      my ($rekorkey, $rekorentry) = BSRekor::upload_intoto($rekorserver, $attestation_ent->{'data'}, $sslpubkey);
+      my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $sig, $attestation_ent);
       BSConSign::add_cosign_bundle_annotation($attestation_ent, $rekorentry);
     }
   }
 }
 
+sub create_cosign_signature_ent {
+  my ($signfunc, $digest, $reference, $annotations) = @_;
+  return BSConSign::create_cosign_signature_ent_newbundle($signfunc, $digest, $reference, $cosign_creator, undef, $annotations) if $cosignbundle;
+  return BSConSign::create_cosign_signature_ent($signfunc, $digest, $reference, $cosign_creator, undef, $annotations);
+}
+
 sub create_cosign_attestation_ent {
   my ($attestation, $signfunc, $digest, $reference, $annotations) = @_;
   my ($att, $predicatetype) = BSConSign::fixup_intoto_attestation($attestation, $signfunc, $digest, $reference);
+  return BSConSign::create_cosign_attestation_ent_newbundle($att, $annotations, $predicatetype) if $cosignbundle;
   return BSConSign::create_cosign_attestation_ent($att, $annotations, $predicatetype);
 }
 
@@ -624,6 +714,14 @@ sub manifest2extrainfo {
       $extra .= ",cosigncookie=$cookie" if $cookie;
     }
   }
+  if ($tag =~ /^[a-z0-9]+-[a-f0-9]{40,}$/ && $mani && $mani->{'mediaType'} && $mani->{'mediaType'} eq $BSContar::mt_oci_index) {
+    if (@{$mani->{'manifests'} || []} >= 1) {
+      my $annotations = $mani->{'manifests'}->[0]->{'annotations'} || {};
+      my $cookie = $annotations->{$cosign_cookie_name};
+      $extra = "layers=".@{$mani->{'manifests'} || []};
+      $extra .= ",cosigncookie=$cookie" if $cookie;
+    }
+  }
   return $extra;
 }
 
@@ -664,7 +762,11 @@ sub list_tag {
 
   my $indent = $disptag ? '        ' : '    ';
 
-  if ($no_info || ($no_cosign_info && $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/)) {
+  my $is_cosign;
+  $is_cosign = 1 if $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/;
+  $is_cosign = 1 if $tag =~ /^[a-z0-9]+-[a-f0-9]{40,}$/;
+
+  if ($no_info || ($no_cosign_info && $is_cosign)) {
     $disptag = $tag unless defined $disptag;
     printf "%-20s -\n", $disptag;
     return;
@@ -681,10 +783,10 @@ sub list_tag {
   $ifnonematch = "\"$old_data->[0]\"" if $old_data;
   $ifnonematch = undef if $maniids && ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist') && !$old_datas->{"$old_data->[0]/"};
   $ifnonematch = undef if $list_manifestinfo;
-  if ($with_platforms && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+  if ($with_platforms && !$is_cosign) {
     $ifnonematch = undef if ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist') && $old_data_extra !~ /^platforms=/;
   }
-  $ifnonematch = undef if $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/ && $old_data_extra !~ /^layers=/;
+  $ifnonematch = undef if $is_cosign && $old_data_extra !~ /^layers=/;
   if ($listidx && ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist')) {
     # we will need to list submanifests
     $ifnonematch = undef unless $old_datas->{"$old_data->[0]/"} && $listidx_no_info;
@@ -696,10 +798,8 @@ sub list_tag {
       $tag = '-' if $tag eq $old_data->[0];
       $maniid = $old_data->[0];
       my ($mtype, $extra) = ($old_data_mtype, $old_data_extra);
-      if ($tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
-	$extra = '' unless $with_platforms;
-      }
-      if ($maniids && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+      $extra = '' unless $is_cosign || $with_platforms;
+      if ($maniids && !$is_cosign) {
 	$maniids->{$maniid} = 1;
 	if ($mtype eq 'list' || $mtype eq 'ocilist') {
 	  $maniids->{$_->[1]} = 1 for @{$old_datas->{"$maniid/"}};
@@ -731,7 +831,7 @@ sub list_tag {
   die unless $mani && $maniid =~ /^[a-z0-9]+:[a-f0-9]+$/;
 
   # collect digests if requested
-  if ($maniids && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+  if ($maniids && !$is_cosign) {
     $maniids->{$maniid} = 1;
     if ($mani->{'mediaType'} eq $BSContar::mt_docker_manifestlist || $mani->{'mediaType'} eq $BSContar::mt_oci_index) {
       $maniids->{$_->{'digest'}} = 1 for @{$mani->{'manifests'} || []};
@@ -740,8 +840,8 @@ sub list_tag {
 
   my $mtype = contenttype2manitype($mani->{'mediaType'});
   my $extra = '';
-  $extra = manifest2extrainfo($mani, $tag) if $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/;
-  $extra = manifest2platformsinfo($mani, $tag) if $with_platforms && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/;
+  $extra = manifest2extrainfo($mani, $tag) if $is_cosign;
+  $extra = manifest2platformsinfo($mani, $tag) if $with_platforms && !$is_cosign;
 
   $disptag = ($tag eq $maniid ? '-' : $tag) unless defined $disptag;
   printf "%-20s %s %s%s\n", $disptag, $maniid, $mtype, $extra ne '' ? " $extra" : '';
@@ -793,7 +893,10 @@ sub tags_from_digestfile {
   while (<DIG>) {
     chomp;
     next if /^#/ || /^\s*$/;
-    push @ret, "$1-$2.sig", "$1-$2.att" if $add_cosign_tags && /^([a-z0-9]+):([a-f0-9]+) (\d+)/;
+    if ($add_cosign_tags && /^([a-z0-9]+):([a-f0-9]+) (\d+)/) {
+      push @ret, "$1-$2" if !$cosign || $cosignbundle;
+      push @ret, "$1-$2.sig", "$1-$2.att" if !$cosign || !$cosignbundle;
+    }
     next if /^([a-z0-9]+):([a-f0-9]+) (\d+)\s*$/;	# ignore anonymous images
     die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
     push @ret, $4;
@@ -869,6 +972,20 @@ sub get_credentials {
     chomp $creds;
   }
   return $creds;
+}
+
+sub read_pubkey {
+  die("need a pubkey file\n") unless $pubkeyfile;
+  my $pubkey = readstr($pubkeyfile);
+  die("unsupported pubkey type\n") unless $pubkey =~ /-----BEGIN PGP PUBLIC KEY/s || $pubkey =~ /-----BEGIN PUBLIC KEY-----/;
+  return $pubkey;
+}
+
+sub get_sslpubkey {
+  my ($pubkey) = @_;
+  return $pubkey if $pubkey =~ /-----BEGIN PUBLIC KEY/;	# already a ssl pubkey
+  my $pubkey_der = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($pubkey)));
+  return BSASN1::der2pem($pubkey_der, 'PUBLIC KEY');
 }
 
 sub die_with_usage {
@@ -949,6 +1066,9 @@ while (@ARGV) {
     shift @ARGV;
   } elsif ($ARGV[0] eq '--cosigncookie') {
     (undef, $cosigncookie) = splice(@ARGV, 0, 2);
+  } elsif ($ARGV[0] eq '--cosignbundle') {
+    $cosignbundle = 1;
+    shift @ARGV;
   } elsif ($ARGV[0] eq '--slsaprovenance') {
     $slsaprovenance = 1;
     shift @ARGV;
@@ -967,6 +1087,8 @@ while (@ARGV) {
   } elsif ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u' || $ARGV[0] eq '--signtype' || $ARGV[0] eq '--signflavor' || $ARGV[0] eq '-h') {
     my @signopts = splice(@ARGV, 0, 2);
     push @signcmd, @signopts unless $signopts[0] eq '-h';
+  } elsif ($ARGV[0] eq '--sign-cmd') {
+    (undef, $signcmd) = splice(@ARGV, 0, 2);
   } elsif ($ARGV[0] eq '--manifestinfo') {
     $list_manifestinfo = 1;
     shift @ARGV;
@@ -990,6 +1112,8 @@ while (@ARGV) {
     last;
   }
 }
+
+$rekor_v2 = 1 if $rekorserver && $rekorserver =~ /\/api\/v2$/;	# rekor-tiles
 
 if (@ARGV && $ARGV[0] =~ /^config:(.+)/) {
   my $regname = $1;
@@ -1023,7 +1147,8 @@ if ($list_mode) {
       %tags = ();
       if (%maniids) {
         for (get_all_tags()) {
-          $tags{$_} = 1 if /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/ && $maniids{"$1:$2"}
+          $tags{$_} = 1 if /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/ && $maniids{"$1:$2"};
+          $tags{$_} = 1 if /^([a-z0-9]+)-([a-f0-9]{40,})$/ && $maniids{"$1:$2"};
         }
       }
       list_tag($_, undef, $old_datas) for sort keys %tags;
@@ -1088,13 +1213,18 @@ die_with_usage() unless @ARGV >= 2;
 if ($cosign) {
   require BSConfiguration;
   require BSConSign;
-  require BSPGP;
-  require BSX509 if $rekorserver;
-  require BSRekor if $rekorserver;
-  die("need a pubkey for cosign signature creation\n") unless $pubkeyfile;
+  if ($rekorserver) {
+    require BSRekor;
+    # next three for pgp -> ssl pubkey conversion
+    require BSPGP;
+    require BSX509;
+    require BSASN1;
+  }
+  die("need a pubkey for cosign signature creation\n") unless $pubkeyfile || (!$rekorserver && $cosigncookie);
   die("need a gun for cosign signature creation\n") unless $gun;
-  die("sign program is not configured!\n") unless $BSConfig::sign;
-  unshift @signcmd, $BSConfig::sign;
+  die("sign program is not configured!\n") unless $signcmd || $BSConfig::sign;
+  unshift @signcmd, $signcmd || $BSConfig::sign;
+  push @signcmd, '-O', '-h', 'sha256';
 }
 
 
@@ -1124,7 +1254,7 @@ if ($use_image_tags && @tarfiles > 1) {
 # use oci types if we have a helm chart or artifacthub data
 $oci = 1 if grep {/\.helminfo$/ || /^artifacthub:/} @tarfiles;
 
-my %digests_to_sign;
+my %digests_to_cosign;
 my @multimanifests;
 my %multiplatforms;
 my @imginfos;
@@ -1133,14 +1263,14 @@ for my $tarfile (@tarfiles) {
   my ($tar) = open_container_tar($containerinfo, $containerinfo->{'filename'});
   my %tar = map {$_->{'name'} => $_} @$tar;
 
-  my $provenance;
+  my $provenance_json;
   my $spdx_json;
   my $cyclonedx_json;
   my @intoto_json;
   if ($slsaprovenance) {
     my $provenancefile = $tarfile;
     if ($provenancefile =~ s/\.[^\.]*$/.slsa_provenance.json/) {
-      $provenance = readstr($provenancefile) if -s $provenancefile;
+      $provenance_json = readstr($provenancefile) if -s $provenancefile;
     }
   }
   if ($sbom) {
@@ -1226,17 +1356,20 @@ for my $tarfile (@tarfiles) {
   my $mediaType = $mani->{'mediaType'};
   my $mani_json = BSContar::create_dist_manifest($mani);
   my $mani_id = BSContar::blobid($mani_json);
-  $digests_to_sign{$mani_id} = [ $provenance, $spdx_json, $cyclonedx_json, \@intoto_json ];
+  my $subject = { 'mediaType' => $mani->{'mediaType'}, 'size' => length($mani_json), 'digest' => $mani_id };
+  $subject->{'artifactType'} = $mani->{'artifactType'} if $mani->{'artifactType'};
+  $digests_to_cosign{$mani_id} = [ $subject, $provenance_json, $spdx_json, $cyclonedx_json, \@intoto_json ];
 
   if ($multiarch) {
     manifest_upload_tags($mani_json, undef, $mediaType);	# upload anonymous image
+    my $platform = { 'architecture' => $goarch, 'os' => $goos };
+    $platform->{'variant'} = $govariant if $govariant;
     my $multimani = {
       'mediaType' => $mediaType,
       'size' => length($mani_json),
       'digest' => $mani_id,
-      'platform' => {'architecture' => $goarch, 'os' => $goos},
+      'platform' => $platform,
     };
-    $multimani->{'platform'}->{'variant'} = $govariant if $govariant;
     push @multimanifests, $multimani;
   } else {
     manifest_upload_tags($mani_json, \@tags, $mediaType);
@@ -1270,7 +1403,8 @@ if ($multiarch) {
   my $mediaType = $mani->{'mediaType'};
   my $mani_json = BSContar::create_dist_manifest_list($mani);
   my $mani_id = BSContar::blobid($mani_json);
-  $digests_to_sign{$mani_id} = [];
+  my $subject = { 'mediaType' => $mani->{'mediaType'}, 'size' => length($mani_json), 'digest' => $mani_id };
+  $digests_to_cosign{$mani_id} = [ $subject ];
   manifest_upload_tags($mani_json, \@tags, $mediaType);
   $info->{'distmanifesttype'} = 'list';
   $info->{'distmanifest'} = $mani_id;
@@ -1281,52 +1415,47 @@ if ($writeinfofile) {
   writestr($writeinfofile, undef, $info_json);
 }
 
-if ($cosign && %digests_to_sign) {
-  my $creator = 'OBS';
-  my $gpgpubkey = readstr($pubkeyfile);
-  $cosigncookie ||= BSConSign::create_cosign_cookie($gpgpubkey, $gun, $creator);
+if ($cosign && %digests_to_cosign) {
+  my $pubkey;
+  $pubkey = read_pubkey() if $rekorserver || !$cosigncookie;
+  $cosigncookie ||= BSConSign::create_cosign_cookie($pubkey, $gun, $cosign_creator);
   # upload signatures
-  for my $digest (sort keys %digests_to_sign) {
+  for my $digest (sort keys %digests_to_cosign) {
+    next if $cosignbundle;	# a signature is just an extra attestation in newbundle mode
     my $sig_tag = "$digest.sig";
     $sig_tag =~ s/:/-/;
-    my ($sig_mani, $sig_maniid, $sig_mani_json) = get_manifest_for_tag($sig_tag);
-    undef $sig_mani if $force_rekor_upload && $rekorserver;
-    if ($sig_mani && $sig_mani->{'mediaType'} && $sig_mani->{'mediaType'} eq $BSContar::mt_oci_manifest && @{$sig_mani->{'layers'} || []} == 1 && $BSConSign::mt_cosign && $sig_mani->{'layers'}->[0]->{'mediaType'} eq $BSConSign::mt_cosign) {
-      my $annotations = $sig_mani->{'layers'}->[0]->{'annotations'} || {};
-      next if ($annotations->{$cosign_cookie_name} || '') eq $cosigncookie;
-    }
+    next if reuse_cosign_manifest($sig_tag, 1, $BSConSign::mt_cosign ? $BSConSign::mt_cosign : undef);
     print "creating cosign signature for $gun $digest\n";
-    my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
+    my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd) };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
-    my ($cosign_ent, $sig) = BSConSign::create_cosign_signature_ent($signfunc, $digest, $gun, $creator, undef, $annotations);
-    cosign_upload_rekor($gpgpubkey, $sig, $cosign_ent) if $rekorserver && $sig;
-    cosign_upload($sig_tag, $cosign_ent);
+    my ($sig_ent, $sig) = create_cosign_signature_ent($signfunc, $digest, $gun, $annotations);
+    cosign_upload_rekor($pubkey, $sig, $sig_ent) if $rekorserver && $sig;
+    cosign_upload($sig_tag, undef, $sig_ent);
   }
   # upload attestations
-  for my $digest (sort keys %digests_to_sign) {
-    my $provenance = $digests_to_sign{$digest}->[0];
-    my $spdx_json = $digests_to_sign{$digest}->[1];
-    my $cyclonedx_json = $digests_to_sign{$digest}->[2];
-    my @intoto_json = @{$digests_to_sign{$digest}->[3] || []};
-    next unless $provenance || $spdx_json || $cyclonedx_json || @intoto_json;
-    my $att_tag = "$digest.att";
+  for my $digest (sort keys %digests_to_cosign) {
+    my $subject = $digests_to_cosign{$digest}->[0];
+    my $provenance_json = $digests_to_cosign{$digest}->[1];
+    my $spdx_json = $digests_to_cosign{$digest}->[2];
+    my $cyclonedx_json = $digests_to_cosign{$digest}->[3];
+    my @intoto_json = @{$digests_to_cosign{$digest}->[4] || []};
+    my $numlayers = ($provenance_json ? 1 : 0) + ($spdx_json ? 1 : 0) + ($cyclonedx_json ? 1 : 0) + scalar(@intoto_json);
+    $numlayers++ if $cosignbundle;
+    next unless $numlayers;
+    my $att_tag = $cosignbundle ? $digest : "$digest.att";
     $att_tag =~ s/:/-/;
-    my ($att_mani, $att_maniid, $att_mani_json) = get_manifest_for_tag($att_tag);
-    undef $att_mani if $force_rekor_upload && $rekorserver;
-    my $numlayers = ($provenance ? 1 : 0) + ($spdx_json ? 1 : 0) + ($cyclonedx_json ? 1 : 0) + scalar(@intoto_json);
-    if ($att_mani && $att_mani->{'mediaType'} && $att_mani->{'mediaType'} eq $BSContar::mt_oci_manifest && @{$att_mani->{'layers'} || []} == $numlayers && $BSConSign::mt_dsse) {
-      next unless grep {$_->{'mediaType'} ne $BSConSign::mt_dsse || (($_->{'annotations'} || {})->{$cosign_cookie_name} || '') ne $cosigncookie} @{$att_mani->{'layers'}};
-    }
+    next if reuse_cosign_manifest($att_tag, $numlayers, $BSConSign::mt_dsse ? $BSConSign::mt_dsse : undef);
     print "creating $numlayers cosign attestations for $gun $digest\n";
-    my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
+    my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd) };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
-    my @attestation_ents;
-    push @attestation_ents, create_cosign_attestation_ent($provenance, $signfunc, $digest, $gun, $annotations) if $provenance;
-    push @attestation_ents, create_cosign_attestation_ent($spdx_json, $signfunc, $digest, $gun, $annotations) if $spdx_json;
-    push @attestation_ents, create_cosign_attestation_ent($cyclonedx_json, $signfunc, $digest, $gun, $annotations) if $cyclonedx_json;
-    push @attestation_ents, create_cosign_attestation_ent($_, $signfunc, $digest, $gun, $annotations) for @intoto_json;
-    cosign_upload_rekor($gpgpubkey, undef, @attestation_ents) if $rekorserver && @attestation_ents;
-    cosign_upload($att_tag, @attestation_ents);
+    my @att_ents;
+    push @att_ents, (create_cosign_signature_ent($signfunc, $digest, $gun, $annotations))[0] if $cosignbundle;
+    push @att_ents, create_cosign_attestation_ent($provenance_json, $signfunc, $digest, $gun, $annotations) if $provenance_json;
+    push @att_ents, create_cosign_attestation_ent($spdx_json, $signfunc, $digest, $gun, $annotations) if $spdx_json;
+    push @att_ents, create_cosign_attestation_ent($cyclonedx_json, $signfunc, $digest, $gun, $annotations) if $cyclonedx_json;
+    push @att_ents, create_cosign_attestation_ent($_, $signfunc, $digest, $gun, $annotations) for @intoto_json;
+    cosign_upload_rekor($pubkey, undef, @att_ents) if $rekorserver && @att_ents;
+    cosign_upload($att_tag, $subject, @att_ents);
   }
 }
 

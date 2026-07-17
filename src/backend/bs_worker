@@ -200,7 +200,7 @@ sub tail_logfile {
 sub cleanup_job {
   if ($vm_tmpfs_mode) {
     # no need to umount if $buildroot is already umounted
-    if (not qsystem('mountpoint', '-q', $buildroot)) {
+    if (!qsystem('mountpoint', '-q', $buildroot)) {
       qsystem("umount", "-l", $buildroot) && die("umount tmpfs failed: $!\n");
     }
   }
@@ -213,8 +213,13 @@ sub cleanup_job {
         mkdir_p($buildroot);
       };
       print "\n";
+  } elsif ($vm && -d $buildroot) {
+     # not using rm_rf since we may get called while another process works inside
+     # we must not fail, when the directory stays
+     BSUtil::cleandir("$buildroot/.build-srcdir");
+     BSUtil::cleandir("$buildroot/.build.packages");
+     BSUtil::cleandir("$buildroot/.mount/.build.packages");
   }
-
 }
 
 sub kill_job {
@@ -3577,6 +3582,32 @@ sub normalize_container {
   rename("$container.new", "$container") || die("rename $container.new $container: $!\n");
 }
 
+sub reconstruct_containers {
+  my ($dir) = @_;
+  eval {
+    require JSON::XS;
+    require BSTar;
+  };
+  return if $@;
+  for my $cifile (sort(grep {/\.containerinfo$/} ls($dir))) {
+    my $tarfile = $cifile;
+    $tarfile =~ s/\.containerinfo/\.tar/;
+    next if -e "$dir/$tarfile";
+    my $containerinfo = eval { JSON::XS::decode_json(readstr("$dir/$cifile")) };
+    next unless $containerinfo && ref($containerinfo) eq 'HASH';
+    next unless $containerinfo->{'tar_blobids'} && $containerinfo->{'tar_manifest'} && $containerinfo->{'tar_mtime'} && $containerinfo->{'tar_size'};
+    next unless ref($containerinfo->{'tar_blobids'}) eq 'ARRAY';
+    my $mtime = $containerinfo->{'tar_mtime'};
+    my @tar;
+    for my $blobid (@{$containerinfo->{'tar_blobids'}}) {
+      my $file = "$dir/_blob.$blobid";
+      push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => -s _} if -e $file;
+    }
+    push @tar, {'name' => 'manifest.json', 'data' => $containerinfo->{'tar_manifest'}, 'mtime' => $mtime, 'size' => length($containerinfo->{'tar_manifest'})};
+    BSTar::writetarfile("$dir/$tarfile", undef, \@tar, 'mtime' => $mtime);
+  }
+}
+
 # this works for both v02 and v1 predicates
 my $slsa_json_template = {
   '_order' => [ '_type', 'subject', 'predicateType', 'predicate' ],
@@ -3879,10 +3910,12 @@ sub dobuild {
     $buildinfo->{'file'} = 'deltagen.spec';
   } elsif ($ptfmode || $reproduciblecheckmode) {
     getjobdata($buildinfo, $srcdir);
+    reconstruct_containers($srcdir) if $reproduciblecheckmode;
     print "packages, ";
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
     $buildinfo->{'file'} = $ptfmode ? 'ptf.spec' : 'reproduciblecheck.spec';
+    $buildinfo->{'_no_container_normalization'} = 1 if $reproduciblecheckmode;
     @meta = split("\n", readstr("$srcdir/meta"));
   } elsif ($followupmode) {
     getfollowupsources($buildinfo, $srcdir);
@@ -4148,6 +4181,7 @@ sub dobuild {
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose') && -e "$statedir/build/signdummy";
   push @args, '--vcs', $vcs if $vcs;
+  push @args, '--buildtime', $buildinfo->{'buildtime'} if $buildinfo->{'buildtime'};
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
     $packid =~ /^(.*):(.*?)$/;
     push @args, "--obspackage=$1" if $needsobspackage;
@@ -4258,7 +4292,8 @@ sub dobuild {
   }
 
   if (!$followupmode && $kiwiorigins) {
-    $buildinfo->{'buildtime'} = time();
+    my $report_buildtime = $buildinfo->{'buildtime'} || time();
+    local $buildinfo->{'buildtime'} = $report_buildtime;
     if (!$imagemode) {
       # some builds like python-venv also write a .packages file
       createreport($buildinfo, "$resultdir/OTHER", $kiwiorigins, $srcdir);
@@ -4987,7 +5022,7 @@ if ($ex == 0) {
     }
     @files = grep {! -l "$buildroot/.build.packages/$d/$_" && -f _} @files;
     # normalize/compress containers if we have /usr/bin/obs-gzip-go
-    if ($can_rewrite_containers && -x "/usr/bin/obs-gzip-go") {
+    if (!$buildinfo->{_no_container_normalization} && $can_rewrite_containers && -x "/usr/bin/obs-gzip-go") {
       for my $containerinfo (grep {/\.containerinfo$/} @files) {
 	my $container = "$buildroot/.build.packages/$d/$containerinfo";
         $container =~ s/\.containerinfo$/\.tar/;

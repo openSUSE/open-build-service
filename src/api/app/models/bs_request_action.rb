@@ -70,6 +70,9 @@ class BsRequestAction < ApplicationRecord
   #### private
 
   #### Instance methods (public and then protected/private)
+
+  delegate :canned_responses, to: :bs_request
+
   def minimum_priority
     nil
   end
@@ -865,11 +868,6 @@ class BsRequestAction < ApplicationRecord
 
   def embargo_date
     Project.unscoped.find_by(name: source_project)&.embargo_date
-  end
-
-  def canned_responses
-    package_ids = self.bs_request.bs_request_actions.pluck(:source_package_id, :target_package_id).flatten.uniq
-    CannedResponse.where(package_id: package_ids)
   end
 
   private

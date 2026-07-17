@@ -3,7 +3,7 @@
     .col-auto.pe-1
       %i.fa.fa-lg.fa-fw{ helpers.icon_for_severity(@status_message.severity) }
     .col.ps-1
-      = helpers.user_with_realname_and_icon(@status_message.user, short: true)
+      = helpers.user_with_realname_and_icon(@status_message.creator, short: true)
       wrote
       %u
         = render TimeComponent.new(time: @status_message.created_at)

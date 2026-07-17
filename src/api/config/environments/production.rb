@@ -1,10 +1,7 @@
 require "active_support/core_ext/integer/time"
 
-OBSApi::Application.configure do
+Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
-
-  # Code is not reloaded between requests.
-  config.cache_classes = true
 
   # Use memcache for cache/session storage
   config.cache_store = if CONFIG['memcached_host']
@@ -50,16 +47,17 @@ OBSApi::Application.configure do
   # config.action_cable.allowed_request_origins = [ 'http://example.com', /http:\/\/example.*/ ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  config.force_ssl = CONFIG['force_ssl']
+  config.assume_ssl = CONFIG['assume_ssl']
 
   # Prepend all log lines with the following tags.
-  # config.log_tags = [:request_id]
+  config.log_tags = [:request_id]
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
-  # Use a real queuing backend for Active Job (and separate queues per environment).
-  # config.active_job.queue_adapter     = :resque
+  # Use DelayedJob gem as qeuing backend for Active Job
+  config.active_job.queue_adapter = :delayed_job
   # config.active_job.queue_name_prefix = "obs_api_production"
 
   # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration
@@ -164,9 +162,6 @@ end
 
 # ActiveJob already logs everything we need
 Delayed::Worker.default_log_level = 'debug'
-
-# disabled on production for performance reasons
-# CONFIG['response_schema_validation'] = true
 
 # require 'memory_debugger'
 # dumps the objects after every request

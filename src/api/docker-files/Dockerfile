@@ -6,10 +6,12 @@
 FROM registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-features:latest
 ARG CONTAINER_USERID
 
-# for lint task
+# for javascript linting
 RUN npm install -g jshint
-# Same brakeman version is pinned in our CI configuration to have reproducible builds (the license forbids us from shipping the gem in our appliance)
-RUN gem install --no-format-executable brakeman --version 7.1.1
+# brakeman: license does not allow shipping, so it can't be in our bundle. Sync version with .github/workflows/brakeman.yml
+# next_rails: To be able to call `next` the gem is also needed to be installed outside the bundle
+# foreman: https://github.com/ddollar/foreman/wiki/Don't-Bundle-Foreman
+RUN gem install --no-format-executable brakeman:7.1.1 next_rails foreman
 
 # Configure our user
 RUN usermod -u $CONTAINER_USERID frontend

@@ -16,7 +16,7 @@ put:
       schema:
         type: string
       required: true
-      description: Id of the token to be removed.
+      description: Id of the token to be updated.
       example: 3
   requestBody:
     description: |

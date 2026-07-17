@@ -1,4 +1,4 @@
-/* exported updateRpmlintResult, updateBuildResult, updateArchDisplay, toggleBuildInfo */
+/* exported updateRpmlintResult, updateBuildResult, updateArchDisplay */
 /* global initializePopovers */
 
 // TODO: replace with the content of
@@ -74,22 +74,5 @@ function updateRpmlintDisplay(index) {
     success: function (data) {
       $('#rpmlint_display_' + index).html(data);
     }
-  });
-}
-
-// TODO: Stop using toggleBuildInfo in favor of the generic toggleCollapsibleTooltip
-function toggleBuildInfo() {
-  $('.toggle-build-info').on('click', function(){
-    var replaceTitle = $(this).attr('title') === 'Click to keep it open' ? 'Click to close it' : 'Click to keep it open';
-    var infoContainer = $(this).parents('.toggle-build-info-parent').next();
-    $(infoContainer).toggleClass('collapsed');
-    $(infoContainer).removeClass('hover');
-    $('.toggle-build-info').attr('title', replaceTitle);
-  });
-  $('.toggle-build-info').on('mouseover', function(){
-    $(this).parents('.toggle-build-info-parent').next().addClass('hover');
-  });
-  $('.toggle-build-info').on('mouseout', function(){
-    $(this).parents('.toggle-build-info-parent').next().removeClass('hover');
   });
 }

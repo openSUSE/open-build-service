@@ -1,10 +1,9 @@
 class Workflow::Step::LinkPackageStep < Workflow::Step
-  include ScmSyncEnabledStep
   include TargetProjectLifeCycleSupport
 
   REQUIRED_KEYS = %i[source_project source_package target_project].freeze
 
-  validate :validate_source_project_or_package_are_not_scmsynced
+  validate :validate_target_project_or_package_are_not_scmsynced
 
   def call
     return unless valid?
@@ -73,8 +72,13 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
     Nokogiri::XML::Builder.new { |x| x.link(opts) }.doc.root.to_s
   end
 
-  def validate_source_project_or_package_are_not_scmsynced
-    errors.add(:base, "project '#{step_instructions[:source_project]}' is developed in SCM. Branch it instead.") if scm_synced_project?
-    errors.add(:base, "package '#{step_instructions[:source_package]}' is developed in SCM. Branch it instead.") if scm_synced_package?
+  def validate_target_project_or_package_are_not_scmsynced
+    if target_project&.scmsync.present?
+      errors.add(:base, "project '#{step_instructions[:target_project]}' is developed in SCM. Branch it instead.")
+    end
+
+    if step_instructions[:target_package] && target_package&.scmsync.present?
+      errors.add(:base, "package '#{step_instructions[:target_package]}' is developed in SCM. Branch it instead.")
+    end
   end
 end

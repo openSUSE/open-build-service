@@ -126,6 +126,12 @@ gem 'ostruct'
 # for parsing toml in rake rpmlint:sync_description
 gem 'toml-rb'
 
+# to upgrade your Rails application
+gem 'next_rails'
+
+# Result object pattern gem
+gem "resonad"
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
@@ -220,8 +226,7 @@ end
 group :development do
   # add a comment summarizing the current schema
   gem 'annotaterb'
-  # toolkit to upgrade your Rails application
-  gem 'next_rails'
+  # to validate consistency of the database constraints with the application validations
   gem 'database_consistency', require: false
 end
 

@@ -1,7 +1,7 @@
 class UpdateBackendInfosJob < ApplicationJob
   include EventUndoneJobsCallback
 
-  def perform(event_id)
+  def perform(event_id:)
     event = Event::Base.find(event_id)
     payload = event.payload
     package = Package.find_by_project_and_name(payload['project'], payload['package'])

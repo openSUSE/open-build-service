@@ -9,6 +9,13 @@ RSpec.describe 'Requests', :js, :vcr do
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
   let(:bs_request) { create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter) }
 
+  before do
+    # TODO: Remove this once these checks are removed from all controllers
+    # The request show page always renders the redesigned view now. The feature flag still
+    # gates related controllers (comments, reviews, build results), so enable it globally.
+    Flipper.enable(:request_show_redesign)
+  end
+
   RSpec.shared_examples 'expandable element' do
     it 'expanding a text field' do
       visit request_show_path(bs_request)
@@ -28,21 +35,23 @@ RSpec.describe 'Requests', :js, :vcr do
 
     it 'show request comments' do
       visit request_show_path(bs_request)
+      # This request's own comments are always shown; the superseded request's comments
+      # are collapsed in the same timeline until expanded.
       expect(page).to have_text(comment1.body)
       expect(page).to have_no_text(comment2.body)
-      find('a', text: "Comments for request #{superseded_bs_request.number}").click
+      find("a[href='#collapse-superseding']").click
       expect(page).to have_text(comment2.body)
-      expect(page).to have_no_text(comment1.body)
+      expect(page).to have_text(comment1.body)
     end
 
     describe 'request description field' do
       it 'superseded requests' do
         visit request_show_path(bs_request)
-        within 'li', text: "Supersedes #{superseded_bs_request.number}" do
+        within 'li', text: 'Supersedes' do
           find('a', text: superseded_bs_request.number).click
         end
-        expect(page).to have_text('In state superseded')
-        within 'li', text: "Superseded by #{bs_request.number}" do
+        expect(page).to have_css('span.badge.text-bg-warning', text: 'superseded')
+        within 'li', text: 'Superseded by' do
           find('a', text: bs_request.number)
         end
       end
@@ -53,8 +62,20 @@ RSpec.describe 'Requests', :js, :vcr do
     end
 
     describe 'request history entries' do
-      it_behaves_like 'expandable element' do
-        let(:element) { '.history .obs-collapsible-textbox' }
+      it 'expanding a history entry comment' do
+        history_element = HistoryElement::RequestPriorityChange.create!(op_object_id: bs_request.id,
+                                                                        user: submitter,
+                                                                        description_extension: 'moderate => important',
+                                                                        comment: 'a long text - ' * 200)
+        visit request_show_path(bs_request)
+        collapse = "#collapse-history-element-comment-#{history_element.id}"
+        toggle = find("a[href='#{collapse}']")
+
+        expect(page).to have_no_css("#{collapse}.show")
+        toggle.click
+        expect(page).to have_css("#{collapse}.show")
+        toggle.click
+        expect(page).to have_no_css("#{collapse}.show")
       end
     end
   end
@@ -74,7 +95,7 @@ RSpec.describe 'Requests', :js, :vcr do
         click_button('Request')
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the group #{roleaddition_group} to get the role bugowner for project #{target_project}")
         expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
-        expect(page).to have_text('In state new')
+        expect(page).to have_css('span.badge.text-bg-secondary', text: 'new')
         expect(BsRequest.where(description: 'I can fix bugs too.', state: 'new').count).to be(1)
       end
 
@@ -85,11 +106,12 @@ RSpec.describe 'Requests', :js, :vcr do
                                                      person_name: submitter,
                                                      bs_request_id: bs_request.id)
         visit request_show_path(bs_request)
-        click_button 'Accept'
+        accept_alert do
+          click_button 'Accept request'
+        end
 
         expect(page).to have_text("Request #{bs_request.number}")
         expect(find('span.badge.text-bg-success')).to have_text('accepted')
-        expect(page).to have_text('In state accepted')
       end
     end
 
@@ -115,18 +137,19 @@ RSpec.describe 'Requests', :js, :vcr do
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the group #{roleaddition_group.title} to get the role maintainer " \
                                   "for package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: 'I can produce bugs too.')
-        expect(page).to have_text('In state new')
+        expect(page).to have_css('span.badge.text-bg-secondary', text: 'new')
         expect(BsRequest.where(description: 'I can produce bugs too.', state: 'new').count).to be(1)
       end
 
       it 'can be accepted' do
         login receiver
         visit request_show_path(bs_request)
-        click_button 'Accept'
+        accept_alert do
+          click_button 'Accept request'
+        end
 
         expect(page).to have_text("Request #{bs_request.number}")
         expect(find('span.badge.text-bg-success')).to have_text('accepted')
-        expect(page).to have_text('In state accepted')
       end
     end
   end
@@ -144,7 +167,7 @@ RSpec.describe 'Requests', :js, :vcr do
         click_button('Request')
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role bugowner for project #{target_project}")
         expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
-        expect(page).to have_text('In state new')
+        expect(page).to have_css('span.badge.text-bg-secondary', text: 'new')
         expect(BsRequest.where(description: 'I can fix bugs too.', state: 'new').count).to be(1)
       end
 
@@ -155,11 +178,12 @@ RSpec.describe 'Requests', :js, :vcr do
                                                      person_name: submitter,
                                                      bs_request_id: bs_request.id)
         visit request_show_path(bs_request)
-        click_button 'Accept'
+        accept_alert do
+          click_button 'Accept request'
+        end
 
         expect(page).to have_text("Request #{bs_request.number}")
         expect(find('span.badge.text-bg-success')).to have_text('accepted')
-        expect(page).to have_text('In state accepted')
       end
     end
 
@@ -183,18 +207,19 @@ RSpec.describe 'Requests', :js, :vcr do
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role maintainer " \
                                   "for package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: 'I can produce bugs too.')
-        expect(page).to have_text('In state new')
+        expect(page).to have_css('span.badge.text-bg-secondary', text: 'new')
         expect(BsRequest.where(description: 'I can produce bugs too.', state: 'new').count).to be(1)
       end
 
       it 'can be accepted' do
         login receiver
         visit request_show_path(bs_request)
-        click_button 'Accept'
+        accept_alert do
+          click_button 'Accept request'
+        end
 
         expect(page).to have_text("Request #{bs_request.number}")
         expect(find('span.badge.text-bg-success')).to have_text('accepted')
-        expect(page).to have_text('In state accepted')
       end
     end
   end
@@ -206,24 +231,26 @@ RSpec.describe 'Requests', :js, :vcr do
       it 'opens a review and accepts it' do
         login submitter
         visit request_show_path(bs_request)
-        desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find_by_id('review_type').select('User')
-        fill_in 'review_user', with: reviewer.login
-        fill_in 'review_comment', with: 'Please review'
-        click_button('Accept')
-        expect(page).to have_text(/Open review for\s+#{reviewer.login}/)
+        click_button('Add Reviewer')
+        within '#add-reviewer-modal' do
+          find_by_id('review_type').select('User')
+          fill_in 'review_user', with: reviewer.login
+          fill_in 'review_comment', with: 'Please review'
+          click_button('Accept')
+        end
         expect(page).to have_text('Request 1')
         expect(find('span.badge.text-bg-secondary')).to have_text('review')
-        expect(page).to have_text('In state review')
+        within('#side-links') { expect(page).to have_text(reviewer.login) }
         expect(Review.count).to eq(1)
         logout
 
         login reviewer
         visit request_show_path(1)
-        click_link("Review for #{reviewer}")
-        within '#review-0' do
+        find('.toggle-review-form').click
+        within '#review-form-collapse' do
           fill_in 'comment', with: 'Ok for the project'
-          click_button 'Approve'
+          choose 'Approve'
+          click_button 'Submit review'
         end
         expect(page).to have_text('Ok for the project')
         expect(Review.first.state).to eq(:accepted)
@@ -237,11 +264,13 @@ RSpec.describe 'Requests', :js, :vcr do
       it 'opens a review' do
         login submitter
         visit request_show_path(bs_request)
-        desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find_by_id('review_type').select('Group')
-        fill_in 'review_group', with: review_group.title
-        click_button('Accept')
-        expect(page).to have_text("Open review for #{review_group.title}")
+        click_button('Add Reviewer')
+        within '#add-reviewer-modal' do
+          find_by_id('review_type').select('Group Members')
+          fill_in 'review_group', with: review_group.title
+          click_button('Accept')
+        end
+        within('#side-links') { expect(page).to have_text(review_group.title) }
       end
     end
 
@@ -249,11 +278,13 @@ RSpec.describe 'Requests', :js, :vcr do
       it 'opens a review' do
         login submitter
         visit request_show_path(bs_request)
-        desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find_by_id('review_type').select('Project')
-        fill_in 'review_project', with: submitter.home_project
-        click_button('Accept')
-        expect(page).to have_text("Open review for #{submitter.home_project}")
+        click_button('Add Reviewer')
+        within '#add-reviewer-modal' do
+          find_by_id('review_type').select('Project Maintainers')
+          fill_in 'review_project', with: submitter.home_project
+          click_button('Accept')
+        end
+        within('#side-links') { expect(page).to have_text(submitter.home_project.to_s) }
       end
     end
 
@@ -263,14 +294,16 @@ RSpec.describe 'Requests', :js, :vcr do
       it 'opens a review' do
         login submitter
         visit request_show_path(bs_request)
-        desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find_by_id('review_type').select('Package')
-        fill_in 'review_project', with: submitter.home_project
-        # Remove focus from autocomplete. Needed to remove the `disabled` attribute from `review_package`.
-        find_by_id('review_comment').click
-        fill_in 'review_package', with: package.name
-        click_button('Accept')
-        expect(page).to have_text("Open review for #{submitter.home_project} / #{package.name}")
+        click_button('Add Reviewer')
+        within '#add-reviewer-modal' do
+          find_by_id('review_type').select('Package Maintainers')
+          fill_in 'review_project', with: submitter.home_project
+          # Remove focus from autocomplete. Needed to remove the `disabled` attribute from `review_package`.
+          find_by_id('review_comment').click
+          fill_in 'review_package', with: package.name
+          click_button('Accept')
+        end
+        within('#side-links') { expect(page).to have_text(package.name) }
       end
     end
 
@@ -278,10 +311,12 @@ RSpec.describe 'Requests', :js, :vcr do
       it 'opens no review' do
         login submitter
         visit request_show_path(bs_request)
-        desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find_by_id('review_type').select('Project')
-        fill_in 'review_project', with: 'INVALID/PROJECT'
-        click_button('Accept')
+        click_button('Add Reviewer')
+        within '#add-reviewer-modal' do
+          find_by_id('review_type').select('Project Maintainers')
+          fill_in 'review_project', with: 'INVALID/PROJECT'
+          click_button('Accept')
+        end
         expect(page).to have_css('#flash', text: 'Unable to add review to request')
       end
     end
@@ -304,21 +339,30 @@ RSpec.describe 'Requests', :js, :vcr do
           login reviewer
           visit request_show_path(bs_request)
           expect(page).to have_text("Request #{bs_request.number}")
-          expect(find_by_id('review-0')).to have_no_text('requested:')
+          find('.toggle-review-form').click
+          # With no requested reason, the reason box stays hidden
+          expect(page).to have_css('#review-reason.d-none', visible: :all)
         end
       end
 
       context 'for manual reviews' do
+        let!(:review) { create(:review, by_group: review_group, bs_request: bs_request, creator: receiver) }
+
         before do
-          create(:review, by_group: review_group, bs_request: bs_request, creator: receiver, reason: 'Does this make sense?')
+          # On the redesigned page the requested reason is read from the review-added history
+          # element (matched by review id via description_extension), not from the review's
+          # `reason` attribute.
+          HistoryElement::RequestReviewAdded.create!(op_object_id: bs_request.id,
+                                                     user: receiver,
+                                                     description_extension: review.id.to_s,
+                                                     comment: 'Does this make sense?')
         end
 
         it 'shows request reason' do
           login reviewer
           visit request_show_path(bs_request)
-          within '#review-0' do
-            expect(page).to have_text("#{receiver.realname} (#{receiver.login}) requested:\nDoes this make sense?")
-          end
+          find('.toggle-review-form').click
+          expect(page).to have_css('#review-reason', text: 'Does this make sense?')
         end
       end
     end
@@ -332,19 +376,19 @@ RSpec.describe 'Requests', :js, :vcr do
     it 'when request is in a final state' do
       bs_request.update(state: :accepted)
       visit request_show_path(bs_request)
-      expect(page).to have_text("Auto-accept was set to #{I18n.l(bs_request.accept_at, format: :only_date)}.")
+      expect(page).to have_text("The current request was auto-accepted at #{I18n.l(bs_request.accept_at, format: :only_date)}.")
     end
 
     it 'when request auto_accept is in the past and not in a final state' do
       visit request_show_path(bs_request)
-      expect(page).to have_text("This request will be automatically accepted when it enters the 'new' state.")
+      expect(page).to have_text('The current request will be auto-accepted after all the reviews are submitted.')
     end
 
     it 'when request auto_accept is in the future and not in a final state' do
       bs_request.update(accept_at: Time.now + 1.day)
       visit request_show_path(bs_request)
       expect(page)
-        .to have_text("This request will be automatically accepted #{TimeComponent.new(time: bs_request.accept_at).human_time}")
+        .to have_text("The current request will be auto-accepted #{TimeComponent.new(time: bs_request.accept_at).human_time}")
     end
   end
 

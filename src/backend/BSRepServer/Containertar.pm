@@ -76,6 +76,14 @@ sub normalize_container {
     $config->{'variant'} = "v8" if $config->{'architecture'} eq 'arm64';
   }
   $containerinfo->{'govariant'} = $config->{'variant'} if $config->{'variant'};
+  # take zstd:chunked data from old layer compression
+  if ($layercomp && $containerinfo->{'layer_compression'} && !$recompress) {
+    my @oldlayercomp = @{$containerinfo->{'layer_compression'}};
+    for (@$layercomp) {
+      my $oldcomp = shift @oldlayercomp;
+      $_ = $oldcomp if $_ eq 'zstd' && $oldcomp && $oldcomp =~ /^zstd:chunked,/;
+    }
+  }
   delete $containerinfo->{'layer_compression'};
   $containerinfo->{'layer_compression'} = $layercomp if $layercomp && @$layercomp;
   BSRepServer::Containerinfo::writecontainerinfo("$dir/.$containerinfo_file", "$dir/$containerinfo_file", $containerinfo);

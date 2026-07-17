@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class BsRequestsController < Webui::WebuiController
+    class BsRequestsController < WebuiController
       include Webui::RequestsFilter
       include Webui::RequestsCount
 
@@ -10,19 +10,18 @@ module Webui
       before_action :set_bs_requests
 
       def index
-        if Flipper.enabled?(:request_index, User.session)
-          # FIXME: Once we roll out filter_requests should become a before_action
-          filter_requests
-          @bs_requests = @bs_requests.page(params[:page])
+        respond_to do |format|
+          format.html do
+            filter_requests
+            @bs_requests = @bs_requests.page(params[:page])
+            @url = packages_requests_path(@project, @package)
+          end
+          format.json do
+            parsed_params = BsRequest::DataTable::ParamsParserWithStateAndType.new(params).parsed_params
+            requests_query = BsRequest::DataTable::FindForPackageQuery.new(@project, @package, parsed_params)
+            @requests_data_table = BsRequest::DataTable::Table.new(requests_query, params[:draw])
 
-          @url = packages_requests_path(@project, @package)
-        else
-          parsed_params = BsRequest::DataTable::ParamsParserWithStateAndType.new(params).parsed_params
-          requests_query = BsRequest::DataTable::FindForPackageQuery.new(@project, @package, parsed_params)
-          @requests_data_table = BsRequest::DataTable::Table.new(requests_query, params[:draw])
-
-          respond_to do |format|
-            format.json { render 'webui/shared/bs_requests/index' }
+            render 'webui/shared/bs_requests/index'
           end
         end
       end

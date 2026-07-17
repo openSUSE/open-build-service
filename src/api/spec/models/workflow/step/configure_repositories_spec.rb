@@ -59,19 +59,17 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       end
 
       context 'and we have all the required keys in the step instructions' do
-        before do
-          subject.call
-        end
-
         let(:configured_repositories) { target_project.reload.repositories }
         let(:configured_path_elements) { configured_repositories.first.path_elements }
         let(:configured_architectures) { configured_repositories.first.architectures }
 
         it 'configures the repository with the right attributes' do
+          subject.call
           expect(configured_repositories).to contain_exactly(have_attributes(name: 'openSUSE_Tumbleweed', db_project_id: target_project.id))
         end
 
         it 'configures the path elements with the right attributes' do
+          subject.call
           expect(configured_path_elements).to contain_exactly(
             have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository1.id, position: 1, kind: 'standard'),
             have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository2.id, position: 2, kind: 'standard')
@@ -79,7 +77,159 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
         end
 
         it 'overwrites previously configured architectures with those in the step instructions' do
+          subject.call
           expect(configured_architectures.map(&:name)).to eq(%w[x86_64 ppc])
+        end
+        
+        context 'and we provide the repository with a valid rebuild option' do
+          let(:step_instructions) do
+            {
+              project: 'OBS:Server:Unstable',
+              repositories:
+                [
+                  {
+                    name: 'openSUSE_Tumbleweed',
+                    paths: [
+                      { target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
+                      { target_project: 'openSUSE:Leap:15.4', target_repository: 'standard' }
+                    ],
+                    architectures: %w[
+                      x86_64
+                      ppc
+                    ],
+                    rebuild: 'direct'
+                  }
+                ]
+            }
+          end
+
+          it 'configures the repository with that option' do
+            subject.call
+            expect(subject).to be_valid
+            expect(configured_repositories.first.rebuild).to eql('direct')
+          end
+        end
+        
+        context 'but we provide the repository with an invalid rebuild option' do
+          let(:step_instructions) do
+            {
+              project: 'OBS:Server:Unstable',
+              repositories:
+                [
+                  {
+                    name: 'openSUSE_Tumbleweed',
+                    paths: [
+                      { target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
+                      { target_project: 'openSUSE:Leap:15.4', target_repository: 'standard' }
+                    ],
+                    architectures: %w[
+                      x86_64
+                      ppc
+                    ],
+                    rebuild: 'invalid'
+                  }
+                ]
+            }
+          end
+
+          it 'does not configure the repository with that option' do
+            expect { subject.call }.to raise_error(ActiveRecord::RecordInvalid)
+          end
+        end
+
+        context 'and we provide the repository with a valid linkedbuild option' do
+          let(:step_instructions) do
+            {
+              project: 'OBS:Server:Unstable',
+              repositories:
+                [
+                  {
+                    name: 'openSUSE_Tumbleweed',
+                    paths: [
+                      { target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
+                      { target_project: 'openSUSE:Leap:15.4', target_repository: 'standard' }
+                    ],
+                    architectures: %w[
+                      x86_64
+                      ppc
+                    ],
+                    linkedbuild: 'all'
+                  }
+                ]
+            }
+          end
+
+          it 'configures the repository with that option' do
+            subject.call
+            expect(subject).to be_valid
+            expect(configured_repositories.first.linkedbuild).to eql('all')
+          end
+        end
+
+        context 'but we provide the repository with an invalid linkedbuild option' do
+          let(:step_instructions) do
+            {
+              project: 'OBS:Server:Unstable',
+              repositories:
+                [
+                  {
+                    name: 'openSUSE_Tumbleweed',
+                    paths: [
+                      { target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
+                      { target_project: 'openSUSE:Leap:15.4', target_repository: 'standard' }
+                    ],
+                    architectures: %w[
+                      x86_64
+                      ppc
+                    ],
+                    linkedbuild: 'invalid'
+                  }
+                ]
+            }
+          end
+
+          it 'does not configure the repository with that option' do
+            expect { subject.call }.to raise_error(ActiveRecord::RecordInvalid)
+          end
+        end
+
+        context 'and the repository already exists' do
+          before do
+            create(:repository, name: 'a_repo', project: target_project, rebuild: 'direct', linkedbuild: 'off')
+          end
+
+          let(:step_instructions) do
+            {
+              project: 'OBS:Server:Unstable',
+              repositories:
+                [
+                  {
+                    name: 'a_repo',
+                    paths: [
+                      { target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
+                      { target_project: 'openSUSE:Leap:15.4', target_repository: 'standard' }
+                    ],
+                    architectures: %w[
+                      x86_64
+                      ppc
+                    ],
+                    rebuild: 'local',
+                    linkedbuild: 'all'
+                  }
+                ]
+            }
+          end
+
+          it 'is valid' do
+            subject.call
+            expect(subject).to be_valid
+          end
+
+          it 'updates the existing repository attributes' do
+            expect { subject.call }.to_not change(Repository, :count)
+            expect(configured_repositories.first.rebuild).to eql('local')
+            expect(configured_repositories.first.linkedbuild).to eql('all')
+          end
         end
       end
 

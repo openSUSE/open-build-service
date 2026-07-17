@@ -40,6 +40,7 @@ class WorkflowRun < ApplicationRecord
     scm_vendor == 'gitlab' && hook_event == 'Merge Request Hook'
   }
   validate :validate_payload_is_json
+  validate :ignore_branch_deletion_push_event
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
@@ -169,6 +170,12 @@ class WorkflowRun < ApplicationRecord
     JSON.parse(request_payload)
   rescue JSON::ParserError
     errors.add(:request_payload, 'can not be parsed as JSON')
+  end
+
+  def ignore_branch_deletion_push_event
+    return unless branch_deletion_push_event?
+
+    errors.add(:hook_event, 'ignored branch deletion push event')
   end
 
   def set_attributes_from_payload
