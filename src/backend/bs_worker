@@ -214,9 +214,11 @@ sub cleanup_job {
       };
       print "\n";
   } elsif ($vm && -d $buildroot) {
-     rm_rf("$buildroot/.build-srcdir");
-     rm_rf("$buildroot/.build.packages");
-     rm_rf("$buildroot/.mount/.build.packages");
+     # not using rm_rf since we may get called while another process works inside
+     # we must not fail, when the directory stays
+     BSUtil::cleandir("$buildroot/.build-srcdir");
+     BSUtil::cleandir("$buildroot/.build.packages");
+     BSUtil::cleandir("$buildroot/.mount/.build.packages");
   }
 }
 
