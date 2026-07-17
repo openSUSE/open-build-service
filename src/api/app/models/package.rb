@@ -218,7 +218,7 @@ class Package < ApplicationRecord
   def self.get_by_project_and_name(project_name, package_name, opts = {})
     get_by_project_and_name_defaults = { use_source: true,
                                          follow_project_links: true,
-                                         follow_project_scmsync_links: false,
+                                         follow_project_scmsync_links: Flipper.enabled?(:linked_packages, User.possibly_nobody),
                                          follow_project_remote_links: false,
                                          follow_multibuild: false,
                                          follow_special_names: false,
@@ -250,8 +250,20 @@ class Package < ApplicationRecord
     if package.nil? && project.scmsync.present?
       return nil unless opts[:follow_project_scmsync_links]
 
-      package = project.linked_packages.find_by(name: package_name)
-      raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}" unless package
+      if Flipper.enabled?(:linked_packages, User.possibly_nobody)
+        package = project.linked_packages.find_by(name: package_name)
+        raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}" unless package
+      else
+        begin
+          package_xmlhash = Xmlhash.parse(Backend::Api::Sources::Package.meta(project.name, package_name))
+        rescue Backend::NotFoundError
+          raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}"
+        else
+          package = project.packages.new(name: package_name)
+          package.assign_attributes_from_from_xml(package_xmlhash)
+          package.readonly!
+        end
+      end
     end
 
     if package.nil? && project.links_to_remote? && opts[:follow_project_links]
