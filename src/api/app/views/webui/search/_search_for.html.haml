@@ -2,11 +2,12 @@
   - search_for_options = [['All', '0'], ['Projects', '1'], ['Packages', '2']]
   - current_val = params.fetch(:search_for, '0')
   - current_label = search_for_options.find { |label, val| val == current_val }&.first || 'All'
-  
+
   = hidden_field_tag('search_for', current_val, id: 'search_for_input')
-  
+
   .dropdown
-    %button.btn.dropdown-toggle.border-0.ps-0#search_for_button{ type: 'button', 'data-bs-toggle' => 'dropdown', aria: { expanded: 'false' }, style: 'background: transparent;' }
+    - btn_opts = { type: 'button', 'data-bs-toggle' => 'dropdown', aria: { expanded: 'false' }, style: 'background: transparent;' }
+    %button.btn.dropdown-toggle.border-0.ps-0#search_for_button{ btn_opts }
       = current_label
     %ul.dropdown-menu
       - search_for_options.each do |label, val|
