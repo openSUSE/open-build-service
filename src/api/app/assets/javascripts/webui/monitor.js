@@ -105,13 +105,17 @@ function processProgressBar(id, item)
   if (delta) {
     el_text.text(item[logfileinfo]);
     ctrl.css("width", delta + "%").attr("aria-valuenow", delta);
-    var url = $('#workers').data('buildLogPath');
-    url = url.replace('ARCH', item["arch"]);
-    url = url.replace('PROJECT', item["project"]);
-    url = url.replace('PACKAGE', item["package"]);
-    url = url.replace('REPOSITORY', item["repository"]);
+    if (item["project"] === '---' || item["package"] === '---' || item["repository"] === '---') {
+      el_text.removeAttr("href");
+    } else {
+      var url = $('#workers').data('buildLogPath');
+      url = url.replace('ARCH', item["arch"]);
+      url = url.replace('PROJECT', item["project"]);
+      url = url.replace('PACKAGE', item["package"]);
+      url = url.replace('REPOSITORY', item["repository"]);
 
-    el_text.attr("href", url);
+      el_text.attr("href", url);
+    }
 
     if (delta <= 50) {
       ctrl.addClass("text-bg-success");
