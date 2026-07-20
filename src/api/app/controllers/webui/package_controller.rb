@@ -155,6 +155,13 @@ class Webui::PackageController < Webui::WebuiController
     @users = [@project.users, @package.users].flatten.uniq
     @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
+
+    @devel_package = @package.develpackage
+    if @devel_package
+      @devel_users = [@devel_package.project.users, @devel_package.users].flatten.uniq
+      @devel_groups = [@devel_package.project.groups, @devel_package.groups].flatten.uniq
+    end
+
     if User.session && params[:notification_id]
       @current_notification = Notification.find(params[:notification_id])
       authorize @current_notification, :update?, policy_class: NotificationPolicy
