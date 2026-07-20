@@ -679,7 +679,7 @@ RSpec.describe Webui::PackageController, :vcr do
       let(:devel_package) { create(:package, project: devel_project) }
 
       before do
-        package.develpackages << devel_package
+        devel_package.develpackages << package
         get :users, params: { project: target_project, package: package }
       end
 
