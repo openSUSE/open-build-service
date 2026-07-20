@@ -631,8 +631,9 @@ sub make_platformstr {
   return $str;
 }
 
-sub make_oci_empty_config_entry {
-  return make_blob_entry('config.json', '{}', 'mimetype' => $mt_oci_empty, @_);
+sub make_empty_config_entry {
+  my ($oci, @extra) = @_;
+  return make_blob_entry('config.json', '{}', 'mimetype' => $oci ? $mt_oci_empty : $mt_docker_config, @extra);
 }
 
 1;

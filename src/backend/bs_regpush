@@ -177,6 +177,7 @@ sub calc_authrealm {
 sub blob_upload {
   my ($blobid, $upload_ent) = @_;
 
+  die("blob_updload: need a blobid\n") unless $blobid;
   my $size = $upload_ent->{'size'};
   return $blobid if blob_exists($blobid, $size);
   print "uploading layer $blobid... ";
@@ -444,6 +445,19 @@ sub reuse_cosign_manifest {
   return 1;
 }
 
+sub create_manifest_from_layer {
+  my ($oci, $subject, $layer_ent, $artifact_type) = @_;
+  my $config_ent = BSContar::make_empty_config_entry($oci, 'artifactType' => $artifact_type);
+  my $config_data = BSContar::create_config_data($config_ent, $oci);
+  my $layer_data = BSContar::create_layer_data($layer_ent, $oci);
+  my $mani = BSContar::create_dist_manifest_data($config_data, [ $layer_data ], $oci);
+  $mani->{'annotations'} = $layer_ent->{'annotations'} if $layer_ent->{'annotations'};
+  $mani->{'artifactType'} = $artifact_type if $artifact_type;
+  $mani->{'subject'} = $subject if $subject;
+  my $mani_json = BSContar::create_dist_manifest($mani);
+  return ($mani, $mani_json, $config_ent, $layer_ent);
+}
+
 sub cosign_upload_newbundle {
   my ($tag, $subject, @layer_ents) = @_;
   die("cosign_upload_newbundle: need a subject\n") unless $subject && $subject->{'digest'};
@@ -451,16 +465,9 @@ sub cosign_upload_newbundle {
   my @multimanifests;
   for my $layer_ent (@layer_ents) {
     die("not an v3 bundle\n") unless $layer_ent->{'mimetype'} eq $BSConSign::mt_cosign_bundle;
-    my $config_ent = BSContar::make_oci_empty_config_entry('artifactType' => $layer_ent->{'mimetype'});
-    my $config_data = BSContar::create_config_data($config_ent, $oci);
-    blob_upload($config_data->{'digest'}, $config_ent);
-    my $layer_data = BSContar::create_layer_data($layer_ent, $oci);
-    blob_upload($layer_data->{'digest'}, $layer_ent);
-    my $mani = BSContar::create_dist_manifest_data($config_data, [ $layer_data ], $oci);
-    $mani->{'annotations'} = $layer_ent->{'annotations'} if $layer_ent->{'annotations'};
-    $mani->{'artifactType'} = $layer_ent->{'mimetype'};
-    $mani->{'subject'} = $subject;
-    my $mani_json = BSContar::create_dist_manifest($mani);
+    my ($mani, $mani_json, $config_ent, $layer_ent) = create_manifest_from_layer($oci, $subject, $layer_ent, $layer_ent->{'mimetype'});
+    blob_upload($config_ent->{'blobid'}, $config_ent);
+    blob_upload($layer_ent->{'blobid'}, $layer_ent);
     manifest_upload($mani_json, undef, $mani->{'mediaType'});
     my $multimani = {
       'mediaType' => $mani->{'mediaType'},
