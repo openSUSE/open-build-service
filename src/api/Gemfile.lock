@@ -530,7 +530,7 @@ GEM
       websocket (~> 1.0)
     shoulda-matchers (8.0.1)
       activesupport (>= 7.2)
-    simplecov (1.0.1)
+    simplecov (1.0.2)
     simplecov-cobertura (4.0.0)
       rexml
       simplecov (~> 1.0)
