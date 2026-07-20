@@ -4,67 +4,59 @@
 # and recreated between test runs. Don't rely on the data there!
 
 Rails.application.configure do
-  config.active_support.test_order = :sorted # switch to :random ?
-end
-
-# This isn't going to change since this is how we configure Rails
-# rubocop:disable Metrics/BlockLength
-Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
-  config.cache_classes = true
 
-  # Eager loading loads your whole application. When running a single test locally,
-  # this probably isn't necessary. It's a good idea to do in a continuous integration
-  # system, or in some way before deploying your code.
+  # switch to :random?
+  config.active_support.test_order = :sorted
+
+  # While tests run files are not watched, reloading is not necessary.
+  config.enable_reloading = false
+
+  # Eager loading loads your entire application. When running a single test locally,
+  # this is usually not necessary, and can slow down your test suite. However, it's
+  # recommended that you enable it in continuous integration systems to ensure eager
+  # loading is working properly before deploying your code.
   config.eager_load = ENV["CI"].present?
 
-  # Show full error reports and disable caching.
+  # Configure public file server for tests with cache-control for performance.
+  config.public_file_server.headers = { "cache-control" => "public, max-age=3600" }
+
+  # Show full error reports.
   config.consider_all_requests_local = true
-  config.action_controller.perform_caching = false
 
-  # Configure public file server for tests with Cache-Control for performance.
-  config.public_file_server.enabled = true
-  config.public_file_server.headers = {
-    'Cache-Control' => "public, max-age=#{1.hour.to_i}"
-  }
-
-  # Raise exceptions instead of rendering exception templates.
-  # config.action_dispatch.show_exceptions = :none
-
-  # Store uploaded files on the local file system in a temporary directory.
-  config.active_storage.service = :test
+  # FIXME: There are some specs that depend on Rails.cache to function...
+  config.cache_store = :memory_store
 
   # Prepend all log lines with the following tags.
   config.log_tags = [:request_id]
+
+  # Turn of the asset pipeline log
+  config.assets.quiet = true
+
+  # Do not render error pages for any exception
+  # config.action_dispatch.show_exceptions = :none
+  # TODO: This shouldn't be needed when we switch to RSpec completely
+  config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 950
+
+  # Enable request forgery protection in test environment. To catch things early.
+  config.action_controller.allow_forgery_protection = true
+
+  # Store uploaded files on the local file system in a temporary directory.
+  config.active_storage.service = :test
 
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
   config.action_mailer.delivery_method = :test
 
-  # Enable request forgery protection in test environment.
-  config.action_controller.allow_forgery_protection = true
+  # Set host to be used by links generated in mailer templates.
+  config.action_mailer.default_url_options = { host: "example.com" }
 
-  config.action_mailer.perform_caching = false
-
-  config.cache_store = :memory_store
-
-  config.active_support.deprecation = :log
   # Print deprecation notices to the stderr.
-  #  config.active_support.deprecation = :stderr
+  config.active_support.deprecation = :stderr
 
-  # Expands the lines which load the assets
-  config.assets.debug = false
-  config.assets.log = nil
-  # turn of the asset pipeline log. Previously done by quiet_assets gem.
-  config.assets.quiet = true
-  config.secret_key_base = '92b2ed725cb4d68cc5fbf86d6ba204f1dec4172086ee7eac8f083fb62ef34057f1b770e0722ade7b298837be7399c6152938627e7d15aca5fcda7a4faef91fc7'
-
-  # Raise exceptions for disallowed deprecations.
-  config.active_support.disallowed_deprecation = :raise
-
-  # Tell Active Support which deprecation messages to disallow.
-  config.active_support.disallowed_deprecation_warnings = []
+  # Raise error when a before_action's only/except options reference missing actions.
+  config.action_controller.raise_on_missing_callback_actions = true
 
   # Bullet configuration
   config.after_initialize do
@@ -73,26 +65,27 @@ Rails.application.configure do
     Bullet.raise = false # raise an error if n+1 query occurs
   end
 
-  # TODO: This shouldn't be needed when we switch to RSpec completely
-  config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 950
-
+  # Use inline queue adapter to executed the job immediately
   config.active_job.queue_adapter = :inline
+
   # Access to rack session for feature specs
   config.middleware.use RackSessionAccess::Middleware
 end
-# rubocop:enable Metrics/BlockLength
 
+### Setup CONFIG defaults
+# FIXME: This is used in specs as shortcut for the backend URL a lot. It belongs to the spec setup...
 CONFIG['source_url'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
-
-# the default is not to write through, only once the backend started
-# we set this to true
+# Only once the backend started we set this to true...
 CONFIG['global_write_through'] = false
 
+# Minitest runs the backend itself on localhost
 if ENV['RUNNING_MINITEST']
   CONFIG['source_host'] = 'localhost'
   CONFIG['source_port'] = '3200'
 end
 
+# If we run minitest in docker then we need to tell it to not
+# start the backend and try the backend container
 if ENV['RUNNING_MINITEST_WITH_DOCKER']
   ENV['BACKEND_STARTED'] = "1"
   CONFIG['source_host'] = 'backend'
@@ -114,5 +107,4 @@ CONFIG['sponsors'] = [
     url: '#'
   )
 ]
-# Allow anonymous access
-CONFIG['allow_anonymous'] = true
+
