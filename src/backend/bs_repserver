@@ -4534,7 +4534,7 @@ sub registry_referrers {
   die("404 MANIFEST_UNKNOWN\n") unless -s "$repodir/:manifests/$subject";
   my $referrers = -s "$repodir/:referrers/$subject" ? BSUtil::retrieve("$repodir/:referrers/$subject", 1) : undef;
   my $manilist_json = BSRepServer::Registry::create_referrer_manifest($referrers, $cgi->{'artifactType'});
-  BSServer::reply($manilist_json, 'Content-Type: application/json');
+  BSServer::reply($manilist_json, "Content-Type: $BSContar::mt_oci_index");
 }
 
 sub registry_taglist {
