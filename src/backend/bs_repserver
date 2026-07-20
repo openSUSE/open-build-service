@@ -1951,21 +1951,23 @@ sub getpublisherstate {
   return 'succeeded';
 }
 
-sub getschedulerstate {
+# the repositoty state is the scheduler state combined with the publisher state
+sub getrepositorystate {
   my ($projid, $repoid, $arch, $publisherstate) = @_;
-
   my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
   my $schedulerdetails = $schedulerstate->{'details'};
   $schedulerstate = $schedulerstate->{'code'} || 'unknown';
+  my $dirty = $schedulerstate eq 'scheduling' ? 1 : 0;
+  $dirty = 1 if !$dirty && -e "$reporoot/$projid/$repoid/$arch/:schedulerstate.dirty";
   if ($publisherstate && $schedulerstate eq 'finished' && !$schedulerdetails) {
-    return 'unpublished' if (readstr("$reporoot/$projid/$repoid/$arch/:repodone", 1) || '') =~ /^disabled/;
+    return ('unpublished', undef, $dirty) if (readstr("$reporoot/$projid/$repoid/$arch/:repodone", 1) || '') =~ /^disabled/;
     my ($code, $details) = @{$publisherstate->{"$projid/$repoid"} ||= [ getpublisherstate($projid, $repoid) ]};
     $schedulerstate = 'published' if $code eq 'succeeded';
     $schedulerstate = 'publishing' if $code eq 'building';
     $schedulerstate = 'publishfailed' if $code eq 'failed';
     $schedulerdetails = $details if $details && $code eq 'failed';
   }
-  return ($schedulerstate, $schedulerdetails);
+  return ($schedulerstate, $schedulerdetails, $dirty);
 }
 
 sub workerstatus {
@@ -3068,16 +3070,15 @@ sub getresult {
 	$ps->{'packststus'}->{$_} ||= 'unknown';
       }
     }
-    my ($schedulerstate, $schedulerdetails) = getschedulerstate($projid, $repoid, $arch, \%publisherstate);
-    my $sl = {'project' => $projid, 'repository' => $repoid, 'arch' => $arch, 'code' => $schedulerstate, 'state' => $schedulerstate };
-    $sl->{'details'} = $schedulerdetails if defined $schedulerdetails;
-    $sl->{'dirty'} = 'true' if -e "$reporoot/$prpa/:schedulerstate.dirty";
-    $sl->{'dirty'} = 'true' if $schedulerstate eq 'scheduling'; # flag already removed, but new state not yet written
+    my ($repostate, $repodetails, $isdirty) = getrepositorystate($projid, $repoid, $arch, \%publisherstate);
+    my $sl = {'project' => $projid, 'repository' => $repoid, 'arch' => $arch, 'code' => $repostate, 'state' => $repostate };
+    $sl->{'details'} = $repodetails if defined $repodetails;
+    $sl->{'dirty'} = 'true' if $isdirty;
     if ($ps->{'scmsync'}) {
       $sl->{'scmsync'} = $ps->{'scmsync'};
       $sl->{'scminfo'} = $ps->{'scminfo'} if $ps->{'scminfo'} ;
     }
-    $state .= "$schedulerstate\0\0";
+    $state .= "$repostate\0\0";
     fixpackstatus($prpa, $ps, \%buildingjobs, %code ? \%code : undef) unless $cgi->{'lastbuild'};
     my $reprocheck_failed;
     my $withreproduciblecheck = $cgi->{'withreproduciblecheck'} && $repoid =~ /._reproduciblecheck$/ ? 1 : 0;
