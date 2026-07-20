@@ -1,0 +1,57 @@
+:ruby
+  devel_link = link_to("#{project.name} / #{package.name}", package_show_path(project: project.name, package: package.name))
+
+.alert.alert-info
+  This package inherits maintainers from its development package (#{devel_link}).
+
+%h3 Inherited User Roles
+- if users.present?
+  %table.responsive.table.table-sm.table-bordered.table-hover.w-100#inherited-user-table
+    %thead
+      %tr
+        %td Username
+        - roles.each do |role|
+          %td= role.title.capitalize
+    %tbody
+      - users.each do |user|
+        %tr
+          %td.align-middle
+            = image_tag_for(user, size: 20)
+            = link_to(display_name(user), user_or_group_path(user))
+          - roles.each do |role|
+            %td.align-middle
+              - if (package || project).user_has_role?(user, role)
+                %i.fa.fa-check.text-success
+              - else
+                %i.fa.fa-times.text-muted
+- else
+  %p
+    %i There are no inherited users...
+
+%hr
+
+%h3 Inherited Group Roles
+- if groups.present?
+  %table.responsive.table.table-sm.table-bordered.table-hover.w-100#inherited-group-table
+    %thead
+      %tr
+        %td Group name
+        - roles.each do |role|
+          %td= role.title.capitalize
+    %tbody
+      - groups.each do |group|
+        %tr
+          %td.align-middle
+            = image_tag_for(group, size: 20)
+            = link_to(display_name(group), user_or_group_path(group))
+          - roles.each do |role|
+            %td.align-middle
+              - if (package || project).group_has_role?(group, role)
+                %i.fa.fa-check.text-success
+              - else
+                %i.fa.fa-times.text-muted
+- else
+  %p
+    %i There are no inherited groups...
+
+%hr

@@ -3,5 +3,8 @@
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project, package: @package }
   .card-body
+    - if @devel_package
+      = render partial: 'webui/shared/user_or_groups_roles/inherited_users',
+               locals: { project: @devel_package.project, package: @devel_package, users: @devel_users, roles: @roles, groups: @devel_groups }
     = render partial: 'webui/shared/user_or_groups_roles/index',
              locals: { project: @project, package: @package, users: @users, roles: @roles, groups: @groups }
