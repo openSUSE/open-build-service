@@ -1951,21 +1951,23 @@ sub getpublisherstate {
   return 'succeeded';
 }
 
-sub getschedulerstate {
+# the repositoty state is the scheduler state combined with the publisher state
+sub getrepositorystate {
   my ($projid, $repoid, $arch, $publisherstate) = @_;
-
   my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
   my $schedulerdetails = $schedulerstate->{'details'};
   $schedulerstate = $schedulerstate->{'code'} || 'unknown';
+  my $dirty = $schedulerstate eq 'scheduling' ? 1 : 0;
+  $dirty = 1 if !$dirty && -e "$reporoot/$projid/$repoid/$arch/:schedulerstate.dirty";
   if ($publisherstate && $schedulerstate eq 'finished' && !$schedulerdetails) {
-    return 'unpublished' if (readstr("$reporoot/$projid/$repoid/$arch/:repodone", 1) || '') =~ /^disabled/;
+    return ('unpublished', undef, $dirty) if (readstr("$reporoot/$projid/$repoid/$arch/:repodone", 1) || '') =~ /^disabled/;
     my ($code, $details) = @{$publisherstate->{"$projid/$repoid"} ||= [ getpublisherstate($projid, $repoid) ]};
     $schedulerstate = 'published' if $code eq 'succeeded';
     $schedulerstate = 'publishing' if $code eq 'building';
     $schedulerstate = 'publishfailed' if $code eq 'failed';
     $schedulerdetails = $details if $details && $code eq 'failed';
   }
-  return ($schedulerstate, $schedulerdetails);
+  return ($schedulerstate, $schedulerdetails, $dirty);
 }
 
 sub workerstatus {
@@ -3068,16 +3070,15 @@ sub getresult {
 	$ps->{'packststus'}->{$_} ||= 'unknown';
       }
     }
-    my ($schedulerstate, $schedulerdetails) = getschedulerstate($projid, $repoid, $arch, \%publisherstate);
-    my $sl = {'project' => $projid, 'repository' => $repoid, 'arch' => $arch, 'code' => $schedulerstate, 'state' => $schedulerstate };
-    $sl->{'details'} = $schedulerdetails if defined $schedulerdetails;
-    $sl->{'dirty'} = 'true' if -e "$reporoot/$prpa/:schedulerstate.dirty";
-    $sl->{'dirty'} = 'true' if $schedulerstate eq 'scheduling'; # flag already removed, but new state not yet written
+    my ($repostate, $repodetails, $isdirty) = getrepositorystate($projid, $repoid, $arch, \%publisherstate);
+    my $sl = {'project' => $projid, 'repository' => $repoid, 'arch' => $arch, 'code' => $repostate, 'state' => $repostate };
+    $sl->{'details'} = $repodetails if defined $repodetails;
+    $sl->{'dirty'} = 'true' if $isdirty;
     if ($ps->{'scmsync'}) {
       $sl->{'scmsync'} = $ps->{'scmsync'};
       $sl->{'scminfo'} = $ps->{'scminfo'} if $ps->{'scminfo'} ;
     }
-    $state .= "$schedulerstate\0\0";
+    $state .= "$repostate\0\0";
     fixpackstatus($prpa, $ps, \%buildingjobs, %code ? \%code : undef) unless $cgi->{'lastbuild'};
     my $reprocheck_failed;
     my $withreproduciblecheck = $cgi->{'withreproduciblecheck'} && $repoid =~ /._reproduciblecheck$/ ? 1 : 0;
@@ -4369,6 +4370,11 @@ sub registry_manifest {
     my $digest = "sha256:$1";
     my $sigs = BSUtil::retrieve("$repodir/:cosign", 1);
     $manifest = $sigs->{'attestations'}->{$digest} if $sigs && $sigs->{'attestations'}->{$digest};
+  } elsif ($manifest =~ /^sha256-([0-9a-f]{64})$/ && ! -s "$repodir/:tags/$manifest") {
+    # get all referrers
+    my $subject = $manifest;
+    $subject =~ s/-/:/;
+    return registry_referrers($cgi, $regrepo, $subject) if -s "$repodir/:manifests/$subject";
   }
   my $mani_json;
   my $is_manifest;
@@ -4527,18 +4533,7 @@ sub registry_referrers {
   die("404 NAME_UNKNOWN\n") unless -f "$repodir/:info";
   die("404 MANIFEST_UNKNOWN\n") unless -s "$repodir/:manifests/$subject";
   my $referrers = -s "$repodir/:referrers/$subject" ? BSUtil::retrieve("$repodir/:referrers/$subject", 1) : undef;
-  my @manifest_data;
-  for my $r (@{$referrers || []}) {
-    next if $cgi->{'artifactType'} && ($r->[2] || '') ne $cgi->{'artifactType'};
-    my $m = eval { JSON::XS::decode_json($r->[1]) };
-    next unless $m && $m->{'mediaType'};
-    my $md = { 'mediaType' => $m->{'mediaType'}, 'size' => length($r->[1]), 'digest' => $r->[0]};
-    $md->{'artifactType'} = $r->[2] if $r->[2];
-    $md->{'annotations'} = $m->{'annotations'} if $m->{'annotations'};
-    push @manifest_data, $md;
-  }
-  my $manilist = BSContar::create_dist_manifest_list_data(\@manifest_data, 1);
-  my $manilist_json = BSContar::create_dist_manifest_list($manilist);
+  my $manilist_json = BSRepServer::Registry::create_referrer_manifest($referrers, $cgi->{'artifactType'});
   BSServer::reply($manilist_json, 'Content-Type: application/json');
 }
 
