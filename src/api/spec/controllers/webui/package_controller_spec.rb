@@ -660,4 +660,35 @@ RSpec.describe Webui::PackageController, :vcr do
       it { expect(response.parsed_body).to eql([]) }
     end
   end
+  describe 'GET #users' do
+    let(:package) { create(:package, project: target_project) }
+
+    context 'without a devel package' do
+      before do
+        get :users, params: { project: target_project, package: package }
+      end
+
+      it 'assigns users and groups' do
+        expect(response).to have_http_status(:success)
+        expect(assigns(:devel_package)).to be_nil
+      end
+    end
+
+    context 'with a devel package' do
+      let(:devel_project) { create(:project) }
+      let(:devel_package) { create(:package, project: devel_project) }
+
+      before do
+        devel_package.develpackages << package
+        get :users, params: { project: target_project, package: package }
+      end
+
+      it 'assigns devel package users and groups' do
+        expect(response).to have_http_status(:success)
+        expect(assigns(:devel_package)).to eq(devel_package)
+        expect(assigns(:devel_users)).to match_array(devel_package.users)
+        expect(assigns(:devel_groups)).to match_array(devel_package.groups)
+      end
+    end
+  end
 end
