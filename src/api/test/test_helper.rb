@@ -4,6 +4,7 @@ ENV['RAILS_ENV'] = 'test'
 ENV['RUNNING_MINITEST'] = '1'
 
 require 'simplecov'
+SimpleCov.start 'obs'
 require 'builder'
 require 'minitest/reporters'
 
