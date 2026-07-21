@@ -4,10 +4,6 @@ RSpec.describe RpmlintLogExtractor, type: :service do
   let(:parameters) { ActionController::Parameters.new(project: 'home:user1', package: 'package1', repository: 'repo1', architecture: 'arch1') }
   let(:invalid_byte_sequence_in_utf8) { "this is an invalid byte sequence \xED" }
 
-  before do
-    Flipper.enable(:request_show_redesign)
-  end
-
   describe '#call' do
     context 'rpmlint.log file is available in the backend with an invalid byte sequence' do
       before do
