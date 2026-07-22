@@ -1,0 +1,1 @@
+class MissingParameterError < APIError; end
