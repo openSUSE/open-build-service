@@ -1,0 +1,1 @@
+class InvalidParameterError < APIError; end
