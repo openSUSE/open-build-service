@@ -294,10 +294,12 @@ sub jobfinished {
     for my $file (ls($jobdatadir)) {
       next if $file eq 'logfile' || $file eq '_statistics' || $file eq '.needcompare';
       next if $file =~ /\.obsbinlnk$/ || $file =~ /^_blob\./;
+      next if $file eq '_slsa_provenance.json' || $file eq '_slsa_provenance.config';
       rename("$jobdatadir/$file", "$jobdatadir/b_$file");
     }
     for my $file (ls($origdst)) {
       next if $file eq 'logfile' || $file eq '_statistics' || $file eq 'meta' || $file eq 'status' || $file =~ /^\./;
+      next if $file eq '_slsa_provenance.json' || $file eq '_slsa_provenance.config';
       next if $file =~ /\.obsbinlnk$/;
       if ($file =~ /^_blob\./) {
 	BSUtil::cp("$origdst/$file", "$jobdatadir/$file") unless -e "$jobdatadir/$file";
