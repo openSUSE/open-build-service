@@ -1,5 +1,3 @@
-require 'api_error'
-
 module Token::Errors
   class NoReleaseTargetFound < APIError
     setup 404
