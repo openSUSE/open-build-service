@@ -1,7 +1,6 @@
 require "active_support/core_ext/integer/time"
 
 ENV['CACHENAMESPACE'] ||= "obs-api-test-#{Time.now.to_i}"
-ENV['OBS_BACKEND_TEMP'] ||= Dir.mktmpdir('obsbackend', '/var/tmp')
 
 # The test environment is used exclusively to run your application's
 # test suite. You never need to work with it otherwise. Remember that
