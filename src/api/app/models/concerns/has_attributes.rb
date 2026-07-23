@@ -2,9 +2,6 @@
 module HasAttributes
   extend ActiveSupport::Concern
 
-  class AttributeSaveError < APIError
-  end
-
   def write_attributes
     return unless CONFIG['global_write_through']
 

@@ -1,10 +1,6 @@
 class Review < ApplicationRecord
   include ActiveModel::Validations
 
-  class NotFoundError < APIError
-    setup 'review_not_found', 404, 'Review not found'
-  end
-
   VALID_REVIEW_STATES = %i[new declined accepted superseded obsoleted].freeze
 
   belongs_to :bs_request, touch: true, optional: true

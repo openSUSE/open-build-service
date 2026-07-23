@@ -1,6 +1,4 @@
 class Relationship::AddRole
-  class SaveError < APIError; end
-
   def initialize(package_or_project, role, opts)
     self.package_or_project = package_or_project
     self.role = role
@@ -24,7 +22,7 @@ class Relationship::AddRole
 
   def duplicate?
     return false unless package_or_project.relationships.exists?(user: user, group: group, role: role)
-    raise SaveError, 'Relationship already exists' if check
+    raise RelationshipSaveError, 'Relationship already exists' if check
 
     true
   end
@@ -44,6 +42,6 @@ class Relationship::AddRole
     return unless role.global
 
     # only nonglobal roles may be set in an object
-    raise SaveError, "tried to set global role '#{role.title}' in #{package_or_project.class} '#{package_or_project.name}'"
+    raise RelationshipSaveError, "tried to set global role '#{role.title}' in #{package_or_project.class} '#{package_or_project.name}'"
   end
 end

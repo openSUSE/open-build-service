@@ -644,7 +644,7 @@ RSpec.describe Webui::ProjectController, :vcr do
     end
 
     context 'when raises a non APIError' do
-      [Patchinfo::IncompletePatchinfo,
+      [IncompletePatchinfo,
        BsRequestAction::UnknownProject,
        BsRequestAction::BuildNotFinished,
        BsRequestActionMaintenanceRelease::RepositoryWithoutReleaseTarget,

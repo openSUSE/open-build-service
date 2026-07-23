@@ -3,13 +3,6 @@ class AttribType < ApplicationRecord
   #### Includes and extends
   #### Constants
   #### Self config
-  class UnknownAttributeTypeError < APIError
-    setup 'unknown_attribute_type', 404, 'Unknown Attribute Type'
-  end
-
-  class InvalidAttributeError < APIError
-  end
-
   #### Attributes
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :attrib_namespace

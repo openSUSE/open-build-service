@@ -1,10 +1,4 @@
 module MaintenanceHelper
-  class MissingAction < APIError
-    setup 400, 'The request contains no actions. Submit requests without source changes may have skipped!'
-  end
-
-  class MultipleUpdateInfoTemplate < APIError; end
-
   def release_package(source_package, target, target_package_name, opts = {})
     filter_source_repository = opts[:repository]
     filter_architecture      = opts[:arch]

@@ -17,14 +17,6 @@ class RequestController < ApplicationController
     @request_list = BsRequest.page(params[:page]).order(:number).pluck(:number)
   end
 
-  class RequireFilter < APIError
-    setup 404, 'This call requires at least one filter, either by user, project or package or states or types or reviewstates'
-  end
-
-  class SaveError < APIError
-    setup 'request_save_error'
-  end
-
   def render_request_collection
     # if all params are blank, something is wrong
     raise RequireFilter if %i[project package user states types reviewstates ids].all? { |f| params[f].blank? }
@@ -231,10 +223,6 @@ class RequestController < ApplicationController
   def request_command_changereviewstate
     @req.change_review_state(params[:newstate], params)
     render_ok
-  end
-
-  class MultipleMaintenanceIncidents < APIError
-    setup 404
   end
 
   def request_command_changestate

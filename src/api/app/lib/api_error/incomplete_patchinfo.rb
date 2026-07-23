@@ -1,0 +1,1 @@
+class IncompletePatchinfo < APIError; end

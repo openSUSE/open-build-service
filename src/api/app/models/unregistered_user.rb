@@ -1,7 +1,4 @@
 class UnregisteredUser < User
-  class ErrRegisterSave < APIError
-  end
-
   # Raises an exception if registration is disabled for a user
   # Returns true if a user can register
   def self.can_register?

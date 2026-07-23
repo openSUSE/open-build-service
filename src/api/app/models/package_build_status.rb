@@ -1,12 +1,4 @@
 class PackageBuildStatus
-  class NoRepositoriesFound < APIError
-    setup 404, 'No repositories build against target'
-  end
-
-  class FailedToRetrieveBuildInfo < APIError
-    setup 404
-  end
-
   def initialize(pkg)
     @pkg = pkg
   end

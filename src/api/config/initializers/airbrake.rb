@@ -107,7 +107,7 @@ def ignore_by_class?(notice)
                           'ActiveRecord::RecordNotFound', 'Backend::NotFoundError',
                           'CGI::Session::CookieStore::TamperedWithCookie',
                           'Interrupt', 'Net::HTTPBadResponse',
-                          'RoutesHelper::WebuiMatcher::InvalidRequestFormat']
+                          'InvalidRequestFormat']
 
   notice[:errors].pluck(:type).intersect?(exceptions_to_ignore)
 end

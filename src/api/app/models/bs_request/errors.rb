@@ -15,10 +15,6 @@ module BsRequest::Errors
     setup 'under_embargo', 400
   end
 
-  class SaveError < APIError
-    setup 'request_save_error'
-  end
-
   class AddReviewNotPermitted < APIError
     setup 403
   end

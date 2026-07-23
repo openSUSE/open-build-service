@@ -25,7 +25,7 @@ class Staging::RequestExcluder
     errors << "Requests with number #{non_excluded_requests.to_sentence} are not excluded" if non_excluded_requests.any?
     return self if valid?
 
-    raise Staging::ExcludedRequestNotFound, errors.to_sentence
+    raise ExcludedRequestNotFound, errors.to_sentence
   end
 
   def destroy!
@@ -33,7 +33,7 @@ class Staging::RequestExcluder
     destroy
     return if valid?
 
-    raise Staging::ExcludedRequestNotFound, errors.to_sentence
+    raise ExcludedRequestNotFound, errors.to_sentence
   end
 
   def errors
