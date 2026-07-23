@@ -1,5 +1,3 @@
-require 'api_error'
-
 class Review < ApplicationRecord
   include ActiveModel::Validations
 

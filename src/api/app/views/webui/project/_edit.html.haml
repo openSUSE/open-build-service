@@ -28,8 +28,9 @@
     = form.label(:description, 'Description:')
     = render WriteAndPreviewComponent.new(form: form, preview_message_url: project_preview_description_path,
                                         message_body_param: 'project[description]',
-                                        text_area_attributes: { rows: 8, placeholder: 'Write your description here... (Markdown markup is supported)',
-                                        required: false, object_name: :description})
+                                        text_area_rows: 8,
+                                        text_area_required: false,
+                                        text_area_object_name: :description)
   .mb-3.text-end
     = link_to 'Cancel', project_show_path(project), class: 'cancel btn btn-outline-danger px-4', remote: true
     = submit_tag('Update', class: 'btn btn-primary px-4')

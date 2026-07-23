@@ -157,6 +157,18 @@ sub push_manifest {
   return $mani_id;
 }
 
+sub push_referrers {
+  my ($repodir, $digest, $referrers) = @_;
+  my $dir = "$repodir/:referrers";
+  if (!@{$referrers|| []}) {
+    unlink("$dir/$digest");
+  } else {
+    mkdir_p($dir) unless -d $dir;
+    unlink("$dir/.$digest.$$");
+    BSUtil::store("$dir/.$digest.$$", "$dir/$digest", $referrers);
+  }
+}
+
 sub push_tag {
   my ($repodir, $tag, $mani_id) = @_;
   my $dir = "$repodir/:tags";
@@ -435,17 +447,67 @@ sub create_cosign_manifest {
   return $mani_id;
 }
 
+sub create_manifest_from_layer {
+  my ($oci, $subject, $layer_ent, $artifact_type) = @_;
+  my $config_ent = BSContar::make_empty_config_entry($oci, 'artifactType' => $artifact_type);
+  my $config_data = BSContar::create_config_data($config_ent, $oci);
+  my $layer_data = BSContar::create_layer_data($layer_ent, $oci);
+  my $mani = BSContar::create_dist_manifest_data($config_data, [ $layer_data ], $oci);
+  $mani->{'annotations'} = $layer_ent->{'annotations'} if $layer_ent->{'annotations'};
+  $mani->{'artifactType'} = $artifact_type if $artifact_type;
+  $mani->{'subject'} = $subject if $subject;
+  my $mani_json = BSContar::create_dist_manifest($mani);
+  return ($mani, $mani_json, $config_ent, $layer_ent);
+}
+
+sub create_cosign_manifest_newbundle {
+  my ($repodir, $oci, $knownmanifests, $knownblobs, $subject, $referrerinfo, @layer_ents) = @_;
+  die("create_cosign_manifest_newbundle: need a subject\n") unless $subject && $subject->{'digest'};
+  my @referrers;
+  for my $layer_ent (@layer_ents) {
+    die("not a cosign v3 bundle\n") unless $layer_ent->{'mimetype'} eq $BSConSign::mt_cosign_bundle;
+    my ($mani, $mani_json, $config_ent, $layer_ent) = create_manifest_from_layer($oci, $subject, $layer_ent, $layer_ent->{'mimetype'});
+    push_blob($repodir, $config_ent);
+    $knownblobs->{$config_ent->{'blobid'}} = 1;
+    push_blob($repodir, $layer_ent);
+    $knownblobs->{$layer_ent->{'blobid'}} = 1;
+    push @referrers, [ BSContar::blobid($mani_json), $mani_json, $mani->{'artifactType'} ];
+  }
+  push_referrers($repodir, $subject->{'digest'}, \@referrers);
+  $referrerinfo->{$_->[0]} = $subject->{'digest'} for @referrers;
+}
+
 sub reuse_cosign_manifest {
   my ($repodir, $oci, $mani_id, $knownmanifests, $knownblobs, $numlayers) = @_;
-  my $manifest_json = readstr("$repodir/:manifests/$mani_id", 1);
-  return 0 unless $manifest_json;
-  my $manifest = eval { JSON::XS::decode_json($manifest_json) };
-  return 0 unless $manifest;
-  return 0 unless $manifest->{'mediaType'} eq ($oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest);
-  return 0 unless @{$manifest->{'layers'} || []} == $numlayers;
-  $knownblobs->{$manifest->{'config'}->{'digest'}} = 1 if $manifest->{'config'};
-  $knownblobs->{$_->{'digest'}} = 1 for @{$manifest->{'layers'} || []};
+  my $mani_json = readstr("$repodir/:manifests/$mani_id", 1);
+  return 0 unless $mani_json;
+  my $mani = eval { JSON::XS::decode_json($mani_json) };
+  return 0 unless $mani;
+  return 0 unless $mani->{'mediaType'} eq ($oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest);
+  return 0 unless @{$mani->{'layers'} || []} == $numlayers;
+  $knownblobs->{$mani->{'config'}->{'digest'}} = 1 if $mani->{'config'};
+  $knownblobs->{$_->{'digest'}} = 1 for @{$mani->{'layers'} || []};
   $knownmanifests->{$mani_id} = 1;
+  return 1;
+}
+
+sub reuse_cosign_referrers {
+  my ($repodir, $oci, $digest, $knownmanifests, $knownblobs, $referrerinfo, $numlayers) = @_;
+  my $referrers = BSUtil::retrieve("$repodir/:referrers/$digest", 1);
+  return 0 unless $referrers;
+  return 0 unless @$referrers == $numlayers;
+  my @knownblobs;
+  my @knownmanifests;
+  for my $r (@$referrers) {
+    push @knownmanifests, $r->[0];
+    my $mani = eval { JSON::XS::decode_json($r->[1]) };
+    return 0 unless $mani;
+    return 0 unless $mani->{'mediaType'} eq ($oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest);
+    push @knownblobs, $mani->{'config'}->{'digest'};
+    push @knownblobs, $_->{'digest'} for @{$mani->{'layers'} || []};
+  }
+  $knownblobs->{$_} = 1 for @knownblobs;
+  $referrerinfo->{$_} = $digest for @knownmanifests;
   return 1;
 }
 
@@ -453,7 +515,7 @@ sub cosign_upload_rekor_ent {
   my ($rekorserver, $sslpubkey, $hashtype, $sig, $ent) = @_;
   die("cosign_upload_rekor_ent: unsupported hash type $hashtype\n") unless $hashtype eq 'sha256';
   my $rekor_v2 = $rekorserver =~ /\/api\/v2$/ ? 1 : 0;
-  if ($sig) {
+  if ($sig && $sig ne 'intoto') {
     my $hash = 'sha256:'.Digest::SHA::sha256_hex($ent->{'data'});
     return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $sig) if $rekor_v2;
     return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
@@ -489,9 +551,10 @@ sub cosign_upload_rekor {
 }
 
 sub create_cosign_signature_ent {
-  my ($cosign, $signfunc, $digest, $reference, $timestamp, $annotations) = @_;
+  my ($cosign, $signfunc, $digest, $reference, $annotations) = @_;
   my $creator = $cosign->{'creator'};
-  return BSConSign::create_cosign_signature_ent($signfunc, $digest, $reference, $creator, $timestamp, $annotations);
+  return BSConSign::create_cosign_signature_ent_newbundle($signfunc, $digest, $reference, $creator, undef, $annotations) if $cosign->{'cosignbundle'};
+  return BSConSign::create_cosign_signature_ent($signfunc, $digest, $reference, $creator, undef, $annotations);
 }
 
 sub create_cosign_attestation_ent {
@@ -502,7 +565,7 @@ sub create_cosign_attestation_ent {
 }
 
 sub update_cosign {
-  my ($prp, $repo, $cosign, $digests_to_cosign, $knownmanifests, $knownblobs) = @_;
+  my ($prp, $repo, $cosign, $digests_to_cosign, $knownmanifests, $knownblobs, $referrerinfo) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
   my $gun = $cosign->{'gun'};
@@ -525,6 +588,7 @@ sub update_cosign {
 
   # update signatures
   for my $digest (sort keys %$digests_to_cosign) {
+    next if $cosign->{'cosignbundle'};	# a signature is just an extra attestation in newbundle mode
     my $oci = 1;	# always use oci mime types
     my $old = ($oldsigs->{'digests'} || {})->{$digest};
     if ($old && reuse_cosign_manifest($repodir, $oci, $old, $knownmanifests, $knownblobs, 1)) {
@@ -532,20 +596,22 @@ sub update_cosign {
       next;
     }
     print "creating cosign signature for $gun $digest\n";
-    my ($cosign_ent, $sig) = create_cosign_signature_ent($cosign, $signfunc, $digest, $gun);
-    cosign_upload_rekor($rekorserver, $gpgpubkey, $sig, $cosign_ent) if $rekorserver && $sig;
-    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $cosign_ent);
+    my ($sig_ent, $sig) = create_cosign_signature_ent($cosign, $signfunc, $digest, $gun);
+    cosign_upload_rekor($rekorserver, $gpgpubkey, $sig, $sig_ent) if $rekorserver && $sig;
+    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $sig_ent);
     $sigs->{'digests'}->{$digest} = $mani_id;
   }
 
   # update attestations
   for my $digest (sort keys %$digests_to_cosign) {
     my $oci = 1;	# always use oci mime types
-    my $containerinfo = $digests_to_cosign->{$digest}->[1];
+    my $subject = $digests_to_cosign->{$digest}->[0];
+    my $containerinfo = $digests_to_cosign->{$digest}->[2];
     my $numlayers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
-    if (!$numlayers) {
-      delete $sigs->{'attestations'}->{$digest};
-      next;
+    $numlayers++ if $cosign->{'cosignbundle'};
+    next unless $numlayers;
+    if ($cosign->{'cosignbundle'}) {
+      next if reuse_cosign_referrers($repodir, $oci, $digest, $knownmanifests, $knownblobs, $referrerinfo, $numlayers);
     }
     my $old = ($oldsigs->{'attestations'} || {})->{$digest};
     if ($old && reuse_cosign_manifest($repodir, $oci, $old, $knownmanifests, $knownblobs, $numlayers)) {
@@ -554,25 +620,26 @@ sub update_cosign {
     }
     print "creating $numlayers cosign attestations for $gun $digest\n";
     my $annotations;
-    my @attestation_ents;
-    push @attestation_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'slsa_provenance_file'};
-    push @attestation_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'spdx_file'};
-    push @attestation_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'cyclonedx_file'};
-    push @attestation_ents, create_cosign_attestation_ent($cosign, readstr($_), $signfunc, $digest, $gun, $annotations) for @{$containerinfo->{'intoto_files'} || []};
-    cosign_upload_rekor($rekorserver, $gpgpubkey, undef, @attestation_ents) if $rekorserver && @attestation_ents;
-    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, @attestation_ents);
-    $sigs->{'attestations'}->{$digest} = $mani_id;
+    my @att_ents;
+    push @att_ents, (create_cosign_signature_ent($cosign, $signfunc, $digest, $gun, $annotations))[0] if $cosign->{'cosignbundle'};
+    push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'slsa_provenance_file'};
+    push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'spdx_file'};
+    push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'cyclonedx_file'};
+    push @att_ents, create_cosign_attestation_ent($cosign, readstr($_), $signfunc, $digest, $gun, $annotations) for @{$containerinfo->{'intoto_files'} || []};
+    cosign_upload_rekor($rekorserver, $gpgpubkey, undef, @att_ents) if $rekorserver && @att_ents;
+    if ($cosign->{'cosignbundle'}) {
+      create_cosign_manifest_newbundle($repodir, $oci, $knownmanifests, $knownblobs, $subject, $referrerinfo, @att_ents);
+    } else {
+      my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, @att_ents);
+      $sigs->{'attestations'}->{$digest} = $mani_id;
+    }
   }
 
   if (BSUtil::identical($oldsigs, $sigs)) {
     print "local cosign signatures: no change.\n";
     return;
   }
-  if (%{$sigs->{'digests'}}) {
-    BSUtil::store("$repodir/.cosign.$$", "$repodir/:cosign", $sigs);
-  } else {
-    unlink("$repodir/:cosign");
-  }
+  BSUtil::store("$repodir/.cosign.$$", "$repodir/:cosign", $sigs);
 }
 
 sub create_manifestinfo {
@@ -641,6 +708,8 @@ sub push_containers {
   my %digests_to_cosign;
 
   my %info;
+  my %referrerinfo;
+
   my %have_manifestinfos;
   %have_manifestinfos = map {$_ => 1} ls("$repodir/:manifestinfos") if -d "$repodir/:manifestinfos";
 
@@ -741,15 +810,20 @@ sub push_containers {
       my $mani_json = BSContar::create_dist_manifest($mani);
       my $mani_id = push_manifest($repodir, $mani_json);
       $knownmanifests{$mani_id} = 1;
-      $digests_to_cosign{$mani_id} = [ $oci, $containerinfo ];
 
+      # queue for cosign
+      my $subject = { 'mediaType' => $mani->{'mediaType'}, 'size' => length($mani_json), 'digest' => $mani_id };
+      $subject->{'artifactType'} = $mani->{'artifactType'} if $mani->{'artifactType'};
+      $digests_to_cosign{$mani_id} = [ $subject, $oci, $containerinfo ];
+
+      my $platform = { 'architecture' => $goarch, 'os' => $goos };
+      $platform->{'variant'} = $govariant if $govariant;
       my $multimani = {
 	'mediaType' => $mani->{'mediaType'},
 	'size' => length($mani_json),
 	'digest' => $mani_id,
-	'platform' => {'architecture' => $goarch, 'os' => $goos},
+	'platform' => $platform,
       };
-      $multimani->{'platform'}->{'variant'} = $govariant if $govariant;
       push @multimanifests, $multimani;
 
       my $imginfo = {
@@ -793,10 +867,11 @@ sub push_containers {
       my $mani = BSContar::create_dist_manifest_list_data(\@multimanifests, $oci);
       my $mani_json = BSContar::create_dist_manifest_list($mani);
       $mani_id = push_manifest($repodir, $mani_json, \%knownmanifests);
-      $mani_size = length($mani_json);
       $knownmanifests{$mani_id} = 1;
+      $mani_size = length($mani_json);
       $taginfo->{'distmanifesttype'} = 'list';
-      $digests_to_cosign{$mani_id} = [ $oci ];
+      my $subject = { 'mediaType' => $mani->{'mediaType'}, 'size' => length($mani_json), 'digest' => $mani_id };
+      $digests_to_cosign{$mani_id} = [ $subject, $oci ];
     } else {
       $mani_id = $multimanifests[0]->{'digest'};
       $mani_size = $multimanifests[0]->{'size'};
@@ -814,7 +889,8 @@ sub push_containers {
   if ($gun && defined($pubkey) && %digests_to_cosign) {
     my $cosign = { 'creator' => 'OBS', 'gun' => $gun, 'pubkey' => $pubkey, 'signargs' => $signargs, 'rekorserver' => $registry->{'rekorserver'} };
     $cosign->{'cosignbundle'} = $registry->{'cosignbundle'};
-    update_cosign($prp, $repo, $cosign, \%digests_to_cosign, \%knownmanifests, \%knownblobs);
+    $cosign->{'cosignbundle'} = 1 if ($data->{'config'} || {})->{'publishflags:cosignbundle'};
+    update_cosign($prp, $repo, $cosign, \%digests_to_cosign, \%knownmanifests, \%knownblobs, \%referrerinfo);
   } elsif (-e "$repodir/:cosign") {
     unlink("$repodir/:cosign");
   }
@@ -837,6 +913,11 @@ sub push_containers {
     unlink("$repodir/:blobs/$_");
     BSPublisher::Blobstore::blobstore_chk($_);
   }
+  my %knownreferrers = map {$_ => 1} values %referrerinfo;
+  for (sort(ls("$repodir/:referrers"))) {
+    next if $knownreferrers{$_};
+    unlink("$repodir/:referrers/$_");
+  }
 
   if (!%knowntags && !%knownmanifests && !%knownblobs) {
     # delete empty repository
@@ -844,11 +925,13 @@ sub push_containers {
     rmdir("$repodir/:manifests");
     rmdir("$repodir/:blobs");
     rmdir("$repodir/:manifestinfos");
+    rmdir("$repodir/:referrers");
     unlink("$repodir/:info");
     unlink("$repodir/:tuf.old");
     unlink("$repodir/:tuf");
     unlink("$repodir/:sigs");
     unlink("$repodir/:cosign");
+    unlink("$repodir/:referrerinfo");
     disownrepo($prp, $repo);
     return $containerdigests;
   }
@@ -871,6 +954,14 @@ sub push_containers {
       }
     }
     BSUtil::store("$repodir/.info.$$", "$repodir/:info", $info);
+  }
+
+  # write referrerinfo file
+  if (%referrerinfo) {
+    my $oldreferrerinfo = BSUtil::retrieve("$repodir/:referrerinfo", 1);
+    BSUtil::store("$repodir/.referrerinfo.$$", "$repodir/:referrerinfo", \%referrerinfo) unless BSUtil::identical($oldreferrerinfo, \%referrerinfo);
+  } else {
+    unlink("$repodir/:referrerinfo");
   }
 
   # write TUF file

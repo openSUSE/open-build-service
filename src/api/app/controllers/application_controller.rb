@@ -1,8 +1,6 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'api_error'
-
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
 
@@ -30,7 +28,7 @@ class ApplicationController < ActionController::Base
   before_action :require_login
 
   before_action :validate_xml_request
-  after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
+  after_action :validate_xml_response unless Rails.env.production? # disabled on production for performance reasons
 
   def pundit_user
     User.session

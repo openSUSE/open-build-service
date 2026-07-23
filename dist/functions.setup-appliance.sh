@@ -226,18 +226,6 @@ function generate_proposed_dnsnames {
   PROPOSED_DNS_NAMES=$rv
 }
 ###############################################################################
-function adjust_api_config {
-
-      echo "Adjust configuration for this hostname"
-      # use local host to avoid SSL verification between webui and api
-
-      api_options_yml=$apidir/config/options.yml
-      sed -i 's,^frontend_host: .*,frontend_host: "localhost",' $api_options_yml
-      sed -i 's,^frontend_port: .*,frontend_port: 443,' $api_options_yml
-      sed -i 's,^frontend_protocol: .*,frontend_protocol: "'"https"'",' $api_options_yml
-
-}
-###############################################################################
 function adapt_worker_jobs {
   #changed IP means also that leftover jobs are invalid - cope with that
   echo "Adapting present worker jobs"

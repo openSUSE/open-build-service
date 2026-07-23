@@ -37,6 +37,7 @@ our $mt_cosign_bundle = 'application/vnd.dev.sigstore.bundle.v0.3+json';
 
 our $intoto_predicate_spdx      = 'https://spdx.dev/Document';
 our $intoto_predicate_cyclonedx = 'https://cyclonedx.org/bom';
+our $intoto_predicate_cosign_sign_v1 = 'https://sigstore.dev/cosign/sign/v1';
 our $intoto_stmt_v01            = 'https://in-toto.io/Statement/v0.1';
 our $intoto_stmt_v1             = 'https://in-toto.io/Statement/v1';
 
@@ -65,16 +66,26 @@ sub create_signature_payload {
   return canonical_json($data);
 }
 
+sub create_cosign_signature_intoto_attestation {
+  my ($digest, $reference) = @_;
+  my $sha256digest = $digest;
+  die("create_signature_intoto_attestation: not a sha256 digest\n") unless $sha256digest =~ s/^sha256://;
+  my $attestation = {
+    '_type' => $intoto_stmt_v1,
+    'subject' => [ { 'name' => $reference, 'digest' => { 'sha256' => $sha256digest }, 'annotations' => {} } ],
+    'predicate_type' => $intoto_predicate_cosign_sign_v1,
+    'predicate' => {},
+  };
+  return canonical_json($attestation);
+}
+
 sub create_atomic_signature {
   my ($signfunc, $digest, $reference, $creator, $timestamp) = @_;
   my $payload = create_signature_payload('atomic container signature', $digest, $reference, $creator, $timestamp);
   my $sig = $signfunc->($payload);
   my $packets = BSPGP::onepass_signed_message($payload, $sig, 'rpmsig-req.bin');
   # compress packets like gpg does
-  my $compressed_pkts;
-  require IO::Compress::RawDeflate;
-  IO::Compress::RawDeflate::rawdeflate(\$packets, \$compressed_pkts);
-  $packets = pack('CC', 0xa3, 1).$compressed_pkts;
+  $packets = BSPGP::compress_packets($packets);
   return $packets;
 }
 
@@ -121,6 +132,17 @@ sub create_cosign_attestation_ent {
   $annotations{'dev.cosignproject.cosign/signature'} = '';	# why?
   $annotations{'org.open-build-service.intoto.predicatetype'} = $predicatetype if $predicatetype;
   return create_entry($attestation, 'mimetype' => $mt_dsse, 'annotations' => \%annotations);
+}
+
+sub create_cosign_signature_ent_newbundle {
+  my ($signfunc, $digest, $reference, $creator, $timestamp, $annotations) = @_;
+  my $attestation = create_cosign_signature_intoto_attestation($digest, $reference);
+  $attestation = dsse_sign($attestation, $mt_intoto, $signfunc);
+  my %annotations = %{$annotations || {}};
+  $annotations{'dev.sigstore.bundle.content'} = 'dsse-envelope';
+  $annotations{'dev.sigstore.bundle.predicateType'} = $intoto_predicate_cosign_sign_v1;
+  my $bundle_json = cosign_create_newbundle($attestation);
+  return (create_entry($bundle_json, 'mimetype' => $mt_cosign_bundle, 'annotations' => \%annotations), 'intoto');
 }
 
 sub create_cosign_attestation_ent_newbundle {
@@ -191,61 +213,84 @@ sub fixup_intoto_attestation {
 }
 
 sub create_cosign_cookie {
-  my ($gpgpubkey, $reference, $creator) = @_;
+  my ($pubkey, $reference, $creator) = @_;
   $creator ||= '';
-  my $pubkeyid = BSPGP::pk2fingerprint(BSPGP::unarmor($gpgpubkey));
+  my $pubkeyid;
+  if ($pubkey =~ /-----BEGIN PGP PUBLIC KEY/s) {
+    $pubkeyid = BSPGP::pk2fingerprint(BSPGP::unarmor($pubkey));
+  } elsif ($pubkey =~ /-----BEGIN PUBLIC KEY-----/) {
+    die unless $pubkey =~ s/^.*?-----BEGIN PUBLIC KEY-----\n//s;
+    die unless $pubkey =~ s/\n-----END PUBLIC KEY-----.*$//s;
+    $pubkeyid = Digest::SHA::sha256_hex(MIME::Base64::decode_base64($pubkey));	# rfc6962 keyid
+  } else {
+    die("create_cosign_cookie: unsupported pubkey type\n");
+  }
   return Digest::SHA::sha256_hex("$creator/$pubkeyid/$reference");
 }
 
 # create newbundle data from a dsse envelope
 sub cosign_create_newbundle {
-  my ($dsse_envelope) = @_;
+  my ($dsse_envelope, $keyid) = @_;
   my $bundle = { 'mediaType' => $mt_cosign_bundle };
   $bundle->{'dsseEnvelope'} = JSON::XS::decode_json($dsse_envelope);
+  my $pki = {};
+  $pki->{'hint'} = $keyid if $keyid;
+  $bundle->{'verificationMaterial'}->{'publicKey'} = $pki;
   return canonical_json($bundle);
 }
 
 # add a rekor tle to the newbundle data
 sub cosign_add_newbundle_tle {
-  my ($bundle_json, $tle, $keyid) = @_;
+  my ($bundle_json, $tle) = @_;
   my $bundle = JSON::XS::decode_json($bundle_json);
-  my $pki = defined($keyid) ? {} : undef;
-  $pki->{'hint'} = $keyid if $keyid;
-  $bundle->{'verificationMaterial'} = { 'tlogEntries' => [ $tle ] };
-  $bundle->{'verificationMaterial'}->{'publicKeyIdentifier'} = $pki if $pki;
+  $bundle->{'verificationMaterial'}->{'tlogEntries'} = [ $tle ];
   return canonical_json($bundle);
 }
 
 # create oldbundle data, see cosign's EntryToBundle function
+# accepts both a old style rekor entry and a new style tle
 sub cosign_create_oldbundle {
-  my ($rekorentry, $keyid) = @_;
-  die("cosign_create_oldbundle: rekor entry is incomplete\n") unless $rekorentry->{'verification'} && $rekorentry->{'body'} && $rekorentry->{'integratedTime'} && $rekorentry->{'logIndex'} && $rekorentry->{'logID'} && $rekorentry->{'verification'}->{'signedEntryTimestamp'};
-  # see cosign's EntryToBundle function
+  my ($rekorentry) = @_;
+  
   my $bundle = {};
-  $bundle->{'Payload'} = {
-    'body' => $rekorentry->{'body'},
-    'integratedTime' => $rekorentry->{'integratedTime'},
-    'logIndex' => $rekorentry->{'logIndex'},
-    'logID' => $rekorentry->{'logID'},
-  };
-  $bundle->{'SignedEntryTimestamp'} = $rekorentry->{'verification'}->{'signedEntryTimestamp'};
+  if ($rekorentry->{'verification'}) {
+    die("cosign_create_oldbundle: rekor entry is incomplete\n") unless $rekorentry->{'body'} && $rekorentry->{'integratedTime'} && $rekorentry->{'logIndex'} && $rekorentry->{'logID'} && $rekorentry->{'verification'}->{'signedEntryTimestamp'};
+    $bundle->{'Payload'} = {
+      'body' => $rekorentry->{'body'},
+      'integratedTime' => $rekorentry->{'integratedTime'},
+      'logIndex' => $rekorentry->{'logIndex'},
+      'logID' => $rekorentry->{'logID'},
+    };
+    $bundle->{'SignedEntryTimestamp'} = $rekorentry->{'verification'}->{'signedEntryTimestamp'};
+  } elsif ($rekorentry->{'inclusionProof'}) {
+    my $tle = $rekorentry;
+    die("cosign_create_oldbundle: tle is incomplete\n") unless $tle->{'canonicalizedBody'} && $tle->{'integratedTime'} && $tle->{'logIndex'} && $tle->{'logId'}->{'keyId'} && $tle->{'inclusionPromise'}->{'signedEntryTimestamp'};
+    $bundle->{'Payload'} = {
+      'body' => $tle->{'canonicalizedBody'},
+      'integratedTime' => 0 + $tle->{'integratedTime'},
+      'logIndex' => 0 + $tle->{'logIndex'},
+      'logID' => unpack('H*', MIME::Base64::decode_base64($tle->{'logId'}->{'keyId'})),
+    };
+    $bundle->{'SignedEntryTimestamp'} = $tle->{'inclusionPromise'}->{'signedEntryTimestamp'};
+  } else {
+    die("cosign_create_oldbundle: need a rekor entry or a tle\n");
+  }
   return canonical_json($bundle);
 }
 
 # add rekor data as bundle to an attestation or signature ent
 # the rekorentry argument can be either a rekor entry or a tle
 sub add_cosign_bundle_annotation {
-  my ($ent, $rekorentry, $keyid) = @_;
+  my ($ent, $rekorentry) = @_;
   return unless $rekorentry && ($rekorentry->{'verification'} || $rekorentry->{'inclusionProof'});
   if ($ent->{'mimetype'} eq $mt_cosign_bundle) {
     # ent is an attestation in the new bundle format, patch in tle data
     my $tle = $rekorentry->{'verification'} ? rekorentry_to_tle($rekorentry) : $rekorentry;
-    my $bundle_json = cosign_add_newbundle_tle($ent->{'data'}, $tle, $keyid);
+    my $bundle_json = cosign_add_newbundle_tle($ent->{'data'}, $tle);
     %$ent = (%$ent, %{ create_entry($bundle_json) });	# patch in new values
   } else {
     # ent is an attestation or a signature, add annotation in old bundle format
-    $rekorentry = tle_to_rekorentry($rekorentry) unless $rekorentry->{'verification'};
-    $ent->{'annotations'}->{'dev.sigstore.cosign/bundle'} = cosign_create_oldbundle($rekorentry, $keyid);
+    $ent->{'annotations'}->{'dev.sigstore.cosign/bundle'} = cosign_create_oldbundle($rekorentry);
   }
 }
 
@@ -273,30 +318,6 @@ sub rekorentry_to_tle {
   };
   $tle->{'canonicalizedBody'} = $rekorentry->{'body'};
   return $tle;
-}
-
-# convert a tle into a rekor record
-sub tle_to_rekorentry {
-  my ($tle) = @_;
-  die("tle_to_rekorentry: tle is incomplete\n") unless $tle->{'canonicalizedBody'} && $tle->{'inclusionProof'} && $tle->{'inclusionPromise'} && $tle->{'logId'} && $tle->{'logIndex'};
-  my $tip = $tle->{'inclusionProof'};
-  my $rekorentry = {
-    'body' => $tle->{'canonicalizedBody'},
-    'integratedTime' => 0 + $tle->{'integratedTime'},
-    'logIndex' => 0 + $tle->{'logIndex'},
-    'logID' => unpack('H*', MIME::Base64::decode_base64($tle->{'logId'}->{'keyId'})),
-    'verification' => {
-      'signedEntryTimestamp' => $tle->{'inclusionPromise'}->{'signedEntryTimestamp'},
-      'inclusionProof' => {
-	'logIndex' => 0 + $tip->{'logIndex'},
-	'rootHash' => unpack('H*', MIME::Base64::decode_base64($tip->{'rootHash'})),
-	'treeSize' => 0 + $tip->{'treeSize'},
-	'hashes' => [ map {unpack('H*', MIME::Base64::decode_base64($_))} @{$tip->{'hashes'} || []} ],
-	'checkpoint' => $tip->{'checkpoint'}->{'envelope'},
-      }
-    },
-  };
-  return $rekorentry;
 }
 
 # extract the dsse envelope from an entry, handling the new bundle format 

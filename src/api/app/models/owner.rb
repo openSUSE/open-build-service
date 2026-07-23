@@ -1,5 +1,3 @@
-require 'api_error'
-
 class Owner
   def self.attribute_names
     %i[rootproject project package filter users groups]

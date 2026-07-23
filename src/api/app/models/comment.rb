@@ -51,6 +51,14 @@ class Comment < ApplicationRecord
     COMMENTABLE_TYPES[commentable_type_name]
   end
 
+  # FIXME: A Comment has many Comment (children).
+  # It seems we have loops in our code base / specs.
+  # Rails guards now against loops.
+  # https://github.com/rails/rails/pull/41552
+  def self.has_many_inversing
+    false
+  end
+
   def to_s
     body
   end

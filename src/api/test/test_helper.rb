@@ -1,9 +1,13 @@
+require 'tmpdir'
+
 ENV['origin_RAILS_ENV'] = ENV.fetch('RAILS_ENV', nil)
 
 ENV['RAILS_ENV'] = 'test'
 ENV['RUNNING_MINITEST'] = '1'
+ENV['OBS_BACKEND_TEMP'] ||= Dir.mktmpdir('obsbackend', '/var/tmp')
 
 require 'simplecov'
+SimpleCov.start 'obs'
 require 'builder'
 require 'minitest/reporters'
 
