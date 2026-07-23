@@ -6,34 +6,25 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
   before_action :require_login,
-                except: %i[show beta_show sourcediff diff request_action request_action_changes request_action_details inline_comment build_results
+                except: %i[show sourcediff diff request_action request_action_changes request_action_details inline_comment build_results
                            changes changes_diff mentioned_issues complete_build_results]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
-                only: %i[changerequest show beta_show request_action request_action_changes request_action_details inline_comment build_results
+                only: %i[changerequest show request_action request_action_changes request_action_details inline_comment build_results
                          changes changes_diff mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues chart_build_results complete_build_results
-                                       request_action_changes request_action_details],
-                              if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :set_actions_deprecated, only: [:show]
-  before_action :set_action, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues request_action_details request_action_changes],
-                             if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results changes changes_diff mentioned_issues],
-                                                    if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :set_superseded_request, only: %i[show beta_show request_action request_action_changes build_results changes changes_diff mentioned_issues]
+  before_action :set_actions, only: %i[inline_comment show build_results changes changes_diff mentioned_issues chart_build_results complete_build_results
+                                       request_action_changes request_action_details]
+  before_action :set_action, only: %i[inline_comment show build_results changes changes_diff mentioned_issues request_action_details request_action_changes]
+  before_action :set_influxdb_data_request_actions, only: %i[show build_results changes changes_diff mentioned_issues]
+  before_action :set_superseded_request, only: %i[show request_action request_action_changes build_results changes changes_diff mentioned_issues]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_request_data, only: %i[beta_show build_results changes mentioned_issues],
-                                       if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :prepare_request_header_data, only: %i[beta_show build_results changes mentioned_issues],
-                                              if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :cache_diff_data, only: %i[changes request_action_changes],
-                                  if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :check_beta_user_redirect, only: %i[beta_show build_results changes mentioned_issues changes_diff]
-
+  before_action :prepare_request_data, only: %i[show build_results changes mentioned_issues]
+  before_action :prepare_request_header_data, only: %i[show build_results changes mentioned_issues]
+  before_action :cache_diff_data, only: %i[changes request_action_changes]
   after_action :verify_authorized, only: [:create]
 
-  def beta_show
+  def show
     @is_target_maintainer = @bs_request.target_maintainer?(User.session)
     @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session).reject(&:staging_project?)
     @history_elements = @bs_request.history_elements.includes(:user)
@@ -50,46 +41,9 @@ class Webui::RequestController < Webui::WebuiController
     @active_tab = 'conversation'
   end
 
-  # TODO: Remove this once request_show_redesign is rolled out
-  def show
-    redirect_to(request_beta_show_path(params[:number], params[:request_action_id], notification_context_params)) && return if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
-
-    @diff_limit = params[:full_diff] ? 0 : nil
-    @is_author = @bs_request.creator == User.possibly_nobody.login
-
-    @is_target_maintainer = @bs_request.target_maintainer?(User.session)
-    @can_handle_request = @bs_request.state.in?(%i[new review declined]) && (@is_target_maintainer || @is_author)
-
-    @history = @bs_request.history_elements.includes(:user)
-
-    # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = @bs_request.target_package_maintainers
-
-    # search for a project, where the user is not a package maintainer but a project maintainer and show
-    # a hint if that package has some package maintainers (issue#1970)
-    @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
-    @comments = @bs_request.comments
-    @comment = Comment.new
-
-    @current_notification = handle_notification
-
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
-    @action = @actions.first
-    @active = @action[:name]
-    # TODO: this is the last instance of the @not_full_diff variable in the request scope, once request_workflow_redesign beta is rolled out,
-    # let's get rid of this variable and also of `BsRequest.truncated_diffs` as it is no longer used anywhere else
-    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
-    @not_full_diff = BsRequest.truncated_diffs?(@actions)
-
-    reviews = @bs_request.reviews.where(state: 'new')
-    user = User.session # might be nil
-    @my_open_reviews = reviews.select { |review| review.matches_user?(user) }.reject(&:staging_project?)
-    @can_add_reviews = @bs_request.state.in?(%i[new review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
-
-    respond_to do |format|
-      format.html
-      format.js { render_request_update }
-    end
+  # TODO: Remove this once request_beta_show is completely replaced by request_show
+  def beta_show
+    redirect_to request_show_path(params[:number], params[:request_action_id], notification_context_params)
   end
 
   def create
@@ -403,10 +357,6 @@ class Webui::RequestController < Webui::WebuiController
 
   def redirect_to_tasks
     redirect_to my_tasks_path
-  end
-
-  def check_beta_user_redirect
-    redirect_to request_show_path(params[:number], params[:request_action_id], notification_context_params) unless Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
   end
 
   def addreview_opts

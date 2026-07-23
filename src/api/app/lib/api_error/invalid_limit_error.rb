@@ -1,0 +1,1 @@
+class InvalidLimitError < APIError; end

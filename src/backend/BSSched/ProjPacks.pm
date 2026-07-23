@@ -1253,7 +1253,12 @@ sub setup_projects {
     push @{$rrelatedprpdeps{$_}}, $prp for @{$relatedprpdeps->{$prp}};
   }
   $gctx->{'rrelatedprpdeps'} = \%rrelatedprpdeps;
-  print "have ".scalar(keys %{$gctx->{'rrelatedprpdeps'}})." related prp dependencies\n" if %{$gctx->{'rrelatedprpdeps'}};
+  print "have ".scalar(keys %rrelatedprpdeps)." related prp dependencies\n" if %rrelatedprpdeps;
+  # print the worst offenders:
+  for (sort keys %rrelatedprpdeps) {
+    my $nrel = scalar(@{$rrelatedprpdeps{$_}});
+    print "  $_: $nrel entries\n" if $nrel >= 20;
+  }
 
   my $t4 = Time::HiRes::time();
   printf "setup_projects done, %.3fs + %.3fs + %.3fs\n", $t2 - $t1, $t3 - $t2, $t4 - $t3;

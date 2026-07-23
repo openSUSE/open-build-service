@@ -1,5 +1,3 @@
-require 'api_error'
-
 class UnregisteredUser < User
   class ErrRegisterSave < APIError
   end

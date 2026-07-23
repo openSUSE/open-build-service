@@ -1,0 +1,1 @@
+class RemoteProjectError < APIError; end

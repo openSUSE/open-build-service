@@ -1,5 +1,4 @@
 require 'kconv'
-require 'api_error'
 
 class User < ApplicationRecord
   include CanRenderModel

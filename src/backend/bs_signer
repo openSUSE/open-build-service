@@ -1066,8 +1066,9 @@ sub signjob {
 	      $signtime = $pubkey_create_time;
 	    }
 	  }
-	  print "using signtime $signtime\n" if $signtime;
 	}
+	$signtime = $info->{'buildtime'} if !defined($signtime) && $info->{'buildtime'};
+        print "using signtime $signtime\n" if $signtime;
 	my @signmode;
 	@signmode = ('-r', '-T', $signtime) if $signtime;
 	@signmode = ('-r', '-T', 'buildtime') if $signfile =~ /\.drpm$/;

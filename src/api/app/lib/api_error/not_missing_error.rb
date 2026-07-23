@@ -1,0 +1,1 @@
+class NotMissingError < APIError; end

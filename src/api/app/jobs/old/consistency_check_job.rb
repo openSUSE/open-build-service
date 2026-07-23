@@ -1,4 +1,3 @@
-require 'api_error'
 require 'xmlhash'
 
 module Old

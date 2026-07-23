@@ -10,4 +10,3 @@ module Backend
 end
 
 require 'benchmark'
-require 'api_error'

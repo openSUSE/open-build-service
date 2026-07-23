@@ -221,4 +221,20 @@ sub construct_containerinfo {
   BSUtil::store("$dir/.$pkgname.obsbinlnk", "$dir/$pkgname.obsbinlnk", $lnk);
 }
 
+sub create_referrer_manifest {
+  my ($referrers, $artifacttype) = @_;
+  my @manifest_data;
+  for my $r (@{$referrers || []}) {
+    next if $artifacttype && ($r->[2] || '') ne $artifacttype;
+    my $m = eval { JSON::XS::decode_json($r->[1]) };
+    next unless $m && $m->{'mediaType'};
+    my $md = { 'mediaType' => $m->{'mediaType'}, 'size' => length($r->[1]), 'digest' => $r->[0]};
+    $md->{'artifactType'} = $r->[2] if $r->[2];
+    $md->{'annotations'} = $m->{'annotations'} if $m->{'annotations'};
+    push @manifest_data, $md;
+  }
+  my $manilist = BSContar::create_dist_manifest_list_data(\@manifest_data, 1);
+  return BSContar::create_dist_manifest_list($manilist);
+}
+
 1;

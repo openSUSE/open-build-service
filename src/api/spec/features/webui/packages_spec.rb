@@ -256,10 +256,9 @@ RSpec.describe 'Packages', :js, :vcr do
     fill_in('bs_request_description', with: 'Hey, why not?')
     click_button('Request')
 
-    # The project name can be ellipsed when it's too long, so this explains why it's hardcoded in the spec
-    expect(page).to have_text("Delete package home:othe...test_user / #{other_users_package}")
+    expect(page).to have_text("Delete package #{other_user.home_project} / #{other_users_package}")
     expect(page).to have_css('#description-text', text: 'Hey, why not?')
-    expect(page).to have_text('In state new')
+    expect(page).to have_css('span.badge.text-bg-secondary', text: 'new')
     expect(BsRequest.where(description: 'Hey, why not?', state: 'new').count).to be(1)
   end
 
@@ -273,9 +272,9 @@ RSpec.describe 'Packages', :js, :vcr do
     fill_in('Description:', with: 'Hey, why not?')
     click_button('Request')
 
-    expect(page).to have_text(/Created by\s+#{user.login}/)
-    expect(page).to have_text('In state review')
-    expect(page).to have_text("Set the devel project to package #{third_project.name} / develpackage for package #{user.home_project} / develpackage")
+    expect(page).to have_text("Created by #{user.realname} (#{user.login})")
+    expect(page).to have_css('span.badge.text-bg-secondary', text: 'review')
+    expect(page).to have_text("Set package #{third_project.name} / develpackage to be devel project/package of package #{user.home_project} / develpackage")
     request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
     expect(request).to exist
     expect(page).to have_current_path("/request/show/#{request.first.number}")
