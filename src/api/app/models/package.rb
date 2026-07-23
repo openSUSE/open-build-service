@@ -292,12 +292,12 @@ class Package < ApplicationRecord
     rescue Project::UnknownObjectError
       return false
     end
-    return opts[:allow_remote_packages] && exists_on_backend?(package, project) unless prj.is_a?(Project)
+    return opts[:allow_remote_packages] && exists_on_backend?(project, package) unless prj.is_a?(Project)
 
     prj.exists_package?(package, opts)
   end
 
-  def self.exists_on_backend?(package, project)
+  def self.exists_on_backend?(project, package)
     !Backend::Api::Sources::Package.files(project, package).nil?
   rescue Backend::Error
     false
