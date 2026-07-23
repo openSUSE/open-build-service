@@ -179,6 +179,16 @@ module Backend
           http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :undelete },
                                                                                params: options, accepted: %i[user comment time])
         end
+
+        # lock a package in backend only (for scmsync projects only)
+        def self.lock(project_name, package_name)
+          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :lock })
+        end
+
+        # unlock a package in backend only (for scmsync projects only)
+        def self.unlock(project_name, package_name)
+          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :unlock })
+        end
       end
     end
   end
