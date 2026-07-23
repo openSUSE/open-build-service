@@ -105,7 +105,7 @@ function processProgressBar(id, item)
   if (delta) {
     el_text.text(item[logfileinfo]);
     ctrl.css("width", delta + "%").attr("aria-valuenow", delta);
-    if (item["project"] === '---' || item["package"] === '---' || item["repository"] === '---') {
+    if (item["hidden"]) {
       el_text.removeAttr("href");
     } else {
       var url = $('#workers').data('buildLogPath');
