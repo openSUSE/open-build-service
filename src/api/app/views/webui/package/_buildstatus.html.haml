@@ -38,8 +38,8 @@
                 %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
               %span.ms-1
                 = result.architecture
-            .build-state.toggle-build-info-parent
-              %i.fa.fa-question-circle.text-info.px-2.ps-lg-1.toggle-build-info{ title: 'Click to keep it open' }
+            .build-state.collapsible-tooltip-parent
+              %i.fa.fa-question-circle.text-info.px-2.ps-lg-1.collapsible-tooltip{ title: 'Click to keep it open' }
               = render(BuildresultStatusLinkComponent.new(repository_name: result.repository, architecture_name: result.architecture,
                                                           project_name: project.name, package_name: package,
                                                           build_status: result.code, build_details: result.details))
@@ -63,6 +63,3 @@
     - else
       All the results have state
       %strong excluded/disabled
-
-:javascript
-  toggleBuildInfo();

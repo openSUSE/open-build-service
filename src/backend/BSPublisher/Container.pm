@@ -472,7 +472,7 @@ sub query_repostate {
 	next;
       }
       $lastdigest = undef;
-      if (@s >= 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[-1] =~ /cosigncookie=/) {
+      if (@s >= 4 && $s[0] =~ /^[a-z0-9]+-[a-f0-9]{40,}(?:\.sig|\.att|)$/ && $s[-1] =~ /cosigncookie=/) {
         $repostate->{$s[0]} = $s[-1];
       } elsif (@s >= 2) {
         $repostate->{$s[0]} = $s[1];
@@ -481,7 +481,7 @@ sub query_repostate {
     }
     close($fd);
     if ($registry->{'cosign_nocheck'}) {
-      my $numcosigntags = grep {/^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/} keys %$repostate;
+      my $numcosigntags = grep {/^[a-z0-9]+-[a-f0-9]{40,}(?:\.sig|\.att|)$/} keys %$repostate;
       printf "query of %s took %d seconds, found %d tags and %d cosign tags\n", $repository, time() - $now, scalar(keys %$repostate) - $numcosigntags, $numcosigntags;
     } else {
       printf "query of %s took %d seconds, found %d tags\n", $repository, time() - $now, scalar(keys %$repostate);
@@ -529,14 +529,39 @@ sub create_manifestinfo {
   writestr("$dir/$repository/.$mani_id.$$", "$dir/$repository/$mani_id", $imginfo_json);
 }
 
+sub add_cosign_tags_to_expected {
+  my ($cosign, $expected, $digest, $containerinfo) = @_;
+  my $cosigncookie = $cosign->{'cookie'};
+  my $nocheck = $cosign->{'nocheck'};
+  my $signature_layers = 1;
+  my $attestation_layers = 0;
+  if ($containerinfo && ($cosign || {})->{'attestation'}) {
+    $attestation_layers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
+  }
+  if ($cosign->{'cosignbundle'}) {
+    my $bundletag = $digest;
+    my $bundlelayers = $signature_layers + $attestation_layers;
+    $bundletag =~ s/:/-/;
+    $expected->{$bundletag} = $nocheck ? '-' : "layers=$bundlelayers,cosigncookie=$cosigncookie";
+    return;
+  }
+  if ($signature_layers) {
+    my $sigtag = $digest;
+    $sigtag =~ s/:(.*)/-$1.sig/;
+    $expected->{$sigtag} = $nocheck ? '-' : "layers=$signature_layers,cosigncookie=$cosigncookie";
+  }
+  if ($attestation_layers) {
+    my $atttag = $digest;
+    $atttag =~ s/:(.*)/-$1.att/;
+    $expected->{$atttag} = $nocheck ? '-' : "layers=$attestation_layers,cosigncookie=$cosigncookie";
+  }
+}
+
 sub compare_to_repostate {
   my ($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosign, $taginfo) = @_;
   my %expected;
   my $containerdigests = '';
   my $info;
-  my $cosigncookie = ($cosign || {})->{'cookie'};
-  my $cosign_attestation = ($cosign || {})->{'attestation'};
-  my $cosign_nocheck = $registry->{'cosign_nocheck'};
   my $manifestinfodir;
   if ($registry->{'manifestinfos'} && "/$repository/" !~ /\/[\.\/]/) {
     $manifestinfodir = "$registry->{'manifestinfos'}/$repository";
@@ -550,38 +575,20 @@ sub compare_to_repostate {
       $info = create_container_dist_info($containerinfo, $oci, \%platforms, $imginfo);
       die("create_container_dist_info rejected container\n") unless $info;
       $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-      my $attestation_layers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
-      if ($cosigncookie && $cosign_attestation && $attestation_layers) {
-	my $atttag = $info->{'digest'};
-	$atttag =~ s/:(.*)/-$1.att/;
-	$expected{$atttag} = $cosign_nocheck ? '-' : "layers=$attestation_layers,cosigncookie=$cosigncookie";
-      }
       push @infos, { %$info };	# copy so that size is not stringified
       $containerdigests .= "$info->{'digest'} $info->{'size'}\n";
-      if ($cosigncookie) {
-	my $sigtag = $info->{'digest'};
-	$sigtag =~ s/:(.*)/-$1.sig/;
-	$expected{$sigtag} = $cosign_nocheck ? '-' : "layers=1,cosigncookie=$cosigncookie";
-      }
+      add_cosign_tags_to_expected($cosign, \%expected, $info->{'digest'}, $containerinfo) if $cosign;
       push @{$taginfo->{'images'}}, $imginfo if $taginfo;
     }
     $info = create_container_index_info(\@infos, $oci);
-    if ($taginfo) {
-      $taginfo->{'distmanifesttype'} = 'list';
-      $taginfo->{'distmanifest'} = $info->{'digest'};
-    }
+    add_cosign_tags_to_expected($cosign, \%expected, $info->{'digest'}, undef) if $cosign;
   } else {
     my $containerinfo = $containerinfos->[0];
     my $imginfo = $taginfo ? {} : undef;
     $info = create_container_dist_info($containerinfo, $oci, undef, $imginfo);
     die("create_container_dist_info rejected container\n") unless $info;
     $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-    my $attestation_layers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
-    if ($cosigncookie && $cosign_attestation && $attestation_layers) {
-      my $atttag = $info->{'digest'};
-      $atttag =~ s/:(.*)/-$1.att/;
-      $expected{$atttag} = $cosign_nocheck ? '-' : "layers=$attestation_layers,cosigncookie=$cosigncookie";
-    }
+    add_cosign_tags_to_expected($cosign, \%expected, $info->{'digest'}, $containerinfo) if $cosign;
     push @{$taginfo->{'images'}}, $imginfo if $taginfo;
   }
   if ($taginfo) {
@@ -590,11 +597,6 @@ sub compare_to_repostate {
   }
   $containerdigests .= "$info->{'digest'} $info->{'size'} $_\n" for @$tags;
   $expected{$_} = $info->{'digest'} for @$tags;
-  if ($cosigncookie) {
-    my $sigtag = $info->{'digest'};
-    $sigtag =~ s/:(.*)/-$1.sig/;
-    $expected{$sigtag} = $cosign_nocheck ? '-' : "layers=1,cosigncookie=$cosigncookie";
-  }
   if (!$missing_manifestinfo && !grep {($repostate->{$_} || '') ne $expected{$_}} sort keys %expected) {
     return $containerdigests;
   }
@@ -742,6 +744,7 @@ sub upload_to_registry {
     unlink($pubkeyfile);
     writestr($pubkeyfile, undef, $cosign->{'pubkey'});
     push @opts, '--cosign', '--cosigncookie', $cosign->{'cookie'};
+    push @opts, '--cosignbundle' if $cosign->{'cosignbundle'};
     push @opts, '-p', $pubkeyfile, '-G', $cosign->{'gun'}, @signargs;
     push @opts, '--rekor', $cosign->{'rekorserver'} if $cosign->{'rekorserver'};
     push @opts, '--force-rekor-upload' if $cosign->{'rekorserver'} && $cosign->{'force_rekor_upload'};
@@ -789,14 +792,18 @@ sub upload_to_registry {
 }
 
 sub delete_obsolete_tags_from_registry {
-  my ($registry, $repository, $containerdigests, $repostate) = @_;
+  my ($registry, $repository, $containerdigests, $repostate, $cosign) = @_;
 
   return if $registry->{'nodelete'};
+  # if we have a repostate check if we need to delete something
   if ($repostate) {
     my @keep;
     for (split("\n", $containerdigests)) {
       next if /^#/ || /^\s*$/;
-      push @keep, "$1-$2.sig", "$1-$2.att" if /^([a-z0-9]+):([a-f0-9]+) (\d+)/;
+      if (/^([a-z0-9]+):([a-f0-9]+) (\d+)/) {
+        push @keep, "$1-$2" if $cosign->{'cosignbundle'};;
+        push @keep, "$1-$2.sig", "$1-$2.att" unless $cosign->{'cosignbundle'};
+      }
       next if /^([a-z0-9]+):([a-f0-9]+) (\d+)\s*$/;       # ignore anonymous images
       die("bad line in digest file\n") unless /^([a-z0-9]+):([a-f0-9]+) (\d+) (.+?)\s*$/;
       push @keep, $4;
@@ -810,7 +817,13 @@ sub delete_obsolete_tags_from_registry {
   my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
   writestr($containerdigestfile, undef, $containerdigests);
   my $registryserver = $registry->{pushserver} || $registry->{server};
-  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', '-X', '-F', $containerdigestfile, $registryserver, $repository);
+  my @opts = ('-X');
+  push @opts, '-F', $containerdigestfile;
+  if ($cosign) {
+    push @opts, '--cosign';
+    push @opts, '--cosignbundle' if $cosign->{'cosignbundle'};
+  }
+  my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
   print "deleting obsolete tags: @cmd\n";
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
   unlink($containerdigestfile);
@@ -990,7 +1003,7 @@ sub container_tag_deletion_safeguard {
   # check if we have missing containers
   my @missing;
   for my $tag (sort keys %$repostate) {
-    next if $tag =~ /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/;
+    next if $tag =~ /^[a-z0-9]+-[a-f0-9]{40,}(?:\.sig|\.att|)$/;	# ignore cosign tags
     if (!$uptags->{$tag}) {
       push @missing, $tag unless $nodelete;
       next;
@@ -1059,10 +1072,12 @@ sub do_remote_uploads {
     $cosign->{'pubkey_fp'} = BSPGP::pk2fingerprint(BSPGP::unarmor($data->{'pubkey'}));
     $cosign->{'cookie'} = BSConSign::create_cosign_cookie($data->{'pubkey'}, $gun, $cosign->{'creator'});
     $cosign->{'rekorserver'} = $registry->{'rekorserver'};
+    $cosign->{'cosignbundle'} = $registry->{'cosignbundle'};
     print "cosign cookie: $cosign->{'cookie'}\n";
     my $cosign_attestation = defined($registry->{'cosign_attestation'}) ? $registry->{'cosign_attestation'} : 1;
     $cosign_attestation = $cosign_attestation->($repository, $projid) if $cosign_attestation && ref($cosign_attestation) eq 'CODE';
     $cosign->{'attestation'} = 1 if $cosign_attestation;
+    $cosign->{'nocheck'} = 1 if $registry->{'cosign_nocheck'};
   }
 
   # query the current state of the registry
@@ -1112,7 +1127,7 @@ sub do_remote_uploads {
 
   # all is pushed, now clean the rest
   add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
-  delete_obsolete_tags_from_registry($registry, $repository, $containerdigests, $repostate);
+  delete_obsolete_tags_from_registry($registry, $repository, $containerdigests, $repostate, $cosign);
 
   printf "syncing of %s took %d seconds\n", $repository, time() - $now;
 }

@@ -19,7 +19,7 @@ namespace :dev do
             create(:status_message, message: "#{communication_scope_name} - #{Faker::Lorem.paragraph}",
                                     severity: severity_name,
                                     communication_scope: communication_scope_name,
-                                    user: admin)
+                                    creator: admin)
           end
         end
       end

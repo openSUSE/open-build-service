@@ -584,6 +584,7 @@ our $buildinfo = [
 	'needed',       # number of blocked
 	'revtime',	# time of last commit
 	'readytime',
+	'buildtime',	# for reproducible builds
 	'specfile',	# obsolete
 	'file',
 	'versrel',

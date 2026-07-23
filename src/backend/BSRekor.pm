@@ -52,12 +52,26 @@ sub dsse_pae {
   return sprintf("DSSEv1 %d %s %d ", length($type), $type, length($payload))."$payload";
 }
 
+sub get_entry {
+  my ($server, $id) = @_;
+  my $apiversion = 'v1';
+  $apiversion = $1 if $server =~ s/\/api\/(v\d+)$//;
+  my $param = {
+    'uri'     => "$server/api/$apiversion/log/entries/$id",
+    'timeout' => 300,
+  };
+  my $r = BSRPC::rpc($param);
+  return JSON::XS::decode_json($r);
+}
+
 sub upload_entry {
   my ($server, $entry) = @_;
+  my $apiversion = 'v1';
+  $apiversion = $1 if $server =~ s/\/api\/(v\d+)$//;
   my $replyheaders;
   my $withrecord = wantarray ? 1 : 0;
   my $param = {
-    'uri'     => "$server/api/v1/log/entries",
+    'uri'     => "$server/api/$apiversion/log/entries",
     'request' => 'POST',
     'timeout' => 300,
     'data'    => canonical_json($entry),
@@ -74,6 +88,14 @@ sub upload_entry {
     die("rekor server: $st ($msg)\n") if $msg;
     die("rekor server: $st\n");
   }
+  if ($apiversion eq 'v2' && $st =~ /^201/) {
+    # the v2 api always returns the record
+    $r = JSON::XS::decode_json($r);
+    die("record contains no KeyId\n") unless $r->{'logId'}->{'keyId'};
+    my $keyid = unpack('H*', MIME::Base64::decode_base64($r->{'logId'}->{'keyId'}));
+    return $keyid unless $withrecord;
+    return ($keyid, $r, 1);
+  }
   # entry created or already exists
   my $l = $replyheaders->{'location'};
   die("rekor server did not return a location\n") unless $l;
@@ -83,7 +105,7 @@ sub upload_entry {
   if ($st =~ /^409/) {
     # entry already exists. fetch record
     $param = {
-      'uri'     => "$server/api/v1/log/entries/$l",
+      'uri'     => "$server/api/$apiversion/log/entries/$l",
       'timeout' => 300,
     };
     $r = BSRPC::rpc($param);
@@ -130,6 +152,37 @@ sub upload_hashedrekord {
     'spec' => $spec,
   };
   return upload_entry($server, $entry);
+}
+
+sub upload_hashedrekord_v2 {
+  my ($server, $hash, $pubkey, $signature) = @_;
+  die("bad hash $hash\n") unless $hash =~ /^(.+?):([0-9a-f]+)$/;
+  my ($hashalgo, $hashvalue) = ($1, $2);
+  require BSX509;
+  require BSASN1;
+  my $pubkey_der = BSASN1::pem2der($pubkey, 'PUBLIC KEY');
+  my $keydata = BSX509::pubkey2keydata($pubkey_der);
+  die("could not parse pubkey\n") unless $keydata && $keydata->{'algo'};
+  my $pubalgo = $keydata->{'algo'};
+  $pubalgo = "$pubalgo\@$keydata->{'curve'}" if $pubalgo eq 'ecdsa' && $keydata->{'curve'};
+  $pubalgo = "$pubalgo\@$keydata->{'keysize'}" if $pubalgo eq 'rsa' && $keydata->{'keysize'};
+  my $keydetails;
+  $keydetails = 'PKIX_ECDSA_P256_SHA_256' if $pubalgo eq 'ecdsa@prime256v1' && $hashalgo eq 'sha256';
+  $keydetails = 'PKIX_RSA_PKCS1V15_2048_SHA256' if $pubalgo eq 'rsa@2048' && $hashalgo eq 'sha256';
+  $keydetails = 'PKIX_RSA_PKCS1V15_4096_SHA256' if $pubalgo eq 'rsa@4096' && $hashalgo eq 'sha256';
+  die("unsupported key algo/hash combination ($pubalgo/$hashalgo)\n") unless $keydetails;
+  my $sig = {
+    'content' => mime_encode($signature),
+    'verifier' => {
+      'publicKey' => { 'rawBytes' => mime_encode($pubkey_der) },
+      'keyDetails' => $keydetails,
+    }
+  };
+  my $req = {
+    'digest' => mime_encode(pack('H*', $hashvalue)),
+    'signature' => $sig,
+  };
+  return upload_entry($server, { 'hashedRekordRequestV002' => $req });
 }
 
 sub upload_intoto {

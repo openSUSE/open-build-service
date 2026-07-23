@@ -246,8 +246,16 @@ Requires:       screen
 # For runlevel script:
 Requires:       curl
 Recommends:     openslp lvm2
+
+# From build script spec file:
 Requires:       bash
 Requires:       binutils
+Requires:       diffutils
+Requires:       findutils
+Requires:       perl
+Requires:       tar
+Requires:       psmisc
+
 Summary:        The Open Build Service -- Build Host Component
 Group:          Productivity/Networking/Web/Utilities
 Requires:       util-linux >= 2.16

@@ -1,33 +1,37 @@
 class WriteAndPreviewComponent < ApplicationComponent
-  attr_reader :form, :preview_message_url, :message_body_param, :text_area_attributes, :canned_responses_enabled, :commentable_id,
-              :commentable_type, :diff_file_index, :diff_line, :bs_request
+  attr_reader :form, :preview_message_url, :message_body_param, :canned_responses_enabled, :canned_response_object, :text_area_rows, :text_area_required, :text_area_object_name, :text_area_id_suffix
 
-  def initialize(form:, preview_message_url:, message_body_param:, text_area_attributes: {}, canned_responses_enabled: false,
-                 commentable_id: nil, commentable_type: nil, diff_file_index: nil, diff_line: nil, bs_request: nil)
+  def initialize(form:, preview_message_url:, message_body_param:, canned_responses_enabled: false, canned_response_object: nil, text_area_rows: 4, text_area_required: true, text_area_object_name: :message, text_area_id_suffix: :message)
     super()
 
     @form = form
     @preview_message_url = preview_message_url
     @message_body_param = message_body_param
-    @text_area_attributes = text_area_attributes_defaults.merge(text_area_attributes)
     @canned_responses_enabled = canned_responses_enabled
-    @commentable_id = commentable_id
-    @commentable_type = commentable_type
-    @diff_file_index = diff_file_index
-    @diff_line = diff_line
-    @bs_request = bs_request
+    @canned_response_object = canned_response_object
+    @text_area_rows = text_area_rows
+    @text_area_required = text_area_required
+    @text_area_object_name = text_area_object_name
+    @text_area_id_suffix = text_area_id_suffix
   end
 
   private
 
-  def request_canned_responses
-    return CannedResponse.none if bs_request.nil?
+  def canned_responses
+    user_canned_responses = User.session.canned_responses.where(decision_type: nil)
+    return user_canned_responses unless [Project, Package, BsRequest, BsRequestAction].include?(@canned_response_object.class)
 
-    bs_request.canned_responses.where(decision_type: nil)
+    user_canned_responses.or(@canned_response_object.canned_responses.where(decision_type: nil)).order(:title)
   end
 
-  def text_area_attributes_defaults
-    { rows: 4, placeholder: 'Write your message here... (Markdown markup is supported)', required: true,
-      object_name: :message, id_suffix: 'message' }
+  def placeholder
+    case text_area_object_name
+    when :decision
+      "Write your comment or decision...(Markdown markup is only supported for comments, not for decisions)"
+    when :body
+      "Write your comment here... (Markdown markup is supported)"
+    else
+      "Write your #{text_area_object_name} here... (Markdown markup is supported)"
+    end
   end
 end

@@ -141,7 +141,7 @@ sub createreq {
   }
   $port = substr($port || ($proto eq 'http' ? ":80" : ":443"), 1);
   if ($param->{'_stripauthhost'} && $host ne $param->{'_stripauthhost'}) {
-    @xhdrs = grep {!/^authorization:/i} @xhdrs;
+    @xhdrs = grep {!/^(?:proxy-)?authorization:/i} @xhdrs;
     delete $param->{'authenticator'};
   }
   unshift @xhdrs, "Connection: close" unless $param->{'noclose'} || $param->{'keepalive'};

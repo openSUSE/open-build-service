@@ -72,6 +72,10 @@ class TriggerWorkflowController < ApplicationController
       end
     # We always want to return 200 in the request. Because a lot of things in `Workflow`` can go wrong outside this request cycle.
     # People need to have a look at their `WorkflowRun` to see how `Workflow` went.
+    rescue Token::Errors::NonExistentWorkflowsFile
+      branch = @workflow_run.target_branch
+      @workflow_run.destroy
+      render_ok(data: { info: "There is no workflow configuration file in branch '#{branch}'." })
     rescue APIError => e
       @workflow_run.update_as_failed(render_error(status: e.status, errorcode: e.errorcode, message: e.message))
     rescue Pundit::NotAuthorizedError => e

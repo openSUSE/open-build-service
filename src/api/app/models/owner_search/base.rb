@@ -1,5 +1,3 @@
-require 'api_error'
-
 module OwnerSearch
   class Base
     class AttributeNotSetError < APIError

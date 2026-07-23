@@ -451,7 +451,7 @@ sub create_detached_cms_signature {
 
   if (qsystem($BSConfig::sign, @signargs, '--cmssign', '--cert', "$uploaddir/publisher.$$.cert", '--cms-nocerts', '-h', 'sha512', $file)) {
     unlink("$uploaddir/publisher.$$.cert");
-    die("    cms sign failed: $?\n");
+    die("cms sign failed: $?\n");
   }
   unlink("$uploaddir/publisher.$$.cert");
 }
@@ -3778,6 +3778,17 @@ sub set_publish_retry {
   }
 }
 
+sub set_publish_error {
+  my ($req, $err) = @_;
+  my $myeventdir = $req->{'conf'}->{'eventdir'};
+  my $ev = $req->{'ev'};
+  die unless $ev->{'type'} eq 'publish';
+  my $evname = $req->{'event'};
+  $evname .= '::inprogress' if $req->{'inprogress'};
+  $ev->{'details'} = $err || 'unknown error';
+  writexml("$myeventdir/.$evname$$", "$myeventdir/$evname", $ev, $BSXML::event);
+}
+
 sub notify_state {
   my ($projid, $repoid, $state) = @_;
   BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $projid, 'repo' => $repoid, 'state' => $state });
@@ -3869,7 +3880,7 @@ sub publishevent {
     publishstats($req, $prp, $code, $starttime, $now);
     db_sync();
     BSUtil::printlog("publish failed for $prp") if $req->{'forked'};
-    return 1 if $noretry;	# this will delete the publish event
+    set_publish_error($req, $err) if $noretry;		# put noretry marker in job
     return 0;
   }
 
@@ -3939,6 +3950,9 @@ sub getevent {
     return ($req, undef, 1);
   }
   return ($req, undef, 1) if $evtype eq 'configuration';
+
+  # publish on hold
+  return undef if $evtype eq 'publish' && $req->{'ev'}->{'details'};
 
   # also don't fork if the database is not in sync
   if (@db_sync) {

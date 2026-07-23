@@ -65,7 +65,7 @@ sub containerinfo2installed {
   open($fd, '<', "$dir/$containerinfo.packages") || return undef;
   my @installed;
   while (<$fd>) {
-    my @s = split('|', $_);
+    my @s = split('\|', $_);
     next unless @s >= 5;
     next if $s[0] eq 'gpg-pubkey';
     my $epoch = $s[1] && ($s[1] =~ /^\d+$/) ? "$s[1]:" : '';
@@ -87,31 +87,27 @@ sub containerinfo2installed {
 
 sub containerinfo2obsbinlnk {
   my ($dir, $containerinfo, $packid) = @_;
-  my $d = readcontainerinfo($dir, $containerinfo);
+  my $d = readcontainerinfo($dir, $containerinfo, 1);
   return unless $d;
   # currently no other OS containers. Alternative would be to rename them to avoid conflicts.
   return if $d->{'goos'} ne 'linux';
   my $lnk = containerinfo2nevra($d);
   # need to have a source so that it goes into the :full tree
-  $lnk->{'source'} = $lnk->{'name'};
+  $lnk->{'source'} = $d->{'source'} ? "container:$d->{'source'}" : $lnk->{'name'};
   # add self-provides
   push @{$lnk->{'provides'}}, "$lnk->{'name'} = $lnk->{'version'}";
   for my $tag (@{$d->{tags}}) {
     push @{$lnk->{'provides'}}, "container:$tag" unless "container:$tag" eq $lnk->{'name'};
   }
-  eval {
-    BSVerify::verify_nevraquery($lnk);
-  };
+  eval { BSVerify::verify_nevraquery($lnk) };
   return undef if $@;
   my $annotation = {};
   $annotation->{'repo'} = $d->{'repos'} if $d->{'repos'};
   $annotation->{'disturl'} = $d->{'disturl'} if $d->{'disturl'};
   $annotation->{'buildtime'} = $d->{'buildtime'} if $d->{'buildtime'};
   $annotation->{'binaryid'} = $d->{'imageid'} if $d->{'imageid'};
-  eval {
-    my $installed = containerinfo2installed($dir, $containerinfo);
-    $annotation->{'installed'} = $installed if @{$installed || []};
-  };
+  my $installed = eval { containerinfo2installed($dir, $containerinfo) };
+  $annotation->{'installed'} = $installed if @{$installed || []};
   warn($@) if $@;
   if (%$annotation) {
     eval { $lnk->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation) };
@@ -143,7 +139,7 @@ sub containerinfo2obsbinlnk {
 =cut
 
 sub readcontainerinfo {
-  my ($dir, $containerinfo) = @_;
+  my ($dir, $containerinfo, $setsource) = @_;
   return undef unless -e "$dir/$containerinfo";
   return undef unless (-s _) < 100000;
   my $m = readstr("$dir/$containerinfo");
@@ -158,23 +154,35 @@ sub readcontainerinfo {
   @$tags = grep {defined($_)} @$tags;
   my $name = $d->{'name'};
   $name = undef unless defined($name) && ref($name) eq '';
+  my $guessedname;
   if (!defined($name) && @$tags) {
+    $guessedname = 1;
     # no name specified, get it from first tag
     $name = $tags->[0];
     $name =~ s/[:\/]/-/g;
   }
-  $d->{name} = $name;
+  $d->{'name'} = $name;
   my $file = $d->{'file'};
   $d->{'file'} = $file = undef unless defined($file) && ref($file) eq '';
   delete $d->{'disturl'} unless defined($d->{'disturl'}) && ref($d->{'disturl'}) eq '';
   delete $d->{'buildtime'} unless defined($d->{'buildtime'}) && ref($d->{'buildtime'}) eq '';
   delete $d->{'imageid'} unless defined($d->{'imageid'}) && ref($d->{'imageid'}) eq '';
+  delete $d->{'source'} unless defined($d->{'source'}) && ref($d->{'source'}) eq '';
   return undef unless defined($name) && defined($file);
   eval {
     BSVerify::verify_simple($file);
     BSVerify::verify_filename($file);
   };
   return undef if $@;
+  if (!defined($d->{'source'}) && $setsource) {
+    $d->{'source'} = $d->{'name'};
+    if ($guessedname) {
+      my $source = $tags->[0];
+      $source =~ s/:.*//;
+      $source=~ s/[\/]/-/g;
+      $d->{'source'} = $source;
+    }
+  }
   return $d;
 }
 
