@@ -109,7 +109,6 @@ fi
 
 if [[ $DETECTED_HOSTNAME_CHANGE == 1 ]];then
   adapt_worker_jobs
-  adjust_api_config
 fi
 
 echo "$FQHOSTNAME" > $backenddir/.oldfqhostname

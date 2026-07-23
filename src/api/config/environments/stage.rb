@@ -20,4 +20,3 @@ config.action_controller.perform_caching = true
 
 ActionController::AbstractRequest.relative_url_root = '/stage'
 
-CONFIG['response_schema_validation'] = true

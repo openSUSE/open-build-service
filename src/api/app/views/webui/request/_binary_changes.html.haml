@@ -8,7 +8,7 @@
       - release_targets.each do |release_target|
         %li.list-group-item
           Copy binaries of
-          - if action.source_package_object.multibuild_flavors.present?
+          - if action.source_package_object&.multibuild_flavors.present?
             = safe_join(action.source_package_object.multibuild_flavors.map { |f| link_to("#{action.source_package}:#{f}",
                         project_package_repository_binaries_path(project_name: action.source_project, package_name: "#{action.source_package}:#{f}",
                         repository_name: release_target.repository.name)) }, ', ')

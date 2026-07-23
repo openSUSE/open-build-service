@@ -6,7 +6,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   def index
     @severity, @communication_scope, @page = index_params.values_at(:severity, :communication_scope, :page)
-    @status_messages = StatusMessage.order(created_at: :desc).includes(:user).for_severity(@severity).for_communication_scope(@communication_scope).page(@page)
+    @status_messages = StatusMessage.order(created_at: :desc).includes(:creator).for_severity(@severity).for_communication_scope(@communication_scope).page(@page)
 
     respond_to do |format|
       format.html
@@ -83,7 +83,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
   end
 
   def status_message_params
-    params.require(:status_message).permit(:message, :severity, :communication_scope).merge(user: User.session)
+    params.require(:status_message).permit(:message, :severity, :communication_scope).merge(creator: User.session)
   end
 
   def index_params

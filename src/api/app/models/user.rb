@@ -1,5 +1,4 @@
 require 'kconv'
-require 'api_error'
 
 class User < ApplicationRecord
   include CanRenderModel
@@ -24,7 +23,7 @@ class User < ApplicationRecord
   has_many :relationships, inverse_of: :user, dependent: :destroy
 
   has_many :comments, dependent: :destroy, inverse_of: :user
-  has_many :status_messages
+  has_many :status_messages, foreign_key: 'user_id', inverse_of: :creator
   has_many :tokens, class_name: 'Token', dependent: :destroy, inverse_of: :executor, foreign_key: :executor_id
 
   has_and_belongs_to_many :shared_workflow_tokens,

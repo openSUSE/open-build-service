@@ -1,0 +1,1 @@
+class UnknownCommandError < APIError; end

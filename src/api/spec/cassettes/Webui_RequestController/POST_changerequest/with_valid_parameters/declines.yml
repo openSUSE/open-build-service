@@ -39,7 +39,6 @@ http_interactions:
           <description></description>
           <person userid="kugelblitz" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: put
@@ -80,7 +79,6 @@ http_interactions:
           <description></description>
           <person userid="titan" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: put
@@ -119,7 +117,6 @@ http_interactions:
           <title>In a Glass Darkly</title>
           <description>Facilis quia culpa veritatis repudiandae ducimus natus nobis.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: put
@@ -158,7 +155,6 @@ http_interactions:
           <title>In a Glass Darkly</title>
           <description>Facilis quia culpa veritatis repudiandae ducimus natus nobis.</description>
         </package>
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: put
@@ -194,7 +190,6 @@ http_interactions:
       encoding: ASCII-8BIT
       string: !binary |-
         PHBhY2thZ2UgbmFtZT0iYmFsbCIgcHJvamVjdD0iaG9tZTprdWdlbGJsaXR6Ij4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPlZvbHVwdGF0ZW0gbm9iaXMgZG9sb3JlIGl0YXF1ZSBxdWlhIG5paGlsIG1vZGkgZXQgYWxpYXMuPC9kZXNjcmlwdGlvbj4KPC9wYWNrYWdlPgo=
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
 - request:
     method: put
@@ -230,6 +225,45 @@ http_interactions:
       encoding: ASCII-8BIT
       string: !binary |-
         PHBhY2thZ2UgbmFtZT0iYmFsbCIgcHJvamVjdD0iaG9tZTprdWdlbGJsaXR6Ij4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPlZvbHVwdGF0ZW0gbm9iaXMgZG9sb3JlIGl0YXF1ZSBxdWlhIG5paGlsIG1vZGkgZXQgYWxpYXMuPC9kZXNjcmlwdGlvbj4KPC9wYWNrYWdlPgo=
-    http_version: 
   recorded_at: Wed, 14 Jun 2017 09:01:06 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>Edna O'Brien</title>
+          <description>Eligendi ut et ullam.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1783945287'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home titan' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:titan' does not exist</summary>
+          <details>404 project 'home:titan' does not exist</details>
+        </status>
+  recorded_at: Mon, 13 Jul 2026 12:21:27 GMT
+recorded_with: VCR 6.4.0

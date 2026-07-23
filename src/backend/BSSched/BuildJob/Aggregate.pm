@@ -337,12 +337,12 @@ sub check {
 	    $m .= $bin->{'hdrmd5'} || $bin->{'md5sum'} || '';
 	  }
 	} else {
-	  my $d = "$reporoot/$aprojid/$arepoid/$arch/$apackid";
-	  $d = "$reporoot/$aprojid/$arepoid/$arch/:full" if $apackid eq '_repository';
-	  for my $filename (sort(ls($d))) {
+	  my $dir = "$reporoot/$aprojid/$arepoid/$arch/$apackid";
+	  $dir = "$reporoot/$aprojid/$arepoid/$arch/:full" if $apackid eq '_repository';
+	  for my $filename (grep {!/^\./} sort(ls($dir))) {
 	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.(?:obsbinlnk|helminfo|report)$/;
 	    $havecontainer = 1 if $filename =~ /\.(?:obsbinlnk|helminfo)$/;
-	    my @s = stat("$d/$filename");
+	    my @s = stat("$dir/$filename");
 	    $m .= "$filename\0$s[9]/$s[7]/$s[1]\0" if @s;
 	  }
 	}
@@ -518,7 +518,7 @@ sub build {
 	} else {
 	  my $dir = "$reporoot/$aprojid/$arepoid/$arch/$apackid";
 	  $dir = "$reporoot/$aprojid/$arepoid/$arch/:full" if $apackid eq '_repository';
-	  @d = map {"$dir/$_"} sort(ls($dir));
+	  @d = map {"$dir/$_"} grep {!/^\./} sort(ls($dir));
 	  $nosource = 1 if -e "$dir/.nosourceaccess";
 	  $bininfo = BSUtil::retrieve("$dir/.bininfo", 1) || {} if $apackid ne '_repository';
 	}

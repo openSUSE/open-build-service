@@ -1,70 +1,127 @@
+-# haml-lint:disable ViewLength
 :ruby
-  content_for(:meta_title, "Request #{@bs_request.number} (#{@bs_request.state})")
-  content_for(:meta_description, @bs_request.description)
-  content_for(:meta_image, gravatar_url(User.find_by_login(@bs_request.creator).email))
   @pagetitle = "Request #{@bs_request.number}"
-  @pagetitle += ": #{@actions.first[:name]}" if @actions.count == 1
+  @pagetitle += ": #{@action.name}"
+  render partial: 'webui/request/show_actions', locals: { bs_request: @bs_request }
 
-- if @not_full_diff && User.session
-  = render partial: 'webui/shared/truncated_diff_hint', locals: { path: request_show_path(number: @bs_request.number, full_diff: true) }
+.card
+  .card-body.p-0
+    = render partial: 'request_header',
+        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action,
+                  prev_action: @prev_action, next_action: @next_action, actions: @actions,
+                  diff_to_superseded_id: @diff_to_superseded_id, page_name: '',
+                  current_notification: @current_notification }
+    = render partial: 'request_tabs',
+        locals: { bs_request: @bs_request, action: @action, issues: @issues,
+                  actions_count: @actions.count, active_tab: @active_tab }
+    .container.p-4
+      .row
+        .col-md-4.order-md-2.order-sm-1.mb-4
+          = render partial: 'webui/request/beta_show_tabs/conversation_aside',
+                  locals: { bs_request: @bs_request,
+                    my_open_reviews: @my_open_reviews,
+                    request_reviews: @request_reviews,
+                    package_maintainers: @package_maintainers,
+                    project_maintainers: @project_maintainers,
+                    history_elements: @history_elements }
 
-= render partial: 'superseded_by_message', locals: { superseded_by: @bs_request.superseded_by,
-                                                     number: @bs_request.number,
-                                                     diff_to_superseded: @diff_to_superseded,
-                                                     superseding: @bs_request.superseding }
-.card.mb-3
-  .card-header.d-flex.justify-content-between
-    %h5
-      Overview
-  .card-body
-    .row
-      .col-md-8#overview
-        = render partial: 'show_overview', locals: { bs_request: @bs_request,
-                                                     can_add_reviews: @can_add_reviews }
-      .col-md-4#side-links
-        = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers }
-      = render partial: 'actions', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews }
+        .col-md-8.order-md-1.order-sm-2
+          .row
+            .card.p-4
+              #description-text
+                - if @bs_request.description.present?
+                  %h4.mb-3 Description
+                  = render partial: 'webui/shared/collapsible_text', locals: { text: @bs_request.description, extra_css_classes: 'full-width' }
+                - else
+                  %i No description set
+              - if @bs_request.bs_request_actions.exists?(source_package: 'patchinfo')
+                = render partial: 'patchinfo_details', locals: { bs_request: @bs_request }
+            #comments-list
+              .timeline.pb-2.ms-3{ data: { comment_counter: local_assigns[:comment_counter_id] } }
+                %h4.list-group.mb-4.ms-3.pt-3 Comments & History
+                .timeline-item.mb-3
+                  .d-flex.align-items-start
+                    %i.fas.fa-lg.fa-code-commit
+                    .ms-2
+                      %span.small
+                        - creator = User.find_by_login(@bs_request.creator) || User.nobody
+                        = link_to(realname_with_login(creator), user_path(creator))
+                        created this request
+                        = link_to('#request-creation', title: I18n.l(@bs_request.created_at.utc), name: 'request-creation') do
+                          = render TimeComponent.new(time: @bs_request.created_at)
+                        - if @bs_request.superseding.any?
+                          superseding
+                          - @bs_request.superseding.each do |superseded_request|
+                            = link_to("request ##{superseded_request.number}", request_show_path(superseded_request.number, anchor: 'overview'))
 
-.card.mb-3
-  .card-header.p-0
-    %ul.nav.nav-tabs.bs-request-actions.disable-link-generation{ role: 'tablist' }
-      - @actions.each_with_index do |action, index|
-        %li.nav-item.mw-100
-          - xml_id = action[:name] + action[:id].to_s
-          = link_to(action[:name], "##{valid_xml_id(xml_id)}",
-            class: "request-tab nav-link text-nowrap text-truncate #{'active' if index.zero?}",
-            data: { 'bs-toggle': 'tab', url: request_action_url(action[:number], action[:id]), tab_pane_id: valid_xml_id(xml_id), index: index,
-                    diff_to_superseded: @diff_to_superseded_id }, role: 'tab')
-  .card-body
-    .d-flex.justify-content-center.loading-diff
-      .spinner-border{ role: 'status' }
-        %span.visually-hidden Loading...
-    .tab-content.sourcediff{ data: { diff_limit: @diff_limit } }
+                - @bs_request.superseding.each do |superseding_request|
+                  .timeline-item.pb-4
+                    = link_to('#collapse-superseding', class: 'd-flex align-items-center',
+                        data: { 'bs-toggle': 'collapse' },
+                        aria: { expanded: false, controls: 'collapse-superseding' }) do
+                      %i.timeline-break.expander>
+                      %i.timeline-offset.collapser>
 
-.row
-  .col-md-8
-    .card.mb-3#comments-list
-      = render partial: 'request_comments', locals: { comments: @comments, bs_request: @bs_request,
-                                                      superseded_requests: @bs_request.superseding.includes(:comments) }
-    = render partial: 'handle_request', locals: { is_target_maintainer: @is_target_maintainer,
-                                                        is_author: @is_author,
-                                                        bs_request: @bs_request,
-                                                        can_handle_request: @can_handle_request,
-                                                        can_add_reviews: @can_add_reviews,
-                                                        my_open_reviews: @my_open_reviews,
-                                                        show_project_maintainer_hint: @show_project_maintainer_hint,
-                                                        package_maintainers: @package_maintainers,
-                                                        actions: @actions }
+                      %i.fas.fa-fw.fa-chevron-right.expander.me-1{ title: 'Show history' }>
+                      %i.fas.fa-fw.fa-chevron-down.collapser.me-1{ title: 'Hide history' }>
+                      %span.expander
+                        Expand history from superseded request ##{superseding_request.number}
+                      %span.collapser
+                        Collapse history from superseded request ##{superseding_request.number}
+                  .collapse.mb-4#collapse-superseding
+                    = render BsRequestActivityTimelineComponent.new(bs_request: superseding_request,
+                                                                    history_elements: @history_elements,
+                                                                    request_reviews_for_non_staging_projects: @request_reviews,
+                                                                    timeline_for_superseeded: true)
+                = render BsRequestActivityTimelineComponent.new(bs_request: @bs_request,
+                                                                history_elements: @history_elements,
+                                                                request_reviews_for_non_staging_projects: @request_reviews)
 
-  .col-md-4
-    .card#request-history
-      .card-header.d-flex.justify-content-between
-        %h5
-          Request History
-      .card-body
-        = render partial: 'request_history', locals: { bs_request: @bs_request, history: @history }
+              - if !policy(@bs_request).revoke_request? && !policy(@bs_request).reopen_request? && !policy(@bs_request).accept_request?
+                .comment_new
+                  = render partial: 'webui/comment/new', locals: { commentable: @bs_request }
+              %hr
 
-- if @can_add_reviews
-  = render partial: 'webui/request/add_reviewer_dialog', locals: { bs_request: @bs_request }
-= render partial: 'webui/request/show_maintainers', locals: { modal_id: 'show-package-maintainers-modal',
-                                                              entity_type: 'Package', maintainers: @package_maintainers }
+              - if @bs_request.accept_at.present?
+                .alert.alert-warning.p-2
+                  %i.fas.fa-exclamation-triangle
+                  %span The current request
+                  - if BsRequest::FINAL_REQUEST_STATES.include?(@bs_request.state)
+                    %span
+                      was
+                      %strong auto-accepted
+                      at
+                      %span{ title: "#{I18n.l @bs_request.accept_at}" }
+                      = succeed '.' do
+                        = I18n.l @bs_request.accept_at, format: :only_date
+                  - elsif @bs_request.accept_at.past?
+                    %span
+                      will be
+                      %strong auto-accepted
+                      after all the reviews are submitted.
+                  - else
+                    will be
+                    %strong auto-accepted
+                    = render TimeComponent.new(time: @bs_request.accept_at)
+              // rendering the chart for a bs_request with a lot of bs_request_actions can cause performance issues on the backend,
+              // we need to skip those
+              - if User.session && @actions.count <= 300
+                .chart_build_results_wrapper{ data: { url: request_chart_build_results_path } }
+                :javascript
+                  updateChartBuildResults();
+
+              - if policy(@bs_request).handle_request? && @bs_request.can_be_reopened?
+                = render partial: 'accordion_reviews', locals: { accepted_reviews: @request_reviews.accepted,
+                                                                 pending_reviews: @request_reviews.opened,
+                                                                 declined_reviews: @request_reviews.declined }
+              = render RequestDecisionComponent.new(bs_request: @bs_request,
+                                                    package_maintainers: @package_maintainers,
+                                                    show_project_maintainer_hint: @show_project_maintainer_hint)
+  = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
+                                                 method: :delete,
+                                                 options: { modal_title: 'Delete comment?', remote: true })
+  - if CommentLockPolicy.new(User.possibly_nobody, @bs_request).create?
+    = render partial: 'webui/shared/locking_dialog', locals: { commentable: @bs_request, entity_type: 'request' }
+  - if Flipper.enabled?(:content_moderation, User.possibly_nobody)
+    = render partial: 'webui/shared/report_modal'
+-# haml-lint:enable ViewLength

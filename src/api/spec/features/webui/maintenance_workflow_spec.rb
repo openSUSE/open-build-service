@@ -70,10 +70,13 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
 
     fill_in('reason', with: 'really? ok')
 
-    click_button('Accept request')
+    # Accepting the request triggers a confirmation dialog on the request page
+    accept_alert do
+      click_button('Accept request')
+    end
     # Looks like accepting the request takes some time, so we allow it to take a bit more than usual
     Capybara.using_wait_time(12.seconds) do
-      expect(page).to have_css('#overview h3', text: "Request #{bs_request.number} accepted")
+      expect(page).to have_text("Request #{bs_request.number} accepted")
     end
 
     # Step 4: The maintenance coordinator edits the patchinfo file

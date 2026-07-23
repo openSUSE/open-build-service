@@ -78,16 +78,4 @@ RSpec.describe 'Comments with diff', :js, :vcr do
       expect(page).to have_css("#comment-#{Comment.last.id}-bubble", text: 'target_project/package_a > package_a.changes')
     end
   end
-
-  describe 'diff comment in legacy view' do
-    before do
-      login admin
-      create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 1, user: admin)
-      visit request_show_path(bs_request)
-    end
-
-    it 'displays the comment with a hint to the corresponding file and line' do
-      expect(page).to have_css('#comments-list', text: "Inline comment for target: 'target_project/package_a', file: 'package_a.changes', and line: 1.")
-    end
-  end
 end

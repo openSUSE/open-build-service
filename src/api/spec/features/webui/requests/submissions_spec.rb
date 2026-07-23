@@ -20,9 +20,9 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
         fill_in('bs_request_description', with: bs_request_description)
         click_button('Submit')
         expect(page).to have_text("Submit package #{source_project} / #{source_package} " \
-                                  "to package #{target_project} / #{target_package}")
+                                  "package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: bs_request_description)
-        expect(page).to have_text('In state new')
+        expect(page).to have_css('span.badge.text-bg-secondary', text: 'new')
       end
     end
 
@@ -35,9 +35,9 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
         fill_in('bs_request_description', with: bs_request_description)
         click_button('Submit')
         expect(page).to have_text("Submit package #{source_project} / #{source_package} " \
-                                  "to package #{target_project} / #{source_package}")
+                                  "package #{target_project} / #{source_package}")
         expect(page).to have_css('#description-text', text: bs_request_description)
-        expect(page).to have_text('In state new')
+        expect(page).to have_css('span.badge.text-bg-secondary', text: 'new')
       end
     end
 
@@ -67,10 +67,10 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
         toggle_checkbox("supersede_request_numbers#{bs_request_to_supersede.number}")
         click_button('Submit')
         expect(page).to have_text("Submit package #{source_project} / #{source_package} " \
-                                  "to package #{target_project} / #{target_package}")
+                                  "package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: bs_request_description)
-        expect(page).to have_text('In state new')
-        expect(page).to have_text("Supersedes #{bs_request_to_supersede.number}")
+        expect(page).to have_css('span.badge.text-bg-secondary', text: 'new')
+        expect(page).to have_text("Supersedes ##{bs_request_to_supersede.number}")
       end
     end
 
@@ -98,8 +98,9 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
 
       it 'displays a diff' do
         login submitter
-        visit request_show_path(bs_request)
-        wait_for_ajax
+        # On the redesigned page the diff lives under the Changes tab, not the conversation page.
+        # The file name is rendered server-side in the diff accordion header, so no ajax wait is needed.
+        visit request_changes_path(bs_request)
         expect(page).to have_text('new_file.tar.gz/bigfile.txt')
       end
     end
@@ -128,9 +129,9 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
         fill_in('bs_request_description', with: bs_request_description)
         click_button('Submit')
         expect(page).to have_text("Submit package #{source_project} / #{branched_package_name} " \
-                                  "to package #{source_project} / #{source_package}")
+                                  "package #{source_project} / #{source_package}")
         expect(page).to have_css('#description-text', text: bs_request_description)
-        expect(page).to have_text('In state new')
+        expect(page).to have_css('span.badge.text-bg-secondary', text: 'new')
       end
     end
 

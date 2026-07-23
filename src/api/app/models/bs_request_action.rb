@@ -70,6 +70,9 @@ class BsRequestAction < ApplicationRecord
   #### private
 
   #### Instance methods (public and then protected/private)
+
+  delegate :canned_responses, to: :bs_request
+
   def minimum_priority
     nil
   end
@@ -736,7 +739,7 @@ class BsRequestAction < ApplicationRecord
     sp = Package.find_by_project_and_name(source_project, source_package)
     if sp.nil?
       # either not there or read permission problem
-      if Package.exists_on_backend?(source_package, source_project)
+      if Package.exists_on_backend?(source_project, source_package)
         # user is not allowed to read the source, but when they can write
         # the target, the request creator (who must have permissions to read source)
         # wanted the target owner to review it
@@ -865,11 +868,6 @@ class BsRequestAction < ApplicationRecord
 
   def embargo_date
     Project.unscoped.find_by(name: source_project)&.embargo_date
-  end
-
-  def canned_responses
-    package_ids = self.bs_request.bs_request_actions.pluck(:source_package_id, :target_package_id).flatten.uniq
-    CannedResponse.where(package_id: package_ids)
   end
 
   private

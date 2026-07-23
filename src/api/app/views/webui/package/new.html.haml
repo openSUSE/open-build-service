@@ -37,9 +37,9 @@
                 = f.label(:description)
                 = render WriteAndPreviewComponent.new(form: f, preview_message_url: package_preview_description_path,
                                                       message_body_param: 'package[description]',
-                                                      text_area_attributes: { rows: 10,
-                                                      placeholder: 'Write your description here... (Markdown markup is supported)',
-                                                      required: false, object_name: :description})
+                                                      text_area_rows: 10,
+                                                      text_area_required: false,
+                                                      text_area_object_name: :description)
                 %label.form-text.template-description#description-description
               - unless @configuration['hide_private_options']
                 .mb-3.form-check

@@ -3,21 +3,67 @@ require "active_support/core_ext/integer/time"
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  # In the development environment your application's code is reloaded any time
-  # it changes. This slows down response time but is perfect for development
-  # since you don't have to restart the web server when you make code changes.
   # Make code changes take effect immediately without server restart.
-  config.cache_classes = true
+  config.enable_reloading = true
 
   # Do not eager load code on boot.
   config.eager_load = false
 
-  # Server timing middleware (https://github.com/rails/rails/pull/36289)
-  config.server_timing = true
-
   # Show full error reports.
   config.consider_all_requests_local = true
 
+  # Enable server timing.
+  config.server_timing = true
+
+  # Enable/disable Action Controller caching. By default Action Controller caching is disabled.
+  # Run rails dev:cache to toggle Action Controller caching.
+  if Rails.root.join("tmp/caching-dev.txt").exist?
+    config.action_controller.perform_caching = true
+    config.action_controller.enable_fragment_cache_logging = true
+    config.public_file_server.headers = { "cache-control" => "public, max-age=#{2.days.to_i}" }
+  else
+    config.action_controller.perform_caching = false
+  end
+
+  # Use memcache for cache/session storage if configured, like we do on production
+  config.cache_store = if CONFIG['memcached_host']
+                         [:mem_cache_store, CONFIG['memcached_host']]
+                       else
+                         :mem_cache_store
+                       end
+
+  # Store uploaded files on the local file system (see config/storage.yml for options).
+  config.active_storage.service = :local
+
+  # We do not care about email delivery in this environment
+  config.action_mailer.perform_deliveries = false
+
+  # Print deprecation notices to the Rails logger.
+  config.active_support.deprecation = :log
+
+  # Raise an error on page load if there are pending migrations.
+  config.active_record.migration_error = :page_load
+
+  # Highlight code that triggered database queries in logs.
+  config.active_record.verbose_query_logs = true
+
+  # Append comments with runtime information tags to SQL queries in logs.
+  config.active_record.query_log_tags_enabled = true
+
+  # Use DelayedJob gem as queuing backend for Active Job
+  config.active_job.queue_adapter = :delayed_job
+
+  # Highlight code that enqueued background job in logs.
+  config.active_job.verbose_enqueue_logs = true
+
+  # Raises error for missing translations.
+  # config.i18n.raise_on_missing_translations = true
+
+  # Annotate rendered view with file names.
+  config.action_view.annotate_rendered_view_with_filenames = true
+
+  # Raise error when a before_action's only/except options reference missing actions.
+  config.action_controller.raise_on_missing_callback_actions = true
 
   # Eager load sub-classes we use in associations
   # (ack class_name app/models |ack ::)
@@ -31,80 +77,11 @@ Rails.application.configure do
     sti_classes_to_eager_load.each { |f| require_dependency("#{Dir.pwd}/#{f}") }
   end
 
-  # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration
-  config.action_mailer.delivery_method = :test
-  config.action_mailer.raise_delivery_errors = true
-  config.action_mailer.perform_caching = false
+  # Prepend all log lines with the following tags.
+  config.log_tags = [:request_id]
 
-  # Show full error reports and enable caching
-  config.consider_all_requests_local = true
-  config.action_controller.perform_caching = true
-
-  # Use memcache for cache/session storage
-  config.cache_store = if CONFIG['memcached_host']
-                         [:mem_cache_store, CONFIG['memcached_host']]
-                       else
-                         :mem_cache_store
-                       end
-  config.session_store :cache_store
-
-  # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
-
-  # Print deprecation notices to the Rails logger.
-  config.active_support.deprecation = :log
-
-  # Only use best-standards-support built into browsers
-  config.action_dispatch.best_standards_support = :builtin
-
-  # Raise exceptions for disallowed deprecations.
-  config.active_support.disallowed_deprecation = :raise
-
-  # Tell Active Support which deprecation messages to disallow.
-  config.active_support.disallowed_deprecation_warnings = []
-
-  # Raise an error on page load if there are pending migrations.
-  config.active_record.migration_error = :page_load
-
-  # Highlight code that triggered database queries in logs.
-  config.active_record.verbose_query_logs = true
-
-  # Append comments with runtime information tags to SQL queries in logs.
-  config.active_record.query_log_tags_enabled = true
-
-  # Highlight code that enqueued background job in logs.
-  config.active_job.verbose_enqueue_logs = true
-
-  # Do not compress assets
-  config.assets.compress = false
-
-  # Expands the lines which load the assets
-  config.assets.logger = nil
-
-  # Raise error when a before_action's only/except options reference missing actions.
-  config.action_controller.raise_on_missing_callback_actions = true
-
-  # Debug mode disables concatenation and preprocessing of assets.
-  # This option may cause significant delays in view rendering with a large
-  # number of complex assets.
+  # Disables the concatenation and compression of assets.
   config.assets.debug = true
-
-  # Suppress logger output for asset requests.
-  config.assets.quiet = true
-
-  # Enable debug logging by default
-  config.log_level = :debug
-  config.secret_key_base = '92b2ed725cb4d68cc5fbf86d6ba204f1dec4172086ee7eac8f083fb62ef34057f1b770e0722ade7b298837be7399c6152938627e7d15aca5fcda7a4faef91fc7'
-
-  # Raises error for missing translations.
-  # config.i18n.raise_on_missing_translations = true
-
-  # Annotate rendered view with file names.
-  config.action_view.annotate_rendered_view_with_filenames = true
-
-  # Use an evented file watcher to asynchronously detect changes in source code,
-  # routes, locales, etc. This feature depends on the listen gem.
-  # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
   # Bullet configuration
   config.after_initialize do
@@ -113,15 +90,7 @@ Rails.application.configure do
     Bullet.console = true
     Bullet.add_footer = true
   end
-
-  # Uncomment if you wish to allow Action Cable access from any origin.
-  # config.action_cable.disable_request_forgery_protection = true
 end
-
-CONFIG['response_schema_validation'] = true
-
-CONFIG['frontend_host'] = 'localhost'
-CONFIG['frontend_protocol'] = 'http'
 
 # Display fake sponsors above the footer on every page
 CONFIG['sponsors'] = [
@@ -138,3 +107,4 @@ CONFIG['sponsors'] = [
     url: '#'
   )
 ]
+
