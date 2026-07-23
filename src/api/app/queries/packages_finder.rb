@@ -50,7 +50,7 @@ class PackagesFinder
   def find_by_attribute
     <<-END_SQL
       LEFT OUTER JOIN attribs attrprj ON pack.project_id = attrprj.project_id
-      WHERE ( attr.attrib_type_id = ? or attrprj.attrib_type_id = ? )
+      WHERE pack.type IS NULL AND ( attr.attrib_type_id = ? or attrprj.attrib_type_id = ? )
     END_SQL
   end
 
@@ -65,7 +65,7 @@ class PackagesFinder
   def find_by_attribute_and_value
     <<-END_SQL
       LEFT OUTER JOIN attrib_values val ON attr.id = val.attrib_id
-      WHERE attr.attrib_type_id = ? AND val.value = ?
+      WHERE pack.type IS NULL AND attr.attrib_type_id = ? AND val.value = ?
     END_SQL
   end
 

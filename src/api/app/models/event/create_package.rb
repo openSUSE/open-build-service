@@ -1,6 +1,7 @@
 module Event
   class CreatePackage < Base
     include EventObjectPackage
+    include ReconcileLinkedPackageCallback
 
     self.message_bus_routing_key = 'package.create'
     self.description = 'Package created'

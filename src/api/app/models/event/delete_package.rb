@@ -1,8 +1,11 @@
 module Event
   class DeletePackage < Base
+    include ReconcileLinkedPackageCallback
+
     self.message_bus_routing_key = 'package.delete'
     self.description = 'Package deleted'
     payload_keys :project, :package, :sender, :comment, :requestid
+    self.reconcile_linked_package_action = 'delete'
 
     def set_payload(attribs, keys)
       attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?

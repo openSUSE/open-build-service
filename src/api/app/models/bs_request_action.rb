@@ -1013,7 +1013,7 @@ class BsRequestAction < ApplicationRecord
     obj.relationships.groups.where(role_id: reviewer_id).pluck(:group_id).each do |r|
       reviewers << Group.find(r)
     end
-    reviewers += find_reviewers(obj.project) if obj.instance_of?(Package) && !disable_project
+    reviewers += find_reviewers(obj.project) if obj.is_a?(Package) && !disable_project
 
     reviewers
   end

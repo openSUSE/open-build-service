@@ -102,7 +102,8 @@ class Package < ApplicationRecord
   # WHERE (packages.project_id not in (0))
   # because we assumes that there are more allowed projects than forbidden ones.
   default_scope do
-    where.not(id: PackagesFinder.new.forbidden_packages)
+    scope = where.not(id: PackagesFinder.new(Package.unscoped).forbidden_packages)
+    klass == Package ? scope.where(type: nil) : scope
   end
 
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
@@ -216,7 +217,7 @@ class Package < ApplicationRecord
   def self.get_by_project_and_name(project_name, package_name, opts = {})
     get_by_project_and_name_defaults = { use_source: true,
                                          follow_project_links: true,
-                                         follow_project_scmsync_links: false,
+                                         follow_project_scmsync_links: Flipper.enabled?(:linked_packages, User.possibly_nobody),
                                          follow_project_remote_links: false,
                                          follow_multibuild: false,
                                          follow_special_names: false,
@@ -248,14 +249,19 @@ class Package < ApplicationRecord
     if package.nil? && project.scmsync.present?
       return nil unless opts[:follow_project_scmsync_links]
 
-      begin
-        package_xmlhash = Xmlhash.parse(Backend::Api::Sources::Package.meta(project.name, package_name))
-      rescue Backend::NotFoundError
-        raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}"
+      if Flipper.enabled?(:linked_packages, User.possibly_nobody)
+        package = project.linked_packages.find_by(name: package_name)
+        raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}" unless package
       else
-        package = project.packages.new(name: package_name)
-        package.assign_attributes_from_from_xml(package_xmlhash)
-        package.readonly!
+        begin
+          package_xmlhash = Xmlhash.parse(Backend::Api::Sources::Package.meta(project.name, package_name))
+        rescue Backend::NotFoundError
+          raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}"
+        else
+          package = project.packages.new(name: package_name)
+          package.assign_attributes_from_from_xml(package_xmlhash)
+          package.readonly!
+        end
       end
     end
 
@@ -274,7 +280,7 @@ class Package < ApplicationRecord
     end
 
     raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}" unless package
-    raise ReadAccessError, "#{project.name}/#{package.name}" unless package.instance_of?(Package) && package.project.check_access?
+    raise ReadAccessError, "#{project.name}/#{package.name}" unless package.is_a?(Package) && package.project.check_access?
 
     package.check_source_access! if opts[:use_source]
 
@@ -798,12 +804,17 @@ class Package < ApplicationRecord
     @commit_opts[:comment] = comment
   end
 
+  def backend_writable?
+    true
+  end
+
   def write_to_backend
     reset_cache
     raise InvalidParameterError, 'Project meta file can not be written via package model' if name == '_project'
 
     #--- write through to backend ---#
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
+      raise LinkedPackageReadOnly, "#{project.name}/#{name}" unless backend_writable?
       raise ArgumentError, 'no commit_user set' unless commit_user
 
       Backend::Api::Sources::Package.write_meta(project.name, name, to_axml,
@@ -828,7 +839,7 @@ class Package < ApplicationRecord
 
     raise ArgumentError, 'no commit_user set' unless commit_user
 
-    if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
+    if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write] && backend_writable?
       begin
         Backend::Api::Sources::Package.delete(project.name, name,
                                               { user: commit_user.login, comment: commit_opts[:comment], requestid: commit_opts[:request]&.number }.compact)
@@ -837,7 +848,7 @@ class Package < ApplicationRecord
         logger.tagged('backend_sync') { logger.warn("Package #{project.name}/#{name} was already missing on backend on removal") }
       end
       logger.tagged('backend_sync') { logger.warn("Deleted Package #{project.name}/#{name}") }
-    elsif @commit_opts[:no_backend_write]
+    elsif @commit_opts[:no_backend_write] || !backend_writable?
       logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, backend_write is off " } unless @commit_opts[:project_destroy_transaction]
     else
       logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, global_write_through is off" }
@@ -1449,6 +1460,7 @@ end
 #  report_bug_url  :string(8192)
 #  scmsync         :string(255)
 #  title           :string(255)
+#  type            :string(255)      indexed
 #  url             :string(255)
 #  created_at      :datetime
 #  updated_at      :datetime
@@ -1461,6 +1473,7 @@ end
 #  devel_package_id_index            (develpackage_id)
 #  index_packages_on_comments_count  (comments_count)
 #  index_packages_on_kiwi_image_id   (kiwi_image_id)
+#  index_packages_on_type            (type)
 #  packages_all_index                (project_id,name) UNIQUE
 #
 # Foreign Keys

@@ -628,7 +628,7 @@ class User < ApplicationRecord
 
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
-    Package.unscoped.for_user(id).or(Package.unscoped.for_group(group_ids)).where.not(project: involved_projects)
+    Package.unscoped.for_user(id).or(Package.unscoped.for_group(group_ids)).where.not(project: involved_projects).where(type: nil)
   end
 
   # lists reviews involving this user

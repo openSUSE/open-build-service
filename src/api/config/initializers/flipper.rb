@@ -8,7 +8,8 @@ ENABLED_FEATURE_TOGGLES = [
   { name: :labels, description: 'Allow to apply labels to packages, requests and projects to improve collaboration between build service users.' },
   { name: :request_index, description: 'Redesign of listing requests' },
   { name: :canned_responses, description: 'Create messages using templates' },
-  { name: :package_version_tracking, description: 'Track the local and upstream versions of your packages' }
+  { name: :package_version_tracking, description: 'Track the local and upstream versions of your packages' },
+  { name: :linked_packages, description: 'Access packages that come from a link (e.g. scmsync-bridged projects)' }
 ].freeze
 
 Flipper.configure do

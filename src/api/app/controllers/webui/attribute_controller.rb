@@ -92,7 +92,7 @@ class Webui::AttributeController < Webui::WebuiController
 
   def set_attribute
     @attribute = Attrib.find(params[:id])
-    if @attribute.container.instance_of?(Package)
+    if @attribute.container.is_a?(Package)
       @package = @attribute.container
       @project = @package.project
     elsif @attribute.container.instance_of?(Project)
