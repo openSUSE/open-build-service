@@ -3915,7 +3915,11 @@ sub dobuild {
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
     $buildinfo->{'file'} = $ptfmode ? 'ptf.spec' : 'reproduciblecheck.spec';
-    $buildinfo->{'_no_container_normalization'} = 1 if $reproduciblecheckmode;
+    if ($reproduciblecheckmode) {
+      $buildinfo->{'_no_container_normalization'} = 1;
+      $buildinfo->{'followup_slsa_provenance'} = readstr("$srcdir/_slsa_provenance.json", 1);
+      $buildinfo->{'followup_slsa_provenance_config'} = readstr("$srcdir/_slsa_provenance.config", 1);
+    }
     @meta = split("\n", readstr("$srcdir/meta"));
   } elsif ($followupmode) {
     getfollowupsources($buildinfo, $srcdir);

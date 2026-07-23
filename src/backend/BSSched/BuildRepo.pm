@@ -235,22 +235,26 @@ sub fctx_del_binary_from_full {
 
 =cut
 
+# return 1 if binary $r should be prefered over binary $or
 sub volatile_cmp {
   my ($r, $or) = @_;
   return 0 if $r->{'imported'} && !$or->{'imported'};
   return 1 if $or->{'imported'} && !$r->{'imported'};
-  # XXX: the following should be package type dependent...
-  if ($r->{'arch'} ne $or->{'arch'}) {
-    return 0 if $r->{'arch'} eq 'noarch' || $r->{'arch'} eq 'all' || $r->{'arch'} eq 'any';
-    return 1 if $or->{'arch'} eq 'noarch' || $or->{'arch'} eq 'all' || $or->{'arch'} eq 'any';
-    return $r->{'arch'} gt $or->{'arch'} ? 1 : 0;
-  }
   my $x = Build::Rpm::verscmp($r->{'epoch'} || '0', $or->{'epoch'} || '0');
   return $x > 0 ? 1 : 0 if $x;
   $x = Build::Rpm::verscmp($r->{'version'} || '', $or->{'version'} || '');
   return $x > 0 ? 1 : 0 if $x;
   $x = Build::Rpm::verscmp($r->{'release'} || '', $or->{'release'} || '');
   return $x > 0 ? 1 : 0 if $x;
+  if ($r->{'arch'} ne $or->{'arch'}) {
+    # XXX: the following should be package type dependent...
+    if ($or->{'arch'} eq 'noarch' || $or->{'arch'} eq 'all' || $or->{'arch'} eq 'any') {
+      return 0 unless $r->{'arch'} eq 'noarch' || $r->{'arch'} eq 'all' || $r->{'arch'} eq 'any';
+    } else {
+      return 1 if $r->{'arch'} eq 'noarch' || $r->{'arch'} eq 'all' || $r->{'arch'} eq 'any';
+    }
+    return $r->{'arch'} gt $or->{'arch'} ? 1 : 0;
+  }
   return 0;
 }
 

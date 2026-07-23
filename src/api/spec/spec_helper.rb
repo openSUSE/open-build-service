@@ -4,7 +4,7 @@
 
 # for generating test coverage
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start 'obs'
 
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../config/environment', __dir__)

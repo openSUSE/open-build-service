@@ -1,0 +1,1 @@
+class PackageAlreadyExists < APIError; end
