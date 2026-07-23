@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_15_101229) do
+ActiveRecord::Schema[7.2].define(version: 2026_07_23_180842) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -282,10 +282,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_101229) do
     t.integer "staging_project_id"
     t.integer "status"
     t.integer "comments_count", default: 0, null: false
+    t.integer "reviews_count", default: 0, null: false
     t.index ["comments_count"], name: "index_bs_requests_on_comments_count"
     t.index ["created_at"], name: "index_bs_requests_on_created_at"
     t.index ["creator"], name: "index_bs_requests_on_creator"
     t.index ["number"], name: "index_bs_requests_on_number", unique: true
+    t.index ["reviews_count"], name: "index_bs_requests_on_reviews_count"
     t.index ["staging_project_id"], name: "index_bs_requests_on_staging_project_id"
     t.index ["state"], name: "index_bs_requests_on_state"
     t.index ["status"], name: "index_bs_requests_on_status"
