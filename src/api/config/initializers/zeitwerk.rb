@@ -22,4 +22,5 @@ Rails.autoloaders.each do |autoloader|
     'signing_key_gpg' => 'SigningKeyGPG',
     'signing_key_ssl' => 'SigningKeySSL'
   )
+  autoloader.collapse(Rails.root.join('app/lib/api_error'))
 end
