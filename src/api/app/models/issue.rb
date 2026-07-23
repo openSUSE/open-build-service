@@ -1,5 +1,3 @@
-require 'api_error'
-
 class Issue < ApplicationRecord
   include Issue::Errors
 

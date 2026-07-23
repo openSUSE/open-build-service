@@ -1,11 +1,13 @@
 Rails.autoloaders.each do |autoloader|
   autoloader.inflector = Zeitwerk::Inflector.new
   autoloader.inflector.inflect(
+    'api_error' => 'APIError',
     'api_matcher' => 'APIMatcher',
     'cve_parser' => 'CVEParser',
     'gitea_api' => 'GiteaAPI',
     'meta_xml_validator' => 'MetaXMLValidator',
     'obs_quality_categories_finder' => 'OBSQualityCategoriesFinder',
+    'obsapi' => 'OBSApi',
     'opensuse_upstream_tarball_url_finder' => 'OpenSUSEUpstreamTarballURLFinder',
     'opensuse_upstream_version_finder' => 'OpenSUSEUpstreamVersionFinder',
     'remote_url' => 'RemoteURL',
@@ -20,4 +22,5 @@ Rails.autoloaders.each do |autoloader|
     'signing_key_gpg' => 'SigningKeyGPG',
     'signing_key_ssl' => 'SigningKeySSL'
   )
+  autoloader.collapse(Rails.root.join('app/lib/api_error'))
 end

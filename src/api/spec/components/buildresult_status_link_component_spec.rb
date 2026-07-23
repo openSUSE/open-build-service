@@ -16,7 +16,7 @@ RSpec.describe BuildresultStatusLinkComponent, type: :component do
     let(:build_details) { 'Some details about the build' }
 
     it 'renders a span tag with text-warning style and build status scheduled' do
-      expect(rendered_content).to have_css('span.text-warning.toggle-build-info',
+      expect(rendered_content).to have_css('span.text-warning.collapsible-tooltip',
                                            id: "id-#{package_name}_#{repository_name}_#{architecture_name}",
                                            text: 'scheduled')
     end
@@ -26,7 +26,7 @@ RSpec.describe BuildresultStatusLinkComponent, type: :component do
     let(:build_status) { 'blocked' }
 
     it 'renders a span tag with the correct id and class' do
-      expect(rendered_content).to have_css("span.build-state-#{build_status}.toggle-build-info",
+      expect(rendered_content).to have_css("span.build-state-#{build_status}.collapsible-tooltip",
                                            id: "id-#{package_name}_#{repository_name}_#{architecture_name}",
                                            text: build_status.to_s)
     end

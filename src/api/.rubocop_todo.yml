@@ -797,7 +797,6 @@ Style/OneClassPerFile:
   Exclude:
     - 'db/data/20170831143534_convert_notifications_event_payload_to_json.rb'
     - 'db/data/20250717152701_delete_orphan_records_from_groups_notifications.rb'
-    - 'lib/api_error.rb'
     - 'spec/controllers/concerns/rescue_authorization_handler_spec.rb'
     - 'spec/lib/pretty_nested_errors_spec.rb'
     - 'test/test_helper.rb'

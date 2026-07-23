@@ -780,7 +780,7 @@ class Project < ApplicationRecord
           end
     if pkg.nil?
       # local project, but package may be in a linked remote one
-      opts[:allow_remote_packages] && Package.exists_on_backend?(name, self.name)
+      opts[:allow_remote_packages] && Package.exists_on_backend?(self.name, name)
     else
       pkg.project.check_access?
     end
