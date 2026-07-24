@@ -94,4 +94,40 @@ RSpec.describe Notification do
       end
     end
   end
+
+  describe 'unread count cache invalidation' do
+    let(:test_user) { create(:confirmed_user, login: 'foo') }
+    let(:cache_key) { Notification.unread_count_cache_key(test_user) }
+
+    before do
+      allow(Rails.cache).to receive(:delete).and_call_original
+    end
+
+    context 'when the subscriber is a user and the delivered state changes' do
+      let(:web_notification) { create(:notification_for_request, :web_notification, subscriber: test_user) }
+
+      it 'invalidates the cache' do
+        web_notification.update(delivered: true)
+        expect(Rails.cache).to have_received(:delete).with(cache_key)
+      end
+    end
+
+    context 'when the subscriber is a user and an unrelated attribute changes' do
+      let(:web_notification) { create(:notification_for_request, :web_notification, subscriber: test_user) }
+
+      it 'does not invalidate the cache' do
+        web_notification.update(title: 'FOO FOO')
+        expect(Rails.cache).not_to have_received(:delete).with(cache_key)
+      end
+    end
+
+    context 'when the subscriber is a user and the notification is destroyed' do
+      let(:web_notification) { create(:notification_for_request, :web_notification, subscriber: test_user) }
+
+      it 'invalidates the cache' do
+        web_notification.destroy
+        expect(Rails.cache).to have_received(:delete).with(cache_key)
+      end
+    end
+  end
 end
