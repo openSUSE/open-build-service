@@ -18,6 +18,7 @@ class SourcePackageCommandController < SourceController
   before_action :require_valid_package_name, only: %i[copy undelete]
   before_action :set_origin_package, only: %i[collectbuildenv copy diff]
   before_action :set_user_param
+  before_action :require_standard_package_object, except: %i[branch copy diff linkdiff servicediff undelete runservice]
   # branch: everything is authorized in BranchPackage.branch
   # diff: is a read only command
   # fork: everything is authorized in BranchPackage.branch
@@ -181,9 +182,15 @@ class SourcePackageCommandController < SourceController
   # OBS 3.0: this should be obsoleted, we have /build/ controller for this
   # POST /source/<project>/<package>?cmd=rebuild
   def rebuild
-    authorize @package
+    # project is set to local project in remote case, but also set to readonly.
+    # however, this is not true for build results as they are modifiable
+    if @package.try(:project) == @project && !@package.readonly?
+      authorize @package, :update?
+    else
+      authorize @project, :update?
+    end
 
-    if params[:repo] && @project.repositories.find_by(name: params[:repo]).empty?
+    if params[:repo] && @project.repositories.find_by(name: params[:repo]).nil?
       render_error status: 400, errorcode: 'unknown_repository',
                    message: "Unknown repository '#{params[:repo]}'"
       return
@@ -355,7 +362,7 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=runservice
   def runservice
-    authorize @package, :update?
+    authorize @package
 
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd comment user])
@@ -471,6 +478,11 @@ class SourcePackageCommandController < SourceController
     return if Package.valid_name?(params[:package], allow_multibuild: params[:cmd] == 'release')
 
     raise InvalidPackageNameError, "invalid package name '#{params[:package]}'"
+  end
+
+  def require_standard_package_object
+    # must not come from foreign project or scmsync
+    raise CmdExecutionNoPermission, "Unable to operate on '#{params[:package]}'" unless @package.is_a?(Package)
   end
 
   def set_user_param
