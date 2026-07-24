@@ -31,7 +31,7 @@ module Workflows
                       target_project: @step.target_project_name
                     }
                   end
-      WorkflowArtifactsPerStep.find_or_create_by(workflow_run_id: @workflow_run_id, step: @step.class.name, artifacts: artifacts.to_json) if artifacts
+      WorkflowArtifactsPerStep.find_or_create_by(workflow_run_id: @workflow_run_id, step: @step.class.name, artifacts: artifacts) if artifacts
     end
   end
 end
