@@ -1,7 +1,20 @@
 .mb-3.row.row-cols-auto
-  - search_for_options = options_for_select([['All', '0'], ['Projects', '1'], ['Packages', '2']], params.fetch(:search_for, '0'))
-  -# FIXME: The dropdown arrow is a bit far when 'All' is selected
-  = select_tag('search_for', search_for_options, class: 'form-select border-0 ps-0 w-auto')
+  :ruby
+    search_for_options = [['All', '0'], ['Projects', '1'], ['Packages', '2']]
+    current_val = params.fetch(:search_for, '0')
+    current_label = search_for_options.find { |label, val| val == current_val }&.first || 'All'
+
+  = hidden_field_tag('search_for', current_val, id: 'search_for_input')
+
+  .dropdown
+    - btn_opts = { type: 'button', 'data-bs-toggle' => 'dropdown', aria: { expanded: 'false' }, style: 'background: transparent;' }
+    %button.btn.dropdown-toggle.border-0.ps-0#search-for-button{ btn_opts }
+      = current_label
+    %ul.dropdown-menu
+      - search_for_options.each do |label, val|
+        %li
+          %button.dropdown-item{ type: 'button', onclick: "$('#search_for_input').val('#{val}'); $('#search-for-button').text('#{label}');" }
+            = label
 
   %button.btn.btn-outline-secondary.ms-2.collapsed{ type: 'button', aria: { controls: 'collapse-1', expanded: 'false' },
                                                 'data-bs-toggle' => 'collapse', href: '#advanced-container', role: 'button' }
