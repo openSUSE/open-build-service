@@ -27,7 +27,7 @@ module MonitorControllerService
     end
 
     def workers_hash(b, delta)
-      b.slice('project', 'repository', 'package', 'arch', 'starttime').merge('delta' => delta.to_s)
+      b.slice('project', 'repository', 'package', 'arch', 'starttime', 'hidden').merge('delta' => delta.to_s)
     end
 
     def calculate_delta(starttime)
