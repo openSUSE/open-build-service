@@ -425,7 +425,7 @@ RSpec.describe Webui::PackageController, :vcr do
     end
 
     it { expect(response).to have_http_status(:success) }
-    it { expect(response).to render_template(partial: '_rpmlint_result') }
+    it { expect(response).to render_template('webui/package/rpmlint_result') }
   end
 
   describe '#rpmlint_summary' do
