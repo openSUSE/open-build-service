@@ -425,9 +425,10 @@ Naming/VariableNumber:
     - 'test/functional/source_controller_test.rb'
     - 'test/unit/project_test.rb'
 
-# Offense count: 54
+# Offense count: 55
 RSpec/AnyInstance:
   Exclude:
+    - 'spec/controllers/source_package_meta_controller_spec.rb'
     - 'spec/controllers/staging/excluded_requests_controller_spec.rb'
     - 'spec/controllers/status_project_controller_spec.rb'
     - 'spec/controllers/webui/architectures_controller_spec.rb'
