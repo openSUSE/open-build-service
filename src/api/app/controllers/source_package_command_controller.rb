@@ -183,7 +183,7 @@ class SourcePackageCommandController < SourceController
   def rebuild
     authorize @package
 
-    if params[:repo] && @project.repositories.find_by(name: params[:repo]).empty?
+    if params[:repo] && !@project.repositories.exists?(name: params[:repo])
       render_error status: 400, errorcode: 'unknown_repository',
                    message: "Unknown repository '#{params[:repo]}'"
       return
