@@ -1,8 +1,4 @@
 module FlagHelper
-  class InvalidFlag < APIError
-    setup 'invalid_flag'
-  end
-
   TYPES = {
     'lock' => :disable,
     'build' => :enable,

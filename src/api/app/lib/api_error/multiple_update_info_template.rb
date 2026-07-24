@@ -1,0 +1,1 @@
+class MultipleUpdateInfoTemplate < APIError; end

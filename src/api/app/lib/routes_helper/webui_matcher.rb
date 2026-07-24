@@ -1,8 +1,5 @@
 module RoutesHelper
   class WebuiMatcher
-    class InvalidRequestFormat < APIError
-    end
-
     def self.matches?(request)
       request.format.to_sym != :xml || formatless_path?(request)
     rescue ArgumentError => e

@@ -1,0 +1,1 @@
+class InvalidFlag < APIError; end

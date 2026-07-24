@@ -54,7 +54,7 @@ RSpec.describe UnregisteredUser do
       end
 
       it 'throws an exception that confirms the user registration... and creates an unconfirmed user' do
-        expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave,
+        expect { subject }.to raise_error(ErrRegisterSave,
                                           'Thank you for signing up! An admin has to confirm your account now. Please be patient.')
         expect(User.where(attributes_for_query)).to exist
       end
@@ -70,7 +70,7 @@ RSpec.describe UnregisteredUser do
       end
 
       it 'throws an exception' do
-        expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave, 'Sorry, sign up is disabled')
+        expect { subject }.to raise_error(ErrRegisterSave, 'Sorry, sign up is disabled')
         expect(User.count).to eq(user_count_before)
       end
     end

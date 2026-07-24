@@ -5,24 +5,6 @@
 class Patchinfo
   include ActiveModel::Model
 
-  class PatchinfoFileExists < APIError; end
-
-  class IncompletePatchinfo < APIError; end
-
-  class InvalidPackageNameError < APIError; end
-
-  class ReleasetargetNotFound < APIError
-    setup 404
-  end
-
-  class TrackerNotFound < APIError
-    setup 404
-  end
-
-  class PatchinfoNotFound < APIError
-    setup 404
-  end
-
   # FIXME: Layout and colors belong to CSS
   RATING_COLORS = {
     'low' => 'green',
@@ -95,7 +77,7 @@ class Patchinfo
     # valid tracker?
     data.elements('issue').each do |i|
       tracker = IssueTracker.find_by_name(i['tracker'])
-      raise TrackerNotFound, "Tracker #{i['tracker']} is not registered in this OBS instance" unless tracker
+      raise IssueTrackerNotFoundError, "Tracker #{i['tracker']} is not registered in this OBS instance" unless tracker
 
       issue = Issue.new(name: i['id'], issue_tracker: tracker)
       raise Issue::InvalidName, issue.errors.full_messages.to_sentence unless issue.valid?

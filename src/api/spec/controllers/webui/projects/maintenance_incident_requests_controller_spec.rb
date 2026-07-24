@@ -13,7 +13,7 @@ RSpec.describe Webui::Projects::MaintenanceIncidentRequestsController do
         post :create, params: { project_name: maintenance_project, description: 'Fake description for a request' }
       end
 
-      it { expect(flash[:error]).to eq('MaintenanceHelper::MissingAction') }
+      it { expect(flash[:error]).to eq('MissingAction') }
       it { is_expected.to redirect_to(root_url) }
     end
 

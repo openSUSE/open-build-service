@@ -156,7 +156,7 @@ class PackageTest < ActiveSupport::TestCase
                                ))
     end
 
-    assert_raise(HasRelationships::SaveError) do
+    assert_raise(RelationshipSaveError) do
       @package.update_from_xml(Xmlhash.parse(
                                  "<package name='TestBack' project='home:Iggy'>
                                    <title>My Test package</title>
@@ -182,7 +182,7 @@ class PackageTest < ActiveSupport::TestCase
     @package.add_user('tom', 'maintainer')
     @package.update_from_xml(Xmlhash.parse(orig))
 
-    assert_raise(Relationship::AddRole::SaveError) do
+    assert_raise(RelationshipSaveError) do
       @package.add_user('tom', 'Admin')
     end
     assert_equal orig, @package.render_xml

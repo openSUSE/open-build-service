@@ -141,7 +141,7 @@ RSpec.describe BsRequest, :vcr do
       end
 
       it 'raises exception on wrong user' do
-        expect { request.change_review_state(:accepted, by_user: someone.login) }.to raise_error(Review::NotFoundError)
+        expect { request.change_review_state(:accepted, by_user: someone.login) }.to raise_error(ReviewNotFoundError)
         expect(request.state).to be(:review)
       end
 

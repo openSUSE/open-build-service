@@ -1,0 +1,1 @@
+class AttributeSaveError < APIError; end
