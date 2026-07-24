@@ -91,8 +91,6 @@ class TriggerController < ApplicationController
   end
 
   def set_package_name
-    return if params[:package].blank? || @project_name.blank?
-
     @package_name = params[:package]
   end
 end
