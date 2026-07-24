@@ -70,6 +70,14 @@ RSpec.describe TriggerController do
 
       it { expect(subject).to have_http_status(:success) }
     end
+
+    context 'with an untrusted project parameter that is not a string' do
+      # e.g. a random webhook (like GitLab) sending its own payload with a
+      # project hash. The controller must not treat that as a project name.
+      subject { post :rebuild, params: { project: { unrelated: 'payload' }, format: :xml } }
+
+      it { expect(subject).to have_http_status(:bad_request) }
+    end
   end
 
   describe '#release', :vcr do
