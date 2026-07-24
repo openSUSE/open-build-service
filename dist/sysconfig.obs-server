@@ -223,6 +223,25 @@ OBS_WORKER_NICE_LEVEL=18
 OBS_VM_TYPE="auto"
 
 ## Path:        Applications/OBS
+## Description: Set additional VM argumrnts by worker
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# Use this to pass extra arguments and options specific to VM type.
+#
+# To pass multiple arguments, separate them with spaces.
+# Use regular shell quotes if arguments contain spaces.
+# Example: "--arg1 foo --arg2 'bar baz'"
+#
+# WARNING!
+# Before using this parameter, make sure that build utility on OBS server
+# is new enough to support --vm-args option.
+# Not all VM types can accept extra arguments.
+#
+OBS_VM_ARGS=""
+
+## Path:        Applications/OBS
 ## Description: Set kernel used by worker (kvm)
 ## Type:        ("none" | "/boot/vmlinuz" | "/foo/bar/vmlinuz)
 ## Default:     "none"
