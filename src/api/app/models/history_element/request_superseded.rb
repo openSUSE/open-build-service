@@ -10,9 +10,6 @@ module HistoryElement
       desc
     end
 
-    def user_action
-      'superseded request'
-    end
   end
 end
 
