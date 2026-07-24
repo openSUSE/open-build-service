@@ -440,6 +440,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_linkdiff.yaml'
   /source/{project_name}/{package_name}?cmd=linktobranch:
     $ref: 'paths/source_project_name_package_name_cmd_linktobranch.yaml'
+  /source/{project_name}/{package_name}?cmd=lock:
+    $ref: 'paths/source_project_name_package_name_cmd_lock.yaml'
   /source/{project_name}/{package_name}?cmd=mergeservice:
     $ref: 'paths/source_project_name_package_name_cmd_mergeservice.yaml'
   /source/{project_name}/{package_name}?cmd=rebuild:

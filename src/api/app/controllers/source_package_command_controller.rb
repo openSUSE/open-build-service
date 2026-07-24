@@ -18,6 +18,7 @@ class SourcePackageCommandController < SourceController
   before_action :require_valid_package_name, only: %i[copy undelete]
   before_action :set_origin_package, only: %i[collectbuildenv copy diff]
   before_action :set_user_param
+  before_action :require_standard_package_object, except: %i[branch copy diff linkdiff servicediff undelete runservice lock unlock]
   # branch: everything is authorized in BranchPackage.branch
   # diff: is a read only command
   # fork: everything is authorized in BranchPackage.branch
@@ -55,8 +56,40 @@ class SourcePackageCommandController < SourceController
     render_ok
   end
 
+  # lock a package
+  # POST /source/<project>/<package>?cmd=lock
+  def lock
+    if @project.scmsync.present?
+      # a package within a backend managed project
+      authorize @project, :update?
+      pass_to_backend(request.path_info + build_query_from_hash(params, [:cmd]))
+      return
+    end
+
+    require_standard_package_object
+    authorize @package, :update?
+
+    raise Locked, "package '#{@package.project.name}/#{@package.name}' is already locked" if @package.flags.find_by_flag_and_status('lock', 'enable')
+
+    # we should never have a lock-disable, but to be sure drop it in that case
+    @package.flags.of_type('lock').delete_all
+    @package.flags.create(flag: 'lock', status: 'enable')
+    @package.store({ comment: params[:comment] })
+
+    render_ok
+  end
+
   # POST /source/<project>/<package>?cmd=unlock
   def unlock
+    if @project.scmsync.present?
+      # a package within a backend managed project
+      authorize @project, :update?
+      params.require(:comment)
+      pass_to_backend(request.path_info + build_query_from_hash(params, [:cmd]))
+      return
+    end
+
+    require_standard_package_object
     authorize @package, :unlock?
 
     params.require(:comment)
@@ -181,9 +214,15 @@ class SourcePackageCommandController < SourceController
   # OBS 3.0: this should be obsoleted, we have /build/ controller for this
   # POST /source/<project>/<package>?cmd=rebuild
   def rebuild
-    authorize @package
+    # project is set to local project in remote case, but also set to readonly.
+    # however, this is not true for build results as they are modifiable
+    if @package.try(:project) == @project && !@package.readonly?
+      authorize @package, :update?
+    else
+      authorize @project, :update?
+    end
 
-    if params[:repo] && @project.repositories.find_by(name: params[:repo]).empty?
+    if params[:repo] && @project.repositories.find_by(name: params[:repo]).nil?
       render_error status: 400, errorcode: 'unknown_repository',
                    message: "Unknown repository '#{params[:repo]}'"
       return
@@ -355,7 +394,7 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=runservice
   def runservice
-    authorize @package, :update?
+    authorize @package
 
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd comment user])
@@ -439,6 +478,7 @@ class SourcePackageCommandController < SourceController
   def set_package
     options = { updatepatchinfo: { follow_project_links: false },
                 importchannel: { follow_project_links: false },
+                lock: { follow_project_links: false },
                 unlock: { follow_project_links: false },
                 addchannels: { follow_project_links: false },
                 addcontainers: { follow_project_links: false },
@@ -471,6 +511,11 @@ class SourcePackageCommandController < SourceController
     return if Package.valid_name?(params[:package], allow_multibuild: params[:cmd] == 'release')
 
     raise InvalidPackageNameError, "invalid package name '#{params[:package]}'"
+  end
+
+  def require_standard_package_object
+    # must not come from foreign project or scmsync
+    raise CmdExecutionNoPermission, "Unable to operate on '#{params[:package]}'" unless @package.is_a?(Package)
   end
 
   def set_user_param
