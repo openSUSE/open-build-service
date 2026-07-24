@@ -7,7 +7,7 @@ class Review < ApplicationRecord
 
   VALID_REVIEW_STATES = %i[new declined accepted superseded obsoleted].freeze
 
-  belongs_to :bs_request, touch: true, optional: true
+  belongs_to :bs_request, touch: true, counter_cache: true, optional: true
   has_many :history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Review', foreign_key: :op_object_id
   has_many :history_elements_assigned, class_name: 'HistoryElement::ReviewAssigned', foreign_key: :op_object_id
   has_many :notifications, as: :notifiable, dependent: :delete_all
