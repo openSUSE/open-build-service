@@ -62,4 +62,4 @@
                   aria: { labelledby: "artifacts#{id}" } }
     %h5 Artifacts
     %ul
-      = render(WorkflowArtifactsPerStepComponent.with_collection(artifacts))
+      = render partial: 'webui/workflow_artifacts_per_step/workflow_artifacts_per_step', collection: artifacts
