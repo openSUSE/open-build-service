@@ -45,7 +45,7 @@ class Webui::DistributionsController < Webui::WebuiController
   end
 
   def destroy_repository
-    repository = @project.repositories.find_by(name: @distribution.reponame)
+    repository = Repository.find_by_project_and_path(@project, @distribution_repository).first
     @project.repositories.delete(repository)
     if @project.valid?
       @project.store(comment: "Removed #{repository.name} repository")
