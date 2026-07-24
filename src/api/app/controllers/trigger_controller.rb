@@ -26,9 +26,9 @@ class TriggerController < ApplicationController
     authorize @token, :trigger?
 
     opts = { project: @project, package: @package, multibuild_flavor: @multibuild_flavor,
-             repository: params[:repository], arch: params[:arch],
-             targetproject: params[:targetproject], targetrepository: params[:targetrepository],
-             filter_source_repository: params[:filter_source_repository] }.compact
+             repository: params[:repository] || params[:filter_source_repository],
+             arch: params[:arch] || params[:architecture],
+             targetproject: params[:targetproject], targetrepository: params[:targetrepository] }.compact
     @token.executor.run_as { @token.call(opts) }
 
     render_ok
