@@ -18,7 +18,7 @@ class SourcePackageCommandController < SourceController
   before_action :require_valid_package_name, only: %i[copy undelete]
   before_action :set_origin_package, only: %i[collectbuildenv copy diff]
   before_action :set_user_param
-  before_action :require_standard_package_object, except: %i[branch copy diff linkdiff servicediff undelete runservice]
+  before_action :require_standard_package_object, except: %i[branch copy diff linkdiff servicediff undelete runservice lock unlock]
   # branch: everything is authorized in BranchPackage.branch
   # diff: is a read only command
   # fork: everything is authorized in BranchPackage.branch
@@ -56,8 +56,40 @@ class SourcePackageCommandController < SourceController
     render_ok
   end
 
+  # lock a package
+  # POST /source/<project>/<package>?cmd=lock
+  def lock
+    if @project.scmsync.present?
+      # a package within a backend managed project
+      authorize @project, :update?
+      pass_to_backend(request.path_info + build_query_from_hash(params, [:cmd]))
+      return
+    end
+
+    require_standard_package_object
+    authorize @package, :update?
+
+    raise Locked, "package '#{@package.project.name}/#{@package.name}' is already locked" if @package.flags.find_by_flag_and_status('lock', 'enable')
+
+    # we should never have a lock-disable, but to be sure drop it in that case
+    @package.flags.of_type('lock').delete_all
+    @package.flags.create(flag: 'lock', status: 'enable')
+    @package.store({ comment: params[:comment] })
+
+    render_ok
+  end
+
   # POST /source/<project>/<package>?cmd=unlock
   def unlock
+    if @project.scmsync.present?
+      # a package within a backend managed project
+      authorize @project, :update?
+      params.require(:comment)
+      pass_to_backend(request.path_info + build_query_from_hash(params, [:cmd]))
+      return
+    end
+
+    require_standard_package_object
     authorize @package, :unlock?
 
     params.require(:comment)
@@ -446,6 +478,7 @@ class SourcePackageCommandController < SourceController
   def set_package
     options = { updatepatchinfo: { follow_project_links: false },
                 importchannel: { follow_project_links: false },
+                lock: { follow_project_links: false },
                 unlock: { follow_project_links: false },
                 addchannels: { follow_project_links: false },
                 addcontainers: { follow_project_links: false },
