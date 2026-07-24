@@ -29,7 +29,7 @@ Rails.application.configure do
   }
 
   # Raise exceptions instead of rendering exception templates.
-  # config.action_dispatch.show_exceptions = :none
+  config.action_dispatch.show_exceptions = :none
 
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
@@ -72,9 +72,6 @@ Rails.application.configure do
     Bullet.bullet_logger = true
     Bullet.raise = false # raise an error if n+1 query occurs
   end
-
-  # TODO: This shouldn't be needed when we switch to RSpec completely
-  config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 950
 
   config.active_job.queue_adapter = :inline
   # Access to rack session for feature specs
