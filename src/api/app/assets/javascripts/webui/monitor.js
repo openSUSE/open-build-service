@@ -97,12 +97,14 @@ function processProgressBar(id, item)
   var delta = item["delta"];
 
   var container = $('#p' + id);
+  var host = container.data('host');
   var el_text = container.find(".monitorpb_text");
   var ctrl = container.find(".progress-bar");
 
   var logfileinfo = $("#worker-display option:selected").val();
 
   if (delta) {
+    container.removeClass('d-none');
     el_text.text(item[logfileinfo]);
     ctrl.css("width", delta + "%").attr("aria-valuenow", delta);
     var url = $('#workers').data('buildLogPath');
@@ -123,12 +125,11 @@ function processProgressBar(id, item)
       ctrl.addClass("text-bg-danger");
       ctrl.removeClass('text-bg-success text-bg-warning');
     }
+    return null;
   }
   else {
-    el_text.html("idle");
-    ctrl.css("width", "0%");
-    ctrl.css("aria-valuenow", 0)
-    el_text.attr("href", "#");
+    container.addClass('d-none');
+    return { host: host, status: item["state"] || "idle" };
   }
 }
 
@@ -139,9 +140,35 @@ function updateProgressBar()
   var monitorPath=$('#workers').data('monitorPath');
 
   $.getJSON(monitorPath, function(json) {
+    var hostStates = {};
     $.each(json, function(i,item) {
-            processProgressBar(i, item);
+            var state = processProgressBar(i, item);
+            if (state && state.host && state.status) {
+              if (!hostStates[state.host]) {
+                hostStates[state.host] = { idle: 0, away: 0, dead: 0, down: 0 };
+              }
+              if (hostStates[state.host][state.status] !== undefined) {
+                hostStates[state.host][state.status]++;
+              }
+            }
     });
+
+    $('.builderbox').each(function() {
+      var host = $(this).data('host');
+      var states = hostStates[host] || { idle: 0, away: 0, dead: 0, down: 0 };
+      
+      $.each(['idle', 'away', 'dead', 'down'], function(index, state) {
+        var badge = $(this).find('.' + state + '-badge');
+        var count = states[state] || 0;
+        badge.text(state + ': ' + count);
+        if (count > 0) {
+          badge.removeClass('d-none');
+        } else {
+          badge.addClass('d-none');
+        }
+      }.bind(this));
+    });
+
     $("#workers-updating").fadeOut(1200);
   });
 }
