@@ -3,8 +3,6 @@ class Service
   include ActiveModel::Model
   include Package::Errors
 
-  class InvalidParameter < APIError; end
-
   attr_accessor :package
 
   # helper function
@@ -20,10 +18,10 @@ class Service
 
   def self.verify_xml!(raw_post)
     Xmlhash.parse(raw_post).elements('service').each do |s|
-      raise InvalidParameter, "service name #{s['name']} contains invalid chars" unless Service::NameValidator.new(s['name']).valid?
+      raise InvalidParameterError, "service name #{s['name']} contains invalid chars" unless Service::NameValidator.new(s['name']).valid?
 
       s.elements('param').each do |p|
-        raise InvalidParameter, "service parameter #{p['name']} contains invalid chars" unless Service::NameValidator.new(p['name']).valid?
+        raise InvalidParameterError, "service parameter #{p['name']} contains invalid chars" unless Service::NameValidator.new(p['name']).valid?
       end
     end
   end

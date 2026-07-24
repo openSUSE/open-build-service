@@ -1,10 +1,6 @@
 class SearchController < ApplicationController
   require 'xpath_engine'
 
-  class IllegalXpathError < APIError
-    setup 'illegal_xpath_error', 400
-  end
-
   def project
     search(:project, true)
   end
@@ -287,7 +283,7 @@ class SearchController < ApplicationController
 
   def find_items(what, predicate)
     XpathEngine.new.find("/#{what}[#{predicate}]")
-  rescue ArgumentError, XpathEngine::IllegalXpathError => e
+  rescue ArgumentError => e
     message = "Error found searching elements '#{what}' with xpath predicate: '#{predicate}'."
     message += "\n\nDetailed error message from parser: #{e.message}" unless e.is_a?(ArgumentError)
 

@@ -20,7 +20,7 @@ FactoryBot.define do
       workflow_artifacts_per_step.artifacts = { source_project: evaluator.source_project_name,
                                                 source_package: evaluator.source_package_name,
                                                 target_project: evaluator.target_project_name,
-                                                target_package: evaluator.target_package_name }.to_json
+                                                target_package: evaluator.target_package_name }
     end
 
     factory :workflow_artifacts_per_step_link_package do
@@ -30,7 +30,7 @@ FactoryBot.define do
         workflow_artifacts_per_step.artifacts = { source_project: evaluator.source_project_name,
                                                   source_package: evaluator.source_package_name,
                                                   target_project: evaluator.target_project_name,
-                                                  target_package: evaluator.target_package_name }.to_json
+                                                  target_package: evaluator.target_package_name }
       end
     end
     factory :workflow_artifacts_per_step_rebuild_package do
@@ -38,7 +38,7 @@ FactoryBot.define do
 
       before(:create) do |workflow_artifacts_per_step, evaluator|
         workflow_artifacts_per_step.artifacts = { project: evaluator.source_project_name,
-                                                  package: evaluator.source_package_name }.to_json
+                                                  package: evaluator.source_package_name }
       end
     end
     factory :workflow_artifacts_per_step_trigger_services do
@@ -46,7 +46,7 @@ FactoryBot.define do
 
       before(:create) do |workflow_artifacts_per_step, evaluator|
         workflow_artifacts_per_step.artifacts = { project: evaluator.source_project_name,
-                                                  package: evaluator.source_package_name }.to_json
+                                                  package: evaluator.source_package_name }
       end
     end
     factory :workflow_artifacts_per_step_config_repositories do
@@ -66,7 +66,7 @@ FactoryBot.define do
               architectures: ['x86_64']
             }
           ]
-        }.to_json
+        }
       end
     end
     factory :workflow_artifacts_per_step_set_flags do
@@ -81,7 +81,7 @@ FactoryBot.define do
               repository: 'openSUSE_Tumbleweed',
               architecture: 'x86_64' }
           ]
-        }.to_json
+        }
       end
     end
   end

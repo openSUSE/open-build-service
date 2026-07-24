@@ -56,7 +56,7 @@ class Webui::RequestController < Webui::WebuiController
       redirect_to request_show_path(@bs_request.number)
       return
     # FIXME: Use validations in the model instead of raising whenever something is wrong
-    rescue MaintenanceHelper::MissingAction
+    rescue MissingAction
       flash[:error] = 'Unable to submit, sources are unchanged'
     rescue Project::Errors::UnknownObjectError
       flash[:error] = "Unable to submit. The project '#{elide(params[:project_name])}' was not found"

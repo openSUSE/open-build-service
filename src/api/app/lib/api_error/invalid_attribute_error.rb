@@ -1,0 +1,1 @@
+class InvalidAttributeError < APIError; end

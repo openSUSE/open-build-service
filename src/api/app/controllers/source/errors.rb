@@ -6,9 +6,6 @@ module Source::Errors
   class InvalidProjectNameError < APIError
   end
 
-  class InvalidPackageNameError < APIError
-  end
-
   class NoPermissionForDeleted < APIError
     setup 403, 'only admins can see deleted projects'
   end
@@ -85,8 +82,6 @@ module Source::Errors
   end
 
   class NotLocked < APIError; end
-
-  class InvalidFlag < APIError; end
 
   class ScmsyncReadOnly < APIError
     setup 403

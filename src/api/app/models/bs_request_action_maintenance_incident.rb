@@ -3,12 +3,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   include BsRequestAction::Differ
 
   #### Constants
-
   #### Self config
-  class NoMaintenanceReleaseTarget < APIError
-    setup 'no_maintenance_release_target'
-  end
-
   #### Attributes
   #### Associations macros (Belongs to, Has one, Has many)
   #### Callbacks macros: before_save, after_save, etc.

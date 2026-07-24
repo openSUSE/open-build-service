@@ -21,7 +21,7 @@ class Issue < ApplicationRecord
     unless issue_tracker
       return if options[:nonfatal]
 
-      raise IssueTracker::NotFoundError, "Error: Issue Tracker '#{issue_tracker_name}' not found."
+      raise IssueTrackerNotFoundError, "Error: Issue Tracker '#{issue_tracker_name}' not found."
     end
 
     issue = issue_tracker.issues.find_by_name(name)

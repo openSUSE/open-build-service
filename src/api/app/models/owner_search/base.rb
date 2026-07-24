@@ -1,9 +1,5 @@
 module OwnerSearch
   class Base
-    class AttributeNotSetError < APIError
-      setup 'attribute_not_set', 400
-    end
-
     def devel_disabled?(project = nil)
       return %w[0 false].include?(params[:devel]) if params[:devel]
 

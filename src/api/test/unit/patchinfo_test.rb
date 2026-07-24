@@ -61,7 +61,7 @@ blub
                  </description>
                  <summary>Security update for someone</summary>
                </patchinfo>"
-    assert_raise(Patchinfo::TrackerNotFound) do
+    assert_raise(IssueTrackerNotFoundError) do
       Patchinfo.new.verify_data(Project.first, content)
     end
   end

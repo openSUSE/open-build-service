@@ -129,7 +129,7 @@ class BsRequest < ApplicationRecord
   def self.new_from_xml(xml)
     hashed = Xmlhash.parse(xml)
 
-    raise SaveError, 'Failed parsing the request xml' unless hashed
+    raise RequestSaveError, 'Failed parsing the request xml' unless hashed
 
     new_from_hash(hashed)
   end
@@ -204,7 +204,7 @@ class BsRequest < ApplicationRecord
       str = hashed.value('accept_at')
       request.accept_at = Time.parse(str) if str
       hashed.delete('accept_at')
-      raise SaveError, 'Auto accept time is in the past' if request.accept_at && request.accept_at < Time.now
+      raise RequestSaveError, 'Auto accept time is in the past' if request.accept_at && request.accept_at < Time.now
 
       # we do not support to import history anymore on purpose
       # would be all fake, but means also history gets lost when
@@ -629,9 +629,9 @@ class BsRequest < ApplicationRecord
       user_review = reviews.where(by_user: reviewer.login).last
       # Set the by_group/project/package reviews to :new and destroy the user review
       if opts[:revert]
-        raise Review::NotFoundError unless user_review
+        raise ReviewNotFoundError unless user_review
         raise InvalidStateError, 'review is not in new state' unless user_review.state == :new
-        raise Review::NotFoundError, 'Not an assigned review' unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
+        raise ReviewNotFoundError, 'Not an assigned review' unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
 
         reassign_reviews(reviewer, opts)
 
@@ -703,7 +703,7 @@ class BsRequest < ApplicationRecord
 
       old_request_state = state
       review = find_review_for_opts(opts)
-      raise Review::NotFoundError unless review
+      raise ReviewNotFoundError unless review
 
       # Neither the state nor the reason is changing...
       return if review.state == new_review_state && review.reviewer == User.session!.login && review.reason == opts[:comment].to_s
@@ -771,7 +771,7 @@ class BsRequest < ApplicationRecord
   def setpriority(opts)
     permission_check_setpriority!
 
-    raise SaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(VALID_REQUEST_PRIORITIES)
+    raise RequestSaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(VALID_REQUEST_PRIORITIES)
 
     p = { request: self, user_id: User.session!.id, description_extension: "#{priority} => #{opts[:priority]}" }
     p[:comment] = opts[:comment] if opts[:comment]
@@ -925,8 +925,8 @@ class BsRequest < ApplicationRecord
     self.creator ||= User.session!.login
     self.commenter ||= User.session!.login
     # FIXME: Move permission checks to controller level
-    raise SaveError, 'Admin permissions required to set request creator to foreign user' unless self.creator == User.session!.login || User.admin_session?
-    raise SaveError, 'Admin permissions required to set request commenter to foreign user' unless self.commenter == User.session!.login || User.admin_session?
+    raise RequestSaveError, 'Admin permissions required to set request creator to foreign user' unless self.creator == User.session!.login || User.admin_session?
+    raise RequestSaveError, 'Admin permissions required to set request commenter to foreign user' unless self.commenter == User.session!.login || User.admin_session?
 
     # ensure correct initial values, no matter what has been sent to us
     self.state = :new
@@ -983,7 +983,7 @@ class BsRequest < ApplicationRecord
       newactions.concat(new_action)
     end
     # will become an empty request
-    raise MaintenanceHelper::MissingAction if newactions.empty? && oldactions.size == bs_request_actions.size
+    raise MissingAction if newactions.empty? && oldactions.size == bs_request_actions.size
 
     oldactions.each { |a| bs_request_actions.destroy(a) }
     newactions.each { |a| bs_request_actions << a }
@@ -1237,13 +1237,13 @@ class BsRequest < ApplicationRecord
   end
 
   def reassign_reviews(reviewer, opts, new_review = nil)
-    raise Review::NotFoundError unless opts[:by_group] || opts[:by_project] || opts[:by_package]
+    raise ReviewNotFoundError unless opts[:by_group] || opts[:by_project] || opts[:by_package]
 
     reviews_to_reassign = reviews.where(by_group: opts[:by_group]) if opts[:by_group]
     reviews_to_reassign = reviews.where(by_project: opts[:by_project], by_package: opts[:by_package]) if opts[:by_project] && opts[:by_package]
     reviews_to_reassign = reviews.where(by_project: opts[:by_project]) if opts[:by_project] && !opts[:by_package]
 
-    raise Review::NotFoundError unless reviews_to_reassign.any?
+    raise ReviewNotFoundError unless reviews_to_reassign.any?
 
     reviews_to_reassign.reverse_each do |review|
       if opts[:revert]

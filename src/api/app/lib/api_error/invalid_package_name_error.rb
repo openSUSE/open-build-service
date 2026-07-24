@@ -1,0 +1,1 @@
+class InvalidPackageNameError < APIError; end

@@ -12,7 +12,7 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   end
 
   def call
-    parsed_artifacts = JSON.parse(artifacts).deep_symbolize_keys
+    parsed_artifacts = (artifacts.is_a?(Hash) ? artifacts : JSON.parse(artifacts)).deep_symbolize_keys
 
     case step
     when 'Workflow::Step::BranchPackageStep'

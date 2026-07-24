@@ -2,9 +2,6 @@
 module HasRelationships
   extend ActiveSupport::Concern
 
-  class SaveError < APIError
-  end
-
   def add_user(user, role, ignore_lock = nil)
     Relationship.add_user(self, user, role, ignore_lock)
   end
@@ -161,7 +158,7 @@ module HasRelationships
       group = Group.find_by_title(id)
       return group if group
 
-      raise SaveError, "unknown group '#{id}'"
+      raise RelationshipSaveError, "unknown group '#{id}'"
     end
   end
 
@@ -179,7 +176,7 @@ module HasRelationships
     # we keep the relationships
     xmlhash.elements(@updater.xml_element) do |node|
       role = Role.hashed[node['role']]
-      raise SaveError, "illegal role name '#{node['role']}'" unless role
+      raise RelationshipSaveError, "illegal role name '#{node['role']}'" unless role
 
       id = @updater.id(node)
       item = @updater.find!(id)

@@ -539,7 +539,7 @@ class Package < ApplicationRecord
       xml.elements('issue') do |i|
         current_issues['kept'] ||= []
         current_issues['kept'] << Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
-      rescue IssueTracker::NotFoundError => e
+      rescue IssueTrackerNotFoundError => e
         # if the issue is invalid, we ignore it
         Rails.logger.debug e
       end

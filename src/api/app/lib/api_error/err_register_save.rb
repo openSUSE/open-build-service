@@ -1,0 +1,1 @@
+class ErrRegisterSave < APIError; end

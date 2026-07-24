@@ -154,9 +154,6 @@ class PersonController < ApplicationController
     internal_register
   end
 
-  class ErrRegisterSave < APIError
-  end
-
   def internal_register
     xml = REXML::Document.new(request.raw_post)
 

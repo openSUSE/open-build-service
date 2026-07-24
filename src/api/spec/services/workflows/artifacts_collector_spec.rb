@@ -36,7 +36,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
         it do
           subject.call
-          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.stringify_keys)
           expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::BranchPackageStep')
         end
       end
@@ -59,7 +59,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
         it do
           subject.call
-          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.stringify_keys)
           expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::BranchPackageStep')
         end
       end
@@ -82,7 +82,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
         it do
           subject.call
-          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.stringify_keys)
           expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::BranchPackageStep')
         end
       end
@@ -121,7 +121,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
         it do
           subject.call
-          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.stringify_keys)
           expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::LinkPackageStep')
         end
       end
@@ -144,7 +144,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
         it do
           subject.call
-          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.stringify_keys)
           expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::LinkPackageStep')
         end
       end
@@ -167,7 +167,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
         it do
           subject.call
-          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+          expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.stringify_keys)
           expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::LinkPackageStep')
         end
       end
@@ -196,7 +196,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       it do
         subject.call
-        expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+        expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.stringify_keys)
         expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::RebuildPackage')
       end
     end
@@ -224,7 +224,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       it do
         subject.call
-        expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+        expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.stringify_keys)
         expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::TriggerServices')
       end
     end
@@ -283,7 +283,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       it do
         subject.call
-        expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+        expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.deep_stringify_keys)
         expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::ConfigureRepositories')
       end
     end
@@ -312,7 +312,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
 
       it do
         subject.call
-        expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.to_json)
+        expect(WorkflowArtifactsPerStep.last.artifacts).to eq(artifacts.deep_stringify_keys)
         expect(WorkflowArtifactsPerStep.last.step).to eq('Workflow::Step::SetFlags')
       end
     end

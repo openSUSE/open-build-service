@@ -2,17 +2,6 @@ class SourceAttributeController < SourceController
   before_action :set_request_data, only: [:update]
   before_action :find_attribute_container
 
-  class RemoteProject < APIError
-    setup 501, 'Attribute access to remote project is not yet supported'
-  end
-
-  class InvalidAttribute < APIError
-  end
-
-  class ChangeAttributeNoPermission < APIError
-    setup 403
-  end
-
   # GET
   # /source/:project/_attribute
   # /source/:project/_attribute/:attribute
@@ -102,7 +91,7 @@ class SourceAttributeController < SourceController
                                                              use_source: false)
     else
       # project
-      raise RemoteProject if Project.remote_project?(params[:project])
+      raise RemoteProjectError, 'Attribute access to remote project is not yet supported' if Project.remote_project?(params[:project])
 
       @attribute_container = Project.get_by_name(params[:project])
     end

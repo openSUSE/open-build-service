@@ -2,11 +2,6 @@ require 'xmlrpc/client'
 
 class IssueTracker < ApplicationRecord
   has_many :issues, dependent: :destroy
-
-  class NotFoundError < APIError
-    setup 'issue_tracker_not_found', 404, 'Issue Tracker not found'
-  end
-
   validates :name, :regex, :url, :kind, presence: true
   validates :name, :regex, uniqueness: { case_sensitive: true }
   validates :kind, inclusion: { in: %w[other bugzilla cve fate trac launchpad sourceforge github jira debbugs] }

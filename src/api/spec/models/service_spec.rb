@@ -29,7 +29,7 @@ RSpec.describe Service, :vcr do
     end
 
     it { expect { Service.verify_xml!(valid_xml) }.not_to raise_error }
-    it { expect { Service.verify_xml!(invalid_xml) }.to raise_error(Service::InvalidParameter) }
+    it { expect { Service.verify_xml!(invalid_xml) }.to raise_error(InvalidParameterError) }
   end
 
   describe '#add_download_url' do

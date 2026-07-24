@@ -1,6 +1,4 @@
 class BinaryRelease < ApplicationRecord
-  class SaveError < APIError; end
-
   # These aliases are the attribute names the backend uses to represent a BinaryRelease
   # Having these makes it easier for us to transpose one into the other.
   alias_attribute :name, :binary_name

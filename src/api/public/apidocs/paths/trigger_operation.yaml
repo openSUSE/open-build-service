@@ -79,53 +79,6 @@ post:
       schema:
         type: string
       example: vim
-    - in: query
-      name: repository
-      description: |
-        Restrict the API token operation to this repository.
-        
-        Only has an effect if the API token operation is 'rebuild' or 'release'.
-      schema:
-        type: string
-      example: openSUSE_Factory
-    - in: query
-      name: arch
-      description: |
-        Restrict the API token operation to this architecture with this name.
-        
-        Only has an effect when the API token operation is 'rebuild' or 'release'.
-      schema:
-        type: string
-      example: x86_64
-    - in: query
-      name: targetproject
-      description: |
-        Release binaries only to the provided project with this name.
-        Setting this requires the 'targetrepository' parameter to be set also.
-
-        Only has an effect if the API token operation is 'release'.
-      schema:
-        type: string
-      example: devel:languages:ruby
-    - in: query
-      name: targetrepository
-      description: |
-        Release binaries only to the target repository with this name.
-        Setting this requires the 'targetproject' parameter to be set also.
-
-        Only has an effect if the API token operation is 'release'.
-      schema:
-        type: string
-      example: openSUSE_Factory
-    - in: query
-      name: filter_source_repository
-      description: |
-        Release binaries only from the repository with this name.
-
-        Only has an effect if the API token operation is 'release'.
-      schema:
-        type: string
-      example: openSUSE_Factory
   responses:
     '200':
       $ref: '../components/responses/succeeded.yaml'

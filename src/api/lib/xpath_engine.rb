@@ -2,8 +2,6 @@
 class XpathEngine
   require 'rexml/parsers/xpathparser'
 
-  class IllegalXpathError < ArgumentError; end
-
   def initialize
     @lexer = REXML::Parsers::XPathParser.new
 
@@ -258,21 +256,21 @@ class XpathEngine
     rescue NoMethodError
       # if the input contains a [ in random place, rexml will throw
       #  undefined method `[]' for nil:NilClass
-      raise IllegalXpathError, 'failed to parse xpath expression'
+      raise ArgumentError, 'failed to parse xpath expression'
     rescue REXML::ParseException => e
-      raise IllegalXpathError, e.message
+      raise ArgumentError, e.message
     end
     # logger.debug "starting stack: #{@stack.inspect}"
 
-    raise IllegalXpathError, 'xpath expression has to begin with root node' if @stack.shift != :document
+    raise ArgumentError, 'xpath expression has to begin with root node' if @stack.shift != :document
 
-    raise IllegalXpathError, 'xpath expression has to begin with root node' if @stack.shift != :child
+    raise ArgumentError, 'xpath expression has to begin with root node' if @stack.shift != :child
 
     @stack.shift
     @stack.shift
     tablename = @stack.shift
     @base_table = @tables[tablename]
-    raise IllegalXpathError, "unknown table #{tablename}" unless @base_table
+    raise ArgumentError, "unknown table #{tablename}" unless @base_table
 
     until @stack.empty?
       token = @stack.shift
@@ -283,16 +281,16 @@ class XpathEngine
            :namespace, :parent, :preceding, :preceding_sibling
         nil
       when :self
-        raise IllegalXpathError, "axis '#{token}' not supported"
+        raise ArgumentError, "axis '#{token}' not supported"
       when :child
-        raise IllegalXpathError, "non :qname token after :child token: #{token.inspect}" if @stack.shift != :qname
+        raise ArgumentError, "non :qname token after :child token: #{token.inspect}" if @stack.shift != :qname
 
         @stack.shift # namespace
         @stack.shift # node
       when :predicate
         parse_predicate([], @stack.shift)
       else
-        raise IllegalXpathError, "Unhandled token '#{token.inspect}'"
+        raise ArgumentError, "Unhandled token '#{token.inspect}'"
       end
     end
 
@@ -373,7 +371,7 @@ class XpathEngine
     # logger.debug "------------------ predicate ---------------"
     # logger.debug "-- pred_array: #{stack.inspect} --"
 
-    raise IllegalXpathError, 'invalid predicate' if stack.nil?
+    raise ArgumentError, 'invalid predicate' if stack.nil?
 
     until stack.empty?
       token = stack.shift
@@ -381,7 +379,7 @@ class XpathEngine
       when :function
         fname = stack.shift
         fname_int = "xpath_func_#{fname.tr('-', '_')}"
-        raise IllegalXpathError, "unknown xpath function '#{fname}'" unless respond_to?(fname_int)
+        raise ArgumentError, "unknown xpath function '#{fname}'" unless respond_to?(fname_int)
 
         __send__(fname_int, root, *stack.shift)
       when :child
@@ -405,17 +403,17 @@ class XpathEngine
         when :any
           # noop, already shifted
         else
-          raise IllegalXpathError, "unhandled token '#{t.inspect}'"
+          raise ArgumentError, "unhandled token '#{t.inspect}'"
         end
       when *@operators
         opname = token.to_s
         opname_int = "xpath_op_#{opname}"
-        raise IllegalXpathError, "unhandled xpath operator '#{opname}'" unless respond_to?(opname_int)
+        raise ArgumentError, "unhandled xpath operator '#{opname}'" unless respond_to?(opname_int)
 
         __send__(opname_int, root, *stack)
         stack = []
       else
-        raise IllegalXpathError, "illegal token X '#{token.inspect}'"
+        raise ArgumentError, "illegal token X '#{token.inspect}'"
       end
     end
 
@@ -444,7 +442,7 @@ class XpathEngine
 
         if @last_key && @attribs[table][@last_key][:split]
           tvalues = value.split(@attribs[table][@last_key][:split])
-          raise IllegalXpathError, 'attributes must be $NAMESPACE:$NAME' if tvalues.size != 2
+          raise ArgumentError, 'attributes must be $NAMESPACE:$NAME' if tvalues.size != 2
 
           @condition_values_needed.times { @condition_values << tvalues }
         else
@@ -453,14 +451,14 @@ class XpathEngine
         @last_key = nil
         return '?'
       else
-        raise IllegalXpathError, "illegal token: '#{token.inspect}'"
+        raise ArgumentError, "illegal token: '#{token.inspect}'"
       end
     end
     key = (root + a).join('/')
     # this is a wild hack - we need to save the key, so we can possibly split the next
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key
-    raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] && @attribs[table].key?(key)
+    raise ArgumentError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] && @attribs[table].key?(key)
     # logger.debug "-- found key: #{key} --"
     return if @attribs[table][key][:empty]
 

@@ -32,5 +32,6 @@ namespace :data do
         data_migration[:version] == 20_250_131_143_734
       end.present?
     end
+
   end
 end

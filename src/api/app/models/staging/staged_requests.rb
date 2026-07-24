@@ -16,7 +16,7 @@ class Staging::StagedRequests
 
     return if valid?
 
-    raise Staging::ExcludedRequestNotFound, errors.to_sentence
+    raise ExcludedRequestNotFound, errors.to_sentence
   end
 
   def destroy
