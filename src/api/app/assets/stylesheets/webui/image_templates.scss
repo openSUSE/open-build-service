@@ -1,8 +1,30 @@
 .image-template-box {
   @extend .p-3;
+  overflow: hidden;
+  position: relative;
 
   &.active{
     @extend .card;
     background: var(--bs-tertiary-bg);
+  }
+
+  .form-check {
+    position: relative;
+  }
+
+  .form-check-input {
+    position: relative;
+    z-index: 1;
+  }
+
+  .form-check-label {
+    display: block;
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .description {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 }
