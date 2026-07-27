@@ -1,5 +1,3 @@
-require 'configuration'
-
 class ConfigurationsController < ApplicationController
   # Site-specific configuration is insensitive information, no login needed therefore
   before_action :require_admin, only: [:update]

@@ -1,5 +1,3 @@
-require 'pretty_nested_errors'
-
 class Bicycle < ApplicationRecord
   include PrettyNestedErrors
 

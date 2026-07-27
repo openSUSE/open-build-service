@@ -31,7 +31,7 @@ class Project < ApplicationRecord
   after_rollback :reset_cache
   after_rollback :discard_cache
 
-  serialize :required_checks, type: Array
+  serialize :required_checks, type: Array, coder: JSON
 
   attr_accessor :commit_opts, :commit_user
 

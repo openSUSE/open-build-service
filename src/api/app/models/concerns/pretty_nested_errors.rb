@@ -1,4 +1,3 @@
-require 'pretty_nested_errors/key_and_messages_parser'
 #  PrettyNestedErrors
 #
 #  Groups errors for nested resources on a model by a lambda for each nested resource.
@@ -85,7 +84,7 @@ module PrettyNestedErrors
     @nested_error_messages = {}
     errors.messages.each do |key, messages|
       @nested_error_messages =
-        KeyAndMessagesParser.new(self, key, messages, @nested_error_messages, self.nested_error_groupings).parse
+        PrettyNestedErrors::KeyAndMessagesParser.new(self, key, messages, @nested_error_messages, self.nested_error_groupings).parse
     end
     @nested_error_messages
   end
