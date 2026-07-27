@@ -1,5 +1,3 @@
-require 'pretty_nested_errors'
-
 module Kiwi
   class Image < ApplicationRecord
     #### Includes and extends
