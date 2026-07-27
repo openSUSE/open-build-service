@@ -49,7 +49,8 @@ sub normalize_container {
   local *TAR;
   open(TAR, '<', "$dir/$container") || die("$dir/$container: $!\n");
   # overwrite manifest tags with tags from containerinfo
-  my ($tar, $mtime, $config, $config_id, $layercomp) = BSContar::normalize_container(\*TAR, $recompress, $containerinfo->{'tags'}, $uploaddir);
+  my ($tar, $mtime, $config, $config_id) = BSContar::normalize_container(\*TAR, $recompress, $containerinfo->{'tags'}, $uploaddir);
+  my $atts = BSContar::get_entry_attributes($tar);
   my ($md5, $sha256, $size) = BSContar::checksum_tar($tar);
  
   # split in blobs/manifest, write blob files
@@ -76,16 +77,16 @@ sub normalize_container {
     $config->{'variant'} = "v8" if $config->{'architecture'} eq 'arm64';
   }
   $containerinfo->{'govariant'} = $config->{'variant'} if $config->{'variant'};
-  # take zstd:chunked data from old layer compression
-  if ($layercomp && $containerinfo->{'layer_compression'} && !$recompress) {
-    my @oldlayercomp = @{$containerinfo->{'layer_compression'}};
-    for (@$layercomp) {
-      my $oldcomp = shift @oldlayercomp;
-      $_ = $oldcomp if $_ eq 'zstd' && $oldcomp && $oldcomp =~ /^zstd:chunked,/;
+  my %atts_chk = %$atts;
+  delete $atts_chk{'layer_compression'} unless grep {$_ && $_ ne 'gzip'} @{$atts_chk{'layer_compression'}|| []};
+  if (!$recompress && !%atts_chk) {
+    # reuse old containerinfo attributes
+  } else {
+    for (qw{manifest_attributes config_mimetype config_attributes layer_mimetype layer_attributes layer_compression}) {
+      delete $containerinfo->{$_};
+      $containerinfo->{$_} = $atts->{$_} if $atts->{$_};
     }
   }
-  delete $containerinfo->{'layer_compression'};
-  $containerinfo->{'layer_compression'} = $layercomp if $layercomp && @$layercomp;
   BSRepServer::Containerinfo::writecontainerinfo("$dir/.$containerinfo_file", "$dir/$containerinfo_file", $containerinfo);
 
   if ($deletetar) {

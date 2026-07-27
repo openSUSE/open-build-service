@@ -48,7 +48,7 @@ sub construct_container_tar {
     $tar[-1]->{'layer_compression'} = $comp if defined $comp;
   }
   push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
-  BSContar::set_layer_compression(\@tar, $containerinfo->{'layer_compression'}) if !$containerinfo->{'tar_blobcompression'} && $containerinfo->{'layer_compression'};
+  BSContar::set_entry_attributes(\@tar, $containerinfo);
   return (\@tar, $mtime);
 }
 
