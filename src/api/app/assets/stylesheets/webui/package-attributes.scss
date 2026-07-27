@@ -9,3 +9,7 @@ ul li.value {
     padding: 2px 3px;
   }
 }
+
+table#attributes.collapsed tbody tr {
+  cursor: pointer;
+}

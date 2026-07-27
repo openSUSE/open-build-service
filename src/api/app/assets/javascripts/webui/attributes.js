@@ -9,6 +9,9 @@ $(document).ready(function() {
     info: false,
     searching: false,
     paging: false,
-    ordering: false
+    ordering: false,
+    columnDefs: [
+      { className: 'dtr-control', targets: 0 }
+    ]
   });
 });
