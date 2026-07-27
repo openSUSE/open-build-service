@@ -1304,6 +1304,7 @@ end
 #  description        :text(65535)
 #  number             :integer          uniquely indexed
 #  priority           :string           default("moderate")
+#  reviews_count      :integer          default(0), not null, indexed
 #  state              :string(255)      indexed
 #  status             :integer          indexed
 #  superseded_by      :integer          indexed
@@ -1318,6 +1319,7 @@ end
 #  index_bs_requests_on_created_at          (created_at)
 #  index_bs_requests_on_creator             (creator)
 #  index_bs_requests_on_number              (number) UNIQUE
+#  index_bs_requests_on_reviews_count       (reviews_count)
 #  index_bs_requests_on_staging_project_id  (staging_project_id)
 #  index_bs_requests_on_state               (state)
 #  index_bs_requests_on_status              (status)
