@@ -52,6 +52,10 @@ our $mt_helm_config         = 'application/vnd.cncf.helm.config.v1+json';
 our $mt_artifacthub_config  = 'application/vnd.cncf.artifacthub.config.v1+yaml';
 our $mt_artifacthub_layer   = 'application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml';
 
+# standard container mimetypes
+my %std_config_mimetypes = map { $_ => 1} ($mt_oci_config, $mt_docker_config);
+my %std_layer_mimetypes = map { $_ => 1} ($mt_oci_layer, $mt_oci_layer_gzip, $mt_oci_layer_zstd, $mt_docker_layer, $mt_docker_layer_gzip);
+
 sub blobid {
   return 'sha256:'.Digest::SHA::sha256_hex($_[0]);
 }
@@ -162,6 +166,11 @@ sub compress_entry {
   close(F) or die("compress_entry $compressor[0]: $?\n");
   my $newent = { %$ent, 'offset' => 0, 'size' => (-s $tmp), 'file' => $tmp, 'layer_compression' => $newcomp };
   delete $newent->{'blobid'};
+
+  # adapt mimetype to the new compression
+  my $mt = $ent->{'mimetype'};
+  $newent->{'mimetype'} = $mt_oci_layer_gzip if $mt && ($mt eq $mt_oci_layer || $mt eq $mt_oci_layer_zstd);
+  $newent->{'mimetype'} = $mt_docker_layer_gzip if $mt && $mt eq $mt_docker_layer;
   return $newent;
 }
 
@@ -257,8 +266,11 @@ sub get_distmanifest_from_oci_tar {
   my $index_json = BSTar::extract($index_ent->{'file'}, $index_ent);
   my $index = JSON::XS::decode_json($index_json);
   die("tar contains no oci manifest\n") unless @{$index->{'manifests'} || []};
-  die("tar contains more than one oci manifest\n") unless  @{$index->{'manifests'}} == 1;
-  my $distmanifest_file = get_file_from_oci_tar($tar, $index->{'manifests'}->[0]->{'digest'});
+  my $digest = $index->{'manifests'}->[0]->{'digest'};
+  if (@{$index->{'manifests'}} > 1) {
+    die("tar contains oci manifests with different digest\n") if grep {$_->{'digest'} ne $digest} @{$index->{'manifests'}};
+  }
+  my $distmanifest_file = get_file_from_oci_tar($tar, $digest);
   my $distmanifest_ent = $tar->{$distmanifest_file};
   my $distmanifest_json = BSTar::extract($distmanifest_ent->{'file'}, $distmanifest_ent);
   my $distmanifest = JSON::XS::decode_json($distmanifest_json);
@@ -269,23 +281,29 @@ sub get_distmanifest_from_oci_tar {
 sub get_manifest_oci_tar {
   my ($tar) = @_;
   my ($distmanifest_ent, $distmanifest) = get_distmanifest_from_oci_tar($tar);
-  my $configfile = get_file_from_oci_tar($tar, $distmanifest->{'config'}->{'digest'});
+  my $c = $distmanifest->{'config'};
+  my $configfile = get_file_from_oci_tar($tar, $c->{'digest'});
+  $tar->{$configfile}->{'mimetype'} = $c->{'mediaType'} if $c->{'mediaType'} && !$std_config_mimetypes{$c->{'mediaType'}};
+  $tar->{$configfile}->{'annotations'} = $c->{'annotations'} if $c->{'annotations'} && ref($c->{'annotations'}) eq 'HASH' && %{$c->{'annotations'}};
   my @layerfiles;
   for my $l (@{$distmanifest->{'layers'} || []}) {
     my $layerfile = get_file_from_oci_tar($tar, $l->{'digest'});
     push @layerfiles, $layerfile;
     my $comp = layer_compression_from_mimetype($l->{'mediaType'}, $l->{'annotations'});
-    $tar->{$layerfile}->{'layer_compression'} = $comp;
+    $tar->{$layerfile}->{'layer_compression'} = $comp if defined $comp;
+    $tar->{$layerfile}->{'mimetype'} = $l->{'mediaType'} if $l->{'mediaType'} && !$std_layer_mimetypes{$l->{'mediaType'}};
+    $tar->{$layerfile}->{'annotations'} = $l->{'annotations'} if $l->{'annotations'} && ref($l->{'annotations'}) eq 'HASH' && %{$l->{'annotations'}};
   }
   my $manifest = create_tar_manifest_data($configfile, \@layerfiles);
   my $manifest_ent = create_tar_manifest_entry($manifest);
+  $manifest_ent->{'annotations'} = $distmanifest->{'annotations'} if $distmanifest->{'annotations'} && ref($distmanifest->{'annotations'}) eq 'HASH' && %{$distmanifest->{'annotations'}};
   return ($manifest_ent, $manifest);
 }
 
 sub get_manifest {
   my ($tar) = @_;
+  return get_manifest_oci_tar($tar) if $tar->{'index.json'} && $tar->{'oci-layout'};
   my $manifest_ent = $tar->{'manifest.json'};
-  return get_manifest_oci_tar($tar) if !$manifest_ent && $tar->{'index.json'} && $tar->{'oci-layout'};
   die("no manifest.json file found\n") unless $manifest_ent;
   my $manifest_json = BSTar::extract($manifest_ent->{'file'}, $manifest_ent);
   my $manifest = JSON::XS::decode_json($manifest_json);
@@ -295,12 +313,29 @@ sub get_manifest {
   return ($manifest_ent, $manifest);
 }
 
-sub get_config {
+sub get_config_entry {
   my ($tar, $manifest) = @_;
   my $config_file = $manifest->{'Config'};
   die("manifest has no Config\n") unless defined $config_file;
   my $config_ent = $tar->{$config_file};
   die("File $config_file not included in tar\n") unless $config_ent;
+  return $config_ent;
+}
+
+sub get_layer_entries {
+  my ($tar, $manifest) = @_;
+  my @layer_ents;
+  for my $layer_file (@{$manifest->{'Layers'} || []}) {
+    my $layer_ent = $tar->{$layer_file};
+    die("File $layer_file not included in tar\n") unless $layer_ent;
+    push @layer_ents, $layer_ent;
+  }
+  return @layer_ents;
+}
+
+sub get_config {
+  my ($tar, $manifest) = @_;
+  my $config_ent = get_config_entry($tar, $manifest);
   my $config_json = BSTar::extract($config_ent->{'file'}, $config_ent);
   $config_ent->{'blobid'} ||= blobid($config_json);		# convenience
   return ($config_ent, {}) if $config_json eq '';		# workaround for artifacthub
@@ -331,18 +366,52 @@ sub checksum_tar {
   return ($md5, $sha256, $size);
 }
 
-sub set_layer_compression {
-  my ($tar, $layer_compression) = @_;
-  my @lcomp = @{$layer_compression || []};
-  return unless @lcomp;
+sub set_entry_attributes {
+  my ($tar, $atts) = @_;
+  my @lcomp = @{$atts->{'layer_compression'} || []};
+  my @mimetype = @{$atts->{'layer_mimetype'} || []};
+  my @annotations = @{$atts->{'layer_annotations'} || []};
+  return unless @lcomp || @mimetype || @annotations || $atts->{'config_annotations'} || $atts->{'config_mimetype'} || $atts->{'manifest_annotations'};
   my %tar = map {$_->{'name'} => $_} @$tar;
   my ($manifest_ent, $manifest) = get_manifest(\%tar);
-  for my $layer_file (@{$manifest->{'Layers'} || []}) {
-    my $layer_ent = $tar{$layer_file};
-    die("File $layer_file not included in tar\n") unless $layer_ent;
-    my $lcomp = shift @lcomp;
-    $layer_ent->{'layer_compression'} = $lcomp if defined $lcomp;
+  $manifest_ent->{'annotations'} = $atts->{'manifest_annotations'} if $atts->{'manifest_annotations'} && ref($atts->{'manifest_annotations'}) eq 'HASH';
+  if ($atts->{'config_annotations'} || $atts->{'config_mimetype'}) {
+    my $config_ent = get_config_entry(\%tar, $manifest);
+    $config_ent->{'mimetype'} = $atts->{'config_mimetype'} if $atts->{'config_mimetype'};
+    my $annotations = $atts->{'config_annotations'};
+    $config_ent->{'annotations'} = $$annotations if $annotations && ref($annotations) eq 'HASH';
   }
+  if (@lcomp || @mimetype || @annotations) {
+    for my $layer_ent (get_layer_entries(\%tar, $manifest)) {
+      my $lcomp = shift @lcomp;
+      $layer_ent->{'layer_compression'} = $lcomp if defined $lcomp;
+      my $mimetype = shift @mimetype;
+      $layer_ent->{'mimetype'} = $mimetype if defined $mimetype;
+      my $annotations = shift @annotations;
+      $layer_ent->{'annotations'} = $annotations if $annotations && ref($annotations) eq 'HASH';
+    }
+  }
+}
+
+sub get_entry_attributes {
+  my ($tar) = @_;
+  my $atts= {};
+  my %tar = map {$_->{'name'} => $_} @$tar;
+  my ($manifest_ent, $manifest) = get_manifest(\%tar);
+  $atts->{'manifest_annotations'} = $manifest_ent->{'annotations'} if $manifest_ent->{'annotations'};
+  my $config_ent = get_config_entry(\%tar, $manifest);
+  $atts->{'config_annotations'} = $config_ent->{'annotations'} if $config_ent->{'annotations'};
+  $atts->{'config_mimetype'} = $config_ent->{'mimetype'} if $config_ent->{'mimetype'};
+  my (@lcomp, @mimetype, @annotations);
+  for my $layer_ent (get_layer_entries(\%tar, $manifest)) {
+    push @lcomp, $layer_ent->{'layer_compression'};
+    push @mimetype, $layer_ent->{'mimetype'};
+    push @annotations, $layer_ent->{'annotations'};
+  }
+  $atts->{'layer_compression'} = \@lcomp if grep {defined($_)} @lcomp;
+  $atts->{'layer_mimetype'} = \@mimetype if grep {$_} @mimetype;
+  $atts->{'layer_annotations'} = \@mimetype if grep {$_} @annotations;
+  return $atts;
 }
 
 sub normalize_container {
@@ -355,20 +424,16 @@ sub normalize_container {
   # compress blobs
   my %newblobs;
   my @newlayers;
-  my @newlayercomp;
-  my @newblobcomp;
   my $newconfig = blobid_entry($config_ent);
   $newblobs{$newconfig} ||= { %$config_ent, 'name' => $newconfig };
   my $cnt = 0;
-  for my $layer_file (@{$manifest->{'Layers'} || []}) {
-    my $layer_ent = $tar{$layer_file};
-    die("File $layer_file not included in tar\n") unless $layer_ent;
+  for my $layer_ent (get_layer_entries(\%tar, $manifest)) {
+    my $mt = $layer_ent->{'mimetype'};
     my $comp = defined($layer_ent->{'layer_compression'}) ? $layer_ent->{'layer_compression'} : detect_entry_compression($layer_ent);
-    if ($comp && ($comp eq 'zstd' || $comp =~ /^zstd:chunked,/)) {
+    if (($mt && !$std_layer_mimetypes{$mt}) || ($comp && ($comp eq 'zstd' || $comp =~ /^zstd:chunked,/))) {
       my $blobid = blobid_entry($layer_ent);
       $newblobs{$blobid} ||= { %$layer_ent, 'name' => $blobid };
       push @newlayers, $blobid;
-      push @newlayercomp, $comp;
       next;
     }
     my $newcomp = 'gzip';
@@ -391,23 +456,27 @@ sub normalize_container {
     my $blobid = blobid_entry($layer_ent);
     $newblobs{$blobid} ||= { %$layer_ent, 'name' => $blobid, 'layer_compression' => $newcomp };
     push @newlayers, $blobid;
-    push @newlayercomp, $newcomp;
   }
 
   # create new manifest
   my $newmanifest = create_tar_manifest_data($newconfig, \@newlayers, $repotags || $manifest->{'RepoTags'});
   my $newmanifest_ent = create_tar_manifest_entry($newmanifest, $mtime);
+  $newmanifest_ent->{'annotations'} = $manifest_ent->{'annotations'} if $manifest_ent->{'annotations'};
 
   # create new tar (annotated with the file and blobid)
   my @newtar;
   for my $blobid (sort keys %newblobs) {
     my $ent = $newblobs{$blobid};
-    push @newtar, {'name' => $blobid, 'mtime' => $mtime, 'offset' => $ent->{'offset'}, 'size' => $ent->{'size'}, 'file' => $ent->{'file'}, 'blobid' => $blobid, 'layer_compression' => $ent->{'layer_compression'}};
+    my $newent = {'name' => $blobid, 'mtime' => $mtime, 'offset' => $ent->{'offset'}, 'size' => $ent->{'size'}, 'file' => $ent->{'file'}, 'blobid' => $blobid};
+    $newent->{'layer_compression'} = $ent->{'layer_compression'} if $ent->{'layer_compression'};
+    $newent->{'mimetype'} = $ent->{'mimetype'} if $ent->{'mimetype'};
+    $newent->{'annotations'} = $ent->{'annotations'} if $ent->{'annotations'};
+    push @newtar, $newent;
   }
   $newmanifest_ent->{'blobid'} = blobid_entry($newmanifest_ent);
   push @newtar, $newmanifest_ent;
 
-  return (\@newtar, $mtime, $config, $newconfig, \@newlayercomp);
+  return (\@newtar, $mtime, $config, $newconfig);
 }
 
 sub _orderhash {

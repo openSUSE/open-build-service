@@ -2453,7 +2453,10 @@ sub putjob {
     }
     eval {
       # check that the containerinfo is well formed
-      BSRepServer::Containerinfo::readcontainerinfo($tmpdir, $containerinfofile);
+      my $containerinfo = BSRepServer::Containerinfo::readcontainerinfo($tmpdir, $containerinfofile);
+      # set the mtime for reproducible builds
+      my $mtime = $info->{'buildtime'} || ($info->{'file'} || '') eq '_reproduciblecheck' ? $containerinfo->{'buildtime'} : undef;
+      utime($mtime, $mtime, "$tmpdir/$container") if $mtime;
       # do not force recompression for reprocheck jobs
       BSUtil::touch("$tmpdir/$container.recompressed") if ($info->{'file'} || '') eq '_reproduciblecheck';
       # now do the rewrite

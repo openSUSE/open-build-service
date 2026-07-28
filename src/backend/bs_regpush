@@ -562,7 +562,7 @@ sub get_all_tags {
     $r = JSON::XS::decode_json($r);
     push @regtags, @{$r->{'tags'} || []};
     last unless $replyheaders->{'link'};
-    die unless $replyheaders->{'link'} =~ /^<(\/v2\/.*)>/;
+    die("bad link: $replyheaders->{'link'}\n") unless $replyheaders->{'link'} =~ /^<(\/v2\/.*)>/;
     $param->{'uri'} = "$registryserver$1";
     $param->{'verbatim_uri'} = 1;
   }
@@ -584,7 +584,7 @@ sub get_all_repositories {
     my $r = BSRPC::rpc($param, \&JSON::XS::decode_json);
     push @repos, @{$r->{'repositories'}};
     last unless $replyheaders->{'link'};
-    die("Bad link: $replyheaders->{'link'}\n") unless $replyheaders->{'link'} =~ /^<(\/v2\/\S+)>/;
+    die("bad link: $replyheaders->{'link'}\n") unless $replyheaders->{'link'} =~ /^<(\/v2\/\S+)>/;
     $param->{'uri'} = "$registryserver$1";
     $param->{'verbatim_uri'} = 1;
   }
@@ -624,7 +624,7 @@ sub get_manifest_for_tag {
 }
 
 sub get_referrers {
-  my ($digest) = @_;
+  my ($digest, $artifacttype) = @_;
   my $replyheaders;
   my $param = {
     'uri' => "$registryserver/v2/$repository/referrers/$digest",
@@ -633,7 +633,9 @@ sub get_referrers {
     'timeout' => $registry_timeout,
     'toomanyrequests' => \&toomanyrequests,
   };
-  my $mani_json = BSRPC::rpc($param);
+  my @args;
+  push @args, "artifactType=$artifacttype" if $artifacttype;
+  my $mani_json = BSRPC::rpc($param, undef, @args);
   my $mani = JSON::XS::decode_json($mani_json);
   my $maniid = $replyheaders->{'docker-content-digest'};
   return ($mani, $maniid, $mani_json);
@@ -930,7 +932,7 @@ sub construct_container_tar {
     $tar[-1]->{'layer_compression'} = $comp if defined $comp;
   }
   push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
-  BSContar::set_layer_compression(\@tar, $containerinfo->{'layer_compression'}) if !$containerinfo->{'tar_blobcompression'} && $containerinfo->{'layer_compression'};
+  BSContar::set_entry_annotations(\@tar, $containerinfo);
   return (\@tar, $mtime);
 }
 
@@ -962,6 +964,7 @@ sub open_container_tar {
   if (($containerinfo->{'type'} || '') eq 'artifacthub') {
     ($tar, $mtime) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
   } elsif (!defined($file)) {
+    $containerinfo->{'blobdir'} = $blobdir;
     ($tar, $mtime) = construct_container_tar($containerinfo);
   } elsif (($containerinfo->{'type'} || '') eq 'helm') {
     ($tar, $mtime) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
@@ -1177,9 +1180,9 @@ if ($list_mode) {
       die("no such layer\n") unless $mani->{'layers'}->[$1];
       my $data = blob_fetch($mani->{'layers'}->[$1]->{'digest'});
       print $data;
-    } elsif ($ARGV[3] eq 'referrers') {
+    } elsif ($ARGV[3] eq 'referrers' || $ARGV[3] =~ /^referrers\@./) {
       die("need digest for referrers\n") unless $ARGV[2] =~ /^sha256:[0-9a-f]{64}$/;
-      my ($mani, $maniid, $mani_json) = get_referrers($ARGV[2]);
+      my ($mani, $maniid, $mani_json) = get_referrers($ARGV[2], substr($ARGV[3], 10));
       print "$mani_json\n" if $mani_json;
     } else {
       blob_download($ARGV[2], $ARGV[3]);
