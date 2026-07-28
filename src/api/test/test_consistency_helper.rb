@@ -1,5 +1,4 @@
 require_relative 'test_helper'
-require 'source_controller'
 
 #
 # code which is supposed to be run at multiple stages during the test suite run

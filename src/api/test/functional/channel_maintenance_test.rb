@@ -1,7 +1,6 @@
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/MethodLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
-require 'source_controller'
 
 class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
   fixtures :all
