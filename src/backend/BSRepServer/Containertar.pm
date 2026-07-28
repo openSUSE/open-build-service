@@ -31,7 +31,7 @@ use strict;
 my $uploaddir = "$BSConfig::bsdir/upload";
 
 sub normalize_container {
-  my ($dir, $container, $writeblobs, $deletetar, $arch) = @_;
+  my ($dir, $container, $writeblobs, $deletetar, $arch, $isreprocheck) = @_;
 
   # sanity check
   die("must not delete container if blobs are not stored\n") if $deletetar && !$writeblobs;
@@ -45,6 +45,7 @@ sub normalize_container {
   # do the normalization
   my $recompress;
   $recompress = 1 unless -f "$dir/$container.recompressed";
+  $recompress = undef if $isreprocheck;		# do not recompress again
   unlink("$dir/$container.recompressed");
   local *TAR;
   open(TAR, '<', "$dir/$container") || die("$dir/$container: $!\n");
@@ -77,11 +78,7 @@ sub normalize_container {
     $config->{'variant'} = "v8" if $config->{'architecture'} eq 'arm64';
   }
   $containerinfo->{'govariant'} = $config->{'variant'} if $config->{'variant'};
-  my %atts_chk = %$atts;
-  delete $atts_chk{'layer_compression'} unless grep {$_ && $_ ne 'gzip'} @{$atts_chk{'layer_compression'}|| []};
-  if (!$recompress && !%atts_chk) {
-    # reuse old containerinfo attributes
-  } else {
+  if (!$isreprocheck) {
     for (qw{manifest_attributes config_mimetype config_attributes layer_mimetype layer_attributes layer_compression}) {
       delete $containerinfo->{$_};
       $containerinfo->{$_} = $atts->{$_} if $atts->{$_};

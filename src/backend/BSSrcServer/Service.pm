@@ -164,6 +164,7 @@ sub commitobsscm {
     if ($packid eq '_project') {
       $newrev = $addrev_obsscmproject->($cgi, $projid, $rev->{'cpiofd'});
     } else {
+      local $cgi->{'block_identical_commits'} = 1;
       $newrev = $addrev->($cgi, $projid, $packid, $files);
     }
   };

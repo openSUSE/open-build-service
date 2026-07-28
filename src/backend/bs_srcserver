@@ -771,6 +771,9 @@ sub addrev {
   }
   
   my $rev_old = getrev($projid, $packid);
+  if ($cgi->{'block_identical_commits'} && $rev_old->{'srcmd5'} eq $srcmd5 && $rev_old->{'comment'} eq $comment) {
+    return $rev_old;
+  }
   $rev_old->{'keepsignkey'} = 1;
   my $files_old = BSRevision::lsrev($rev_old);
   delete $rev_old->{'keepsignkey'};
