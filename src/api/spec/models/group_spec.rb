@@ -31,12 +31,12 @@ RSpec.describe Group do
       end
 
       context 'with user _nobody_' do
-        let(:members) { User.find_nobody!.login }
+        let(:members) { '_nobody_' }
 
         it 'does not add the user' do
           expect(subject).to be_falsey
           expect(group.users).to eq([])
-          expect(group.errors.full_messages).to eq(["Validation failed: Couldn't find user _nobody_"])
+          expect(group.errors.full_messages).to eq(["Couldn't find User"])
         end
       end
     end
