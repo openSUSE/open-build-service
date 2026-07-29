@@ -635,6 +635,7 @@ DEPENDENCIES
   clockwork
   cocoon
   coderay
+  connection_pool (< 3.0)
   daemons
   dalli
   data_migrate

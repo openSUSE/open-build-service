@@ -132,6 +132,10 @@ gem 'next_rails'
 # Result object pattern gem
 gem "resonad"
 
+# Pin connection_pool, newer version is not compatible with Rails < 8.0
+# see https://github.com/rails/rails/pull/56294
+gem "connection_pool", "< 3.0"
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
