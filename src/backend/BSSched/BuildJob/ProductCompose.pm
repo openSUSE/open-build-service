@@ -355,6 +355,10 @@ sub check {
 	# mis-use unblocked to tell other scheduler that it is missing
 	print "    requesting :repoinfo for $aprp/$arch\n" if $ctx->{'verbose'};
 	$ctx->{'sendunblockedevents'}->{"$aprp/$arch"} = 2;
+	if (-d "$reporoot/$aprp/$arch") {
+	  $delayed_errors .= ", project binary state of $aprp/$arch is unavailable";
+	  next;
+	}
       }
 
       # XXX: move into checker
