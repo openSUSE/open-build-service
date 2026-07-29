@@ -31,7 +31,12 @@ Rails.application.configure do
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = CONFIG['force_ssl']
 
-  # Log the current request id as a default log tag.
+  # We prepend every log message with extra info (the default Ruby Logger format + request/job ID)
+  # The format for an log entry is:
+  # "Severity (one letter), [Timestamp #Process-ID] Severity (word) -- Program name: [Request/Job-ID] Message\n"
+  # Like: `I, [2026-07-28T16:39:24.712571 #3094] INFO -- : [96719d5b-53c0-4795-9c26-0af44e0d769c] message...`
+  # ActiveJob and Backend::Connection add their own tags in front of message.
+  config.log_formatter = Logger::Formatter.new
   config.log_tags = [ :request_id ]
 
   # Use lograge to show the logs in one line
