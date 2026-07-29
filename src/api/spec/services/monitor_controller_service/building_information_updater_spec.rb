@@ -7,6 +7,9 @@ RSpec.describe MonitorControllerService::BuildingInformationUpdater do
             <building workerid="build01/2" hostarch="i586" project="BinaryprotectedProject" repository="nada" package="bdpack" arch="i586" starttime="0" />
             <building workerid="build01/3" hostarch="i586" project="SourceprotectedProject" repository="repo" package="pack" arch="i586" starttime="#{(Time.now - 30.minutes).to_i}" />
             <building workerid="build01/4" hostarch="i586" project="HiddenProject" repository="nada" package="pack" arch="i586" starttime="#{(Time.now - 1.hour).to_i}" />
+            <away workerid="build01/5" hostarch="x86_64"/>
+            <down workerid="build01/6" hostarch="x86_64"/>
+            <dead workerid="build01/7" hostarch="x86_64"/>
             <waiting arch="i586" jobs="1" />
             <waiting arch="x86_64" jobs="0" />
             <blocked arch="i586" jobs="1" />
@@ -43,13 +46,25 @@ RSpec.describe MonitorControllerService::BuildingInformationUpdater do
 
     it { expect(subject).not_to be_empty }
     it { expect(subject).to have_key('build01_1') }
-    it { expect(subject['build01_1']).to be_empty }
+    it { expect(subject['build01_1']).to have_key('state') }
+    it { expect(subject['build01_1']['state']).to eq('idle') }
     it { expect(subject).to have_key('build01_2') }
     it { expect(subject['build01_2']).to have_key('delta') }
     it { expect(subject['build01_2']['delta']).to eq('100') }
+    it { expect(subject).to have_key('build01_3') }
     it { expect(subject['build01_3']).to have_key('delta') }
     it { expect(subject['build01_3']['delta']).to eq('48') }
+    it { expect(subject).to have_key('build01_4') }
     it { expect(subject['build01_4']).to have_key('delta') }
     it { expect(subject['build01_4']['delta']).to eq('66') }
+    it { expect(subject).to have_key('build01_5') }
+    it { expect(subject['build01_5']).to have_key('state') }
+    it { expect(subject['build01_5']['state']).to eq('away') }
+    it { expect(subject).to have_key('build01_6') }
+    it { expect(subject['build01_6']).to have_key('state') }
+    it { expect(subject['build01_6']['state']).to eq('down') }
+    it { expect(subject).to have_key('build01_7') }
+    it { expect(subject['build01_7']).to have_key('state') }
+    it { expect(subject['build01_7']['state']).to eq('dead') }
   end
 end
