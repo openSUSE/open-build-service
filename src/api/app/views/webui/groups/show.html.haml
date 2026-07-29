@@ -4,7 +4,7 @@
   %div
     %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible{ role: 'tablist' }
       %li.nav-item
-        %a.nav-link.text-nowrap#group-members-tab{ aria: { controls: 'group-members' },
+        %a.nav-link.text-nowrap.active#group-members-tab{ aria: { controls: 'group-members' },
           data: { 'bs-toggle': 'tab' }, href: '#group-members', role: 'tab' }
           Group Members
           %span.badge.text-bg-primary
@@ -40,7 +40,7 @@
 
   .card-body
     .tab-content
-      .tab-pane#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
+      .tab-pane.show.active#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
         %h3
           Group Members
         = render(partial: 'group_members', locals: { group: @group })
