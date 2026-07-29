@@ -41,6 +41,8 @@ sub normalize_container {
   die("container does not end in .tar\n") unless $containerinfo_file =~ s/\.tar$/\.containerinfo/;
   my $containerinfo_str = readstr("$dir/$containerinfo_file");
   my $containerinfo = JSON::XS::decode_json($containerinfo_str);
+  # overwrite 'file' entry, just in case
+  $containerinfo->{'file'} = $container;
 
   # do the normalization
   my $recompress;
@@ -79,7 +81,7 @@ sub normalize_container {
   }
   $containerinfo->{'govariant'} = $config->{'variant'} if $config->{'variant'};
   if (!$isreprocheck) {
-    for (qw{manifest_attributes config_mimetype config_attributes layer_mimetype layer_attributes layer_compression}) {
+    for (qw{manifest_annotations config_mimetype config_annotations layer_mimetype layer_annotations layer_compression}) {
       delete $containerinfo->{$_};
       $containerinfo->{$_} = $atts->{$_} if $atts->{$_};
     }

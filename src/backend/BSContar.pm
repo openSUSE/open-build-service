@@ -410,7 +410,7 @@ sub get_entry_attributes {
   }
   $atts->{'layer_compression'} = \@lcomp if grep {defined($_)} @lcomp;
   $atts->{'layer_mimetype'} = \@mimetype if grep {$_} @mimetype;
-  $atts->{'layer_annotations'} = \@mimetype if grep {$_} @annotations;
+  $atts->{'layer_annotations'} = \@annotations if grep {$_} @annotations;
   return $atts;
 }
 

@@ -52,6 +52,7 @@ sub create_entry {
   return $ent;
 }
 
+# See https://github.com/containers/image/blob/main/docs/containers-signature.5.md
 sub create_signature_payload {
   my ($type, $digest, $reference, $creator, $timestamp) = @_;
   my $critical = {
