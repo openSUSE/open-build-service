@@ -18,10 +18,12 @@
 package BSRepServer::Containerinfo;
 
 use JSON::XS ();
+use Digest::MD5 ();
+
 use BSVerify;
 use BSUtil;
-use Digest::MD5 ();
 use BSXML;
+use BSContar;
 
 use strict;
 
@@ -91,6 +93,9 @@ sub containerinfo2obsbinlnk {
   return unless $d;
   # currently no other OS containers. Alternative would be to rename them to avoid conflicts.
   return if $d->{'goos'} ne 'linux';
+  # if this is not a container image it does not go into the :full tree
+  my $mt = $d->{'config_mimetype'};
+  return if $mt && $mt ne $BSContar::mt_oci_config && $mt ne $BSContar::mt_docker_config;
   my $lnk = containerinfo2nevra($d);
   # need to have a source so that it goes into the :full tree
   $lnk->{'source'} = $d->{'source'} ? "container:$d->{'source'}" : $lnk->{'name'};
