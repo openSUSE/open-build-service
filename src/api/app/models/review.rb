@@ -1,6 +1,4 @@
 class Review < ApplicationRecord
-  include ActiveModel::Validations
-
   VALID_REVIEW_STATES = %i[new declined accepted superseded obsoleted].freeze
 
   belongs_to :bs_request, touch: true, counter_cache: true, optional: true
@@ -18,6 +16,7 @@ class Review < ApplicationRecord
   validates :reason, length: { maximum: 65_534 }
 
   validates :user, presence: true, if: :by_user?
+  validates :by_user, comparison: { other_than: '_nobody_', message: "_nobody_ can not review" }, if: :by_user?
   validates :group, presence: true, if: :by_group?
   validates :project, presence: true, if: :by_project?, on: :create
   validates :package, presence: true, if: :by_package?, on: :create
@@ -28,7 +27,6 @@ class Review < ApplicationRecord
   # Validate the review is not assigned to a review which is already assigned to this review
   validate :validate_non_symmetric_assignment
   validate :validate_not_self_assigned
-  validates_with AllowedUserValidator
 
   belongs_to :user, optional: true
   belongs_to :group, optional: true
