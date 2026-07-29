@@ -197,6 +197,19 @@ RSpec.describe Webui::Users::BsRequestsController do
 
         it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request) }
       end
+
+      context 'and the labels and search parameters are used together', :thinking_sphinx do
+        let(:context_params) { { labels: [label.label_template.name], search: 'incoming' } }
+
+        before do
+          # filter_labels adds a GROUP BY; filter_search_text must not blow up counting it
+          allow(BsRequest).to receive(:search_count).and_return(Webui::RequestsFilter::TEXT_SEARCH_MAX_RESULTS + 1)
+        end
+
+        it 'does not raise when counting the grouped relation' do
+          expect(response).to have_http_status(:success)
+        end
+      end
     end
   end
 end
