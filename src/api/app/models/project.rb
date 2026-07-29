@@ -1367,15 +1367,14 @@ class Project < ApplicationRecord
   # Returns an ActiveRecord::Relation with all BsRequest that the project is somehow involved in
   def bs_requests
     review_ids = Review.where(project_id: id)
-                       .pluck(:bs_request_id)
+                       .select(:bs_request_id)
 
     action_ids = BsRequestAction.where(target_project_id: id)
                                 .or(BsRequestAction.where(source_project_id: id))
-                                .pluck(:bs_request_id)
+                                .select(:bs_request_id)
 
-    all_ids = (review_ids + action_ids).compact.uniq
-
-    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(id: all_ids).distinct
+    base = BsRequest.left_outer_joins(:bs_request_actions, :reviews)
+    base.where(id: review_ids).or(base.where(id: action_ids)).distinct
   end
 
   private
