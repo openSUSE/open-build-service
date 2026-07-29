@@ -1,24 +1,16 @@
 class GroupsUser < ApplicationRecord
-  include ActiveModel::Validations
-
   belongs_to :user
   belongs_to :group
 
-  validate :validate_duplicates, on: :create
-  validates_with AllowedUserValidator
+  validates :user_id, comparison: { other_than: User.find_nobody!.id , message: "_nobody_ can not join groups" }
+  validates :user_id, uniqueness: { scope: :group_id, message: 'belongs to this group already' }
 
   after_create :create_event
 
-  def create_event
-    Event::AddedUserToGroup.create(group: group.title, member: user.login, who: User.session&.login)
-  end
-
   private
 
-  def validate_duplicates
-    return unless GroupsUser.find_by(user: user, group: group)
-
-    errors.add(:user, "#{user.login} belongs to this group already")
+  def create_event
+    Event::AddedUserToGroup.create(group: group.title, member: user.login, who: User.session&.login)
   end
 end
 

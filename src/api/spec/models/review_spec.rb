@@ -116,12 +116,11 @@ RSpec.describe Review do
         expect(review.valid?).to be(false)
       end
 
-      it 'does not set user association when by_user object is _nobody_' do
+      it 'validates by_user is not _nobody_' do
         review = Review.new(by_user: nobody)
-        expect(review.user).to be_nil
         expect(review.valid?).to be(false)
-        expect(review.errors.messages[:base])
-          .to eq(["Couldn't find user #{nobody.login}"])
+        expect(review.errors.messages[:by_user])
+          .to eq(['_nobody_ can not review'])
       end
 
       it 'does not set group association when by_group object does not exist' do
