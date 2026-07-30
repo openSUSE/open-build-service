@@ -413,7 +413,7 @@ sub process_regpush_error {
   my ($op, $result) = @_;
   if (($result & 255) == 0) {
     my $st = $result >> 8;	# get exit status
-    die("CRITICAL_NORETRY: error wile $op\n") if $st == 2;
+    die("CRITICAL_NORETRY: error while $op\n") if $st == 2;
     if ($st >= 10 && $st < 20) {
       $st -= 10;
       my $sleep = $st < 5 ? (5, 10, 15, 30, 45)[$st] : ($st - 3) * 30;
