@@ -127,7 +127,10 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     search_for_ids_options = { per_page: TEXT_SEARCH_MAX_RESULTS }
 
     if BsRequest.search_count(@selected_filter['search']) > TEXT_SEARCH_MAX_RESULTS
-      if @bs_requests.limit(TEXT_SEARCH_MAX_RESULTS + 1).count > TEXT_SEARCH_MAX_RESULTS
+      # De-group before counting: filter_labels may have added a GROUP BY, and calling
+      # .count on a grouped relation returns a Hash ({id => count}), which raises when
+      # compared against an Integer. unscope(:group) keeps this an Integer count.
+      if @bs_requests.unscope(:group).limit(TEXT_SEARCH_MAX_RESULTS + 1).count > TEXT_SEARCH_MAX_RESULTS
         flash.now[:error] = 'Your text search pattern matches too many results. Please, try again with a more restrictive search pattern.'
         @bs_requests = BsRequest.none
 
