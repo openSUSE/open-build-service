@@ -1,5 +1,4 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
-require 'public_controller'
 
 class PublicControllerTest < ActionDispatch::IntegrationTest
   fixtures :all

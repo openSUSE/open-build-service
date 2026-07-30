@@ -1,5 +1,4 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
-require 'source_controller'
 
 # 'ProductTests' (ending in 's') here. 'ProductTest' is already used in unit/product_test.rb
 class ProductTests < ActionDispatch::IntegrationTest

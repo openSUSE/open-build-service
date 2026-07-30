@@ -37,7 +37,7 @@ RSpec.describe Webui::MarkdownHelper do
 
     it 'does not crash due to invalid URIs' do
       expect(render_as_markdown("anbox[400000+22d000]\r\n(the number)")).to eq(
-        "<p>anbox<a href=\"the%20number\" rel=\"nofollow\">400000+22d000</a></p>\n"
+        "<p>anbox<a href=\"the number\" rel=\"nofollow\">400000+22d000</a></p>\n"
       )
     end
 

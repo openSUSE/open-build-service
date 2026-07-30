@@ -2,7 +2,6 @@
 # rubocop:disable Metrics/MethodLength
 # rubocop:disable Metrics/ClassLength
 require_relative '../test_helper'
-require 'source_controller'
 
 class MaintenanceTests < ActionDispatch::IntegrationTest
   fixtures :all
