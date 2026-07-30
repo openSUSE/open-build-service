@@ -25,6 +25,7 @@ RSpec.describe WorkerStatus do
       end
 
       it { expect(subject['building']['project']).to eq(project.name) }
+      it { expect(subject['building']['hidden']).to be_nil }
     end
 
     context 'XPATH filter matches more projects' do
@@ -45,6 +46,7 @@ RSpec.describe WorkerStatus do
       end
 
       it { expect(subject['building']['project']).to eq('---') }
+      it { expect(subject['building']['hidden']).to eq('true') }
     end
 
     context 'project name is hidden' do
@@ -69,6 +71,7 @@ RSpec.describe WorkerStatus do
 
       it { expect(subject['building'].count).to eq(4) }
       it { expect(subject['building'].pluck('project')).to all(eq('---')) }
+      it { expect(subject['building'].pluck('hidden')).to all(eq('true')) }
     end
   end
 
