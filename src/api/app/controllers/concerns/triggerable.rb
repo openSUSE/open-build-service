@@ -15,6 +15,10 @@ module Triggerable
     package_find_options = @token.package_find_options if package_find_options.blank?
     # By default we operate on the package association
     @package = @token.package
+    if @project.scmsync.present?
+      @package ||= @package_name
+      return
+    end
     validate_token_package
 
     # If the token has no package, let's find one from the parameters
