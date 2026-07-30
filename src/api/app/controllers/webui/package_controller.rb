@@ -319,15 +319,11 @@ class Webui::PackageController < Webui::WebuiController
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
-      filters = params.keys.select { |k| k.start_with?('repo', 'arch') }
-      render 'webui/package/beta/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                            package_name: @package_name,
-                                                            repository: repository, architecture: architecture,
-                                                            repository_list: repo_list.map(&:first), arch_list: repo_arch_hash.values.flatten.uniq, filters: filters }
-    else
-      render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                  repository_list: repo_list, repo_arch_hash: repo_arch_hash }
+    filters = params.keys.select { |k| k.start_with?('repo', 'arch') }
+    render 'webui/package/beta/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                          package_name: @package_name,
+                                                          repository: repository, architecture: architecture,
+                                                          repository_list: repo_list.map(&:first), arch_list: repo_arch_hash.values.flatten.uniq, filters: filters }
     end
   end
 
