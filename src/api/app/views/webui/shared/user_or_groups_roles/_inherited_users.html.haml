@@ -22,8 +22,6 @@
             %td.align-middle
               - if (package || project).user_has_role?(user, role)
                 %i.fa.fa-check.text-success
-              - else
-                %i.fa.fa-times.text-muted
 - else
   %p
     %i There are no inherited users...
@@ -48,8 +46,6 @@
             %td.align-middle
               - if (package || project).group_has_role?(group, role)
                 %i.fa.fa-check.text-success
-              - else
-                %i.fa.fa-times.text-muted
 - else
   %p
     %i There are no inherited groups...
