@@ -1,5 +1,5 @@
 - write_access = policy(group).update?
-- display_group_email = policy(group).display_email? && group.email.present?
+- display_group_email = User.session.present? && group.email.present?
 
 - if group.users.empty?
   %p
