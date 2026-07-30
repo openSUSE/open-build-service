@@ -3762,7 +3762,7 @@ sub clean_publish_retry {
 
 sub clean_publish_retry_backoff {
   for (sort keys %publish_retry_backoff) {
-    delete($publish_retry_backoff{$_}) unless $publish_retry{$_};
+    delete($publish_retry_backoff{$_}) unless $publish_retry{$_} || -e "$myeventdir/$_" || -e "$myeventdir/$_:inprogress";
   }
 }
 
