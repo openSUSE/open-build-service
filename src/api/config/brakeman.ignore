@@ -122,6 +122,7 @@
       "note": ""
     },
     {
+
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "23288c7e9dea90dd0d6a14268bf929de5b7651f16e9c2233776751400dda5d11",
