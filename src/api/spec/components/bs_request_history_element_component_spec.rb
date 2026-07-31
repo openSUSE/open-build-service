@@ -76,6 +76,19 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
       end
     end
 
+    context 'with review for deleted group' do
+      let(:element) do
+        create(:history_element_request_review_accepted_with_review_by_group, user: user).tap do |history_element|
+          Group.find_by!(title: history_element.review.by_group).destroy!
+        end
+      end
+
+      it 'renders the group name without a link' do
+        expect(rendered_content).to have_text(element.review.by_group)
+        expect(rendered_content).to have_no_link(element.review.by_group)
+      end
+    end
+
     context 'with review for project' do
       let(:element) { create(:history_element_request_review_accepted_with_review_by_project, user: user) }
 
