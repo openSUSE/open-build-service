@@ -3865,6 +3865,8 @@ sub publishevent {
       $noretry = 1;
     } elsif ($err =~ s/^CRITICAL:\s*//) {
       BSUtil::logcritical($err);
+    } elsif ($err =~ s/^NORETRY:\s*//) {
+      $noretry = 1;
     } elsif ($err =~ s/^RETRY_AFTER(\d+):\s*//) {
       $retry_after = $1;
     }

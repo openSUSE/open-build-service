@@ -173,6 +173,7 @@ sub cmp_containerinfo {
 sub upload_all_containers {
   my ($extrep, $projid, $repoid, $containers, $data, $old_container_repositories) = @_;
 
+  my $bconf = $data->{'config'};
   my $isdelete;
   if (!defined($containers)) {
     $isdelete = 1;
@@ -204,7 +205,7 @@ sub upload_all_containers {
       my $containerinfo = $containers->{$p};
       my $platformstr = BSContar::make_platformstr($containerinfo->{'goarch'} || $containerinfo->{'arch'}, $containerinfo->{'govariant'}, $containerinfo->{'goos'});
       $platformstr = 'any' if ($containerinfo->{'type'} || '') eq 'helm' || ($containerinfo->{'type'} || '') eq 'artifacthub';
-      my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $data->{'config'});
+      my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $bconf);
       if ($tagdata) {
 	$tagdata->{$p}->{'platformstr'} = $platformstr;
 	$tagdata->{$p}->{'tags_seen'} = [ BSUtil::unify(map {/^(.*):([^:\/]+)$/ ? $_ : "$_:latest"} @tags) ];
@@ -218,6 +219,19 @@ sub upload_all_containers {
 	}
 	$uploads{$reponame}->{$repotag}->{$platformstr} = $p;
       }
+    }
+
+    if ($bconf->{'publishflags:mandatorycontainerplatforms'}) {
+      my @platforms = split(',', $bconf->{'publishflags:mandatorycontainerplatforms'});
+      my @missing;
+      for my $reponame (sort keys %uploads) {
+	my $uptags = $uploads{$reponame};
+	for my $tag (sort keys %$uptags) {
+	  next if $uptags->{$tag}->{'any'};	# any matches all platforms
+	  push @missing, map {"$reponame:$tag:$_"} grep {!$uptags->{$tag}->{$_}} @platforms;
+	}
+      }
+      die("NORETRY: missing mandatory container platforms: @missing\n") if @missing;
     }
 
     # record which tags we pushed to the registry
