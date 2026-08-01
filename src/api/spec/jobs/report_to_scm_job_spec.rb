@@ -61,5 +61,17 @@ RSpec.describe ReportToSCMJob do
 
       it_behaves_like 'not reporting to the SCM'
     end
+
+    context 'when the scm reporter raises an Octokit::Unauthorized error' do
+      before do
+        event
+        event_subscription
+        allow_any_instance_of(GithubStatusReporter).to receive(:call).and_raise(Octokit::Unauthorized) # rubocop:disable RSpec/AnyInstance
+      end
+
+      it 'discards the job without raising an unhandled exception' do
+        expect { subject }.not_to raise_error
+      end
+    end
   end
 end
