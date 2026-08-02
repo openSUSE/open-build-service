@@ -1,7 +1,8 @@
 .mb-3.row.row-cols-auto
   - search_for_options = options_for_select([['All', '0'], ['Projects', '1'], ['Packages', '2']], params.fetch(:search_for, '0'))
-  -# FIXME: The dropdown arrow is a bit far when 'All' is selected
-  = select_tag('search_for', search_for_options, class: 'form-select border-0 ps-0 w-auto')
+  - search_labels = { '0' => 'All', '1' => 'Projects', '2' => 'Packages' }
+  - current_label = search_labels[params.fetch(:search_for, '0')] || 'All'
+  = select_tag('search_for', search_for_options, class: 'form-select border-0 ps-0', style: "width: calc(#{current_label.length}ch + 2.5rem);", onchange: "this.style.width = 'calc(' + this.options[this.selectedIndex].text.length + 'ch + 2.5rem)'")
 
   %button.btn.btn-outline-secondary.ms-2.collapsed{ type: 'button', aria: { controls: 'collapse-1', expanded: 'false' },
                                                 'data-bs-toggle' => 'collapse', href: '#advanced-container', role: 'button' }
