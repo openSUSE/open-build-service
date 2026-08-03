@@ -37,11 +37,11 @@ But as we all know, too many cooks spoil the broth! That is why we are trying re
 - limit the amount of times we test the same code
 - limit the specs to "custom" logic we wrote ourselves
 
-First and foremost because a test suite is code that needs to be maintained and that is work, a lot of work. So writing the right type of spec, that tests *once* the code we have influence on, means *less* specs. Less specs, less code, less time spent on maintaining it. Secondly we think that CI time is developer time. A fast feedback loop from the test suite makes you wait for it less. So with those limitations we are trying to save the most precious thing we have as a project: The time you developer have, to work on something.
+First and foremost because a test suite is code that needs to be maintained and that is work, a lot of work. So writing the right type of spec, that tests *once* the code we have influence on, means *less* specs. Less specs, less code, less time spent on maintaining it. Secondly we think that CI time is developer time. A fast feedback loop from the test suite makes you wait for it less. So with those limitations we are trying to save the most precious thing we have as a project: The time you have as a developer to work on something.
 
 ### Limit the Amount of Code Involved in Running the Test
 
-Please use the type of spec with the least amount if computing time required to run it. You can test the four branch logic of your `ThingController#update` action by firing up four browsers, clicking through 4 web pages until you reach a form, fill the form in 4 different ways, click submit and then expect 4 different responses. Or you use a controller unit spec, doing that removes the need to run the browser every time you run the spec. If the logic that branches 4 times is in the `Thing` model and not in the `ThingsController`, rather write *one* model spec.
+Please use the type of spec with the least amount of computing time required to run it. You can test the four branch logic of your `ThingController#update` action by firing up four browsers, clicking through 4 web pages until you reach a form, fill the form in 4 different ways, click submit and then expect 4 different responses. Or you use a controller unit spec, doing that removes the need to run the browser every time you run the spec. If the logic that branches 4 times is in the `Thing` model and not in the `ThingsController`, rather write *one* model spec.
 This will remove the need to run all of `ActionDispatch` every time you run the spec.
 
 ### Limit the Amount of Times the Same Code Is Tested
@@ -65,7 +65,7 @@ Unit specs:
 - for the respective classes are in `spec/[models, controllers, components, policies]` etc.
 - are configured in and inherit from `spec/spec_helper.rb`
 - use `login(user)` and `logout(user)` for authenticating users
-- truncate the database after each example (we omit truncating what we have set up in `db/seeds.rb``)
+- truncate the database after each example (we omit truncating what we have set up in `db/seeds.rb`)
 - reset the User.session after each example
 - disable HTTP requests
 - automatically mock the responses from the OBS backend with [VCR](https://github.com/vcr/vcr)
@@ -99,7 +99,7 @@ To automatically mock the response from the OBS backend we use [VCR](https://git
 VCR records the HTTP interactions with the backend and replays them during future test runs.
 
 - VCR cassettes are recorded to `spec/cassettes`
-- There is more documentation about [using VCR in specs our wiki](https://github.com/openSUSE/open-build-service/wiki/Testing-with-VCR)
+- There is more documentation about [using VCR in our wiki](https://github.com/openSUSE/open-build-service/wiki/Testing-with-VCR)
 
 ## Shared Examples
 
