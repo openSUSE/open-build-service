@@ -120,7 +120,7 @@ Please make sure to mind our continuous integration cycle that includes:
 - static code analysis with [CodeClimate](https://codeclimate.com/github/openSUSE/open-build-service)
 - automated test runs for the frontend and backend test suites with [CircleCI](https://circleci.com/gh/openSUSE/workflows/open-build-service)
 
-If one of the goes wrong for your pull request please address the issue.
+If one of these goes wrong for your pull request please address the issue.
 
 ## AI Guidance
 
@@ -162,7 +162,7 @@ We also consider code reviews to be one of the best ways to share knowledge abou
 
 ## How to Test Code Submissions
 
-Changes to the business logic/behavior of the Open Build Service should alway be accompanied by tests
+Changes to the business logic/behavior of the Open Build Service should always be accompanied by tests
 ([frontend](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec)/
 [backend](https://github.com/openSUSE/open-build-service/tree/master/src/backend/t)) that will be run
 by our continuous integration.
@@ -230,7 +230,7 @@ environment. All the tools needed for this are available for Linux, MacOS and
 Windows.
 
 **Please note** that the OBS backend uses advanced filesystem features
-that require an case sensitive filesystem (default in Linux, configurable in **MacOS/Windows**),
+that require a case sensitive filesystem (default in Linux, configurable in **MacOS/Windows**),
 make sure you run all this from a filesystem that supports this. Here you have [some instructions](https://github.com/openSUSE/open-build-service/wiki/Setup-an-OBS-Development-Environment-on-macOS) in case you are a MacOS user.
 
 1. Install [docker (version >= v2)¹](https://www.docker.com)
