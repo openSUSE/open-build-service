@@ -302,8 +302,8 @@ sub get_manifest_oci_tar {
 
 sub get_manifest {
   my ($tar) = @_;
-  return get_manifest_oci_tar($tar) if $tar->{'index.json'} && $tar->{'oci-layout'};
   my $manifest_ent = $tar->{'manifest.json'};
+  return get_manifest_oci_tar($tar) if !$manifest_ent && $tar->{'index.json'} && $tar->{'oci-layout'};
   die("no manifest.json file found\n") unless $manifest_ent;
   my $manifest_json = BSTar::extract($manifest_ent->{'file'}, $manifest_ent);
   my $manifest = JSON::XS::decode_json($manifest_json);
