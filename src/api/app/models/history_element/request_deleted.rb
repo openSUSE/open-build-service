@@ -8,9 +8,6 @@ module HistoryElement
       'Request was deleted'
     end
 
-    def user_action
-      'deleted request'
-    end
   end
 end
 
