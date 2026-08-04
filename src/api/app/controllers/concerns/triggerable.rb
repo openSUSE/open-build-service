@@ -4,11 +4,9 @@ module Triggerable
     @project = @token.package.try(:project)
     validate_token_project
 
-    # If the token has no package, let's find one from the parameters or the step intructions
-    @project ||= Project.get_by_name(@project_name)
-    # Remote projects are read-only, can't trigger something for them.
-    # See https://github.com/openSUSE/open-build-service/wiki/Links#project-links
-    raise Project::Errors::UnknownObjectError, "Sorry, triggering tokens for remote project \"#{@project_name}\" is not possible." unless @project.is_a?(Project)
+    # If the token has no package, let's find one from the parameters/step intructions
+    @project ||= Project.find_by(name: @project_name)
+    raise Project::Errors::UnknownObjectError, "Project not found: #{@project_name}" unless @project
   end
 
   def set_package(package_find_options: {})
