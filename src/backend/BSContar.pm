@@ -85,7 +85,7 @@ sub comp2decompressor {
   return ('gunzip') if $comp eq 'gzip';
   return ('bunzip2') if $comp eq 'gzip2';
   return ('xzdec') if $comp eq 'xz';
-  return ('zstdcat') if $comp eq 'zstd';
+  return ('zstdcat') if $comp eq 'zstd' || $comp =~ /^zstd:chunked/;
   return ('cat') if $comp eq '';
   return ();
 }
@@ -274,6 +274,17 @@ sub get_distmanifest_from_oci_tar {
   my $distmanifest_ent = $tar->{$distmanifest_file};
   my $distmanifest_json = BSTar::extract($distmanifest_ent->{'file'}, $distmanifest_ent);
   my $distmanifest = JSON::XS::decode_json($distmanifest_json);
+  if (($distmanifest->{'mediaType'} || '') eq $mt_oci_index) {
+    # weird stacked oci index case, probably docker bundling an attestation.
+    # remove all entries that reference other entries
+    my @idx = grep {!($_->{'annotations'} || {})->{'vnd.docker.reference.digest'}} @{$distmanifest->{'manifests'} || []};
+    die("tar contains stacked oci index with weird number of digests\n") unless @idx == 1;
+    $digest = $idx[0]->{'digest'};
+    $distmanifest_file = get_file_from_oci_tar($tar, $digest);
+    $distmanifest_ent = $tar->{$distmanifest_file};
+    $distmanifest_json = BSTar::extract($distmanifest_ent->{'file'}, $distmanifest_ent);
+    $distmanifest = JSON::XS::decode_json($distmanifest_json);
+  }
   die("bad distmanifest\n") unless $distmanifest->{'config'};
   return ($distmanifest_ent, $distmanifest);
 }
@@ -302,8 +313,8 @@ sub get_manifest_oci_tar {
 
 sub get_manifest {
   my ($tar) = @_;
+  return get_manifest_oci_tar($tar) if $tar->{'index.json'} && $tar->{'oci-layout'};
   my $manifest_ent = $tar->{'manifest.json'};
-  return get_manifest_oci_tar($tar) if !$manifest_ent && $tar->{'index.json'} && $tar->{'oci-layout'};
   die("no manifest.json file found\n") unless $manifest_ent;
   my $manifest_json = BSTar::extract($manifest_ent->{'file'}, $manifest_ent);
   my $manifest = JSON::XS::decode_json($manifest_json);
@@ -355,12 +366,12 @@ sub create_tar_manifest_entry {
 }
 
 sub checksum_tar {
-  my ($tar) = @_;
+  my ($tar, %opts) = @_;
   my $md5 = Digest::MD5->new();
   my $sha256 = Digest::SHA->new(256);
   my $size = 0;
-  my $writer = sub { $size += length($_[0]); $md5->add($_[0]), $sha256->add($_[0]) };
-  BSTar::writetar($writer, $tar);
+  my $writer = sub { $size += length($_[0]); $md5->add($_[0]); $sha256->add($_[0]) };
+  write_container_tar($writer, undef, $tar, %opts);
   $md5 = $md5->hexdigest();
   $sha256 = $sha256->hexdigest();
   return ($md5, $sha256, $size);
@@ -430,7 +441,7 @@ sub normalize_container {
   for my $layer_ent (get_layer_entries(\%tar, $manifest)) {
     my $mt = $layer_ent->{'mimetype'};
     my $comp = defined($layer_ent->{'layer_compression'}) ? $layer_ent->{'layer_compression'} : detect_entry_compression($layer_ent);
-    if (($mt && !$std_layer_mimetypes{$mt}) || ($comp && ($comp eq 'zstd' || $comp =~ /^zstd:chunked,/))) {
+    if (($mt && !$std_layer_mimetypes{$mt}) || $comp eq 'zstd' || $comp =~ /^zstd:chunked,/) {
       my $blobid = blobid_entry($layer_ent);
       $newblobs{$blobid} ||= { %$layer_ent, 'name' => $blobid };
       push @newlayers, $blobid;
@@ -535,6 +546,15 @@ sub open_container_tar {
   return ($tar, $s[9]);
 }
 
+sub write_container_tar {
+  my ($fn, $fnf, $tar, %opts) = @_;
+  if (!defined($fnf) && ref($fn)) {
+    BSTar::writetar($fn, $tar);
+  } else {
+    BSTar::writetarfile($fn, $fnf, $tar, %opts);
+  }
+}
+
 sub container_from_helm {
   my ($chartfile, $config_json, $repotags) = @_;
   my $fd;
@@ -600,7 +620,7 @@ sub create_artifacthub_yaml {
 sub container_from_artifacthub {
   my ($artifacthubdata, $mtime) = @_;
   my $artifacthub_yaml = create_artifacthub_yaml($artifacthubdata);
-  my $config_ent = { 'name' => 'config.yaml', 'mtime' => $mtime, 'data' => '', 'size' => 0, 'mimetype' => $mt_artifacthub_config };
+  my $config_ent = make_blob_entry('config.yaml', '', 'mtime' => $mtime, 'mimetype' => $mt_artifacthub_config);
   my $layer_ent = { 'name' => 'artifacthub-repo.yml', 'mtime' => $mtime, 'data' => $artifacthub_yaml, 'size' => length($artifacthub_yaml), 'mimetype' => $mt_artifacthub_layer, 'layer_compression' => '' };
   $layer_ent->{'annotations'}->{'org.opencontainers.image.title'} = 'artifacthub-repo.yml';
   my $manifest = create_tar_manifest_data('config.yaml', [ 'artifacthub-repo.yml' ], [ 'artifacthub.io' ]);
