@@ -99,6 +99,8 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
       click_button('Create')
     end
 
+    expect(page).to have_text('In state review')
+
     request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
     expect(request).to exist
     expect(page).to have_current_path("/request/show/#{request.first.number}")
