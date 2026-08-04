@@ -7,6 +7,7 @@ class LinkedProject < ApplicationRecord
   validates :linked_db_project, presence: true, unless: -> { linked_remote_project_name.present? }
   validates :linked_remote_project_name, presence: true, unless: -> { linked_db_project.present? }
   validates :linked_remote_project_name, length: { maximum: 255 }
+  validate :invalid_linked_remote_project_name
   validates :db_project_id, uniqueness: {
     scope: :linked_db_project_id,
     if: -> { linked_db_project_id.present? },
@@ -25,7 +26,13 @@ class LinkedProject < ApplicationRecord
 
   scope :local, -> { where.not(linked_db_project: nil) }
 
-  protected
+  private
+
+  def invalid_linked_remote_project_name
+    return unless linked_remote_project_name
+
+    errors.add(:linked_remote_project_name, "invalid name") unless Project.valid_name?(linked_remote_project_name)
+  end
 
   def validate_target
     return unless linked_db_project && linked_remote_project_name
