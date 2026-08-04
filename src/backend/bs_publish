@@ -1103,6 +1103,31 @@ sub fixup_scanpackages_output {
   rename("$file.tmp", $file) || die("rename $file.tmp $file: $!\n");
 }
 
+# Index *.ddeb files (Ubuntu dbgsym packages) into the same Packages file as
+# regular .deb stanzas. dpkg-scanpackages emits a "Package-Type: ddeb" header
+# which apt does not recognize; strip it so clients treat the entries as
+# regular debs (matching the convention used on ddebs.ubuntu.com).
+sub append_ddeb_packages {
+  my ($extrep) = @_;
+  my $tmp = "$extrep/Packages.ddeb.new";
+  print "    running dpkg-scanpackages for ddebs\n";
+  if (qsystem('chdir', $extrep, 'stdout', 'Packages.ddeb.new', 'dpkg-scanpackages', '-t', 'ddeb', '-m', '.', '/dev/null')) {
+    die("    dpkg-scanpackages for ddebs failed: $?\n");
+  }
+  fixup_scanpackages_output($tmp);
+  if (-s $tmp) {
+    open(my $fin, '<', $tmp) || die("$tmp: $!\n");
+    open(my $fout, '>>', "$extrep/Packages.new") || die("$extrep/Packages.new: $!\n");
+    while (<$fin>) {
+      next if /^Package-Type:\s*ddeb\s*$/;
+      print $fout $_ or die("$extrep/Packages.new: $!\n");
+    }
+    close($fin);
+    close($fout) || die("$extrep/Packages.new: $!\n");
+  }
+  unlink($tmp);
+}
+
 sub createrepo_debian {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -1111,6 +1136,7 @@ sub createrepo_debian {
     die("    dpkg-scanpackages failed: $?\n");
   }
   fixup_scanpackages_output("$extrep/Packages.new");
+  append_ddeb_packages($extrep);
   compress_and_rename("$extrep/Packages.new", "$extrep/Packages");
   # create an empty Packages file for empty repositories
   writestr("$extrep/Packages", undef, '') unless -e "$extrep/Packages";
@@ -2570,12 +2596,13 @@ sub publish {
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	next unless $q;
 	$p = "$q->{'arch'}/$q->{'name'}-$q->{'version'}-$q->{'release'}.$q->{'arch'}.rpm";
-      } elsif ($bin =~ /\.deb$/) {
-	# legacy format XXX no udeb handling
+      } elsif ($bin =~ /\.(d?deb)$/) {
+	# legacy format
+	my $debext = $1;
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	$p = "$q->{'arch'}/$q->{'name'}_$q->{'version'}";
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
-	$p .= "_$q->{'arch'}.deb";
+	$p .= "_$q->{'arch'}.$debext";
       } elsif ($bin =~ /\.pkg\.tar\.(?:gz|xz|zst)(?:\.sig)?$/) {
 	# special arch linux handling
 	$p = "$arch/$bin";
