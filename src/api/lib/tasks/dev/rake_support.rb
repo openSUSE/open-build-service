@@ -31,6 +31,7 @@ module RakeSupport
     request = create(
       :bs_request_with_submit_action,
       state: :new,
+      status: :new,
       creator: requester,
       target_package: target_package,
       source_package: source_package,
