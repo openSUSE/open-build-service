@@ -2,7 +2,7 @@ class WriteAndPreviewComponent < ApplicationComponent
   attr_reader :form, :preview_message_url, :message_body_param, :canned_responses_enabled, :canned_response_object, :text_area_rows, :text_area_required, :text_area_object_name, :text_area_id_suffix
 
   def initialize(form:, preview_message_url:, message_body_param:, canned_responses_enabled: false, canned_response_object: nil, text_area_rows: 4, text_area_required: true,
-text_area_object_name: :message, text_area_id_suffix: :message)
+                 text_area_object_name: :message, text_area_id_suffix: :message)
     super()
 
     @form = form
