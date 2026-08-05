@@ -25,7 +25,7 @@ class Webui::InterconnectsController < Webui::WebuiController
         end
         format.js do
           flash.now[:error] = message
-          render :create, status: :unprocessable_entity
+          render :create, status: :unprocessable_content
         end
       end
     end
