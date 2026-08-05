@@ -1,0 +1,23 @@
+#
+# Open Build Service 2.10.34
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+========
+Bugfixes
+========
+
+Frontend:
+ * Update rails-html-sanitizer RubyGem to version 1.7.1
+   - [GHSA-cj75-f6xr-r4g7] Possible XSS vulnerability with certain configurations of rails-html-sanitizer
+ * Update loofah RubyGem to version 2.25.2
+   - [GHSA-5qhf-9phg-95m2] Ensure Loofah::HTML5::Scrub.allowed_uri? recognizes numeric character references without semicolons
+   - [GHSA-8whx-365g-h9vv] Ensure Loofah::HTML5::Scrub.allowed_uri? recognizes the named character references
+   - [GHSA-9wjq-cp2p-hrgf] Ensure that both href and xlink:href attributes on SVG elements like use are restricted to local
