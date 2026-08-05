@@ -441,11 +441,11 @@ class Webui::PackageController < Webui::WebuiController
     # the proper use of defaults.
     params
       .expect(package_details: %i[title
-              description
-              url
-              report_bug_url
-              anitya_ignore
-              scmsync])
+                                  description
+                                  url
+                                  report_bug_url
+                                  anitya_ignore
+                                  scmsync])
   end
 
   def set_file_details

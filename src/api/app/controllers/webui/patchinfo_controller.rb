@@ -164,7 +164,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def patchinfo_params
     params.expect(patchinfo: [:summary, :description, :packager, :category, :rating, :name, :version, :message,
-                                      :relogin_needed, :reboot_needed, :zypp_restart_needed, :block, :block_reason,
-                                      binaries: [], issueid: [], issueurl: [], issuetracker: [], issuesum: []])
+                              :relogin_needed, :reboot_needed, :zypp_restart_needed, :block, :block_reason,
+                              binaries: [], issueid: [], issueurl: [], issuetracker: [], issuesum: []])
   end
 end
