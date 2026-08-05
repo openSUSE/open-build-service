@@ -83,7 +83,7 @@ class Token < ApplicationRecord
     return yaml_file.value if yaml_file.success?
       
     
-      errors.add(:workflow_configuration_url, "failed to get: #{yaml_file.error}")
+    errors.add(:workflow_configuration_url, "failed to get: #{yaml_file.error}")
     
   rescue URI::InvalidURIError => e
     errors.add(:workflow_configuration_url, "must be a valid url: #{e}")
