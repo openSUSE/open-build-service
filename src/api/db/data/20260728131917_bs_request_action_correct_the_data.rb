@@ -6,7 +6,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
   def up
 # 1. 'add_role'
 BsRequestAction.where(type: 'add_role')
-  .where(
+               .where(
     'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
     'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
     'target_releaseproject IS NOT NULL OR target_repository IS NOT NULL'
@@ -23,7 +23,7 @@ end
 
 # 2. 'change_devel'
 BsRequestAction.where(type: 'change_devel')
-  .where(
+               .where(
     'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
     'role IS NOT NULL OR source_rev IS NOT NULL OR ' \
     'sourceupdate IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
@@ -42,7 +42,7 @@ end
 
 # 3. 'delete'
 BsRequestAction.where(type: 'delete')
-  .where(
+               .where(
     'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
     'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
     'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
@@ -62,30 +62,30 @@ end
 
 # 4. 'maintenance_incident'
 BsRequestAction.where(type: 'maintenance_incident')
-  .where('group_name IS NOT NULL OR person_name IS NOT NULL OR role IS NOT NULL')
-  .in_batches do |relation|
-    relation.update_all(
-      group_name: nil,
-      person_name: nil,
-      role: nil
-    )
-end
+               .where('group_name IS NOT NULL OR person_name IS NOT NULL OR role IS NOT NULL')
+               .in_batches do |relation|
+                 relation.update_all(
+                   group_name: nil,
+                   person_name: nil,
+                   role: nil
+                 )
+             end
 
 # 5. 'maintenance_release', 'release'
 BsRequestAction.where(type: ['maintenance_release', 'release'])
-  .where('group_name IS NOT NULL OR person_name IS NOT NULL OR role IS NOT NULL OR target_releaseproject IS NOT NULL')
-  .in_batches do |relation|
-    relation.update_all(
-      group_name: nil,
-      person_name: nil,
-      role: nil,
-      target_releaseproject: nil
-    )
-end
+               .where('group_name IS NOT NULL OR person_name IS NOT NULL OR role IS NOT NULL OR target_releaseproject IS NOT NULL')
+               .in_batches do |relation|
+                 relation.update_all(
+                   group_name: nil,
+                   person_name: nil,
+                   role: nil,
+                   target_releaseproject: nil
+                 )
+             end
 
 # 6. 'set_bugowner'
 BsRequestAction.where(type: 'set_bugowner')
-  .where(
+               .where(
     'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
     'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
     'role IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
@@ -104,7 +104,7 @@ end
 
 # 7. 'submit'
 BsRequestAction.where(type: 'submit')
-  .where(
+               .where(
     'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
     'role IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
     'target_repository IS NOT NULL'

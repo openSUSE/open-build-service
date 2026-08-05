@@ -170,7 +170,7 @@ class Webui::PackageController < Webui::WebuiController
     user_ids << @project.relationships.joins(:role).where(roles: { title: roles }).pluck(:user_id)
     user_ids = user_ids.flatten.uniq
     render json: User.where(id: user_ids)
-                 .starting_with(params[:term])
+                     .starting_with(params[:term])
                      .order(Arel.sql('length(login)'), :login)
                      .limit(50)
                      .pluck(:login)
