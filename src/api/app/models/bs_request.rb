@@ -933,15 +933,15 @@ class BsRequest < ApplicationRecord
     self.status = :new
 
     # expand release and submit request targets if not specified
-    expand_targets
+    expand_targets # FIXME: Project.get_by_name usage
 
-    check_bs_request_actions!
+    check_bs_request_actions! # FIXME: Project.get_by_name usage
     check_uniq_actions!
 
     # Autoapproval? Is the creator allowed to accept it?
     permission_check_change_state!(newstate: 'accepted') if accept_at
 
-    apply_default_reviewers
+    apply_default_reviewers # FIXME: Project.get_by_name usage
   end
 
   def set_accept_at!(time = nil)
