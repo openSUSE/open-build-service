@@ -260,7 +260,7 @@ RSpec.describe Webui::ProjectController, :vcr do
       post :restore, params: { project: 'not-allowed-to-create' }
 
       expect(Project.find_by_name('not-allowed-to-create')).to be_nil
-      expect(flash[:error]).to match(/not authorized to create/)
+      expect(flash[:error]).to include('not authorized to create')
     end
 
     it 'restores a project' do
@@ -268,7 +268,7 @@ RSpec.describe Webui::ProjectController, :vcr do
 
       post :restore, params: { project: 'project_name' }
 
-      expect(flash[:success]).to match(/restored/)
+      expect(flash[:success]).to include('restored')
       expect(response).to redirect_to(project_show_path(project: fake_project.name))
     end
 
@@ -276,7 +276,7 @@ RSpec.describe Webui::ProjectController, :vcr do
       allow(Project).to receive(:deleted?).and_return(false)
       post :restore, params: { project: 'project_name' }
 
-      expect(flash[:error]).to match(/never deleted/)
+      expect(flash[:error]).to include('never deleted')
       expect(response).to redirect_to(root_path)
     end
   end

@@ -94,7 +94,7 @@ RSpec.describe Webui::Packages::MetaController, :vcr do
 
       it do
         expect(flash[:error]).to match(/Error while saving the Meta file: package validation error.*FATAL:/)
-        expect(flash[:error]).to match(/Opening and ending tag mismatch: package line 1 and paaaaackage\./)
+        expect(flash[:error]).to include('Opening and ending tag mismatch: package line 1 and paaaaackage.')
       end
 
       it { expect(response).to have_http_status(:bad_request) }
