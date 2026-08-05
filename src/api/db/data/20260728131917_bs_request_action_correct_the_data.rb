@@ -68,7 +68,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
                      person_name: nil,
                      role: nil
                    )
-                 end
+    end
 
     # 5. 'maintenance_release', 'release'
     BsRequestAction.where(type: %w[maintenance_release release])
@@ -80,7 +80,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
                      role: nil,
                      target_releaseproject: nil
                    )
-                 end
+    end
 
     # 6. 'set_bugowner'
     BsRequestAction.where(type: 'set_bugowner')
