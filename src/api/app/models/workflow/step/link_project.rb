@@ -1,5 +1,4 @@
 class Workflow::Step::LinkProject < Workflow::Step
-
   REQUIRED_KEYS = %i[target_project source_project].freeze
 
   def call
