@@ -57,10 +57,10 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   # - rebuild: with the following valid values: direct, local
   # - linkedbuild: with the following valid values: all, localdep, alldirect, alldirect_or_localdep, off
   def validate_repositories
-    unless step_instructions[:repositories].all? { |repository| (REQUIRED_REPOSITORY_KEYS - repository.keys).empty? }
+    return if step_instructions[:repositories].all? { |repository| (REQUIRED_REPOSITORY_KEYS - repository.keys).empty? }
       required_repository_keys_sentence ||= REQUIRED_REPOSITORY_KEYS.map { |key| "'#{key}'" }.to_sentence
       errors.add(:base, "configure_repositories step: All repositories must have the #{required_repository_keys_sentence} keys")
-    end
+    
   end
 
   def validate_repository_paths
