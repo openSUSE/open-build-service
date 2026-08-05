@@ -80,7 +80,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           subject.call
           expect(configured_architectures.map(&:name)).to eq(%w[x86_64 ppc])
         end
-        
+
         context 'and we provide the repository with a valid rebuild option' do
           let(:step_instructions) do
             {
@@ -109,7 +109,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
             expect(configured_repositories.first.rebuild).to eql('direct')
           end
         end
-        
+
         context 'but we provide the repository with an invalid rebuild option' do
           let(:step_instructions) do
             {

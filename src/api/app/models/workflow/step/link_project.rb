@@ -1,14 +1,14 @@
 class Workflow::Step::LinkProject < Workflow::Step
 
   REQUIRED_KEYS = %i[target_project source_project].freeze
-  
+
   def call
     return unless valid?
 
     if Project.exists_by_name(target_project_name)
       Pundit.authorize(@token.executor, target_project, :update?)
     else
-      create_target_project 
+      create_target_project
     end
 
     case
@@ -25,7 +25,7 @@ class Workflow::Step::LinkProject < Workflow::Step
   def target_project_base_name
     step_instructions[:target_project]
   end
-  
+
   def create_target_project
     project = Project.new(name: target_project_name, url: workflow_run.event_source_url)
     Pundit.authorize(@token.executor, project, :create?)
