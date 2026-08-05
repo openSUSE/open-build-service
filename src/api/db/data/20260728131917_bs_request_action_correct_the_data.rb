@@ -9,7 +9,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
                      'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
                      'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
                      'target_releaseproject IS NOT NULL OR target_repository IS NOT NULL'
-      ).in_batches do |relation|
+                   ).in_batches do |relation|
       relation.update_all(
         source_project: nil,
         source_package: nil,
@@ -27,7 +27,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
                      'role IS NOT NULL OR source_rev IS NOT NULL OR ' \
                      'sourceupdate IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
                      'target_repository IS NOT NULL'
-      ).in_batches do |relation|
+                   ).in_batches do |relation|
       relation.update_all(
         group_name: nil,
         person_name: nil,
@@ -46,7 +46,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
                      'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
                      'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
                      'role IS NOT NULL OR target_releaseproject IS NOT NULL'
-      ).in_batches do |relation|
+                   ).in_batches do |relation|
       relation.update_all(
         source_project: nil,
         source_package: nil,
@@ -89,7 +89,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
                      'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
                      'role IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
                      'target_repository IS NOT NULL'
-      ).in_batches do |relation|
+                   ).in_batches do |relation|
       relation.update_all(
         source_project: nil,
         source_package: nil,
@@ -107,7 +107,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
                      'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
                      'role IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
                      'target_repository IS NOT NULL'
-      ).in_batches do |relation|
+                   ).in_batches do |relation|
       relation.update_all(
         group_name: nil,
         person_name: nil,
