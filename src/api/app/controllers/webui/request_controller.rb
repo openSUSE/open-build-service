@@ -185,7 +185,7 @@ class Webui::RequestController < Webui::WebuiController
       if params[:add_submitter_as_maintainer_0] # rubocop:disable Naming/VariableNumber
         if changestate == 'accepted'
           # split into project and package
-          tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # rubocop:disable Naming/VariableNumber
+          tprj, tpkg = params.expect(:add_submitter_as_maintainer_0).split('_#_') # rubocop:disable Naming/VariableNumber
           target = if tpkg
                      Package.find_by_project_and_name(tprj, tpkg)
                    else
@@ -404,7 +404,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def require_request
-    @bs_request = BsRequest.find_by!(number: params[:number])
+    @bs_request = BsRequest.find_by!(number: params.expect(:number))
   end
 
   def change_state(newstate, params)
@@ -445,7 +445,7 @@ class Webui::RequestController < Webui::WebuiController
     # Check if we have to forward this request to other projects / packages when using the legacy request show page
     params.keys.grep(/^forward.*/).each do |fwd|
       # split off 'forward_' and split into project and package
-      target_project, target_package = params[fwd].split('_#_')
+      target_project, target_package = params.expect(fwd).split('_#_')
       forward_request_to(target_project, target_package)
     end
   end

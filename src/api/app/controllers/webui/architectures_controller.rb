@@ -7,7 +7,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
   end
 
   def update
-    architecture = Architecture.find(params[:id])
+    architecture = Architecture.find(params.expect(:id))
 
     if architecture.update(available: params[:available].to_s.casecmp?('true'))
       flash.now[:success] = "Updated architecture '#{architecture.name}'"

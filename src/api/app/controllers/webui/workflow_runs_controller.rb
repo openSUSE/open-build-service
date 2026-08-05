@@ -17,11 +17,11 @@ class Webui::WorkflowRunsController < Webui::WebuiController
     @workflow_runs = relation.all.page(params[:page])
 
     @selected_filter = { status: status_params, event_type: event_type_params, request_action: request_action, event_source: params[:event_source] }
-    @token = Token::Workflow.find(params[:token_id])
+    @token = Token::Workflow.find(params.expect(:token_id))
   end
 
   def show
-    @workflow_run = WorkflowRun.find(params[:id])
+    @workflow_run = WorkflowRun.find(params.expect(:id))
     authorize @workflow_run, policy_class: WorkflowRunPolicy
 
     @current_notification = handle_notification

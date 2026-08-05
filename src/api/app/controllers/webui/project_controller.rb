@@ -87,7 +87,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def create
-    params[:project][:name] = "#{params[:namespace]}:#{params[:project][:name]}" if params[:namespace]
+    params.expect(:project)[:name] = "#{params[:namespace]}:#{params[:project][:name]}" if params[:namespace]
 
     @project = Project.new(project_params)
     authorize(@project, :create?)
@@ -177,7 +177,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def autocomplete_anitya_distributions
-    search_term = params[:term].downcase
+    search_term = params.expect(:term).downcase
     results = Project.values_for_anitya_distributions.compact.select do |dist|
       dist.downcase.include?(search_term)
     end
@@ -189,10 +189,10 @@ class Webui::ProjectController < Webui::WebuiController
     @groups = @project.groups
     @roles = Role.local_roles
     if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
+      @current_notification = Notification.find(params.expect(:notification_id))
       authorize @current_notification, :update?, policy_class: NotificationPolicy
     end
-    @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
+    @current_request_action = BsRequestAction.find(params.expect(:request_action_id)) if User.session && params[:request_action_id]
   end
 
   def subprojects
@@ -302,8 +302,8 @@ class Webui::ProjectController < Webui::WebuiController
   def remove_path_from_target
     authorize @project, :update?
 
-    repository = @project.repositories.find(params[:repository])
-    path_element = repository.path_elements.find(params[:path])
+    repository = @project.repositories.find(params.expect(:repository))
+    path_element = repository.path_elements.find(params.expect(:path))
     path_element.destroy
     if @project.valid?
       @project.store
@@ -317,8 +317,8 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :update?
 
     params.require(:direction)
-    repository = @project.repositories.find(params[:repository])
-    path_element = repository.path_elements.find(params[:path])
+    repository = @project.repositories.find(params.expect(:repository))
+    path_element = repository.path_elements.find(params.expect(:path))
 
     if params[:direction] == 'up'
       PathElement.transaction do
@@ -429,7 +429,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def set_project_by_id
-    @project = Project.find(params[:id])
+    @project = Project.find(params.expect(:id))
   end
 
   def main_object
@@ -437,8 +437,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def project_params
-    params.require(:project).permit(
-      :name,
+    params.expect(
+      project: [:name,
       :namespace,
       :title,
       :description,
@@ -449,7 +449,7 @@ class Webui::ProjectController < Webui::WebuiController
       :url,
       :report_bug_url,
       :anitya_distribution_name,
-      :scmsync
+      :scmsync]
     )
   end
 

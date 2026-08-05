@@ -17,7 +17,7 @@ module Status
       end
 
       def project
-        Project.find_by!(name: params[:project_name])
+        Project.find_by!(name: params.expect(:project_name))
       end
 
       def set_repository

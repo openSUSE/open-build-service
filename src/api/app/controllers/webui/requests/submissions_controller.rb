@@ -25,8 +25,8 @@ module Webui
 
       def strip_params
         # We strip values to avoid human errors... damn humans! (This is primarily for target project and target package)
-        params['project_name'].strip!
-        params['package_name'].strip!
+        params.expect('project_name').strip!
+        params.expect('package_name').strip!
         params[:bs_request][:bs_request_actions_attributes]['0'].transform_values!(&:strip)
       end
 
@@ -35,11 +35,11 @@ module Webui
         # This is for target_package which might be empty since it's not required
         params[:bs_request][:bs_request_actions_attributes]['0'].compact_blank!
 
-        params.require(:bs_request).permit(:description,
+        params.expect(bs_request: [:description,
                                            bs_request_actions_attributes: %i[target_package target_project
                                                                              source_project source_package
                                                                              source_rev sourceupdate
-                                                                             type])
+                                                                             type]])
       end
 
       # Superseded requests are marked as such after we're done creating the request superseding them

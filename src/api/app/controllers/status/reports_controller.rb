@@ -16,7 +16,7 @@ class Status::ReportsController < ApplicationController
 
   def set_status_report
     @status_report = if params[:report_uuid]
-                       @checkable.status_reports.find_by!(uuid: params[:report_uuid])
+                       @checkable.status_reports.find_by!(uuid: params.expect(:report_uuid))
                      else
                        # request reports don't have uuid
                        @checkable.status_reports.first!

@@ -55,14 +55,14 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
   private
 
   def set_canned_response
-    @canned_response = User.session.canned_responses.find(params[:id])
+    @canned_response = User.session.canned_responses.find(params.expect(:id))
   end
 
   def canned_response_params
     if params[:canned_response][:package].present?
-      params[:canned_response][:package_id] = Package.find_by_project_and_name(params[:canned_response][:project], params[:canned_response][:package])&.id
+      params.expect(:canned_response)[:package_id] = Package.find_by_project_and_name(params[:canned_response][:project], params[:canned_response][:package])&.id
     elsif params[:canned_response][:project].present?
-      params[:canned_response][:project_id] = Project.find_by_name(params[:canned_response][:project])&.id
+      params.expect(:canned_response)[:project_id] = Project.find_by_name(params[:canned_response][:project])&.id
     end
 
     params.require(:canned_response).except(:project, :package).permit(:title, :content, :decision_type, :package_id, :project_id)

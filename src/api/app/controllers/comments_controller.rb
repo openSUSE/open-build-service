@@ -15,21 +15,21 @@ class CommentsController < ApplicationController
   end
 
   def update
-    comment = Comment.find(params[:id])
+    comment = Comment.find(params.expect(:id))
     authorize comment, :update?
     comment.update!(body: request.raw_post)
     render_ok
   end
 
   def destroy
-    comment = Comment.find(params[:id])
+    comment = Comment.find(params.expect(:id))
     authorize comment, :destroy?
     comment.blank_or_destroy
     render_ok
   end
 
   def history
-    comment = Comment.find(params[:id])
+    comment = Comment.find(params.expect(:id))
     authorize comment, :history?
 
     versions = comment.versions
@@ -58,7 +58,7 @@ class CommentsController < ApplicationController
   end
 
   def find_request_or_action
-    @obj = BsRequest.find_by!(number: params[:request_number])
+    @obj = BsRequest.find_by!(number: params.expect(:request_number))
     @header = { request: @obj.number }
     return unless params.key?(:parent_id)
 

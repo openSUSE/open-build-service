@@ -2,7 +2,7 @@ class Webui::ActionSeenByUsersController < Webui::WebuiController
   before_action :require_login
 
   def toggle
-    @action = BsRequestAction.find(params[:action_id])
+    @action = BsRequestAction.find(params.expect(:action_id))
     @user = User.session
 
     @action.toggle_seen_by(@user)

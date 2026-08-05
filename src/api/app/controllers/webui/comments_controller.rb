@@ -27,7 +27,7 @@ class Webui::CommentsController < Webui::WebuiController
   end
 
   def update
-    @comment = Comment.find(params[:id])
+    @comment = Comment.find(params.expect(:id))
     authorize @comment, :update?
     @comment.assign_attributes(permitted_params)
 
@@ -55,7 +55,7 @@ class Webui::CommentsController < Webui::WebuiController
   # rubocop: disable Metrics/CyclomaticComplexity
   # rubocop: disable Metrics/PerceivedComplexity
   def destroy
-    @comment = Comment.find(params[:id])
+    @comment = Comment.find(params.expect(:id))
     authorize @comment, :destroy?
     @commentable = @comment.commentable
 
@@ -120,7 +120,7 @@ class Webui::CommentsController < Webui::WebuiController
   def history
     authorize @comment, :history?
 
-    @version = @comment.versions.find(params[:version_id])
+    @version = @comment.versions.find(params.expect(:version_id))
     respond_to do |format|
       format.js { render 'webui/comment/history' }
     end
@@ -129,7 +129,7 @@ class Webui::CommentsController < Webui::WebuiController
   private
 
   def permitted_params
-    params.require(:comment).permit(:body, :parent_id, :diff_file_index, :diff_line_number, :source_rev, :target_rev)
+    params.expect(comment: [:body, :parent_id, :diff_file_index, :diff_line_number, :source_rev, :target_rev])
   end
 
   # FIXME: Use this function for the rest of the actions

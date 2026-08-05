@@ -51,6 +51,6 @@ class StatusMessagesController < ApplicationController
   private
 
   def set_status_message
-    @status_message = StatusMessage.find(params[:id])
+    @status_message = StatusMessage.find(params.expect(:id))
   end
 end

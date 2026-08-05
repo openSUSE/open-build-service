@@ -63,7 +63,7 @@ module Webui
       private
 
       def set_workflow_project
-        @project = Project.find_by!(name: params[:workflow_project])
+        @project = Project.find_by!(name: params.expect(:workflow_project))
       end
 
       def set_staging_workflow

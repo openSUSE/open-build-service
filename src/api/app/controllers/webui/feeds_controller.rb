@@ -24,7 +24,7 @@ class Webui::FeedsController < Webui::WebuiController
   end
 
   def notifications
-    @user = User.find_by!(rss_secret: params[:secret])
+    @user = User.find_by!(rss_secret: params.expect(:secret))
     @host = ::Configuration.obs_url
     @configuration = ::Configuration.fetch
     @notifications = @user.combined_rss_feed_items

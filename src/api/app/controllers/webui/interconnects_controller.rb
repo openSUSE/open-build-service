@@ -34,6 +34,6 @@ class Webui::InterconnectsController < Webui::WebuiController
   private
 
   def project_params
-    params.require(:project).permit(:name, :title, :remoteurl, :description)
+    params.expect(project: [:name, :title, :remoteurl, :description])
   end
 end

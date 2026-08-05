@@ -23,7 +23,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
   end
 
   def update
-    @download_on_demand = DownloadRepository.find(params[:id])
+    @download_on_demand = DownloadRepository.find(params.expect(:id))
     authorize @download_on_demand
 
     begin
@@ -44,7 +44,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
   end
 
   def destroy
-    @download_on_demand = DownloadRepository.find(params[:id])
+    @download_on_demand = DownloadRepository.find(params.expect(:id))
     authorize @download_on_demand
 
     if @download_on_demand.repository.download_repositories.count <= 1
@@ -68,6 +68,6 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
   private
 
   def permitted_params
-    params.require(:download_repository).permit(:arch, :repotype, :url, :repository_id, :archfilter, :masterurl, :mastersslfingerprint, :pubkey)
+    params.expect(download_repository: [:arch, :repotype, :url, :repository_id, :archfilter, :masterurl, :mastersslfingerprint, :pubkey])
   end
 end

@@ -55,7 +55,7 @@ class ReportsController < ApplicationController
 
   def filter_reports
     @reports = @reports.where(reportable_type: params[:reportable_type]) if params[:reportable_type].present? &&
-                                                                            params[:reportable_type].in?(Report::REPORTABLE_TYPES.map(&:to_s))
+                                                                            params.expect(:reportable_type).in?(Report::REPORTABLE_TYPES.map(&:to_s))
 
     return if params[:decided].blank?
 
@@ -67,7 +67,7 @@ class ReportsController < ApplicationController
   end
 
   def set_report
-    @report = Report.find(params[:id])
+    @report = Report.find(params.expect(:id))
   end
 
   def report_params

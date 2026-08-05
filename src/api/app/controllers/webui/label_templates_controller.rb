@@ -12,7 +12,7 @@ module Webui
     end
 
     def edit
-      @label_template = authorize LabelTemplateGlobal.find(params[:id])
+      @label_template = authorize LabelTemplateGlobal.find(params.expect(:id))
     end
 
     def create
@@ -28,7 +28,7 @@ module Webui
     end
 
     def update
-      @label_template = authorize LabelTemplateGlobal.find(params[:id])
+      @label_template = authorize LabelTemplateGlobal.find(params.expect(:id))
 
       if @label_template.update(label_template_params)
         redirect_to label_templates_path
@@ -40,7 +40,7 @@ module Webui
     end
 
     def destroy
-      @label_template = authorize LabelTemplateGlobal.find(params[:id])
+      @label_template = authorize LabelTemplateGlobal.find(params.expect(:id))
 
       if @label_template.destroy
         flash[:success] = 'Label Template deleted successfully'
@@ -53,7 +53,7 @@ module Webui
     private
 
     def label_template_params
-      params.require(:label_template_global).permit(:name, :color)
+      params.expect(label_template_global: [:name, :color])
     end
   end
 end

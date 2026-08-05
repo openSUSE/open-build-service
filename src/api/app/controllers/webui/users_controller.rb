@@ -71,7 +71,7 @@ class Webui::UsersController < Webui::WebuiController
   def censor
     authorize @displayed_user, :censor?
 
-    @displayed_user.update(params.require(:user).permit(:censored))
+    @displayed_user.update(params.expect(user: [:censored]))
 
     if @displayed_user.save
       status = @displayed_user.censored ? "censored, they can't comment" : 'allowed to comment again'

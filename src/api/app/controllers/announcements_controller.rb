@@ -51,7 +51,7 @@ class AnnouncementsController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_status_message
-    @status_message = StatusMessage.announcements.find(params[:id])
+    @status_message = StatusMessage.announcements.find(params.expect(:id))
   end
 
   # Only allow a trusted parameter "white list" through.

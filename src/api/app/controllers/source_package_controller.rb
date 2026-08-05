@@ -124,7 +124,7 @@ class SourcePackageController < SourceController
     # update package timestamp and reindex sources
     return if params[:rev] == 'repository' || @package_name.in?(%w[_project _pattern])
 
-    special_file = params[:filename].in?(%w[_aggregate _constraints _link _service _patchinfo _channel])
+    special_file = params.expect(:filename).in?(%w[_aggregate _constraints _link _service _patchinfo _channel])
     @pack.sources_changed(wait_for_update: special_file) # wait for indexing for special files
   end
 
@@ -199,7 +199,7 @@ class SourcePackageController < SourceController
 
   def set_target_project_name
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opposite place
-    @target_project_name = if params[:cmd].in?(%w[branch fork release])
+    @target_project_name = if params.expect(:cmd).in?(%w[branch fork release])
                              params[:target_project] # might be nil
                            else
                              params[:project]
@@ -208,7 +208,7 @@ class SourcePackageController < SourceController
 
   def set_target_package_name
     @target_package_name = params[:package]
-    return unless params[:cmd].in?(%w[branch fork release])
+    return unless params.expect(:cmd).in?(%w[branch fork release])
 
     @target_package_name = params[:target_package] if params[:target_package]
   end

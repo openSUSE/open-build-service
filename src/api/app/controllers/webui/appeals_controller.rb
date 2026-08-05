@@ -4,7 +4,7 @@ class Webui::AppealsController < Webui::WebuiController
   after_action :verify_authorized
 
   def show
-    @appeal = Appeal.find(params[:id])
+    @appeal = Appeal.find(params.expect(:id))
 
     authorize @appeal
     @current_notification = handle_notification
@@ -41,6 +41,6 @@ class Webui::AppealsController < Webui::WebuiController
   end
 
   def appeal_params
-    params.require(:appeal).permit(:reason)
+    params.expect(appeal: [:reason])
   end
 end

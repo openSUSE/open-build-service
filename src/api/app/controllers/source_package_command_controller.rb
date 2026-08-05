@@ -464,7 +464,7 @@ class SourcePackageCommandController < SourceController
                 set_flag: { follow_project_links: false },
                 remove_flag: { follow_project_links: false } }.freeze
 
-    @package = Package.get_by_project_and_name(params[:project], params[:package], options[params[:cmd].to_sym])
+    @package = Package.get_by_project_and_name(params[:project], params[:package], options[params.expect(:cmd).to_sym])
   end
 
   def require_valid_package_name
