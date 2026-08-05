@@ -77,6 +77,6 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
 
     return unless step_instructions[:target_package] && target_package&.scmsync.present?
     errors.add(:base, "package '#{step_instructions[:target_package]}' is developed in SCM. Branch it instead.")
-    
+
   end
 end
