@@ -53,4 +53,30 @@ RSpec.describe RequestController, :vcr do
       end
     end
   end
+
+  describe "#create" do
+    context "invalid target_project name" do
+      subject { post :create, params: { cmd: :create }, body: invalid_bs_request_xml, format: :xml }
+
+      let(:user) { create(:confirmed_user) }
+      let(:invalid_bs_request_xml) {
+            "<request>
+              <action type='submit'>
+                <source project='kde4' package='kdelibs' />
+                <target project='c++ ' package='test_pack'/>
+              </action>
+              <description/>
+              <state who='#{user.login}' name='new'/>
+            </request>"
+      }
+
+      before do
+        login user
+      end
+
+      it { expect { subject }.not_to change(BsRequest, :count) }
+      it { is_expected.to have_http_status(:bad_request) }
+      it { expect(Xmlhash.parse(subject.body)['code']).to eq('invalid_record') }
+    end
+  end
 end
