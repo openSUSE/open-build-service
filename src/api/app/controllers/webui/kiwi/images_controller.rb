@@ -158,11 +158,13 @@ module Webui
                        :name,
                        :schema_version,
                        :displayname,
+                       {
                        description_attributes: description_attributes,
                        repositories_attributes: repositories_attributes,
                        package_groups_attributes: package_groups_attributes,
                        preferences_attributes: preferences_attributes,
-                       profiles_attributes: profiles_attributes]
+                       profiles_attributes: profiles_attributes
+                       }]
         )
       end
 

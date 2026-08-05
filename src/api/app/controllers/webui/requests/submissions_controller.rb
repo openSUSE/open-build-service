@@ -36,10 +36,12 @@ module Webui
         params[:bs_request][:bs_request_actions_attributes]['0'].compact_blank!
 
         params.expect(bs_request: [:description,
+                                   {
                                    bs_request_actions_attributes: %i[target_package target_project
                                                                      source_project source_package
                                                                      source_rev sourceupdate
-                                                                     type]])
+                                                                     type]
+                                   }])
       end
 
       # Superseded requests are marked as such after we're done creating the request superseding them

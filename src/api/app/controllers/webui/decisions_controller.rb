@@ -23,6 +23,6 @@ class Webui::DecisionsController < Webui::WebuiController
   private
 
   def decision_params
-    params.expect(decision: [:reason, :type, report_ids: []])
+    params.expect(decision: [:reason, :type, {report_ids: []}])
   end
 end
