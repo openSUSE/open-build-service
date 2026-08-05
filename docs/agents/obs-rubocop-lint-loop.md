@@ -58,7 +58,7 @@ This prints a list of autocorrectable cops sorted by offense count. Use this lis
 For each cop in the autocorrectable list, run:
 
 ```bash
-docker compose run frontend bundle exec rubocop -A --ignore_parent_exclusion --only <Cop/Name>
+docker compose run frontend bundle exec rubocop -a --ignore_parent_exclusion --only <Cop/Name>
 git add -A && git commit -m "Autocorrect <Cop/Name> cop
 
 Assisted-by: <Tool>:<Model>"
@@ -83,7 +83,7 @@ Run dev:lint:rubocop:autocorrectable_cops
        |
        v (get list of autocorrectable cops)
 For each cop:
-  Run rubocop -A --ignore_parent_exclusion --only <name>
+  Run rubocop -a --ignore_parent_exclusion --only <name>
   Commit "Autocorrect <Cop/Name> cop"
        |
        v (all correctable cops fixed & committed)
