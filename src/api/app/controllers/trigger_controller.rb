@@ -64,9 +64,9 @@ class TriggerController < ApplicationController
     when 'Token::Workflow'
       raise InvalidToken, 'Invalid token found'
     when 'Token::Rebuild', 'Token::Release'
-      return if params[:project].present?
+      return if project_param.present?
     when 'Token::Service'
-      return if params[:project].present? && params[:package].present?
+      return if project_param.present? && params[:package].present?
     end
 
     return if @token.package.present?
@@ -83,14 +83,18 @@ class TriggerController < ApplicationController
   end
 
   def set_project_name
-    # Don't take random content when people just use a random webhook on our
-    # route, e.g. GitLab sending its own data with an unrelated project hash.
-    raise InvalidProjectName if params[:project].present? && !params[:project].is_a?(String)
-
-    @project_name = params[:project]
+    @project_name = project_param
   end
 
   def set_package_name
     @package_name = params[:package]
+  end
+
+  # SCMs post their own payload to our route: GitLab sends a "project" hash and
+  # GitHub an integer pull request number. Such a value is not a project name,
+  # so ignore it instead of taking it as one. This is the same reason why this
+  # controller skips the validate_params before_action.
+  def project_param
+    params[:project] if params[:project].is_a?(String)
   end
 end

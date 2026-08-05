@@ -77,6 +77,28 @@ RSpec.describe TriggerController do
       subject { post :rebuild, params: { project: { unrelated: 'payload' }, format: :xml } }
 
       it { expect(subject).to have_http_status(:bad_request) }
+      it { expect(Xmlhash.parse(subject.body)['code']).to eq('missing_parameter') }
+    end
+
+    context 'with an untrusted project parameter that is not a string and a token with a package' do
+      # A GitLab webhook posts its own payload, where "project" is a hash. The
+      # token knows which package to rebuild, so the payload must be ignored.
+      subject do
+        post :rebuild, params: { project: { id: 4762, name: 'Maintenance ToolKit', path_with_namespace: 'tools/maintenance-toolkit' },
+                                 format: :xml }
+      end
+
+      before do
+        token.update!(package: package)
+        allow(Backend::Api::Sources::Package).to receive(:rebuild).with(project.name, package.name, {}).and_return("<status code=\"ok\" />\n")
+      end
+
+      it { expect(subject).to have_http_status(:success) }
+
+      it 'rebuilds the package of the token' do
+        subject
+        expect(Backend::Api::Sources::Package).to have_received(:rebuild).with(project.name, package.name, {})
+      end
     end
   end
 
