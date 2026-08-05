@@ -1,5 +1,6 @@
 module UpdateBackendInfosCallback
   extend ActiveSupport::Concern
+
   included do
     after_create :update_backend_infos
   end
