@@ -3,7 +3,7 @@
 class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
   # rubocop:disable Rails/SkipsModelValidations
   def up
-# 1. 'add_role'
+    # 1. 'add_role'
     BsRequestAction.where(type: 'add_role')
                    .where(
         'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
@@ -20,7 +20,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
       )
     end
 
-# 2. 'change_devel'
+    # 2. 'change_devel'
     BsRequestAction.where(type: 'change_devel')
                    .where(
         'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
@@ -39,7 +39,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
       )
     end
 
-# 3. 'delete'
+    # 3. 'delete'
     BsRequestAction.where(type: 'delete')
                    .where(
         'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
@@ -59,7 +59,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
       )
     end
 
-# 4. 'maintenance_incident'
+    # 4. 'maintenance_incident'
     BsRequestAction.where(type: 'maintenance_incident')
                    .where('group_name IS NOT NULL OR person_name IS NOT NULL OR role IS NOT NULL')
                    .in_batches do |relation|
@@ -70,7 +70,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
                    )
                  end
 
-# 5. 'maintenance_release', 'release'
+    # 5. 'maintenance_release', 'release'
     BsRequestAction.where(type: ['maintenance_release', 'release'])
                    .where('group_name IS NOT NULL OR person_name IS NOT NULL OR role IS NOT NULL OR target_releaseproject IS NOT NULL')
                    .in_batches do |relation|
@@ -82,7 +82,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
                    )
                  end
 
-# 6. 'set_bugowner'
+    # 6. 'set_bugowner'
     BsRequestAction.where(type: 'set_bugowner')
                    .where(
         'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
@@ -101,7 +101,7 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
       )
     end
 
-# 7. 'submit'
+    # 7. 'submit'
     BsRequestAction.where(type: 'submit')
                    .where(
         'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
