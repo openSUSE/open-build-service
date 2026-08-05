@@ -250,12 +250,10 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           }
         end
 
-        # rubocop:disable RSpec/ExampleLength
         # This will be fixed once we remove the temporary error message helping users migrate their configure_repositories steps
         it 'is not valid' do
           expect(subject).not_to be_valid
         end
-        # rubocop:enable RSpec/ExampleLength
       end
 
       context 'and at least one repository path is missing a target project in the step instructions' do
