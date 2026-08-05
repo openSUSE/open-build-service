@@ -129,7 +129,7 @@ class Webui::CommentsController < Webui::WebuiController
   private
 
   def permitted_params
-    params.expect(comment: [:body, :parent_id, :diff_file_index, :diff_line_number, :source_rev, :target_rev])
+    params.expect(comment: %i[body parent_id diff_file_index diff_line_number source_rev target_rev])
   end
 
   # FIXME: Use this function for the rest of the actions

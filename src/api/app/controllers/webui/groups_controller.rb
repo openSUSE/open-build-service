@@ -72,6 +72,6 @@ class Webui::GroupsController < Webui::WebuiController
   end
 
   def group_params
-    params.expect(group: [:title, :email, :members])
+    params.expect(group: %i[title email members])
   end
 end

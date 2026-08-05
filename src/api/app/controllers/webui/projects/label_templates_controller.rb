@@ -79,7 +79,7 @@ module Webui
       private
 
       def label_template_params
-        params.expect(label_template: [:name, :color])
+        params.expect(label_template: %i[name color])
       end
     end
   end

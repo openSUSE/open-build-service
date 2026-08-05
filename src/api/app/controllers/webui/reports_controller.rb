@@ -40,7 +40,7 @@ class Webui::ReportsController < Webui::WebuiController
   private
 
   def report_params
-    params.expect(report: [:reason, :reportable_id, :reportable_type, :category])
+    params.expect(report: %i[reason reportable_id reportable_type category])
   end
 
   def set_report

@@ -438,18 +438,18 @@ class Webui::ProjectController < Webui::WebuiController
 
   def project_params
     params.expect(
-      project: [:name,
-      :namespace,
-      :title,
-      :description,
-      :maintenance_project,
-      :access_protection,
-      :source_protection,
-      :disable_publishing,
-      :url,
-      :report_bug_url,
-      :anitya_distribution_name,
-      :scmsync]
+      project: %i[name
+      namespace
+      title
+      description
+      maintenance_project
+      access_protection
+      source_protection
+      disable_publishing
+      url
+      report_bug_url
+      anitya_distribution_name
+      scmsync]
     )
   end
 

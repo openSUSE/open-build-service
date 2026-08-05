@@ -68,6 +68,6 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
   private
 
   def permitted_params
-    params.expect(download_repository: [:arch, :repotype, :url, :repository_id, :archfilter, :masterurl, :mastersslfingerprint, :pubkey])
+    params.expect(download_repository: %i[arch repotype url repository_id archfilter masterurl mastersslfingerprint pubkey])
   end
 end

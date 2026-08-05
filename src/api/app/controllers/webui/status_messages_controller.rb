@@ -83,7 +83,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
   end
 
   def status_message_params
-    params.expect(status_message: [:message, :severity, :communication_scope]).merge(creator: User.session)
+    params.expect(status_message: %i[message severity communication_scope]).merge(creator: User.session)
   end
 
   def index_params

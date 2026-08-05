@@ -34,6 +34,6 @@ class Webui::InterconnectsController < Webui::WebuiController
   private
 
   def project_params
-    params.expect(project: [:name, :title, :remoteurl, :description])
+    params.expect(project: %i[name title remoteurl description])
   end
 end

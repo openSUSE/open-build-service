@@ -30,7 +30,7 @@ class Webui::CommentLocksController < Webui::WebuiController
   private
 
   def comment_lock_params
-    params.expect(comment_lock: [:commentable_type, :commentable_id])
+    params.expect(comment_lock: %i[commentable_type commentable_id])
   end
 
   def set_commentable

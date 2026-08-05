@@ -430,7 +430,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def package_params
-    params.expect(package: [:name, :title, :description, :scmsync])
+    params.expect(package: %i[name title description scmsync])
   end
 
   def package_details_params
@@ -440,12 +440,12 @@ class Webui::PackageController < Webui::WebuiController
     # TODO: rename the usage of :package in #require_package to :package_name to unlock
     # the proper use of defaults.
     params
-      .expect(package_details: [:title,
-              :description,
-              :url,
-              :report_bug_url,
-              :anitya_ignore,
-              :scmsync])
+      .expect(package_details: %i[title
+              description
+              url
+              report_bug_url
+              anitya_ignore
+              scmsync])
   end
 
   def set_file_details
