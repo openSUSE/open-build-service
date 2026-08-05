@@ -83,7 +83,7 @@ class TriggerController < ApplicationController
   end
 
   def set_project_name
-    @project_name = params[:project]
+    @project_name = params[:project].to_s
   end
 
   def set_package_name

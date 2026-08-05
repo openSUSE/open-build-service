@@ -91,6 +91,18 @@ RSpec.describe TriggerController do
         expect(Backend::Api::Sources::Package).to have_received(:rebuild).with(project.name, package.name, {})
       end
     end
+
+    context 'without token.package and a project parameter that is not a string' do
+      # Same payload, but now there is no package on the token to fall back to,
+      # so we end up looking for a project named after the payload.
+      subject do
+        post :rebuild, params: { project: { id: 4762, name: 'Maintenance ToolKit', path_with_namespace: 'tools/maintenance-toolkit' },
+                                 format: :xml }
+      end
+
+      it { expect(subject).to have_http_status(:not_found) }
+      it { expect(Xmlhash.parse(subject.body)['code']).to eq('unknown_project') }
+    end
   end
 
   describe '#release', :vcr do
