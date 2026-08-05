@@ -16,7 +16,7 @@ class Review < ApplicationRecord
   validates :reason, length: { maximum: 65_534 }
 
   validates :user, presence: true, if: :by_user?
-  validates :by_user, comparison: { other_than: '_nobody_', message: "_nobody_ can not review" }, if: :by_user?
+  validates :by_user, comparison: { other_than: '_nobody_', message: '_nobody_ can not review' }, if: :by_user?
   validates :group, presence: true, if: :by_group?
   validates :project, presence: true, if: :by_project?, on: :create
   validates :package, presence: true, if: :by_package?, on: :create
