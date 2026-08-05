@@ -12,44 +12,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     ActiveJob::Base.queue_adapter = :inline
   end
 
-  def test_set_and_get_1
-    login_king
-
-    xml = <<~XML
-      <request>
-        <action type='submit'>
-          <source project='home:Iggy' package='TestPack' rev='2'/>
-          <target project='kde4' package='wpa_supplicant'/>
-        </action>
-        <description/>
-        <state name='new' who='tom' when='2011-12-02T17:20:42'/>
-      </request>
-    XML
-    post '/request?cmd=create', params: xml
-    assert_response :success
-    new_request_id = BsRequest.last.number
-    assert_select 'request', id: new_request_id do
-      assert_select 'action', type: 'submit' do
-        assert_select 'source', project: 'home:Iggy', package: 'TestPack', rev: '2'
-        assert_select 'target', project: 'kde4', package: 'wpa_supplicant'
-      end
-      assert_select 'state', name: 'review', who: 'tom' do
-        assert_select 'comment'
-      end
-      assert_select 'review', state: 'new', by_user: 'adrian'
-      assert_select 'review', state: 'new', by_group: 'test_group'
-      assert_select 'description'
-    end
-
-    put("/request/#{new_request_id}", params: xml)
-    assert_response :success
-    get "/request/#{new_request_id}"
-    assert_response :success
-    assert_select 'request', id: new_request_id do
-      assert_select 'state', name: 'new'
-    end
-  end
-
   def test_get_requests_collection
     login_king
     get '/request', params: { view: 'collection', reviewstates: 'accepted' }
@@ -524,20 +486,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
     assert_xml_tag(tag: 'status', attributes: { code: 'not_found' })
 
-    # test direct put
-    login_Iggy
-    put "/request/#{id}", params: load_backend_file('request/set_bugowner')
-    assert_response :forbidden
-    put "/request/#{id2}", params: load_backend_file('request/set_bugowner_group')
-    assert_response :forbidden
-
-    login_king
-    put "/request/#{id}", params: load_backend_file('request/set_bugowner')
-    assert_response :success
-    put "/request/#{id2}", params: load_backend_file('request/set_bugowner_group')
-    assert_response :success
-
     # accept
+    login_king
     get '/source/kde4/kdelibs/_meta'
     assert_response :success
     meta = @response.body
@@ -1298,17 +1248,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     node = Xmlhash.parse(@response.body)
     id = node.value :id
-
-    # admin can define requests in the name of other people
-    login_king
-    put("/request/#{id}", params: load_backend_file('request/1'))
-    assert_response :success
-    assert_xml_tag(tag: 'state', attributes: { who: 'tom' })
-
-    get "/request/#{id}"
-    assert_response :success
-    assert_xml_tag(tag: 'request', attributes: { id: id })
-    assert_xml_tag(tag: 'state', attributes: { name: 'new', who: 'tom' })
 
     # via GET
     login_Iggy
@@ -3418,30 +3357,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_tom
     delete '/source/home:tom:branches:home:Iggy:todo'
     assert_response :success
-  end
-
-  def test_delete_request_id
-    login_tom
-    req = load_backend_file('request/1')
-    post '/request?cmd=create', params: req
-    assert_response :success
-
-    node = Xmlhash.parse(@response.body)
-    id = node['id']
-    get "/request/#{id}"
-    assert_response :success
-
-    # old admins can do that
-    delete "/request/#{id}"
-    assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'admin_required' }
-
-    login_king
-    delete "/request/#{id}"
-    assert_response :success
-
-    get "/request/#{id}"
-    assert_response :not_found
   end
 
   def test_reopen_declined_request

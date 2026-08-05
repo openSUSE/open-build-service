@@ -707,31 +707,7 @@ Event::RemovedUserFromGroup:
   payload:
     LengthConstraintChecker:
       enabled: false
-Event::RequestChange:
-  eventtype:
-    LengthConstraintChecker:
-      enabled: false
-    NullConstraintChecker:
-      enabled: false
-  mails_sent:
-    ThreeStateBooleanChecker:
-      enabled: false
-  payload:
-    LengthConstraintChecker:
-      enabled: false
 Event::RequestCreate:
-  eventtype:
-    LengthConstraintChecker:
-      enabled: false
-    NullConstraintChecker:
-      enabled: false
-  mails_sent:
-    ThreeStateBooleanChecker:
-      enabled: false
-  payload:
-    LengthConstraintChecker:
-      enabled: false
-Event::RequestDelete:
   eventtype:
     LengthConstraintChecker:
       enabled: false

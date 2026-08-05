@@ -611,8 +611,6 @@ class BsRequest < ApplicationRecord
         params[:description_extension] = superseded_by.to_s
       when 'review', 'new'
         history = HistoryElement::RequestReopened
-      when 'deleted'
-        history = HistoryElement::RequestDeleted
       else
         raise "Unhandled state #{opts[:newstate]} for history"
       end
