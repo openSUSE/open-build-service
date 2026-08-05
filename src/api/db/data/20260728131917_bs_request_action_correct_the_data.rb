@@ -6,9 +6,9 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
     # 1. 'add_role'
     BsRequestAction.where(type: 'add_role')
                    .where(
-        'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
-        'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
-        'target_releaseproject IS NOT NULL OR target_repository IS NOT NULL'
+                     'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
+                     'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
+                     'target_releaseproject IS NOT NULL OR target_repository IS NOT NULL'
       ).in_batches do |relation|
       relation.update_all(
         source_project: nil,
@@ -23,10 +23,10 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
     # 2. 'change_devel'
     BsRequestAction.where(type: 'change_devel')
                    .where(
-        'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
-        'role IS NOT NULL OR source_rev IS NOT NULL OR ' \
-        'sourceupdate IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
-        'target_repository IS NOT NULL'
+                     'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
+                     'role IS NOT NULL OR source_rev IS NOT NULL OR ' \
+                     'sourceupdate IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
+                     'target_repository IS NOT NULL'
       ).in_batches do |relation|
       relation.update_all(
         group_name: nil,
@@ -42,10 +42,10 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
     # 3. 'delete'
     BsRequestAction.where(type: 'delete')
                    .where(
-        'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
-        'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
-        'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
-        'role IS NOT NULL OR target_releaseproject IS NOT NULL'
+                     'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
+                     'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
+                     'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
+                     'role IS NOT NULL OR target_releaseproject IS NOT NULL'
       ).in_batches do |relation|
       relation.update_all(
         source_project: nil,
@@ -85,10 +85,10 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
     # 6. 'set_bugowner'
     BsRequestAction.where(type: 'set_bugowner')
                    .where(
-        'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
-        'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
-        'role IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
-        'target_repository IS NOT NULL'
+                     'source_project IS NOT NULL OR source_package IS NOT NULL OR ' \
+                     'source_rev IS NOT NULL OR sourceupdate IS NOT NULL OR ' \
+                     'role IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
+                     'target_repository IS NOT NULL'
       ).in_batches do |relation|
       relation.update_all(
         source_project: nil,
@@ -104,9 +104,9 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
     # 7. 'submit'
     BsRequestAction.where(type: 'submit')
                    .where(
-        'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
-        'role IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
-        'target_repository IS NOT NULL'
+                     'group_name IS NOT NULL OR person_name IS NOT NULL OR ' \
+                     'role IS NOT NULL OR target_releaseproject IS NOT NULL OR ' \
+                     'target_repository IS NOT NULL'
       ).in_batches do |relation|
       relation.update_all(
         group_name: nil,
