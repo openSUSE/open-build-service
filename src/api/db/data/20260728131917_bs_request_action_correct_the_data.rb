@@ -63,23 +63,23 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
     BsRequestAction.where(type: 'maintenance_incident')
                    .where('group_name IS NOT NULL OR person_name IS NOT NULL OR role IS NOT NULL')
                    .in_batches do |relation|
-                   relation.update_all(
-                     group_name: nil,
-                     person_name: nil,
-                     role: nil
-                   )
+      relation.update_all(
+        group_name: nil,
+        person_name: nil,
+        role: nil
+      )
     end
 
     # 5. 'maintenance_release', 'release'
     BsRequestAction.where(type: %w[maintenance_release release])
                    .where('group_name IS NOT NULL OR person_name IS NOT NULL OR role IS NOT NULL OR target_releaseproject IS NOT NULL')
                    .in_batches do |relation|
-                   relation.update_all(
-                     group_name: nil,
-                     person_name: nil,
-                     role: nil,
-                     target_releaseproject: nil
-                   )
+      relation.update_all(
+        group_name: nil,
+        person_name: nil,
+        role: nil,
+        target_releaseproject: nil
+      )
     end
 
     # 6. 'set_bugowner'
