@@ -226,7 +226,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
           end
 
           it 'updates the existing repository attributes' do
-            expect { subject.call }.to_not(change(Repository, :count))
+            expect { subject.call }.not_to(change(Repository, :count))
             expect(configured_repositories.first.rebuild).to eql('local')
             expect(configured_repositories.first.linkedbuild).to eql('all')
           end
