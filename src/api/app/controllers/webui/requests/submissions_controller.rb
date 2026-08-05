@@ -37,10 +37,10 @@ module Webui
 
         params.expect(bs_request: [:description,
                                    {
-                                   bs_request_actions_attributes: %i[target_package target_project
-                                                                     source_project source_package
-                                                                     source_rev sourceupdate
-                                                                     type]
+                                     bs_request_actions_attributes: %i[target_package target_project
+                                                                       source_project source_package
+                                                                       source_rev sourceupdate
+                                                                       type]
                                    }])
       end
 

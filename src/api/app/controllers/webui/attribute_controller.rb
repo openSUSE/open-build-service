@@ -104,7 +104,7 @@ class Webui::AttributeController < Webui::WebuiController
   def attrib_params
     params.expect(attrib: [:attrib_type_id, :project_id, :package_id,
                            {
-                           values_attributes: %i[id value position _destroy],
+                             values_attributes: %i[id value position _destroy],
                            issues_attributes: %i[id name issue_tracker_id _destroy]
                            }])
   end
