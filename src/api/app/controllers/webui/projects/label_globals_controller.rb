@@ -18,7 +18,7 @@ module Webui
       private
 
       def labels_params
-        params.expect(label_globals: [{label_globals_attributes: [%i[id label_template_global_id _destroy]]}])
+        params.expect(label_globals: [{ label_globals_attributes: [%i[id label_template_global_id _destroy]] }])
       end
 
       def set_project

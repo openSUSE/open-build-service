@@ -15,7 +15,7 @@ module Webui
       private
 
       def bs_request_params
-        params.expect(bs_request: [:description, {bs_request_actions_attributes: %i[target_project target_package source_project source_package type]}])
+        params.expect(bs_request: [:description, { bs_request_actions_attributes: %i[target_project target_package source_project source_package type] }])
       end
 
       def check_devel_package
