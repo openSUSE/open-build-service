@@ -12,14 +12,4 @@ module Trigger::Errors
   class MissingExtractor < APIError
     setup 'bad_request', 400, 'Extractor could not be created.'
   end
-
-  class InvalidProject < APIError
-    setup 'bad_request', 400, 'Token is setup with another project.'
-  end
-
-  class InvalidProjectName < APIError; end
-
-  class InvalidPackage < APIError
-    setup 'bad_request', 400, 'Token is setup with another package.'
-  end
 end

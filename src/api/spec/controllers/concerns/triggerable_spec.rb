@@ -82,29 +82,6 @@ RSpec.describe Triggerable do
     end
   end
 
-  describe 'validate_token_project' do
-    let(:package) { create(:package) }
-    let(:token) { Token::Rebuild.create(executor: user, package: package) }
-
-    before do
-      fake_controller_instance.instance_variable_set(:@project_name, 'i:dont:match')
-    end
-
-    it { expect { fake_controller_instance.set_project }.to raise_error(Trigger::Errors::InvalidProject) }
-  end
-
-  describe 'validate_token_package' do
-    let(:package) { create(:package) }
-    let(:token) { Token::Service.create(executor: user, package: package) }
-
-    before do
-      fake_controller_instance.instance_variable_set(:@project, package.project)
-      fake_controller_instance.instance_variable_set(:@package_name, 'i-dont-match')
-    end
-
-    it { expect { fake_controller_instance.set_package }.to raise_error(Trigger::Errors::InvalidPackage) }
-  end
-
   describe '#set_object_to_authorize' do
     let(:token) { Token::Service.create(executor: user) }
 
