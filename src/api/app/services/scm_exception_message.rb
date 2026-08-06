@@ -75,13 +75,38 @@ class SCMExceptionMessage
       'Bad request. Please modify your request and try again.'
   }.freeze
 
+  # Exceptions carrying the response body of the SCM (ApiError) or the underlying Faraday
+  # error (ConnectionError, SSLError) are left out on purpose: their own message is the
+  # only diagnostic we get, so we let it through untouched.
+  GITEA_EXCEPTIONS = {
+    GiteaAPI::V1::Client::BadGatewayError =>          # 502
+      'Bad gateway. Please try again later.',
+    GiteaAPI::V1::Client::BadRequestError =>          # 400
+      'Bad request. Please modify your request and try again.',
+    GiteaAPI::V1::Client::ForbiddenError =>           # 403
+      'Request is forbidden.',
+    GiteaAPI::V1::Client::InternalServerError =>      # 500
+      'Internal error. Please try again later.',
+    GiteaAPI::V1::Client::NotFoundError =>            # 404
+      'Content not found.',
+    GiteaAPI::V1::Client::ServerError =>              # 500..599
+      'Generic server error. Please try again later.',
+    GiteaAPI::V1::Client::ServiceUnavailableError =>  # 503
+      'Service is unavailable. Please try again later.',
+    GiteaAPI::V1::Client::TooManyRequestsError =>     # 429
+      'Maximum number of requests exceeded. Please try again later.',
+    GiteaAPI::V1::Client::UnauthorizedError =>        # 401
+      'Unauthorized request. Please check your credentials again.'
+  }.freeze
+
+  EXCEPTIONS_PER_SCM = {
+    'Gitea' => GITEA_EXCEPTIONS,
+    'GitHub' => GITHUB_EXCEPTIONS,
+    'GitLab' => GITLAB_EXCEPTIONS
+  }.freeze
+
   def self.for(exception:, scm:)
-    case scm
-    when 'GitHub'
-      message = GITHUB_EXCEPTIONS[exception.class]
-    when 'GitLab'
-      message = GITLAB_EXCEPTIONS[exception.class]
-    end
+    message = EXCEPTIONS_PER_SCM.fetch(scm, {})[exception.class]
     return exception.message if message.nil?
 
     message

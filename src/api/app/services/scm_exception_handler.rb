@@ -35,11 +35,13 @@ class SCMExceptionHandler
     log_to_workflow_run(exception, 'GitLab') if @workflow_run.present?
   end
 
-  rescue_from GiteaAPI::V1::Client::ConnectionError,
-              GiteaAPI::V1::Client::NotFoundError,
+  rescue_from GiteaAPI::V1::Client::ApiError,
               GiteaAPI::V1::Client::BadRequestError,
-              GiteaAPI::V1::Client::UnauthorizedError,
-              GiteaAPI::V1::Client::ForbiddenError do |exception|
+              GiteaAPI::V1::Client::ConnectionError,
+              GiteaAPI::V1::Client::ForbiddenError,
+              GiteaAPI::V1::Client::NotFoundError,
+              GiteaAPI::V1::Client::SSLError,
+              GiteaAPI::V1::Client::UnauthorizedError do |exception|
     log_to_workflow_run(exception, 'Gitea') if @workflow_run.present?
   end
 
