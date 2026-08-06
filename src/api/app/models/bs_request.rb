@@ -1173,7 +1173,7 @@ class BsRequest < ApplicationRecord
         next if reviews.any? { |a| a.by_project == r.name && a.by_package.nil? }
 
         reviews.new(by_project: r.name, state: :new)
-      elsif r.instance_of?(Package)
+      elsif r.is_a?(Package)
         next if reviews.any? { |a| a.by_project == r.project.name && a.by_package == r.name }
 
         reviews.new(by_project: r.project.name, by_package: r.name, state: :new)

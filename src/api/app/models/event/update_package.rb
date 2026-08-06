@@ -1,6 +1,7 @@
 module Event
   class UpdatePackage < Base
     include EventObjectPackage
+    include ReconcileLinkedPackageCallback
 
     self.message_bus_routing_key = 'package.update'
     self.description = 'Package meta data updated'
