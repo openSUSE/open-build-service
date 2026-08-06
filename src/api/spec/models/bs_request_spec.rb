@@ -1,4 +1,4 @@
-RSpec.describe BsRequest, :vcr do
+RSpec.describe BsRequest do
   let(:user) { create(:confirmed_user, :with_home, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
   let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
@@ -15,6 +15,20 @@ RSpec.describe BsRequest, :vcr do
            creator: user,
            target_package: target_package)
   end
+  let(:backend_copy_response) do
+    <<~XML
+      <revision rev="12" vrev="12">
+        <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+        <version>unknown</version>
+        <time>1578926184</time>
+        <user>user_4</user>
+        <comment>fake comment.</comment>
+        <requestid>2</requestid>
+        <acceptinfo rev="12" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+      </revision>
+    XML
+  end
+
 
   context 'validations' do
     let(:bs_request) { create(:set_bugowner_request) }
@@ -227,6 +241,7 @@ RSpec.describe BsRequest, :vcr do
       context 'and the target project has an attribute to disallow acceptance by the creator' do
         context 'and the accepter is the creator' do
           before do
+            allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory srcmd5="cc70fcd2b89e39e3646c71352575b429"></directory>') # for BsRequestPermissionCheck
             login creator
 
             # Attach the attribute to the target project so to trigger the validation
@@ -244,6 +259,9 @@ RSpec.describe BsRequest, :vcr do
           let(:user) { create(:confirmed_user, login: 'clarke') }
 
           before do
+            allow(Backend::Api::Sources::Package).to receive(:source_diff).and_return('<xml></xml>')
+            allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory srcmd5="cc70fcd2b89e39e3646c71352575b429"></directory>') # for BsRequestAction.check_for_expand_errors!
+            allow(Backend::Api::Sources::Package).to receive(:copy).and_return(backend_copy_response)
             # Make the user be part of the staff of the project, so we can send requests to it
             create(:relationship_project_user, project: target_project, user: user)
 
@@ -265,6 +283,7 @@ RSpec.describe BsRequest, :vcr do
       context 'and the target package has an attribute to disallow acceptance by the creator' do
         context 'and the accepter is the creator' do
           before do
+            allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory srcmd5="cc70fcd2b89e39e3646c71352575b429"></directory>') # for BsRequestAction.check_for_expand_errors!
             login creator
 
             # Attach the attribute to the target project so to trigger the validation
@@ -282,6 +301,9 @@ RSpec.describe BsRequest, :vcr do
           let(:user) { create(:confirmed_user, login: 'bujold') }
 
           before do
+            allow(Backend::Api::Sources::Package).to receive(:source_diff).and_return('<xml></xml>')
+            allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory srcmd5="cc70fcd2b89e39e3646c71352575b429"></directory>') # for BsRequestAction.check_for_expand_errors!
+            allow(Backend::Api::Sources::Package).to receive(:copy).and_return(backend_copy_response)
             login user
 
             # Attach the attribute to the target project so to trigger the validation
@@ -304,7 +326,12 @@ RSpec.describe BsRequest, :vcr do
       context 'and the source package has an assignment' do
         let!(:assignment) { create(:assignment, assignee: creator, package: request.bs_request_actions.first.source_package_object) }
 
-        before { login creator }
+        before do
+          allow(Backend::Api::Sources::Package).to receive(:source_diff).and_return('<xml></xml>')
+          allow(Backend::Api::Sources::Package).to receive(:copy).and_return(backend_copy_response)
+          allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory srcmd5="cc70fcd2b89e39e3646c71352575b429"></directory>') # for BsRequestAction.check_for_expand_errors!
+          login creator
+        end
 
         it 'expires the assignment' do
           request.change_state(newstate: 'accepted')
@@ -364,23 +391,12 @@ RSpec.describe BsRequest, :vcr do
 
       it { expect(bs_request.staging_project).to be_present }
 
-      context 'when a staged bs_request is accepted', :vcr do
-        let(:backend_response) do
-          <<~XML
-            <revision rev="12" vrev="12">
-              <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
-              <version>unknown</version>
-              <time>1578926184</time>
-              <user>user_4</user>
-              <comment>fake comment.</comment>
-              <requestid>2</requestid>
-              <acceptinfo rev="12" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-            </revision>
-          XML
-        end
+      context 'when a staged bs_request is accepted' do
 
         before do
-          allow(Backend::Api::Sources::Package).to receive(:copy).and_return(backend_response)
+          allow(Backend::Api::Sources::Package).to receive(:source_diff).and_return('<xml></xml>')
+          allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory srcmd5="cc70fcd2b89e39e3646c71352575b429"></directory>') # for BsRequestAction.check_for_expand_errors!
+          allow(Backend::Api::Sources::Package).to receive(:copy).and_return(backend_copy_response)
           bs_request.change_review_state(:accepted, by_project: staging_project.name, comment: 'accepted')
           bs_request.change_state(newstate: 'accepted')
         end
@@ -462,10 +478,13 @@ RSpec.describe BsRequest, :vcr do
     end
 
     before do
+      allow(Backend::Api::Sources::Package).to receive(:source_diff).and_return('<xml></xml>')
+      allow(Backend::Api::Sources::Package).to receive(:copy).and_return(backend_copy_response)
+      allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory srcmd5="cc70fcd2b89e39e3646c71352575b429"></directory>') # for BsRequestPermissionCheck#check_accepted_action
       request.update(accept_at: 1.hour.ago)
     end
 
-    describe '.delayed_auto_accept', :vcr do
+    describe '.delayed_auto_accept' do
       subject! { BsRequest.delayed_auto_accept }
 
       it { is_expected.to contain_exactly(request) }
@@ -473,7 +492,7 @@ RSpec.describe BsRequest, :vcr do
     end
 
     describe '#auto_accept' do
-      context 'when the request is pending', :vcr do
+      context 'when the request is pending' do
         subject! { request.auto_accept }
 
         it { expect(request.reload).to have_attributes(state: :accepted, comment: 'Auto accept') }
@@ -490,7 +509,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect(request.reload).not_to have_attributes(state: :accepted, comment: 'Auto accept') }
       end
 
-      context "when creator doesn't have permissions for the target project", :vcr do
+      context "when creator doesn't have permissions for the target project" do
         subject { request.auto_accept }
 
         before do
@@ -547,8 +566,11 @@ RSpec.describe BsRequest, :vcr do
     end
   end
 
-  describe '#forward_to', :vcr do
+  describe '#forward_to' do
     before do
+      allow(Directory).to receive(:hashed).and_return({rev: '12345'})
+      allow(Backend::Api::Sources::Package).to receive(:source_diff).and_return('<xml></xml>')
+      allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory srcmd5="cc70fcd2b89e39e3646c71352575b429"></directory>') # for BsRequestAction.check_for_expand_errors!
       submit_request.bs_request_actions.first.update(sourceupdate: 'cleanup')
       login user
     end
@@ -621,10 +643,15 @@ RSpec.describe BsRequest, :vcr do
   end
 
   describe 'creating a BsRequest that has a project link' do
+    before do
+      allow(Backend::Api::Sources::Package).to receive(:source_diff).and_return('<xml></xml>')
+      allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory srcmd5="cc70fcd2b89e39e3646c71352575b429"></directory>') # for BsRequestAction.check_for_expand_errors!
+    end
+
     include_context 'a BsRequest that has a project link'
 
     context 'via #new' do
-      context 'when sourceupdate is not set to cleanup', :vcr do
+      context 'when sourceupdate is not set to cleanup' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { 'cleanup' }
         end
@@ -632,7 +659,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
       end
 
-      context 'when sourceupdate is not set to update', :vcr do
+      context 'when sourceupdate is not set to update' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { 'update' }
         end
@@ -640,7 +667,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
       end
 
-      context 'when sourceupdate is set to noupdate', :vcr do
+      context 'when sourceupdate is set to noupdate' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { 'noupdate' }
         end
@@ -648,7 +675,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect { subject.save! }.not_to raise_error }
       end
 
-      context 'when sourceupdate is not set', :vcr do
+      context 'when sourceupdate is not set' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { nil }
         end
@@ -657,7 +684,7 @@ RSpec.describe BsRequest, :vcr do
       end
     end
 
-    context 'via #new_from_xml', :vcr do
+    context 'via #new_from_xml' do
       subject { BsRequest.new_from_xml(xml) }
 
       it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
@@ -712,6 +739,11 @@ RSpec.describe BsRequest, :vcr do
     context 'when diffs are cached' do
       let!(:request) { submit_request }
       let!(:opts) { { filelimit: nil, tarlimit: nil, diff_to_superseded: nil, diffs: true, cacheonly: 1 } }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:source_diff).and_return('<xml></xml>')
+        allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory srcmd5="cc70fcd2b89e39e3646c71352575b429"></directory>') # for BsRequestAction.check_for_expand_errors!
+      end
 
       it 'sets the value for diff_not_cached' do
         action_details = request.send(:action_details, opts, xml: request.bs_request_actions.last)
