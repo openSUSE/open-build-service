@@ -1,4 +1,4 @@
-RSpec.describe BsRequest, :vcr do
+RSpec.describe BsRequest do
   let(:user) { create(:confirmed_user, :with_home, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
   let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
@@ -304,7 +304,9 @@ RSpec.describe BsRequest, :vcr do
       context 'and the source package has an assignment' do
         let!(:assignment) { create(:assignment, assignee: creator, package: request.bs_request_actions.first.source_package_object) }
 
-        before { login creator }
+        before do
+          login creator
+        end
 
         it 'expires the assignment' do
           request.change_state(newstate: 'accepted')
@@ -364,23 +366,9 @@ RSpec.describe BsRequest, :vcr do
 
       it { expect(bs_request.staging_project).to be_present }
 
-      context 'when a staged bs_request is accepted', :vcr do
-        let(:backend_response) do
-          <<~XML
-            <revision rev="12" vrev="12">
-              <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
-              <version>unknown</version>
-              <time>1578926184</time>
-              <user>user_4</user>
-              <comment>fake comment.</comment>
-              <requestid>2</requestid>
-              <acceptinfo rev="12" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-            </revision>
-          XML
-        end
+      context 'when a staged bs_request is accepted' do
 
         before do
-          allow(Backend::Api::Sources::Package).to receive(:copy).and_return(backend_response)
           bs_request.change_review_state(:accepted, by_project: staging_project.name, comment: 'accepted')
           bs_request.change_state(newstate: 'accepted')
         end
@@ -465,7 +453,7 @@ RSpec.describe BsRequest, :vcr do
       request.update(accept_at: 1.hour.ago)
     end
 
-    describe '.delayed_auto_accept', :vcr do
+    describe '.delayed_auto_accept' do
       subject! { BsRequest.delayed_auto_accept }
 
       it { is_expected.to contain_exactly(request) }
@@ -473,7 +461,7 @@ RSpec.describe BsRequest, :vcr do
     end
 
     describe '#auto_accept' do
-      context 'when the request is pending', :vcr do
+      context 'when the request is pending' do
         subject! { request.auto_accept }
 
         it { expect(request.reload).to have_attributes(state: :accepted, comment: 'Auto accept') }
@@ -490,7 +478,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect(request.reload).not_to have_attributes(state: :accepted, comment: 'Auto accept') }
       end
 
-      context "when creator doesn't have permissions for the target project", :vcr do
+      context "when creator doesn't have permissions for the target project" do
         subject { request.auto_accept }
 
         before do
@@ -547,7 +535,7 @@ RSpec.describe BsRequest, :vcr do
     end
   end
 
-  describe '#forward_to', :vcr do
+  describe '#forward_to' do
     before do
       submit_request.bs_request_actions.first.update(sourceupdate: 'cleanup')
       login user
@@ -624,7 +612,7 @@ RSpec.describe BsRequest, :vcr do
     include_context 'a BsRequest that has a project link'
 
     context 'via #new' do
-      context 'when sourceupdate is not set to cleanup', :vcr do
+      context 'when sourceupdate is not set to cleanup' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { 'cleanup' }
         end
@@ -632,7 +620,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
       end
 
-      context 'when sourceupdate is not set to update', :vcr do
+      context 'when sourceupdate is not set to update' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { 'update' }
         end
@@ -640,7 +628,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
       end
 
-      context 'when sourceupdate is set to noupdate', :vcr do
+      context 'when sourceupdate is set to noupdate' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { 'noupdate' }
         end
@@ -648,7 +636,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect { subject.save! }.not_to raise_error }
       end
 
-      context 'when sourceupdate is not set', :vcr do
+      context 'when sourceupdate is not set' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { nil }
         end
@@ -657,7 +645,7 @@ RSpec.describe BsRequest, :vcr do
       end
     end
 
-    context 'via #new_from_xml', :vcr do
+    context 'via #new_from_xml' do
       subject { BsRequest.new_from_xml(xml) }
 
       it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
