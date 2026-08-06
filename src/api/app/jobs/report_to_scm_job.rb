@@ -8,6 +8,12 @@ class ReportToSCMJob < ApplicationJob
   RETRYABLE_EXCEPTIONS = [
     Faraday::ConnectionFailed,
     Faraday::TimeoutError,
+    GiteaAPI::V1::Client::BadGatewayError,
+    GiteaAPI::V1::Client::ConnectionError,
+    GiteaAPI::V1::Client::InternalServerError,
+    GiteaAPI::V1::Client::ServerError,
+    GiteaAPI::V1::Client::ServiceUnavailableError,
+    GiteaAPI::V1::Client::UnauthorizedError,
     Gitlab::Error::BadGateway,
     Gitlab::Error::ConnectionTimedOut,
     Gitlab::Error::InternalServerError,
@@ -20,7 +26,7 @@ class ReportToSCMJob < ApplicationJob
     Octokit::Unauthorized
   ].freeze
   # Transient errors that are worth retrying, but with longer wait times
-  RETRYABLE_LONG_WAIT_EXCEPTIONS = [Gitlab::Error::TooManyRequests, Octokit::TooManyRequests].freeze
+  RETRYABLE_LONG_WAIT_EXCEPTIONS = [GiteaAPI::V1::Client::TooManyRequestsError, Gitlab::Error::TooManyRequests, Octokit::TooManyRequests].freeze
 
   # Progressive time before retrying the job in case of retryable exceptions
   RETRY_WAIT_TIMES = { 1 => 0, 2 => 1.minute, 3 => 2.minutes, 4 => 5.minutes, 5 => 10.minutes }.freeze
