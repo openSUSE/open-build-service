@@ -95,7 +95,7 @@ class BsRequest < ApplicationRecord
     self.state = :new
     self.status = :new
   end
-  before_validation :sanitize!, if: :sanitize?, on: :create
+  before_validation :sanitize!, on: :create
   before_save :accept_staged_request
   before_save :assign_number
   after_create :notify
@@ -281,14 +281,6 @@ class BsRequest < ApplicationRecord
 
   def set_ignore_delegate
     @ignore_delegate = true
-  end
-
-  def sanitize?
-    !@skip_sanitize
-  end
-
-  def skip_sanitize
-    @skip_sanitize = true
   end
 
   def check_creator
