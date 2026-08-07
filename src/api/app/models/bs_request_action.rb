@@ -433,6 +433,8 @@ class BsRequestAction < ApplicationRecord
 
       unless release?
         while tprj == pkg.project
+          break unless CONFIG['global_write_through']
+
           data = Directory.hashed(project: tprj.name, package: ltpkg)
           data_linkinfo = data['linkinfo']
 
@@ -768,6 +770,7 @@ class BsRequestAction < ApplicationRecord
 
   def check_for_expand_errors!(add_revision)
     return unless action_type.in?(%i[submit release maintenance_incident maintenance_release])
+    return unless CONFIG['global_write_through']
 
     # validate that the sources are not broken
     begin

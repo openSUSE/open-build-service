@@ -50,7 +50,7 @@ class BsRequestAction
           query[:rev] = action.source_rev
         else # Otherwise generate diff for latest source package revision
           # FIXME: move to Package model
-          spkg_rev = Directory.hashed(project: action.source_project, package: source_package)['rev']
+          spkg_rev = Directory.hashed(project: action.source_project, package: source_package)['rev'] if CONFIG['global_write_through']
           query[:orev] = 0
           query[:rev] = spkg_rev
         end
@@ -60,6 +60,8 @@ class BsRequestAction
       private
 
       def check_for_local_linked_packages(spkg)
+        return unless CONFIG['global_write_through']
+
         # the target is by default the _link target
         # maintenance_release creates new packages instance, but are changing the source only according to the link
         return if action.target_package && action.action_type == :maintenance_incident

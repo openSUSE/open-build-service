@@ -298,6 +298,8 @@ class Package < ApplicationRecord
   end
 
   def self.exists_on_backend?(project, package)
+    return false unless CONFIG['global_write_through']
+
     !Backend::Api::Sources::Package.files(project, package).nil?
   rescue Backend::Error
     false
@@ -467,6 +469,7 @@ class Package < ApplicationRecord
 
   def sources_changed(opts = {})
     return if readonly?
+    return unless CONFIG['global_write_through']
 
     dir_xml = opts[:dir_xml]
 
@@ -900,6 +903,8 @@ class Package < ApplicationRecord
   end
 
   def linkinfo
+    return unless CONFIG['global_write_through']
+
     dir_hash['linkinfo']
   end
 

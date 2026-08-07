@@ -172,7 +172,7 @@ class BsRequestPermissionCheck
     check_action_target(action)
 
     # validate that specified sources do not have conflicts on accepting request
-    if action.action_type.in?(%i[submit maintenance_incident])
+    if action.action_type.in?(%i[submit maintenance_incident]) && CONFIG['global_write_through']
       query = { expand: 1 }
       query[:rev] = action.source_rev if action.source_rev
       begin

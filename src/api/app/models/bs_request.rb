@@ -993,7 +993,7 @@ class BsRequest < ApplicationRecord
     new_request = BsRequest.new(description: options[:description])
     BsRequest.transaction do
       bs_request_actions.where(type: 'submit').find_each do |action|
-        rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']
+        rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev'] if CONFIG['global_write_through']
 
         opts = { source_project: action.target_project,
                  source_package: action.target_package,

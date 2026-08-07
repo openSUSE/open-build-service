@@ -84,11 +84,14 @@ class BsRequestActionSubmit < BsRequestAction
       cp_params[:expand] = 1
       cp_params[:keeplink] = 1
     end
-    response = Backend::Api::Sources::Package.copy(self.target_project, self.target_package,
-                                                   source_project, source_package, User.session&.login, cp_params)
-    result = Xmlhash.parse(response)
 
-    fill_acceptinfo(result['acceptinfo'])
+    if CONFIG['global_write_through']
+      response = Backend::Api::Sources::Package.copy(self.target_project, self.target_package,
+                                                    source_project, source_package, User.session&.login, cp_params)
+      result = Xmlhash.parse(response)
+
+      fill_acceptinfo(result['acceptinfo'])
+    end
 
     target_package.commit_opts = { no_backend_write: 1 }
     target_package.sources_changed
