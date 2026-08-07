@@ -229,6 +229,31 @@ RSpec.describe TriggerWorkflowController do
       it { expect(response.body).to include('Ok') }
     end
 
+    context 'no filters matched' do
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
+      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
+      let(:github_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+
+      before do
+        allow(token).to receive(:call).and_return([])
+        allow(token).to receive(:any_filters_matched?).and_return(false)
+
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(token)
+
+        request.headers['ACCEPT'] = '*/*'
+        request.headers['CONTENT_TYPE'] = 'application/json'
+        request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
+
+        post :create, body: github_payload
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(WorkflowRun.count).to eq(1) }
+      it { expect(WorkflowRun.last.status).to eq('success') }
+      it { expect(response.body).to include('No workflow filter matched received event or is set on the `ignore` filter section. No steps were triggered.') }
+    end
+
     context 'the SCM is unsupported' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
