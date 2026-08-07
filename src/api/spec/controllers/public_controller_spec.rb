@@ -48,7 +48,7 @@ RSpec.describe PublicController, :vcr do
     end
 
     it { expect(response).to have_http_status(:success) }
-    it { expect(response.body).to match(/<project name="public_controller_project">/) }
+    it { expect(response.body).to include('<project name="public_controller_project">') }
     it { expect(a_request(:get, %r{.*/source/public_controller_project/_meta})).to have_been_made.once }
   end
 
@@ -61,7 +61,7 @@ RSpec.describe PublicController, :vcr do
 
       it { expect(assigns(:project)).to eq(project) }
       it { expect(response).to have_http_status(:success) }
-      it { expect(response.body).to match(/<entry name="public_controller_package"/) }
+      it { expect(response.body).to include('<entry name="public_controller_package"') }
       it { expect(a_request(:get, %r{.*/source/public_controller_project\?expand=1&noorigins=1})).to have_been_made.once }
     end
 
@@ -135,7 +135,7 @@ RSpec.describe PublicController, :vcr do
     end
 
     it { expect(response).to have_http_status(:success) }
-    it { expect(response.body).to match(/<package name="public_controller_package" project="public_controller_project">/) }
+    it { expect(response.body).to include('<package name="public_controller_package" project="public_controller_project">') }
     it { expect(a_request(:get, %r{.*/source/public_controller_project/public_controller_package/_meta})).to have_been_made.once }
   end
 

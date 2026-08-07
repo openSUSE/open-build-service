@@ -22,11 +22,11 @@ class RequestController < ApplicationController
     raise RequireFilter if %i[project package user states types reviewstates ids].all? { |f| params[f].blank? }
 
     # convert comma separated values into arrays
-    params[:roles] = params[:roles].split(',') if params[:roles]
-    params[:types] = params[:types].split(',') if params[:types]
-    params[:states] = params[:states].split(',') if params[:states]
-    params[:review_states] = params[:reviewstates].split(',') if params[:reviewstates]
-    params[:ids] = params[:ids].split(',').map(&:to_i) if params[:ids]
+    params[:roles] = params.expect(:roles).split(',') if params[:roles]
+    params[:types] = params.expect(:types).split(',') if params[:types]
+    params[:states] = params.expect(:states).split(',') if params[:states]
+    params[:review_states] = params.expect(:reviewstates).split(',') if params[:reviewstates]
+    params[:ids] = params.expect(:ids).split(',').map(&:to_i) if params[:ids]
 
     rel = BsRequest::FindFor::Query.new(params).all
     rel = BsRequest.where(id: rel.select(:id)).preload([{ bs_request_actions: :bs_request_action_accept_info, reviews: { history_elements: :user } }])

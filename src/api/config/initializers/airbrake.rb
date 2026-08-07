@@ -116,7 +116,7 @@ def ignore_by_message?(message)
   messages_to_ignore = ["undefined method `server_properties' for #<AMQ::Protocol::Connection::Close",
                         "undefined method `decode_payload' for #<AMQ::Protocol::HeartbeatFrame"].freeze
 
-  messages_to_ignore.any? { |message_to_ignore| message.include?(message_to_ignore) }
+  messages_to_ignore.intersect?(message)
 end
 
 def ignore_exception?(notice)

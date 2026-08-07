@@ -77,7 +77,7 @@ class Webui::Users::TokensController < Webui::WebuiController
   private
 
   def set_token
-    @token = policy_scope(Token).find(params[:id])
+    @token = policy_scope(Token).find(params.expect(:id))
   rescue ActiveRecord::RecordNotFound => e
     flash[:error] = e.message
     redirect_to tokens_url

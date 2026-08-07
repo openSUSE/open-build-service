@@ -26,7 +26,7 @@ class PersonController < ApplicationController
   end
 
   def userinfo
-    user = User.not_deleted.find_by!(login: params[:login])
+    user = User.not_deleted.find_by!(login: params.expect(:login))
 
     if user == User.session
       logger.debug "Generating user info for logged in user #{User.session.login}"
@@ -51,14 +51,14 @@ class PersonController < ApplicationController
       return
     end
     if params[:cmd] == 'lock'
-      user = User.not_deleted.find_by!(login: params[:login])
+      user = User.not_deleted.find_by!(login: params.expect(:login))
       user.lock!
       render_ok
       return
     end
     if params[:cmd] == 'delete'
       # maybe we should allow the users to delete themself?
-      user = User.not_deleted.find_by!(login: params[:login])
+      user = User.not_deleted.find_by!(login: params.expect(:login))
       user.delete!
       render_ok
       return
@@ -145,7 +145,7 @@ class PersonController < ApplicationController
   end
 
   def grouplist
-    user = User.not_deleted.find_by!(login: params[:login])
+    user = User.not_deleted.find_by!(login: params.expect(:login))
     @list = user.list_groups
   end
 

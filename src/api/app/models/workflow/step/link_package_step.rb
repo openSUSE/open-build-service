@@ -73,12 +73,10 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   end
 
   def validate_target_project_or_package_are_not_scmsynced
-    if target_project&.scmsync.present?
-      errors.add(:base, "project '#{step_instructions[:target_project]}' is developed in SCM. Branch it instead.")
-    end
+    errors.add(:base, "project '#{step_instructions[:target_project]}' is developed in SCM. Branch it instead.") if target_project&.scmsync.present?
 
-    if step_instructions[:target_package] && target_package&.scmsync.present?
-      errors.add(:base, "package '#{step_instructions[:target_package]}' is developed in SCM. Branch it instead.")
-    end
+    return unless step_instructions[:target_package] && target_package&.scmsync.present?
+
+    errors.add(:base, "package '#{step_instructions[:target_package]}' is developed in SCM. Branch it instead.")
   end
 end

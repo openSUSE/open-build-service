@@ -23,7 +23,7 @@ class DistributionsController < ApplicationController
 
   # GET /distributions/1234
   def show
-    @distribution = Distribution.find(params[:id])
+    @distribution = Distribution.find(params.expect(:id))
 
     respond_to do |format|
       format.xml
@@ -45,7 +45,7 @@ class DistributionsController < ApplicationController
 
   # PATCH/PUT /distributions/1234
   def update
-    distribution = Distribution.find(params[:id])
+    distribution = Distribution.find(params.expect(:id))
     # We don't allow updating remote distributions
     distribution.readonly! if distribution.remote
 
@@ -59,7 +59,7 @@ class DistributionsController < ApplicationController
 
   # DELETE /distributions/1234
   def destroy
-    distribution = Distribution.find(params[:id])
+    distribution = Distribution.find(params.expect(:id))
     # We don't allow deleting remote distributions
     distribution.readonly! if distribution.remote
     distribution.destroy

@@ -84,10 +84,10 @@ RSpec.describe Comment do
       expect(outdated_comment).to be_outdated
     end
 
-    [
-      :bs_request_action_release,
-      :bs_request_action_maintenance_release,
-      :bs_request_action_maintenance_incident
+    %i[
+      bs_request_action_release
+      bs_request_action_maintenance_release
+      bs_request_action_maintenance_incident
     ].each do |action_factory|
       it "returns false when #{action_factory} cannot compare current revisions" do
         action = build(action_factory)

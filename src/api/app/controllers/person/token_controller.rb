@@ -34,7 +34,7 @@ module Person
     def delete
       authorize @user, :update?
 
-      @user.tokens.find(params[:id]).destroy
+      @user.tokens.find(params.expect(:id)).destroy
       render_ok
     end
 
@@ -45,7 +45,7 @@ module Person
       xml = Nokogiri::XML(request.raw_post, &:strict)
       xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'scm_token', 'workflow_configuration_path', 'workflow_configuration_url')
 
-      token = @user.tokens.find(params[:id])
+      token = @user.tokens.find(params.expect(:id))
       xml_attributes['reason'] = "Changed by #{User.session.login}." if token.is_a?(Token::Workflow)
       if token.update(xml_attributes)
         render_ok

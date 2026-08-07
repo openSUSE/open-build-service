@@ -6,4 +6,3 @@ Rails.application.configure do
   # Below the preview, display a syntax highlighted source code example of the usage of the view component
   config.view_component.show_previews_source = true
 end
-

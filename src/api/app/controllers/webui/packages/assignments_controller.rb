@@ -13,7 +13,7 @@ module Webui
       end
 
       def destroy
-        assignment = authorize Assignment.find(params['id'])
+        assignment = authorize Assignment.find(params.expect('id'))
         assignment.destroy if assignment
         redirect_to package_show_path(@package.project, @package)
       end

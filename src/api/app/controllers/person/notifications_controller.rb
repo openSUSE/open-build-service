@@ -42,7 +42,7 @@ module Person
     end
 
     def set_notification
-      @notification = User.session.notifications.find(params[:id])
+      @notification = User.session.notifications.find(params.expect(:id))
     end
 
     def filter_notifications_by_state(notifications, filter_state)

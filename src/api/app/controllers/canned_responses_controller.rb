@@ -49,6 +49,6 @@ class CannedResponsesController < ApplicationController
   private
 
   def set_canned_response
-    @canned_response = User.session.canned_responses.find(params[:id])
+    @canned_response = User.session.canned_responses.find(params.expect(:id))
   end
 end

@@ -15,7 +15,7 @@ module Webui
       end
 
       def edit
-        @label_template = authorize @project.label_templates.find(params[:id])
+        @label_template = authorize @project.label_templates.find(params.expect(:id))
       end
 
       def create
@@ -31,7 +31,7 @@ module Webui
       end
 
       def update
-        @label_template = authorize @project.label_templates.find(params[:id])
+        @label_template = authorize @project.label_templates.find(params.expect(:id))
 
         if @label_template.update(label_template_params)
           redirect_to project_label_templates_path(@project)
@@ -43,7 +43,7 @@ module Webui
       end
 
       def destroy
-        @label_template = authorize @project.label_templates.find(params[:id])
+        @label_template = authorize @project.label_templates.find(params.expect(:id))
 
         if @label_template.destroy
           redirect_to project_label_templates_path(@project)
@@ -79,7 +79,7 @@ module Webui
       private
 
       def label_template_params
-        params.require(:label_template).permit(:name, :color)
+        params.expect(label_template: %i[name color])
       end
     end
   end

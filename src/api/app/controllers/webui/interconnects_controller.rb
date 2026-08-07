@@ -25,7 +25,7 @@ class Webui::InterconnectsController < Webui::WebuiController
         end
         format.js do
           flash.now[:error] = message
-          render :create, status: :unprocessable_entity
+          render :create, status: :unprocessable_content
         end
       end
     end
@@ -34,6 +34,6 @@ class Webui::InterconnectsController < Webui::WebuiController
   private
 
   def project_params
-    params.require(:project).permit(:name, :title, :remoteurl, :description)
+    params.expect(project: %i[name title remoteurl description])
   end
 end

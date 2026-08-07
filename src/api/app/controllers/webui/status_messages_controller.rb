@@ -79,11 +79,11 @@ class Webui::StatusMessagesController < Webui::WebuiController
   end
 
   def set_status_message
-    @status_message = StatusMessage.find(params[:id])
+    @status_message = StatusMessage.find(params.expect(:id))
   end
 
   def status_message_params
-    params.require(:status_message).permit(:message, :severity, :communication_scope).merge(creator: User.session)
+    params.expect(status_message: %i[message severity communication_scope]).merge(creator: User.session)
   end
 
   def index_params

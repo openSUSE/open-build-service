@@ -158,10 +158,10 @@ class Webui::PackageController < Webui::WebuiController
     @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
     if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
+      @current_notification = Notification.find(params.expect(:notification_id))
       authorize @current_notification, :update?, policy_class: NotificationPolicy
     end
-    @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
+    @current_request_action = BsRequestAction.find(params.expect(:request_action_id)) if User.session && params[:request_action_id]
   end
 
   def autocomplete_users
@@ -170,7 +170,7 @@ class Webui::PackageController < Webui::WebuiController
     user_ids << @project.relationships.joins(:role).where(roles: { title: roles }).pluck(:user_id)
     user_ids = user_ids.flatten.uniq
     render json: User.where(id: user_ids)
-                 .starting_with(params[:term])
+                     .starting_with(params[:term])
                      .order(Arel.sql('length(login)'), :login)
                      .limit(50)
                      .pluck(:login)
@@ -430,7 +430,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def package_params
-    params.require(:package).permit(:name, :title, :description, :scmsync)
+    params.expect(package: %i[name title description scmsync])
   end
 
   def package_details_params
@@ -440,13 +440,12 @@ class Webui::PackageController < Webui::WebuiController
     # TODO: rename the usage of :package in #require_package to :package_name to unlock
     # the proper use of defaults.
     params
-      .require(:package_details)
-      .permit(:title,
-              :description,
-              :url,
-              :report_bug_url,
-              :anitya_ignore,
-              :scmsync)
+      .expect(package_details: %i[title
+                                  description
+                                  url
+                                  report_bug_url
+                                  anitya_ignore
+                                  scmsync])
   end
 
   def set_file_details
@@ -554,7 +553,7 @@ class Webui::PackageController < Webui::WebuiController
   def set_template
     return unless params['template'] && params['template'].include?('/')
 
-    template_project, template_package = params['template'].split('/')
+    template_project, template_package = params.expect('template').split('/')
     @template = Package.find_by_project_and_name(template_project, template_package)
   end
 end

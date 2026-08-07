@@ -29,8 +29,8 @@ class SourceController < ApplicationController
 
   def set_issues_defaults
     @filter_changes = @states = nil
-    @filter_changes = params[:changes].split(',') if params[:changes]
-    @states = params[:states].split(',') if params[:states]
+    @filter_changes = params.expect(:changes).split(',') if params[:changes]
+    @states = params.expect(:states).split(',') if params[:states]
     @login = params[:login]
   end
 

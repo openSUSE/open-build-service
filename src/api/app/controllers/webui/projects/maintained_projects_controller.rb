@@ -48,7 +48,7 @@ module Webui
       private
 
       def set_maintained_project
-        @maintained_project = Project.find_by!(name: params[:maintained_project])
+        @maintained_project = Project.find_by!(name: params.expect(:maintained_project))
       end
     end
   end

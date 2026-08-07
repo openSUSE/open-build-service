@@ -317,6 +317,8 @@ RSpec/SpecFilePathFormat:
   Exclude:
     - 'spec/controllers/concerns/rescue_authorization_handler_spec.rb'
     - 'spec/models/project/maintenance_incidents_spec.rb'
+    - 'spec/models/project/staging_project_spec.rb'
+    - 'spec/models/project/subprojects_spec.rb'
 
 RSpec/LetSetup:
   Enabled: false
@@ -396,6 +398,7 @@ RSpec/MultipleExpectations:
     - 'spec/shared/examples/features/boostrap_flag_tables.rb'
     - 'spec/shared/examples/features/bootstrap_user_tab.rb'
     - 'spec/shared/examples/features/flags_tables.rb'
+    - 'spec/models/workflow/step/configure_repositories_spec.rb'
 
 # We disabled this cop because named subject isn't a better construction than
 # using let

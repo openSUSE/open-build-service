@@ -40,10 +40,10 @@ class Webui::ReportsController < Webui::WebuiController
   private
 
   def report_params
-    params.require(:report).permit(:reason, :reportable_id, :reportable_type, :category)
+    params.expect(report: %i[reason reportable_id reportable_type category])
   end
 
   def set_report
-    @report = Report.find(params[:id])
+    @report = Report.find(params.expect(:id))
   end
 end

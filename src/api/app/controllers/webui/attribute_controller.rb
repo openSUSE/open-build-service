@@ -91,7 +91,7 @@ class Webui::AttributeController < Webui::WebuiController
   end
 
   def set_attribute
-    @attribute = Attrib.find(params[:id])
+    @attribute = Attrib.find(params.expect(:id))
     if @attribute.container.instance_of?(Package)
       @package = @attribute.container
       @project = @package.project
@@ -102,8 +102,10 @@ class Webui::AttributeController < Webui::WebuiController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def attrib_params
-    params.require(:attrib).permit(:attrib_type_id, :project_id, :package_id,
-                                   values_attributes: %i[id value position _destroy],
-                                   issues_attributes: %i[id name issue_tracker_id _destroy])
+    params.expect(attrib: [:attrib_type_id, :project_id, :package_id,
+                           {
+                             values_attributes: %i[id value position _destroy],
+                             issues_attributes: %i[id name issue_tracker_id _destroy]
+                           }])
   end
 end

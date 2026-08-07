@@ -79,7 +79,7 @@ class SearchController < ApplicationController
 
   def owner_group_or_user
     if params[:user].present?
-      User.not_deleted.find_by!(login: params[:user])
+      User.not_deleted.find_by!(login: params.expect(:user))
     elsif params[:group].present?
       Group.find_by_title!(params[:group])
     end
@@ -294,7 +294,7 @@ class SearchController < ApplicationController
     config_limit = CONFIG['limit_for_search_results']
     return false if config_limit.blank?
 
-    params_limit = params[:limit].present? && params[:limit] =~ /\A\d+\z/ ? params[:limit].to_i : nil
+    params_limit = params[:limit].present? && params.expect(:limit) =~ /\A\d+\z/ ? params[:limit].to_i : nil
 
     returned_results = params_limit.present? && params_limit < matches ? params_limit : matches
     return false if returned_results <= config_limit

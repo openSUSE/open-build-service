@@ -55,7 +55,7 @@ class Webui::DistributionsController < Webui::WebuiController
   end
 
   def set_distribution
-    @distribution = Distribution.find(params[:distribution])
+    @distribution = Distribution.find(params.expect(:distribution))
   rescue ActiveRecord::RecordNotFound
     flash.now[:error] = 'Distribution not found'
     render :toggle

@@ -7,7 +7,7 @@ module Webui
       before_action :check_ajax, only: :build_result
 
       def import_from_package
-        package = Package.find(params[:package_id])
+        package = Package.find(params.expect(:package_id))
 
         kiwi_file = package.kiwi_image_file
 
@@ -70,7 +70,7 @@ module Webui
         ::Kiwi::Image.transaction do
           cleanup_non_project_repositories!
 
-          @image.update!(image_params) unless params[:kiwi_image].empty?
+          @image.update!(image_params) unless params.expect(:kiwi_image).empty?
           @image.write_to_backend
         end
         redirect_to action: :edit
@@ -153,21 +153,23 @@ module Webui
           selected
         ]
 
-        params.require(:kiwi_image).permit(
-          :use_project_repositories,
-          :name,
-          :schema_version,
-          :displayname,
-          description_attributes: description_attributes,
-          repositories_attributes: repositories_attributes,
-          package_groups_attributes: package_groups_attributes,
-          preferences_attributes: preferences_attributes,
-          profiles_attributes: profiles_attributes
+        params.expect(
+          kiwi_image: [:use_project_repositories,
+                       :name,
+                       :schema_version,
+                       :displayname,
+                       {
+                         description_attributes: description_attributes,
+                         repositories_attributes: repositories_attributes,
+                         package_groups_attributes: package_groups_attributes,
+                         preferences_attributes: preferences_attributes,
+                         profiles_attributes: profiles_attributes
+                       }]
         )
       end
 
       def set_image
-        @image = ::Kiwi::Image.includes(package_groups: :packages).find(params[:id])
+        @image = ::Kiwi::Image.includes(package_groups: :packages).find(params.expect(:id))
       rescue ActiveRecord::RecordNotFound
         flash[:error] = "KIWI image '#{params[:id]}' does not exist"
         redirect_back_or_to root_path

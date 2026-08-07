@@ -27,14 +27,14 @@ class Webui::Users::Tokens::UsersController < Webui::WebuiController
   private
 
   def set_token
-    @token = Token::Workflow.find(params[:token_id])
+    @token = Token::Workflow.find(params.expect(:token_id))
   end
 
   def set_user_via_userid
-    @user = User.find_by!(login: params[:userid])
+    @user = User.find_by!(login: params.expect(:userid))
   end
 
   def set_user
-    @user = User.find(params[:id])
+    @user = User.find(params.expect(:id))
   end
 end

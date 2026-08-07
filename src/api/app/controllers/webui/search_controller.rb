@@ -60,7 +60,7 @@ class Webui::SearchController < Webui::WebuiController
     search_issue
 
     @search_text = ''
-    @search_text = params[:search_text].strip if params[:search_text].present?
+    @search_text = params.expect(:search_text).strip if params[:search_text].present?
     @search_text = @search_text.delete("'[]\n")
 
     search_what
@@ -87,8 +87,8 @@ class Webui::SearchController < Webui::WebuiController
 
   def search_what
     @search_what = []
-    @search_what << 'package' if params[:search_for].in?(%w[0 2])
-    @search_what << 'project' if params[:search_for].in?(%w[0 1])
+    @search_what << 'package' if params.expect(:search_for).in?(%w[0 2])
+    @search_what << 'project' if params.expect(:search_for).in?(%w[0 1])
   end
 
   def set_attribute_list
@@ -179,7 +179,7 @@ class Webui::SearchController < Webui::WebuiController
   end
 
   def set_page
-    @page = if params[:page].present? && params[:page] =~ /\A\d+\z/
+    @page = if params[:page].present? && params.expect(:page) =~ /\A\d+\z/
               params[:page]
             else
               1

@@ -40,7 +40,7 @@ RSpec.describe Webui::UserHelper do
       end
 
       it 'renders a line with 1 commit' do
-        expect(activity_date_commits(activities[:commits])).to match(/1 commit in/)
+        expect(activity_date_commits(activities[:commits])).to include('1 commit in')
       end
 
       it 'renders a line with the commit for the project' do
@@ -65,7 +65,7 @@ RSpec.describe Webui::UserHelper do
       end
 
       it 'renders a line with 2 commit' do
-        expect(activity_date_commits(activities[:commits])).to match(/2 commits in/)
+        expect(activity_date_commits(activities[:commits])).to include('2 commits in')
       end
 
       it 'renders a line with the commit for the project' do
@@ -90,7 +90,7 @@ RSpec.describe Webui::UserHelper do
       end
 
       it 'renders a line with 1 commit' do
-        expect(activity_date_commits(activities[:commits])).to match(/1 commit in/)
+        expect(activity_date_commits(activities[:commits])).to include('1 commit in')
       end
 
       it 'renders a line with the commit for the first project' do

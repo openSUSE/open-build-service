@@ -47,7 +47,7 @@ class LabelTemplatesController < ApplicationController
   private
 
   def set_label_template
-    @label_template = LabelTemplateGlobal.find(params[:id])
+    @label_template = LabelTemplateGlobal.find(params.expect(:id))
   end
 
   def label_template_params

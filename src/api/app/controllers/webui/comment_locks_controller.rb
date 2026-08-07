@@ -17,7 +17,7 @@ class Webui::CommentLocksController < Webui::WebuiController
   def destroy
     authorize @commentable, policy_class: CommentLockPolicy
 
-    @comment_lock = CommentLock.find(params[:comment_lock_id])
+    @comment_lock = CommentLock.find(params.expect(:comment_lock_id))
     if @comment_lock.destroy
       flash[:success] = "Comments for #{comment_lock_params[:commentable_type]} unlocked"
     else
@@ -30,7 +30,7 @@ class Webui::CommentLocksController < Webui::WebuiController
   private
 
   def comment_lock_params
-    params.require(:comment_lock).permit(:commentable_type, :commentable_id)
+    params.expect(comment_lock: %i[commentable_type commentable_id])
   end
 
   def set_commentable

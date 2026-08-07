@@ -7,7 +7,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
   end
 
   def update
-    architecture = Architecture.find(params[:id])
+    architecture = Architecture.find(params.expect(:id))
 
     if architecture.update(available: params[:available].to_s.casecmp?('true'))
       flash.now[:success] = "Updated architecture '#{architecture.name}'"
@@ -38,7 +38,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
       else
         format.js do
           flash.now[:error] = 'Updating architecture availability failed.'
-          render 'webui/architectures/bulk_update_availability', status: :unprocessable_entity
+          render 'webui/architectures/bulk_update_availability', status: :unprocessable_content
         end
         format.html { redirect_back_or_to root_path, error: 'Not all architectures could be saved' }
       end

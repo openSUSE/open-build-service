@@ -80,11 +80,9 @@ class Token < ApplicationRecord
 
     # Check if we get a successful response
     yaml_file = Workflows::YAMLDownloader.new(WorkflowRun.new(request_payload: {}), token: self).call
-    if yaml_file.success?
-      return yaml_file.value
-    else
-      errors.add(:workflow_configuration_url, "failed to get: #{yaml_file.error}")
-    end
+    return yaml_file.value if yaml_file.success?
+
+    errors.add(:workflow_configuration_url, "failed to get: #{yaml_file.error}")
   rescue URI::InvalidURIError => e
     errors.add(:workflow_configuration_url, "must be a valid url: #{e}")
   end

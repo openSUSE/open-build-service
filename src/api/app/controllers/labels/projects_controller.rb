@@ -27,7 +27,7 @@ class Labels::ProjectsController < ApplicationController
 
   # DELETE /labels/projects/:project_name/1
   def destroy
-    @label = @project.label_globals.find(params[:id])
+    @label = @project.label_globals.find(params.expect(:id))
 
     @label.destroy
 
@@ -45,7 +45,7 @@ class Labels::ProjectsController < ApplicationController
   end
 
   def set_label
-    @label = LabelGlobal.find(params[:id])
+    @label = LabelGlobal.find(params.expect(:id))
   end
 
   def xml_hash

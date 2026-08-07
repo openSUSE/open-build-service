@@ -1,7 +1,8 @@
 class WriteAndPreviewComponent < ApplicationComponent
   attr_reader :form, :preview_message_url, :message_body_param, :canned_responses_enabled, :canned_response_object, :text_area_rows, :text_area_required, :text_area_object_name, :text_area_id_suffix
 
-  def initialize(form:, preview_message_url:, message_body_param:, canned_responses_enabled: false, canned_response_object: nil, text_area_rows: 4, text_area_required: true, text_area_object_name: :message, text_area_id_suffix: :message)
+  def initialize(form:, preview_message_url:, message_body_param:, canned_responses_enabled: false, canned_response_object: nil, text_area_rows: 4, text_area_required: true,
+                 text_area_object_name: :message, text_area_id_suffix: :message)
     super()
 
     @form = form
@@ -27,9 +28,9 @@ class WriteAndPreviewComponent < ApplicationComponent
   def placeholder
     case text_area_object_name
     when :decision
-      "Write your comment or decision...(Markdown markup is only supported for comments, not for decisions)"
+      'Write your comment or decision...(Markdown markup is only supported for comments, not for decisions)'
     when :body
-      "Write your comment here... (Markdown markup is supported)"
+      'Write your comment here... (Markdown markup is supported)'
     else
       "Write your #{text_area_object_name} here... (Markdown markup is supported)"
     end

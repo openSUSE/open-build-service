@@ -111,7 +111,7 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/:package/:filename
   def source_file
-    if params[:rev].present? && params[:rev].length >= 32 &&
+    if params[:rev].present? && params.expect(:rev).length >= 32 &&
        !Package.exists_by_project_and_name(params[:project], params[:package])
       prj = Project.find_by_name(params[:project])
       # automatic fallback

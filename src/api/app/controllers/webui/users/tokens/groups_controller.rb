@@ -20,14 +20,14 @@ class Webui::Users::Tokens::GroupsController < Webui::WebuiController
   private
 
   def set_token
-    @token = Token::Workflow.find(params[:token_id])
+    @token = Token::Workflow.find(params.expect(:token_id))
   end
 
   def set_group_via_groupid
-    @group = Group.find_by!(title: params[:groupid])
+    @group = Group.find_by!(title: params.expect(:groupid))
   end
 
   def set_group
-    @group = Group.find(params[:id])
+    @group = Group.find(params.expect(:id))
   end
 end

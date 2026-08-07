@@ -51,7 +51,7 @@ class LabelTemplates::ProjectsController < ApplicationController
   end
 
   def set_label_template
-    @label_template = LabelTemplate.find(params[:id])
+    @label_template = LabelTemplate.find(params.expect(:id))
   end
 
   def label_template_params
