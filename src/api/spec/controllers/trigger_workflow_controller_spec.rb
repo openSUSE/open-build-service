@@ -229,6 +229,63 @@ RSpec.describe TriggerWorkflowController do
       it { expect(response.body).to include('Ok') }
     end
 
+    context 'no filters matched' do
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
+      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
+      let(:github_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+
+      before do
+        allow(token).to receive(:call).and_return([])
+        allow(token).to receive(:workflows_without_matching_filters).and_return(%w[test_workflow another_workflow])
+
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(token)
+
+        request.headers['ACCEPT'] = '*/*'
+        request.headers['CONTENT_TYPE'] = 'application/json'
+        request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
+
+        post :create, body: github_payload
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(WorkflowRun.count).to eq(1) }
+      it { expect(WorkflowRun.last.status).to eq('success') }
+
+      it 'names the workflows which filters did not match' do
+        expect(response.body).to include("No steps were triggered for the workflows 'test_workflow' and 'another_workflow': " \
+                                         'the received event matched no filter, or it is set in the `ignore` filter section.')
+      end
+    end
+
+    context 'only some filters matched' do
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
+      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
+      let(:github_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+
+      before do
+        allow(token).to receive(:call).and_return([])
+        allow(token).to receive(:workflows_without_matching_filters).and_return(['test_workflow'])
+
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(token)
+
+        request.headers['ACCEPT'] = '*/*'
+        request.headers['CONTENT_TYPE'] = 'application/json'
+        request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
+
+        post :create, body: github_payload
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(WorkflowRun.last.status).to eq('success') }
+
+      it 'only names the workflow which filters did not match' do
+        expect(response.body).to include("No steps were triggered for the workflow 'test_workflow': " \
+                                         'the received event matched no filter, or it is set in the `ignore` filter section.')
+      end
+    end
+
     context 'the SCM is unsupported' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
