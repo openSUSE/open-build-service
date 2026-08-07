@@ -163,9 +163,9 @@ sub patchspec {
     if (defined($after) && $ln == $after) {
       print O "pushd $p->{'dir'}\n" if exists $p->{'dir'};
       if ($p->{'popt'}) {
-        print O "%patch$nrx -p$p->{'popt'}\n";
+        print O "%patch -P $nrx -p$p->{'popt'}\n";
       } else {
-        print O "%patch$nrx\n";
+        print O "%patch -P $nrx\n";
       }
       print O "popd\n" if exists $p->{'dir'};
       undef $after;
