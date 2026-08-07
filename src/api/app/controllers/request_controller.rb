@@ -4,9 +4,6 @@ class RequestController < ApplicationController
   validate_action show: { method: :get, response: :request }
   validate_action create: { method: :post, request: :request }
 
-  # TODO: allow PUT for non-admins
-  before_action :require_admin, only: %i[update destroy]
-
   # GET /request
   def index
     # Do not allow a full collection to avoid server load
@@ -149,39 +146,6 @@ class RequestController < ApplicationController
     params[:check_for_patchinfo] = false
 
     dispatch_command(:request_command, params[:cmd])
-  end
-
-  # PUT /request/:id
-  def update
-    body = request.raw_post
-
-    Suse::Validator.validate(:request, body)
-
-    BsRequest.transaction do
-      oldrequest = BsRequest.find_by_number!(params[:id])
-      notify = oldrequest.event_parameters
-      oldrequest.destroy
-
-      req = BsRequest.new_from_xml(body)
-      req.number = params[:id]
-      req.skip_sanitize
-      req.save!
-
-      notify[:who] = User.session.login
-      Event::RequestChange.create(notify)
-
-      render xml: req.render_xml
-    end
-  end
-
-  # DELETE /request/:id
-  def destroy
-    request = BsRequest.find_by_number!(params[:id])
-    notify = request.event_parameters
-    request.destroy # throws us out of here if failing
-    notify[:who] = User.session.login
-    Event::RequestDelete.create(notify)
-    render_ok
   end
 
   private
