@@ -21,6 +21,8 @@ class Notification < ApplicationRecord
   after_create :track_notification_creation
 
   after_save :track_notification_delivered, if: :saved_change_to_delivered?
+  after_save :invalidate_unread_count_cache, if: :saved_change_to_delivered?
+  after_destroy :invalidate_unread_count_cache
 
   scope :for_web, -> { where(web: true) }
   scope :for_rss, -> { where(rss: true) }
@@ -57,6 +59,10 @@ class Notification < ApplicationRecord
 
   def self.policy_class
     NotificationPolicy
+  end
+
+  def self.unread_count_cache_key(user)
+    [user.id, 'unread_notification_count']
   end
 
   def event
@@ -108,6 +114,14 @@ class Notification < ApplicationRecord
   def track_notification_delivered
     RabbitmqBus.send_to_bus('metrics',
                             "notification,action=#{delivered ? 'read' : 'unread'} value=1")
+  end
+
+  # This is only called when the request comes from the API. The UI performs 'update_all' that does not trigger
+  # callbacks, so Webui::Users::NotificationsController invalidates the cache explicitly after that bulk update.
+  def invalidate_unread_count_cache
+    return unless subscriber_type == 'User'
+
+    Rails.cache.delete(self.class.unread_count_cache_key(subscriber))
   end
 end
 
