@@ -14,13 +14,14 @@ class Workflow # rubocop:disable Metrics/ClassLength
 
   SUPPORTED_FILTERS = %i[branches event labels].freeze
 
-  attr_accessor :workflow_instructions, :token, :workflow_run, :workflow_version_number
+  attr_accessor :workflow_instructions, :token, :workflow_run, :workflow_version_number, :workflow_name
 
   def initialize(attributes = {})
     run_callbacks(:initialize) do
       super
       @workflow_instructions = attributes[:workflow_instructions].deep_symbolize_keys
       @workflow_version_number = attributes[:workflow_version_number]
+      @workflow_name = attributes[:workflow_name]
     end
   end
 
@@ -31,13 +32,18 @@ class Workflow # rubocop:disable Metrics/ClassLength
 
   def call
     run_callbacks(:call) do
-      return unless filters_match?
+      @filters_matched = filters_match?
+      return unless @filters_matched
 
       steps.each do |step|
         # ArtifactsCollector can only be called if the step.call doesn't return nil because of a validation error
         step.call && Workflows::ArtifactsCollector.new(step: step, workflow_run_id: workflow_run.id).call
       end
     end
+  end
+
+  def filters_matched?
+    @filters_matched
   end
 
   def event_supports_branches_filter?
