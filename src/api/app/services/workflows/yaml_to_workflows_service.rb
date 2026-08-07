@@ -38,7 +38,11 @@ module Workflows
     end
 
     def parse_workflow_configuration(workflow_configuration)
-      scm_organization_name, scm_repository_name = @workflow_run.target_repository_full_name.split('/')
+      # target_repository_full_name can contain multi-level names, with the first element being the
+      # "project" (or "organization") name and the last element being the actual repository name.
+      # everything inbetween will be "sub-group" names
+      scm_organization_name = @workflow_run.target_repository_full_name.split('/')[ 1]
+      scm_repository_name = @workflow_run.target_repository_full_name.split('/')[ -1]
 
       # The PR number is only present in webhook events for pull requests, so we have a default value in case someone doesn't use
       # this correctly. Here, we cannot inform users about this since we're processing the whole workflows file
