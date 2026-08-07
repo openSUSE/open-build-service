@@ -31,13 +31,18 @@ class Workflow # rubocop:disable Metrics/ClassLength
 
   def call
     run_callbacks(:call) do
-      return unless filters_match?
+      @filters_matched = filters_match?
+      return unless @filters_matched
 
       steps.each do |step|
         # ArtifactsCollector can only be called if the step.call doesn't return nil because of a validation error
         step.call && Workflows::ArtifactsCollector.new(step: step, workflow_run_id: workflow_run.id).call
       end
     end
+  end
+
+  def filters_matched?
+    @filters_matched
   end
 
   def event_supports_branches_filter?
