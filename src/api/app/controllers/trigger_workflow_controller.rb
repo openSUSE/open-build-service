@@ -64,7 +64,10 @@ class TriggerWorkflowController < ApplicationController
       validation_errors = @token.call(@workflow_run)
 
       unless @workflow_run.status == 'fail' # The SCMStatusReporter might already set the status to 'fail', lets not overwrite it
-        if validation_errors.none?
+        if validation_errors.none? && !@token.any_filters_matched?
+          @workflow_run.update(status: 'success',
+                               response_body: render_ok(data: { info: 'No workflow filter matched received event or is set on the `ignore` filter section. No steps were triggered.' }))
+        elsif validation_errors.none?
           @workflow_run.update(status: 'success', response_body: render_ok)
         else
           @workflow_run.update_as_failed(render_error(status: 400, message: validation_errors.to_sentence))
