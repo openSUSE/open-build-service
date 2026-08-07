@@ -2,15 +2,17 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project_10/_meta?user=user_170
+    uri: http://backend:5352/source/project_1/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
-        <project name="project_10">
-          <title>The Skull Beneath the Skin</title>
+        <project name="project_1">
+          <title>Brandy of the Damned</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1786103625'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -29,26 +31,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_10">
-          <title>The Skull Beneath the Skin</title>
+        <project name="project_1">
+          <title>Brandy of the Damned</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:22 GMT
+  recorded_at: Fri, 07 Aug 2026 11:53:45 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_171
+    uri: http://backend:5352/source/target_project/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Things Fall Apart</title>
+          <title>Françoise Sagan</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1786103626'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -67,26 +71,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '107'
     body:
-      encoding: UTF-8
-      string: |
-        <project name="target_project">
-          <title>Things Fall Apart</title>
-          <description></description>
-        </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:22 GMT
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHByb2plY3QgbmFtZT0idGFyZ2V0X3Byb2plY3QiPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+PC9kZXNjcmlwdGlvbj4KPC9wcm9qZWN0Pgo=
+  recorded_at: Fri, 07 Aug 2026 11:53:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_172
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Brandy of the Damned</title>
-          <description>Beatae ut expedita est.</description>
+          <title>The Wealth of Nations</title>
+          <description>Eos ex ad unde.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1786103626'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -105,26 +108,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Brandy of the Damned</title>
-          <description>Beatae ut expedita est.</description>
+          <title>The Wealth of Nations</title>
+          <description>Eos ex ad unde.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:22 GMT
+  recorded_at: Fri, 07 Aug 2026 11:53:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_173
+    uri: http://backend:5352/source/source_project/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Jacob Have I Loved</title>
+          <title>Of Mice and Men</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1786103626'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -143,18 +148,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '106'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Jacob Have I Loved</title>
+          <title>Of Mice and Men</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:23 GMT
+  recorded_at: Fri, 07 Aug 2026 11:53:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_173
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_4
     body:
       encoding: UTF-8
       string: |
@@ -162,6 +167,8 @@ http_interactions:
           <attribute name="ApprovedRequestSource" namespace="OBS"/>
         </attributes>
     headers:
+      X-Frontend-Start:
+      - '1786103626'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -180,29 +187,31 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '168'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="42">
-          <srcmd5>37e0adc225d3dfe3989c7b665bc0533c</srcmd5>
-          <time>1686759803</time>
-          <user>user_173</user>
+        <revision rev="9">
+          <srcmd5>8283e35ebaccd9cc3c75d1abc61265e4</srcmd5>
+          <time>1786103626</time>
+          <user>user_4</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:23:23 GMT
+  recorded_at: Fri, 07 Aug 2026 11:53:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_174
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Jesting Pilate</title>
-          <description>Ut voluptatibus consequatur omnis.</description>
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Quo cumque at ut.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1786103626'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -221,15 +230,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Jesting Pilate</title>
-          <description>Ut voluptatibus consequatur omnis.</description>
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Quo cumque at ut.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:23 GMT
+  recorded_at: Fri, 07 Aug 2026 11:53:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -237,6 +246,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1786103626'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -261,7 +272,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:23 GMT
+  recorded_at: Fri, 07 Aug 2026 11:53:46 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -271,6 +282,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1786103626'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -293,15 +306,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="22bfb82bf1c9f9c9dd66ba87930cd41c">
-          <old project="target_project" package="target_package" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        <sourcediff key="90c2818903ec79ac4d2d2c85b08f3eba">
+          <old project="target_project" package="target_package" rev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
           </files>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Jun 2023 16:23:23 GMT
+  recorded_at: Fri, 07 Aug 2026 11:53:46 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -309,6 +322,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1786103626'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -333,5 +348,5 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:23 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 07 Aug 2026 11:53:46 GMT
+recorded_with: VCR 6.4.0
