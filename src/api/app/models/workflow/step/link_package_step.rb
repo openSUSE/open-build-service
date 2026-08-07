@@ -34,14 +34,7 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
     return if target_package.present?
 
     check_source_access
-
-    if target_project.nil?
-      project = Project.new(name: target_project_name)
-      Pundit.authorize(@token.executor, project, :create?)
-
-      project.relationships.new(user: User.session, role: Role.find_by_title('maintainer'))
-      project.store(comment: 'SCM/CI integration, link_package step')
-    end
+    create_target_project
 
     package = target_project.packages.new(name: target_package_name)
     Pundit.authorize(@token.executor, package, :create?)
