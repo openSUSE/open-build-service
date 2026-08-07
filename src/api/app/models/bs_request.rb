@@ -88,6 +88,13 @@ class BsRequest < ApplicationRecord
   validates :number, uniqueness: true
   validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
 
+  before_validation(on: :create) do
+    # apply default values
+    self.creator ||= User.session!.login
+    self.commenter ||= User.session!.login
+    self.state = :new
+    self.status = :new
+  end
   before_validation :sanitize!, if: :sanitize?, on: :create
   before_save :accept_staged_request
   before_save :assign_number
@@ -919,16 +926,9 @@ class BsRequest < ApplicationRecord
   end
 
   def sanitize!
-    # apply default values, expand and do permission checks
-    self.creator ||= User.session!.login
-    self.commenter ||= User.session!.login
     # FIXME: Move permission checks to controller level
     raise RequestSaveError, 'Admin permissions required to set request creator to foreign user' unless self.creator == User.session!.login || User.admin_session?
     raise RequestSaveError, 'Admin permissions required to set request commenter to foreign user' unless self.commenter == User.session!.login || User.admin_session?
-
-    # ensure correct initial values, no matter what has been sent to us
-    self.state = :new
-    self.status = :new
 
     # expand release and submit request targets if not specified
     expand_targets
