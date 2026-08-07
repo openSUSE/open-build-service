@@ -30,10 +30,6 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
     step_instructions[:target_project]
   end
 
-  def target_project
-    Project.find_by(name: target_project_name)
-  end
-
   def create_target_package
     return if target_package.present?
 

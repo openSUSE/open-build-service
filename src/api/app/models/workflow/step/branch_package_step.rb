@@ -44,10 +44,6 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     step_instructions[:target_project]
   end
 
-  def target_project
-    Project.find_by(name: target_project_name)
-  end
-
   def skip_repositories?
     return false if step_instructions[:add_repositories].blank?
 
