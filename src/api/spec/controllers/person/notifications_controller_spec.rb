@@ -79,6 +79,39 @@ RSpec.describe Person::NotificationsController do
 
       it { expect(response).to have_http_status(:unauthorized) }
     end
+
+    context 'with show_maximum parameter' do
+      let!(:notifications) { create_list(:notification_for_request, 5, :web_notification, :request_state_change, subscriber: user) }
+
+      before do
+        login user
+      end
+
+      context 'when show_maximum is less than total notifications' do
+        before do
+          get :index, params: { format: :xml, show_maximum: 2 }
+        end
+
+        it { expect(response).to have_http_status(:success) }
+
+        it 'limits the number of notifications returned' do
+          expect(response.body.scan('<notification ').count).to eq(2)
+        end
+      end
+
+      context 'when show_maximum exceeds max_per_page' do
+        before do
+          allow(Notification).to receive(:max_per_page).and_return(3)
+          get :index, params: { format: :xml, show_maximum: 100 }
+        end
+
+        it { expect(response).to have_http_status(:success) }
+
+        it 'caps at max_per_page' do
+          expect(response.body.scan('<notification ').count).to eq(3)
+        end
+      end
+    end
   end
 
   describe '#update' do
