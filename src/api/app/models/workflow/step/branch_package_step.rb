@@ -102,18 +102,6 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
                                 user: @token.executor.login)
   end
 
-  def create_target_project
-    return if target_project.present?
-
-    project = Project.new(name: target_project_name, url: workflow_run.event_source_url)
-    Pundit.authorize(@token.executor, project, :create?)
-
-    project.relationships.build(user: @token.executor,
-                                role: Role.find_by_title('maintainer'))
-    project.commit_user = User.session
-    project.store(comment: 'SCM/CI integration, branch_package step')
-  end
-
   # FIXME: Just because the tar_scm service accepts different formats for the _branch_request file, we don't need to have code
   # to generate those different formats. We can just generate one format, should be the gitlab format because it provides more
   # flexibility regarding the URL.
