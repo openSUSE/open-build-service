@@ -33,7 +33,7 @@ class Workflow::Step::LinkProject < Workflow::Step
     project.relationships.build(user: @token.executor,
                                 role: Role.find_by_title('maintainer'))
     project.commit_user = User.session
-    project.store(comment: 'SCI/CI integration, link_project step')
+    project.store(comment: 'SCM/CI integration, link_project step')
     project
   end
 end
