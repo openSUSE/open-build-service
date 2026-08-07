@@ -7,6 +7,11 @@ module GiteaAPI
       HTTP_UNAUTHORIZED_CODE = 401
       HTTP_FORBIDDEN_CODE = 403
       HTTP_NOT_FOUND_CODE = 404
+      HTTP_TOO_MANY_REQUESTS_CODE = 429
+      HTTP_INTERNAL_SERVER_ERROR_CODE = 500
+      HTTP_BAD_GATEWAY_CODE = 502
+      HTTP_SERVICE_UNAVAILABLE_CODE = 503
+      HTTP_SERVER_ERROR_CODES = (500..599).freeze
 
       class GiteaApiError < StandardError
       end
@@ -23,11 +28,41 @@ module GiteaAPI
       class NotFoundError < GiteaApiError
       end
 
+      class TooManyRequestsError < GiteaApiError
+      end
+
+      class InternalServerError < GiteaApiError
+      end
+
+      class BadGatewayError < GiteaApiError
+      end
+
+      class ServiceUnavailableError < GiteaApiError
+      end
+
+      # Any server error without a dedicated class
+      class ServerError < GiteaApiError
+      end
+
       class ConnectionError < GiteaApiError
+      end
+
+      class SSLError < GiteaApiError
       end
 
       class ApiError < GiteaApiError
       end
+
+      ERROR_CLASSES = {
+        HTTP_BAD_REQUEST_CODE => BadRequestError,
+        HTTP_UNAUTHORIZED_CODE => UnauthorizedError,
+        HTTP_FORBIDDEN_CODE => ForbiddenError,
+        HTTP_NOT_FOUND_CODE => NotFoundError,
+        HTTP_TOO_MANY_REQUESTS_CODE => TooManyRequestsError,
+        HTTP_INTERNAL_SERVER_ERROR_CODE => InternalServerError,
+        HTTP_BAD_GATEWAY_CODE => BadGatewayError,
+        HTTP_SERVICE_UNAVAILABLE_CODE => ServiceUnavailableError
+      }.freeze
 
       def initialize(api_endpoint:, token:)
         @api_endpoint = "#{api_endpoint}/api/v1/"
@@ -45,7 +80,9 @@ module GiteaAPI
             { state: state, context: kwargs[:context], description: kwargs[:description],
               target_url: kwargs[:target_url] }
           )
-        rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::SSLError => e
+        rescue Faraday::SSLError => e
+          raise SSLError, "Failed to report back to Gitea: #{e.message}"
+        rescue Faraday::ConnectionFailed, Faraday::TimeoutError => e
           raise ConnectionError, "Failed to report back to Gitea: #{e.message}"
         end
 
@@ -70,18 +107,7 @@ module GiteaAPI
       end
 
       def error_class
-        case @response.status
-        when HTTP_BAD_REQUEST_CODE
-          BadRequestError
-        when HTTP_UNAUTHORIZED_CODE
-          UnauthorizedError
-        when HTTP_FORBIDDEN_CODE
-          ForbiddenError
-        when HTTP_NOT_FOUND_CODE
-          NotFoundError
-        else
-          ApiError
-        end
+        ERROR_CLASSES[@response.status] || (HTTP_SERVER_ERROR_CODES.cover?(@response.status) ? ServerError : ApiError)
       end
     end
   end

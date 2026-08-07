@@ -62,4 +62,66 @@ RSpec.describe ReportToSCMJob do
       it_behaves_like 'not reporting to the SCM'
     end
   end
+
+  describe 'retrying to report to Gitea' do
+    subject { described_class.perform_now(event_id: event.id) }
+
+    let(:workflow_run) do
+      create(:workflow_run, scm_vendor: 'gitea', hook_event: 'pull_request', hook_action: 'opened', token: token,
+                            request_payload: file_fixture('request_payload_gitea_pull_request_opened.json').read)
+    end
+    let(:event_subscription) do
+      EventSubscription.create(token: token,
+                               user: user,
+                               package: package,
+                               receiver_role: 'reader',
+                               payload: { scm: 'gitea' },
+                               eventtype: 'Event::BuildSuccess',
+                               channel: :scm,
+                               workflow_run_id: workflow_run.id)
+    end
+    let(:gitea_client) { instance_spy(GiteaAPI::V1::Client) }
+
+    before do
+      ActiveJob::Base.queue_adapter = :test
+      freeze_time
+      event
+      event_subscription
+      allow(GiteaAPI::V1::Client).to receive(:new).and_return(gitea_client)
+      allow(gitea_client).to receive(:create_commit_status).and_raise(exception)
+    end
+
+    after do
+      ActiveJob::Base.queue_adapter = :inline
+    end
+
+    context 'when Gitea has a transient problem' do
+      let(:exception) { GiteaAPI::V1::Client::InternalServerError }
+
+      it 'enqueues the job again right away' do
+        expect { subject }.to have_enqueued_job(described_class).at(Time.current)
+      end
+    end
+
+    context 'when Gitea rate limits us' do
+      let(:exception) { GiteaAPI::V1::Client::TooManyRequestsError }
+
+      it 'enqueues the job again after a longer wait' do
+        expect { subject }.to have_enqueued_job(described_class).at(1.minute.from_now)
+      end
+    end
+
+    context 'when the problem is not transient' do
+      let(:exception) { GiteaAPI::V1::Client::NotFoundError }
+
+      it 'does not enqueue the job again' do
+        expect { subject }.not_to have_enqueued_job(described_class)
+      end
+
+      it 'reports the failure to the workflow run' do
+        subject
+        expect(workflow_run.reload.response_body).to eq('Failed to report back to Gitea: Content not found.')
+      end
+    end
+  end
 end
