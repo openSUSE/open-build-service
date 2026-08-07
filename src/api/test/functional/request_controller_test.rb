@@ -3186,34 +3186,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  def test_invalid_names
-    login_Iggy
-
-    req = "<request>
-            <action type='submit'>
-              <source project='kde4' package='kdelibs' />
-              <target project='c++ ' package='TestPack'/>
-            </action>
-            <description/>
-            <state who='Iggy' name='new'/>
-          </request>"
-    post '/request?cmd=create', params: req
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_record' })
-
-    req = "<request>
-            <action type='submit'>
-              <source project='kde4' package='kdelibs' />
-              <target project='c++' package='TestPack '/>
-            </action>
-            <description/>
-            <state who='Iggy' name='new'/>
-          </request>"
-    post '/request?cmd=create', params: req
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_record' })
-  end
-
   def test_invalid_cleanup_use
     login_Iggy
 

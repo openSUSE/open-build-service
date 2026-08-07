@@ -211,6 +211,8 @@ class Project < ApplicationRecord
     #   - a string for a Project from an interconnect
     #   - UnknownObjectError or ReadAccessError exceptions
     def get_by_name(name)
+      raise Project::Errors::UnknownObjectError, "Project not found: #{name}" unless valid_name?(name)
+
       dbp = find_by_name(name, skip_check_access: true)
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
