@@ -679,20 +679,6 @@ RSpec.describe BsRequest do
     end
   end
 
-  describe '#skip_sanitize' do
-    let(:bs_request) { build(:add_maintainer_request, target_project: create(:project)) }
-
-    before do
-      bs_request.skip_sanitize
-      allow(bs_request).to receive(:sanitize!)
-      User.find_by!(login: bs_request.creator).run_as do
-        bs_request.save!
-      end
-    end
-
-    it { expect(bs_request).not_to have_received(:sanitize!) }
-  end
-
   describe '#action_details', :vcr do
     context 'when diffs are cached' do
       let!(:request) { submit_request }

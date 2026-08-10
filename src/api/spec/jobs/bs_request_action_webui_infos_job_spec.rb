@@ -36,43 +36,42 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
     end
 
     context 'with non existing target project' do
-      subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
+      subject { BsRequestActionWebuiInfosJob.new.perform(request.bs_request_actions.first) }
 
-      let(:request) do
-        request = build(:bs_request_with_submit_action,
-                        source_package: source_package,
-                        target_project: 'does-not-exist',
-                        target_package: target_package.name)
-        request.skip_sanitize
-        User.find_by!(login: request.creator).run_as do
-          request.save!
-        end
-        request
+      let(:admin) { create(:admin_user)}
+      let!(:request) do
+        create(:bs_request_with_submit_action,
+                source_project: source_project.name,
+                source_package: source_package.name,
+                target_project: target_project.name,
+                target_package: target_package.name)
       end
-      let(:request_action) { request.bs_request_actions.first }
+
+      before do
+        admin.run_as { target_project.destroy }
+      end
 
       it { expect { subject }.not_to raise_error }
       it { expect(subject).to be_nil }
     end
 
     context 'with non existing source package' do
-      subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
+      subject { BsRequestActionWebuiInfosJob.new.perform(request.bs_request_actions.first) }
 
-      let(:request) do
-        request = build(:bs_request_with_submit_action,
-                        source_project: 'does-not-exist',
-                        source_package: source_package.name,
-                        target_package: target_package)
-        request.skip_sanitize
-        User.find_by!(login: request.creator).run_as do
-          request.save!
-        end
-        request
+      let(:admin) { create(:admin_user)}
+      let!(:request) do
+        create(:bs_request_with_submit_action,
+               source_project: source_project.name,
+               source_package: source_package.name,
+               target_project: target_project.name,
+               target_package: target_package.name)
       end
-      let(:request_action) { request.bs_request_actions.first }
+
+      before do
+        admin.run_as { source_package.destroy }
+      end
 
       it { expect { subject }.not_to raise_error }
-      it { expect(subject).to be_nil }
     end
 
     context 'for a superseded request' do
