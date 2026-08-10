@@ -18,9 +18,7 @@ class RabbitmqBus
                       rabbitmq_channel.exchange(CONFIG['amqp_exchange_name'], CONFIG['amqp_exchange_options'].try(:symbolize_keys) || {})
                     else
                       # can't cover due to https://github.com/arempe93/bunny-mock/pull/25
-                      # :nocov:
-                      rabbitmq_channel.default_exchange
-                      # :nocov:
+                      rabbitmq_channel.default_exchange # simplecov:disable
                     end
   end
 end
