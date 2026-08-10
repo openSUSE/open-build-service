@@ -87,6 +87,6 @@ class TriggerController < ApplicationController
   end
 
   def set_package_name
-    @package_name = params[:package]
+    @package_name = params[:package].to_s
   end
 end
