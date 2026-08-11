@@ -11,7 +11,7 @@ function setCollapsible() {
       container.on('click', function() {
         if(!document.getSelection().toString()) {
           textBox.toggleClass('expanded');
-          showButton.toggleClass('more less');
+          container.find('.show-content').toggleClass('more less');
         }
       });
       // Make sure to not add the event twice by removing the target class
