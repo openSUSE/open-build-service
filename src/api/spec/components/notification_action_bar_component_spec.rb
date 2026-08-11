@@ -44,4 +44,28 @@ RSpec.describe NotificationActionBarComponent, type: :component do
       expect(rendered_content).to have_text('Select All')
     end
   end
+
+  context "when there are as many notifications as the threshold to show the 'Mark all' button" do
+    before do
+      User.session = create(:user)
+      render_inline(described_class.new(state: 'unread', update_path: 'my/notifications',
+                                        total_count_notifications: Notification::MARK_ALL_OPTION_THRESHOLD + 1))
+    end
+
+    it do
+      expect(rendered_content).to have_text("Mark all as 'Read'")
+    end
+  end
+
+  context "when there are fewer notifications than the threshold to show the 'Mark all' button" do
+    before do
+      User.session = create(:user)
+      render_inline(described_class.new(state: 'unread', update_path: 'my/notifications',
+                                        total_count_notifications: Notification::MARK_ALL_OPTION_THRESHOLD))
+    end
+
+    it do
+      expect(rendered_content).to have_no_text("Mark all as 'Read'")
+    end
+  end
 end
