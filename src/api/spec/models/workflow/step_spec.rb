@@ -212,6 +212,84 @@ RSpec.describe Workflow::Step do
     end
   end
 
+  describe '#create_target_project' do
+    subject { step.send(:create_target_project) }
+
+    let(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+    let(:token) { create(:workflow_token, executor: user) }
+    # The executor is allowed to create the target project because they maintain its parent project
+    let!(:parent_project) { create(:project, name: 'target_project', maintainer: user) }
+    let(:workflow_run) do
+      create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened',
+                            request_payload: file_fixture('request_payload_github_pull_request_opened.json').read)
+    end
+    let(:step_instructions) do
+      { source_project: 'source_project', source_package: 'source_package', target_project: parent_project.name }
+    end
+    let(:step) { step_class.new(step_instructions: step_instructions, token: token, workflow_run: workflow_run) }
+
+    before do
+      login(user)
+    end
+
+    # All the steps creating a target project share the implementation of the parent class,
+    # they only differ in the step name they put into the commit comment.
+    { Workflow::Step::LinkProject => 'link_project',
+      Workflow::Step::BranchPackageStep => 'branch_package',
+      Workflow::Step::LinkPackageStep => 'link_package' }.each do |klass, step_name|
+      context "in a #{step_name} step" do
+        let(:step_class) { klass }
+
+        context 'when the target project does not exist yet' do
+          it 'creates it' do
+            expect { subject }.to change(Project, :count).by(1)
+          end
+
+          it 'names it after the target project of the step instructions and the pull request' do
+            expect(subject.name).to eq('target_project:openSUSE:repo123:PR-1')
+          end
+
+          it 'sets its url to the url of the event source' do
+            expect(subject.url).to eq('http://github.com/something')
+          end
+
+          it 'makes the executor of the token a maintainer of it' do
+            expect(subject.maintainers).to eq([user])
+          end
+
+          context 'storing it' do
+            let(:new_project) { Project.new(name: step.target_project_name, url: workflow_run.event_source_url) }
+
+            before do
+              # Project.new is also called by the create? policy, so we only replace the one call we care about
+              allow(Project).to receive(:new).and_call_original
+              allow(Project).to receive(:new).with(name: new_project.name, url: new_project.url).and_return(new_project)
+              allow(new_project).to receive(:store).and_call_original
+
+              subject
+            end
+
+            it 'mentions the step in the commit comment' do
+              expect(new_project).to have_received(:store).with(comment: "SCM/CI integration, #{step_name} step")
+            end
+          end
+        end
+
+        context 'when the target project already exists' do
+          let!(:existing_target_project) { create(:project, name: step.target_project_name, maintainer: user) }
+
+          it 'returns it' do
+            expect(subject).to eq(existing_target_project)
+          end
+
+          it 'does not create another project' do
+            expect { subject }.not_to change(Project, :count)
+          end
+        end
+      end
+    end
+  end
+
   describe '#validate_project_names_in_step_instructions' do
     before do
       subject.valid?
