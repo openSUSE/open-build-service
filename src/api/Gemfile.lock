@@ -91,7 +91,7 @@ GEM
       rails (>= 6.0)
       zeitwerk
     amq-protocol (2.8.0)
-    annotaterb (4.22.0)
+    annotaterb (4.24.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
     ansi (1.6.0)
