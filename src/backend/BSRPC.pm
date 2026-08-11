@@ -473,8 +473,12 @@ sub rpc {
     if (!ref($data)) {
       # append body to request (chunk encoded if requested)
       if ($chunked) {
-	$data = sprintf("%X\r\n", length($data)).$data."\r\n" if $data ne '';
-	$data .= "0\r\n\r\n";
+	my $cdata = '';
+	while ($data ne '') {
+	  my $c = substr($data, 0, 65536, '');
+	  $cdata .= sprintf("%X\r\n", length($c)).$c."\r\n";
+	}
+	$data = "${cdata}0\r\n\r\n";
       }
       $req .= $data;
       undef $data;
