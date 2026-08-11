@@ -44,10 +44,6 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     step_instructions[:target_project]
   end
 
-  def target_project
-    Project.find_by(name: target_project_name)
-  end
-
   def skip_repositories?
     return false if step_instructions[:add_repositories].blank?
 
@@ -104,18 +100,6 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
                                 targetproject: target_project_name,
                                 targetpackage: target_package_name,
                                 user: @token.executor.login)
-  end
-
-  def create_target_project
-    return if target_project.present?
-
-    project = Project.new(name: target_project_name, url: workflow_run.event_source_url)
-    Pundit.authorize(@token.executor, project, :create?)
-
-    project.relationships.build(user: @token.executor,
-                                role: Role.find_by_title('maintainer'))
-    project.commit_user = User.session
-    project.store(comment: 'SCI/CI integration, branch_package step')
   end
 
   # FIXME: Just because the tar_scm service accepts different formats for the _branch_request file, we don't need to have code
