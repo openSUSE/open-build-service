@@ -30,10 +30,14 @@ class ReportToSCMJob < ApplicationJob
 
   # Progressive time before retrying the job in case of retryable exceptions
   RETRY_WAIT_TIMES = { 1 => 0, 2 => 1.minute, 3 => 2.minutes, 4 => 5.minutes, 5 => 10.minutes }.freeze
-  retry_on(*RETRYABLE_EXCEPTIONS, wait: ->(executions) { RETRY_WAIT_TIMES.fetch(executions) }, attempts: 6)
+  retry_on(*RETRYABLE_EXCEPTIONS, wait: ->(executions) { RETRY_WAIT_TIMES.fetch(executions) }, attempts: 6) do |job, error|
+    job.arguments.first[:workflow_run]&.update_as_failed(error.message)
+  end
 
   RETRY_LONG_WAIT_TIMES = { 1 => 1.minute, 2 => 5.minutes, 3 => 10.minutes, 4 => 15.minutes, 5 => 30.minutes }.freeze
-  retry_on(*RETRYABLE_LONG_WAIT_EXCEPTIONS, wait: ->(executions) { RETRY_LONG_WAIT_TIMES.fetch(executions) }, attempts: 6)
+  retry_on(*RETRYABLE_LONG_WAIT_EXCEPTIONS, wait: ->(executions) { RETRY_LONG_WAIT_TIMES.fetch(executions) }, attempts: 6) do |job, error|
+    job.arguments.first[:workflow_run]&.update_as_failed(error.message)
+  end
 
   queue_as :scm
 
