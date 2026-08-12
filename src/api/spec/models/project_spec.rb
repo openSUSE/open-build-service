@@ -862,4 +862,12 @@ RSpec.describe Project, :vcr do
 
     it { expect(project.bs_requests).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
   end
+
+  describe '#scmsync_url' do
+    let(:project) { build(:project, scmsync: 'https://github.com/example/repo.git?subdir=test-dir#main') }
+
+    it 'removes OBS query parameters and keeps the fragment' do
+      expect(project.scmsync_url).to eq('https://github.com/example/repo.git#main')
+    end
+  end
 end

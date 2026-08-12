@@ -1338,6 +1338,16 @@ class Package < ApplicationRecord
     base.where(id: review_ids).or(base.where(id: action_ids)).distinct
   end
 
+  def scmsync_url
+    return if scmsync.blank?
+
+    parsed_scmsync_url = Addressable::URI.parse(scmsync)
+    parsed_scmsync_url.query = nil
+    parsed_scmsync_url.to_s
+  rescue Addressable::URI::InvalidURIError
+    scmsync
+  end
+
   private
 
   def extract_kiwi_element(element)
