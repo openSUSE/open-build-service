@@ -75,28 +75,25 @@ class SCMExceptionMessage
       'Bad request. Please modify your request and try again.'
   }.freeze
 
-  # Exceptions carrying the response body of the SCM (ApiError) or the underlying Faraday
-  # error (ConnectionError, SSLError) are left out on purpose: their own message is the
-  # only diagnostic we get, so we let it through untouched.
   GITEA_EXCEPTIONS = {
-    GiteaAPI::V1::Client::BadGatewayError =>          # 502
+    GiteaAPI::V1::Client::BadGatewayError =>
       'Bad gateway. Please try again later.',
-    GiteaAPI::V1::Client::BadRequestError =>          # 400
+    GiteaAPI::V1::Client::BadRequestError =>
       'Bad request. Please modify your request and try again.',
-    GiteaAPI::V1::Client::ForbiddenError =>           # 403
+    GiteaAPI::V1::Client::ForbiddenError =>
       'Request is forbidden.',
-    GiteaAPI::V1::Client::InternalServerError =>      # 500
+    GiteaAPI::V1::Client::InternalServerError =>
       'Internal error. Please try again later.',
-    GiteaAPI::V1::Client::NotFoundError =>            # 404
+    GiteaAPI::V1::Client::NotFoundError =>
       'Content not found.',
-    GiteaAPI::V1::Client::ServerError =>              # 500..599
-      'Generic server error. Please try again later.',
-    GiteaAPI::V1::Client::ServiceUnavailableError =>  # 503
+    GiteaAPI::V1::Client::ServiceUnavailableError =>
       'Service is unavailable. Please try again later.',
-    GiteaAPI::V1::Client::TooManyRequestsError =>     # 429
+    GiteaAPI::V1::Client::TooManyRequestsError =>
       'Maximum number of requests exceeded. Please try again later.',
-    GiteaAPI::V1::Client::UnauthorizedError =>        # 401
-      'Unauthorized request. Please check your credentials again.'
+    GiteaAPI::V1::Client::UnauthorizedError =>
+      'Unauthorized request. Please check your credentials again.',
+    GiteaAPI::V1::Client::UnknownServerError =>
+      'Generic server error. Please try again later.'
   }.freeze
 
   EXCEPTIONS_PER_SCM = {

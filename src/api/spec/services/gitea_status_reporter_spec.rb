@@ -131,8 +131,8 @@ RSpec.describe GiteaStatusReporter, type: :service do
         end
       end
 
-      context 'with a generic ApiError' do
-        let(:exception) { GiteaAPI::V1::Client::ApiError.new('HTTP Code: 418, response: I am a teapot') }
+      context 'with a client error we have no dedicated class for' do
+        let(:exception) { GiteaAPI::V1::Client::UnknownClientError.new('HTTP Code: 418, response: I am a teapot') }
 
         it 'does not let the exception escape' do
           expect { subject }.not_to raise_error
@@ -141,6 +141,17 @@ RSpec.describe GiteaStatusReporter, type: :service do
         it 'keeps the answer of Gitea in the workflow run' do
           subject
           expect(workflow_run.reload.response_body).to eq('Failed to report back to Gitea: HTTP Code: 418, response: I am a teapot')
+        end
+      end
+
+      # These are transient, so they have to reach ReportToSCMJob for it to retry them.
+      context 'with an exception we want to retry' do
+        context "like #{GiteaAPI::V1::Client::BadGatewayError}" do
+          let(:exception) { GiteaAPI::V1::Client::BadGatewayError.new('something went wrong') }
+
+          it 'lets the exception escape' do
+            expect { subject }.to raise_error(GiteaAPI::V1::Client::BadGatewayError, 'something went wrong')
+          end
         end
       end
     end

@@ -11,46 +11,64 @@ module GiteaAPI
       HTTP_INTERNAL_SERVER_ERROR_CODE = 500
       HTTP_BAD_GATEWAY_CODE = 502
       HTTP_SERVICE_UNAVAILABLE_CODE = 503
+      HTTP_CLIENT_ERROR_CODES = (400..499).freeze
       HTTP_SERVER_ERROR_CODES = (500..599).freeze
 
       class GiteaApiError < StandardError
       end
 
-      class BadRequestError < GiteaApiError
+      # The three classes below are only intermediate classes to categorize the errors below them, they are never raised
+      # themselves. Only leaf classes are raised.
+      class ClientError < GiteaApiError
       end
 
-      class UnauthorizedError < GiteaApiError
-      end
-
-      class ForbiddenError < GiteaApiError
-      end
-
-      class NotFoundError < GiteaApiError
-      end
-
-      class TooManyRequestsError < GiteaApiError
-      end
-
-      class InternalServerError < GiteaApiError
-      end
-
-      class BadGatewayError < GiteaApiError
-      end
-
-      class ServiceUnavailableError < GiteaApiError
-      end
-
-      # Any server error without a dedicated class
       class ServerError < GiteaApiError
       end
 
       class ConnectionError < GiteaApiError
       end
 
-      class SSLError < GiteaApiError
+      class BadRequestError < ClientError
       end
 
-      class ApiError < GiteaApiError
+      class UnauthorizedError < ClientError
+      end
+
+      class ForbiddenError < ClientError
+      end
+
+      class NotFoundError < ClientError
+      end
+
+      class TooManyRequestsError < ClientError
+      end
+
+      # Any client error without a dedicated class
+      class UnknownClientError < ClientError
+      end
+
+      class InternalServerError < ServerError
+      end
+
+      class BadGatewayError < ServerError
+      end
+
+      class ServiceUnavailableError < ServerError
+      end
+
+      # Any server error without a dedicated class
+      class UnknownServerError < ServerError
+      end
+
+      class ConnectionFailedError < ConnectionError
+      end
+
+      class TimeoutError < ConnectionError
+      end
+
+      # A failed TLS handshake is a permanent configuration problem, not a transient network
+      # glitch, so it stays out of the ConnectionError family.
+      class SSLError < GiteaApiError
       end
 
       ERROR_CLASSES = {
@@ -82,8 +100,10 @@ module GiteaAPI
           )
         rescue Faraday::SSLError => e
           raise SSLError, "Failed to report back to Gitea: #{e.message}"
-        rescue Faraday::ConnectionFailed, Faraday::TimeoutError => e
-          raise ConnectionError, "Failed to report back to Gitea: #{e.message}"
+        rescue Faraday::TimeoutError => e
+          raise TimeoutError, "Failed to report back to Gitea: #{e.message}"
+        rescue Faraday::ConnectionFailed => e
+          raise ConnectionFailedError, "Failed to report back to Gitea: #{e.message}"
         end
 
         return @response.body if request_successful?
@@ -107,7 +127,11 @@ module GiteaAPI
       end
 
       def error_class
-        ERROR_CLASSES[@response.status] || (HTTP_SERVER_ERROR_CODES.cover?(@response.status) ? ServerError : ApiError)
+        return ERROR_CLASSES[@response.status] if ERROR_CLASSES.key?(@response.status)
+        return UnknownClientError if HTTP_CLIENT_ERROR_CODES.cover?(@response.status)
+        return UnknownServerError if HTTP_SERVER_ERROR_CODES.cover?(@response.status)
+
+        GiteaApiError
       end
     end
   end

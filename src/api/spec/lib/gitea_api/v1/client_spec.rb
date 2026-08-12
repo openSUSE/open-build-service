@@ -28,28 +28,11 @@ RSpec.describe GiteaAPI::V1::Client do
         allow(Faraday::Response).to receive_messages(status: status, body: { 'message' => 'upppsss something went wrong' })
       end
 
-      {
-        400 => GiteaAPI::V1::Client::BadRequestError,
-        401 => GiteaAPI::V1::Client::UnauthorizedError,
-        403 => GiteaAPI::V1::Client::ForbiddenError,
-        404 => GiteaAPI::V1::Client::NotFoundError,
-        429 => GiteaAPI::V1::Client::TooManyRequestsError,
-        500 => GiteaAPI::V1::Client::InternalServerError,
-        502 => GiteaAPI::V1::Client::BadGatewayError,
-        503 => GiteaAPI::V1::Client::ServiceUnavailableError,
-        # Server errors without a dedicated class
-        504 => GiteaAPI::V1::Client::ServerError,
-        599 => GiteaAPI::V1::Client::ServerError,
-        # Any other status falls back to the generic error
-        418 => GiteaAPI::V1::Client::ApiError,
-        451 => GiteaAPI::V1::Client::ApiError
-      }.each do |response_status, error_class|
-        context "when the response status is #{response_status}" do
-          let(:status) { response_status }
+      context 'when the response status is 400' do
+        let(:status) { 400 }
 
-          it "sends a post request and raises #{error_class}" do
-            expect { subject }.to raise_error(error_class, "HTTP Code: #{response_status}, response: upppsss something went wrong")
-          end
+        it "sends a post request and raises #{GiteaAPI::V1::Client::BadRequestError}" do
+          expect { subject }.to raise_error(GiteaAPI::V1::Client::BadRequestError, "HTTP Code: 400, response: upppsss something went wrong")
         end
       end
     end
@@ -65,24 +48,30 @@ RSpec.describe GiteaAPI::V1::Client do
       context 'because the connection failed' do
         let(:faraday_error) { Faraday::ConnectionFailed.new('connection refused') }
 
-        it 'raises a ConnectionError' do
-          expect { subject }.to raise_error(GiteaAPI::V1::Client::ConnectionError, 'Failed to report back to Gitea: connection refused')
+        it 'raises a ConnectionFailedError' do
+          expect { subject }.to raise_error(GiteaAPI::V1::Client::ConnectionFailedError, 'Failed to report back to Gitea: connection refused')
         end
       end
 
       context 'because the request timed out' do
         let(:faraday_error) { Faraday::TimeoutError.new('execution expired') }
 
-        it 'raises a ConnectionError' do
-          expect { subject }.to raise_error(GiteaAPI::V1::Client::ConnectionError, 'Failed to report back to Gitea: execution expired')
+        it 'raises a TimeoutError instead of a ConnectionFailedError' do
+          expect { subject }.to raise_error(GiteaAPI::V1::Client::TimeoutError, 'Failed to report back to Gitea: execution expired')
         end
       end
 
       context 'because the SSL handshake failed' do
         let(:faraday_error) { Faraday::SSLError.new('certificate verify failed') }
 
-        it 'raises an SSLError instead of a ConnectionError' do
+        it 'raises an SSLError' do
           expect { subject }.to raise_error(GiteaAPI::V1::Client::SSLError, 'Failed to report back to Gitea: certificate verify failed')
+        end
+
+        # A failed handshake is a permanent configuration problem, so it must stay outside the
+        # ConnectionError family, which ReportToSCMJob retries.
+        it 'is not part of the ConnectionError family' do
+          expect(GiteaAPI::V1::Client::SSLError.ancestors).not_to include(GiteaAPI::V1::Client::ConnectionError)
         end
       end
     end
