@@ -49,7 +49,7 @@ RSpec.describe NotificationActionBarComponent, type: :component do
     before do
       User.session = create(:user)
       render_inline(described_class.new(state: 'unread', update_path: 'my/notifications',
-                                        total_count_notifications: Notification::MARK_ALL_OPTION_THRESHOLD + 1))
+                                        total_count_notifications: Notification::MARK_ALL_OPTION_THRESHOLD))
     end
 
     it do
@@ -61,7 +61,7 @@ RSpec.describe NotificationActionBarComponent, type: :component do
     before do
       User.session = create(:user)
       render_inline(described_class.new(state: 'unread', update_path: 'my/notifications',
-                                        total_count_notifications: Notification::MARK_ALL_OPTION_THRESHOLD))
+                                        total_count_notifications: Notification::MARK_ALL_OPTION_THRESHOLD - 1))
     end
 
     it do
