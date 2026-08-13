@@ -83,26 +83,29 @@
               %hr
 
               - if @bs_request.accept_at.present?
-                .alert.alert-warning.p-2
-                  %i.fas.fa-exclamation-triangle
-                  %span The current request
-                  - if BsRequest::FINAL_REQUEST_STATES.include?(@bs_request.state)
+                - if @bs_request.auto_accepted?
+                  .alert.alert-warning.p-2
+                    %i.fas.fa-exclamation-triangle
                     %span
-                      was
+                      The current request was
                       %strong auto-accepted
                       at
                       %span{ title: "#{I18n.l @bs_request.accept_at}" }
                       = succeed '.' do
                         = I18n.l @bs_request.accept_at, format: :only_date
-                  - elsif @bs_request.accept_at.past?
-                    %span
+                - elsif %i[new review].include?(@bs_request.state)
+                  .alert.alert-warning.p-2
+                    %i.fas.fa-exclamation-triangle
+                    %span The current request
+                    - if @bs_request.accept_at.past?
+                      %span
+                        will be
+                        %strong auto-accepted
+                        after all the reviews are submitted.
+                    - else
                       will be
                       %strong auto-accepted
-                      after all the reviews are submitted.
-                  - else
-                    will be
-                    %strong auto-accepted
-                    = render TimeComponent.new(time: @bs_request.accept_at)
+                      = render TimeComponent.new(time: @bs_request.accept_at)
               // rendering the chart for a bs_request with a lot of bs_request_actions can cause performance issues on the backend,
               // we need to skip those
               - if User.session && @actions.count <= 300
