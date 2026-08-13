@@ -328,7 +328,7 @@ GEM
       timeout
     net-smtp (0.5.1)
       net-protocol
-    next_rails (1.6.0)
+    next_rails (1.7.0)
     nio4r (2.7.5)
     nkf (0.3.0)
     nokogiri (1.19.4)
