@@ -548,7 +548,7 @@ GEM
       activerecord (>= 7.2)
     strscan (3.1.2)
     sysexits (1.2.0)
-    temple (0.10.4)
+    temple (0.10.6)
     terminal-table (4.0.0)
       unicode-display_width (>= 1.1.1, < 4)
     terser (1.2.8)
