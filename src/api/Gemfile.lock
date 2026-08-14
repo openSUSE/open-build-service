@@ -210,7 +210,8 @@ GEM
       terminal-table (>= 1.5.1)
     globalid (1.3.0)
       activesupport (>= 6.1)
-    haml (7.2.2)
+    haml (7.3.0)
+      prism (>= 1.1.0)
       temple (>= 0.8.2)
       thor
       tilt
@@ -547,7 +548,7 @@ GEM
       activerecord (>= 7.2)
     strscan (3.1.2)
     sysexits (1.2.0)
-    temple (0.10.4)
+    temple (0.10.6)
     terminal-table (4.0.0)
       unicode-display_width (>= 1.1.1, < 4)
     terser (1.2.8)
