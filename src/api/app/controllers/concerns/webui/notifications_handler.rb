@@ -2,21 +2,20 @@ module Webui::NotificationsHandler
   extend ActiveSupport::Concern
 
   included do
+    before_action :set_current_notification
     helper_method :notification_target_path_with_return_to, :notification_return_to_path, :notification_context_params
   end
 
-  def handle_notification
-    return unless User.session && params[:notification_id]
-
-    current_notification = Notification.find_by(id: params[:notification_id])
-
-    return unless current_notification
-    return unless NotificationPolicy.new(User.session, current_notification).update?
-
-    current_notification
-  end
-
   private
+
+  def set_current_notification
+    notification = Notification.find_by(id: params[:notification_id])
+
+    return unless notification
+    return unless NotificationPolicy.new(User.session, notification).update?
+
+    @current_notification = notification
+  end
 
   def notification_target_path_with_return_to(path)
     uri = URI.parse(path)
