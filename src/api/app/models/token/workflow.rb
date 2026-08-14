@@ -48,12 +48,10 @@ class Token::Workflow < Token
 
     # Initial report with status set to pending
     ReportToSCMJob.perform_later(workflow_run: workflow_run, initial_report: true)
-    @workflows_without_matching_filters = []
     @workflows.each do |workflow|
       return workflow.errors.full_messages if workflow.invalid?(:call)
 
       workflow.call
-      @workflows_without_matching_filters << workflow.workflow_name unless workflow.filters_matched?
     end
     # Final status report
     ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'success', initial_report: true)
@@ -63,11 +61,10 @@ class Token::Workflow < Token
     raise Token::Errors::SCMTokenInvalid, "Your SCM token secret is not properly set in your OBS workflow token.\nCheck #{AUTHENTICATION_DOCUMENTATION_LINK}"
   end
 
-  # Names of the workflows which did not run because none of their filters matched the event.
-  # Only meaningful once #call has run past the point of evaluating each workflow's filters
-  # (i.e. not for ping events or requests that failed validation beforehand), where it stays empty.
   def workflows_without_matching_filters
-    @workflows_without_matching_filters || []
+    return [] unless @workflows
+
+    @workflows.reject(&:filters_matched?).map(&:workflow_name)
   end
 
   def owned_by?(some_user)
