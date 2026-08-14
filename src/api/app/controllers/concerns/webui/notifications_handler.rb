@@ -8,8 +8,9 @@ module Webui::NotificationsHandler
   def handle_notification
     return unless User.session && params[:notification_id]
 
-    current_notification = Notification.find(params[:notification_id])
+    current_notification = Notification.find_by(id: params[:notification_id])
 
+    return unless current_notification
     return unless NotificationPolicy.new(User.session, current_notification).update?
 
     current_notification
