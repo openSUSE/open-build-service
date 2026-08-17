@@ -1947,7 +1947,14 @@ sub readschedulerstate {
 sub getpublisherstate {
   my ($projid, $repoid) = @_;
   return 'building' if -e "$eventdir/publish/${projid}::${repoid}::inprogress";
-  return 'scheduled' if -e "$eventdir/publish/${projid}::$repoid";
+  my @s = stat("$eventdir/publish/${projid}::$repoid");
+  if (@s) {
+    if (($s[2] & 0777) == 0444) {
+      my $ev = readxml("$eventdir/publish/${projid}::$repoid", $BSXML::event, 1);
+      return ('failed', $ev->{'details'}) if $ev && $ev->{'type'} eq 'publish' && $ev->{'details'};
+    }
+    return 'scheduled';
+  }
   return 'succeeded';
 }
 
