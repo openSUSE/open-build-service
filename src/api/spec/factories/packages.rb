@@ -15,6 +15,10 @@ FactoryBot.define do
       end
     end
 
+    factory :linked_package, class: 'LinkedPackage' do
+      project { association :project, scmsync: 'https://example.com/repo.git' }
+    end
+
     factory :package_with_maintainer do
       transient do
         maintainer { association :confirmed_user }

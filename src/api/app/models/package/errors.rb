@@ -36,4 +36,8 @@ module Package::Errors
   class ScmsyncReadOnly < APIError
     setup 'scmsync_read_only', 403, 'Can not change files in SCM bridged packages'
   end
+
+  class LinkedPackageReadOnly < APIError
+    setup 'linked_package_read_only', 403, 'Can not modify the backend state of a linked package'
+  end
 end
