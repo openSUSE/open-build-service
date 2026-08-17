@@ -76,11 +76,19 @@ get:
       name: lastsuccess
       schema:
         type: string
+        enum:
+          - '0'
+          - '1'
+          - 'true'
+          - 'false'
       description: |
-        Set to `1` to show the last build results.
+        Set to `1`/`true` to show the last build results. `0`/`false` falls back to
+        the regular build result listing. Empty values are accepted for backwards
+        compatibility and are treated like `1`. Any other value returns a `400`
+        Bad Request response.
 
         Since the schema of the output of this endpoint depends on the value of the `lastsuccess` parameter,
-        the case where `lastsuccess` is set to `1` is documented under this [other endpoint](#/Build/get_build__project_name___result_lastsuccess_1).
+        the case where `lastsuccess` is set to `1`/`true` is documented under this [other endpoint](#/Build/get_build__project_name___result_lastsuccess_1).
   responses:
     '200':
       $ref: '../components/responses/resultlist.yaml'
@@ -96,6 +104,11 @@ get:
               value:
                 code: 400
                 summary: not boolean
+            Invalid lastsuccess:
+              description: Passing a value different than `0`, `1`, `true` or `false` to `lastsuccess`.
+              value:
+                code: invalid_parameter
+                summary: "The 'lastsuccess' parameter only accepts '1', '0', 'true' or 'false', got 'yes'."
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '404':
