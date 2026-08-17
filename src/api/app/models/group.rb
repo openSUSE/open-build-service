@@ -11,7 +11,6 @@ class Group < ApplicationRecord
   has_many :relationships, dependent: :destroy, inverse_of: :group
   has_many :event_subscriptions, dependent: :destroy, inverse_of: :group
   has_many :reviews, dependent: :nullify
-  has_many :notifications, -> { order(created_at: :desc) }, as: :subscriber, dependent: :destroy
   has_and_belongs_to_many :created_notifications, class_name: 'Notification'
   has_and_belongs_to_many :shared_workflow_tokens,
                           class_name: 'Token::Workflow',
