@@ -4892,6 +4892,8 @@ if ($@) {
   # mark as bad build host if Build.pm could not be imported
   $ex = 3 unless defined &Build::queryhdrmd5;
   $ex = 3 if $@ =~ /^500 /;
+  # ha-proxy may be used and answers with 503 in error case
+  $ex = 3 if $@ =~ /^503 /;
   # catch disk full errors before the build script could be even started
   $ex = 3 if $@ =~ /No space left on device/;
   $ex = 4 if $@ =~ /^FATAL:/;
