@@ -34,6 +34,95 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
 
       it { expect { set_binaries }.to raise_error(ActiveRecord::RecordNotFound) }
     end
+
+    context 'with valid build results' do
+      let(:fake_buildresult) do
+        Xmlhash.parse(
+          "<resultlist state='123'>
+             <result project='#{home_tom.name}' repository='#{repo_for_home_tom.name}' arch='x86_64' state='succeeded'>
+               <binarylist>
+                 <binary filename='test1.rpm' size='1024'/>
+                 <binary filename='test2.rpm' size='2048'/>
+                 <binary filename='_statistics' size='0'/>
+               </binarylist>
+             </result>
+             <result project='#{home_tom.name}' repository='#{repo_for_home_tom.name}' arch='i586' state='building'>
+               <binarylist>
+                 <binary filename='test3.rpm' size='4096'/>
+               </binarylist>
+             </result>
+           </resultlist>"
+        )
+      end
+
+      before do
+        allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)
+        allow(Backend::Api::BuildResults::Binaries).to receive(:download_url_for_file).and_return('http://test.host/download')
+      end
+
+      it 'responds with success' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, page: 1, page_size: 2 }
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'assigns paginated @binaries with correct length' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, page: 1, page_size: 2 }
+        expect(assigns(:binaries).length).to eq(2)
+      end
+
+      it 'assigns paginated @binaries with correct total counts' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, page: 1, page_size: 2 }
+        expect(assigns(:binaries).total_count).to eq(3)
+        expect(assigns(:binaries).total_pages).to eq(2)
+      end
+
+      it 'assigns paginated @binaries with correct elements' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, page: 1, page_size: 2 }
+        expect(assigns(:binaries).first[:filename]).to eq('test1.rpm')
+        expect(assigns(:binaries).last[:filename]).to eq('test2.rpm')
+      end
+
+      it 'respects pagination offsets for length' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, page: 2, page_size: 2 }
+        expect(assigns(:binaries).length).to eq(1)
+      end
+
+      it 'respects pagination offsets for elements' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, page: 2, page_size: 2 }
+        expect(assigns(:binaries).first[:filename]).to eq('test3.rpm')
+      end
+
+      it 'validates page_size constraints to 50, 100, 300' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, page_size: 999_999 }
+        # Should fallback to 50 if invalid
+        expect(assigns(:per_page)).to eq(50)
+      end
+
+      it 'assigns @binaries_by_arch correctly with full lengths' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom }
+        expect(assigns(:binaries_by_arch)['x86_64'].length).to eq(2)
+        expect(assigns(:binaries_by_arch)['i586'].length).to eq(1)
+      end
+
+      it 'assigns @binaries_by_arch correctly with right elements' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom }
+        expect(assigns(:binaries_by_arch)['i586'].first[:filename]).to eq('test3.rpm')
+      end
+
+      it 'assigns @repository_statistics correctly' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom }
+
+        expect(assigns(:repository_statistics)['x86_64'][:has_statistics]).to be true
+        expect(assigns(:repository_statistics)['i586'][:has_statistics]).to be false
+      end
+
+      it 'ensures binary size is an integer' do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom }
+
+        expect(assigns(:binaries).first[:size]).to be_an(Integer)
+        expect(assigns(:binaries).first[:size]).to eq(1024)
+      end
+    end
   end
 
   describe 'GET #show' do
