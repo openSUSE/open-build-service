@@ -2,7 +2,6 @@
 # environment and review apps to test changes for those features. Rolled-out feature toggles aren't displayed anyway
 # to users in the web UI for beta features.
 ENABLED_FEATURE_TOGGLES = [
-  { name: :request_show_redesign, description: 'Redesign of the request pages to improve the collaboration workflow' },
   { name: :content_moderation, description: 'Reporting inappropriate content' },
   { name: :foster_collaboration, description: 'Features improving the collaboration opportunities between users of the build service.' },
   { name: :labels, description: 'Allow to apply labels to packages, requests and projects to improve collaboration between build service users.' },

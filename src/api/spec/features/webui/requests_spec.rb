@@ -9,13 +9,6 @@ RSpec.describe 'Requests', :js, :vcr do
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
   let(:bs_request) { create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter) }
 
-  before do
-    # TODO: Remove this once these checks are removed from all controllers
-    # The request show page always renders the redesigned view now. The feature flag still
-    # gates related controllers (comments, reviews, build results), so enable it globally.
-    Flipper.enable(:request_show_redesign)
-  end
-
   RSpec.shared_examples 'expandable element' do
     it 'expanding a text field' do
       visit request_show_path(bs_request)
@@ -397,10 +390,6 @@ RSpec.describe 'Requests', :js, :vcr do
       create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter)
     end
 
-    before do
-      Flipper.enable(:request_show_redesign)
-    end
-
     it 'shows the project maintainers' do
       visit request_show_path(delete_bs_request)
       expect(page).to have_text('Project Maintainers')
@@ -419,7 +408,6 @@ RSpec.describe 'Requests', :js, :vcr do
     end
 
     before do
-      Flipper.enable(:request_show_redesign)
       # Faking that the target project was destroyed when the delete request was accepted
       target_project.destroy
     end
@@ -437,10 +425,6 @@ RSpec.describe 'Requests', :js, :vcr do
       Staging::Workflow.last
     end
     let(:staging_project) { workflow.staging_projects.first }
-
-    before do
-      Flipper.enable(:request_show_redesign)
-    end
 
     it 'does not set stage information for submit request' do
       login submitter
@@ -464,10 +448,6 @@ RSpec.describe 'Requests', :js, :vcr do
     let(:staging_project) { workflow.staging_projects.first }
     let(:staging_request) { create(:delete_bs_request, target_project: target_project, creator: submitter) }
     let(:staging_user) { User.find_by(login: staging_request.creator) }
-
-    before do
-      Flipper.enable(:request_show_redesign)
-    end
 
     it 'shows staging request information' do
       login staging_user
@@ -502,7 +482,6 @@ RSpec.describe 'Requests', :js, :vcr do
     end
 
     before do
-      Flipper.enable(:request_show_redesign)
       login submitter
       visit request_show_path(maintenance_request)
     end
