@@ -562,7 +562,7 @@ GEM
       middleware (>= 0.1.0)
       riddle (~> 2.4)
     thor (1.5.0)
-    tilt (2.8.0)
+    tilt (2.9.0)
     timeout (0.6.1)
     toml-rb (4.2.1)
       citrus (~> 3.0, > 3.0)
