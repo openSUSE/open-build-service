@@ -15,8 +15,21 @@ get:
       name: confirmed
       schema:
         type: string
+        enum:
+          - '0'
+          - '1'
+          - 'true'
+          - 'false'
       required: false
-      description: List only active users. This parameter is interpreted as `true` if present, `false` otherwise.
+      description: |
+        Set to `1`/`true` to list only active users. Set to `0`/`false` to list
+        all users that are not deleted. Any other value returns a `400`
+        Bad Request response.
+
+        Passing the parameter without a value is **deprecated** and will be
+        removed in a future release. For backwards compatibility it is currently
+        still accepted and treated like `1`. When used without a value the
+        response will include a `Deprecation: true` header.
       example: 1
 
   responses:
@@ -41,6 +54,18 @@ get:
               - name: 'user_2'
               - name: 'user_3'
               - name: 'Requestor'
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Invalid confirmed:
+              description: Passing a value different than `0`, `1`, `true` or `false` to `confirmed`.
+              value:
+                code: invalid_parameter
+                summary: "The 'confirmed' parameter only accepts '1', '0', 'true' or 'false', got 'yes'."
   tags:
     - Person
 
