@@ -485,6 +485,26 @@ RSpec.describe BsRequest do
         it { expect(request.reload).to have_attributes(comment: 'Permission problem', state: :revoked) }
       end
     end
+
+    describe '#auto_accepted?' do
+      context 'when state is accepted and accept_at is in the past' do
+        let(:request) { create(:bs_request, state: :accepted, accept_at: 1.day.ago) }
+
+        it { expect(request.auto_accepted?).to be true }
+      end
+
+      context 'when state is accepted and comment is Auto accept' do
+        let(:request) { create(:bs_request, state: :accepted, accept_at: 1.day.from_now, comment: 'Auto accept') }
+
+        it { expect(request.auto_accepted?).to be true }
+      end
+
+      context 'when state is not accepted' do
+        let(:request) { create(:bs_request, state: :new, accept_at: 1.day.ago) }
+
+        it { expect(request.auto_accepted?).to be false }
+      end
+    end
   end
 
   describe '#sanitize!' do
