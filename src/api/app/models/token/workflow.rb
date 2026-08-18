@@ -61,6 +61,12 @@ class Token::Workflow < Token
     raise Token::Errors::SCMTokenInvalid, "Your SCM token secret is not properly set in your OBS workflow token.\nCheck #{AUTHENTICATION_DOCUMENTATION_LINK}"
   end
 
+  def workflows_without_matching_filters
+    return [] unless @workflows
+
+    @workflows.reject(&:filters_matched?).map(&:workflow_name)
+  end
+
   def owned_by?(some_user)
     # TODO: remove the first condition if we migrate, with a data migration, the Token.executor to Token.users
     executor == some_user || users.include?(some_user) || groups.map(&:users).flatten.include?(some_user)

@@ -7100,21 +7100,36 @@ sub getprojectsourceinfo {
     }
   }
   my @res;
+  my $setlastr = $cgi->{'nofilename'} && !$cgi->{'noexpand'} && !@{$cgi->{'package'} || []};
+  my $lastr;
   if (@packages > 1) {
     $BSSrcServer::Remote::collect_remote_getrev = 1;
     for my $packid (splice @packages) {
+      # reuse old result for multibuild
+      if ($lastr && $packid =~ /(?<!^_product)(?<!^_patchinfo):(.+)/ && $packid eq "$lastr->{'package'}:$1") {
+        push @res, { %$lastr, 'package' => $packid, 'originpackage' => $lastr->{'package'} };
+        next;
+      }
       my $r = sourceinfo($cgi, $projid, $packid, $bconf);
       if ($r->{'error'} && $r->{'error'} =~ /collect_remote_getrev$/) {
 	push @packages, $packid;
 	next;
       }
       push @res, $r;
+      $lastr = $r if $setlastr && !$r->{'originpackage'};
     }
     $BSSrcServer::Remote::collect_remote_getrev = 0;
     BSSrcServer::Remote::fill_remote_getrev_cache();
   }
   for my $packid (@packages) {
-    push @res, sourceinfo($cgi, $projid, $packid, $bconf);
+    # reuse old result for multibuild
+    if ($lastr && $packid =~ /(?<!^_product)(?<!^_patchinfo):(.+)/ && $packid eq "$lastr->{'package'}:$1") {
+      push @res, { %$lastr, 'package' => $packid, 'originpackage' => $lastr->{'package'} };
+      next;
+    }
+    my $r = sourceinfo($cgi, $projid, $packid, $bconf);
+    push @res, $r;
+    $lastr = $r if $setlastr && !$r->{'originpackage'};
   }
   BSRevision::readproj_local_use_cache(0);
   BSSrcServer::Projlink::disable_frozenlinks_cache();

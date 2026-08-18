@@ -3786,7 +3786,9 @@ sub set_publish_error {
   my $evname = $req->{'event'};
   $evname .= '::inprogress' if $req->{'inprogress'};
   $ev->{'details'} = $err || 'unknown error';
-  writexml("$myeventdir/.$evname$$", "$myeventdir/$evname", $ev, $BSXML::event);
+  writexml("$myeventdir/.$evname$$", undef, $ev, $BSXML::event);
+  chmod(0444, "$myeventdir/.$evname$$");	# hint at the publish error
+  rename("$myeventdir/.$evname$$", "$myeventdir/$evname") || die("rename $myeventdir/.$evname$$ $myeventdir/$evname: $!\n");
 }
 
 sub notify_state {
