@@ -142,7 +142,7 @@ GEM
     crass (1.0.7)
     csv (3.3.6)
     daemons (1.4.1)
-    dalli (5.0.6)
+    dalli (5.1.0)
       logger
     data_migrate (11.3.1)
       activerecord (>= 6.1)
