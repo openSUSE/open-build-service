@@ -872,7 +872,7 @@ class BsRequest < ApplicationRecord
   end
 
   def auto_accepted?
-    accepted? && accept_at.present? && (accept_at <= Time.now || comment == 'Auto accept')
+    state == :accepted && accept_at.present? && (accept_at <= Time.now || comment == 'Auto accept')
   end
 
   def auto_accept
