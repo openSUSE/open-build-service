@@ -156,6 +156,7 @@ RSpec.describe Status::RequiredChecksController do
 
     shared_context 'for an anonymous user' do
       let(:status) { :unauthorized }
+
       include_context 'does not create a required check'
       include_context 'returns correct status'
     end
@@ -278,6 +279,7 @@ RSpec.describe Status::RequiredChecksController do
 
     shared_context 'for an anonymous user' do
       let(:status) { :unauthorized }
+
       include_context 'does not delete the required check'
       include_context 'returns correct status'
     end
