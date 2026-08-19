@@ -1,4 +1,4 @@
-RSpec.describe Event::GlobalRoleAssignmentUpdate, type: :model do
+RSpec.describe Event::GlobalRoleAssignmentUpdate do
   describe '#admin_moderator_or_staffs' do
     let!(:admin) { create(:admin_user) }
     let!(:staff) { create(:staff_user) }
