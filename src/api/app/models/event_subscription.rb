@@ -120,7 +120,7 @@ end
 # Table name: event_subscriptions
 #
 #  id              :integer          not null, primary key
-#  channel         :integer          default("disabled"), not null
+#  channel         :integer          default(0), not null
 #  enabled         :boolean          default(FALSE)
 #  eventtype       :string(255)      not null
 #  receiver_role   :string(255)      not null

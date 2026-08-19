@@ -36,7 +36,7 @@ end
 #  id                 :integer          not null, primary key
 #  request_parameters :text(4294967295)
 #  response_body      :text(4294967295)
-#  status             :integer          default("success"), not null
+#  status             :integer          default(0), not null
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
 #  workflow_run_id    :integer
