@@ -2,7 +2,7 @@ class GroupsUser < ApplicationRecord
   belongs_to :user
   belongs_to :group
 
-  validates :user_id, comparison: { other_than: User.find_nobody!.id , message: '_nobody_ can not join groups' }
+  validates :user_id, comparison: { other_than: User.find_nobody!.id, message: '_nobody_ can not join groups' }
   validates :user_id, uniqueness: { scope: :group_id, message: 'belongs to this group already' }
 
   after_create :create_event
