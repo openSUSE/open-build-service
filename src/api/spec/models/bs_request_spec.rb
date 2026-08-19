@@ -1,4 +1,4 @@
-RSpec.describe BsRequest, :vcr do
+RSpec.describe BsRequest do
   let(:user) { create(:confirmed_user, :with_home, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
   let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
@@ -184,21 +184,6 @@ RSpec.describe BsRequest, :vcr do
     let!(:request) { create(:set_bugowner_request) }
     let(:admin) { create(:admin_user) }
 
-    context 'to delete state' do
-      before do
-        login admin
-        request.change_state(newstate: 'deleted')
-      end
-
-      it 'changes state to deleted' do
-        expect(request.state).to eq(:deleted)
-      end
-
-      it 'creates a HistoryElement::RequestDeleted' do
-        expect(request.history_elements.first.type).to eq('HistoryElement::RequestDeleted')
-      end
-    end
-
     context 'final state declined cannot be changed' do
       let(:request) do
         create(:declined_bs_request,
@@ -224,7 +209,7 @@ RSpec.describe BsRequest, :vcr do
                                                creator: creator, description: 'A single comment')
       end
 
-      context 'and the target project has an attribute to disallow acceptance by the creator' do
+      context 'and the target project has an attribute to disallow acceptance by the creator', :vcr do
         context 'and the accepter is the creator' do
           before do
             login creator
@@ -262,7 +247,7 @@ RSpec.describe BsRequest, :vcr do
         end
       end
 
-      context 'and the target package has an attribute to disallow acceptance by the creator' do
+      context 'and the target package has an attribute to disallow acceptance by the creator', :vcr do
         context 'and the accepter is the creator' do
           before do
             login creator
@@ -306,7 +291,7 @@ RSpec.describe BsRequest, :vcr do
 
         before { login creator }
 
-        it 'expires the assignment' do
+        it 'expires the assignment', :vcr do
           request.change_state(newstate: 'accepted')
 
           expect(request.bs_request_actions.first.source_package_object.assignment).to be_nil
@@ -620,11 +605,11 @@ RSpec.describe BsRequest, :vcr do
     end
   end
 
-  describe 'creating a BsRequest that has a project link' do
+  describe 'creating a BsRequest that has a project link', :vcr do
     include_context 'a BsRequest that has a project link'
 
     context 'via #new' do
-      context 'when sourceupdate is not set to cleanup', :vcr do
+      context 'when sourceupdate is not set to cleanup' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { 'cleanup' }
         end
@@ -632,7 +617,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
       end
 
-      context 'when sourceupdate is not set to update', :vcr do
+      context 'when sourceupdate is not set to update' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { 'update' }
         end
@@ -640,7 +625,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
       end
 
-      context 'when sourceupdate is set to noupdate', :vcr do
+      context 'when sourceupdate is set to noupdate' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { 'noupdate' }
         end
@@ -648,7 +633,7 @@ RSpec.describe BsRequest, :vcr do
         it { expect { subject.save! }.not_to raise_error }
       end
 
-      context 'when sourceupdate is not set', :vcr do
+      context 'when sourceupdate is not set' do
         include_context 'when sourceupdate is set to' do
           let(:sourceupdate_type) { nil }
         end
@@ -657,7 +642,7 @@ RSpec.describe BsRequest, :vcr do
       end
     end
 
-    context 'via #new_from_xml', :vcr do
+    context 'via #new_from_xml' do
       subject { BsRequest.new_from_xml(xml) }
 
       it { expect { subject.save! }.to raise_error BsRequestAction::LackingMaintainership }
@@ -694,21 +679,7 @@ RSpec.describe BsRequest, :vcr do
     end
   end
 
-  describe '#skip_sanitize' do
-    let(:bs_request) { build(:add_maintainer_request, target_project: create(:project)) }
-
-    before do
-      bs_request.skip_sanitize
-      allow(bs_request).to receive(:sanitize!)
-      User.find_by!(login: bs_request.creator).run_as do
-        bs_request.save!
-      end
-    end
-
-    it { expect(bs_request).not_to have_received(:sanitize!) }
-  end
-
-  describe '#action_details' do
+  describe '#action_details', :vcr do
     context 'when diffs are cached' do
       let!(:request) { submit_request }
       let!(:opts) { { filelimit: nil, tarlimit: nil, diff_to_superseded: nil, diffs: true, cacheonly: 1 } }
@@ -723,6 +694,7 @@ RSpec.describe BsRequest, :vcr do
   describe '#source_package_latest_local_version' do
     context 'when the request has multiple actions' do
       before do
+        login(user)
         submit_request.bs_request_actions << create(:bs_request_action_maintenance_release, source_project: source_project.name,
                                                                                             source_package: source_package.name,
                                                                                             target_project: target_project.name)

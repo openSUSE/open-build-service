@@ -13,6 +13,19 @@ resetFormValidation();
       $('#project-title').html("#{escape_javascript(@project.title.presence || @project)}");
       $('.action-report-bug').html("#{escape_javascript(render(partial: 'webui/project/show_actions/report_bug',
                                                                locals: { url: @project.report_bug_or_bugzilla_url }))}");
+      $('.side_links').replaceWith("#{escape_javascript(render(partial: 'webui/project/side_links',
+                                                               locals: { open_maintenance_incidents: @open_maintenance_incidents,
+                                                                         project: @project,
+                                                                         maintained_projects: @maintained_projects,
+                                                                         nr_of_problem_packages: @nr_of_problem_packages,
+                                                                         open_release_requests: @open_release_requests,
+                                                                         release_targets: @release_targets,
+                                                                         requests: @requests,
+                                                                         package: @package,
+                                                                         linking_projects: @linking_projects,
+                                                                         project_maintenance_project: @project_maintenance_project,
+                                                                         incoming_requests_size: @incoming_requests_size,
+                                                                         outgoing_requests_size: @outgoing_requests_size }))}");
       setCollapsible();
       $('.in-place-editing,.action-report-bug').animate({ opacity: 1 }, 400, function() {
         $('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}");

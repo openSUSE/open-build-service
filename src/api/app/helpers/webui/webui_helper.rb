@@ -60,14 +60,13 @@ module Webui::WebuiHelper
     first.nil? || nil
   end
 
-  def image_template_icon(template)
-    default_icon = image_url('drive-optical-48.png')
-    icon = Package.source_path(template.project.name, template.name, '_icon') if template.icon?
-    capture_haml do
-      content_tag(:object, data: icon || default_icon, type: 'image/png', title: template.title, width: 32, height: 32) do
-        content_tag(:img, src: default_icon, alt: template.title, width: 32, height: 32)
-      end
-    end
+  def image_template_icon_url(template)
+    icon = if template.icon?
+             Package.source_path(template.project.name, template.name, '_icon')
+           else
+             'drive-optical-48.png'
+           end
+    image_url(icon)
   end
 
   def repository_status_icon(status:, details: nil, html_class: '')

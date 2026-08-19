@@ -1,68 +1,44 @@
 class Webui::GroupsController < Webui::WebuiController
   include Webui::NotificationsHandler
 
-  before_action :require_login, except: %i[show autocomplete]
-  after_action :verify_authorized, except: %i[show autocomplete edit update]
+  before_action :require_login, except: :show
+  before_action :require_admin, only: %i[index create new]
+  before_action :set_group, only: %i[show edit update]
+  before_action :set_members, only: :create
+  after_action :verify_authorized, except: %i[index show new autocomplete]
 
   def index
-    authorize Group.new, :index?
     @groups = Group.includes(:users).order(:title)
   end
 
   def show
-    @group = Group.includes(:users).find_by_title(params[:title])
-    unless @group
-      flash[:error] = "Group '#{params[:title]}' does not exist"
-      redirect_back_or_to({ controller: 'main', action: 'index' })
-      return
-    end
-
     @current_notification = handle_notification
   end
 
-  def new
-    authorize Group.new, :create?
-  end
+  def new; end
 
   def edit
-    @group = Group.find_by(title: params[:title])
-
-    if @group
-      authorize(@group, :update?)
-    else
-      flash[:error] = "The group doesn't exist"
-      redirect_to(groups_path)
-    end
+    authorize @group
   end
 
   def create
-    group = Group.new(title: group_params[:title])
-    authorize group, :create?
+    group = Group.new(group_params.slice(:email, :title).compact)
+    authorize group
 
-    group.transaction do
-      group.save!
-      raise ActiveRecord::RecordInvalid unless group.replace_members(group_params[:members])
+    group.users = @members
+
+    if group.save
+      redirect_to groups_path, success: "Group '#{group}' successfully created."
+    else
+      redirect_back_or_to root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}"
     end
-
-    flash[:success] = "Group '#{group}' successfully created."
-    redirect_to controller: :groups, action: :index
-  rescue ActiveRecord::RecordInvalid
-    redirect_back_or_to root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}"
   end
 
   def update
-    @group = Group.find_by(title: params[:title])
-
-    unless @group
-      flash[:error] = "The group doesn't exist"
-      redirect_to(groups_path) && return
-    end
-
-    authorize @group, :update?
+    authorize @group
 
     if @group.update(email: group_params[:email])
-      flash[:success] = 'Group email successfully updated'
-      redirect_to groups_path
+      redirect_to groups_path, success: 'Group email successfully updated'
     else
       flash[:error] = "Couldn't update group: #{@group.errors.full_messages.to_sentence}"
     end
@@ -74,6 +50,26 @@ class Webui::GroupsController < Webui::WebuiController
   end
 
   private
+
+  def set_group
+    @group = Group.includes(:users).find_by(title: params[:title])
+    return if @group
+
+    redirect_back_or_to root_path, error: "Group '#{params[:title]}' not found"
+  end
+
+  def set_members
+    @members = []
+
+    group_params[:members].split(',').uniq.each do |login|
+      user = User.active.find_by(login: login)
+      @members << user if user
+      next if user
+
+      redirect_back_or_to root_path, error: "Group can't be saved: User #{login} not found"
+      return
+    end
+  end
 
   def group_params
     params.require(:group).permit(:title, :email, :members)

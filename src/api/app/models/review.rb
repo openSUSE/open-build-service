@@ -11,7 +11,9 @@ class Review < ApplicationRecord
   validates :by_user, length: { maximum: 250 }
   validates :by_group, length: { maximum: 250 }
   validates :by_project, length: { maximum: 250 }
+  validate  :invalid_by_project_name, if: :by_project?
   validates :by_package, length: { maximum: 250 }
+  validate  :invalid_by_package_name, if: :by_package?
   validates :reviewer, length: { maximum: 250 }
   validates :reason, length: { maximum: 65_534 }
 
@@ -265,6 +267,15 @@ class Review < ApplicationRecord
   end
 
   private
+
+  def invalid_by_project_name
+    errors.add(:by_project, "invalid name") unless Project.valid_name?(by_project)
+  end
+
+  def invalid_by_package_name
+    errors.add(:by_package, "invalid name") unless Package.valid_name?(by_package)
+  end
+
 
   def event_parameters
     request_params = bs_request.send(:event_parameters)

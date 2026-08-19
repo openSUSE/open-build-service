@@ -15,5 +15,8 @@
           .mb-3
             = form.label(:url, 'URL:')
             = form.text_field(:url, class: 'form-control')
+          .mb-3
+            = form.label(:scmsync, 'SCM Sync URL:')
+            = form.text_field(:scmsync, class: 'form-control', placeholder: 'e.g. https://github.com/org/repo.git')
         .modal-footer
           = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Update' }

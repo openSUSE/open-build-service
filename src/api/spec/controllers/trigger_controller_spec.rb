@@ -71,12 +71,37 @@ RSpec.describe TriggerController do
       it { expect(subject).to have_http_status(:success) }
     end
 
-    context 'with an untrusted project parameter that is not a string' do
-      # e.g. a random webhook (like GitLab) sending its own payload with a
-      # project hash. The controller must not treat that as a project name.
-      subject { post :rebuild, params: { project: { unrelated: 'payload' }, format: :xml } }
+    context 'with token.package and a project parameter that is not a string' do
+      # An SCM posting its own payload to our route, e.g. GitLab, where "project"
+      # is a hash. The token knows what to rebuild, so the payload is ignored.
+      subject do
+        post :rebuild, params: { project: { id: 4762, name: 'Maintenance ToolKit', path_with_namespace: 'tools/maintenance-toolkit' },
+                                 format: :xml }
+      end
 
-      it { expect(subject).to have_http_status(:bad_request) }
+      before do
+        token.update!(package: package)
+        allow(Backend::Api::Sources::Package).to receive(:rebuild).with(project.name, package.name, {}).and_return("<status code=\"ok\" />\n")
+      end
+
+      it { expect(subject).to have_http_status(:success) }
+
+      it 'rebuilds the package of the token' do
+        subject
+        expect(Backend::Api::Sources::Package).to have_received(:rebuild).with(project.name, package.name, {})
+      end
+    end
+
+    context 'without token.package and a project parameter that is not a string' do
+      # Same payload, but now there is no package on the token to fall back to,
+      # so we end up looking for a project named after the payload.
+      subject do
+        post :rebuild, params: { project: { id: 4762, name: 'Maintenance ToolKit', path_with_namespace: 'tools/maintenance-toolkit' },
+                                 format: :xml }
+      end
+
+      it { expect(subject).to have_http_status(:not_found) }
+      it { expect(Xmlhash.parse(subject.body)['code']).to eq('unknown_project') }
     end
   end
 

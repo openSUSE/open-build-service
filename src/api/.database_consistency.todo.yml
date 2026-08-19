@@ -9,9 +9,13 @@ Architecture:
       enabled: false
 Attrib:
   attribs_index:
+    RedundantUniqueIndexChecker:
+      enabled: false
     UniqueIndexChecker:
       enabled: false
   attribs_on_proj_and_pack:
+    RedundantUniqueIndexChecker:
+      enabled: false
     UniqueIndexChecker:
       enabled: false
   id:
@@ -420,6 +424,9 @@ CommentLock:
     MissingDependentDestroyChecker:
       enabled: false
 CommitActivity:
+  count:
+    NumericalityConstraintChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
@@ -700,31 +707,7 @@ Event::RemovedUserFromGroup:
   payload:
     LengthConstraintChecker:
       enabled: false
-Event::RequestChange:
-  eventtype:
-    LengthConstraintChecker:
-      enabled: false
-    NullConstraintChecker:
-      enabled: false
-  mails_sent:
-    ThreeStateBooleanChecker:
-      enabled: false
-  payload:
-    LengthConstraintChecker:
-      enabled: false
 Event::RequestCreate:
-  eventtype:
-    LengthConstraintChecker:
-      enabled: false
-    NullConstraintChecker:
-      enabled: false
-  mails_sent:
-    ThreeStateBooleanChecker:
-      enabled: false
-  payload:
-    LengthConstraintChecker:
-      enabled: false
-Event::RequestDelete:
   eventtype:
     LengthConstraintChecker:
       enabled: false
@@ -847,6 +830,9 @@ Flag:
       enabled: false
   lower(flag)+project_id+package_id+architecture_id+repo:
     MissingUniqueIndexChecker:
+      enabled: false
+  position:
+    NumericalityConstraintChecker:
       enabled: false
   repo:
     LengthConstraintChecker:
@@ -1397,11 +1383,17 @@ Kiwi::Repository:
   index_kiwi_repositories_on_image_id:
     RedundantIndexChecker:
       enabled: false
+  order:
+    NumericalityConstraintChecker:
+      enabled: false
   password:
     LengthConstraintChecker:
       enabled: false
   prefer_license:
     ThreeStateBooleanChecker:
+      enabled: false
+  priority:
+    NumericalityConstraintChecker:
       enabled: false
   replaceable:
     ThreeStateBooleanChecker:
@@ -1820,12 +1812,6 @@ RolesUser:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-  role:
-    MissingDependentDestroyChecker:
-      enabled: false
-  user:
-    MissingDependentDestroyChecker:
-      enabled: false
 SCMStatusReport:
   id:
     PrimaryKeyTypeChecker:
@@ -1844,6 +1830,9 @@ SCMStatusReport:
 Staging::RequestExclusion:
   bs_request:
     ForeignKeyChecker:
+      enabled: false
+  bs_request_id:
+    NumericalityConstraintChecker:
       enabled: false
   bs_request_id+staging_workflow_id:
     MissingUniqueIndexChecker:
@@ -1939,6 +1928,11 @@ StatusHistory:
     NullConstraintChecker:
       enabled: false
 StatusMessage:
+  creator:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
@@ -1949,11 +1943,6 @@ StatusMessage:
       enabled: false
   severity:
     ColumnPresenceChecker:
-      enabled: false
-  creator:
-    ColumnPresenceChecker:
-      enabled: false
-    ForeignKeyChecker:
       enabled: false
 StatusMessageAcknowledgement:
   id:

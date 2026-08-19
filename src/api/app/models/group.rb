@@ -92,16 +92,6 @@ class Group < ApplicationRecord
     GroupsUser.find_or_create_by!(user: user, group: self)
   end
 
-  def replace_members(members)
-    new_members = members.split(',').map do |m|
-      User.not_deleted.find_by!(login: m)
-    end
-    users.replace(new_members)
-  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
-    errors.add(:base, e.message)
-    false
-  end
-
   def remove_user(user, user_session_login:)
     delete_user(GroupsUser, user.id, id, user_session_login: user_session_login)
   end

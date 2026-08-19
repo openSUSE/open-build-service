@@ -111,13 +111,22 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
 
     return if @selected_filter['labels'].blank?
 
-    # Match bs_request records containing AT LEAST all selected labels
+    # Match bs_request records containing AT LEAST all selected labels.
+    #
+    # The "has all N labels" check is isolated in a derived subquery over the labels
+    # table rather than joining labels into @bs_requests and grouping the whole result.
+    # @bs_requests is already seeded with left_outer_joins(:bs_request_actions, :reviews)
+    # and .distinct; adding another one-to-many join plus GROUP BY/HAVING on top builds a
+    # wide cartesian intermediate and forces Kaminari's pagination count into a
+    # subquery-wrapped count. Filtering by an IN-subquery keeps the outer relation flat.
     target_labels = @selected_filter['labels']
-    @bs_requests = @bs_requests
-                   .joins(labels: :label_template)
-                   .where(label_templates: { name: target_labels })
-                   .group('bs_requests.id')
-                   .having('COUNT(DISTINCT label_templates.name) = ?', target_labels.size)
+    matching_request_ids = Label
+                           .joins(:label_template)
+                           .where(labelable_type: 'BsRequest', label_templates: { name: target_labels })
+                           .group(:labelable_id)
+                           .having('COUNT(DISTINCT label_templates.name) = ?', target_labels.size)
+                           .select(:labelable_id)
+    @bs_requests = @bs_requests.where(id: matching_request_ids)
   end
 
   def filter_search_text

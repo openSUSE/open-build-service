@@ -56,6 +56,7 @@ class Repository < ApplicationRecord
   # NOTE: remote_project_name cannot be NULL because mysql UNIQUE KEY constraint does considers
   #       two NULL's to be distinct. (See mysql bug #8173)
   validate :remote_project_name_not_nill
+  validate :invalid_remote_project_name
 
   validate do |repository|
     repository.path_elements.reject(&:valid?).each do |path_element|
@@ -319,6 +320,15 @@ class Repository < ApplicationRecord
     new_repository.download_repositories = download_repositories.map(&:deep_clone)
 
     new_repository.reload
+  end
+
+  private
+
+  def invalid_remote_project_name
+    return unless remote_project_name
+    return if remote_project_name == ''
+
+    errors.add(:remote_project_name, "invalid name") unless Project.valid_name?(remote_project_name)
   end
 end
 

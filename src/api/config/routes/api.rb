@@ -145,7 +145,7 @@ end
 
 ### /request
 
-resources :request, only: %i[index show update destroy] do
+resources :request, only: %i[index show] do
   collection do
     post :create, constraints: ->(req) { req.params[:cmd] == 'create' }
   end

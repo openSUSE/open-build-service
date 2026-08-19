@@ -1,5 +1,6 @@
 class Distribution < ApplicationRecord
   validates :vendor, :version, :name, :reponame, :repository, :project, presence: true
+  validate :invalid_project_name
 
   has_and_belongs_to_many :icons, -> { distinct }, class_name: 'DistributionIcon'
   has_and_belongs_to_many :architectures, -> { distinct }, class_name: 'Architecture'
@@ -37,6 +38,14 @@ class Distribution < ApplicationRecord
     end
 
     self
+  end
+
+  private
+
+  def invalid_project_name
+    return unless project
+
+    errors.add(:project, "invalid name") unless Project.valid_name?(project)
   end
 end
 

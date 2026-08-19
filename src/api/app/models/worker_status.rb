@@ -25,6 +25,7 @@ class WorkerStatus
     end
 
     def hide_project_information(prj)
+      prj['hidden'] = 'true'
       %w[project repository package].each { |k| prj[k] = '---' }
     end
 
