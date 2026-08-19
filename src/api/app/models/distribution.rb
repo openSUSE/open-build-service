@@ -45,7 +45,7 @@ class Distribution < ApplicationRecord
   def invalid_project_name
     return unless project
 
-    errors.add(:project, "invalid name") unless Project.valid_name?(project)
+    errors.add(:project, 'invalid name') unless Project.valid_name?(project)
   end
 end
 

@@ -32,7 +32,7 @@ RSpec.describe GiteaAPI::V1::Client do
         let(:status) { 400 }
 
         it "sends a post request and raises #{GiteaAPI::V1::Client::BadRequestError}" do
-          expect { subject }.to raise_error(GiteaAPI::V1::Client::BadRequestError, "HTTP Code: 400, response: upppsss something went wrong")
+          expect { subject }.to raise_error(GiteaAPI::V1::Client::BadRequestError, 'HTTP Code: 400, response: upppsss something went wrong')
         end
       end
     end

@@ -27,9 +27,9 @@ class WriteAndPreviewComponent < ApplicationComponent
   def placeholder
     case text_area_object_name
     when :decision
-      "Write your comment or decision...(Markdown markup is only supported for comments, not for decisions)"
+      'Write your comment or decision...(Markdown markup is only supported for comments, not for decisions)'
     when :body
-      "Write your comment here... (Markdown markup is supported)"
+      'Write your comment here... (Markdown markup is supported)'
     else
       "Write your #{text_area_object_name} here... (Markdown markup is supported)"
     end

@@ -328,7 +328,7 @@ class Repository < ApplicationRecord
     return unless remote_project_name
     return if remote_project_name == ''
 
-    errors.add(:remote_project_name, "invalid name") unless Project.valid_name?(remote_project_name)
+    errors.add(:remote_project_name, 'invalid name') unless Project.valid_name?(remote_project_name)
   end
 end
 
