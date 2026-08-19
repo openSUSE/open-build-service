@@ -1050,7 +1050,6 @@ class BsRequest < ApplicationRecord
     CannedResponse.where(package_id: package_ids)
   end
 
-
   private
 
   # returns true if we have reached a state that we can't get out anymore
