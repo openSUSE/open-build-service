@@ -142,7 +142,7 @@ GEM
     crass (1.0.7)
     csv (3.3.6)
     daemons (1.4.1)
-    dalli (5.0.6)
+    dalli (5.1.0)
       logger
     data_migrate (11.3.1)
       activerecord (>= 6.1)
@@ -368,7 +368,7 @@ GEM
     pundit (2.5.2)
       activesupport (>= 3.0.0)
     racc (1.8.1)
-    rack (3.2.6)
+    rack (3.2.7)
     rack-protection (4.2.1)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
@@ -535,8 +535,8 @@ GEM
       rake
     sorted_set (1.1.0)
       rbtree
-    sprockets (4.2.2)
-      concurrent-ruby (~> 1.0)
+    sprockets (4.3.0)
+      concurrent-ruby (~> 1.1)
       logger
       rack (>= 2.2.4, < 4)
     sprockets-rails (3.5.2)
