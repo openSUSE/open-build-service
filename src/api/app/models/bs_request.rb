@@ -919,8 +919,8 @@ class BsRequest < ApplicationRecord
 
   def sanitize!
     # FIXME: Move permission checks to controller level
-    raise RequestSaveError, 'Admin permissions required to set request creator to foreign user' unless self.creator == User.session!.login || User.admin_session?
-    raise RequestSaveError, 'Admin permissions required to set request commenter to foreign user' unless self.commenter == User.session!.login || User.admin_session?
+    raise RequestSaveError, 'Admin permissions required to set request creator to foreign user' unless creator == User.session!.login || User.admin_session?
+    raise RequestSaveError, 'Admin permissions required to set request commenter to foreign user' unless commenter == User.session!.login || User.admin_session?
 
     # expand release and submit request targets if not specified
     expand_targets
