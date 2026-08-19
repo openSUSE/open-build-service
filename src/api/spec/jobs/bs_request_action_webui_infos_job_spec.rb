@@ -41,10 +41,10 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
       let(:admin) { create(:admin_user) }
       let!(:request) do
         create(:bs_request_with_submit_action,
-                source_project: source_project.name,
-                source_package: source_package.name,
-                target_project: target_project.name,
-                target_package: target_package.name)
+               source_project: source_project.name,
+               source_package: source_package.name,
+               target_project: target_project.name,
+               target_package: target_package.name)
       end
 
       before do
