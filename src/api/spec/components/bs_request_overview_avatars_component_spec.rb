@@ -1,4 +1,21 @@
 RSpec.describe BsRequestOverviewAvatarsComponent, type: :component do
+  describe '#group_avatar_objects' do
+    let(:user) { create(:confirmed_user, login: 'King') }
+    let(:group) { create(:group) }
+    let(:bs_request) { create(:bs_request_with_submit_action, creator: user) }
+    let(:review) do
+      create(:review, by_group: group.title, bs_request: bs_request).tap do |created_review|
+        group.destroy!
+        created_review.reload
+      end
+    end
+
+    it 'does not render avatars for a deleted group' do
+      expect { render_inline(described_class.new(review)) }.not_to raise_error
+      expect(rendered_content).to have_no_css('img')
+    end
+  end
+
   describe '#package_avatar_objects' do
     let(:user) { create(:confirmed_user, login: 'King') }
     let(:bs_request) { create(:bs_request_with_submit_action, creator: user) }
