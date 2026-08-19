@@ -49,7 +49,7 @@ module OBSApi
     # Makes it easier to debug in development/testing and less dangerous in production.
     config.action_controller.action_on_unpermitted_parameters = :raise
 
-        # we're not threadsafe
+    # we're not threadsafe
     config.allow_concurrency = false
 
     # we don't want factory_bot to interfer with the legacy test suite
