@@ -37,7 +37,7 @@ Rails.application.configure do
   # Like: `I, [2026-07-28T16:39:24.712571 #3094] INFO -- : [96719d5b-53c0-4795-9c26-0af44e0d769c] message...`
   # ActiveJob and Backend::Connection add their own tags in front of message.
   config.log_formatter = Logger::Formatter.new
-  config.log_tags = [ :request_id ]
+  config.log_tags = [:request_id]
 
   # Use lograge to show the logs in one line
   config.lograge.enabled = true
@@ -96,7 +96,7 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   # Only use :id for inspections in production.
-  config.active_record.attributes_for_inspect = [ :id ]
+  config.active_record.attributes_for_inspect = [:id]
 end
 
 # ActiveJob already logs everything we need
