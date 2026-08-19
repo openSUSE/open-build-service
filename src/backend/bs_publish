@@ -2393,8 +2393,8 @@ sub publish {
 	  writerecheckevent($projid, $repoid, $a);
 	}
       }
-      return "delayed";
       close(F);
+      return "delayed";
     }
   }
 
@@ -2476,6 +2476,7 @@ sub publish {
 
   my $blobdir;
   my @chksumfiles;
+  my %nocontentchange;
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
     my $repoinfo = {};
@@ -2540,6 +2541,8 @@ sub publish {
 	    # ok, took it. also take delta
 	    $bin = $3;
 	    push @{$deltas{"$r/$1"}}, "$r/$rbin";
+	  } else {
+	    next;	# ignore delta
 	  }
 	}
       }
@@ -2570,6 +2573,7 @@ sub publish {
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	next unless $q;
 	$p = "$q->{'arch'}/$q->{'name'}-$q->{'version'}-$q->{'release'}.$q->{'arch'}.rpm";
+	substr($p, -3, 3, 'drpm') if $bin =~ /\.drpm$/;
       } elsif ($bin =~ /\.deb$/) {
 	# legacy format XXX no udeb handling
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
@@ -2773,6 +2777,15 @@ sub publish {
 	    delete $deltainfos{$dp};
 	  }
         }
+      } elsif (!$archorder && $config->{'publishflags:nocontentchange'} && !$kiwimedium && !$containerinfo) {
+        next if $nocontentchange{$p} && $nocontentchange{$p} ne "$s[9]/$s[7]/$s[1]";
+        my @s2 = stat("$extrep/$p");
+        if (@s2 && "$s[9]/$s[7]/$s[1]" ne "$s2[9]/$s2[7]/$s2[1]") {
+	  next if $rbin =~ /\.drpm$/;		# cannot handle those, just drop em
+	  $nocontentchange{$p} = "$s2[9]/$s2[7]/$s2[1]";
+	  next;
+	}
+	delete $nocontentchange{$p};
       }
 
       $bins{$p} = "$r/$rbin";
@@ -2822,6 +2835,31 @@ sub publish {
 	}
       }
 
+    }
+  }
+
+  # reuse old data for nocontentchange files
+  if (%nocontentchange) {
+    delete $nocontentchange{$_} for keys %bins;
+    my $oldbinaryorigins = {};
+    if (%nocontentchange && -s "$reporoot/$prp/:repoinfo") {
+      my $oldrepoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo");
+      $oldbinaryorigins = ($oldrepoinfo || {})->{'binaryorigins'} || {};
+    }
+    for my $p (sort keys %nocontentchange) {
+      $bins{$p} = '-';
+      $bins_id{$p} = $nocontentchange{$p};
+      $binaryorigins->{$p} = $oldbinaryorigins->{$p} if $oldbinaryorigins->{$p};
+      if ($p =~ /(.*)\.(?:$binsufsre)$/) {
+	# also keep old provenance
+	my $pp = "$1.slsa_provenance.json";
+	my @s = stat("$extrep/$pp");
+	if (@s && $pp && !$bins{$pp}) {
+	  $bins{$pp} = '-';
+	  $bins_id{$pp} = "$s[9]/$s[7]/$s[1]";
+	  $binaryorigins->{$pp} = $oldbinaryorigins->{$pp} if $oldbinaryorigins->{$pp};
+	}
+      }
     }
   }
 
@@ -3786,7 +3824,9 @@ sub set_publish_error {
   my $evname = $req->{'event'};
   $evname .= '::inprogress' if $req->{'inprogress'};
   $ev->{'details'} = $err || 'unknown error';
-  writexml("$myeventdir/.$evname$$", "$myeventdir/$evname", $ev, $BSXML::event);
+  writexml("$myeventdir/.$evname$$", undef, $ev, $BSXML::event);
+  chmod(0444, "$myeventdir/.$evname$$");	# hint at the publish error
+  rename("$myeventdir/.$evname$$", "$myeventdir/$evname") || die("rename $myeventdir/.$evname$$ $myeventdir/$evname: $!\n");
 }
 
 sub notify_state {

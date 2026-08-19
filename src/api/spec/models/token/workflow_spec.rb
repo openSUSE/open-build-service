@@ -43,6 +43,7 @@ RSpec.describe Token::Workflow do
       before do
         # Skipping call since it's tested in the Workflow model
         allow(workflow).to receive(:call).and_return(true)
+        allow(workflow).to receive(:filters_matched?).and_return(true)
 
         allow(Workflows::YAMLDownloader).to receive(:new).with(workflow_run, token: workflow_token).and_return(yaml_downloader)
         allow(yaml_downloader).to receive(:call).and_return(Resonad.Success(yaml_file))
@@ -61,6 +62,101 @@ RSpec.describe Token::Workflow do
       it 'sends the initial report twice' do
         subject
         expect(ReportToSCMJob).to have_received(:perform_later).twice
+      end
+
+      it 'reports that all workflow filters matched' do
+        subject
+        expect(workflow_token.workflows_without_matching_filters).to eq([])
+      end
+    end
+
+    context 'when none of the workflows filters match' do
+      subject { workflow_token.call(workflow_run) }
+
+      let(:workflow_run) do
+        create(:workflow_run, token: workflow_token, scm_vendor: scm_vendor, hook_event: hook_event,
+                              request_payload: request_payload, response_url: 'https://example.com')
+      end
+      let(:scm_vendor) { 'github' }
+      let(:hook_event) { 'pull_request' }
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+      let(:yaml_downloader) { Workflows::YAMLDownloader.new(workflow_run, token: workflow_token) }
+      let(:yaml_file) { file_fixture('workflows.yml') }
+      let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: workflow_token, workflow_run: workflow_run) }
+      let(:workflow) do
+        Workflow.new(workflow_run: workflow_run, token: workflow_token, workflow_name: 'test_workflow',
+                     workflow_instructions: { steps: [{ branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' } }] })
+      end
+      let(:workflows) { [workflow] }
+
+      before do
+        # Skipping call since it's tested in the Workflow model
+        allow(workflow).to receive(:call).and_return(nil)
+        allow(workflow).to receive(:filters_matched?).and_return(false)
+
+        allow(Workflows::YAMLDownloader).to receive(:new).with(workflow_run, token: workflow_token).and_return(yaml_downloader)
+        allow(yaml_downloader).to receive(:call).and_return(Resonad.Success(yaml_file))
+        allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, token: workflow_token,
+                                                                       workflow_run: workflow_run).and_return(yaml_to_workflows_service)
+        allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
+        allow(ReportToSCMJob).to receive(:perform_later)
+      end
+
+      it 'still returns no validation errors' do
+        expect(subject).to eq([])
+      end
+
+      it 'reports the name of the workflow which filters did not match' do
+        subject
+        expect(workflow_token.workflows_without_matching_filters).to eq(['test_workflow'])
+      end
+    end
+
+    context 'when only some of the workflows filters match' do
+      subject { workflow_token.call(workflow_run) }
+
+      let(:workflow_run) do
+        create(:workflow_run, token: workflow_token, scm_vendor: scm_vendor, hook_event: hook_event,
+                              request_payload: request_payload, response_url: 'https://example.com')
+      end
+      let(:scm_vendor) { 'github' }
+      let(:hook_event) { 'pull_request' }
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+      let(:yaml_downloader) { Workflows::YAMLDownloader.new(workflow_run, token: workflow_token) }
+      let(:yaml_file) { file_fixture('workflows.yml') }
+      let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: workflow_token, workflow_run: workflow_run) }
+      let(:matching_workflow) do
+        Workflow.new(workflow_run: workflow_run, token: workflow_token, workflow_name: 'matching_workflow',
+                     workflow_instructions: { steps: [{ branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' } }] })
+      end
+      let(:non_matching_workflow) do
+        Workflow.new(workflow_run: workflow_run, token: workflow_token, workflow_name: 'non_matching_workflow',
+                     workflow_instructions: { steps: [{ branch_package: { source_project: 'home:Admin', source_package: 'ctris', target_project: 'dev:tools' } }] })
+      end
+      let(:workflows) { [matching_workflow, non_matching_workflow] }
+
+      before do
+        # Skipping call since it's tested in the Workflow model
+        allow(matching_workflow).to receive(:call).and_return(true)
+        allow(matching_workflow).to receive(:filters_matched?).and_return(true)
+        allow(non_matching_workflow).to receive(:call).and_return(nil)
+        allow(non_matching_workflow).to receive(:filters_matched?).and_return(false)
+
+        allow(Workflows::YAMLDownloader).to receive(:new).with(workflow_run, token: workflow_token).and_return(yaml_downloader)
+        allow(yaml_downloader).to receive(:call).and_return(Resonad.Success(yaml_file))
+        allow(Workflows::YAMLToWorkflowsService).to receive(:new).with(yaml_file: yaml_file, token: workflow_token,
+                                                                       workflow_run: workflow_run).and_return(yaml_to_workflows_service)
+        allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
+        allow(ReportToSCMJob).to receive(:perform_later)
+      end
+
+      it 'still returns no validation errors' do
+        expect(subject).to eq([])
+      end
+
+      it 'only reports the name of the workflow which filters did not match' do
+        subject
+        expect(workflow_token.workflows_without_matching_filters).to eq(['non_matching_workflow'])
       end
     end
 
