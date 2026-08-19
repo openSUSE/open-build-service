@@ -72,7 +72,7 @@ BsRequestAction.where(type: 'maintenance_incident')
 end
 
 # 5. 'maintenance_release', 'release'
-BsRequestAction.where(type: ['maintenance_release', 'release'])
+BsRequestAction.where(type: %w[maintenance_release, release])
   .where('group_name IS NOT NULL OR person_name IS NOT NULL OR role IS NOT NULL OR target_releaseproject IS NOT NULL')
   .in_batches do |relation|
     relation.update_all(
