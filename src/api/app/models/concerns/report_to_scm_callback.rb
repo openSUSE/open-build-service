@@ -1,5 +1,6 @@
 module ReportToScmCallback
   extend ActiveSupport::Concern
+
   included do
     after_create :report_to_scm
   end

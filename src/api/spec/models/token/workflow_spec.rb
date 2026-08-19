@@ -1,5 +1,6 @@
 RSpec.describe Token::Workflow do
   include ActiveJob::TestHelper
+
   let(:token_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:workflow_token) { create(:workflow_token, executor: token_user) }
 
