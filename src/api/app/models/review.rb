@@ -276,7 +276,6 @@ class Review < ApplicationRecord
     errors.add(:by_package, 'invalid name') unless Package.valid_name?(by_package)
   end
 
-
   def event_parameters
     request_params = bs_request.send(:event_parameters)
     review_params = slice(:state, :by_user, :by_group, :by_project, :by_package).compact
