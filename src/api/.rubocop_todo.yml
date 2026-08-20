@@ -642,12 +642,6 @@ RSpec/SubjectStub:
   Exclude:
     - 'spec/models/workflow/step/link_package_step_spec.rb'
 
-# Offense count: 3
-# This cop supports safe autocorrection (--autocorrect).
-RSpecRails/HttpStatusNameConsistency:
-  Exclude:
-    - 'spec/controllers/status/checks_controller_spec.rb'
-
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Rails/ApplicationController:
