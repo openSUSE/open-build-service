@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
-  # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Rails/SkipsModelValidations
   def up
     # 1. 'add_role'
@@ -118,9 +117,8 @@ class BsRequestActionCorrectTheData < ActiveRecord::Migration[7.2]
       )
     end
   end
-  # rubocop:enable Rails/SkipsModelValidations
-  # rubocop:enable Metrics/CyclomaticComplexity
 
+  # rubocop:enable Rails/SkipsModelValidations
   def down
     raise ActiveRecord::IrreversibleMigration
   end
