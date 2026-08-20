@@ -38,13 +38,13 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
     context 'with non existing target project' do
       subject { BsRequestActionWebuiInfosJob.new.perform(request.bs_request_actions.first) }
 
-      let(:admin) { create(:admin_user)}
+      let(:admin) { create(:admin_user) }
       let!(:request) do
         create(:bs_request_with_submit_action,
-                source_project: source_project.name,
-                source_package: source_package.name,
-                target_project: target_project.name,
-                target_package: target_package.name)
+               source_project: source_project.name,
+               source_package: source_package.name,
+               target_project: target_project.name,
+               target_package: target_package.name)
       end
 
       before do
@@ -58,7 +58,7 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
     context 'with non existing source package' do
       subject { BsRequestActionWebuiInfosJob.new.perform(request.bs_request_actions.first) }
 
-      let(:admin) { create(:admin_user)}
+      let(:admin) { create(:admin_user) }
       let!(:request) do
         create(:bs_request_with_submit_action,
                source_project: source_project.name,

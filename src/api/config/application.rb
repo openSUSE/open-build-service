@@ -33,7 +33,7 @@ end
 module OBSApi
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 8.0
+    config.load_defaults 8.1
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -49,7 +49,7 @@ module OBSApi
     # Makes it easier to debug in development/testing and less dangerous in production.
     config.action_controller.action_on_unpermitted_parameters = :raise
 
-        # we're not threadsafe
+    # we're not threadsafe
     config.allow_concurrency = false
 
     # we don't want factory_bot to interfer with the legacy test suite

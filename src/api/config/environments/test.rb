@@ -107,4 +107,3 @@ CONFIG['sponsors'] = [
     url: '#'
   )
 ]
-

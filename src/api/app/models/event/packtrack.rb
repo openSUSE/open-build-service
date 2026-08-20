@@ -13,7 +13,7 @@ module Event
 
     def update_released_binaries
       UpdateReleasedBinariesJob.perform_later(event_id: id)
-      self.update_columns(undone_jobs: 1)
+      update_columns(undone_jobs: 1)
     end
   end
 end

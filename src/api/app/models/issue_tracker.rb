@@ -42,7 +42,7 @@ class IssueTracker < ApplicationRecord
 
   def update_issues_github
     # must be like this "url = https://github.com/repos/#{self.owner}/#{self.name}/issues"
-    url = URI.parse("#{self.url}?since=#{self.issues_updated.to_time.iso8601}")
+    url = URI.parse("#{self.url}?since=#{issues_updated.to_time.iso8601}")
     mtime = Time.now
 
     response = follow_redirects(url)
@@ -273,9 +273,9 @@ class IssueTracker < ApplicationRecord
 
   def update_issues_bugzilla
     begin
-      result = bugzilla_server.search(bugzilla_args.merge(last_change_time: self.issues_updated))
+      result = bugzilla_server.search(bugzilla_args.merge(last_change_time: issues_updated))
     rescue Net::ReadTimeout, Errno::ECONNRESET
-      if (self.issues_updated + 2.days).past?
+      if (issues_updated + 2.days).past?
         # failures since two days?
         # => enforce a full update in small steps to avoid over load at bugzilla side
         enforced_update_all_issues?

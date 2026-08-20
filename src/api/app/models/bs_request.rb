@@ -919,8 +919,8 @@ class BsRequest < ApplicationRecord
 
   def sanitize!
     # FIXME: Move permission checks to controller level
-    raise RequestSaveError, 'Admin permissions required to set request creator to foreign user' unless self.creator == User.session!.login || User.admin_session?
-    raise RequestSaveError, 'Admin permissions required to set request commenter to foreign user' unless self.commenter == User.session!.login || User.admin_session?
+    raise RequestSaveError, 'Admin permissions required to set request creator to foreign user' unless creator == User.session!.login || User.admin_session?
+    raise RequestSaveError, 'Admin permissions required to set request commenter to foreign user' unless commenter == User.session!.login || User.admin_session?
 
     # expand release and submit request targets if not specified
     expand_targets
@@ -1049,7 +1049,6 @@ class BsRequest < ApplicationRecord
     package_ids = bs_request_actions.pluck(:source_package_id, :target_package_id).flatten.uniq
     CannedResponse.where(package_id: package_ids)
   end
-
 
   private
 

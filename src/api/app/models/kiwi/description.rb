@@ -25,7 +25,7 @@ end
 #  id               :integer          not null, primary key
 #  author           :string(255)
 #  contact          :string(255)
-#  description_type :integer          default("system")
+#  description_type :integer          default(0)
 #  specification    :string(255)
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null

@@ -93,7 +93,7 @@ end
 # Table name: reports
 #
 #  id              :bigint           not null, primary key
-#  category        :integer          default("other")
+#  category        :integer          default(99)
 #  comments_count  :integer          default(0), not null, indexed
 #  reason          :text(65535)
 #  reportable_type :string(255)      indexed => [reportable_id]

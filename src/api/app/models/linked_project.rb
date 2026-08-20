@@ -31,7 +31,7 @@ class LinkedProject < ApplicationRecord
   def invalid_linked_remote_project_name
     return unless linked_remote_project_name
 
-    errors.add(:linked_remote_project_name, "invalid name") unless Project.valid_name?(linked_remote_project_name)
+    errors.add(:linked_remote_project_name, 'invalid name') unless Project.valid_name?(linked_remote_project_name)
   end
 
   def validate_target

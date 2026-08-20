@@ -2,17 +2,17 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_36
+    uri: http://backend:5352/source/target_project/_meta?user=user_21
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Frequent Hearses</title>
+          <title>The Wealth of Nations</title>
           <description/>
         </project>
     headers:
       X-Frontend-Start:
-      - '1786103719'
+      - '1786536158'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -31,28 +31,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '112'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Frequent Hearses</title>
+          <title>The Wealth of Nations</title>
           <description></description>
         </project>
-  recorded_at: Fri, 07 Aug 2026 11:55:19 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_37
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_22
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>This Lime Tree Bower</title>
-          <description>Aut autem nihil quisquam.</description>
+          <title>Far From the Madding Crowd</title>
+          <description>Nihil nostrum itaque eum.</description>
         </package>
     headers:
       X-Frontend-Start:
-      - '1786103719'
+      - '1786536158'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -71,28 +71,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>This Lime Tree Bower</title>
-          <description>Aut autem nihil quisquam.</description>
+          <title>Far From the Madding Crowd</title>
+          <description>Nihil nostrum itaque eum.</description>
         </package>
-  recorded_at: Fri, 07 Aug 2026 11:55:19 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_38
+    uri: http://backend:5352/source/source_project/_meta?user=user_23
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Vanity Fair</title>
+          <title>Little Hands Clapping</title>
           <description/>
         </project>
     headers:
       X-Frontend-Start:
-      - '1786103719'
+      - '1786536158'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -111,18 +111,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '102'
+      - '112'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Vanity Fair</title>
+          <title>Little Hands Clapping</title>
           <description></description>
         </project>
-  recorded_at: Fri, 07 Aug 2026 11:55:19 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_38
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_23
     body:
       encoding: UTF-8
       string: |
@@ -131,7 +131,7 @@ http_interactions:
         </attributes>
     headers:
       X-Frontend-Start:
-      - '1786103719'
+      - '1786536158'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -154,27 +154,27 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16">
-          <srcmd5>18c42d91a92574248ba20b6b580ac8dc</srcmd5>
-          <time>1786103719</time>
-          <user>user_38</user>
+        <revision rev="47">
+          <srcmd5>30c0a395d0b225d092e0c58d5fde7a18</srcmd5>
+          <time>1786536158</time>
+          <user>user_23</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 07 Aug 2026 11:55:19 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_39
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_24
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Some Buried Caesar</title>
-          <description>Non odio dolorem blanditiis.</description>
+          <title>Consider Phlebas</title>
+          <description>Sed ut sit eaque.</description>
         </package>
     headers:
       X-Frontend-Start:
-      - '1786103719'
+      - '1786536158'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -193,15 +193,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Some Buried Caesar</title>
-          <description>Non odio dolorem blanditiis.</description>
+          <title>Consider Phlebas</title>
+          <description>Sed ut sit eaque.</description>
         </package>
-  recorded_at: Fri, 07 Aug 2026 11:55:19 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:38 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -210,7 +210,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1786103719'
+      - '1786536159'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -235,7 +235,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:39 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -246,7 +246,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536159'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -277,7 +277,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_meta?user=tux
@@ -291,7 +291,7 @@ http_interactions:
         </project>
     headers:
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536159'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -319,7 +319,7 @@ http_interactions:
           <description></description>
           <person userid="tux" role="maintainer"/>
         </project>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -328,7 +328,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536159'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -353,7 +353,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -362,7 +362,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536159'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -387,7 +387,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -396,7 +396,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536159'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -421,7 +421,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -430,7 +430,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536159'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -455,10 +455,10 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:39 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&nodiff=1&orev=0&rev=
+    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&nodiff=1&orev=0&rev
     body:
       encoding: UTF-8
       string: ''
@@ -466,7 +466,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536159'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -475,8 +475,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 400
-      message: revision is empty
+      code: 404
+      message: no such revision
     headers:
       Content-Type:
       - text/xml
@@ -485,14 +485,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '69'
+      - '110'
     body:
       encoding: UTF-8
       string: |
-        <status code="400">
-          <summary>revision is empty</summary>
+        <status code="404">
+          <summary>no such revision</summary>
+          <details>404 no such revision</details>
         </status>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:39 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package?expand=1
@@ -501,7 +502,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536159'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -526,7 +527,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -535,7 +536,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536160'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -560,7 +561,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -569,7 +570,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536160'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -594,10 +595,10 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:40 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -605,7 +606,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Frontend-Start:
-      - '1786103720'
+      - '1786536160'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -614,8 +615,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 400
-      message: revision is empty
+      code: 404
+      message: no such revision
     headers:
       Content-Type:
       - text/xml
@@ -624,12 +625,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '69'
+      - '110'
     body:
       encoding: UTF-8
       string: |
-        <status code="400">
-          <summary>revision is empty</summary>
+        <status code="404">
+          <summary>no such revision</summary>
+          <details>404 no such revision</details>
         </status>
-  recorded_at: Fri, 07 Aug 2026 11:55:20 GMT
+  recorded_at: Wed, 12 Aug 2026 12:02:40 GMT
 recorded_with: VCR 6.4.0

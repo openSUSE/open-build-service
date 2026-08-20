@@ -356,7 +356,7 @@ class User < ApplicationRecord
   def active?
     return owner.active? if owner
 
-    self.state == 'confirmed'
+    state == 'confirmed'
   end
 
   def deleted?
@@ -881,7 +881,7 @@ end
 #  adminnote                     :text(65535)
 #  biography                     :string(255)      default("")
 #  censored                      :boolean          default(FALSE), not null, indexed
-#  color_theme                   :integer          default("system"), not null
+#  color_theme                   :integer          default(0), not null
 #  deprecated_password           :string(255)      indexed
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)
