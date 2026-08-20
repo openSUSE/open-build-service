@@ -130,7 +130,7 @@ gem 'toml-rb'
 gem 'next_rails'
 
 # Result object pattern gem
-gem "resonad"
+gem 'resonad'
 
 group :development, :production do
   # to have the delayed job daemon

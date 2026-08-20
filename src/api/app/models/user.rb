@@ -356,7 +356,7 @@ class User < ApplicationRecord
   def active?
     return owner.active? if owner
 
-    self.state == 'confirmed'
+    state == 'confirmed'
   end
 
   def deleted?

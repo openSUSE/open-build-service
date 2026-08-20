@@ -11,8 +11,8 @@ module GiteaAPI
       HTTP_INTERNAL_SERVER_ERROR_CODE = 500
       HTTP_BAD_GATEWAY_CODE = 502
       HTTP_SERVICE_UNAVAILABLE_CODE = 503
-      HTTP_CLIENT_ERROR_CODES = (400..499).freeze
-      HTTP_SERVER_ERROR_CODES = (500..599).freeze
+      HTTP_CLIENT_ERROR_CODES = (400..499)
+      HTTP_SERVER_ERROR_CODES = (500..599)
 
       class GiteaApiError < StandardError
       end
