@@ -102,7 +102,6 @@ class Project < ApplicationRecord
   scope :filtered_for_list, lambda {
     where.not('projects.name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
-
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
   scope :local, -> { where('ISNULL(projects.remoteurl)') }
 
