@@ -1,0 +1,36 @@
+.card
+  .card-body
+    %h3.mb-3
+      = "Vendor - #{@vendor.name}"
+    .row
+      .col-12.col-md-10.col-lg-8
+        .row
+          .col
+            %label.fw-bold
+              Description:
+            %span
+              = @vendor.description
+        .row
+          .col
+            %label.fw-bold
+              Project:
+            %span
+              = link_to(@vendor.project.name, project_show_path(@vendor.project))
+        .row
+          .col
+            %label.fw-bold
+              URL:
+            %span
+              = @vendor.url
+
+    .row
+      .col
+        - if policy(@vendor).edit?
+          = link_to(edit_project_vendor_path(@vendor.project, @vendor), class: 'ps-2', title: 'Edit') do
+            %i.fas.fa-edit
+            %span.nav-item-name Edit
+        - if policy(@vendor).destroy?
+          = link_to(project_vendor_path(@vendor.project, @vendor), method: :delete, class: 'ps-2 text-danger',
+            data: { confirm: 'Are you sure you want to delete this vendor?'}) do
+            %i.fas.fa-trash-can
+            %span.nav-item-name Delete
