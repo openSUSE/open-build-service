@@ -1,0 +1,37 @@
+post:
+  summary: Trigger on-demand synchronization of remote distributions.
+  description: |
+    Trigger an on-demand synchronization of remote distributions from configured
+    remote registries (e.g. `build.opensuse.org`).
+
+    This operation executes the background job (`FetchRemoteDistributionsJob`) to
+    retrieve, update, and cache remote distributions.
+
+    This is only for admins.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: cmd
+      required: true
+      schema:
+        type: string
+        enum:
+          - refresh
+      description: Command to trigger remote distributions refresh.
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden. Requires administrator privileges.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: admin_required
+            summary: Admin Privileges Required
+  tags:
+    - Distributions
