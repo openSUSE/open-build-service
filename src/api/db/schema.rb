@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_07_23_180842) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_19_120713) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1239,6 +1239,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_23_180842) do
     t.index ["state"], name: "index_users_on_state"
   end
 
+  create_table "vendors", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.string "name"
+    t.text "description"
+    t.string "url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_vendors_on_project_id", unique: true
+  end
+
   create_table "versions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "item_type", limit: 191, null: false
     t.bigint "item_id", null: false
@@ -1417,4 +1427,5 @@ ActiveRecord::Schema[7.2].define(version: 2026_07_23_180842) do
   add_foreign_key "status_checks", "status_reports", column: "status_reports_id"
   add_foreign_key "tokens", "packages", name: "tokens_ibfk_2"
   add_foreign_key "tokens", "users", column: "executor_id", name: "tokens_ibfk_1"
+  add_foreign_key "vendors", "projects"
 end
