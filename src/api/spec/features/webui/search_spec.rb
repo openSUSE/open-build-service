@@ -44,8 +44,8 @@ RSpec.describe 'Search', :js do
 
       fill_in 'search_input', with: apache2.name
       click_button 'Advanced'
-      find('#search-for-button').click
-      find('button.dropdown-item', text: 'Projects').click
+      find_by_id('search-for-button').click
+      click_button('Projects')
 
       find('input', id: 'search_input').sibling('button[type=submit]').click
 
@@ -65,8 +65,8 @@ RSpec.describe 'Search', :js do
 
       fill_in 'search_input', with: 'goal'
       click_button 'Advanced'
-      find('#search-for-button').click
-      find('button.dropdown-item', text: 'Packages').click
+      find_by_id('search-for-button').click
+      click_button('Packages')
 
       check 'title'
       find('input', id: 'search_input').sibling('button[type=submit]').click
