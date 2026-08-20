@@ -98,7 +98,7 @@ RSpec.describe Webui::GroupsController do
     end
 
     context 'when the attribute is empty' do
-      let(:email) { nil }
+      let(:email) { '' }
 
       it 'removes the attribute' do
         expect(flash[:success]).to eq('Group email successfully updated')

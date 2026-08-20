@@ -158,7 +158,7 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
                  source_project: source_project,
                  source_package: source_package)
             .tap do |bs_request|
-            bs_request.staging_project = staging_workflow.staging_projects.first
+            bs_request.update!(staging_project: staging_workflow.staging_projects.first)
           end
         end
         let(:source_package) do

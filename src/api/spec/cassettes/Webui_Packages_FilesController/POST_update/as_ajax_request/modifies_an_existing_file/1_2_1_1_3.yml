@@ -13,7 +13,7 @@ http_interactions:
         </project>
     headers:
       X-Frontend-Start:
-      - '1773673529'
+      - '1786536258'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -41,20 +41,20 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Mon, 16 Mar 2026 15:05:29 GMT
+  recorded_at: Wed, 12 Aug 2026 12:04:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_17
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Precious Bane</title>
-          <description>Provident officia incidunt veniam.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Sunt nihil aliquid labore.</description>
         </package>
     headers:
       X-Frontend-Start:
-      - '1773673529'
+      - '1786536258'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -73,24 +73,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Precious Bane</title>
-          <description>Provident officia incidunt veniam.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Sunt nihil aliquid labore.</description>
         </package>
-  recorded_at: Mon, 16 Mar 2026 15:05:29 GMT
+  recorded_at: Wed, 12 Aug 2026 12:04:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/newly_created_file?comment=&user=tom
+    uri: http://backend:5352/source/home:tom/my_package/newly_created_file?comment&user=tom
     body:
       encoding: UTF-8
       string: ''
     headers:
       X-Frontend-Start:
-      - '1773673529'
+      - '1786536258'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -109,19 +109,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '203'
+      - '204'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>2506dbaca20cd9fec80d30d7a0c509ac</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>72f8aafad574c385e4092a1bc5ce7f06</srcmd5>
           <version>unknown</version>
-          <time>1773673529</time>
+          <time>1786536258</time>
           <user>tom</user>
-          <comment></comment>
+          <comment>1</comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 16 Mar 2026 15:05:29 GMT
+  recorded_at: Wed, 12 Aug 2026 12:04:18 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -129,12 +129,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Precious Bane</title>
-          <description>Provident officia incidunt veniam.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Sunt nihil aliquid labore.</description>
         </package>
     headers:
       X-Frontend-Start:
-      - '1773673529'
+      - '1786536258'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -153,15 +153,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Precious Bane</title>
-          <description>Provident officia incidunt veniam.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Sunt nihil aliquid labore.</description>
         </package>
-  recorded_at: Mon, 16 Mar 2026 15:05:29 GMT
+  recorded_at: Wed, 12 Aug 2026 12:04:18 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -170,7 +170,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1773673529'
+      - '1786536258'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -189,12 +189,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '306'
+      - '206'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjciIHZyZXY9IjciIHNyY21kNT0iMjUwNmRiYWNhMjBjZDlmZWM4MGQzMGQ3YTBjNTA5YWMiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UiIHNpemU9IjAiIG10aW1lPSIxNzczNjczNTI5Ii8+CiAgPGVudHJ5IG5hbWU9IuWtpuS5oOaAu+e7kyIgbWQ1PSI2YmExNjdkNzJlOWNjNjAxMDhhNzU2N2NkYWVjNzIwZiIgc2l6ZT0iOTc3IiBtdGltZT0iMTc3MzY3MzUyNyIvPgo8L2RpcmVjdG9yeT4K
-  recorded_at: Mon, 16 Mar 2026 15:05:29 GMT
+      encoding: UTF-8
+      string: |
+        <directory name="my_package" rev="3" vrev="3" srcmd5="72f8aafad574c385e4092a1bc5ce7f06">
+          <entry name="newly_created_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1786536256"/>
+        </directory>
+  recorded_at: Wed, 12 Aug 2026 12:04:19 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?view=info
@@ -203,7 +205,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1773673529'
+      - '1786536259'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -226,10 +228,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_package" rev="7" vrev="7" srcmd5="2506dbaca20cd9fec80d30d7a0c509ac" verifymd5="2506dbaca20cd9fec80d30d7a0c509ac">
+        <sourceinfo package="my_package" rev="3" vrev="3" srcmd5="72f8aafad574c385e4092a1bc5ce7f06" verifymd5="72f8aafad574c385e4092a1bc5ce7f06">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-  recorded_at: Mon, 16 Mar 2026 15:05:29 GMT
+  recorded_at: Wed, 12 Aug 2026 12:04:19 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -238,7 +240,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1773673529'
+      - '1786536259'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -257,12 +259,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '306'
+      - '206'
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjciIHZyZXY9IjciIHNyY21kNT0iMjUwNmRiYWNhMjBjZDlmZWM4MGQzMGQ3YTBjNTA5YWMiPgogIDxlbnRyeSBuYW1lPSJuZXdseV9jcmVhdGVkX2ZpbGUiIG1kNT0iZDQxZDhjZDk4ZjAwYjIwNGU5ODAwOTk4ZWNmODQyN2UiIHNpemU9IjAiIG10aW1lPSIxNzczNjczNTI5Ii8+CiAgPGVudHJ5IG5hbWU9IuWtpuS5oOaAu+e7kyIgbWQ1PSI2YmExNjdkNzJlOWNjNjAxMDhhNzU2N2NkYWVjNzIwZiIgc2l6ZT0iOTc3IiBtdGltZT0iMTc3MzY3MzUyNyIvPgo8L2RpcmVjdG9yeT4K
-  recorded_at: Mon, 16 Mar 2026 15:05:29 GMT
+      encoding: UTF-8
+      string: |
+        <directory name="my_package" rev="3" vrev="3" srcmd5="72f8aafad574c385e4092a1bc5ce7f06">
+          <entry name="newly_created_file" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1786536256"/>
+        </directory>
+  recorded_at: Wed, 12 Aug 2026 12:04:19 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -273,7 +277,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Frontend-Start:
-      - '1773673529'
+      - '1786536259'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -296,14 +300,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="dc764dcf61cbba11599e20752c63293d">
+        <sourcediff key="72c6f7f8776e64c8dfb424687e64fdaa">
           <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom" package="my_package" rev="7" srcmd5="2506dbaca20cd9fec80d30d7a0c509ac"/>
+          <new project="home:tom" package="my_package" rev="3" srcmd5="72f8aafad574c385e4092a1bc5ce7f06"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 16 Mar 2026 15:05:29 GMT
+  recorded_at: Wed, 12 Aug 2026 12:04:19 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package/newly_created_file
@@ -312,7 +316,7 @@ http_interactions:
       string: ''
     headers:
       X-Frontend-Start:
-      - '1773673529'
+      - '1786536259'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -335,5 +339,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: ''
-  recorded_at: Mon, 16 Mar 2026 15:05:29 GMT
+  recorded_at: Wed, 12 Aug 2026 12:04:19 GMT
 recorded_with: VCR 6.4.0
