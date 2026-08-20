@@ -41,7 +41,7 @@ class IssueTrackersController < ApplicationController
       if @issue_tracker.save
         format.xml  { render_ok }
       else
-        format.xml  { render xml: @issue_tracker.errors, status: :unprocessable_entity }
+        format.xml  { render xml: @issue_tracker.errors, status: :unprocessable_content }
       end
     end
   end
