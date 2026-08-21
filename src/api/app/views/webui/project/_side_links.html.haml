@@ -18,6 +18,11 @@
     - if release_targets.present?
       = render partial: 'webui/project/side_links/release_targets', locals: { project: project,
                                                                               release_targets: release_targets }
+  - if project.vendor&.persisted? && Flipper.enabled?(:enhanced_distribution_support, User.session)
+    %li
+      %i.fa.fa-globe.text-info
+      Vendor -
+      = link_to(project.vendor.name, project_vendor_path(project, project.vendor))
 
   - if requests.present?
     = render partial: 'webui/project/side_links/requests', locals: { requests: requests,

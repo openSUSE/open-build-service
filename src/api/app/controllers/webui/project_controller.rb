@@ -33,15 +33,12 @@ class Webui::ProjectController < Webui::WebuiController
                                               remove_target_request edit_comment edit_comment_form preview_description]
 
   def index
-    @projects = if show_all?
-                  Project.left_joins(label_globals: [:label_template_global])
-                         .includes(label_globals: [:label_template_global])
-                         .references(:label_globals, :label_template_global).distinct
-                else
-                  Project.left_joins(label_globals: [:label_template_global])
-                         .includes(label_globals: [:label_template_global])
-                         .references(:label_globals, :label_template_global).filtered_for_list.distinct
-                end
+    @projects = Project.left_joins(label_globals: [:label_template_global])
+                       .includes(label_globals: [:label_template_global])
+                       .references(:label_globals, :label_template_global)
+    @projects = @projects.filtered_for_list unless show_all?
+    @projects = @projects.joins(:vendor) if only_vendors?
+    @projects = @projects.distinct
 
     if Flipper.enabled?(:labels, User.session)
       @label_global_templates = @projects.flat_map do |project|
@@ -415,6 +412,10 @@ class Webui::ProjectController < Webui::WebuiController
 
   def show_all?
     params[:all].to_s.casecmp?('true')
+  end
+
+  def only_vendors?
+    params[:vendors].to_s.casecmp?('true')
   end
 
   def project_for_datatable
