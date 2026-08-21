@@ -1,4 +1,4 @@
-class Vendor < ApplicationRecord
+class Distro < ApplicationRecord
   #### Includes and extends
 
   #### Constants
@@ -8,8 +8,7 @@ class Vendor < ApplicationRecord
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
-  belongs_to :project, optional: false
-  has_many :distros, dependent: :destroy
+  belongs_to :vendor, optional: false
 
   #### Callbacks macros: before_save, after_save, etc.
 
@@ -19,7 +18,7 @@ class Vendor < ApplicationRecord
   validates :name, length: { maximum: 255 }
   validates :description, length: { maximum: 65_535 }
   validates :url, length: { maximum: 255 }
-  validates :project_id, uniqueness: true
+  validates :vendor_id, uniqueness: true
 
   #### Class methods using self. (public and then private)
 
@@ -33,7 +32,7 @@ end
 
 # == Schema Information
 #
-# Table name: vendors
+# Table name: distros
 #
 #  id          :bigint           not null, primary key
 #  description :text(65535)
@@ -41,13 +40,13 @@ end
 #  url         :string(255)
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
-#  project_id  :integer          not null, uniquely indexed
+#  vendor_id   :bigint           not null, uniquely indexed
 #
 # Indexes
 #
-#  index_vendors_on_project_id  (project_id) UNIQUE
+#  index_distros_on_vendor_id  (vendor_id) UNIQUE
 #
 # Foreign Keys
 #
-#  fk_rails_...  (project_id => projects.id)
+#  fk_rails_...  (vendor_id => vendors.id)
 #
