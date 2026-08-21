@@ -1,15 +1,15 @@
 = form_with(url: url, model: vendor) do |form|
-  = form.hidden_field :project_id, value: @project.id
+  = form.hidden_field :project_id
 
-  %div.mb-3
+  .mb-3
     = form.label :name
     = form.text_field :name, class: 'form-control'
 
-  %div.mb-3
+  .mb-3
     = form.label :description
     = form.textarea :description, class: 'form-control'
 
-  %div.mb-3
+  .mb-3
     = form.label :url
     = form.text_field :url, class: 'form-control'
 

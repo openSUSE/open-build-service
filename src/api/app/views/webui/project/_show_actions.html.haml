@@ -1,3 +1,4 @@
+-# haml-lint:disable LineLength
 - content_for :actions do
   %li.nav-item.action-report-bug
     = render partial: 'webui/project/show_actions/report_bug', locals: { url: project.report_bug_or_bugzilla_url }
@@ -24,3 +25,4 @@
     = render partial: 'webui/project/show_actions/report_project', locals: { project: project }
   - if !project.vendor&.persisted? && policy(Vendor.new(project_id: project.id)).new? && Flipper.enabled?(:enhanced_distribution_support, User.session)
     = render partial: 'webui/project/show_actions/vendor', locals: { project: project }
+-# haml-lint:enable LineLength
