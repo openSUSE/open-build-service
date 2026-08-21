@@ -5,6 +5,10 @@ class VendorPolicy < ApplicationPolicy
     end
   end
 
+  def show?
+    true
+  end
+
   def create?
     ProjectPolicy.new(user, record.project).update?
   end
