@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_19_120713) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_21_092910) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -485,6 +485,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_19_120713) do
     t.string "repository", null: false
     t.string "link"
     t.boolean "remote", default: false
+  end
+
+  create_table "distros", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name"
+    t.datetime "updated_at", null: false
+    t.string "url"
+    t.bigint "vendor_id", null: false
+    t.index ["vendor_id"], name: "index_distros_on_vendor_id", unique: true
   end
 
   create_table "download_repositories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1365,6 +1375,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_19_120713) do
   add_foreign_key "comments", "users", column: "moderator_id", name: "moderated_comments_fk"
   add_foreign_key "comments", "users", name: "comments_ibfk_1"
   add_foreign_key "decisions", "users", column: "moderator_id"
+  add_foreign_key "distros", "vendors"
   add_foreign_key "download_repositories", "repositories", name: "download_repositories_ibfk_1"
   add_foreign_key "event_subscriptions", "bs_requests"
   add_foreign_key "flags", "architectures", name: "flags_ibfk_3"
