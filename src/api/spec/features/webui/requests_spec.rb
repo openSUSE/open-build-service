@@ -370,13 +370,19 @@ RSpec.describe 'Requests', :js, :vcr do
 
   describe 'shows the correct auto accepted message' do
     before do
-      bs_request.update(accept_at: Time.now)
+      bs_request.update(accept_at: Time.now - 1.hour)
     end
 
-    it 'when request is in a final state' do
+    it 'when request was auto-accepted' do
       bs_request.update(state: :accepted)
       visit request_show_path(bs_request)
       expect(page).to have_text("The current request was auto-accepted at #{I18n.l(bs_request.accept_at, format: :only_date)}.")
+    end
+
+    it 'when request with future accept_at was manually accepted' do
+      bs_request.update(state: :accepted, accept_at: Time.now + 1.day)
+      visit request_show_path(bs_request)
+      expect(page).not_to have_text('auto-accepted')
     end
 
     it 'when request auto_accept is in the past and not in a final state' do
