@@ -7,31 +7,21 @@ class Webui::DistrosController < Webui::WebuiController
 
   #### Callbacks macros: before_action, after_action, etc.
   before_action :set_vendor
-  before_action :set_distro, only: %i[edit update destroy]
+  before_action :set_project
+  before_action :set_distro, only: %i[update destroy]
   # Pundit authorization policies control
   after_action :verify_authorized
 
   #### CRUD actions
-
-  # GET /distros/new
-  def new
-    @distro = Distro.new(project: @project)
-    authorize @distro
-  end
-
-  # GET /distros/1/edit
-  def edit
-    authorize @distro
-  end
 
   # POST /distros
   def create
     @distro = Distro.new(distro_params)
     authorize @distro
     if @distro.save
-      redirect_to [@project, @distro], notice: 'Distro was successfully created.'
+      redirect_to project_vendor_path(@project, @vendor), notice: 'Distro was successfully created.'
     else
-      render :new
+      redirect_to project_vendor_path(@project, @vendor), flash: { error: "Distro failed to create. #{@distro.errors.messages}" }
     end
   end
 
@@ -39,7 +29,7 @@ class Webui::DistrosController < Webui::WebuiController
   def update
     authorize @distro
     if @distro.update(distro_params)
-      redirect_to [@project, @distro], flash: { success: 'Distro was successfully updated.' }
+      redirect_to project_vendor_path(@project, @vendor), flash: { success: 'Distro was successfully updated.' }
     else
       render :edit
     end
@@ -49,7 +39,7 @@ class Webui::DistrosController < Webui::WebuiController
   def destroy
     authorize @distro
     @distro.destroy!
-    redirect_to project_show_path(@project), flash: { success: 'Distro was successfully destroyed.' }
+    redirect_to project_vendor_path(@project, @vendor), flash: { success: 'Distro was successfully destroyed.' }
   end
 
   #### Non CRUD actions
@@ -66,10 +56,14 @@ class Webui::DistrosController < Webui::WebuiController
 
   # Only allow a trusted parameter "white list" through.
   def distro_params
-    params.expect(distro: %i[project_id name description url])
+    params.expect(distro: %i[vendor_id name description url])
   end
 
   def set_vendor
     @vendor = Vendor.find(params.expect(:vendor_id))
+  end
+
+  def set_project
+    @project = @vendor.project
   end
 end

@@ -27,6 +27,8 @@
 
     .row
       .col
+        - if policy(Distro.new(vendor: @vendor)).new?
+          = render partial: 'distro_modal', locals: { model: Distro.new(vendor: @vendor), url: vendor_distros_path(@vendor), text: 'New Distro', icon: 'circle-plus' }
         - if policy(@vendor).edit?
           = link_to(edit_project_vendor_path(@vendor.project, @vendor), class: 'ps-2', title: 'Edit') do
             %i.fas.fa-edit
@@ -36,3 +38,37 @@
             data: { confirm: 'Are you sure you want to delete this vendor?'}) do
             %i.fas.fa-trash-can
             %span.nav-item-name Delete
+
+
+    .row.mt-3
+      - @vendor.distros.each do |distro|
+        .col-lg-3.col-md-4.col-sm-6.col-12.mb-3
+          = render partial: 'distro', locals: { distro: }
+
+.modal.fade#delete-distro-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-distro-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#delete-distro-modal-label Do you really want to delete this distro?
+      .modal-body
+        %p
+          Please confirm that you want to delete the
+          = surround "'" do
+            %span#distro-name
+          distro from the vendor
+          = surround "'" do
+            %span#vendor-name
+        = form_tag nil, method: :delete do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+              Cancel
+            %input.btn.btn-sm.btn-danger.px-4{ type: 'submit', name: 'commit', value: 'Delete', data: { disable: { with: 'Delete' } } }
+
+- content_for :ready_function do
+  :plain
+    $('#delete-distro-modal').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('#vendor-name').text(link.data('vendor-name'));
+      $(this).find('#distro-name').text(link.data('distro-name'));
+      $(this).find('form').attr('action', link.data('action'));
+    })

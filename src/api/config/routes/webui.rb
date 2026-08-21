@@ -313,7 +313,7 @@ resources :projects, only: [], param: :name do
 end
 
 resources :vendors, only: [] do
-  resources :distros, controller: 'webui/distros', except: %i[index show]
+  resources :distros, controller: 'webui/distros', except: %i[index show new edit]
 end
 
 get 'request/show/:number/build_results', to: redirect('/requests/%{number}/build_results'), constraints: cons
