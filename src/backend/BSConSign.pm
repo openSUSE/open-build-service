@@ -36,6 +36,7 @@ our $mt_intoto = 'application/vnd.in-toto+json';
 our $mt_cosign_bundle = 'application/vnd.dev.sigstore.bundle.v0.3+json';
 
 our $intoto_predicate_spdx      = 'https://spdx.dev/Document';
+our $intoto_predicate_spdx_v3   = 'https://spdx.dev/Document/v3';
 our $intoto_predicate_cyclonedx = 'https://cyclonedx.org/bom';
 our $intoto_predicate_cosign_sign_v1 = 'https://sigstore.dev/cosign/sign/v1';
 our $intoto_stmt_v01            = 'https://in-toto.io/Statement/v0.1';
@@ -198,6 +199,7 @@ sub fixup_intoto_attestation {
     my $predicate_type;
     # autodetect predicate type
     $predicate_type = $intoto_predicate_spdx if $attestation->{'spdxVersion'};
+    $predicate_type = $intoto_predicate_spdx_v3 if $attestation->{'@context'} && $attestation->{'@context'} =~ /\/3\.\d+\.\d+\/spdx-context.jsonld$/;
     $predicate_type = $intoto_predicate_cyclonedx if ($attestation->{'bomFormat'} || '') eq 'CycloneDX';
     # wrap into an in-toto v0.1 attestation
     $attestation = { '_type' => $intoto_stmt_v01, 'predicateType' => $predicate_type, 'predicate' => $attestation } if $predicate_type;
