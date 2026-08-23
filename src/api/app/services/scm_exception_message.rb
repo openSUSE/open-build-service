@@ -106,6 +106,10 @@ class SCMExceptionMessage
     message = EXCEPTIONS_PER_SCM.fetch(scm, {})[exception.class]
     return exception.message if message.nil?
 
+    if exception.is_a?(Gitlab::Error::Unauthorized) && exception.message.match?(/token is expired/i)
+      return 'Token is expired. Please check your credentials again.'
+    end
+
     message
   end
 end

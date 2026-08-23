@@ -98,5 +98,59 @@ RSpec.describe GitlabStatusReporter, type: :service do
         expect(gitlab_instance).to have_received(:update_commit_status).with('26_212_710', '123456789', state, status_options)
       end
     end
+
+    context 'when GitLab responds with 401 Unauthorized (token expired)' do
+      subject { scm_status_reporter.call }
+
+      let(:event_payload) { { project: 'home:user', package: 'pkg', repository: 'repo', arch: 'x86_64' } }
+      let(:event_subscription_payload) { { scm: 'gitlab', project_id: '123', commit_sha: 'abc' } }
+      let(:token) { 'EXPIRED' }
+      let(:event_type) { nil }
+      let(:state) { 'pending' }
+      let(:initial_report) { false }
+      let(:gitlab_instance) { instance_spy(Gitlab::Client) }
+      let(:exception) do
+        e = Gitlab::Error::Unauthorized.allocate
+        allow(e).to receive_messages(message: 'Token is expired', response_message: 'Token is expired')
+        e
+      end
+
+      before do
+        allow(Gitlab).to receive(:client).and_return(gitlab_instance)
+        allow(gitlab_instance).to receive(:update_commit_status).and_raise(exception)
+        allow(scm_status_reporter.instance_variable_get(:@workflow_run)).to receive(:save_scm_report_failure)
+      end
+
+      it 'handles the exception by marking workflow_run as failed without re-raising', :aggregate_failures do
+        expect { subject }.not_to raise_error
+        expect(scm_status_reporter.instance_variable_get(:@workflow_run)).to have_received(:save_scm_report_failure).with(/Token is expired/, anything)
+      end
+    end
+
+    context 'when GitLab responds with 401 Unauthorized (regular auth failure)' do
+      subject { scm_status_reporter.call }
+
+      let(:event_payload) { { project: 'home:user', package: 'pkg', repository: 'repo', arch: 'x86_64' } }
+      let(:event_subscription_payload) { { scm: 'gitlab', project_id: '123', commit_sha: 'abc' } }
+      let(:token) { 'INVALID' }
+      let(:event_type) { nil }
+      let(:state) { 'pending' }
+      let(:initial_report) { false }
+      let(:gitlab_instance) { instance_spy(Gitlab::Client) }
+      let(:exception) do
+        e = Gitlab::Error::Unauthorized.allocate
+        allow(e).to receive_messages(message: 'Unauthorized request.', response_message: 'Unauthorized request.')
+        e
+      end
+
+      before do
+        allow(Gitlab).to receive(:client).and_return(gitlab_instance)
+        allow(gitlab_instance).to receive(:update_commit_status).and_raise(exception)
+      end
+
+      it 're-raises the exception for the retry loop' do
+        expect { subject }.to raise_error(Gitlab::Error::Unauthorized, /Unauthorized request/)
+      end
+    end
   end
 end

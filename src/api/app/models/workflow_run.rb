@@ -86,7 +86,9 @@ class WorkflowRun < ApplicationRecord
     # "Failed to report back to Gitea: Unauthorized request. Please check your credentials again."
     # "Failed to report back to Gitea: Request is forbidden."
 
-    return unless message.include?('Unauthorized request') || /Request (is )?forbidden/.match?(message)
+    return unless message.include?('Unauthorized request') ||
+                  /Request (is )?forbidden/.match?(message) ||
+                  /token is expired/i.match?(message)
 
     token.update(enabled: false, reason: "Authentication to #{scm_vendor.titleize} failed while reporting the build status. Check your tokens authorization setup!")
   end

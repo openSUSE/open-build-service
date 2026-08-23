@@ -43,6 +43,12 @@ class SCMExceptionHandler
     log_to_workflow_run(exception, 'Gitea') if @workflow_run.present?
   end
 
+  rescue_from Gitlab::Error::Unauthorized do |exception|
+    raise exception unless exception.message.match?(/token is expired/i)
+
+    log_to_workflow_run(exception, 'GitLab') if @workflow_run.present?
+  end
+
   def initialize(event_payload, event_subscription_payload, scm_token, workflow_run = nil)
     @event_payload = event_payload.deep_symbolize_keys
     @event_subscription_payload = event_subscription_payload.deep_symbolize_keys
