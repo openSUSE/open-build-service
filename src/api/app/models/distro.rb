@@ -18,8 +18,7 @@ class Distro < ApplicationRecord
   validates :name, length: { maximum: 255 }
   validates :description, length: { maximum: 65_535 }
   validates :url, length: { maximum: 255 }
-  validates :vendor_id, uniqueness: true
-
+  validates :name, uniqueness: { scope: :vendor_id }
   #### Class methods using self. (public and then private)
 
   #### To define class methods as private use private_class_method
@@ -36,15 +35,15 @@ end
 #
 #  id          :bigint           not null, primary key
 #  description :text(65535)
-#  name        :string(255)
+#  name        :string(255)      uniquely indexed => [vendor_id]
 #  url         :string(255)
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
-#  vendor_id   :bigint           not null, uniquely indexed
+#  vendor_id   :bigint           not null, uniquely indexed => [name]
 #
 # Indexes
 #
-#  index_distros_on_vendor_id  (vendor_id) UNIQUE
+#  index_distros_on_vendor_id_and_name  (vendor_id,name) UNIQUE
 #
 # Foreign Keys
 #
