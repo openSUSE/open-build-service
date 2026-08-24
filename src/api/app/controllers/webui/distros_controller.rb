@@ -31,7 +31,7 @@ class Webui::DistrosController < Webui::WebuiController
     if @distro.update(distro_params)
       redirect_to project_vendor_path(@project, @vendor), flash: { success: 'Distro was successfully updated.' }
     else
-      render :edit
+      redirect_to project_vendor_path(@project, @vendor), flash: { error: "Distro failed to update. #{@distro.errors.messages}" }
     end
   end
 
