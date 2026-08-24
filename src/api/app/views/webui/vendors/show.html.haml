@@ -28,7 +28,8 @@
     .row
       .col
         - if policy(Distro.new(vendor: @vendor)).new?
-          = render partial: 'distro_modal', locals: { model: Distro.new(vendor: @vendor), url: vendor_distros_path(@vendor), text: 'New Distro', icon: 'circle-plus' }
+          = render partial: 'distro_modal', locals: { model: Distro.new(vendor: @vendor),
+                                                      url: vendor_distros_path(@vendor), text: 'New Distro', icon: 'circle-plus' }
         - if policy(@vendor).edit?
           = link_to(edit_project_vendor_path(@vendor.project, @vendor), class: 'ps-2', title: 'Edit') do
             %i.fas.fa-edit

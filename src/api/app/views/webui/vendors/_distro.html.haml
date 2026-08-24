@@ -10,7 +10,8 @@
   - if policy(distro).destroy?
     - component.with_delete_button do
       = link_to '#', title: 'Delete Distro',
-        data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-modal', vendor_name: distro.vendor.name, distro_name: distro.name, action: vendor_distro_path(distro.vendor, distro) } do
+        data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-modal', vendor_name: distro.vendor.name,
+                distro_name: distro.name, action: vendor_distro_path(distro.vendor, distro) } do
         %i.fas.fa-trash-can.text-danger
 
   - if policy(distro).edit?
