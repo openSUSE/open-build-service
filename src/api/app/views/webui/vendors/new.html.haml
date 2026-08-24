@@ -7,8 +7,3 @@
     %h1 New vendor
 
     = render(partial: 'webui/vendors/form', locals: { vendor: @vendor, url: project_vendors_path(@project) })
-
-    %br
-
-    %div
-      = link_to "Back to project", project_show_path(@project)

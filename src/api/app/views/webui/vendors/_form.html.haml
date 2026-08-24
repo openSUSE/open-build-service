@@ -14,4 +14,6 @@
     = form.text_field :url, class: 'form-control'
 
   %div
+    - cancel_url = vendor.persisted? ? project_vendor_path(vendor.project, vendor) : project_show_path(vendor.project)
+    = link_to('Cancel', cancel_url, title: 'Cancel', class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
     = form.submit 'Save', class: 'btn btn-success'
