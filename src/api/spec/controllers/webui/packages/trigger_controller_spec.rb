@@ -53,4 +53,24 @@ RSpec.describe Webui::Packages::TriggerController, :vcr do
       it { expect(flash[:error]).to eq('Error while triggering abort build for my_project/my_package: no repository defined') }
     end
   end
+
+  describe 'POST #rebuild for a project managed through scmsync' do
+    let(:project) do
+      create(:project_with_repository, name: 'scmsync_project', scmsync: 'https://src.opensuse.org/pool/_ObsPrj.git', maintainer: user)
+    end
+
+    before do
+      allow(Backend::Api::Sources::Package).to receive(:rebuild)
+      post :rebuild, params: { project_name: project, package_name: 'only_in_the_backend' }
+    end
+
+    it 'triggers the rebuild with the package name' do
+      expect(Backend::Api::Sources::Package).to have_received(:rebuild).with(project.name, 'only_in_the_backend', anything)
+      expect(flash[:success]).to eq('Rebuild successfully triggered')
+    end
+
+    it 'does not assign a package' do
+      expect(assigns(:package)).to be_nil
+    end
+  end
 end

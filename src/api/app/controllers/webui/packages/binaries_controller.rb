@@ -1,8 +1,6 @@
 module Webui
   module Packages
     class BinariesController < WebuiController
-      include ScmsyncChecker
-
       # TODO: Keep in sync with Build::query in backend/build/Build.pm.
       #       Regexp.new('\.iso$') would be Build::Kiwi::queryiso which isn't implemented yet...
       QUERYABLE_BUILD_RESULTS = [Regexp.new('\.rpm$'),

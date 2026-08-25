@@ -1,6 +1,5 @@
 class Webui::PackageController < Webui::WebuiController
   include ParsePackageDiff
-  include ScmsyncChecker
   include Webui::PackageHelper
   include Webui::ManageRelationships
   include Webui::NotificationsHandler
