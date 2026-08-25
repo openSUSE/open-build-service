@@ -94,6 +94,34 @@ RSpec.describe Webui::WebuiController do
       end
     end
 
+    context 'with a package that is missing from a project linking to a remote project' do
+      let(:project) { create(:project, link_to: 'openSUSE.org:home:hans') }
+
+      it 'redirects back' do
+        from project_show_path(project: project)
+        get :create, params: { project: project, package: 'invalid' }
+        expect(flash[:error]).to eq("Package not found: #{project.name}/invalid")
+        expect(response).to redirect_to project_show_url(project: project)
+      end
+
+      it 'does not assign a package' do
+        get :create, params: { project: project, package: 'invalid' }
+        expect(assigns(:package)).to be_nil
+      end
+    end
+
+    context 'with a package that is missing from a project managed through scmsync' do
+      let(:project) { create(:project, scmsync: 'https://src.opensuse.org/pool/_ObsPrj.git') }
+
+      it 'does not raise and leaves the package unassigned' do
+        get :create, params: { project: project, package: 'invalid' }
+
+        expect(response).to have_http_status(:success)
+        expect(assigns(:package)).to be_nil
+        expect(flash[:error]).to be_nil
+      end
+    end
+
     context 'with valid package parameter' do
       let(:package) { create(:package, project: project) }
 
