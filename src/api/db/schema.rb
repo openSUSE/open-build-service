@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_21_092910) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_25_123915) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1156,9 +1156,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_21_092910) do
     t.index ["status_reports_id"], name: "index_status_checks_on_status_reports_id"
   end
 
-  create_table "status_histories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "time"
+  create_table "status_histories", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "key"
+    t.integer "time"
     t.float "value", null: false
     t.index ["key"], name: "index_status_histories_on_key"
     t.index ["time", "key"], name: "index_status_histories_on_time_and_key"
