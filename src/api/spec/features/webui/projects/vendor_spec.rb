@@ -12,10 +12,8 @@ RSpec.describe 'Vendors', :js, :vcr do
 
   context 'creating a vendor from the project page' do
     before do
-      skip_on_mobile
-
       visit project_show_path(project)
-      click_link('Create Vendor')
+      desktop? ? click_link('Create Vendor') : click_menu_link('Actions', 'Create Vendor')
       fill_in('Name', with: 'openSUSE')
       fill_in('Url', with: 'https://opensuse.org')
       click_button('Save')
