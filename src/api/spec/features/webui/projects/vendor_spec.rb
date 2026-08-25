@@ -10,17 +10,21 @@ RSpec.describe 'Vendors', :js, :vcr do
     login user
   end
 
-  it 'creates a vendor from the project page' do
-    skip_on_mobile
+  context 'creating a vendor from the project page' do
+    before do
+      skip_on_mobile
 
-    visit project_show_path(project)
-    click_link('Create Vendor')
-    fill_in('Name', with: 'openSUSE')
-    fill_in('Url', with: 'https://opensuse.org')
-    click_button('Save')
+      visit project_show_path(project)
+      click_link('Create Vendor')
+      fill_in('Name', with: 'openSUSE')
+      fill_in('Url', with: 'https://opensuse.org')
+      click_button('Save')
+    end
 
-    expect(page).to have_text('Vendor was successfully created.')
-    expect(project.reload.vendor.name).to eq('openSUSE')
+    it 'creates the vendor' do
+      expect(page).to have_text('Vendor was successfully created.')
+      expect(project.reload.vendor.name).to eq('openSUSE')
+    end
   end
 
   context 'having an already existing vendor' do
@@ -32,40 +36,52 @@ RSpec.describe 'Vendors', :js, :vcr do
       visit project_vendor_path(project, vendor)
     end
 
-    it 'creates a distro through the new distro modal' do
-      click_button('New Distro')
+    context 'creating a distro through the new distro modal' do
+      before do
+        click_button('New Distro')
 
-      within('#distro-modal--modal') do
-        fill_in('Name', with: 'Slowroll')
-        fill_in('Url', with: 'https://get.opensuse.org/slowroll')
-        click_button('Save')
+        within('#distro-modal--modal') do
+          fill_in('Name', with: 'Slowroll')
+          fill_in('Url', with: 'https://get.opensuse.org/slowroll')
+          click_button('Save')
+        end
       end
 
-      expect(page).to have_text('Distro was successfully created.')
-      expect(vendor.distros.where(name: 'Slowroll')).to exist
+      it 'creates the distro' do
+        expect(page).to have_text('Distro was successfully created.')
+        expect(vendor.distros.where(name: 'Slowroll')).to exist
+      end
     end
 
-    it 'edits a distro through its own modal' do
-      find("button[data-bs-target='#distro-modal-#{distro.id}-modal']").click
+    context 'editing a distro through its own modal' do
+      before do
+        find("button[data-bs-target='#distro-modal-#{distro.id}-modal']").click
 
-      within("#distro-modal-#{distro.id}-modal") do
-        fill_in('Name', with: 'Slowroll')
-        click_button('Save')
+        within("#distro-modal-#{distro.id}-modal") do
+          fill_in('Name', with: 'Slowroll')
+          click_button('Save')
+        end
       end
 
-      expect(page).to have_text('Distro was successfully updated.')
-      expect(distro.reload.name).to eq('Slowroll')
+      it 'updates the distro' do
+        expect(page).to have_text('Distro was successfully updated.')
+        expect(distro.reload.name).to eq('Slowroll')
+      end
     end
 
-    it 'deletes only the distro the delete modal was opened for' do
-      find("a[data-action='#{vendor_distro_path(vendor, distro)}']").click
+    context 'deleting a distro through the shared delete modal' do
+      before do
+        find("a[data-action='#{vendor_distro_path(vendor, distro)}']").click
 
-      within('#delete-distro-modal') do
-        click_button('Delete')
+        within('#delete-distro-modal') do
+          click_button('Delete')
+        end
       end
 
-      expect(page).to have_text('Distro was successfully destroyed.')
-      expect(vendor.distros.reload).to contain_exactly(other_distro)
+      it 'deletes only the distro the modal was opened for' do
+        expect(page).to have_text('Distro was successfully destroyed.')
+        expect(vendor.distros.reload).to contain_exactly(other_distro)
+      end
     end
 
     it 'deletes the vendor' do
