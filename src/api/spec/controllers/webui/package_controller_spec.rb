@@ -153,6 +153,37 @@ RSpec.describe Webui::PackageController, :vcr do
         it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: package_with_revisions)) }
       end
     end
+
+    context 'with a package that does not exist' do
+      before do
+        get :show, params: { project: user.home_project, package: 'does_not_exist' }
+      end
+
+      it 'sets a flash error' do
+        expect(flash[:error]).to eq("Package not found: #{user.home_project.name}/does_not_exist")
+      end
+
+      it 'does not assign a package' do
+        expect(assigns(:package)).to be_nil
+      end
+    end
+
+    # Regression test
+    context 'with a package missing from a project that links to a remote project' do
+      let(:linking_project) { create(:project, link_to: 'openSUSE.org:home:hans') }
+
+      before do
+        get :show, params: { project: linking_project, package: 'does_not_exist' }
+      end
+
+      it 'sets a flash error' do
+        expect(flash[:error]).to eq("Package not found: #{linking_project.name}/does_not_exist")
+      end
+
+      it 'does not assign a package' do
+        expect(assigns(:package)).to be_nil
+      end
+    end
   end
 
   describe 'GET #revisions' do

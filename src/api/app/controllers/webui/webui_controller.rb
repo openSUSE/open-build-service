@@ -100,8 +100,15 @@ class Webui::WebuiController < ActionController::Base
       @package = Package.get_by_project_and_name(@project.name, @package_name, follow_multibuild: true)
     # why it's not found is of no concern
     rescue APIError
-      raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
+      raise_package_not_found
     end
+
+    # Packages of scmsync projects only exist in the backend, @package stays nil for those.
+    raise_package_not_found if @package.nil? && @project.scmsync.blank?
+  end
+
+  def raise_package_not_found
+    raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
   end
 
   def set_repository
