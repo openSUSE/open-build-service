@@ -33,5 +33,22 @@ RSpec.describe Webui::Packages::BuildLogController do
 
       it { expect(flash[:error]).to eq('Package not found: my_project/my_package') }
     end
+
+    context 'with a package of a project managed through scmsync' do
+      let(:project) { create(:project, name: 'my_project', scmsync: 'https://src.opensuse.org/pool/_ObsPrj.git') }
+
+      before do
+        allow(Package).to receive(:what_depends_on).and_return([])
+        allow(Backend::Api::BuildResults::Status).to receive(:build_result).and_return(build_result)
+        get :live_build_log, params: { project: project, package: 'only_in_the_backend', repository: repository, arch: 'x86_64', format: 'js' }
+      end
+
+      it { expect(response).to have_http_status(:ok) }
+
+      it 'does not assign a package but keeps its name' do
+        expect(assigns(:package)).to be_nil
+        expect(assigns(:package_name)).to eq('only_in_the_backend')
+      end
+    end
   end
 end

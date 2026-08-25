@@ -11,6 +11,7 @@ class Webui::WebuiController < ActionController::Base
   include FlipperFeature
   include Webui::RescueHandler
   include RescueAuthorizationHandler
+  include ScmsyncChecker
   include SetCurrentRequestDetails
   include Webui::ElisionsHelper
   include ActiveStorage::SetCurrent
@@ -92,6 +93,26 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def set_package
+    resolve_package
+
+    return if @package || @package_name.blank?
+
+    return check_scmsync if @project.scmsync.present?
+
+    raise_package_not_found
+  end
+
+  # Leaves @package nil for packages that only exist in the backend, which is every package
+  # of an scmsync project. Any other missing package is still an error.
+  def set_optional_package
+    resolve_package
+
+    return if @package || @package_name.blank? || @project.scmsync.present?
+
+    raise_package_not_found
+  end
+
+  def resolve_package
     @package_name = params[:package] || params[:package_name]
 
     return if @package_name.blank?
@@ -100,8 +121,12 @@ class Webui::WebuiController < ActionController::Base
       @package = Package.get_by_project_and_name(@project.name, @package_name, follow_multibuild: true)
     # why it's not found is of no concern
     rescue APIError
-      raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
+      raise_package_not_found
     end
+  end
+
+  def raise_package_not_found
+    raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
   end
 
   def set_repository

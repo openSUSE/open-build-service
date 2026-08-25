@@ -2,7 +2,6 @@ module Webui
   module Packages
     class FilesController < WebuiController
       include Webui::PackageHelper
-      include ScmsyncChecker
 
       before_action :set_project
       before_action :check_scmsync, only: :show
