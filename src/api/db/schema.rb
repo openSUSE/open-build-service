@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_25_123915) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_155817) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "blob_id", null: false
     t.datetime "created_at", null: false
@@ -494,7 +494,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_25_123915) do
     t.datetime "updated_at", null: false
     t.string "url"
     t.bigint "vendor_id", null: false
-    t.index ["vendor_id"], name: "index_distros_on_vendor_id", unique: true
+    t.index ["vendor_id", "name"], name: "index_distros_on_vendor_id_and_name", unique: true
   end
 
   create_table "download_repositories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
