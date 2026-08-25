@@ -31,11 +31,11 @@
           = render partial: 'distro_modal', locals: { model: Distro.new(vendor: @vendor),
                                                       url: vendor_distros_path(@vendor), text: 'New Distro', icon: 'circle-plus' }
         - if policy(@vendor).edit?
-          = link_to(edit_project_vendor_path(@vendor.project, @vendor), class: 'ps-2', title: 'Edit') do
+          = link_to(edit_project_vendor_path(@vendor.project), class: 'ps-2', title: 'Edit') do
             %i.fas.fa-edit
             %span.nav-item-name Edit
         - if policy(@vendor).destroy?
-          = link_to(project_vendor_path(@vendor.project, @vendor), method: :delete, class: 'ps-2 text-danger',
+          = link_to(project_vendor_path(@vendor.project), method: :delete, class: 'ps-2 text-danger',
             data: { confirm: 'Are you sure you want to delete this vendor?'}) do
             %i.fas.fa-trash-can
             %span.nav-item-name Delete

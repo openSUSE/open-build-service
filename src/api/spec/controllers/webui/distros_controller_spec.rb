@@ -41,7 +41,7 @@ RSpec.describe Webui::DistrosController do
 
         it 'redirects to the vendor' do
           subject
-          expect(response).to redirect_to(project_vendor_path(project, vendor))
+          expect(response).to redirect_to(project_vendor_path(project))
         end
 
         it 'sets a success flash' do
@@ -69,7 +69,7 @@ RSpec.describe Webui::DistrosController do
 
         it 'redirects to the vendor' do
           subject
-          expect(response).to redirect_to(project_vendor_path(project, vendor))
+          expect(response).to redirect_to(project_vendor_path(project))
         end
 
         it 'sets a human readable error flash' do
@@ -124,7 +124,7 @@ RSpec.describe Webui::DistrosController do
 
         it 'redirects to the vendor' do
           subject
-          expect(response).to redirect_to(project_vendor_path(project, vendor))
+          expect(response).to redirect_to(project_vendor_path(project))
         end
 
         it 'sets a human readable error flash' do
@@ -178,7 +178,7 @@ RSpec.describe Webui::DistrosController do
 
       it 'redirects to the vendor' do
         subject
-        expect(response).to redirect_to(project_vendor_path(project, vendor))
+        expect(response).to redirect_to(project_vendor_path(project))
       end
     end
 

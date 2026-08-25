@@ -19,9 +19,9 @@ class Webui::DistrosController < Webui::WebuiController
     @distro = Distro.new(distro_params)
     authorize @distro
     if @distro.save
-      redirect_to project_vendor_path(@project, @vendor), notice: 'Distro was successfully created.'
+      redirect_to project_vendor_path(@project), notice: 'Distro was successfully created.'
     else
-      redirect_to project_vendor_path(@project, @vendor), flash: { error: "Distro failed to create. #{@distro.errors.messages}" }
+      redirect_to project_vendor_path(@project), flash: { error: "Distro failed to create. #{@distro.errors.messages}" }
     end
   end
 
@@ -29,9 +29,9 @@ class Webui::DistrosController < Webui::WebuiController
   def update
     authorize @distro
     if @distro.update(distro_params)
-      redirect_to project_vendor_path(@project, @vendor), flash: { success: 'Distro was successfully updated.' }
+      redirect_to project_vendor_path(@project), flash: { success: 'Distro was successfully updated.' }
     else
-      redirect_to project_vendor_path(@project, @vendor), flash: { error: "Distro failed to update. #{@distro.errors.messages}" }
+      redirect_to project_vendor_path(@project), flash: { error: "Distro failed to update. #{@distro.errors.messages}" }
     end
   end
 
@@ -39,7 +39,7 @@ class Webui::DistrosController < Webui::WebuiController
   def destroy
     authorize @distro
     @distro.destroy!
-    redirect_to project_vendor_path(@project, @vendor), flash: { success: 'Distro was successfully destroyed.' }
+    redirect_to project_vendor_path(@project), flash: { success: 'Distro was successfully destroyed.' }
   end
 
   #### Non CRUD actions

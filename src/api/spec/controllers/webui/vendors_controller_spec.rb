@@ -17,12 +17,12 @@ RSpec.describe Webui::VendorsController do
       get :new, params: { project_name: project.name }
     end
 
-    it { expect(response).to have_http_status(302) }
+    it { expect(response).to have_http_status(:found) }
   end
 
   describe 'GET #show' do
     before do
-      get :show, params: { project_name: project.name, id: vendor.id }
+      get :show, params: { project_name: project.name }
     end
 
     it { expect(response).to have_http_status(:success) }
@@ -52,8 +52,9 @@ RSpec.describe Webui::VendorsController do
   describe 'GET #edit' do
     context 'as a user without permission' do
       before do
+        vendor
         login other_user
-        get :edit, params: { project_name: project.name, id: vendor.id }
+        get :edit, params: { project_name: project.name }
       end
 
       it { expect(response).to redirect_to(root_path) }
@@ -81,7 +82,7 @@ RSpec.describe Webui::VendorsController do
 
         it 'redirects to the new vendor' do
           subject
-          expect(response).to redirect_to(project_vendor_path(project, Vendor.last))
+          expect(response).to redirect_to(project_vendor_path(project))
         end
 
         it 'sets a success flash' do
@@ -117,10 +118,11 @@ RSpec.describe Webui::VendorsController do
   end
 
   describe 'PATCH #update' do
-    subject { patch :update, params: { project_name: project.name, id: vendor.id, vendor: vendor_params } }
+    subject { patch :update, params: { project_name: project.name, vendor: vendor_params } }
 
     context 'as a project maintainer' do
       before do
+        vendor
         login user
       end
 
@@ -154,6 +156,7 @@ RSpec.describe Webui::VendorsController do
       let(:vendor_params) { { name: 'SUSE' } }
 
       before do
+        vendor
         login other_user
       end
 
@@ -167,7 +170,7 @@ RSpec.describe Webui::VendorsController do
   end
 
   describe 'DELETE #destroy' do
-    subject { delete :destroy, params: { project_name: project.name, id: vendor.id } }
+    subject { delete :destroy, params: { project_name: project.name } }
 
     before do
       vendor

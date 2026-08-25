@@ -31,7 +31,7 @@ RSpec.describe 'Vendors', :js, :vcr do
     let!(:other_distro) { create(:distro, vendor: vendor, name: 'Tumbleweed') }
 
     before do
-      visit project_vendor_path(project, vendor)
+      visit project_vendor_path(project)
     end
 
     context 'creating a distro through the new distro modal' do

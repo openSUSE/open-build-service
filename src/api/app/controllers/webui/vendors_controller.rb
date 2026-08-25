@@ -9,7 +9,6 @@ class Webui::VendorsController < Webui::WebuiController
   before_action :check_beta_feature
   before_action :set_project
   before_action :set_vendor, only: %i[show edit update destroy]
-  before_action :verify_project, only: %i[show edit update destroy]
   # Pundit authorization policies control
   after_action :verify_authorized
 
@@ -41,7 +40,7 @@ class Webui::VendorsController < Webui::WebuiController
     @vendor.project = @project
     authorize @vendor
     if @vendor.save
-      redirect_to [@project, @vendor], flash: { success: 'Vendor was successfully created.' }
+      redirect_to project_vendor_path(@project), flash: { success: 'Vendor was successfully created.' }
     else
       render :new
     end
@@ -51,7 +50,7 @@ class Webui::VendorsController < Webui::WebuiController
   def update
     authorize @vendor
     if @vendor.update(vendor_params)
-      redirect_to [@project, @vendor], flash: { success: 'Vendor was successfully updated.' }
+      redirect_to project_vendor_path(@project), flash: { success: 'Vendor was successfully updated.' }
     else
       render :edit
     end
@@ -77,7 +76,7 @@ class Webui::VendorsController < Webui::WebuiController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_vendor
-    @vendor = Vendor.find(params.expect(:id))
+    @vendor = @project.vendor
   end
 
   # Only allow a trusted parameter "white list" through.
