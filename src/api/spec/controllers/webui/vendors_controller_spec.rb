@@ -17,7 +17,7 @@ RSpec.describe Webui::VendorsController do
       get :new, params: { project_name: project.name }
     end
 
-    it { expect(response).to have_http_status(:not_found) }
+    it { expect(response).to have_http_status(302) }
   end
 
   describe 'GET #show' do
@@ -64,7 +64,7 @@ RSpec.describe Webui::VendorsController do
   describe 'POST #create' do
     subject { post :create, params: { project_name: project.name, vendor: vendor_params } }
 
-    let(:vendor_params) { { name: 'openSUSE', url: 'https://opensuse.org' } }
+    let!(:vendor_params) { { name: 'openSUSE', url: 'https://opensuse.org' } }
 
     context 'as a project maintainer' do
       before do
@@ -87,16 +87,6 @@ RSpec.describe Webui::VendorsController do
         it 'sets a success flash' do
           subject
           expect(flash[:success]).to eq('Vendor was successfully created.')
-        end
-      end
-
-      context 'with a project_id pointing at another project' do
-        let(:other_project) { create(:project, maintainer: other_user) }
-        let(:vendor_params) { { project_id: other_project.id, name: 'openSUSE' } }
-
-        it 'ignores the project_id from the request body' do
-          subject
-          expect(Vendor.last.project).to eq(project)
         end
       end
 

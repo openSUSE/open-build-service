@@ -6,8 +6,10 @@ class Webui::VendorsController < Webui::WebuiController
   #### Self config
 
   #### Callbacks macros: before_action, after_action, etc.
+  before_action :check_beta_feature
   before_action :set_project
   before_action :set_vendor, only: %i[show edit update destroy]
+  before_action :verify_project, only: %i[show edit update destroy]
   # Pundit authorization policies control
   after_action :verify_authorized
 
@@ -36,9 +38,10 @@ class Webui::VendorsController < Webui::WebuiController
   # POST /vendors
   def create
     @vendor = Vendor.new(vendor_params)
+    @vendor.project = @project
     authorize @vendor
     if @vendor.save
-      redirect_to [@project, @vendor], notice: 'Vendor was successfully created.'
+      redirect_to [@project, @vendor], flash: { success: 'Vendor was successfully created.' }
     else
       render :new
     end
@@ -68,6 +71,10 @@ class Webui::VendorsController < Webui::WebuiController
 
   private
 
+  def check_beta_feature
+    redirect_to root_path unless Flipper.enabled?(:enhanced_distribution_support, User.session)
+  end
+
   # Use callbacks to share common setup or constraints between actions.
   def set_vendor
     @vendor = Vendor.find(params.expect(:id))
@@ -75,6 +82,6 @@ class Webui::VendorsController < Webui::WebuiController
 
   # Only allow a trusted parameter "white list" through.
   def vendor_params
-    params.expect(vendor: %i[project_id name description url])
+    params.expect(vendor: %i[name description url])
   end
 end
