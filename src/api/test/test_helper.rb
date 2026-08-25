@@ -18,9 +18,11 @@ require_relative 'test_consistency_helper'
 
 require 'rails/test_help'
 
-require 'minitest/unit'
+require 'minitest/test'
 
 require 'minitest/spec'
+
+require 'minitest/ci'
 
 require 'webmock/minitest'
 
@@ -51,6 +53,10 @@ end
 unless File.exist?('/dev/fd')
   print 'ERROR: /dev/fd does not exist, aborting'
   exit 1
+end
+
+if ENV['CIRCLECI']
+  Minitest::Ci.report_dir = '/home/frontend/minitest'
 end
 
 # uncomment to enable tests which currently are known to fail, but where either the test
