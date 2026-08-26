@@ -58,7 +58,7 @@ class Project
 
     private
 
-    # rubocop:disable Style/GuardClause
+    # rubocop:disable-next Style/GuardClause
     def update_linked_projects(xmlhash)
       position = 1
       # destroy all current linked projects
@@ -88,7 +88,6 @@ class Project
       end
       position
     end
-    # rubocop:enable Style/GuardClause
 
     def parse_develproject(xmlhash)
       project.develproject = nil

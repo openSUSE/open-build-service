@@ -29,7 +29,7 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
     @view_columns
   end
 
-  # rubocop:disable Naming/AccessorMethodName
+  # rubocop:disable-next Naming/AccessorMethodName
   def get_raw_records
     query = @project.packages.includes(:package_kinds).left_joins(labels: [:label_template]).references(:labels, :label_template)
 
@@ -57,7 +57,6 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
 
     query
   end
-  # rubocop:enable Naming/AccessorMethodName
 
   def data
     records.map do |record|
@@ -99,18 +98,16 @@ class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
   def link_tag
     tag.span(class: 'badge text-body border') do
       # Using String Concatenation changes the behavior of this line
-      # rubocop:disable Style/StringConcatenation
+      # rubocop:disable-next Style/StringConcatenation
       tag.i(class: 'fas fa-link') + ' Link'
-      # rubocop:enable Style/StringConcatenation
     end
   end
 
   def aggregate_tag
     tag.span(class: 'badge text-body border') do
       # Using String Concatenation changes the behavior of this line
-      # rubocop:disable Style/StringConcatenation
+      # rubocop:disable-next Style/StringConcatenation
       tag.i(class: 'fas fa-link') + ' Aggregate'
-      # rubocop:enable Style/StringConcatenation
     end
   end
 

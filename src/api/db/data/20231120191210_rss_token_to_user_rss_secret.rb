@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class RssTokenToUserRssSecret < ActiveRecord::Migration[7.0]
-  # rubocop:disable Rails/SkipsModelValidations
+  # rubocop:disable-next Rails/SkipsModelValidations
   def up
     Token.where(type: 'Token::Rss').in_batches do |relation|
       relation.each do |token|
@@ -9,7 +9,6 @@ class RssTokenToUserRssSecret < ActiveRecord::Migration[7.0]
       end
     end
   end
-  # rubocop:enable Rails/SkipsModelValidations
 
   def down
     raise ActiveRecord::IrreversibleMigration

@@ -15,13 +15,12 @@ class ProjectDatatable < Datatable
     }
   end
 
-  # rubocop:disable Naming/AccessorMethodName
+  # rubocop:disable-next Naming/AccessorMethodName
   def get_raw_records
     options[:projects].left_joins(label_globals: :label_template_global)
                       .includes(label_globals: :label_template_global)
                       .references(:label_globals, :label_template_global).distinct
   end
-  # rubocop:enable Naming/AccessorMethodName
 
   def data
     records.left_outer_joins(quality_attribs: :values).select('projects.*', 'attrib_values.value AS attrib_value').map do |record|

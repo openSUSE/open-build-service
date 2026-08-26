@@ -23,8 +23,7 @@ class MigrateRssNotificationPayload < ActiveRecord::Migration[5.2]
   end
 
   def integer?(string)
-    # rubocop:disable Style/RescueModifier
+    # rubocop:disable-next Style/RescueModifier
     Integer(string) rescue false
-    # rubocop:enable Style/RescueModifier
   end
 end

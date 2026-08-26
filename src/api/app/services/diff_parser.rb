@@ -35,7 +35,7 @@ class DiffParser
 
   private
 
-  # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable-next Metrics/CyclomaticComplexity
   def generate_inline_diffs
     @blocks.each do |block|
       next unless added_and_removed?(block)
@@ -56,7 +56,6 @@ class DiffParser
       end
     end
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   def added_and_removed?(block)
     block.any? { |l| l.state == 'added' } && block.any? { |l| l.state == 'removed' }
