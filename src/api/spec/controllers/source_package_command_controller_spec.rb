@@ -72,9 +72,8 @@ RSpec.describe SourcePackageCommandController, :vcr do
 
       before do
         user.run_as { project.packages.first.destroy }
-        # rubocop:disable Rails/SkipsModelValidations
+        # rubocop:disable-next Rails/SkipsModelValidations
         project.update_columns(scmsync: 'https://github.com/hennevogel/scmsync-project.git')
-        # rubocop:enable Rails/SkipsModelValidations
         allow(Backend::Api::Sources::Package).to receive(:meta).and_return(package_xml)
       end
 

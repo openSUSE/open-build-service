@@ -400,9 +400,8 @@ class Webui::PackageController < Webui::WebuiController
             @results << parsed.results
             max_badness = parsed.badness.values.max
             @badness = max_badness if parsed.badness.present? && (max_badness > @badness)
-            # rubocop:disable Rails/DeprecatedActiveModelErrorsMethods
+            # rubocop:disable-next Rails/DeprecatedActiveModelErrorsMethods
             @errors += parsed.errors.values.sum
-            # rubocop:enable Rails/DeprecatedActiveModelErrorsMethods
             @warnings += parsed.warnings.values.sum
             @info += parsed.info.values.sum
           end

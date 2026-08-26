@@ -114,7 +114,7 @@ module Webui::RequestHelper
   end
 
   # [DEPRECATED] TODO: drop this helper function after request_workflow_redesign is rolled out
-  # rubocop:disable Style/FormatString
+  # rubocop:disable-next Style/FormatString
   def request_action_header(action, creator)
     source_project_hash = { project: action[:sprj], package: action[:spkg], trim_to: nil }
 
@@ -163,7 +163,6 @@ module Webui::RequestHelper
 
     description.html_safe
   end
-  # rubocop:enable Style/FormatString
 
   def list_maintainers(maintainers)
     maintainers.pluck(:login).map do |maintainer|

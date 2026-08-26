@@ -10,7 +10,7 @@ class GithubStatusReporter < SCMExceptionHandler
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
-  # rubocop:disable Metrics/PerceivedComplexity
+  # rubocop:disable-next Metrics/PerceivedComplexity
   def call
     github_client = Octokit::Client.new(access_token: @scm_token,
                                         api_endpoint: @workflow_run.api_endpoint)
@@ -40,7 +40,6 @@ class GithubStatusReporter < SCMExceptionHandler
   ensure
     RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@workflow_run.scm_vendor},exception=#{e.class} value=1") if e.present? && @workflow_run.present?
   end
-  # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Metrics/CyclomaticComplexity
 
   # TODO: extract to a parent class

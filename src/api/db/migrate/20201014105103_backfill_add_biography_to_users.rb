@@ -3,9 +3,8 @@ class BackfillAddBiographyToUsers < ActiveRecord::Migration[6.0]
 
   def up
     User.unscoped.in_batches do |relation|
-      # rubocop:disable Rails/SkipsModelValidations
+      # rubocop:disable-next Rails/SkipsModelValidations
       relation.update_all biography: ''
-      # rubocop:enable Rails/SkipsModelValidations
       sleep(0.01) # throttle
     end
   end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class BackfillSourcesOnBsRequestActions < ActiveRecord::Migration[7.0]
-  # rubocop:disable Rails/SkipsModelValidations
+  # rubocop:disable-next Rails/SkipsModelValidations
   def up
     bs_request_actions = BsRequestAction.where(source_project_id: nil, source_package_id: nil).where.not(source_project: nil)
     bs_request_actions.in_batches do |batch|
@@ -17,7 +17,6 @@ class BackfillSourcesOnBsRequestActions < ActiveRecord::Migration[7.0]
       end
     end
   end
-  # rubocop:enable Rails/SkipsModelValidations
 
   def down
     raise ActiveRecord::IrreversibleMigration
