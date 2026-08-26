@@ -740,7 +740,7 @@ class Package < ApplicationRecord
     Package.transaction do
       assign_attributes_from_from_xml(xmlhash)
 
-      assign_devel_package_from_xml(xmlhash, ignore_missing_links)
+      assign_devel_package_from_xml(xmlhash, ignore_missing_links: ignore_missing_links)
 
       # just for cycle detection
       resolve_devel_package
@@ -767,7 +767,7 @@ class Package < ApplicationRecord
     self.scmsync = xmlhash.value('scmsync')
   end
 
-  def assign_devel_package_from_xml(xmlhash, ignore_missing_links = false)
+  def assign_devel_package_from_xml(xmlhash, ignore_missing_links: false)
     #--- devel project/package ---#
     devel = xmlhash['devel']
     self.develpackage = nil
@@ -775,13 +775,13 @@ class Package < ApplicationRecord
 
     devel_project_name = devel['project'] || xmlhash['project']
     devel_project = Project.find_by_name(devel_project_name)
-    
+
     return if !devel_project && ignore_missing_links
     raise SaveError, "project '#{devel_project_name}' does not exist" unless devel_project
 
     devel_package_name = devel['package'] || xmlhash['name']
     devel_package = devel_project.packages.find_by_name(devel_package_name)
-    
+
     return if !devel_package && ignore_missing_links
     raise SaveError, "package '#{devel_package_name}' does not exist in project '#{devel_project_name}'" unless devel_package
 
