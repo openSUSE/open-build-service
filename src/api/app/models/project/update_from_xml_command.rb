@@ -45,7 +45,7 @@ class Project
       update_maintained_prjs_from_xml(xmlhash)
       project.update_relationships_from_xml(xmlhash)
 
-      update_repositories(xmlhash, force, ignore_missing_links)
+      update_repositories(xmlhash, force, ignore_missing_links: ignore_missing_links)
 
       return if project.scmsync.blank?
 
@@ -134,7 +134,7 @@ class Project
       project.maintained_projects.delete(olds.values)
     end
 
-    def update_repositories(xmlhash, force, ignore_missing_links = false)
+    def update_repositories(xmlhash, force, ignore_missing_links: false)
       fill_repo_cache
 
       xmlhash.elements('repository') do |repo_xml_hash|
@@ -147,7 +147,7 @@ class Project
       # repository uses another one, eg. importing an existing config from elsewhere.
       xmlhash.elements('repository') do |repo|
         current_repo = project.repositories.find_by_name(repo['name'])
-        update_path_elements(current_repo, repo, ignore_missing_links)
+        update_path_elements(current_repo, repo, ignore_missing_links: ignore_missing_links)
       end
 
       # delete remaining repositories in @repocache
@@ -196,7 +196,7 @@ class Project
       @repocache.delete(xml_hash['name'])
     end
 
-    def update_path_elements(current_repo, xml_hash, ignore_missing_links = false)
+    def update_path_elements(current_repo, xml_hash, ignore_missing_links: false)
       # destroy all current pathelements
       current_repo.path_elements.destroy_all
       return unless xml_hash['path'] || xml_hash['hostsystem']
@@ -206,7 +206,6 @@ class Project
       xml_hash.elements('hostsystem') do |hostsystem|
         host_repo = Repository.find_by_project_and_name(hostsystem['project'], hostsystem['repository'])
         raise SaveError, 'Using same repository as hostsystem element is not allowed' if hostsystem['project'] == project.name && hostsystem['repository'] == xml_hash['name']
-        
         next if !host_repo && ignore_missing_links
         raise SaveError, "Unknown hostsystem repository '#{hostsystem['project']}/#{hostsystem['repository']}'" unless host_repo
 
@@ -219,7 +218,7 @@ class Project
       xml_hash.elements('path') do |path|
         link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
         raise SaveError, 'Using same repository as path element is not allowed' if path['project'] == project.name && path['repository'] == xml_hash['name']
-        
+
         next if !link_repo && ignore_missing_links
         raise SaveError, "Cannot find repository '#{path['project']}/#{path['repository']}'" unless link_repo
 
