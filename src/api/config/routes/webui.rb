@@ -316,6 +316,10 @@ resources :vendors, only: [] do
   resources :distros, controller: 'webui/distros', except: %i[index new]
 end
 
+resources :distros, only: [] do
+  resources :releases, controller: 'webui/distro_releases', except: %i[index new show edit]
+end
+
 get 'request/show/:number/build_results', to: redirect('/requests/%{number}/build_results'), constraints: cons
 get 'request/show/:number/(request_action/:request_action_id)/build_results', to: redirect('/requests/%{number}/actions/%{request_action_id}/build_results'), constraints: cons
 get 'request/show/:number/changes', to: redirect('/requests/%{number}/changes'), constraints: cons

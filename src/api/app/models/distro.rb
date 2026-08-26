@@ -10,7 +10,7 @@ class Distro < ApplicationRecord
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :vendor, optional: false
   has_many :distro_releases, dependent: :destroy
-
+  has_one :project, through: :vendor
   #### Callbacks macros: before_save, after_save, etc.
 
   #### Scopes (first the default_scope macro if is used)
