@@ -87,7 +87,7 @@ sub writestr {
   open($f, '>', $fn) || die("$fn: $!\n");
   my $l = length($_[2]);
   if ($l) {
-    (syswrite($f, $_[2] || 0) == $l) || die("$fn write: $!\n");
+    ((syswrite($f, $_[2]) || 0) == $l) || die("$fn write: $!\n");
   }
   do_fdatasync(fileno($f)) if defined($fnf) && $fdatasync_before_rename;
   close($f) || die("$fn close: $!\n");
