@@ -22,7 +22,7 @@
     %li
       %i.fa.fa-globe.text-info
       Vendor -
-      = link_to(project.vendor.name, project_vendor_path(project, project.vendor))
+      = link_to(project.vendor.name, project_vendor_path(project))
 
   - if requests.present?
     = render partial: 'webui/project/side_links/requests', locals: { requests: requests,
