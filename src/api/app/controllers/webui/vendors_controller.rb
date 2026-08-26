@@ -6,6 +6,7 @@ class Webui::VendorsController < Webui::WebuiController
   #### Self config
 
   #### Callbacks macros: before_action, after_action, etc.
+  before_action :check_beta_feature
   before_action :set_project
   before_action :set_vendor, only: %i[show edit update destroy]
   # Pundit authorization policies control
@@ -68,6 +69,10 @@ class Webui::VendorsController < Webui::WebuiController
   # Use hide_action if they are not private
 
   private
+
+  def check_beta_feature
+    redirect_to root_path unless Flipper.enabled?(:enhanced_distribution_support, User.session)
+  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_vendor
