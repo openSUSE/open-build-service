@@ -34,13 +34,13 @@ class XpathEngine
         'issue/@name' => { cpart: 'issues.name' },
         'issue/@tracker' => { cpart: 'issue_trackers.name' },
         'issue/@change' => { cpart: 'package_issues.change' },
-        'issue/owner/@email' => { cpart: 'users.email', joins:        ['LEFT JOIN users ON users.id = issues.owner_id'] },
-        'issue/owner/@login' => { cpart: 'users.login', joins:        ['LEFT JOIN users ON users.id = issues.owner_id'] },
+        'issue/owner/@email' => { cpart: 'users.email', joins: ['LEFT JOIN users ON users.id = issues.owner_id'] },
+        'issue/owner/@login' => { cpart: 'users.login', joins: ['LEFT JOIN users ON users.id = issues.owner_id'] },
         'attribute_issue/@state' => { cpart: 'attribissues.state' },
         'attribute_issue/@name' => { cpart: 'attribissues.name' },
         'attribute_issue/@tracker' => { cpart: 'attribissue_trackers.name' },
-        'attribute_issue/owner/@email' => { cpart: 'users.email', joins:        ['LEFT JOIN users ON users.id = attribissues.owner_id'] },
-        'attribute_issue/owner/@login' => { cpart: 'users.login', joins:        ['LEFT JOIN users ON users.id = attribissues.owner_id'] },
+        'attribute_issue/owner/@email' => { cpart: 'users.email', joins: ['LEFT JOIN users ON users.id = attribissues.owner_id'] },
+        'attribute_issue/owner/@login' => { cpart: 'users.login', joins: ['LEFT JOIN users ON users.id = attribissues.owner_id'] },
         'person/@userid' => { cpart: 'users.login', joins:        ['LEFT JOIN users ON users.id = user_relation.user_id'] },
         'person/@role' => { cpart: 'ppr.title', joins: ['LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id'] },
         'group/@groupid' => { cpart: 'groups.title', joins: ['LEFT JOIN groups ON groups.id = group_relation.group_id'] },
@@ -190,8 +190,8 @@ class XpathEngine
         '@name' => { cpart: 'issues.name' },
         '@state' => { cpart: 'issues.state' },
         '@tracker' => { cpart: 'issue_trackers.name', joins: 'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id' },
-        'owner/@email' => { cpart: 'users.email', joins:         ['LEFT JOIN users ON users.id = issues.owner_id'] },
-        'owner/@login' => { cpart: 'users.login', joins:         ['LEFT JOIN users ON users.id = issues.owner_id'] }
+        'owner/@email' => { cpart: 'users.email', joins: ['LEFT JOIN users ON users.id = issues.owner_id'] },
+        'owner/@login' => { cpart: 'users.login', joins: ['LEFT JOIN users ON users.id = issues.owner_id'] }
       },
       'requests' => {
         '@id' => { cpart: 'bs_requests.number' },

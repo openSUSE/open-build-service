@@ -39,9 +39,9 @@ class IssueTrackersController < ApplicationController
                                       show_url: xml.xpath('show-url[1]/text()').to_s)
     respond_to do |format|
       if @issue_tracker.save
-        format.xml  { render_ok }
+        format.xml { render_ok }
       else
-        format.xml  { render xml: @issue_tracker.errors, status: :unprocessable_content }
+        format.xml { render xml: @issue_tracker.errors, status: :unprocessable_content }
       end
     end
   end
