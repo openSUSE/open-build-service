@@ -1,0 +1,9 @@
+= render partial: 'webui/vendors/breadcrumb_items'
+
+- if action_name == 'new'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Create Distro
+- else
+  %li.breadcrumb-item.text-word-break-all
+    %i.fa.fa-compact-disc
+    = @distro.name

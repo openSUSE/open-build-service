@@ -3,6 +3,10 @@ class DistroPolicy < ApplicationPolicy
     VendorPolicy.new(user, record.vendor).create?
   end
 
+  def show?
+    true
+  end
+
   def new?
     create?
   end
