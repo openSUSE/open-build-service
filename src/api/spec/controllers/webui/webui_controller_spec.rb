@@ -5,8 +5,9 @@ RSpec.describe Webui::WebuiController do
   controller do
     before_action :require_admin, only: :new
     before_action :require_login, only: :show
-    before_action :set_project, only: %i[edit create]
+    before_action :set_project, only: %i[edit create update]
     before_action :set_package, only: :create
+    before_action :set_optional_package, only: :update
 
     # RSpec anonymous controller only support RESTful routes
     # http://stackoverflow.com/questions/7027518/no-route-matches-rspecs-anonymous-controller
@@ -24,6 +25,10 @@ RSpec.describe Webui::WebuiController do
 
     def create
       render plain: 'anonymous controller - set_package'
+    end
+
+    def update
+      render plain: 'anonymous controller - set_optional_package'
     end
   end
 
@@ -113,12 +118,15 @@ RSpec.describe Webui::WebuiController do
     context 'with a package that is missing from a project managed through scmsync' do
       let(:project) { create(:project, scmsync: 'https://src.opensuse.org/pool/_ObsPrj.git') }
 
-      it 'does not raise and leaves the package unassigned' do
+      it 'redirects to the project' do
         get :create, params: { project: project, package: 'invalid' }
+        expect(flash[:error]).to eq("The project #{project.name} is configured through scmsync. This is not supported by the OBS frontend")
+        expect(response).to redirect_to project_show_path(project)
+      end
 
-        expect(response).to have_http_status(:success)
+      it 'does not assign a package' do
+        get :create, params: { project: project, package: 'invalid' }
         expect(assigns(:package)).to be_nil
-        expect(flash[:error]).to be_nil
       end
     end
 
@@ -127,6 +135,56 @@ RSpec.describe Webui::WebuiController do
 
       it 'sets the correct project' do
         get :create, params: { project: project, package: package }
+        expect(assigns(:package)).to eq(package)
+      end
+    end
+  end
+
+  describe 'set_optional_package before filter' do
+    let(:project) { create(:project, scmsync: 'https://src.opensuse.org/pool/_ObsPrj.git') }
+
+    context 'with a package that is missing from a project managed through scmsync' do
+      it 'renders the action' do
+        get :update, params: { id: 1, project: project, package: 'only_in_the_backend' }
+        expect(response).to have_http_status(:success)
+        expect(flash[:error]).to be_nil
+      end
+
+      it 'leaves the package unassigned but keeps its name' do
+        get :update, params: { id: 1, project: project, package: 'only_in_the_backend' }
+        expect(assigns(:package)).to be_nil
+        expect(assigns(:package_name)).to eq('only_in_the_backend')
+      end
+    end
+
+    context 'with a package that is missing from a project not managed through scmsync' do
+      let(:project) { create(:project) }
+
+      it 'still refuses to leave the package unassigned' do
+        from project_show_path(project: project)
+        get :update, params: { id: 1, project: project, package: 'invalid' }
+        expect(flash[:error]).to eq("Package not found: #{project.name}/invalid")
+        expect(response).to redirect_to project_show_url(project: project)
+      end
+    end
+
+    context 'with a package that is missing from a project linking to a remote project' do
+      let(:project) { create(:project, link_to: 'openSUSE.org:home:hans') }
+
+      it 'still refuses to leave the package unassigned' do
+        from project_show_path(project: project)
+        get :update, params: { id: 1, project: project, package: 'invalid' }
+        expect(flash[:error]).to eq("Package not found: #{project.name}/invalid")
+        expect(response).to redirect_to project_show_url(project: project)
+      end
+    end
+
+    context 'with valid package parameter' do
+      let(:project) { create(:project) }
+      let(:package) { create(:package, project: project) }
+
+      it 'sets the correct package' do
+        get :update, params: { id: 1, project: project, package: package }
         expect(assigns(:package)).to eq(package)
       end
     end
