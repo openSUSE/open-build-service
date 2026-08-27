@@ -17,6 +17,7 @@ Rails.autoloaders.each do |autoloader|
     'scm_status_reporter' => 'SCMStatusReporter',
     'scm_exception_handler' => 'SCMExceptionHandler',
     'scm_exception_message' => 'SCMExceptionMessage',
+    'scm_auth_exceptions' => 'SCMAuthExceptions',
     'yaml_to_workflows_service' => 'YAMLToWorkflowsService',
     'yaml_downloader' => 'YAMLDownloader',
     'signing_key_gpg' => 'SigningKeyGPG',
