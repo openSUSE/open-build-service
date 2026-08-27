@@ -60,7 +60,6 @@ class Webui::ProjectController < Webui::WebuiController
 
     @comments = @project.comments
     @comment = Comment.new
-    @current_notification = handle_notification
 
     respond_to do |format|
       format.html
@@ -185,10 +184,6 @@ class Webui::ProjectController < Webui::WebuiController
     @users = @project.users
     @groups = @project.groups
     @roles = Role.local_roles
-    if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
-    end
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
   end
 

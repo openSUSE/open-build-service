@@ -1,5 +1,5 @@
 class CreateCommitActivities < ActiveRecord::Migration[5.2]
-  # rubocop:disable Rails/CreateTableWithTimestamps
+  # rubocop:disable-next Rails/CreateTableWithTimestamps
   def change
     create_table :commit_activities, options: 'CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=DYNAMIC', id: :integer do |t|
       t.date :date, null: false
@@ -12,5 +12,4 @@ class CreateCommitActivities < ActiveRecord::Migration[5.2]
       t.index %i[date user_id project package], unique: true, name: 'unique_activity_day'
     end
   end
-  # rubocop:enable Rails/CreateTableWithTimestamps
 end

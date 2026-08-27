@@ -43,9 +43,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def update
     # The button value specifies whether we selected read or unread
     deliver = params[:button] == 'read'
-    # rubocop:disable Rails/SkipsModelValidations
+    # rubocop:disable-next Rails/SkipsModelValidations
     count = @notifications.where(id: @notification_ids, delivered: !deliver).update_all(delivered: deliver)
-    # rubocop:enable Rails/SkipsModelValidations
 
     # manually update the count and the filtered subset after the update
     filter_notifications

@@ -565,7 +565,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def prepare_request_header_data
-    @current_notification = handle_notification
     action_index = @actions.index(@action)
     if action_index
       @prev_action = @actions[action_index - 1] unless action_index.zero?

@@ -11,9 +11,7 @@ class Webui::GroupsController < Webui::WebuiController
     @groups = Group.includes(:users).order(:title)
   end
 
-  def show
-    @current_notification = handle_notification
-  end
+  def show; end
 
   def new; end
 

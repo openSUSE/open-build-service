@@ -102,7 +102,7 @@ RSpec.describe WorkflowRun, :vcr do
 
     it 'sets the reason for disabling' do
       workflow_run.disable_token!
-      expect(workflow_run.token.reload.reason).to include('Authentication to Github failed')
+      expect(Event::TokenStateChange.last.payload['reason']).to include('Authentication to Github failed')
     end
   end
 

@@ -28,17 +28,15 @@ class MaintainedProjectDatatable < Datatable
     end
   end
 
-  # rubocop:disable Naming/AccessorMethodName
+  # rubocop:disable-next Naming/AccessorMethodName
   def get_raw_records
     @project.maintained_projects.joins(:project)
   end
-  # rubocop:enable Naming/AccessorMethodName
 
-  # rubocop:disable Rails/OutputSafety
+  # rubocop:disable-next Rails/OutputSafety
   def process_policy(project_name)
     @policy_update ? link_to_delete(project_name).html_safe : ''
   end
-  # rubocop:enable Rails/OutputSafety
 
   def link_to_delete(project_name)
     link_to('#', title: 'Delete Project', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-maintained-project-modal',

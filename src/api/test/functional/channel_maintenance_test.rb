@@ -780,9 +780,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                    tag: 'publish', attributes: { package: 'pack2' }
     assert_no_xml_tag parent: { tag: 'binary', attributes: { name: 'package_newweaktags', version: '1.0', release: '1', arch: 'i586' } },
                       tag: 'obsolete'
-    assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package', version: '1.0', release: '1', arch: 'i586' } },
+    assert_xml_tag parent: { tag: 'binary', attributes: { name: 'package', version: '1.0', release: '1', arch: 'i586' } },
                    tag: 'build', attributes: { time: '2014-07-03 12:26:54 UTC' }
-    assert_xml_tag parent: { tag: 'binary', attributes:                      { name: 'package', version: '1.0', release: '1', arch: 'i586' } },
+    assert_xml_tag parent: { tag: 'binary', attributes: { name: 'package', version: '1.0', release: '1', arch: 'i586' } },
                    tag: 'disturl', content: 'obs://testsuite/BaseDistro/repo/ce167c27b536e6ca39f8d951fa02a4ff-package'
     assert_xml_tag tag: 'updatefor', attributes: { project: 'BaseDistro', product: 'fixed' }
 

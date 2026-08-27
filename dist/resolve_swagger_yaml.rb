@@ -18,7 +18,7 @@ class ResolveSwaggerYAML
 
   private
 
-  # rubocop:disable Metrics/MethodLength
+  # rubocop:disable-next Metrics/MethodLength
   def parse_arguments
     opt_parser = OptionParser.new do |parser|
       parser.banner = 'Usage: resolve_swagger_yaml.rb [options]'
@@ -32,7 +32,6 @@ class ResolveSwaggerYAML
     end
     opt_parser.parse!(ARGV)
   end
-  # rubocop:enable Metrics/MethodLength
 
   def check_for_file_existence
     return if File.file?(@input_file)
