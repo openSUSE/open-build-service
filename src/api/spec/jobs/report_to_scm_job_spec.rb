@@ -61,5 +61,41 @@ RSpec.describe ReportToSCMJob do
 
       it_behaves_like 'not reporting to the SCM'
     end
+
+    context 'when retries are exhausted for a generic error' do
+      let(:job) { described_class.new(event_id: event.id) }
+      let(:error) { StandardError.new('Something went wrong') }
+
+      before do
+        event
+        event_subscription
+      end
+
+      it 'updates the workflow run as failed' do
+        job.report_failure(error)
+        expect(workflow_run.reload.status).to eq('fail')
+        expect(workflow_run.response_body).to eq('Something went wrong')
+      end
+    end
+
+    context 'when retries are exhausted for an SCM auth exception' do
+      let(:job) { described_class.new(event_id: event.id) }
+      let(:error) do
+        err = StandardError.new('Unauthorized')
+        allow(SCMAuthExceptions).to receive(:include?).with(err).and_return(true)
+        err
+      end
+
+      before do
+        event
+        event_subscription
+      end
+
+      it 'updates the workflow run as failed and disables the token' do
+        job.report_failure(error)
+        expect(workflow_run.reload.status).to eq('fail')
+        expect(workflow_run.token.reload.enabled).to be(false)
+      end
+    end
   end
 end
