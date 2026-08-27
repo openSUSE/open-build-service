@@ -691,4 +691,21 @@ RSpec.describe Webui::PackageController, :vcr do
       it { expect(response.parsed_body).to eql([]) }
     end
   end
+
+  describe 'GET #rpmlint_result for a project managed through scmsync' do
+    let(:scmsync_project) { create(:project, name: 'scmsync_project', scmsync: 'https://src.opensuse.org/pool/_ObsPrj.git') }
+
+    before do
+      get :rpmlint_result, params: { project: scmsync_project, package: 'only_in_the_backend' }
+    end
+
+    it 'redirects to the project' do
+      expect(flash[:error]).to eq("The project #{scmsync_project.name} is configured through scmsync. This is not supported by the OBS frontend")
+      expect(response).to redirect_to(project_show_path(scmsync_project))
+    end
+
+    it 'does not assign a package' do
+      expect(assigns(:package)).to be_nil
+    end
+  end
 end
