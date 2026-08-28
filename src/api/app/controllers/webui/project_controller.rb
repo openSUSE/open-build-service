@@ -12,7 +12,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   # rubocop:disable Rails/LexicallyScopedActionFilter
   # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
-  before_action :set_project, only: %i[autocomplete_repositories users subprojects
+  before_action :set_project, only: %i[autocomplete_repositories autocomplete_architectures users subprojects
                                        edit release_request
                                        show buildresult
                                        destroy remove_path_from_target
@@ -28,7 +28,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_staging_projects
                                               autocomplete_incidents autocomplete_packages autocomplete_anitya_distributions
-                                              autocomplete_repositories users subprojects new show
+                                              autocomplete_repositories autocomplete_architectures users subprojects new show
                                               buildresult requests monitor new_release_request
                                               remove_target_request edit_comment edit_comment_form preview_description]
 
@@ -178,6 +178,11 @@ class Webui::ProjectController < Webui::WebuiController
       dist.downcase.include?(search_term)
     end
     render json: results
+  end
+
+  def autocomplete_architectures
+    repository = Repository.find_by(project: @project, name: params[:repository])
+    render json: repository.repository_architectures.joins(:architecture).pluck(:id, 'architectures.name').to_h
   end
 
   def users

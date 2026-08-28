@@ -52,7 +52,7 @@ class Webui::DistroReleasesController < Webui::WebuiController
 
   # Only allow a trusted parameter "white list" through.
   def distro_release_params
-    params.expect(distro_release: %i[name description url])
+    params.expect(distro_release: [:name, :description, :url, { repository_architecture_ids: [] }])
   end
 
   def set_distro_release
