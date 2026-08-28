@@ -487,6 +487,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_155817) do
     t.string "version", null: false
   end
 
+  create_table "distro_release_repository_architectures", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "distro_release_id", null: false
+    t.integer "repository_architecture_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["distro_release_id", "repository_architecture_id"], name: "idx_on_distro_release_id_repository_architecture_id_0ae46a8884", unique: true
+    t.index ["repository_architecture_id"], name: "fk_rails_ecfa08540b"
+  end
+
+  create_table "distro_releases", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.bigint "distro_id", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+    t.string "url"
+    t.index ["distro_id", "name"], name: "index_distro_releases_on_distro_id_and_name", unique: true
+  end
+
   create_table "distros", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
@@ -1375,6 +1394,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_155817) do
   add_foreign_key "comments", "users", column: "moderator_id", name: "moderated_comments_fk"
   add_foreign_key "comments", "users", name: "comments_ibfk_1"
   add_foreign_key "decisions", "users", column: "moderator_id"
+  add_foreign_key "distro_release_repository_architectures", "distro_releases"
+  add_foreign_key "distro_release_repository_architectures", "repository_architectures"
+  add_foreign_key "distro_releases", "distros"
   add_foreign_key "distros", "vendors"
   add_foreign_key "download_repositories", "repositories", name: "download_repositories_ibfk_1"
   add_foreign_key "event_subscriptions", "bs_requests"
