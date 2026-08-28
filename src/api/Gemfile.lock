@@ -93,7 +93,7 @@ GEM
     ajax-datatables-rails (1.5.0)
       rails (>= 6.0)
       zeitwerk
-    amq-protocol (2.8.0)
+    amq-protocol (2.9.0)
     annotaterb (4.24.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
