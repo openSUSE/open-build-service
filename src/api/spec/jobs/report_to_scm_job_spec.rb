@@ -97,5 +97,16 @@ RSpec.describe ReportToSCMJob do
         expect(workflow_run.token.reload.enabled).to be(false)
       end
     end
+
+    context 'when the job was initialized with a workflow_run' do
+      let(:job) { described_class.new(workflow_run: workflow_run, event_type: 'pull_request', initial_report: true, event_payload: {}) }
+      let(:error) { StandardError.new('Something went wrong') }
+
+      it 'updates the workflow run directly as failed' do
+        job.report_failure(error)
+        expect(workflow_run.reload.status).to eq('fail')
+        expect(workflow_run.response_body).to eq('Something went wrong')
+      end
+    end
   end
 end
