@@ -70,11 +70,6 @@ class WorkflowRun < ApplicationRecord
     fail: 2
   }
 
-  # Marks the workflow run as failed and records the relevant debug information in response_body
-  def update_as_failed(message)
-    update(response_body: message, status: 'fail')
-  end
-
   def disable_token!
     token.update(enabled: false, reason: "Authentication to #{scm_vendor.titleize} failed while reporting the build status. Check your tokens authorization setup!")
   end
@@ -82,7 +77,7 @@ class WorkflowRun < ApplicationRecord
   # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
   # Marks the workflow run as failed also.
   def save_scm_report_failure(message, options)
-    update_as_failed(message)
+    update(response_body: message, status: 'fail')
     scm_status_reports.create(response_body: message,
                               request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)),
                               status: 'fail') # set SCMStatusReport status

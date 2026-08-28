@@ -72,7 +72,7 @@ class ReportToSCMJob < ApplicationJob
   private
 
   def handle_workflow_run_failure(workflow_run, error)
-    workflow_run.update_as_failed(error.message)
+    workflow_run.update(response_body: error.message, status: 'fail')
     workflow_run.disable_token! if SCMAuthExceptions.include?(error)
   end
 
