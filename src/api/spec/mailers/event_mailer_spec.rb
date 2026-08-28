@@ -434,7 +434,7 @@ RSpec.describe EventMailer, :vcr do
 
       context 'when the workflow run fails' do
         before do
-          workflow_run.update_as_failed('Failed for whatever reason')
+          workflow_run.update(response_body: 'Failed for whatever reason', status: 'fail')
         end
 
         it 'gets delivered' do
