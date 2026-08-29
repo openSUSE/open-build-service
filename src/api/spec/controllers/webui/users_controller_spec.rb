@@ -366,6 +366,21 @@ RSpec.describe Webui::UsersController do
   describe 'POST #change_password' do
     it { is_expected.to use_after_action(:verify_authorized) }
 
+    context 'when passwords are not changeable' do
+      before do
+        login non_admin_user
+        allow(Configuration).to receive(:passwords_changable?).and_return(false)
+        post :change_password, params: { login: non_admin_user, password: 'buildservice',
+                                         new_password: 'opensuse', repeat_password: 'opensuse' }
+      end
+
+      it 'shows an error message' do
+        expect(controller).to set_flash[:error]
+        expect(flash[:error]).to eq("You're not authorized to change your password.")
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
     context 'authenticated' do
       before do
         login non_admin_user
@@ -379,6 +394,32 @@ RSpec.describe Webui::UsersController do
       end
     end
 
+    context 'with wrong current password' do
+      before do
+        login non_admin_user
+        post :change_password, params: { login: non_admin_user, password: 'wrongpassword',
+                                         new_password: 'opensuse', repeat_password: 'opensuse' }
+      end
+
+      it 'shows an error message' do
+        expect(controller).to set_flash[:error]
+        expect(flash[:error]).to eq('The value of current password does not match your current password. Please enter the password and try again.')
+      end
+    end
+
+    context 'with mismatching confirmation' do
+      before do
+        login non_admin_user
+        post :change_password, params: { login: non_admin_user.login, password: 'buildservice',
+                                         new_password: 'opensuse', repeat_password: 'mismatch' }
+      end
+
+      it 'shows an error message' do
+        expect(controller).to set_flash[:error]
+        expect(flash[:error]).to match(/The password could not be changed/)
+      end
+    end
+
     context 'unauthenticated' do
       before do
         post :change_password, params: { login: non_admin_user, password: 'buildservice',
@@ -388,6 +429,60 @@ RSpec.describe Webui::UsersController do
       it 'shows an error message' do
         expect(controller).to set_flash[:error]
         expect(flash[:error]).to eq('Authentication Required')
+      end
+    end
+  end
+
+  describe 'PUT #admin_change_password' do
+    context 'as admin' do
+      before do
+        login admin_user
+      end
+
+      it 'changes the password of the displayed user' do
+        put :admin_change_password, params: { login: user, new_password: 'newpassword', repeat_password: 'newpassword' }
+        expect(controller).to set_flash[:success]
+        expect(flash[:success]).to eq("The password for '#{user.login}' has been changed successfully.")
+        expect(response).to redirect_to(user_path(user))
+        expect(user.reload.authenticate('newpassword')).to be_truthy
+      end
+    end
+
+    context 'as admin with mismatching confirmation' do
+      before do
+        login admin_user
+        put :admin_change_password, params: { login: user, new_password: 'newpassword', repeat_password: 'mismatch' }
+      end
+
+      it 'shows an error message' do
+        expect(controller).to set_flash[:error]
+        expect(flash[:error]).to match(/The password could not be changed/)
+      end
+    end
+
+    context 'as admin when password changing is disabled' do
+      before do
+        login admin_user
+        allow(Configuration).to receive(:passwords_changable?).and_return(false)
+        put :admin_change_password, params: { login: user, new_password: 'newpassword', repeat_password: 'newpassword' }
+      end
+
+      it 'shows a disabled message' do
+        expect(controller).to set_flash[:error]
+        expect(flash[:error]).to eq('Changing passwords is currently disabled.')
+      end
+    end
+
+    context 'as non-admin' do
+      before do
+        login non_admin_user
+        put :admin_change_password, params: { login: user, new_password: 'newpassword', repeat_password: 'newpassword' }
+      end
+
+      it 'requires admin privileges' do
+        expect(controller).to set_flash[:error]
+        expect(flash[:error]).to eq('Requires admin privileges')
+        expect(response).to redirect_to(root_path)
       end
     end
   end
