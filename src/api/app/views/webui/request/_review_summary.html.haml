@@ -15,7 +15,7 @@
     - elsif review.for_group?
       - modal_id = "review-group-members-#{review.id}-modal"
       = link_to(review.by_group, '#', role: 'button', data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}" })
-      = render partial: 'webui/request/beta_show_tabs/review_group_members_modal', locals: { review:, modal_id: }
+      = render partial: 'webui/request/review_group_members_modal', locals: { review:, modal_id: }
     - elsif review.for_package?
       = project_or_package_link(project: review.by_project, package: review.by_package, short: true)
     - elsif review.for_project?
