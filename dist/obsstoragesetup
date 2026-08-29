@@ -8,6 +8,8 @@
 source /etc/sysconfig/obs-server
 source /usr/lib/obs/server/functions.setup-appliance.sh
 
+prepare_os_settings
+
 # instance defaults
 if [ -e /etc/buildhost.config ]; then
   source /etc/buildhost.config
