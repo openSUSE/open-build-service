@@ -23,6 +23,9 @@
         = link_to(project_show_path(User.session.home_project), class: 'nav-link', title: 'Your Home Project') do
           %i.fas.fa-cubes.fa-fw.me-2
           %span.nav-item-name Your Home Project
+        = link_to(search_path(project: 1, search_text: "home:#{User.session.login}"), class: 'nav-link', title: 'Your Projects') do
+          %i.fas.fa-folder-open.fa-fw.me-2
+          %span.nav-item-name Your Projects
       - else
         = link_to(new_project_path(name: User.session.home_project_name), class: 'nav-link', title: 'Create Your Home Project') do
           %i.fas.fa-cubes.fa-fw.me-2
