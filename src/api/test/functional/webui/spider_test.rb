@@ -6,6 +6,7 @@ require 'nokogiri'
 class Webui::SpiderTest < Webui::IntegrationTest
   def ignore_link?(link)
     return true if link.include?('/mini-profiler-resources')
+    return true if link.include?('/search?project=1&search_text=home')
     # that link is just a top ref
     return true if link.include?('/package/rdiff')
     # admin can see even the hidden
