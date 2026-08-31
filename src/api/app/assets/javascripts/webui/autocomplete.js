@@ -81,7 +81,9 @@ $(document).ready(function() {
         dropdown        = parent.find('.repository-dropdown'),
         repositoryName = dropdown.find(":selected").val(),
         button          = event.target,
-        list            = parent.find('.item-list');
+        list            = parent.find('.item-list'),
+        itemTemplate    = document.querySelector('#item-list-template'),
+        checkboxTemplate= document.querySelector('#item-list-checkbox');
 
     if (projectName === '') return;
     if (repositoryName === '') return;
@@ -91,30 +93,23 @@ $(document).ready(function() {
       data: { project: projectName, repository: repositoryName },
       success: function (data) {
         if(data.length !== 0) {
-          var element = document.createElement('li');
-          element.classList = 'list-group-item d-flex justify-content-between';
-          element.innerText = projectName + '/' + repositoryName;
-          var innerForm = document.createElement('div');
-          var input = document.createElement('input');
-          input.setAttribute('type', 'hidden');
-          input.setAttribute('name', button.dataset.name);
-          innerForm.append(input);
-          Object.entries(data).forEach(([id, name]) => {
-            var checkbox = document.createElement('input');
-            checkbox.id = button.dataset.id + id;
-            checkbox.classList.add('form-check-input');
-            checkbox.setAttribute('type', 'checkbox');
-            checkbox.setAttribute('value', id);
-            checkbox.setAttribute('name', button.dataset.name);
-            innerForm.append(checkbox);
-            var label = document.createElement('label');
-            label.innerText = name;
-            label.classList.add('form-check-label');
-            label.setAttribute('for', button.dataset.id + id);
-            innerForm.append(label);
-          });
-          element.append(innerForm);
-          list.append(element);
+          if ("content" in document.createElement("template")) {
+            const item = document.importNode(itemTemplate.content, true);
+            let itemName = item.querySelector('.item-name');
+            itemName.innerText = projectName + '/' + repositoryName;
+            let checkboxList = item.querySelector('.item-checkboxes');
+            Object.entries(data).forEach(([id, name]) => {
+              const checkbox = document.importNode(checkboxTemplate.content, true);
+              let checkboxLabel = checkbox.querySelector('label');
+              checkboxLabel.setAttribute('for', checkboxLabel.getAttribute('for') + id);
+              checkboxLabel.innerText = name;
+              let checkboxInput = checkbox.querySelector('input');
+              checkboxInput.id = checkboxInput.id + id;
+              checkboxInput.value = id;
+              checkboxList.appendChild(checkbox);
+            });
+            list.append(item);
+          }
         }
       }
     });

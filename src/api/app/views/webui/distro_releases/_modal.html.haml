@@ -41,9 +41,7 @@
           %button.btn.btn-secondary{ type: 'button', data: { 'bs-target': "#search-collapse-distro-release-#{model.id}",
                                                              'bs-toggle': 'collapse' } } Cancel
           %button.btn.btn-primary.add-button{ id: "search-submit-distro-release-#{model.id}", type: 'button',
-                                              data: { name: 'distro_release[repository_architecture_ids][]',
-                                              id: 'distro_release_repository_architecture_ids_',
-                                              source: autocomplete_architectures_path } } Add Repository
+                                              data: { source: autocomplete_architectures_path } } Add Repository
 
       %ul.list-group.list-group-flush.item-list
         - model.repositories.distinct.each do |repository|
@@ -56,3 +54,13 @@
 
     %div
       = form.submit 'Save', class: 'btn btn-success'
+
+%template#item-list-template
+  %li.list-group-item.d-flex.justify-content-between
+    %span.item-name
+    .item-checkboxes
+      %input{ type: 'hidden', name: 'distro_release[repository_architecture_ids][]' }
+%template#item-list-checkbox
+  %input.form-check-input{ type: 'checkbox', name: 'distro_release[repository_architecture_ids][]',
+                           id: 'distro_release_repository_architecture_ids_' }
+  %label.form-check-label{ for: 'distro_release_repository_architecture_ids_' }
