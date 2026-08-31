@@ -4,6 +4,16 @@
     = link_to(distro_release.url, distro_release.url)
   %p.card-text
     = distro_release.description
+  %b.card-text
+    Repositories:
+  %ul.list-group.list-group-flush
+    - distro_release.repository_architectures.group_by(&:repository).each do |repository, repository_architectures|
+      %li.list-group-item.d-flex.flex-wrap.justify-content-between.px-0
+        #{repository.project.name}/#{repository.name}
+        %div
+          - repository_architectures.each do |ra|
+            %span.badge.text-bg-primary
+              = ra.architecture.name
   - component.with_header do
     %h5.card-title= distro_release.name
 

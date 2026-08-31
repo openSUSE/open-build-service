@@ -74,4 +74,44 @@ $(document).ready(function() {
     // Update the source target of the package autocomplete
     packageInput.autocomplete('option', { source: source });
   });
+
+  $('.architecture-autocomplete').on('click', '.add-button', function(event) {
+    var parent          = $(this).closest('.architecture-autocomplete'),
+        projectName     = parent.find('.ui-autocomplete-input').val(),
+        dropdown        = parent.find('.repository-dropdown'),
+        repositoryName = dropdown.find(":selected").val(),
+        button          = event.target,
+        list            = parent.find('.item-list'),
+        itemTemplate    = document.querySelector('#item-list-template'),
+        checkboxTemplate= document.querySelector('#item-list-checkbox');
+
+    if (projectName === '') return;
+    if (repositoryName === '') return;
+
+    $.ajax({
+      url: button.dataset.source,
+      data: { project: projectName, repository: repositoryName },
+      success: function (data) {
+        if(data.length !== 0) {
+          if ("content" in document.createElement("template")) {
+            const item = document.importNode(itemTemplate.content, true);
+            let itemName = item.querySelector('.item-name');
+            itemName.innerText = projectName + '/' + repositoryName;
+            let checkboxList = item.querySelector('.item-checkboxes');
+            Object.entries(data).forEach(([id, name]) => {
+              const checkbox = document.importNode(checkboxTemplate.content, true);
+              let checkboxLabel = checkbox.querySelector('label');
+              checkboxLabel.setAttribute('for', checkboxLabel.getAttribute('for') + id);
+              checkboxLabel.innerText = name;
+              let checkboxInput = checkbox.querySelector('input');
+              checkboxInput.id = checkboxInput.id + id;
+              checkboxInput.value = id;
+              checkboxList.appendChild(checkbox);
+            });
+            list.append(item);
+          }
+        }
+      }
+    });
+  });
 });
