@@ -1,10 +1,6 @@
-class DistroPolicy < ApplicationPolicy
+class DistroReleasePolicy < ApplicationPolicy
   def create?
-    VendorPolicy.new(user, record.vendor).create?
-  end
-
-  def show?
-    true
+    DistroPolicy.new(user, record.distro).create?
   end
 
   def new?

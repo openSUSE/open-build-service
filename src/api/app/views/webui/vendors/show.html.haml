@@ -28,7 +28,7 @@
     .row
       .col
         - if policy(Distro.new(vendor: @vendor)).new?
-          = render partial: 'distro_modal', locals: { model: Distro.new(vendor: @vendor),
+          = render partial: 'webui/distros/modal', locals: { model: Distro.new(vendor: @vendor),
                                                       url: vendor_distros_path(@vendor), text: 'New Distro', icon: 'circle-plus' }
         - if policy(@vendor).edit?
           = link_to(edit_project_vendor_path(@vendor.project), class: 'ps-2', title: 'Edit') do
@@ -44,7 +44,7 @@
     .row.mt-3
       - @vendor.distros.each do |distro|
         .col-lg-3.col-md-4.col-sm-6.col-12.mb-3
-          = render partial: 'distro', locals: { distro: }
+          = render partial: 'webui/distros/distro', locals: { distro: }
 
 .modal.fade#delete-distro-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-distro-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }

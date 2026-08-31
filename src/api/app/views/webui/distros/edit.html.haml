@@ -1,0 +1,7 @@
+- @pagetitle = "Distro #{@distro.name}"
+
+.card
+  .card-body
+    %h3.mb-3
+      "Distro - #{@distro.name}"
+    = render partial: 'form', locals: {url: vendor_distro_path(@distro.vendor, @distro), model: @distro}

@@ -1,9 +1,8 @@
-= render ModalComponent.new(modal_id: "distro-modal-#{model.id}",
+= render ModalComponent.new(modal_id: "distro-release-#{model.id}",
                             modal_button_data: {text: text, type: 'link text-decoration-none', icon: icon}) do |component|
   - component.with_header do
     = text
   = form_with(url: url, model: model) do |form|
-    = form.hidden_field :vendor_id, value: model.vendor.id
     .mb-3
       = form.label :name
       = form.text_field :name, class: 'form-control'

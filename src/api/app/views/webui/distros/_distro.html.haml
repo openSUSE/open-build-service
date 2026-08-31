@@ -1,0 +1,25 @@
+= render(CardComponent.new) do |component|
+  %p.card-text
+    URL:
+    = link_to(distro.url, distro.url)
+  %p.card-text
+    = distro.description
+  - component.with_header do
+    %h5.card-title= link_to(distro.name, vendor_distro_path(distro.vendor, distro))
+
+  - if policy(distro).destroy?
+    - component.with_delete_button do
+      = link_to '#', title: 'Delete Distro',
+        data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-modal', vendor_name: distro.vendor.name,
+                distro_name: distro.name, action: vendor_distro_path(distro.vendor, distro) } do
+        %i.fas.fa-trash-can.text-danger
+
+  - if policy(distro).edit?
+    - component.with_action do
+      = render partial: 'webui/distros/modal', locals: { model: distro, url: vendor_distro_path(distro.vendor, distro),
+                                                         text: 'Edit Distro', icon: 'edit' }
+
+  - if policy(DistroRelease.new(distro: distro)).create?
+    - component.with_action do
+      = render partial: 'webui/distro_releases/modal', locals: { model: DistroRelease.new(distro: distro), url: distro_releases_path(distro),
+                                                                 text: 'Add Release', icon: 'circle-plus' }
