@@ -139,8 +139,12 @@ function draftComments(formId) { // jshint ignore:line
 
   var submitButton = commentForm.querySelector('input[type="submit"]');
   var commentTextArea = commentForm.getElementsByTagName("textarea")[0];
-  var commentableType = commentForm.querySelector('[name="commentable_type"]').value;
-  var commentableId = commentForm.querySelector('[name="commentable_id"]').value;
+  var typeElement = commentForm.querySelector('[name="commentable_type"]');
+  var idElement = commentForm.querySelector('[name="commentable_id"]');
+  if (!typeElement || !idElement) return;
+
+  var commentableType = typeElement.value;
+  var commentableId = idElement.value;
   var diffFileIndex = null;
   var diffLineNumber = null;
   var parentElementId = '';
