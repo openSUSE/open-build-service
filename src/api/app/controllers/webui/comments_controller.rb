@@ -17,7 +17,7 @@ class Webui::CommentsController < Webui::WebuiController
       flash.now[:error] = "Failed to create comment: #{@comment.errors.full_messages.to_sentence}."
     end
 
-    if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
+    if %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
       render(partial: 'webui/comment/beta/comments_thread',
              locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff })
     else
@@ -39,7 +39,7 @@ class Webui::CommentsController < Webui::WebuiController
 
     respond_to do |format|
       format.html do
-        if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
+        if %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
           render(partial: 'webui/comment/beta/comments_thread',
                  locals: { comment: @comment.root, commentable: @comment.commentable, level: 1, diff: diff })
         else
@@ -65,7 +65,7 @@ class Webui::CommentsController < Webui::WebuiController
       flash.now[:error] = "Failed to delete comment: #{@comment.errors.full_messages.to_sentence}."
     end
 
-    if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
+    if %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
       if @comment.commentable_type == 'BsRequestAction' &&
          Comment.where(commentable: @comment.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number).none?
         return render(partial: 'webui/request/add_inline_comment',
@@ -108,7 +108,7 @@ class Webui::CommentsController < Webui::WebuiController
       flash.now[:error] = "Failed to moderate comment: #{@comment.errors.full_messages.to_sentence}."
     end
 
-    if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
+    if %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
       render(partial: 'webui/comment/beta/comments_thread',
              locals: { comment: @comment.root, commentable: @comment.commentable, level: 1, diff: diff })
     else
