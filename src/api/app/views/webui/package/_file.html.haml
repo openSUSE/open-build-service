@@ -8,7 +8,10 @@
       - link_opts[:rev] = srcmd5
     = link_to_if(is_viewable, nbsp(file['name']), link_opts)
   %td.text-nowrap
-    %span.d-none= file['size'].rjust(10, '0')
+    - if file['size']
+      %span.d-none= file['size'].rjust(10, '0')
+    - else
+      %span.d-none= 0
     = human_readable_fsize(file['size'])
   %td.text-nowrap{ data: { order: "-#{file['mtime']}" } }
     = render TimeComponent.new(time: Time.zone.at(file['mtime'].to_i))
