@@ -29,6 +29,8 @@ class BsRequest < ApplicationRecord
 
   ACTION_NOTIFY_LIMIT = 50
 
+  attr_internal_accessor :enforce_branching
+
   # Ensure attribute is declared for the enum in a migration-safe way
   # This handles cases where the model is loaded during migrations before the status column exists
   # or when upgrading from older OBS versions
@@ -928,6 +930,8 @@ class BsRequest < ApplicationRecord
     check_bs_request_actions!
     check_uniq_actions!
 
+    bs_request_actions.where(type: 'BsRequestActionMaintenanceIncident').map { |action| action.modify_sources(enforce_branching: enforce_branching) }
+
     # Autoapproval? Is the creator allowed to accept it?
     permission_check_change_state!(newstate: 'accepted') if accept_at
 
@@ -1048,6 +1052,10 @@ class BsRequest < ApplicationRecord
   def canned_responses
     package_ids = bs_request_actions.pluck(:source_package_id, :target_package_id).flatten.uniq
     CannedResponse.where(package_id: package_ids)
+  end
+
+  def enforce_branching
+    @enforce_branching || true
   end
 
   private
