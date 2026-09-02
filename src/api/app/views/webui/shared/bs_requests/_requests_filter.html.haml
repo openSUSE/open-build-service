@@ -267,6 +267,7 @@
 - content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
 -# turbo frame used to trigger the turbo stream which updates the request filter counters
 = turbo_frame_tag("request_filter_counts_processor", src: url_for(controller_path: controller_path,
-                                                                  action: 'counts', format: :turbo_stream))
+                                                                  action: 'counts', format: :turbo_stream,
+                                                                  involvement: params[:involvement]))
 
 -# haml-lint:enable ViewLength
