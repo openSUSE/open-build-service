@@ -370,7 +370,7 @@ RSpec.describe 'Requests', :js, :vcr do
 
   describe 'shows the correct auto accepted message' do
     before do
-      bs_request.update(accept_at: Time.now - 1.hour)
+      bs_request.update(accept_at: 1.hour.ago)
     end
 
     it 'when request was auto-accepted' do
@@ -380,7 +380,7 @@ RSpec.describe 'Requests', :js, :vcr do
     end
 
     it 'when request with future accept_at was manually accepted' do
-      bs_request.update(state: :accepted, accept_at: Time.now + 1.day)
+      bs_request.update(state: :accepted, accept_at: 1.day.from_now)
       visit request_show_path(bs_request)
       expect(page).not_to have_text('auto-accepted')
     end
@@ -391,7 +391,7 @@ RSpec.describe 'Requests', :js, :vcr do
     end
 
     it 'when request auto_accept is in the future and not in a final state' do
-      bs_request.update(accept_at: Time.now + 1.day)
+      bs_request.update(accept_at: 1.day.from_now)
       visit request_show_path(bs_request)
       expect(page)
         .to have_text("The current request will be auto-accepted #{TimeComponent.new(time: bs_request.accept_at).human_time}")
