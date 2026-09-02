@@ -8,6 +8,7 @@ class PublicController < ApplicationController
   before_action :set_response_format_to_xml
   before_action :set_influxdb_data_interconnect
   before_action :set_anonymous_user
+  before_action :set_project, only: %i[binary_packages]
 
   # GET /public/build/:project/:repository/:arch/:package
   def build
@@ -145,7 +146,6 @@ class PublicController < ApplicationController
   # GET /public/binary_packages/:project/:package
   def binary_packages
     check_package_access(params[:project], params[:package], use_source: false)
-    @pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     begin
       binaries = Xmlhash.parse(Backend::Api::Search.published_binaries_for_package(params[:project], params[:package]))
@@ -165,7 +165,7 @@ class PublicController < ApplicationController
     end
 
     @binary_links = {}
-    @pkg.project.repositories.includes(path_elements: { link: :project }).find_each do |repo|
+    @project.repositories.includes(path_elements: { link: :project }).find_each do |repo|
       repo.path_elements.each do |pe|
         # NOTE: we do not follow indirect path elements here, since most installation handlers
         #       do not support it (exception zypp via ymp files)
@@ -175,8 +175,8 @@ class PublicController < ApplicationController
 
         dist_id = dist.id
         @binary_links[dist_id] ||= {}
-        binary = binary_map[repo.name].find { |bin| bin.value(:name) == @pkg.name }
-        @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, "#{@pkg.name}.ymp")) } if binary && dist.vendor == 'openSUSE'
+        binary = binary_map[repo.name].find { |bin| bin.value(:name) == params[:package] }
+        @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@project.name, repo.name, "#{params[:package]}.ymp")) } if binary && dist.vendor == 'openSUSE'
 
         @binary_links[dist_id][:binary] ||= []
         binary_map[repo.name].each do |b|
@@ -190,7 +190,7 @@ class PublicController < ApplicationController
 
           @binary_links[dist_id][:binary] << { type: binary_type, arch: b['arch'], url: repo.download_url(filepath) }
           if @binary_links[dist_id][:repository].blank?
-            repo_filename = binary_type == 'rpm' ? "#{@pkg.project.name}.repo" : ''
+            repo_filename = binary_type == 'rpm' ? "#{@project.name}.repo" : ''
             @binary_links[dist_id][:repository] ||= { url: repo.download_url(repo_filename) }
           end
         end
@@ -208,6 +208,13 @@ class PublicController < ApplicationController
   end
 
   private
+
+  def set_project
+    @project = Project.find_by(name: params[:project])
+    return if @project
+
+    raise Project::Errors::UnknownObjectError, "Project not found: #{params[:project]}"
+  end
 
   def set_influxdb_data_interconnect
     InfluxDB::Rails.current.tags = {

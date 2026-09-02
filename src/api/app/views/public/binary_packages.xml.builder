@@ -1,6 +1,4 @@
-xml.package project: @pkg.project.name, package: @pkg.name do
-  xml.title @pkg.title
-  xml.description @pkg.description
+xml.package project: @project.name, package: params[:package] do
   xml.binaries do
     @binary_links.each do |repo, arr|
       xml.list(distribution: repo) do
