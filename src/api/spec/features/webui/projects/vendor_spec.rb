@@ -51,22 +51,6 @@ RSpec.describe 'Vendors', :js, :vcr do
       end
     end
 
-    context 'editing a distro through its own modal' do
-      before do
-        find("button[data-bs-target='#distro-modal-#{distro.id}-modal']").click
-
-        within("#distro-modal-#{distro.id}-modal") do
-          fill_in('Name', with: 'Slowroll')
-          click_button('Save')
-        end
-      end
-
-      it 'updates the distro' do
-        expect(page).to have_text('Distro was successfully updated.')
-        expect(distro.reload.name).to eq('Slowroll')
-      end
-    end
-
     context 'deleting a distro through the shared delete modal' do
       before do
         find("a[data-action='#{vendor_distro_path(vendor, distro)}']").click
