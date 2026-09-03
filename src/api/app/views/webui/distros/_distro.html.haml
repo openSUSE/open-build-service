@@ -3,7 +3,7 @@
     URL:
     = link_to(distro.url, distro.url)
   %p.card-text
-    = distro.description
+    = truncate(distro.description, length: 100)
   - component.with_header do
     %h5.card-title= link_to(distro.name, vendor_distro_path(distro.vendor, distro))
 
