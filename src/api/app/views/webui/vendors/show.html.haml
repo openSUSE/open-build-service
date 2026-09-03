@@ -22,8 +22,13 @@
     .row
       .col
         - if policy(Distro.new(vendor: @vendor)).new?
-          = render partial: 'webui/distros/modal', locals: { model: Distro.new(vendor: @vendor),
-                                                      url: vendor_distros_path(@vendor), text: 'New Distro', icon: 'circle-plus' }
+          = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#distro-modal--modal' }, class: '') do
+            %i.fas.fa-circle-plus
+            %span.nav-item-name New Distro
+          = render ModalComponent.new(modal_id: 'distro-modal-') do |component|
+            - component.with_header do
+              New Distro
+            = render partial: 'webui/distros/form', locals: { url: vendor_distros_path(@vendor), model: Distro.new(vendor: @vendor) }
         - if policy(@vendor).edit?
           = link_to(edit_project_vendor_path(@vendor.project), class: 'ps-2', title: 'Edit') do
             %i.fas.fa-edit
@@ -33,8 +38,6 @@
             data: { confirm: 'Are you sure you want to delete this vendor?'}) do
             %i.fas.fa-trash-can
             %span.nav-item-name Delete
-
-
     .row.mt-3
       - @vendor.distros.each do |distro|
         .col-lg-3.col-md-4.col-sm-6.col-12.mb-3
