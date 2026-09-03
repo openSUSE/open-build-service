@@ -14,4 +14,8 @@ class DistroReleasePolicy < ApplicationPolicy
   def update?
     create?
   end
+
+  def edit?
+    create?
+  end
 end

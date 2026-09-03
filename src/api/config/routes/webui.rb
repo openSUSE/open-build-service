@@ -318,7 +318,7 @@ resources :vendors, only: [] do
 end
 
 resources :distros, only: [] do
-  resources :releases, controller: 'webui/distro_releases', except: %i[index new show edit]
+  resources :releases, controller: 'webui/distro_releases', except: %i[index new show]
 end
 
 get 'request/show/:number/build_results', to: redirect('/requests/%{number}/build_results'), constraints: cons
