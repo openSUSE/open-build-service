@@ -18,7 +18,3 @@
       = link_to(edit_vendor_distro_path(distro.vendor, distro), class: 'ps-2', title: 'Edit') do
         %i.fas.fa-edit
         %span.nav-item-name Edit
-  - if policy(DistroRelease.new(distro: distro)).create?
-    - component.with_action do
-      = render partial: 'webui/distro_releases/modal', locals: { model: DistroRelease.new(distro: distro), url: distro_releases_path(distro),
-                                                                 text: 'Add Release', icon: 'circle-plus' }
