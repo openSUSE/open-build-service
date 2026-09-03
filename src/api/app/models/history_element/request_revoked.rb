@@ -8,9 +8,6 @@ module HistoryElement
       'Request got revoked'
     end
 
-    def user_action
-      'revoked request'
-    end
   end
 end
 
