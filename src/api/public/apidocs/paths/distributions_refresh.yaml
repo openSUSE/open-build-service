@@ -1,27 +1,22 @@
 post:
-  summary: Trigger on-demand synchronization of remote distributions.
+  summary: Trigger synchronization of remote distributions.
   description: |
-    Trigger an on-demand synchronization of remote distributions from configured
-    remote registries (e.g. `build.opensuse.org`).
-
-    This operation executes the background job (`FetchRemoteDistributionsJob`) to
-    retrieve, update, and cache remote distributions.
-
+    Trigger synchronization of distributions from interconnect projects.
     This is only for admins.
   security:
     - basic_authentication: []
-  parameters:
-    - in: query
-      name: cmd
-      required: true
-      schema:
-        type: string
-        enum:
-          - refresh
-      description: Command to trigger remote distributions refresh.
   responses:
     '200':
       $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request. Somehow failed to refresh distributions from the network.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: failed_distribution_refresh
+            summary: Failed to refresh distributions
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '403':

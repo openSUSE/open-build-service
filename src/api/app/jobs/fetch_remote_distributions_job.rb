@@ -3,10 +3,10 @@ class FetchRemoteDistributionsJob < ApplicationJob
     Project.remote.each do |project|
       distributions_xml = Project::RemoteURL.load(project, '/distributions.xml')
 
-      # Retain cached distributions on transient connection or server errors instead of purging them
-      if distributions_xml.nil?
-        Rails.logger.warn "Connection error fetching remote distributions from #{project.name}. Retaining cached values."
-      elsif Xmlhash.parse(distributions_xml).blank?
+      # Project::RemoteURL returns nil (and reports to log/Airbrake) in case of errors, we are done if this happens...
+      return false if distributions_xml.nil?
+
+      if Xmlhash.parse(distributions_xml).blank?
         Distribution.remote.for_project(project.name).destroy_all
       else
         Suse::Validator.validate('distributions', distributions_xml)
@@ -14,6 +14,8 @@ class FetchRemoteDistributionsJob < ApplicationJob
         bulk_replace(project: project.name, distributions_xmlhash: distributions_xmlhash)
       end
     end
+
+    true
   end
 
   private

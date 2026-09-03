@@ -1,6 +1,6 @@
 class DistributionsController < ApplicationController
   before_action :require_admin, except: %i[index show include_remotes]
-  before_action :set_body_xml, except: %i[index show include_remotes]
+  before_action :set_body_xml, except: %i[index show include_remotes refresh]
 
   validate_action bulk_replace: { method: :put, request: :distributions }
   validate_action bulk_replace: { method: :post, request: :distributions }
@@ -33,14 +33,6 @@ class DistributionsController < ApplicationController
 
   # POST /distributions
   def create
-    # Standard REST API design: Support 'refresh' action modifier via query params
-    # to trigger the FetchRemoteDistributionsJob on-demand.
-    if params[:cmd] == 'refresh'
-      FetchRemoteDistributionsJob.perform_now
-      render_ok
-      return
-    end
-
     distribution = Distribution.new_from_xmlhash(@body_xml)
 
     if distribution.save
@@ -110,19 +102,18 @@ class DistributionsController < ApplicationController
     end
   end
 
-  private
-
-  def validate_xml_request(method = nil)
-    # Skip XML request schema validation for on-demand remote refresh triggers
-    return if params[:cmd] == 'refresh'
-
-    super
+  # POST /distributions/refresh
+  def refresh
+    if FetchRemoteDistributionsJob.perform_now
+      render_ok
+    else
+      render_error message: 'Failed to refresh distributions', errorcode: 'failed_distribution_refresh'
+    end
   end
 
-  def set_body_xml
-    # Skip XML parsing of empty request body for refresh command triggers
-    return if params[:cmd] == 'refresh'
+  private
 
+  def set_body_xml
     @body_xml = Xmlhash.parse(request.body.read)
   end
 end
