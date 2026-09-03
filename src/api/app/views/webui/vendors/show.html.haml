@@ -3,7 +3,7 @@
 .card
   .card-body
     %h3.mb-3
-      "Vendor - #{@vendor.name}"
+      = render partial: 'webui/shared/external_link', locals: { text: @vendor.name, url: @vendor.url }
     .row
       .col-12.col-md-10.col-lg-8
         .row
@@ -23,7 +23,7 @@
             %label.fw-bold
               URL:
             %span
-              = @vendor.url
+              = render partial: 'webui/shared/external_link', locals: { text: @vendor.url, url: @vendor.url }
 
     .row
       .col
