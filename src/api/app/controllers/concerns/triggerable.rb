@@ -46,6 +46,6 @@ module Triggerable
   end
 
   def project_links_to_remote?
-    @project.scmsync.present? || @project.links_to_remote?
+    @project.links_to_scmsync? || @project.links_to_remote?
   end
 end
