@@ -266,8 +266,6 @@ jobs:
       - run: mkdir /home/frontend/minitest
       - run:
           name: Run minitest
-          environment:
-            TESTOPTS: "--ci-dir=/home/frontend/minitest"
           working_directory: src/api
           command: |
             case $CIRCLE_NODE_INDEX in
@@ -534,8 +532,6 @@ jobs:
       - run: *bootstrap_old_test_suite
       - run:
           name: Run minitest test suite
-          environment:
-            TESTOPTS: "--ci-dir=/home/frontend/minitest"
           working_directory: src/api
           command: bundle exec rake test:api:group1 test:api:group2
       - store_test_results:
