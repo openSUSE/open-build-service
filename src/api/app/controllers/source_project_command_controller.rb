@@ -9,7 +9,7 @@ class SourceProjectCommandController < SourceController
     params.require(:cmd)
 
     valid_commands = %w[undelete showlinked remove_flag set_flag createpatchinfo
-                        createkey extendkey copy createmaintenanceincident lock
+                        createkey extendkey preparekey activatekey copy createmaintenanceincident lock
                         unlock release addchannels modifychannels move freezelink]
 
     raise IllegalRequest, 'invalid_command' unless valid_commands.include?(params[:cmd])
@@ -109,9 +109,23 @@ class SourceProjectCommandController < SourceController
 
   # POST /source/<project>?cmd=createkey
   def project_command_createkey
-    backend_params = { user: User.session.login, comment: params[:comment] }.compact
+    backend_params = { user: User.session.login, comment: params[:comment], keyalgo: params[:keyalgo], days: params[:days] }.compact
 
     render xml: Backend::Api::Sources::Project.createkey(params[:project], backend_params)
+  end
+
+  # POST /source/<project>?cmd=preparekey
+  def project_command_preparekey
+    backend_params = { user: User.session.login, comment: params[:comment], keyalgo: params[:keyalgo], days: params[:days] }.compact
+
+    render xml: Backend::Api::Sources::Project.preparekey(params[:project], backend_params)
+  end
+
+  # POST /source/<project>?cmd=activatekey
+  def project_command_activatekey
+    backend_params = { user: User.session.login, comment: params[:comment] }.compact
+
+    render xml: Backend::Api::Sources::Project.activatekey(params[:project], backend_params)
   end
 
   # POST /source/<project>?cmd=createmaintenanceincident
