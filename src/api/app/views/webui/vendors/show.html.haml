@@ -10,8 +10,8 @@
           .col
             %label.fw-bold
               Description:
-            %span
-              = @vendor.description
+            #vendor-description
+              = render partial: 'webui/shared/collapsible_text', locals: { text: @vendor.description }
         .row
           .col
             %label.fw-bold
