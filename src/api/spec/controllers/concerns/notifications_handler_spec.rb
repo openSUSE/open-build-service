@@ -7,6 +7,33 @@ RSpec.describe ApplicationController do # rubocop:disable RSpec/SpecFilePathForm
     end
   end
 
+  describe '#set_current_notification' do
+    let(:user) { create(:user) }
+    let(:notification) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user, delivered: false) }
+
+    before do
+      session[:login] = user.login
+    end
+
+    it 'marks the notification as read when visiting a page' do
+      expect do
+        get :index, params: { notification_id: notification.id }
+      end.to change { notification.reload.delivered }.from(false).to(true)
+    end
+
+    it 'sets the current_notification instance variable' do
+      get :index, params: { notification_id: notification.id }
+      expect(assigns(:current_notification)).to eq(notification)
+    end
+
+    it 'does not update already read notifications' do
+      notification.update!(delivered: true)
+      allow(notification).to receive(:update)
+      get :index, params: { notification_id: notification.id }
+      expect(notification).not_to have_received(:update)
+    end
+  end
+
   describe '#notification_target_path_with_return_to' do
     let(:target_path) { controller.send(:notification_target_path_with_return_to, '/request/show/1?notification_id=2') }
     let(:uri) { URI.parse(target_path) }

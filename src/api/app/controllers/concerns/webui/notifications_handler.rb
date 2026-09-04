@@ -14,6 +14,8 @@ module Webui::NotificationsHandler
     return unless notification
     return unless NotificationPolicy.new(User.session, notification).update?
 
+    notification.update(delivered: true) if notification.unread?
+
     @current_notification = notification
   end
 
