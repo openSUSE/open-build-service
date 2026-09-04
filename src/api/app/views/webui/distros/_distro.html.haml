@@ -13,7 +13,7 @@
       = link_to '#', title: 'Delete Distro',
         data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-modal', vendor_name: distro.vendor.name,
                 distro_name: distro.name, action: vendor_distro_path(distro.vendor, distro) } do
-        %i.fas.fa-trash-can.text-danger
+        %i.fas.fa-times-circle.text-danger
   - if policy(distro).edit?
     - component.with_action do
       = link_to(edit_vendor_distro_path(distro.vendor, distro), class: 'ps-2', title: 'Edit') do
