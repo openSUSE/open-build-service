@@ -15,10 +15,10 @@ $(document).ready(function() {
     $(this).dataTable({
       order: [[0,'desc']],
       columnDefs: [
-        // We dont allow ordering by the request link.
-        // Columns: created, source, target, requester, type, priority, request link.
+        // We dont allow ordering by the request number or the request link.
+        // Columns: created, source, target, requester, type, priority, request number, request link.
         // First column has index 0.
-        { orderable: false, targets: [6], responsivePriority: 1 }
+        { orderable: false, targets: [6, 7], responsivePriority: 1 }
       ],
       paging: true,
       pagingType: 'full',
