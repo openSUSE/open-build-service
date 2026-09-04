@@ -1,9 +1,10 @@
 = render(CardComponent.new) do |component|
   %p.card-text
-    URL:
-    = link_to(distro.url, distro.url)
+    - if distro.url.present?
+      %i.fas.fa-link.text-info
+      = render partial: 'webui/shared/external_link', locals: { text: distro.url, url: distro.url }
   %p.card-text
-    = distro.description
+    = truncate(distro.description, length: 100)
   - component.with_header do
     %h5.card-title= link_to(distro.name, vendor_distro_path(distro.vendor, distro))
 
@@ -12,14 +13,9 @@
       = link_to '#', title: 'Delete Distro',
         data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-modal', vendor_name: distro.vendor.name,
                 distro_name: distro.name, action: vendor_distro_path(distro.vendor, distro) } do
-        %i.fas.fa-trash-can.text-danger
-
+        %i.fas.fa-times-circle.text-danger
   - if policy(distro).edit?
     - component.with_action do
-      = render partial: 'webui/distros/modal', locals: { model: distro, url: vendor_distro_path(distro.vendor, distro),
-                                                         text: 'Edit Distro', icon: 'edit' }
-
-  - if policy(DistroRelease.new(distro: distro)).create?
-    - component.with_action do
-      = render partial: 'webui/distro_releases/modal', locals: { model: DistroRelease.new(distro: distro), url: distro_releases_path(distro),
-                                                                 text: 'Add Release', icon: 'circle-plus' }
+      = link_to(edit_vendor_distro_path(distro.vendor, distro), class: 'ps-2', title: 'Edit') do
+        %i.fas.fa-edit
+        %span.nav-item-name Edit

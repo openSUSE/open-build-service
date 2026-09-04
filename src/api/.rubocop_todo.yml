@@ -425,6 +425,7 @@ Naming/PredicateMethod:
   Exclude:
     - 'app/controllers/webui/package_controller.rb'
     - 'app/controllers/webui/request_controller.rb'
+    - 'app/jobs/fetch_remote_distributions_job.rb'
     - 'app/lib/suse/permission.rb'
     - 'app/models/comment.rb'
     - 'app/models/concerns/staging_project.rb'
