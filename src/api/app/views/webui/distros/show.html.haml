@@ -3,48 +3,41 @@
 .card
   .card-body
     %h3.mb-3
-      "Distro - #{@distro.name}"
+      = render partial: 'webui/shared/external_link', locals: { text: @distro.name, url: @distro.url }
     .row
       .col-12.col-md-10.col-lg-8
-        .row
-          .col
-            %label.fw-bold
-              Description:
-            %span
-              = @distro.description
-        .row
-          .col
-            %label.fw-bold
-              Vendor:
-            %span
-              = link_to(@distro.vendor.name, project_vendor_path(@distro.project))
-        .row
-          .col
-            %label.fw-bold
-              URL:
-            %span
-              = @distro.url
-
-    .row
-      .col
-        - if policy(DistroRelease.new(distro: @distro)).new?
-          = render partial: 'webui/distro_releases/modal', locals: { model: DistroRelease.new(distro: @distro),
-                                                      url: distro_releases_path(@distro), text: 'New Release', icon: 'circle-plus' }
+        #distro-description
+          - if @distro.description.blank?
+            %i No description set
+          - else
+            = render partial: 'webui/shared/collapsible_text', locals: { text: @distro.description }
         - if policy(@distro).edit?
-          = link_to(edit_vendor_distro_path(@distro.vendor, @distro), class: 'ps-2', title: 'Edit') do
-            %i.fas.fa-edit
-            %span.nav-item-name Edit
-        - if policy(@distro).destroy?
-          = link_to(vendor_distro_path(@distro.vendor, @distro), method: :delete, class: 'ps-2 text-danger',
-            data: { confirm: 'Are you sure you want to delete this distro?'}) do
-            %i.fas.fa-trash-can
-            %span.nav-item-name Delete
-
-
+          .pt-4.mb-3
+            = link_to(edit_vendor_distro_path(@distro.vendor, @distro), class: 'ps-0', title: 'Edit') do
+              %i.fas.fa-edit.text-secondary
+              %span.nav-item-name Edit
+      .col-md-4
+        %ul.side_links.list-unstyled
+          - if @distro.url.present?
+            %li
+              %i.fas.fa-link.text-info
+              = render partial: 'webui/shared/external_link', locals: { text: @distro.url, url: @distro.url }
+          - if policy(@distro).destroy?
+            %li
+              = link_to(vendor_distro_path(@distro.vendor, @distro), method: :delete, class: 'text-danger',
+                data: { confirm: 'Are you sure you want to delete this distro?'}) do
+                %i.fas.fa-trash-can
+                %span.nav-item-name Delete
+    %h3
+      Releases
     .row.mt-3
       - @distro.distro_releases.each do |distro_release|
         .col-lg-3.col-md-4.col-sm-6.col-12.mb-3
           = render partial: 'webui/distro_releases/release', locals: { distro_release: distro_release }
+      .ps-0
+        - if policy(DistroRelease.new(distro: @distro)).new?
+          = render partial: 'webui/distro_releases/modal', locals: { model: DistroRelease.new(distro: @distro),
+                                                    url: distro_releases_path(@distro), text: 'New Release', icon: 'circle-plus' }
 
 .modal.fade#delete-distro-release-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-distro-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
