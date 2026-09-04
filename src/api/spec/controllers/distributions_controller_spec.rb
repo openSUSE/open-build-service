@@ -67,27 +67,6 @@ RSpec.describe DistributionsController do
       it { expect { subject }.not_to change(Distribution, :count) }
       it { is_expected.to have_http_status(:bad_request) }
     end
-
-    # Ensure that calling POST with cmd=refresh bypasses normal XML creation
-    # and directly invokes the background fetch job.
-    context 'when cmd is refresh' do
-      subject { post :create, params: { cmd: 'refresh' }, format: :xml }
-
-      before do
-        allow(FetchRemoteDistributionsJob).to receive(:perform_now)
-      end
-
-      it { is_expected.to have_http_status(:ok) }
-
-      it 'triggers the remote distributions fetch job' do
-        subject
-        expect(FetchRemoteDistributionsJob).to have_received(:perform_now).once
-      end
-
-      it 'does not parse body as XML' do
-        expect { subject }.not_to raise_error
-      end
-    end
   end
 
   describe '#update' do
@@ -156,6 +135,31 @@ RSpec.describe DistributionsController do
 
       it { expect { subject }.not_to change(Distribution, :count) }
       it { is_expected.to have_http_status(:bad_request) }
+    end
+  end
+
+  describe '#refresh' do
+    subject { post :refresh, format: :xml }
+
+    before do
+      login admin
+    end
+
+    context  'when job succeeds' do
+      before do
+        allow(FetchRemoteDistributionsJob).to receive(:perform_now).and_return(true)
+      end
+
+      it { is_expected.to have_http_status(:ok) }
+    end
+
+    context  'when job fails' do
+      before do
+        allow(FetchRemoteDistributionsJob).to receive(:perform_now).and_return(false)
+      end
+
+      it { is_expected.to have_http_status(:bad_request) }
+      it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('failed_distribution_refresh') }
     end
   end
 end
