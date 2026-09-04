@@ -49,6 +49,10 @@
   @include collapsible($maxHeight: 4.5em);
 }
 
+#vendor-description {
+  @include collapsible($maxHeight: 15em);
+}
+
 #involvement-description {
   @include collapsible($maxHeight: 2.75em, $maxWidth: none);
   .obs-collapsible-textbox {  @extend .pe-0; }

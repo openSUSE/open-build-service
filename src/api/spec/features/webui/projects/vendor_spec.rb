@@ -36,7 +36,7 @@ RSpec.describe 'Vendors', :js, :vcr do
 
     context 'creating a distro through the new distro modal' do
       before do
-        click_button('New Distro')
+        click_link('New Distro')
 
         within('#distro-modal--modal') do
           fill_in('Name', with: 'Slowroll')

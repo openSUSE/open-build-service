@@ -4,6 +4,6 @@
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Create Vendor
 - else
-  %li.breadcrumb-item.text-word-break-all
+  %li.breadcrumb-item.text-word-break-all.active{ 'aria-current' => 'page' }
     %i.fa.fa-globe
-    = @vendor.name
+    Vendor - #{@vendor.name}
