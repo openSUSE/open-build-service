@@ -13,6 +13,7 @@
           "<%= escape_javascript(user_with_realname_and_icon(row.creator, short: true)) %>",
           "<%= escape_javascript(new_or_update_request(row)) %>",
           "<%= escape_javascript(row.priority) %>",
+          "<%= escape_javascript(link_to("##{row.number}", request_show_path(row.number), title: "Show request ##{row.number}")) %>",
           "<%= escape_javascript(link_to(
             '<span class="fa-stack half-font-size me-2">
                <i class="far fa-file fa-stack-2x"></i>
