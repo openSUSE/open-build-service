@@ -145,7 +145,11 @@ class PublicController < ApplicationController
   # GET /public/binary_packages/:project/:package
   def binary_packages
     check_package_access(params[:project], params[:package], use_source: false)
-    @pkg = Package.find_by_project_and_name(params[:project], params[:package])
+    # Packages of scmsync projects don't exist in the database. follow_project_scmsync_links
+    # builds a read-only instance from the backend package meta so we can still resolve the
+    # project, its repositories and the package name/title/description below.
+    @pkg = Package.get_by_project_and_name(params[:project], params[:package],
+                                           use_source: false, follow_project_scmsync_links: true)
 
     begin
       binaries = Xmlhash.parse(Backend::Api::Search.published_binaries_for_package(params[:project], params[:package]))
