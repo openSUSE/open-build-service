@@ -23,7 +23,7 @@
       = link_to '#', title: 'Delete distro release',
         data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-release-modal', distro_release_name: distro_release.name,
                 distro_name: distro_release.distro.name, action: distro_release_path(distro_release.distro, distro_release) } do
-        %i.fas.fa-trash-can.text-danger
+        %i.fas.fa-times-circle.text-danger
   - if policy(distro_release).edit?
     = link_to(edit_distro_release_path(distro_release), class: 'ps-2', title: 'Edit distro release') do
       %i.fas.fa-edit
