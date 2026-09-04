@@ -49,7 +49,8 @@
   @include collapsible($maxHeight: 4.5em);
 }
 
-#vendor-description {
+#vendor-description,
+#distro-description {
   @include collapsible($maxHeight: 15em);
 }
 
