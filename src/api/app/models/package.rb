@@ -516,6 +516,10 @@ class Package < ApplicationRecord
     of_kind?(:link)
   end
 
+  def aggregate?
+    of_kind?(:aggregate)
+  end
+
   def channel?
     of_kind?(:channel)
   end

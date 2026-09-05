@@ -12,7 +12,12 @@ RSpec.describe SyncUpstreamPackageVersionJob, :vcr do
 
     context 'when the package is available upstream' do
       context 'providing a project name' do
+        let!(:link_package) { create(:package, project: project, name: 'link_pkg') }
+        let!(:aggregate_package) { create(:package, project: project, name: 'aggregate_pkg') }
+
         before do
+          create(:package_kind, package: link_package, kind: 'link')
+          create(:package_kind, package: aggregate_package, kind: 'aggregate')
           travel_to sync_time do
             described_class.perform_now(project_name: project.name)
           end
@@ -21,6 +26,7 @@ RSpec.describe SyncUpstreamPackageVersionJob, :vcr do
         it 'creates a package version upstream record for the projects packages' do
           expect(PackageVersionUpstream.count).to eq(1)
           expect(package.package_versions.first).to have_attributes(version: '2.12.2', type: 'PackageVersionUpstream')
+          expect(PackageVersionUpstream.where(package: [link_package, aggregate_package]).count).to eq(0)
         end
 
         it 'updates the anitya distribution synced at column on the project' do

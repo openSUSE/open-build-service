@@ -22,7 +22,7 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
     PackageVersionUpstream.where(package_id: project.packages.ids).delete_all && return if distribution_name.blank?
 
     project.packages.each do |package|
-      next if package.anitya_ignore
+      next if skip_package?(package)
 
       create_upstream_package_versions(package_name: package.name, distribution_name: distribution_name, package_ids: [package.id])
     end
@@ -33,6 +33,7 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
   def create_for_all_projects_with_anitya_distribtion_name
     package_and_distro_name_grouped_on_package_ids = Project.where.not(anitya_distribution_name: [nil, ''])
                                                             .joins(:packages).where(packages: { anitya_ignore: false })
+                                                            .where.not(packages: { id: PackageKind.where(kind: %w[link aggregate]).select(:package_id) })
                                                             .select('projects.anitya_distribution_name AS anitya_distribution_name',
                                                                     'packages.name AS package_name',
                                                                     'packages.id AS project_package_id',
@@ -80,5 +81,9 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
     return if response.nil?
 
     response.dig('items', 0, 'stable_version')
+  end
+
+  def skip_package?(package)
+    package.anitya_ignore || package.link? || package.aggregate?
   end
 end
