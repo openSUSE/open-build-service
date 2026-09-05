@@ -465,6 +465,7 @@ class SourcePackageCommandController < SourceController
                 remove_flag: { follow_project_links: false } }.freeze
 
     @package = Package.get_by_project_and_name(params[:project], params[:package], options[params[:cmd].to_sym])
+    raise Package::Errors::UnknownObjectError, "Package not found: #{params[:project]}/#{params[:package]}" unless @package
   end
 
   def require_valid_package_name
