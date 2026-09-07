@@ -42,6 +42,10 @@ $(document).ready(function() {
         if(data.length === 0) {
           dropdown.append(new Option('No repositories found'));
         } else {
+          // Without a placeholder the first repository is preselected, so picking it fires no change event
+          var placeholder = dropdown.data('placeholder');
+          if (placeholder) { dropdown.append(new Option(placeholder, '', true, true)); }
+
           $.each(data, function (_, val) {
             dropdown.append(new Option(val));
           });
@@ -75,43 +79,87 @@ $(document).ready(function() {
     packageInput.autocomplete('option', { source: source });
   });
 
-  $('.architecture-autocomplete').on('click', '.add-button', function(event) {
-    var parent          = $(this).closest('.architecture-autocomplete'),
-        projectName     = parent.find('.ui-autocomplete-input').val(),
-        dropdown        = parent.find('.repository-dropdown'),
-        repositoryName = dropdown.find(":selected").val(),
-        button          = event.target,
-        list            = parent.find('.item-list'),
-        itemTemplate    = document.querySelector('#item-list-template'),
-        checkboxTemplate= document.querySelector('#item-list-checkbox');
+  $('.architecture-autocomplete').on('change', '.repository-dropdown', function() {
+    var parent              = $(this).closest('.architecture-autocomplete'),
+        projectName         = parent.find('.ui-autocomplete-input').val(),
+        repositoryName      = $(this).val(),
+        list                = parent.find('.item-list'),
+        warning             = parent.find('.architecture-warning'),
+        existingRepositories= parent.data('existing-repositories') || [],
+        itemTemplate        = document.querySelector('#item-list-template'),
+        checkboxTemplate    = document.querySelector('#item-list-checkbox');
 
     if (projectName === '') return;
     if (repositoryName === '') return;
+    if (!("content" in document.createElement("template"))) return;
+
+    var repository = projectName + '/' + repositoryName;
+
+    // Adding the same repository twice would duplicate the architecture checkboxes
+    if (list.find('[data-repository="' + repository + '"]').length !== 0) return;
 
     $.ajax({
-      url: button.dataset.source,
+      url: parent.data('architectures-source'),
       data: { project: projectName, repository: repositoryName },
       success: function (data) {
-        if(data.length !== 0) {
-          if ("content" in document.createElement("template")) {
-            const item = document.importNode(itemTemplate.content, true);
-            let itemName = item.querySelector('.item-name');
-            itemName.innerText = projectName + '/' + repositoryName;
-            let checkboxList = item.querySelector('.item-checkboxes');
-            Object.entries(data).forEach(([id, name]) => {
-              const checkbox = document.importNode(checkboxTemplate.content, true);
-              let checkboxLabel = checkbox.querySelector('label');
-              checkboxLabel.setAttribute('for', checkboxLabel.getAttribute('for') + id);
-              checkboxLabel.innerText = name;
-              let checkboxInput = checkbox.querySelector('input');
-              checkboxInput.id = checkboxInput.id + id;
-              checkboxInput.value = id;
-              checkboxList.appendChild(checkbox);
-            });
-            list.append(item);
-          }
+        if (Object.keys(data).length === 0) {
+          warning.text('The repository ' + repository + ' has no architectures.').removeClass('d-none');
+          return;
         }
+
+        const item = document.importNode(itemTemplate.content, true);
+        item.querySelector('li').dataset.repository = repository;
+        if (existingRepositories.indexOf(repository) === -1) {
+          item.querySelector('li').classList.add('list-group-item-success');
+        }
+        let itemName = item.querySelector('.item-name');
+        itemName.innerText = repository;
+        let checkboxList = item.querySelector('.item-checkboxes');
+        Object.entries(data).forEach(([id, name]) => {
+          const checkbox = document.importNode(checkboxTemplate.content, true);
+          let checkboxLabel = checkbox.querySelector('label');
+          checkboxLabel.setAttribute('for', checkboxLabel.getAttribute('for') + id);
+          checkboxLabel.innerText = name;
+          let checkboxInput = checkbox.querySelector('input');
+          checkboxInput.id = checkboxInput.id + id;
+          checkboxInput.value = id;
+          checkboxList.appendChild(checkbox);
+        });
+        list.append(item);
+
+        warning.addClass('d-none');
+        parent.find('.collapse').collapse('hide');
       }
     });
+  });
+
+  $('.architecture-autocomplete').on('click', '.remove-repository', function(event) {
+    event.preventDefault();
+    $(this).closest('li').remove();
+  });
+
+  // A repository without any architecture selected is silently dropped on save, so warn instead of submitting
+  $('.architecture-autocomplete').closest('form').on('submit', function(event) {
+    var warning = $(this).find('.architecture-warning'),
+        invalid = false;
+
+    $(this).find('.item-list > li').each(function() {
+      var valid = $(this).find('input.form-check-input:checked').length !== 0;
+
+      $(this).toggleClass('text-danger', !valid);
+      if (!valid) invalid = true;
+    });
+
+    if (!invalid) {
+      warning.addClass('d-none');
+      return;
+    }
+
+    // Stop jquery_ujs from seeing this submit at all, otherwise it still disables the submit
+    // button (via a delegated document handler scheduled with setTimeout) even though we
+    // cancel the actual submission, leaving the button stuck disabled.
+    event.preventDefault();
+    event.stopPropagation();
+    warning.text('Please select at least one architecture for every repository.').removeClass('d-none');
   });
 });
