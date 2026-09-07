@@ -62,6 +62,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     # copy all or selected packages and project source files from base project
     # we don't branch from it to keep the link target.
     pkg = _merge_pkg_into_maintenance_incident(incident_project)
+    return unless pkg
 
     incident_project.save!
     incident_project.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
@@ -112,8 +113,69 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     "Incident #{source_package}"
   end
 
+  def modify_sources(enforce_branching: true)
+    # is branch enforcement a policy?
+    return unless enforce_branching || Attrib.find_by_container_and_fullname(target_project_object, 'OBS:EnforceIncidentRequestStaging')
+
+    # create package
+    pkg = _merge_pkg_into_maintenance_incident(stage_project_object)
+    return unless pkg
+
+    # adapt request action
+    self.source_project = stage_project_object.name
+    self.source_package = pkg.name
+    self.source_rev = pkg.backend_package.srcmd5 if source_rev.present?
+    # create channels
+    pkg.add_channels(:enable_all)
+    # create patchinfo unless we have one
+    return if PackageKind.exists?(package: stage_project_object.packages, kind: 'patchinfo')
+
+    Patchinfo.new.create_patchinfo_from_request(stage_project_object, bs_request)
+  end
+
   private
 
+  def find_or_create_stage_project
+    return Project.get_by_name(stage_project_name) if Project.exists?(name: stage_project_name)
+
+    create_stage_project
+  end
+  alias stage_project_object find_or_create_stage_project
+
+  def stage_project_name
+    # enforce a request number and use this as branch area
+    bs_request.assign_number
+    "#{maintenance_project.name}:REQUEST:#{bs_request.number}"
+  end
+
+  def create_autocleanup_attribute(project:)
+    at = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
+    a = Attrib.new(project: project, attrib_type: at)
+    a.values << AttribValue.new(value: (Time.now.to_i + ::Configuration.cleanup_after_days.days), position: 1)
+    a.save
+  end
+
+  def create_stage_project
+    stage_project = Project.create(name: stage_project_name, title: 'Enforce branch project for maintenance incident request')
+    stage_project.flags.create(status: 'disable', flag: 'build')
+    stage_project.flags.create(status: 'disable', flag: 'publish')
+    stage_project.flags.create(status: 'disable', flag: 'access') if source_project_object && source_project_object.disabled_for?('access', nil, nil)
+    # copy maintainer
+    maintainer_role = Role.find_by_title!('maintainer')
+    maintenance_project.relationships.where(role: maintainer_role).find_each do |role|
+      stage_project.relationships.new(role: maintainer_role, user_id: role.user_id, group_id: role.group_id)
+    end
+    stage_project.relationships.new(role: maintainer_role, user_id: User.session!.id)
+    stage_project.store
+    # autocleanup attribute in case request gets not accepted
+    create_autocleanup_attribute(project: stage_project)
+    # remove project on accept in any case
+    bs_request.bs_request_actions << BsRequestActionDelete.new({ target_project: stage_project_name })
+
+    stage_project
+  end
+
+  # rubocop:disable Metrics/CyclomaticComplexity
   def _merge_pkg_into_maintenance_incident(incident_project)
     # recreate package based on link target and throw everything away, except source changes
     # silently as maintenance teams requests ...
@@ -154,7 +216,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                         force: 1,
                         newinstance: 1,
                         comment: 'Initial new branch from specified release project',
-                        project: target_releaseproject, package: package_name }
+                        project: target_releaseproject, package: package_name }.compact
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
       if defined?(linkprj) && linkprj && (linkprj.maintenance_incident? || linkprj != linkprj.update_instance_or_self || kinds.include?('channel'))
@@ -178,7 +240,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                         maintenance: 1,
                         force: 1,
                         comment: 'Initial new branch',
-                        project: linked_project, package: linked_package }
+                        project: linked_project, package: linked_package }.compact
       ret = BranchPackage.new(branch_params).branch
       new_pkg = Package.get_by_project_and_name(ret[:data][:target_project], ret[:data][:target_package])
     elsif linkinfo && linkinfo['package'] # a new package for all targets
@@ -195,21 +257,20 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     end
 
     # backend copy of submitted sources, but keep link
-    cp_params = {
-      requestid: bs_request.number,
-      keeplink: 1,
-      expand: 1,
-      withacceptinfo: 1,
-      comment: "Maintenance incident copy from project #{source_project}"
-    }
+    cp_params = { requestid: bs_request.number,
+                  keeplink: 1,
+                  expand: 1,
+                  comment: "Maintenance incident copy from project #{source_project}" }.compact
+    cp_params[:withacceptinfo] = 1 if cp_params[:requestid]
     cp_params[:orev] = source_rev if source_rev
     response = Backend::Api::Sources::Package.copy(incident_project.name, new_pkg.name, source_project, source_package, User.session&.login, cp_params)
     result = Xmlhash.parse(response)
-    fill_acceptinfo(result['acceptinfo'])
+    fill_acceptinfo(result['acceptinfo']) if bs_request.number && new_pkg.project.maintenance_incident?
 
     new_pkg.sources_changed
     new_pkg
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   #### Alias of methods
 end

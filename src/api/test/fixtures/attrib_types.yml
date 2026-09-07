@@ -152,5 +152,12 @@ OBS_RejectBranch:
 OBS_LimitReleaseSourceProject:
   id: 86
   name: LimitReleaseSourceProject
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_EnforceIncidentRequestStaging:
+  id: 87
+  name: EnforceIncidentRequestStaging
+  value_count: 0
   attrib_namespace_id: 9
   issue_list: 0
