@@ -871,6 +871,12 @@ class BsRequest < ApplicationRecord
     bs_request_actions.where(type: 'maintenance_release').any?
   end
 
+  def auto_accepted?
+    return false unless state&.to_sym == :accepted && accept_at.present?
+
+    comment == 'Auto accept' && (updated_at.blank? || updated_at >= accept_at)
+  end
+
   def auto_accept
     with_lock do
       # do not run for processed requests. Ignoring review on purpose since this
