@@ -39,7 +39,7 @@ class Webui::DistrosController < Webui::WebuiController
   def update
     authorize @distro
     if @distro.update(distro_params.merge(vendor_id: @vendor.id))
-      redirect_to project_distro_path(@project), flash: { success: 'Distro was successfully updated.' }
+      redirect_to project_distro_path(@project, @distro.name), flash: { success: 'Distro was successfully updated.' }
     else
       redirect_to project_vendor_path(@project), flash: { error: "Distro failed to update. #{@distro.errors.messages}" }
     end
@@ -61,7 +61,7 @@ class Webui::DistrosController < Webui::WebuiController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_distro
-    @distro = Distro.find(params.expect(:id))
+    @distro = Distro.find_by!(name: params.expect(:distro_name), vendor: @vendor)
   end
 
   # Only allow a trusted parameter "white list" through.
