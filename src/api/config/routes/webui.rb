@@ -311,10 +311,7 @@ resources :projects, only: [], param: :name do
   end
 
   resource :vendor, controller: 'webui/vendors', constraints: cons
-end
-
-resources :vendors, only: [] do
-  resources :distros, controller: 'webui/distros', except: %i[index new]
+  resources :distros, controller: 'webui/distros', except: %i[index new], constraints: cons
 end
 
 resources :distros, only: [] do

@@ -53,7 +53,7 @@ RSpec.describe 'Vendors', :js, :vcr do
 
     context 'deleting a distro through the shared delete modal' do
       before do
-        find("a[data-action='#{vendor_distro_path(vendor, distro)}']").click
+        find("a[data-action='#{project_distro_path(vendor.project, distro)}']").click
 
         within('#delete-distro-modal') do
           click_button('Delete')

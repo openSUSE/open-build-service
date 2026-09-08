@@ -6,16 +6,16 @@
   %p.card-text
     = truncate(distro.description, length: 100)
   - component.with_header do
-    %h5.card-title= link_to(distro.name, vendor_distro_path(distro.vendor, distro))
+    %h5.card-title= link_to(distro.name, project_distro_path(distro.project, distro))
 
   - if policy(distro).destroy?
     - component.with_delete_button do
       = link_to '#', title: 'Delete Distro',
         data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-modal', vendor_name: distro.vendor.name,
-                distro_name: distro.name, action: vendor_distro_path(distro.vendor, distro) } do
+                distro_name: distro.name, action: project_distro_path(distro.project, distro) } do
         %i.fas.fa-times-circle.text-danger
   - if policy(distro).edit?
     - component.with_action do
-      = link_to(edit_vendor_distro_path(distro.vendor, distro), class: 'ps-2', title: 'Edit') do
+      = link_to(edit_project_distro_path(distro.project, distro), class: 'ps-2', title: 'Edit') do
         %i.fas.fa-edit
         %span.nav-item-name Edit

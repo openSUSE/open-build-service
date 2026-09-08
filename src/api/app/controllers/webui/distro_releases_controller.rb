@@ -17,25 +17,25 @@ class Webui::DistroReleasesController < Webui::WebuiController
     @distro_release = DistroRelease.new(distro_release_params.merge(distro_id: params[:distro_id]))
     authorize @distro_release
     if @distro_release.save
-      redirect_to vendor_distro_path(@distro.vendor, @distro), notice: 'Release was successfully created.'
+      redirect_to project_distro_path(@distro.project, @distro), notice: 'Release was successfully created.'
     else
-      redirect_to vendor_distro_path(@distro.vendor, @distro), flash: { error: "Release failed to create. #{@distro_release.errors.messages}" }
+      redirect_to project_distro_path(@distro.project, @distro), flash: { error: "Release failed to create. #{@distro_release.errors.messages}" }
     end
   end
 
   def update
     authorize @distro_release
     if @distro_release.update(distro_release_params)
-      redirect_to vendor_distro_path(@distro.vendor, @distro), flash: { success: 'Release was successfully updated.' }
+      redirect_to project_distro_path(@distro.project, @distro), flash: { success: 'Release was successfully updated.' }
     else
-      redirect_to vendor_distro_path(@distro.vendor, @distro), flash: { error: "Release failed to update. #{@distro.errors.messages}" }
+      redirect_to project_distro_path(@distro.project, @distro), flash: { error: "Release failed to update. #{@distro.errors.messages}" }
     end
   end
 
   def destroy
     authorize @distro_release
     @distro_release.destroy!
-    redirect_to vendor_distro_path(@distro.vendor, @distro), flash: { success: 'Release was successfully destroyed.' }
+    redirect_to project_distro_path(@distro.project, @distro), flash: { success: 'Release was successfully destroyed.' }
   end
 
   #### Non CRUD actions

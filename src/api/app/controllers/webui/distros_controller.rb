@@ -6,8 +6,8 @@ class Webui::DistrosController < Webui::WebuiController
   #### Self config
 
   #### Callbacks macros: before_action, after_action, etc.
-  before_action :set_vendor
   before_action :set_project
+  before_action :set_vendor
   before_action :set_distro, only: %i[show edit update destroy]
   before_action :check_distro_belongs_to_vendor, only: %i[create update destroy]
   # Pundit authorization policies control
@@ -39,7 +39,7 @@ class Webui::DistrosController < Webui::WebuiController
   def update
     authorize @distro
     if @distro.update(distro_params.merge(vendor_id: @vendor.id))
-      redirect_to vendor_distro_path(@vendor), flash: { success: 'Distro was successfully updated.' }
+      redirect_to project_distro_path(@project), flash: { success: 'Distro was successfully updated.' }
     else
       redirect_to project_vendor_path(@project), flash: { error: "Distro failed to update. #{@distro.errors.messages}" }
     end
@@ -70,11 +70,7 @@ class Webui::DistrosController < Webui::WebuiController
   end
 
   def set_vendor
-    @vendor = Vendor.find(params.expect(:vendor_id))
-  end
-
-  def set_project
-    @project = @vendor.project
+    @vendor = @project.vendor
   end
 
   def check_distro_belongs_to_vendor
