@@ -39,8 +39,8 @@ class Project
       end
       project.save!
 
-      update_linked_projects(xmlhash)
-      parse_develproject(xmlhash)
+      update_linked_projects(xmlhash, force)
+      parse_develproject(xmlhash, force)
 
       update_maintained_prjs_from_xml(xmlhash)
       project.update_relationships_from_xml(xmlhash)
@@ -58,8 +58,7 @@ class Project
 
     private
 
-    # rubocop:disable-next Style/GuardClause
-    def update_linked_projects(xmlhash)
+    def update_linked_projects(xmlhash, force = nil)
       position = 1
       # destroy all current linked projects
       project.linking_to.destroy_all
@@ -73,6 +72,8 @@ class Project
                                        linked_remote_project_name: l['project'],
                                        vrevmode: l['vrevmode'],
                                        position: position)
+          elsif force
+            next
           else
             raise SaveError, "unable to link against project '#{l['project']}'"
           end
@@ -89,13 +90,14 @@ class Project
       position
     end
 
-    def parse_develproject(xmlhash)
+    def parse_develproject(xmlhash, force = nil)
       project.develproject = nil
       devel = xmlhash['devel']
       if devel
         prj_name = devel['project']
         if prj_name
           develprj = Project.get_by_name(prj_name)
+          return if !develprj && force
           raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)" unless develprj
           raise SaveError, 'Devel project can not point to itself' if develprj == project
 
@@ -137,7 +139,7 @@ class Project
       fill_repo_cache
 
       xmlhash.elements('repository') do |repo_xml_hash|
-        update_repository_without_path_element(repo_xml_hash)
+        update_repository_without_path_element(repo_xml_hash, force)
       end
       # Some repositories might be refered by path elements before they appear in the
       # xml tree. Thus we have 2 iterations. First one goes through all repository
@@ -146,7 +148,7 @@ class Project
       # repository uses another one, eg. importing an existing config from elsewhere.
       xmlhash.elements('repository') do |repo|
         current_repo = project.repositories.find_by_name(repo['name'])
-        update_path_elements(current_repo, repo)
+        update_path_elements(current_repo, repo, force)
       end
 
       # delete remaining repositories in @repocache
@@ -176,7 +178,7 @@ class Project
       end
     end
 
-    def update_repository_without_path_element(xml_hash)
+    def update_repository_without_path_element(xml_hash, force = nil)
       current_repo = @repocache[xml_hash['name']]
       unless current_repo
         Rails.logger.debug { "adding repository '#{xml_hash['name']}'" }
@@ -185,7 +187,7 @@ class Project
       Rails.logger.debug { "modifying repository '#{xml_hash['name']}'" }
 
       update_repository_flags(current_repo, xml_hash)
-      update_release_targets(current_repo, xml_hash)
+      update_release_targets(current_repo, xml_hash, force)
       current_repo.save! if current_repo.changed?
       update_repository_architectures(current_repo, xml_hash)
       update_download_repositories(current_repo, xml_hash)
@@ -195,7 +197,7 @@ class Project
       @repocache.delete(xml_hash['name'])
     end
 
-    def update_path_elements(current_repo, xml_hash)
+    def update_path_elements(current_repo, xml_hash, force = nil)
       # destroy all current pathelements
       current_repo.path_elements.destroy_all
       return unless xml_hash['path'] || xml_hash['hostsystem']
@@ -205,6 +207,7 @@ class Project
       xml_hash.elements('hostsystem') do |hostsystem|
         host_repo = Repository.find_by_project_and_name(hostsystem['project'], hostsystem['repository'])
         raise SaveError, 'Using same repository as hostsystem element is not allowed' if hostsystem['project'] == project.name && hostsystem['repository'] == xml_hash['name']
+        next if !host_repo && force
         raise SaveError, "Unknown hostsystem repository '#{hostsystem['project']}/#{hostsystem['repository']}'" unless host_repo
 
         current_repo.path_elements.new(link: host_repo, position: position, kind: :hostsystem)
@@ -216,6 +219,8 @@ class Project
       xml_hash.elements('path') do |path|
         link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
         raise SaveError, 'Using same repository as path element is not allowed' if path['project'] == project.name && path['repository'] == xml_hash['name']
+
+        next if !link_repo && force
         raise SaveError, "Cannot find repository '#{path['project']}/#{path['repository']}'" unless link_repo
 
         current_repo.path_elements.new(link: link_repo, position: position)
@@ -238,7 +243,7 @@ class Project
       current_repo.linkedbuild = xml_hash['linkedbuild']
     end
 
-    def update_release_targets(current_repo, xml_hash)
+    def update_release_targets(current_repo, xml_hash, force = nil)
       # destroy all current releasetargets
       current_repo.release_targets.destroy_all
 
@@ -248,14 +253,17 @@ class Project
         repository = release_target['repository']
         trigger    = release_target['trigger']
 
+        next if !project && force
         raise SaveError, "Project '#{release_target['project']}' does not exist." unless project
 
         raise SaveError, 'Using same repository as release target element is not allowed' if release_target['project'] == self.project.name && repository == xml_hash['name']
 
+        next if project.defines_remote_instance? && force
         raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'" if project.defines_remote_instance?
 
         target_repo = Repository.find_by_project_and_name(project.name, repository)
 
+        next if !target_repo && force
         raise SaveError, "Unknown target repository '#{project}/#{repository}'" unless target_repo
 
         current_repo.release_targets.new(target_repository: target_repo, trigger: trigger)
