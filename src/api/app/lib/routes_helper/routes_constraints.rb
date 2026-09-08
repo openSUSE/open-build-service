@@ -5,6 +5,8 @@ module RoutesHelper
       binary: %r{[^/]*},
       filename: %r{[^/]*},
       binary_filename: %r{[^/]*},
+      distro_name: %r{[^/]*},
+      distro_release_name: %r{[^/]*},
       id: /\d*/,
       login: %r{[^/]*},
       package: %r{[^/]*},

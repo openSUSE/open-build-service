@@ -4,4 +4,4 @@
   .card-body
     %h3.mb-3
       "Distro - #{@distro.name}"
-    = render partial: 'form', locals: {url: project_distro_path(@distro.project, @distro), model: @distro}
+    = render partial: 'form', locals: {url: project_distro_path(@distro.project, @distro.name), model: @distro}
