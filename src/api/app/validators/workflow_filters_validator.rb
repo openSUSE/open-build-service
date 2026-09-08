@@ -49,6 +49,9 @@ class WorkflowFiltersValidator < ActiveModel::Validator
       @workflow_instructions[:filters].each do |filter, value|
         if filter == :event
           @workflow.errors.add(:filter, 'event only supports a string value') unless value.is_a?(String)
+        elsif !value.is_a?(Hash)
+          @workflow.errors.add(:filter, "#{filter} filter definition is wrong: expected a YAML mapping, got #{value.class}")
+          unsupported_filter_values << filter
         else
           unsupported_filter_values << filter unless value.keys.all? { |filter_type| SUPPORTED_FILTER_VALUES.include?(filter_type.to_sym) }
         end
