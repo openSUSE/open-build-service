@@ -13,7 +13,7 @@
             = render partial: 'webui/shared/collapsible_text', locals: { text: @distro.description }
         - if policy(@distro).edit?
           .pt-4.mb-3
-            = link_to(edit_vendor_distro_path(@distro.vendor, @distro), class: 'ps-0', title: 'Edit') do
+            = link_to(edit_project_distro_path(@distro.project, @distro.name), class: 'ps-0', title: 'Edit') do
               %i.fas.fa-edit.text-secondary
               %span.nav-item-name Edit
       .col-md-4
@@ -24,7 +24,7 @@
               = render partial: 'webui/shared/external_link', locals: { text: @distro.url, url: @distro.url }
           - if policy(@distro).destroy?
             %li
-              = link_to(vendor_distro_path(@distro.vendor, @distro), method: :delete, class: 'text-danger',
+              = link_to(project_distro_path(@distro.project, @distro.name), method: :delete, class: 'text-danger',
                 data: { confirm: 'Are you sure you want to delete this distro?'}) do
                 %i.fas.fa-trash-can
                 %span.nav-item-name Delete
@@ -37,7 +37,7 @@
       .ps-0
         - if policy(DistroRelease.new(distro: @distro)).new?
           = render partial: 'webui/distro_releases/modal', locals: { model: DistroRelease.new(distro: @distro),
-                                                    url: distro_releases_path(@distro), text: 'New Release', icon: 'circle-plus' }
+                                                    url: distro_releases_path(@distro.name), text: 'New Release', icon: 'circle-plus' }
 
 .modal.fade#delete-distro-release-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-distro-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }

@@ -43,7 +43,7 @@
       = render ModalComponent.new(modal_id: 'distro-modal-') do |component|
         - component.with_header do
           New Distro
-        = render partial: 'webui/distros/form', locals: { url: vendor_distros_path(@vendor), model: Distro.new(vendor: @vendor) }
+        = render partial: 'webui/distros/form', locals: { url: project_distros_path(@vendor.project), model: Distro.new(vendor: @vendor) }
 
 .modal.fade#delete-distro-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-distro-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }

@@ -311,14 +311,11 @@ resources :projects, only: [], param: :name do
   end
 
   resource :vendor, controller: 'webui/vendors', constraints: cons
+  resources :distros, controller: 'webui/distros', except: %i[index new], constraints: cons, param: :distro_name
 end
 
-resources :vendors, only: [] do
-  resources :distros, controller: 'webui/distros', except: %i[index new]
-end
-
-resources :distros, only: [] do
-  resources :releases, controller: 'webui/distro_releases', except: %i[index new show edit]
+resources :distros, only: [], param: :name do
+  resources :releases, controller: 'webui/distro_releases', param: :distro_release_name, except: %i[index new show edit]
 end
 
 get 'request/show/:number/build_results', to: redirect('/requests/%{number}/build_results'), constraints: cons
