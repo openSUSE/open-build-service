@@ -13,7 +13,7 @@ http_interactions:
         </project>
     headers:
       X-Frontend-Start:
-      - '1787750776'
+      - '1787750779'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -41,20 +41,21 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 26 Aug 2026 13:26:16 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:19 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_4/_meta?user=tom
+    uri: http://backend:5352/source/foo/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>Taming a Sea Horse</title>
+        <project name="foo">
+          <title>In a Dry Season</title>
           <description/>
+          <person userid="tom" role="maintainer"/>
         </project>
     headers:
       X-Frontend-Start:
-      - '1787750776'
+      - '1787750779'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -73,28 +74,33 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '138'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>Taming a Sea Horse</title>
+        <project name="foo">
+          <title>In a Dry Season</title>
           <description></description>
+          <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 26 Aug 2026 13:26:16 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:20 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_4/package_1/_meta?user=tom
+    uri: http://backend:5352/source/foo/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_4">
-          <title>The Wings of the Dove</title>
-          <description>Recusandae sunt ab aliquam.</description>
-        </package>
+        <project name="foo">
+          <title>In a Dry Season</title>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <repository name="repository_3">
+            <arch>i586</arch>
+          </repository>
+        </project>
     headers:
       X-Frontend-Start:
-      - '1787750776'
+      - '1787750780'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -113,24 +119,32 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_4">
-          <title>The Wings of the Dove</title>
-          <description>Recusandae sunt ab aliquam.</description>
-        </package>
-  recorded_at: Wed, 26 Aug 2026 13:26:16 GMT
+        <project name="foo">
+          <title>In a Dry Season</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+          <repository name="repository_3">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Wed, 26 Aug 2026 13:26:20 GMT
 - request:
-    method: delete
-    uri: http://backend:5352/source/project_4/package_1?user=tom
+    method: put
+    uri: http://backend:5352/source/foo/bar/_meta?user=user_6
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <package name="bar" project="foo">
+          <title>A Farewell to Arms</title>
+          <description>Voluptatem similique dolores aliquam.</description>
+        </package>
     headers:
       X-Frontend-Start:
-      - '1787750776'
+      - '1787750780'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -149,11 +163,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '149'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Wed, 26 Aug 2026 13:26:16 GMT
+      string: |
+        <package name="bar" project="foo">
+          <title>A Farewell to Arms</title>
+          <description>Voluptatem similique dolores aliquam.</description>
+        </package>
+  recorded_at: Wed, 26 Aug 2026 13:26:20 GMT
 recorded_with: VCR 6.4.0

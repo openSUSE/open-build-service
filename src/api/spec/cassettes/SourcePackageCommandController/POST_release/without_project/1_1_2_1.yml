@@ -2,16 +2,18 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/franz/_meta?user=user_4
+    uri: http://backend:5352/source/franz/_meta?user=user_26
     body:
       encoding: UTF-8
       string: |
         <project name="franz">
-          <title>Cover Her Face</title>
+          <title>If I Forget Thee Jerusalem</title>
           <description/>
           <person userid="peter" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1787750786'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -30,28 +32,30 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '141'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <project name="franz">
-          <title>Cover Her Face</title>
+          <title>If I Forget Thee Jerusalem</title>
           <description></description>
           <person userid="peter" role="maintainer"/>
         </project>
-  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:26 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/franz_released/_meta?user=user_5
+    uri: http://backend:5352/source/franz_released/_meta?user=user_27
     body:
       encoding: UTF-8
       string: |
         <project name="franz_released">
-          <title>I Will Fear No Evil</title>
+          <title>Behold the Man</title>
           <description/>
           <person userid="peter" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1787750786'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -70,27 +74,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="franz_released">
-          <title>I Will Fear No Evil</title>
+          <title>Behold the Man</title>
           <description></description>
           <person userid="peter" role="maintainer"/>
         </project>
-  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:26 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/franz/hans/_meta?user=user_6
+    uri: http://backend:5352/source/franz/hans/_meta?user=user_28
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz">
-          <title>Postern of Fate</title>
-          <description>Rerum voluptatem quaerat explicabo.</description>
+          <title>The Moon by Night</title>
+          <description>Ut aut et asperiores.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1787750786'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -109,22 +115,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '135'
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz">
-          <title>Postern of Fate</title>
-          <description>Rerum voluptatem quaerat explicabo.</description>
+          <title>The Moon by Night</title>
+          <description>Ut aut et asperiores.</description>
         </package>
-  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:26 GMT
 - request:
     method: delete
-    uri: http://backend:5352/source/franz?comment=&user=peter
+    uri: http://backend:5352/source/franz?comment&user=peter
     body:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1787750787'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -147,5 +155,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
-recorded_with: VCR 6.3.1
+  recorded_at: Wed, 26 Aug 2026 13:26:27 GMT
+recorded_with: VCR 6.4.0

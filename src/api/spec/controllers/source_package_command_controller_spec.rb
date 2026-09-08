@@ -209,4 +209,191 @@ RSpec.describe SourcePackageCommandController, :vcr do
       end
     end
   end
+
+  describe 'POST #unlock' do
+    subject { post :unlock, params: { project: project.name, package: package.name, cmd: 'unlock', comment: 'hello unlocked world' } }
+
+    let(:project) { user.home_project }
+    let(:package) { create(:package, name: 'hans', project: project) }
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
+
+    before do
+      login user
+      request.headers['ACCEPT'] = 'text/xml'
+    end
+
+    context 'without enabled lock flag' do
+      it 'renders not_locked error' do
+        expect(subject.header['X-Opensuse-Errorcode']).to eq('not_locked')
+      end
+    end
+
+    context 'with enabled lock flag' do
+      before do
+        package.flags.create(flag: 'lock', status: 'enable')
+      end
+
+      it 'deletes the flag' do
+        expect { subject }.to change { package.flags.where(flag: :lock, status: :enable).count }.from(1).to(0)
+      end
+    end
+  end
+
+  # FIXME: The happy path is only tested in the giant minitest MaintenanceTests.
+  describe 'POST #instantiate' do
+    subject { post :instantiate, params: { project: project, package: package, cmd: 'instantiate' } }
+
+    let(:project) { create(:project, name: 'My:Linux', maintainer: user) }
+    let(:update_project) do
+      update_project = create(:project, name: 'My:Linux:Update', maintainer: user)
+      create(:update_project_attrib, project: project, update_project: update_project)
+      update_project
+    end
+    let(:package) { create(:package, project: project) }
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
+
+    before do
+      login user
+      request.headers['ACCEPT'] = 'text/xml'
+    end
+
+    context 'when the package already exists' do
+      render_views
+
+      it 'renders an error' do
+        expect(Xmlhash.parse(subject.body)['summary']).to eq('package is already instantiated here')
+      end
+    end
+  end
+
+  describe 'POST #copy' do
+    subject { post :copy, params: { project: project, package: package, cmd: 'copy', oproject: source_project, opackage: source_package } }
+
+    let(:project) { user.home_project }
+    let!(:source_project) { create(:project, name: 'peter') }
+    let!(:source_package) do
+      source_package_with_flags = create(:package, project: source_project, name: 'paul', title: 'lala')
+      create(:debuginfo_flag, package: source_package_with_flags)
+      create(:publish_flag, package: source_package_with_flags)
+      source_package_with_flags.store
+      source_package_with_flags
+    end
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
+
+    before do
+      login user
+      request.headers['ACCEPT'] = 'text/xml'
+    end
+
+    context 'with a package' do
+      let!(:package) do
+        package_with_flags = create(:package, name: 'hans', project: project)
+        create(:useforbuild_flag, package: package_with_flags)
+        package_with_flags.store
+        package_with_flags
+      end
+
+      it 'does not create a new package' do
+        expect { subject }.not_to change(Package, :count)
+      end
+
+      it 'does not change the package flags' do
+        expect { subject }.not_to change(Flag, :count)
+      end
+
+      it 'does not change the package attributes' do
+        expect { subject }.not_to change(package, :title)
+      end
+    end
+
+    context 'without a package' do
+      let(:package) { 'franz' }
+
+      it 'creates a new package' do
+        expect { subject }.to change(Package, :count).from(1).to(2)
+      end
+
+      it 'copies the flags' do
+        expect { subject }.to change(Flag, :count).from(2).to(4)
+      end
+    end
+  end
+
+  describe 'POST #branch' do
+    subject { post :branch, params: { project: project, package: package, cmd: 'branch' } }
+
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
+
+    before do
+      login user
+      request.headers['ACCEPT'] = 'text/xml'
+    end
+
+    xit 'branches the package'
+
+    context 'with dryrun' do
+      xit 'does nothing'
+    end
+
+    context 'without permission to create target project' do
+      xit 'CreateProjectNoPermission'
+    end
+
+    context 'without permission to create the target package' do
+      xit 'CmdExecutionNoPermission'
+    end
+  end
+
+  describe 'POST #fork' do
+    subject { post :fork, params: { project: project, package: package, cmd: 'fork' } }
+
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
+
+    before do
+      login user
+      request.headers['ACCEPT'] = 'text/xml'
+    end
+
+    xit 'forks the package'
+
+    context 'without scmsync param' do
+      xit 'MissingParameterError'
+    end
+  end
+
+  describe 'POST #set_flag' do
+    subject { post :set_flag, params: { project: project, package: package, cmd: 'set_flag' } }
+
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
+
+    before do
+      login user
+      request.headers['ACCEPT'] = 'text/xml'
+    end
+
+    context 'without flag param' do
+      xit 'MissingParameterError'
+    end
+
+    context 'without status param' do
+      xit 'MissingParameterError'
+    end
+  end
+
+  describe 'POST #remove_flag' do
+    subject { post :remove_flag, params: { project: project, package: package, cmd: 'remove_flag' } }
+
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
+
+    before do
+      login user
+      request.headers['ACCEPT'] = 'text/xml'
+    end
+
+    xit 'removes the flag'
+
+    context 'without flag param' do
+      xit 'MissingParameterError'
+    end
+  end
 end

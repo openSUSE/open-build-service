@@ -2,16 +2,18 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/franz/_meta?user=user_7
+    uri: http://backend:5352/source/franz/_meta?user=user_14
     body:
       encoding: UTF-8
       string: |
         <project name="franz">
-          <title>The Skull Beneath the Skin</title>
+          <title>The Grapes of Wrath</title>
           <description/>
           <person userid="peter" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1787750783'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -30,28 +32,30 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <project name="franz">
-          <title>The Skull Beneath the Skin</title>
+          <title>The Grapes of Wrath</title>
           <description></description>
           <person userid="peter" role="maintainer"/>
         </project>
-  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/franz_released/_meta?user=user_8
+    uri: http://backend:5352/source/franz_released/_meta?user=user_15
     body:
       encoding: UTF-8
       string: |
         <project name="franz_released">
-          <title>Frequent Hearses</title>
+          <title>The Daffodil Sky</title>
           <description/>
           <person userid="peter" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1787750783'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -75,22 +79,24 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="franz_released">
-          <title>Frequent Hearses</title>
+          <title>The Daffodil Sky</title>
           <description></description>
           <person userid="peter" role="maintainer"/>
         </project>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/franz/hans/_meta?user=user_9
+    uri: http://backend:5352/source/franz/hans/_meta?user=user_16
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Rerum quasi nulla sunt.</description>
+          <title>Ring of Bright Water</title>
+          <description>Ut veritatis nostrum voluptates.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1787750783'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -109,15 +115,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Rerum quasi nulla sunt.</description>
+          <title>Ring of Bright Water</title>
+          <description>Ut veritatis nostrum voluptates.</description>
         </package>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:23 GMT
 - request:
     method: post
     uri: http://backend:5352/build/franz_released?cmd=suspendproject&comment=Releasing%20package%20hans
@@ -127,6 +133,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1787750783'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -151,7 +159,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/franz_released/hans/_meta?user=peter
@@ -159,10 +167,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Rerum quasi nulla sunt.</description>
+          <title>Ring of Bright Water</title>
+          <description>Ut veritatis nostrum voluptates.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1787750783'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -181,15 +191,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Rerum quasi nulla sunt.</description>
+          <title>Ring of Bright Water</title>
+          <description>Ut veritatis nostrum voluptates.</description>
         </package>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/franz_released/hans/_meta?user=peter
@@ -197,10 +207,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Rerum quasi nulla sunt.</description>
+          <title>Ring of Bright Water</title>
+          <description>Ut veritatis nostrum voluptates.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1787750783'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -219,15 +231,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Rerum quasi nulla sunt.</description>
+          <title>Ring of Bright Water</title>
+          <description>Ut veritatis nostrum voluptates.</description>
         </package>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:23 GMT
 - request:
     method: post
     uri: http://backend:5352/source/franz_released/hans?cmd=copy&comment=Release%20from%20franz%20/%20hans&expand=1&noservice=1&opackage=hans&oproject=franz&user=peter&withacceptinfo=1&withvrev=1
@@ -237,6 +249,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1787750783'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -255,19 +269,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '230'
+      - '339'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
+        <revision rev="2" vrev="2">
           <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
           <version>unknown</version>
-          <time>1749630122</time>
+          <time>1787750783</time>
           <user>peter</user>
           <comment>Release from franz / hans</comment>
           <requestid/>
+          <acceptinfo rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
         </revision>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/franz_released/hans/_meta?user=peter
@@ -275,10 +290,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Rerum quasi nulla sunt.</description>
+          <title>Ring of Bright Water</title>
+          <description>Ut veritatis nostrum voluptates.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1787750783'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -297,15 +314,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Rerum quasi nulla sunt.</description>
+          <title>Ring of Bright Water</title>
+          <description>Ut veritatis nostrum voluptates.</description>
         </package>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/franz_released/hans
@@ -313,6 +330,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1787750783'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -335,9 +354,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="hans" rev="4" vrev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="hans" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:24 GMT
 - request:
     method: get
     uri: http://backend:5352/source/franz_released/hans?view=info
@@ -345,6 +364,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1787750784'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -367,10 +388,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="hans" rev="4" vrev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="hans" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:24 GMT
 - request:
     method: get
     uri: http://backend:5352/source/franz_released/hans
@@ -378,6 +399,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1787750784'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -400,9 +423,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="hans" rev="4" vrev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="hans" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:24 GMT
 - request:
     method: post
     uri: http://backend:5352/source/franz_released/hans?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -412,6 +435,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1787750784'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -434,12 +459,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c1b557bd0c51aa8cdf2dc11961a90c83">
+        <sourcediff key="ee9099423607a356105df8a4b69622a3">
           <old project="franz_released" package="hans" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="franz_released" package="hans" rev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="franz_released" package="hans" rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:24 GMT
 - request:
     method: post
     uri: http://backend:5352/build/franz_released/standard/x86_64/hans?cmd=copy&multibuild=1&opackage=hans&oproject=franz&orepository=standard&resign=1
@@ -449,6 +474,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1787750784'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -475,5 +502,5 @@ http_interactions:
           <summary>project 'franz_released' has no repository 'standard'</summary>
           <details>404 project 'franz_released' has no repository 'standard'</details>
         </status>
-  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
-recorded_with: VCR 6.3.1
+  recorded_at: Wed, 26 Aug 2026 13:26:24 GMT
+recorded_with: VCR 6.4.0

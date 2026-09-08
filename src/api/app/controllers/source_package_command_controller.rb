@@ -270,6 +270,7 @@ class SourcePackageCommandController < SourceController
     if @package.new_record?
       source_package_xml = Xmlhash.parse(Backend::Api::Sources::Package.meta(sproject, spackage))
       @package.assign_attributes_from_from_xml(source_package_xml)
+      @package.update_all_flags(source_package_xml)
       @package.save!
     end
 

@@ -2,18 +2,18 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/franz/_meta?user=user_23
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="franz">
-          <title>Brandy of the Damned</title>
+        <project name="home:tom">
+          <title/>
           <description/>
-          <person userid="peter" role="maintainer"/>
+          <person userid="tom" role="maintainer"/>
         </project>
     headers:
       X-Frontend-Start:
-      - '1787750786'
+      - '1787750794'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -32,30 +32,30 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '128'
     body:
       encoding: UTF-8
       string: |
-        <project name="franz">
-          <title>Brandy of the Damned</title>
+        <project name="home:tom">
+          <title></title>
           <description></description>
-          <person userid="peter" role="maintainer"/>
+          <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 26 Aug 2026 13:26:26 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/franz_released/_meta?user=user_24
+    uri: http://backend:5352/source/My:Linux/_meta?user=user_44
     body:
       encoding: UTF-8
       string: |
-        <project name="franz_released">
-          <title>The Road Less Traveled</title>
+        <project name="My:Linux">
+          <title>Tirra Lirra by the River</title>
           <description/>
-          <person userid="peter" role="maintainer"/>
+          <person userid="tom" role="maintainer"/>
         </project>
     headers:
       X-Frontend-Start:
-      - '1787750786'
+      - '1787750794'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -74,29 +74,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '152'
     body:
       encoding: UTF-8
       string: |
-        <project name="franz_released">
-          <title>The Road Less Traveled</title>
+        <project name="My:Linux">
+          <title>Tirra Lirra by the River</title>
           <description></description>
-          <person userid="peter" role="maintainer"/>
+          <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 26 Aug 2026 13:26:26 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/franz/hans/_meta?user=user_25
+    uri: http://backend:5352/source/My:Linux/package_3/_meta?user=user_45
     body:
       encoding: UTF-8
       string: |
-        <package name="hans" project="franz">
-          <title>The Skull Beneath the Skin</title>
-          <description>Illo quo tenetur vitae.</description>
+        <package name="package_3" project="My:Linux">
+          <title>A Swiftly Tilting Planet</title>
+          <description>Enim et tenetur voluptas.</description>
         </package>
     headers:
       X-Frontend-Start:
-      - '1787750786'
+      - '1787750794'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -115,13 +115,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '154'
     body:
       encoding: UTF-8
       string: |
-        <package name="hans" project="franz">
-          <title>The Skull Beneath the Skin</title>
-          <description>Illo quo tenetur vitae.</description>
+        <package name="package_3" project="My:Linux">
+          <title>A Swiftly Tilting Planet</title>
+          <description>Enim et tenetur voluptas.</description>
         </package>
-  recorded_at: Wed, 26 Aug 2026 13:26:26 GMT
+  recorded_at: Wed, 26 Aug 2026 13:26:34 GMT
 recorded_with: VCR 6.4.0
