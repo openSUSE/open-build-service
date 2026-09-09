@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_26_155817) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_09_100000) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "blob_id", null: false
     t.datetime "created_at", null: false
@@ -485,6 +485,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_155817) do
     t.string "repository", null: false
     t.string "vendor", null: false
     t.string "version", null: false
+  end
+
+  create_table "distro_release_lifecycles", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "date"
+    t.bigint "distro_release_id", null: false
+    t.string "name"
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["distro_release_id", "name"], name: "index_distro_release_lifecycles_on_distro_release_id_and_name", unique: true
   end
 
   create_table "distro_release_repository_architectures", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -1394,6 +1404,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_155817) do
   add_foreign_key "comments", "users", column: "moderator_id", name: "moderated_comments_fk"
   add_foreign_key "comments", "users", name: "comments_ibfk_1"
   add_foreign_key "decisions", "users", column: "moderator_id"
+  add_foreign_key "distro_release_lifecycles", "distro_releases"
   add_foreign_key "distro_release_repository_architectures", "distro_releases"
   add_foreign_key "distro_release_repository_architectures", "repository_architectures"
   add_foreign_key "distro_releases", "distros"
