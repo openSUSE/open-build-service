@@ -489,9 +489,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_09_100000) do
 
   create_table "distro_release_lifecycles", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.date "date"
+    t.date "date", null: false
     t.bigint "distro_release_id", null: false
-    t.string "name"
+    t.string "name", null: false
     t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["distro_release_id", "name"], name: "index_distro_release_lifecycles_on_distro_release_id_and_name", unique: true

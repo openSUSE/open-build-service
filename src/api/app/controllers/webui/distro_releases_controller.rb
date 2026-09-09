@@ -9,9 +9,14 @@ class Webui::DistroReleasesController < Webui::WebuiController
   before_action :set_distro
   before_action :set_project
   before_action :set_vendor
-  before_action :set_distro_release, only: %i[update destroy edit]
+  before_action :set_distro_release, only: %i[show update destroy edit]
   # Pundit authorization policies control
   after_action :verify_authorized
+
+  def show
+    authorize @distro_release
+    @vendor = @distro.vendor
+  end
 
   #### CRUD actions
   def new
@@ -74,6 +79,6 @@ class Webui::DistroReleasesController < Webui::WebuiController
   end
 
   def set_distro_release
-    @distro_release = DistroRelease.find(params.expect(:id))
+    @distro_release = @distro.distro_releases.find(params.expect(:id))
   end
 end

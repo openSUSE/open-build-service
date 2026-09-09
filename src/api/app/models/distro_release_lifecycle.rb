@@ -23,6 +23,7 @@ class DistroReleaseLifecycle < ApplicationRecord
   #### Validations macros
   validates :name, length: { maximum: 255 }
   validates :name, uniqueness: { scope: :distro_release_id }
+  validates :name, :date, presence: true
 
   #### Class methods using self. (public and then private)
 
@@ -53,8 +54,8 @@ end
 # Table name: distro_release_lifecycles
 #
 #  id                :bigint           not null, primary key
-#  date              :date
-#  name              :string(255)      uniquely indexed => [distro_release_id]
+#  date              :date             not null
+#  name              :string(255)      not null, uniquely indexed => [distro_release_id]
 #  status            :integer          default(0), not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
