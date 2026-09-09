@@ -178,7 +178,7 @@ module Webui::RequestHelper
   end
 
   def next_prev_path(**opts)
-    parameters = { number: opts[:number], request_action_id: opts[:request_action_id], diff_to_superseded: opts[:diff_to_superseded] }
+    parameters = { number: opts[:number], request_action_id: opts[:request_action_id], diff_to_superseded: opts[:diff_to_superseded] }.merge(notification_context_params)
 
     case opts[:page_name]
     when 'request_build_results'
