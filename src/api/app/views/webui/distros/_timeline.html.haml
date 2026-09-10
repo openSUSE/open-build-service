@@ -1,0 +1,20 @@
+- timeline_data = prepare_timeline_data(local_assigns[:rows])
+
+- if timeline_data[:any_dates]
+  .timeline-container#distro-timeline
+    .timeline-table
+      .row.header
+        .name Release
+        .timeline
+          - (timeline_data[:minimum_year]..timeline_data[:maximum_year]).each do |year|
+            .year-label= year
+      - timeline_data[:rows].each do |row|
+        .row
+          .name= row[:title]
+          .timeline{ style: "background: #{timeline_data[:repeating_gradient]};" }
+            - row[:intervals].each do |interval|
+              .bar.text-bg-primary{ style: "left:#{interval[:left_pct]}%;width:#{interval[:width_pct]}%;",
+                                    title: "#{row[:title]} - #{interval[:title]} (#{interval[:start_date]} - #{interval[:end_date]})" }
+                = interval[:title]
+- else
+  %p.text-muted No releases with dates available for timeline visualization.

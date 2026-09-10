@@ -31,6 +31,10 @@
     %h3
       Releases
     .row.mt-3
+      .col-lg-12
+        = render partial: 'webui/distros/timeline', locals: { rows: timeline_rows_for(@distro) }
+
+    .row.mt-3
       - @distro.distro_releases.each do |distro_release|
         .col-lg-3.col-md-4.col-sm-6.col-12.mb-3
           = render partial: 'webui/distro_releases/release', locals: { distro_release: distro_release }

@@ -1,0 +1,117 @@
+#distro-timeline {
+  --row-bg: var(--bs-card-bg);
+  --row-alt: var(--bs-tertiary-bg);
+  --border: var(--bs-border-color);
+  --text: var(--bs-body-color);
+  --text-muted: var(--bs-secondary-color);
+
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--row-bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  .timeline-table {
+    min-width: 900px;
+  }
+
+  /* ===== Table rows ===== */
+  .row {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--border);
+    min-height: 44px;
+    margin: 0; // Prevent Bootstrap row margins
+  }
+
+  .row:last-child { border-bottom: none; }
+
+  .row.header {
+    background: var(--bs-tertiary-bg, var(--row-alt));
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--text);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  /* ===== Name column ===== */
+  .name {
+    width: 220px;
+    flex-shrink: 0;
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--border);
+    background: var(--row-bg);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  }
+
+  .row:nth-child(even) .name { background: var(--row-alt); }
+  .row.header .name { background: var(--bs-tertiary-bg, var(--row-alt)); justify-content: center; color: var(--text); z-index: 6; }
+
+  /* ===== Timeline area ===== */
+  .timeline {
+    flex: 1;
+    position: relative;
+  }
+
+  .row.header .timeline {
+    display: flex;
+    align-items: center;
+    background: none;
+  }
+
+  .year-label {
+    flex: 1;
+    text-align: left;
+    padding-left: 4px;
+    position: relative;
+    border-left: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .year-label:first-child { border-left: none; }
+
+  /* ===== Bars ===== */
+  .bar {
+    position: absolute;
+    top: 50%;
+    height: 20px;
+    transform: translateY(-50%);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    transition: opacity 0.15s, transform 0.15s;
+    cursor: default;
+  }
+
+  .bar:hover {
+    opacity: 0.9;
+    transform: translateY(-50%) scaleY(1.15);
+    z-index: 5;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 700px) {
+    .name { width: 140px; font-size: 0.75rem; }
+    .bar { font-size: 0.6rem; padding: 0 3px; height: 16px; }
+  }
+}
