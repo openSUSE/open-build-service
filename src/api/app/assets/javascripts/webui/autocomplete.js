@@ -16,7 +16,7 @@ function setupAutocomplete(selector) {
 }
 
 $(document).ready(function() {
-  $('.repository-autocomplete').on('autocompleteselect autocompletechange', function(event, ui) {
+  $('.repository-autocomplete').on('autocompleteselect', function(event, ui) {
     var projectName,
         dropdown        = $(this).find('.repository-dropdown'),
         repoNameElement = $(this).find('.repository-name');
