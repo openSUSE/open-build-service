@@ -38,3 +38,6 @@
                                            commentable: commentable, commented_lines: @commented_lines,
                                            source_package: source_package, target_package: target_package,
                                            source_rev: source_rev, target_rev: target_rev))
+          - if sourcediff['files']&.values&.any? { |f| f.dig('diff', 'shown').to_i < f.dig('diff', 'lines').to_i }
+            .alert.alert-warning.mt-2
+              This file's diff is truncated. #{link_to 'Show full diff', request_changes_path(@bs_request, @action, tarlimit: 0)}
