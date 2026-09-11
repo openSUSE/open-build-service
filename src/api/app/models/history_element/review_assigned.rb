@@ -4,9 +4,6 @@ module HistoryElement
       'Review got assigned'
     end
 
-    def user_action
-      'assigned review'
-    end
   end
 end
 

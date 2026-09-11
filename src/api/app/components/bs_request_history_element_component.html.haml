@@ -10,17 +10,17 @@
         superseded this request with
         = link_to("request ##{element.description_extension}", request_show_path(element.description_extension))
       - elsif element.instance_of?(HistoryElement::RequestReviewAdded) && element.review
-        = element.user_action_prefix
+        = user_action_prefix
         %strong
           - if element.review_by_staging_project?
             = link_to element.action_target, project_show_path(element.action_target)
           - else
             = element.action_target
-        = element.user_action_suffix
+        = user_action_suffix
       - elsif element.instance_of?(HistoryElement::RequestAccepted) && pending_reviews?
-        #{element.user_action} and dismissed pending reviews
+        #{user_action} and dismissed pending reviews
       - else
-        = element.user_action
+        = user_action
       - if element.is_a?(HistoryElement::Review) && element.review && !element.review.for_user?
         for
         - if element.review.for_group?
