@@ -1,6 +1,6 @@
 = render partial: 'webui/vendors/breadcrumb_items'
 
-- if action_name == 'new'
+- if controller_name == 'distro' && action_name == 'new'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Create Distro
 - else
