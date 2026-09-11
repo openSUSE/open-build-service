@@ -91,13 +91,18 @@ RSpec.describe WorkflowRun, :vcr do
         expect { subject }.not_to(change { workflow_run.token.reload.enabled })
       end
     end
+  end
 
-    context 'when the SCM responds with a forbidden message' do
-      subject { workflow_run.save_scm_report_failure('Failed to report back to GitHub: Request is forbidden.', { api_endpoint: 'https://api.github.com' }) }
+  describe '#disable_token!' do
+    let(:workflow_run) { create(:workflow_run, scm_vendor: 'github') }
 
-      it 'disables the token of the token workflow' do
-        expect { subject }.to change { workflow_run.token.reload.enabled }.from(true).to(false)
-      end
+    it 'disables the token of the workflow run' do
+      expect { workflow_run.disable_token! }.to change { workflow_run.token.reload.enabled }.from(true).to(false)
+    end
+
+    it 'sets the reason for disabling' do
+      workflow_run.disable_token!
+      expect(Event::TokenStateChange.last.payload['reason']).to include('Authentication to Github failed')
     end
   end
 

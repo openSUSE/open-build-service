@@ -229,6 +229,57 @@ RSpec.describe TriggerWorkflowController do
       it { expect(response.body).to include('Ok') }
     end
 
+    context 'when an APIError is raised' do
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
+      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
+      let(:github_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+
+      before do
+        api_error = APIError.new('Some error message')
+        allow(api_error).to receive(:status).and_return(400)
+        allow(api_error).to receive(:errorcode).and_return('some_error')
+        allow(token).to receive(:call).and_raise(api_error)
+
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(token)
+
+        request.headers['ACCEPT'] = '*/*'
+        request.headers['CONTENT_TYPE'] = 'application/json'
+        request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
+
+        post :create, body: github_payload
+      end
+
+      it 'updates the workflow run as failed' do
+        expect(WorkflowRun.last.status).to eq('fail')
+        expect(WorkflowRun.last.response_body).to include('Some error message')
+      end
+    end
+
+    context 'when a Pundit::NotAuthorizedError is raised' do
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
+      let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }
+      let(:github_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+
+      before do
+        allow(token).to receive(:call).and_raise(Pundit::NotAuthorizedError.new('Not authorized'))
+
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(token)
+
+        request.headers['ACCEPT'] = '*/*'
+        request.headers['CONTENT_TYPE'] = 'application/json'
+        request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
+
+        post :create, body: github_payload
+      end
+
+      it 'updates the workflow run as failed' do
+        expect(WorkflowRun.last.status).to eq('fail')
+        expect(WorkflowRun.last.response_body).to include('Not authorized')
+      end
+    end
+
     context 'no filters matched' do
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
       let(:token) { build_stubbed(:workflow_token, executor: build_stubbed(:confirmed_user)) }

@@ -70,31 +70,14 @@ class WorkflowRun < ApplicationRecord
     fail: 2
   }
 
-  # Marks the workflow run as failed and records the relevant debug information in response_body
-  def update_as_failed(message)
-    update(response_body: message, status: 'fail')
-
-    #
-    # Circuit breaker for authorization problems
-    #
-    #   If message is one of these strings, we disable the token:
-    #
-    # "Failed to report back to GitLab: Unauthorized request. Please check your credentials again."
-    # "Failed to report back to GitLab: Request forbidden."
-    # "Failed to report back to GitHub: Unauthorized request. Please check your credentials again."
-    # "Failed to report back to GitHub: Request is forbidden."
-    # "Failed to report back to Gitea: Unauthorized request. Please check your credentials again."
-    # "Failed to report back to Gitea: Request is forbidden."
-
-    return unless message.include?('Unauthorized request') || /Request (is )?forbidden/.match?(message)
-
+  def disable_token!
     token.update(enabled: false, reason: "Authentication to #{scm_vendor.titleize} failed while reporting the build status. Check your tokens authorization setup!")
   end
 
   # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
   # Marks the workflow run as failed also.
   def save_scm_report_failure(message, options)
-    update_as_failed(message)
+    update(response_body: message, status: 'fail')
     scm_status_reports.create(response_body: message,
                               request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)),
                               status: 'fail') # set SCMStatusReport status
