@@ -1,0 +1,54 @@
+- @pagetitle = "Release #{@distro_release.name}"
+
+.card
+  .card-body
+    %h3.mb-3
+      = render partial: 'webui/shared/external_link', locals: { text: @distro_release.name, url: @distro_release.url }
+    .row
+      .col-12.col-md-10.col-lg-8
+        #distro-release-description
+          - if @distro_release.description.blank?
+            %i No description set
+          - else
+            = render partial: 'webui/shared/collapsible_text', locals: { text: @distro_release.description }
+        - if policy(@distro_release).edit?
+          .mb-3
+            = link_to(edit_distro_release_path(@distro, @distro_release), title: 'Edit distro release') do
+              %i.fas.fa-edit
+              %span.nav-item-name Edit
+      .col-md-4
+        %ul.side_links.list-unstyled
+          - if @distro_release.url.present?
+            %li
+              %i.fas.fa-link.text-info
+              = render partial: 'webui/shared/external_link', locals: { text: @distro_release.url, url: @distro_release.url }
+          - if policy(@distro_release).destroy?
+            %li
+              = link_to(distro_release_path(@distro, @distro_release), method: :delete, class: 'text-danger',
+                data: { confirm: 'Are you sure you want to delete this release?' }) do
+                %i.fas.fa-trash-can
+                %span.nav-item-name Delete
+
+    %h3.mt-4
+      Repositories
+    %ul.list-group.list-group-flush
+      - @distro_release.repository_architectures.group_by(&:repository).each do |repository, repository_architectures|
+        %li.list-group-item.d-flex.flex-wrap.justify-content-between.px-0
+          #{repository.project.name}/#{repository.name}
+          %div
+            - repository_architectures.each do |ra|
+              %span.badge.text-bg-primary
+                = ra.architecture.name
+
+    %h3.mt-4
+      Lifecycle
+    %ul.list-group.list-group-flush
+      - @distro_release.distro_release_lifecycles.chronological.each do |lifecycle|
+        = render partial: 'webui/distro_release_lifecycles/lifecycle', locals: { lifecycle: lifecycle }
+    - new_lifecycle = DistroReleaseLifecycle.new(distro_release: @distro_release)
+    - if policy(new_lifecycle).new?
+      .ps-0
+        = render partial: 'webui/distro_release_lifecycles/modal',
+                 locals: { model: new_lifecycle,
+                           url: distro_release_lifecycles_path(@distro_release.name),
+                           text: 'New Lifecycle', icon: 'circle-plus' }

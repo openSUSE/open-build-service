@@ -3,6 +3,10 @@ class DistroReleasePolicy < ApplicationPolicy
     DistroPolicy.new(user, record.distro).create?
   end
 
+  def show?
+    true
+  end
+
   def new?
     create?
   end

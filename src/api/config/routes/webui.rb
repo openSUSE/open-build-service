@@ -318,7 +318,11 @@ resources :vendors, only: [] do
 end
 
 resources :distros, only: [] do
-  resources :releases, controller: 'webui/distro_releases', except: %i[index new show]
+  resources :releases, controller: 'webui/distro_releases', except: %i[index new]
+end
+
+resources :distro_releases, only: [], param: :name do
+  resources :lifecycles, controller: 'webui/distro_release_lifecycles', param: :lifecycle_name, except: %i[index new show edit]
 end
 
 get 'request/show/:number/build_results', to: redirect('/requests/%{number}/build_results'), constraints: cons
