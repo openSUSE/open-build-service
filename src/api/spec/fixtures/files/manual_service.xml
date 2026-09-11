@@ -1,0 +1,6 @@
+<services>
+  <service name="obs_scm" mode="manual">
+    <param name="url">git://github.com/coolo/obs-build.git</param>
+    <param name="scm">git</param>
+  </service>
+</services>

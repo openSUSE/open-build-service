@@ -464,6 +464,9 @@ sub triggerservicerun {
       $cgi->{'servicemark'} = $servicemark;
       $rev = addrev_runservice($cgi, $projid, $packid, $files);
     } else {
+      my $modes = BSSrcServer::Service::get_service_modes($projid, $packid, $files);
+      die("404 services are in manual mode!\n") if $modes->{'manual'};
+      die("404 services are disabled!\n") if $modes->{'disabled'};
       die("404 no source service defined!\n");
     }
   }
