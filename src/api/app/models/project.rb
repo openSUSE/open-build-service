@@ -155,7 +155,7 @@ class Project < ApplicationRecord
       project = Project.new(name: project_name)
 
       Project.transaction do
-        project.update_from_xml!(Xmlhash.parse(project.meta.content))
+        project.update_from_xml!(Xmlhash.parse(project.meta.content), nil, ignore_missing_links: true)
         project.store
 
         # restore all package meta data objects in DB
@@ -168,7 +168,7 @@ class Project < ApplicationRecord
           package_meta = Xmlhash.parse(package.meta.content)
 
           Package.transaction do
-            package.update_from_xml(package_meta)
+            package.update_from_xml(package_meta, nil, ignore_missing_links: true)
             package.store
           end
         end
@@ -665,8 +665,8 @@ class Project < ApplicationRecord
     errors.none?
   end
 
-  def update_from_xml!(xmlhash, force = nil)
-    Project::UpdateFromXmlCommand.new(self).run(xmlhash, force)
+  def update_from_xml!(xmlhash, force = nil, ignore_missing_links: false)
+    Project::UpdateFromXmlCommand.new(self).run(xmlhash, force, ignore_missing_links: ignore_missing_links)
   end
 
   def update_from_xml(xmlhash, force = nil)
