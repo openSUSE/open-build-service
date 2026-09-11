@@ -1,5 +1,5 @@
 class SyncLocalPackageVersionJob < ApplicationJob
-  queue_as :quick
+  queue_as :slow_user
 
   include PackageVersionLabeler
 
