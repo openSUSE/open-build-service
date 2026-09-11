@@ -43,7 +43,7 @@
     %h3.mt-4
       Lifecycle
     %ul.list-group.list-group-flush
-      - @distro_release.distro_release_lifecycles.each do |lifecycle|
+      - @distro_release.distro_release_lifecycles.chronological.each do |lifecycle|
         = render partial: 'webui/distro_release_lifecycles/lifecycle', locals: { lifecycle: lifecycle }
     - new_lifecycle = DistroReleaseLifecycle.new(distro_release: @distro_release)
     - if policy(new_lifecycle).new?

@@ -9,7 +9,9 @@
 
   .mb-3
     = form.label :status
-    = form.select :status, DistroReleaseLifecycle.statuses.keys.map { |status| [status.humanize, status] }, {}, class: 'form-select'
+    - labels = DistroReleaseLifecycle::STATUS_LABELS
+    - status_options = DistroReleaseLifecycle.statuses.keys.map { |status| [labels.fetch(status, status.humanize), status] }
+    = form.select :status, status_options, {}, class: 'form-select'
 
   %div
     = form.submit 'Save', class: 'btn btn-success'
