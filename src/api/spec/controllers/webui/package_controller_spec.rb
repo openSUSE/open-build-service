@@ -153,6 +153,37 @@ RSpec.describe Webui::PackageController, :vcr do
         it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: package_with_revisions)) }
       end
     end
+
+    context 'with a package that does not exist' do
+      before do
+        get :show, params: { project: user.home_project, package: 'does_not_exist' }
+      end
+
+      it 'sets a flash error' do
+        expect(flash[:error]).to eq("Package not found: #{user.home_project.name}/does_not_exist")
+      end
+
+      it 'does not assign a package' do
+        expect(assigns(:package)).to be_nil
+      end
+    end
+
+    # Regression test
+    context 'with a package missing from a project that links to a remote project' do
+      let(:linking_project) { create(:project, link_to: 'openSUSE.org:home:hans') }
+
+      before do
+        get :show, params: { project: linking_project, package: 'does_not_exist' }
+      end
+
+      it 'sets a flash error' do
+        expect(flash[:error]).to eq("Package not found: #{linking_project.name}/does_not_exist")
+      end
+
+      it 'does not assign a package' do
+        expect(assigns(:package)).to be_nil
+      end
+    end
   end
 
   describe 'GET #revisions' do
@@ -658,6 +689,23 @@ RSpec.describe Webui::PackageController, :vcr do
       end
 
       it { expect(response.parsed_body).to eql([]) }
+    end
+  end
+
+  describe 'GET #rpmlint_result for a project managed through scmsync' do
+    let(:scmsync_project) { create(:project, name: 'scmsync_project', scmsync: 'https://src.opensuse.org/pool/_ObsPrj.git') }
+
+    before do
+      get :rpmlint_result, params: { project: scmsync_project, package: 'only_in_the_backend' }
+    end
+
+    it 'redirects to the project' do
+      expect(flash[:error]).to eq("The project #{scmsync_project.name} is configured through scmsync. This is not supported by the OBS frontend")
+      expect(response).to redirect_to(project_show_path(scmsync_project))
+    end
+
+    it 'does not assign a package' do
+      expect(assigns(:package)).to be_nil
     end
   end
 end

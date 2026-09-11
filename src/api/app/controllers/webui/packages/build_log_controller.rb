@@ -6,7 +6,7 @@ module Webui
 
       before_action :check_ajax, only: :update_build_log
       before_action :set_project
-      before_action :set_package
+      before_action :set_optional_package
       before_action :set_repository
       before_action :set_architecture
       before_action :set_object_to_authorize
