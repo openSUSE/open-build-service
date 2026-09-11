@@ -18,7 +18,6 @@ RSpec.describe 'Review with Canned Responses', :js, :vcr do
   let!(:canned_response) { create(:canned_response, user: reviewer, title: 'Looks good', content: 'Reviewed and approved.') }
 
   before do
-    Flipper.enable(:request_show_redesign)
     Flipper.enable(:canned_responses)
     login reviewer
     visit request_show_path(number: bs_request.number)

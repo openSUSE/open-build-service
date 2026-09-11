@@ -126,29 +126,6 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(number: request)
   end
 
-  # TODO: Remove this once request_show_redesign is rolled out
-  def request_action
-    @diff_limit = params[:full_diff] ? 0 : nil
-    @index = params[:index].to_i
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
-                                         action_id: params['id'].to_i, cacheonly: 1)
-    @action = @actions.find { |action| action[:id] == params['id'].to_i }
-    @active = @action[:name]
-
-    if @action[:diff_not_cached]
-      bs_request_action = BsRequestAction.find(@action[:id])
-      job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
-      return if job.positive?
-
-      priority = User.session.present? ? -10 : 0
-      BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(bs_request_action)
-    end
-
-    respond_to do |format|
-      format.js
-    end
-  end
-
   def request_action_changes
     return head :unauthorized unless @actions
 
@@ -504,12 +481,6 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_actions
     @actions = @bs_request.bs_request_actions
-  end
-
-  # [DEPRECATED] TODO: remove once request_workflow_redesign beta is rolled out
-  # This method exists in order to have a set_actions in before_action for non beta too
-  def set_actions_deprecated
-    set_actions
   end
 
   def build_results_data

@@ -26,7 +26,6 @@ RSpec.describe 'Comments with diff', :js, :vcr do
       end
 
       before do
-        Flipper.enable(:request_show_redesign, admin)
         login admin
         visit request_show_path(bs_request)
 
@@ -49,7 +48,6 @@ RSpec.describe 'Comments with diff', :js, :vcr do
       # It's not possible to hover over a line to wait for the comment box to appear while in mobile
       skip('This scenario is not posible under mobile') if mobile?
 
-      Flipper.enable(:request_show_redesign, admin)
       login admin
 
       visit request_changes_path(bs_request)
