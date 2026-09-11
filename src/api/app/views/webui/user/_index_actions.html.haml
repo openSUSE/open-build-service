@@ -1,5 +1,5 @@
 - content_for :actions do
-  - if Configuration.passwords_changable?
+  - if Configuration.passwords_changable? && (user == User.session || User.admin_session?)
     = render partial: 'webui/user/index_actions/change_password'
   = render partial: 'webui/user/index_actions/change_notifications'
   = render partial: 'webui/user/index_actions/manage_tokens'
