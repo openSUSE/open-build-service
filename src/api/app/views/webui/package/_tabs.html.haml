@@ -1,10 +1,11 @@
 .card-header.p-0
   .scrollable-tabs
-    = tab_link('Overview', package_show_path(project, package), 'scrollable-tab-link')
-    - if package.name == 'patchinfo'
-      = tab_link('Details', show_patchinfo_path(project, package), 'scrollable-tab-link')
+    - if package.present?
+      = tab_link('Overview', package_show_path(project, package), 'scrollable-tab-link')
+      - if package.name == 'patchinfo'
+        = tab_link('Details', show_patchinfo_path(project, package), 'scrollable-tab-link')
     -# haml-lint:disable InstanceVariables
-    - unless @spider_bot
+    - unless @spider_bot || package.nil?
       -# haml-lint:enable InstanceVariables
       = tab_link('Repositories', repositories_path(project, package), 'scrollable-tab-link')
       - if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
