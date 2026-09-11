@@ -169,6 +169,7 @@ RSpec.describe 'Repositories', :js do
       expect(page).to have_text('Connected')
 
       visit(new_project_distribution_path(project_name: admin_user.home_project))
+      click_button('openSUSE', class: 'accordion-button')
       distribution = Distribution.find_by(reponame: 'openSUSE_Tumbleweed')
       find("label[for='distribution-#{distribution.id}-checkbox']").click
       wait_for_ajax
@@ -182,6 +183,7 @@ RSpec.describe 'Repositories', :js do
       end
 
       visit(new_project_distribution_path(project_name: admin_user.home_project))
+      click_button('openSUSE', class: 'accordion-button')
       find("label[for='distribution-#{distribution.id}-checkbox']").click
       wait_for_ajax
 
