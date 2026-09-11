@@ -19,12 +19,40 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     get '/person?confirmed=1'
     assert_response :success
     assert_no_xml_tag tag: 'entry', attributes: { name: 'unconfirmed_user' }
+    assert_nil response.headers['Deprecation']
+
+    get '/person?confirmed=true'
+    assert_response :success
+    assert_no_xml_tag tag: 'entry', attributes: { name: 'unconfirmed_user' }
+
+    get '/person?confirmed=0'
+    assert_response :success
+    assert_xml_tag tag: 'entry', attributes: { name: 'unconfirmed_user' }
+
+    get '/person?confirmed=false'
+    assert_response :success
+    assert_xml_tag tag: 'entry', attributes: { name: 'unconfirmed_user' }
 
     get '/person/'
     assert_response :success
 
     get '/person?prefix=s'
     assert_response :success
+  end
+
+  def test_index_confirmed_invalid_value
+    login_adrian
+    get '/person?confirmed=yes'
+    assert_response :bad_request
+    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_parameter' })
+  end
+
+  def test_index_confirmed_without_value_is_deprecated
+    login_adrian
+    get '/person?confirmed'
+    assert_response :success
+    assert_no_xml_tag tag: 'entry', attributes: { name: 'unconfirmed_user' }
+    assert_equal 'true', response.headers['Deprecation']
   end
 
   def test_ichain
