@@ -178,6 +178,14 @@ class BsRequestActionSubmit < BsRequestAction
     backend_package&.[]('linkinfo')&.[]('xsrcmd5') || backend_package&.[]('srcmd5')
   end
 
+  def check_target_project_maintenance_release_attribute
+    return unless target_project_object
+    return unless target_project_object.maintenance_release?
+    return if target_project_object.find_attribute('OBS', 'AllowSubmitToMaintenanceRelease')
+
+    raise SubmitRequestRejected, "The target project #{target_project} is a maintenance release project, " \
+                                 'a submit self is not possible, please use the maintenance workflow instead.'
+  end
   #### Alias of methods
 end
 
