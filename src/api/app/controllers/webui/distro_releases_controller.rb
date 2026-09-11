@@ -14,6 +14,10 @@ class Webui::DistroReleasesController < Webui::WebuiController
   after_action :verify_authorized
 
   #### CRUD actions
+  def new
+    @distro_release = DistroRelease.new(distro: @distro)
+    authorize @distro_release
+  end
 
   def edit
     authorize @distro_release
