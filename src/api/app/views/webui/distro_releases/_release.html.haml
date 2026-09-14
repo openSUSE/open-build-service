@@ -16,7 +16,7 @@
             %span.badge.text-bg-primary
               = ra.architecture.name
   - component.with_header do
-    %h5.card-title= distro_release.name
+    %h5.card-title= link_to distro_release.name, distro_release_path(distro_release.distro, distro_release)
 
   - if policy(distro_release).destroy?
     - component.with_delete_button do
@@ -25,6 +25,6 @@
                 distro_name: distro_release.distro.name, action: distro_release_path(distro_release.distro, distro_release) } do
         %i.fas.fa-times-circle.text-danger
   - if policy(distro_release).edit?
-    = link_to(edit_distro_release_path(distro_release.distro, distro_release), class: 'ps-2', title: 'Edit distro release') do
+    = link_to(edit_distro_release_path(distro_release.distro, distro_release), title: 'Edit distro release') do
       %i.fas.fa-edit
       %span.nav-item-name Edit

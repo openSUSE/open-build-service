@@ -9,6 +9,7 @@ class DistroRelease < ApplicationRecord
 
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :distro, optional: false
+  has_many :distro_release_lifecycles, dependent: :destroy
   has_many :distro_release_repository_architectures, dependent: :destroy
   has_many :repository_architectures, through: :distro_release_repository_architectures
   has_many :repositories, through: :repository_architectures
