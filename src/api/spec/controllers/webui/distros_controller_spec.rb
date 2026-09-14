@@ -2,7 +2,7 @@ RSpec.describe Webui::DistrosController do
   let(:user) { create(:confirmed_user) }
   let(:other_user) { create(:confirmed_user) }
   let(:project) { create(:project, maintainer: user) }
-  let(:vendor) { create(:vendor, project: project) }
+  let!(:vendor) { create(:vendor, project: project) }
   let(:distro) { create(:distro, vendor: vendor, name: 'Leap') }
 
   before do
@@ -15,14 +15,14 @@ RSpec.describe Webui::DistrosController do
     before do
       Flipper.disable(:enhanced_distribution_support)
       login user
-      post :create, params: { vendor_id: vendor.id, distro: { name: 'Tumbleweed' } }
+      post :create, params: { project_name: project.name, distro: { name: 'Tumbleweed' } }
     end
 
     it { expect(response).to have_http_status(:redirect) }
   end
 
   describe 'POST #create' do
-    subject { post :create, params: { vendor_id: vendor.id, distro: distro_params } }
+    subject { post :create, params: { project_name: project.name, distro: distro_params } }
 
     let!(:distro_params) { { name: 'Tumbleweed', description: 'A rolling release', url: 'https://get.opensuse.org' } }
 
@@ -94,7 +94,7 @@ RSpec.describe Webui::DistrosController do
   end
 
   describe 'PATCH #update' do
-    subject { patch :update, params: { vendor_id: vendor.id, id: distro.id, distro: distro_params } }
+    subject { patch :update, params: { project_name: project.name, distro_name: distro.name, distro: distro_params } }
 
     let(:distro_params) { { name: 'Slowroll' } }
 
@@ -134,7 +134,7 @@ RSpec.describe Webui::DistrosController do
       end
 
       context 'when the distro belongs to another vendor' do
-        subject { patch :update, params: { vendor_id: vendor.id, id: foreign_distro.id, distro: distro_params } }
+        subject { patch :update, params: { project_name: project.name, distro_name: foreign_distro.name, distro: distro_params } }
 
         let(:other_vendor) { create(:vendor, project: create(:project, maintainer: user)) }
         let(:foreign_distro) { create(:distro, vendor: other_vendor, name: 'Leap') }
@@ -163,7 +163,7 @@ RSpec.describe Webui::DistrosController do
   end
 
   describe 'DELETE #destroy' do
-    subject { delete :destroy, params: { vendor_id: vendor.id, id: distro.id } }
+    subject { delete :destroy, params: { project_name: project.name, distro_name: distro.name } }
 
     before do
       distro
@@ -183,7 +183,7 @@ RSpec.describe Webui::DistrosController do
     end
 
     context 'when the distro belongs to another vendor' do
-      subject { delete :destroy, params: { vendor_id: vendor.id, id: foreign_distro.id } }
+      subject { delete :destroy, params: { project_name: project.name, distro_name: foreign_distro.name } }
 
       let(:other_vendor) { create(:vendor, project: create(:project, maintainer: user)) }
       let!(:foreign_distro) { create(:distro, vendor: other_vendor) }

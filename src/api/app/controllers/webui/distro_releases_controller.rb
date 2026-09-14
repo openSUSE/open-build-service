@@ -29,28 +29,28 @@ class Webui::DistroReleasesController < Webui::WebuiController
   end
 
   def create
-    @distro_release = DistroRelease.new(distro_release_params.merge(distro_id: params[:distro_id]))
+    @distro_release = @distro.distro_releases.new(distro_release_params)
     authorize @distro_release
     if @distro_release.save
-      redirect_to vendor_distro_path(@distro.vendor, @distro), notice: 'Release was successfully created.'
+      redirect_to project_distro_path(@distro.project, @distro.name), notice: 'Release was successfully created.'
     else
-      redirect_to vendor_distro_path(@distro.vendor, @distro), flash: { error: "Release failed to create. #{@distro_release.errors.messages}" }
+      redirect_to project_distro_path(@distro.project, @distro.name), flash: { error: "Release failed to create. #{@distro_release.errors.messages}" }
     end
   end
 
   def update
     authorize @distro_release
     if @distro_release.update(distro_release_params)
-      redirect_to vendor_distro_path(@distro.vendor, @distro), flash: { success: 'Release was successfully updated.' }
+      redirect_to project_distro_path(@distro.project, @distro.name), flash: { success: 'Release was successfully updated.' }
     else
-      redirect_to vendor_distro_path(@distro.vendor, @distro), flash: { error: "Release failed to update. #{@distro.errors.messages}" }
+      redirect_to project_distro_path(@distro.project, @distro.name), flash: { error: "Release failed to update. #{@distro.errors.messages}" }
     end
   end
 
   def destroy
     authorize @distro_release
     @distro_release.destroy!
-    redirect_to vendor_distro_path(@distro.vendor, @distro), flash: { success: 'Release was successfully destroyed.' }
+    redirect_to project_distro_path(@distro.project, @distro.name), flash: { success: 'Release was successfully destroyed.' }
   end
 
   #### Non CRUD actions
@@ -62,7 +62,7 @@ class Webui::DistroReleasesController < Webui::WebuiController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_distro
-    @distro = Distro.find(params.expect(:distro_id))
+    @distro = Distro.find_by!(name: params.expect(:distro_name))
   end
 
   def set_project
@@ -79,6 +79,6 @@ class Webui::DistroReleasesController < Webui::WebuiController
   end
 
   def set_distro_release
-    @distro_release = @distro.distro_releases.find(params.expect(:id))
+    @distro_release = @distro.distro_releases.find_by!(name: params.expect(:distro_release_name))
   end
 end

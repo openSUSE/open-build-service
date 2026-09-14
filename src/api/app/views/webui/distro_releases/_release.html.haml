@@ -16,15 +16,15 @@
             %span.badge.text-bg-primary
               = ra.architecture.name
   - component.with_header do
-    %h5.card-title= link_to distro_release.name, distro_release_path(distro_release.distro, distro_release)
+    %h5.card-title= link_to distro_release.name, distro_release_path(distro_release.distro.name, distro_release.name)
 
   - if policy(distro_release).destroy?
     - component.with_delete_button do
       = link_to '#', title: 'Delete distro release',
         data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-release-modal', distro_release_name: distro_release.name,
-                distro_name: distro_release.distro.name, action: distro_release_path(distro_release.distro, distro_release) } do
+                distro_name: distro_release.distro.name, action: distro_release_path(distro_release.distro.name, distro_release.name) } do
         %i.fas.fa-times-circle.text-danger
   - if policy(distro_release).edit?
-    = link_to(edit_distro_release_path(distro_release.distro, distro_release), title: 'Edit distro release') do
+    = link_to(edit_distro_release_path(distro_release.distro.name, distro_release.name), class: 'ps-2', title: 'Edit distro release') do
       %i.fas.fa-edit
       %span.nav-item-name Edit

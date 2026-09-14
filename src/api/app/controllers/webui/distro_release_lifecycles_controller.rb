@@ -17,25 +17,25 @@ class Webui::DistroReleaseLifecyclesController < Webui::WebuiController
     @distro_release_lifecycle = @distro_release.distro_release_lifecycles.new(distro_release_lifecycle_params)
     authorize @distro_release_lifecycle
     if @distro_release_lifecycle.save
-      redirect_to distro_release_path(@distro_release.distro, @distro_release), flash: { success: 'Lifecycle was successfully created.' }
+      redirect_to distro_release_path(@distro_release.distro.name, @distro_release.name), flash: { success: 'Lifecycle was successfully created.' }
     else
-      redirect_to distro_release_path(@distro_release.distro, @distro_release), flash: { error: "Lifecycle failed to create. #{@distro_release_lifecycle.errors.full_messages.to_sentence}" }
+      redirect_to distro_release_path(@distro_release.distro.name, @distro_release.name), flash: { error: "Lifecycle failed to create. #{@distro_release_lifecycle.errors.full_messages.to_sentence}" }
     end
   end
 
   def update
     authorize @distro_release_lifecycle
     if @distro_release_lifecycle.update(distro_release_lifecycle_params)
-      redirect_to distro_release_path(@distro_release.distro, @distro_release), flash: { success: 'Lifecycle was successfully updated.' }
+      redirect_to distro_release_path(@distro_release.distro.name, @distro_release.name), flash: { success: 'Lifecycle was successfully updated.' }
     else
-      redirect_to distro_release_path(@distro_release.distro, @distro_release), flash: { error: "Lifecycle failed to update. #{@distro_release_lifecycle.errors.full_messages.to_sentence}" }
+      redirect_to distro_release_path(@distro_release.distro.name, @distro_release.name), flash: { error: "Lifecycle failed to update. #{@distro_release_lifecycle.errors.full_messages.to_sentence}" }
     end
   end
 
   def destroy
     authorize @distro_release_lifecycle
     @distro_release_lifecycle.destroy!
-    redirect_to distro_release_path(@distro_release.distro, @distro_release), flash: { success: 'Lifecycle was successfully destroyed.' }
+    redirect_to distro_release_path(@distro_release.distro.name, @distro_release.name), flash: { success: 'Lifecycle was successfully destroyed.' }
   end
 
   #### Non CRUD actions
