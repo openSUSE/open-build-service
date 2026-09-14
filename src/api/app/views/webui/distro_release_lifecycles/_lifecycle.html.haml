@@ -1,7 +1,7 @@
 %li.list-group-item.d-flex.flex-wrap.justify-content-between.px-0
   = lifecycle.name
   %div
-    %span.badge{ class: lifecycle.status_class }= lifecycle.status_label
+    %span.badge{ class: lifecycle_status_class(lifecycle) }= lifecycle.status_label
     - if lifecycle.date.present?
       %span.ms-1= l(lifecycle.date, format: :long)
     - if policy(lifecycle).update?
