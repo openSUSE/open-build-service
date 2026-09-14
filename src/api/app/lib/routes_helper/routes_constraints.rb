@@ -8,6 +8,7 @@ module RoutesHelper
       distro_name: %r{[^/]*},
       distro_release_name: %r{[^/]*},
       id: /\d*/,
+      lifecycle_name: %r{[^/]*},
       login: %r{[^/]*},
       package: %r{[^/]*},
       package_name: %r{[^/]*},
