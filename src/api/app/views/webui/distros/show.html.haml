@@ -36,8 +36,9 @@
           = render partial: 'webui/distro_releases/release', locals: { distro_release: distro_release }
       .ps-0
         - if policy(DistroRelease.new(distro: @distro)).new?
-          = render partial: 'webui/distro_releases/modal', locals: { model: DistroRelease.new(distro: @distro),
-                                                    url: distro_releases_path(@distro), text: 'New Release', icon: 'circle-plus' }
+          = link_to(new_distro_release_path(@distro), class: 'ps-2') do
+            %i.fas.fa-circle-plus.text-info
+            %span.nav-item-name New Release
 
 .modal.fade#delete-distro-release-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-distro-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
