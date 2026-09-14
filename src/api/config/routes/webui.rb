@@ -314,7 +314,6 @@ resources :projects, only: [], param: :name do
   resources :distros, controller: 'webui/distros', except: %i[index new], constraints: cons, param: :distro_name
 end
 
-
 resources :distro_releases, only: [], param: :name do
   resources :lifecycles, controller: 'webui/distro_release_lifecycles', param: :lifecycle_name, except: %i[index new show edit]
 end
