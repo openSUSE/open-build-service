@@ -7,6 +7,11 @@ linters:
   LineLength:
     max: 150
 
+  InlineStyles:
+    enabled: true
+    exclude:
+      - 'app/views/webui/distros/_timeline.html.haml'
+
   # Apply lint in all partials, but exclude 'breadcrumb_items' partials
   InstanceVariables:
     enabled: true
@@ -21,3 +26,4 @@ linters:
 
 exclude:
 - 'vendor/bundle/**/*'
+
