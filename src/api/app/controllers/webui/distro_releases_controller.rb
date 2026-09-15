@@ -6,8 +6,8 @@ class Webui::DistroReleasesController < Webui::WebuiController
   #### Self config
 
   #### Callbacks macros: before_action, after_action, etc.
-  before_action :set_distro
   before_action :set_project
+  before_action :set_distro
   before_action :set_vendor
   before_action :set_distro_release, only: %i[show update destroy edit]
   # Pundit authorization policies control
@@ -15,7 +15,6 @@ class Webui::DistroReleasesController < Webui::WebuiController
 
   def show
     authorize @distro_release
-    @vendor = @distro.vendor
   end
 
   #### CRUD actions
@@ -62,11 +61,7 @@ class Webui::DistroReleasesController < Webui::WebuiController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_distro
-    @distro = Distro.find_by!(name: params.expect(:distro_name))
-  end
-
-  def set_project
-    @project = @distro.project
+    @distro = @project.distros.find_by!(name: params.expect(:distro_name))
   end
 
   def set_vendor

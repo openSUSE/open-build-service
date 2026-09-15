@@ -96,6 +96,7 @@ class Project < ApplicationRecord
   has_many :assignments, through: :packages
   has_many :canned_responses, dependent: :nullify
   has_one :vendor, dependent: :destroy
+  has_many :distros, through: :vendor
 
   default_scope { where.not('projects.id' => Relationship.forbidden_project_ids) }
 
