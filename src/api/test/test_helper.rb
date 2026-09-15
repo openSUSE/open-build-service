@@ -18,7 +18,7 @@ require_relative 'test_consistency_helper'
 
 require 'rails/test_help'
 
-require 'minitest/unit'
+require 'minitest/autorun'
 
 require 'minitest/spec'
 
