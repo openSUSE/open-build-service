@@ -45,6 +45,10 @@ class DistroReleaseLifecycle < ApplicationRecord
 
   #### Instance methods (public and then protected/private)
 
+  delegate :project, to: :distro_release
+
+  delegate :distro, to: :distro_release
+
   def status_label
     STATUS_LABELS.fetch(status, status.humanize)
   end

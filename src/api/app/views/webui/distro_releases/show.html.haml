@@ -49,5 +49,5 @@
     - if policy(new_lifecycle).new?
       = render partial: 'webui/distro_release_lifecycles/modal',
                locals: { model: new_lifecycle,
-                         url: distro_release_lifecycles_path(@distro_release.name),
+                         url: project_distro_release_lifecycles_path(@project.name, @distro.name, @distro_release.name),
                          text: 'New Lifecycle', icon: 'circle-plus', type: 'link text-decoration-none ps-0' }
