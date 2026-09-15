@@ -47,7 +47,7 @@ class Package < ApplicationRecord
   has_many :comments, as: :commentable, dependent: :destroy
   has_one :comment_lock, as: :commentable, dependent: :destroy
 
-  has_many :binary_releases, dependent: :delete_all, foreign_key: 'release_package_id'
+  has_many :binary_releases, dependent: :nullify, foreign_key: 'release_package_id'
 
   has_many :reviews, dependent: :nullify
 
