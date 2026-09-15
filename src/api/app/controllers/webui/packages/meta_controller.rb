@@ -1,8 +1,6 @@
 module Webui
   module Packages
     class MetaController < WebuiController
-      include ScmsyncChecker
-
       before_action :set_project
       before_action :set_package
 
