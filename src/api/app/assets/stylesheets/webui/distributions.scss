@@ -1,0 +1,20 @@
+#distributions-accordion {
+  .accordion-item {
+    .accordion-button {
+      &.no-style {
+        cursor: pointer;
+        padding: 0;
+        background: none;
+      }
+      &:focus {
+        box-shadow: none;
+      }
+      &:not(.collapsed) {
+        box-shadow: none;
+      }
+      &:hover {
+        background-color: var(--bs-secondary-bg);
+      }
+    }
+  }
+}
