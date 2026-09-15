@@ -158,6 +158,13 @@ elif [ -e /sys/hypervisor/type ] && [ -x /usr/sbin/xl -o -x /usr/sbin/xm ] && gr
     OBS_VM_TYPE="xen"
 fi
 
+if [ -n "$OBS_VM_ARGS" -a -n "$vmopt" ]; then
+    case "$OBS_VM_ARGS" in
+    -*) OBS_VM_ARGS=" $OBS_VM_ARGS";; # Workaround for build arg parser
+    esac
+    vmopt="$vmopt --vm-args ${OBS_VM_ARGS@Q}"
+fi
+
 if [ "$OBS_VM_TYPE" = "zvm" ]; then
     # for z/VM, the disks are already setup with the workers.
     if [ -n "$OBS_VM_DISK_AUTOSETUP_FILESYSTEM" ]; then
