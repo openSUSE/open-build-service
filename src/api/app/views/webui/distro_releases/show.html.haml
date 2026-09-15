@@ -13,7 +13,7 @@
             = render partial: 'webui/shared/collapsible_text', locals: { text: @distro_release.description }
         - if policy(@distro_release).edit?
           .mb-3
-            = link_to(edit_distro_release_path(@distro.name, @distro_release.name), title: 'Edit distro release') do
+            = link_to(edit_project_distro_release_path(@project.name, @distro.name, @distro_release.name), title: 'Edit distro release') do
               %i.fas.fa-edit
               %span.nav-item-name Edit
       .col-md-4
@@ -24,7 +24,7 @@
               = render partial: 'webui/shared/external_link', locals: { text: @distro_release.url, url: @distro_release.url }
           - if policy(@distro_release).destroy?
             %li
-              = link_to(distro_release_path(@distro.name, @distro_release.name), method: :delete, class: 'text-danger',
+              = link_to(project_distro_release_path(@project.name, @distro.name, @distro_release.name), method: :delete, class: 'text-danger',
                 data: { confirm: 'Are you sure you want to delete this release?' }) do
                 %i.fas.fa-trash-can
                 %span.nav-item-name Delete
