@@ -6,7 +6,8 @@
     %h3
       State of Repository #{@repository} for #{@project}
     %p
-      = render DownloadRepositoryLinkComponent.new(project: @project, repository: @repository, configuration: @configuration)
+      - if @configuration['download_url'].present?
+        = render DownloadRepositoryLinkComponent.new(project: @project, repository: @repository)
     %h4 Build Dependency Cycles
     - @repository.architectures.each do |arch|
       - cycles = @repository.cycles(arch.name)

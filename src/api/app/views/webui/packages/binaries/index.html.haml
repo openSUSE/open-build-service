@@ -5,8 +5,8 @@
   .card-body
     %h3= @pagetitle
     %ul.list-inline
-      - if @configuration['download_url']
-        = render DownloadRepositoryLinkComponent.new(project: @project, repository: @repository, configuration: @configuration)
+      - if @configuration['download_url'].present?
+        = render DownloadRepositoryLinkComponent.new(project: @project, repository: @repository)
       - if @buildresults.present? && policy(@package).update?
         %li.list-inline-item
           = link_to('#', title: 'Delete all built binaries', data: { 'bs-toggle': 'modal',
