@@ -59,3 +59,17 @@
       %h5 Reason
       %p
         = decision.reason
+
+      - if decision.appeals.any?
+        - visible_appeals = decision.appeals.select { |appeal| policy(appeal).show? }
+        - if visible_appeals.any?
+          %h5 Appeals
+          %ul.mb-0
+            - visible_appeals.each do |appeal|
+              %li
+                = render UserAvatarComponent.new(appeal.appellant)
+                appealed on
+                = link_to(appeal.created_at.to_date.to_s, appeal_path(appeal))
+                - if appeal.reason.present?
+                  %p.mt-2
+                    = appeal.reason
