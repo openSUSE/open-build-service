@@ -42,29 +42,33 @@ function setValuesOnReportDialog(modalId) {
   });
 }
 
-/* exported hideReportButton */
-function hideReportButton(element) {
-  $(element).addClass('d-none');
-}
-
 /* exported showYouReportedMessage */
 function showYouReportedMessage(reportLinkId, reportableType, reportableId, message) {
   switch(reportableType) {
     case 'Comment':
       // Comments differ depending on where they are, so this is why we have two ways. If an element isn't found, nothing will happen...
       // For comments on a project/package - In the comment, insert the 'You reported the comment' message after 'User X wrote (...)'
-      $('#comment-' + reportableId + '-user').after(message);
-      // For comments on a request - In the comment, insert the 'You reported the comment' message before the comment body
-      $('#comment-' + reportableId + '-body').prepend(message);
+      // but only if the fa-flag is not present. Meaning the message is not there yet.
+      if ($('#comment-' + reportableId + '-user').length && $('#comment-' + reportableId + '-user').next('.fa-flag').length === 0) {
+        $('#comment-' + reportableId + '-user').after(message);
+      }
+      // For comments on a request - In the comment, insert the 'You reported the comment' message before the comment body. Same as before, insert only if not already present.
+      if ($('#comment-' + reportableId + '-body').length && $('#comment-' + reportableId + '-body').find('.fa-flag').length === 0) {
+        $('#comment-' + reportableId + '-body').prepend(message);
+      }
       break;
     case 'Project':
     case 'Package':
       // The 'You reported the project/package' is displayed in the side links of the project/package
-      $('ul.side_links').append(message);
+      if ($('ul.side_links').find('.fa-flag').length === 0) {
+        $('ul.side_links').append(message);
+      }
       break;
     case 'User':
-      // The 'You reported the user' message is displayed after the (now) hidden 'Report' link
-      $(reportLinkId).after(message);
+      // The 'You reported the user' message is displayed after the 'Report' link
+      if ($(reportLinkId).next('.fa-flag').length === 0) {
+        $(reportLinkId).after(message);
+      }
       break;
   }
 }
