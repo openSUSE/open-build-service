@@ -42,13 +42,16 @@ function setValuesOnReportDialog(modalId) {
   });
 }
 
-/* exported hideReportButton */
-function hideReportButton(element) {
-  $(element).addClass('d-none');
-}
-
 /* exported showYouReportedMessage */
 function showYouReportedMessage(reportLinkId, reportableType, reportableId, message) {
+  // Check if a report notice for this reportable already exists and replace it if it does
+  const existingNoticeId = $('#report-notice-' + reportableType.toLowerCase() + '-' + reportableId);
+  if (existingNoticeId.length > 0) {
+    existingNoticeId.replaceWith(message);
+    return;
+  }
+
+  // If no existing notice was found, proceed to display the new message based on the reportable type
   switch(reportableType) {
     case 'Comment':
       // Comments differ depending on where they are, so this is why we have two ways. If an element isn't found, nothing will happen...
@@ -63,7 +66,7 @@ function showYouReportedMessage(reportLinkId, reportableType, reportableId, mess
       $('ul.side_links').append(message);
       break;
     case 'User':
-      // The 'You reported the user' message is displayed after the (now) hidden 'Report' link
+      // The 'You reported the user' message is displayed after the 'Report' link
       $(reportLinkId).after(message);
       break;
   }
