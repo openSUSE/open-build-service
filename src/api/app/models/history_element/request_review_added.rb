@@ -4,26 +4,8 @@ module HistoryElement
       'Request got a new review request'
     end
 
-    def user_action
-      return 'added a reviewer' unless review
-
-      "#{user_action_prefix} #{action_target} #{user_action_suffix}"
-    end
-
-    def user_action_prefix
-      return 'set' if review_by_staging_project?
-
-      'added'
-    end
-
     def action_target
       review.reviewed_by
-    end
-
-    def user_action_suffix
-      return 'as a staging project' if review_by_staging_project?
-
-      'as a reviewer'
     end
 
     # self.description_extension is review id, but it's not present in old history elements

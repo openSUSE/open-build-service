@@ -4,9 +4,6 @@ module HistoryElement
       'Review got declined'
     end
 
-    def user_action
-      'declined review'
-    end
   end
 end
 
