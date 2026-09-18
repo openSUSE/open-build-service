@@ -17,7 +17,10 @@
       - else
         %div
           %i.mt2= reportable_not_found(reportable_type: @report.reportable_type)
-    %h5 Reason
+    %h4 Subject
+    %p
+      = render partial: "#{ @report.reportable_type.underscore }_preview", locals: { reportable: @report.reportable}
+    %h4 Reason
     %p
       - if @report.reason
         = @report.reason
@@ -25,7 +28,7 @@
         %i No reason provided
 
     - if other_reports.any?
-      %h5 Other reports
+      %h4 Other reports
       %ul
         - other_reports.each do |report|
           %li
