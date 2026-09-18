@@ -1157,7 +1157,7 @@ sub srcdiff {
     } else {
       $dd .= "\n++++++ $f (new)\n";
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
+    if ($opts{'doarchive'} && is_archive($f) eq 'archive') {
       if (defined $of) {
 	my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
 	for my $r (@r) {
@@ -1183,7 +1183,7 @@ sub srcdiff {
   if (1) {
     for my $of (sort keys %oold) {
       $d .= "\n++++++ $of (deleted)\n";
-      if ($opts{'doarchive'} && $of =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
+      if ($opts{'doarchive'} && is_archive($of) eq 'archive') {
         next;
       }
       my $r = filediff(fn($pold, $of), undef, %opts);
@@ -1222,7 +1222,7 @@ sub unifieddiff {
     } else {
       $d .= "Index: $f\n" . ("=" x 67) . "\n";
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
+    if ($opts{'doarchive'} && is_archive($f) eq 'archive') {
       my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
       for my $r (@r) {
         $d .= adddiffheader($r, "$r->{'name'}$orevb", "$r->{'name'}$revb");
@@ -1234,7 +1234,7 @@ sub unifieddiff {
   }
   for my $f (@added) {
     $d .= "Index: $f\n" . ("=" x 67) . "\n";
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
+    if ($opts{'doarchive'} && is_archive($f) eq 'archive') {
       my @r = tardiff(undef, fn($pnew, $f), %opts);
       for my $r (@r) {
         $d .= adddiffheader($r, "$r->{'name'} (added)", "$r->{'name'}$revb");
@@ -1250,6 +1250,11 @@ sub unifieddiff {
     $d .= adddiffheader($r, "$f$orevb", "$f (deleted)");
   }
   return $d;
+}
+
+sub is_archive {
+  my ($f) = @_;
+  return $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/ ? 'archive' : 'file';
 }
 
 sub datadiff {
@@ -1268,7 +1273,7 @@ sub datadiff {
     if (!defined($old->{$of})) {
       my @s = stat(fn($pnew, $f));
       my $r = filediff(undef, fn($pnew, $f), %opts);
-      push @added, {'state' => 'added', 'diff' => $r, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+      push @added, {'state' => 'added', 'kind' => is_archive($f), 'diff' => $r, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
       next;
     }
     next if $f eq $of && $old->{$of} eq $new->{$f} && fn($pold, $of, 1) eq fn($pnew, $f, 1);
@@ -1278,18 +1283,18 @@ sub datadiff {
       # identical md5
       if ((@s && @os && $s[0] == $os[0] && $s[1] == $os[1]) || BSUtil::identicalfile(fn($pold, $of), fn($pnew, $f))) {
 	# identical content
-	push @changed, {'state' => 'renamed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}} if $f ne $of;
+	push @changed, {'state' => 'renamed', 'kind' => is_archive($f), 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}} if $f ne $of;
 	next;
       }
     }
-    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
+    if ($opts{'doarchive'} && is_archive($f) eq 'archive') {
       my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
       if (@r == 0) {
 	# tar changed, but content is the same (e.g. compression level change, different compressor)
-	push @changed, {'state' => 'changed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+	push @changed, {'state' => 'changed', 'kind' => 'archive', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
       } elsif (@r == 1 && !$r[0]->{'old'} && !$r[0]->{'new'}) {
 	# tardiff was too big
-	push @changed, {'state' => 'changed', 'diff' => $r[0], 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+	push @changed, {'state' => 'changed', 'kind' => 'archive', 'diff' => $r[0], 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
 	@r = ();
       }
       for my $r (@r) {
@@ -1298,17 +1303,17 @@ sub datadiff {
 	$r->{'new'}->{'name'} = "$f/$r->{'new'}->{'name'}" if $r->{'new'};
 	$r->{'old'} ||= $r->{'new'};
 	$r->{'new'} ||= $r->{'old'};
-	push @changed, {'state' => ($r->{'state'} || 'changed'), 'diff' => $r, 'old' => delete($r->{'old'}), 'new' => delete($r->{'new'})};
+	push @changed, {'state' => ($r->{'state'} || 'changed'), 'kind' => 'file', 'diff' => $r, 'old' => delete($r->{'old'}), 'new' => delete($r->{'new'})};
       }
     } else {
       my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts);
-      push @changed, {'state' => 'changed', 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+      push @changed, {'state' => 'changed', 'kind' => is_archive($f), 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
     }
   }
   for my $of (grep {!$done{$_}} sort(keys %$old)) {
     my @os = stat(fn($pold, $of));
     my $r = filediff(fn($pold, $of), undef, %opts);
-    push @added, {'state' => 'deleted', 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}};
+    push @added, {'state' => 'deleted', 'kind' => is_archive($of), 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}};
   }
   # fixup diff
   for (@changed, @added, @deleted) {
