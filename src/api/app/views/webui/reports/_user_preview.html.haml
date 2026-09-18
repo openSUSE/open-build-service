@@ -1,0 +1,10 @@
+%div
+  %b
+    User
+    = link_to(user_path(reportable)) do
+      = render UserAvatarComponent.new(reportable)
+    (#{reportable.state.humanize})
+- if reportable.biography.present?
+  %div
+    %b Bio:
+    = render partial: 'webui/shared/collapsible_text', locals: { text: reportable.biography }

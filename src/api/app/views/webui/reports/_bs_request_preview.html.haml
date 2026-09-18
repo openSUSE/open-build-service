@@ -1,0 +1,11 @@
+%div
+  %b
+    Request
+    = link_to("##{reportable.number}", request_show_path(reportable))
+    = render BsRequestStateBadgeComponent.new(state: reportable.state)
+%p
+  = render BsRequestSummaryDescriptionComponent.new(bs_request: reportable)
+- if reportable.description.present?
+  %div
+    %b Description:
+    = render partial: 'webui/shared/collapsible_text', locals: { text: reportable.description }
