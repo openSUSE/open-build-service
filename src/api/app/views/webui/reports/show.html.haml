@@ -17,6 +17,18 @@
       - else
         %div
           %i.mt2= reportable_not_found(reportable_type: @report.reportable_type)
+    - if @report.reportable_type == 'Comment' && @report.reportable.present?
+      %h5 Reported Comment
+      .card.mb-3
+        .card-body
+          %p.mb-2
+            %strong Author:
+            = render UserAvatarComponent.new(@report.reportable.user)
+          %p.mb-2
+            = @report.reportable.body
+          %p.mb-0
+            = link_to('View reported comment in context', commentable_path(comment: @report.reportable), class: 'btn btn-outline-secondary btn-sm')
+
     %h5 Reason
     %p
       - if @report.reason

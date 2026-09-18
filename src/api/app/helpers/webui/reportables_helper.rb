@@ -13,7 +13,7 @@ module Webui::ReportablesHelper
 
     case reportable_type
     when 'Comment'
-      link_to_commentables_on_reportables(commentable: reportable.commentable, only_path: only_path, host: host)
+      link_to_commentables_on_reportables(commentable: reportable.commentable, comment_id: reportable.id, only_path: only_path, host: host)
     when 'Package'
       link_to(reportable.name.to_s, Rails.application.routes.url_helpers.package_show_url(package: reportable, project: reportable.project,
                                                                                           anchor: 'comments-list', only_path: only_path, host: host))
@@ -26,19 +26,20 @@ module Webui::ReportablesHelper
     end
   end
 
-  def link_to_commentables_on_reportables(commentable:, only_path:, host:)
+  def link_to_commentables_on_reportables(commentable:, comment_id: nil, only_path:, host:)
+    anchor = comment_id ? "comment-#{comment_id}" : 'comments-list'
     case commentable
     when BsRequest
-      link_to("Request #{commentable.number}", Rails.application.routes.url_helpers.request_show_url(commentable.number, anchor: 'comments-list', only_path: only_path, host: host))
+      link_to("Request #{commentable.number}", Rails.application.routes.url_helpers.request_show_url(commentable.number, anchor: anchor, only_path: only_path, host: host))
     when BsRequestAction
       link_to("Request #{commentable.bs_request.number}", Rails.application.routes.url_helpers.request_show_url(number: commentable.bs_request.number,
                                                                                                                 request_action_id: commentable.id,
-                                                                                                                anchor: 'comments-list', only_path: only_path, host: host))
+                                                                                                                anchor: anchor, only_path: only_path, host: host))
     when Package
       link_to(commentable.name.to_s, Rails.application.routes.url_helpers.package_show_url(package: commentable, project: commentable.project,
-                                                                                           anchor: 'comments-list', only_path: only_path, host: host))
+                                                                                           anchor: anchor, only_path: only_path, host: host))
     when Project
-      link_to(commentable.name.to_s, Rails.application.routes.url_helpers.project_show_url(commentable, anchor: 'comments-list', only_path: only_path, host: host))
+      link_to(commentable.name.to_s, Rails.application.routes.url_helpers.project_show_url(commentable, anchor: anchor, only_path: only_path, host: host))
     end
   end
 
