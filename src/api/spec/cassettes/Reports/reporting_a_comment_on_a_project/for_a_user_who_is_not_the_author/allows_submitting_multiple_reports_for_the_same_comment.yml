@@ -1,0 +1,79 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/build/some_random_project/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 5582078e-6ed9-438c-8ac0-62ec070f0916
+      X-Frontend-Start:
+      - '1789642642'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'some_random_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'some_random_project' does not exist</summary>
+          <details>404 project 'some_random_project' does not exist</details>
+        </status>
+  recorded_at: Thu, 17 Sep 2026 10:57:22 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/some_random_project/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - d58e2303-6f2d-434c-9bd5-fc21a14f9a88
+      X-Frontend-Start:
+      - '1789642642'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'some_random_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'some_random_project' does not exist</summary>
+          <details>404 project 'some_random_project' does not exist</details>
+        </status>
+  recorded_at: Thu, 17 Sep 2026 10:57:23 GMT
+recorded_with: VCR 6.4.0
