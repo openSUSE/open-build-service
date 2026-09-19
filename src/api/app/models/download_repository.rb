@@ -3,7 +3,10 @@ class DownloadRepository < ApplicationRecord
 
   belongs_to :repository
 
-  validates :arch, uniqueness: { scope: :repository_id, case_sensitive: false }, presence: true
+  # Multiple DownloadRepository entries with the same arch are allowed
+  # to support multiple download sources with different packages pockets
+  # (e.g.: deb repos with stable/updates/security pockets)
+  validates :arch, presence: true
   validate :architecture_inclusion
   validates :url, presence: true, format: { with: /\A[a-zA-Z]+:.*\Z/ } # from backend/BSVerify.pm
   validates :repotype, presence: true
