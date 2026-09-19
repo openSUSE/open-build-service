@@ -1,0 +1,20 @@
+%p
+  = link_to 'View Request', url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false)
+
+%p
+  State of request
+  %strong= event['number']
+  was changed by
+  %strong= event['who']
+  \:
+
+%p{ style: 'padding: 0.5em; background-color: #f8f9fa; border-radius: 4px;' }
+  %span{ style: 'color: #6c757d;' }= event['oldstate']
+  = '→'
+  %span{ style: 'font-weight: bold; color: #007bff;' }= event['state']
+
+- if event['comment'].present?
+  %h4 Comment:
+  %p= event['comment']
+
+= render partial: 'event_mailer/actions', formats: [:html], locals: { event: event }
