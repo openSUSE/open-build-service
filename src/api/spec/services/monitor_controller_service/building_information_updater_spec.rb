@@ -27,9 +27,8 @@ RSpec.describe MonitorControllerService::BuildingInformationUpdater do
   end
 
   before do
-    # rubocop:disable RSpec/MessageChain
+    # rubocop:disable-next RSpec/MessageChain
     allow(WorkerStatus).to receive_message_chain('hidden.to_xml').and_return(xml_response)
-    # rubocop:enable RSpec/MessageChain
   end
 
   describe '#call' do

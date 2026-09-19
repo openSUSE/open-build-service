@@ -32,7 +32,7 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
       end
 
       context 'gitlab' do
-        let(:gitlab_client) { instance_spy(Gitlab::Client, file_contents: true) }
+        let(:gitlab_client) { instance_spy(Gitlab::Client, file_contents: 'file contents') }
         let(:scm_vendor) { 'gitlab' }
         let(:hook_event) { 'Push Hook' }
 
@@ -102,7 +102,7 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
     end
 
     context 'given workflow_configuration_path' do
-      let(:gitlab_client) { instance_spy(Gitlab::Client, file_contents: true) }
+      let(:gitlab_client) { instance_spy(Gitlab::Client, file_contents: 'file contents') }
       let(:scm_vendor) { 'gitlab' }
       let(:hook_event) { 'Push Hook' }
 

@@ -419,7 +419,7 @@ class User < ApplicationRecord
   end
 
   # FIXME: This should be a policy
-  # rubocop:disable Metrics/PerceivedComplexity
+  # rubocop:disable-next Metrics/PerceivedComplexity
   def can_modify_package?(package, ignore_lock = nil)
     return false if package.nil? # happens with remote packages
     raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}" unless package.is_a?(Package)
@@ -431,7 +431,6 @@ class User < ApplicationRecord
 
     false
   end
-  # rubocop:enable Metrics/PerceivedComplexity
 
   # FIXME: This should be a policy
   # project_name is name of the project
@@ -530,7 +529,7 @@ class User < ApplicationRecord
   # if context is a package, check permissions in package, then if needed continue with project check
   # if context is a project, check it, then if needed go down through all namespaces until hitting the root
   # return false if none of the checks succeed
-  # rubocop:disable Metrics/PerceivedComplexity
+  # rubocop:disable-next Metrics/PerceivedComplexity
   def local_permission?(perm_string, object)
     roles = Role.ids_with_permission(perm_string)
     return false unless roles
@@ -575,7 +574,6 @@ class User < ApplicationRecord
 
     false
   end
-  # rubocop:enable Metrics/PerceivedComplexity
 
   def lock!
     self.state = 'locked'

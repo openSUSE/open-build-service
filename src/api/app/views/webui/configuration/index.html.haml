@@ -229,7 +229,7 @@
       .mb-3
         = f.label(:no_proxy) do
           No Proxy
-          %small.form-text A comma seperated list of URLs that should be excluded from proxying (supports glob).
+          %small.form-text A comma separated list of URLs that should be excluded from proxying (supports glob).
         ~ f.text_field :no_proxy, class: 'form-control'
       .mb-3.form-check
         ~ f.check_box :enforce_project_keys, class: 'form-check-input'

@@ -12,7 +12,6 @@ module Webui
       before_action :set_object_to_authorize
 
       def live_build_log
-        @current_notification = handle_notification
         @offset = 0
         @status = get_status(@project, @package_name, @repository, @architecture)
         @what_depends_on = Package.what_depends_on(@project, @package_name, @repository, @architecture)

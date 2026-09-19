@@ -12,9 +12,8 @@ RSpec.describe ConsistencyCheckJob, :vcr do
     let(:consistency_checkjob) { described_class.new }
 
     before do
-      # rubocop:disable RSpec/AnyInstance
+      # rubocop:disable-next RSpec/AnyInstance
       allow_any_instance_of(ConsistencyCheckJobService::ProjectMetaChecker).to receive(:diff).and_return({})
-      # rubocop:enable RSpec/AnyInstance
     end
 
     it { expect(consistency_checkjob.check_one_project(project, fix: false)).to be_empty }
@@ -27,9 +26,8 @@ RSpec.describe ConsistencyCheckJob, :vcr do
 
     before do
       create(:admin_user, login: 'Admin')
-      # rubocop:disable RSpec/AnyInstance
+      # rubocop:disable-next RSpec/AnyInstance
       allow_any_instance_of(ConsistencyCheckJobService::ProjectMetaChecker).to receive(:diff).and_return({ foo: 'bar' })
-      # rubocop:enable RSpec/AnyInstance
     end
 
     context 'fix = false' do
@@ -42,9 +40,8 @@ RSpec.describe ConsistencyCheckJob, :vcr do
       end
 
       it 'project should call store' do
-        # rubocop:disable RSpec/MessageSpies
+        # rubocop:disable-next RSpec/MessageSpies
         expect(project).to receive(:store).with(hash_including(login: 'Admin'))
-        # rubocop:enable RSpec/MessageSpies
         consistency_checkjob.check_project(project.name, fix: true)
       end
     end

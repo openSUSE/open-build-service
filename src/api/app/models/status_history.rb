@@ -12,7 +12,7 @@ end
 #
 # Table name: status_histories
 #
-#  id    :integer          not null, primary key
+#  id    :bigint           not null, primary key
 #  key   :string(255)      indexed, indexed => [time]
 #  time  :integer          indexed => [key]
 #  value :float(24)        not null

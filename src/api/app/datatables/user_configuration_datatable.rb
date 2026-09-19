@@ -12,11 +12,10 @@ class UserConfigurationDatatable < Datatable
     }
   end
 
-  # rubocop:disable Naming/AccessorMethodName
+  # rubocop:disable-next Naming/AccessorMethodName
   def get_raw_records
     User.list
   end
-  # rubocop:enable Naming/AccessorMethodName
 
   def data
     records.map do |record|

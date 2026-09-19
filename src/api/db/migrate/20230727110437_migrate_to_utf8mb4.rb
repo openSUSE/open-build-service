@@ -4,7 +4,7 @@ class MigrateToUtf8mb4 < ActiveRecord::Migration[7.0]
   end
 
   def up
-    # rubocop:disable Metrics/BlockLength
+    # rubocop:disable-next Metrics/BlockLength
     safety_assured do
       execute 'ALTER TABLE `commit_activities` ROW_FORMAT=DYNAMIC CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;'
       execute 'ALTER TABLE `flipper_features` ROW_FORMAT=DYNAMIC CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;'
@@ -210,6 +210,5 @@ class MigrateToUtf8mb4 < ActiveRecord::Migration[7.0]
       execute 'ALTER TABLE `users` MODIFY `deprecated_password_salt` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL'
       execute "ALTER TABLE `users` MODIFY `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'unconfirmed'"
     end
-    # rubocop:enable Metrics/BlockLength
   end
 end

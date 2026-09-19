@@ -122,25 +122,6 @@
       "note": ""
     },
     {
-      "warning_type": "Unmaintained Dependency",
-      "warning_code": 122,
-      "fingerprint": "21ab0fe00fdd5899ffc405cff75aadb91b805ee996a614f7e27b08a287e9062d",
-      "check_name": "EOLRails",
-      "message": "Support for Rails 8.0.5.1 ends on 2026-10-07",
-      "file": "Gemfile.lock",
-      "line": 385,
-      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Weak",
-      "cwe_id": [
-        1104
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "23288c7e9dea90dd0d6a14268bf929de5b7651f16e9c2233776751400dda5d11",
@@ -178,7 +159,7 @@
           "type": "controller",
           "class": "Webui::UsersController",
           "method": "show",
-          "line": 37,
+          "line": 36,
           "file": "app/controllers/webui/users_controller.rb",
           "rendered": {
             "name": "webui/users/show",
@@ -443,7 +424,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "users",
-          "line": 165,
+          "line": 159,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/users",
@@ -556,7 +537,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rpmlint_result",
-          "line": 331,
+          "line": 325,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/_rpmlint_result",
@@ -590,7 +571,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 236,
+          "line": 230,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",
@@ -624,7 +605,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 236,
+          "line": 230,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",
@@ -682,7 +663,7 @@
           "type": "controller",
           "class": "Webui::ProjectController",
           "method": "buildresult",
-          "line": 249,
+          "line": 241,
           "file": "app/controllers/webui/project_controller.rb",
           "rendered": {
             "name": "webui/project/_buildstatus",
@@ -736,7 +717,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 236,
+          "line": 230,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",

@@ -1,7 +1,7 @@
 require 'builder/xchar'
 require 'rexml/document'
 
-# rubocop: disable Metrics/ClassLength
+# rubocop: disable-next Metrics/ClassLength
 class Package < ApplicationRecord
   include FlagHelper
   include FlagValidations
@@ -622,7 +622,7 @@ class Package < ApplicationRecord
     myissues
   end
 
-  # rubocop:disable Style/GuardClause
+  # rubocop:disable-next Style/GuardClause
   def update_channel_list
     if channel?
       xml = Backend::Api::Sources::File.content(project.name, name, '_channel')
@@ -639,7 +639,6 @@ class Package < ApplicationRecord
       channels.destroy_all
     end
   end
-  # rubocop:enable Style/GuardClause
 
   def update_product_list
     # short cut to ensure that no products are left over
@@ -976,9 +975,8 @@ class Package < ApplicationRecord
     # Invalidate cache after adding first batch of channels. This is needed because
     # we add channels for linked packages before calling store, which would update the
     # timestamp used for caching.
-    # rubocop:disable Rails/SkipsModelValidations
+    # rubocop:disable-next Rails/SkipsModelValidations
     project.touch
-    # rubocop:enable Rails/SkipsModelValidations
 
     # and all possible existing local links
     opkg = opkg.project.packages.find_by_name(opkg.linkinfo['package']) if opkg.project.maintenance_release? && opkg.link?
@@ -1430,7 +1428,6 @@ class Package < ApplicationRecord
     PackageVersionUpstream.where(package: self).destroy_all
   end
 end
-# rubocop: enable Metrics/ClassLength
 
 # == Schema Information
 #

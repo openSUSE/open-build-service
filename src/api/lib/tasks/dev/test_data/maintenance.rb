@@ -13,7 +13,7 @@
 # - Incident Project: openSUSE:Maintenance:0
 # - Three Maintenance Incident Requests.
 
-# rubocop:disable Metrics/ModuleLength
+# rubocop:disable-next Metrics/ModuleLength
 module TestData
   module Maintenance
     def create_maintained_project(project_name)
@@ -187,4 +187,3 @@ module TestData
     end
   end
 end
-# rubocop:enable Metrics/ModuleLength

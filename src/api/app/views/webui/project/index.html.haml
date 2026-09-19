@@ -42,6 +42,11 @@
           %i.fas.fa-toggle-off.text-primary#toggle-icon
           %span#toggle-text
             Include #{Configuration.unlisted_projects_filter_description}
+      %li.list-inline-item.me-3
+        = link_to('#', class: 'toggle-vendors-projects') do
+          %i.fas.fa-toggle-off.text-primary#toggle-vendor-icon
+          %span#toggle-vendor-text
+            Only display vendors
       - if User.session
         - content_for :actions do
           %li.nav-item
@@ -50,7 +55,7 @@
               %span.nav-item-name Create Project
     .obs-dataTable
       %table.responsive.table.table-sm.table-bordered.table-hover.w-100#projects-datatable{ data: { source: projects_path(format: :json),
-                                                                                                    all: 'false' } }
+                                                                                                    all: 'false', vendors: 'false' } }
         %thead
           %tr
             %th Name

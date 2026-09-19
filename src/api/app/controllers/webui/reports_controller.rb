@@ -8,8 +8,6 @@ class Webui::ReportsController < Webui::WebuiController
 
   def show
     authorize @report
-
-    @current_notification = handle_notification
   end
 
   def create

@@ -4,7 +4,7 @@ class NotifiedProjects
     @notifiable = @notification.notifiable
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable-next Metrics/CyclomaticComplexity
   def call
     return Project.none if @notifiable.blank?
 
@@ -32,5 +32,4 @@ class NotifiedProjects
       []
     end
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 end

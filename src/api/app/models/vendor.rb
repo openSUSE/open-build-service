@@ -9,6 +9,7 @@ class Vendor < ApplicationRecord
 
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :project, optional: false
+  has_many :distros, dependent: :destroy
 
   #### Callbacks macros: before_save, after_save, etc.
 

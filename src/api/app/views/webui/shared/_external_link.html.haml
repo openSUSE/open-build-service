@@ -1,0 +1,5 @@
+- href = external_url(url)
+- if href.present?
+  = link_to(text, href, target: '_blank', rel: 'noopener')
+- else
+  = text

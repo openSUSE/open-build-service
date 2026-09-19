@@ -1,4 +1,4 @@
-# rubocop:disable Metrics/ModuleLength
+# rubocop:disable-next Metrics/ModuleLength
 module StagingProject
   extend ActiveSupport::Concern
 
@@ -281,4 +281,3 @@ module StagingProject
     [weight, request[:package]]
   end
 end
-# rubocop:enable Metrics/ModuleLength

@@ -167,10 +167,10 @@ match 'public/lastevents' => 'source#lastevents_public', via: %i[get post]
 post '/lastevents' => 'source#lastevents'
 
 ### /distributions
-
 resources :distributions, except: %i[new edit] do
   collection do
     get 'include_remotes'
+    post 'refresh'
     put 'bulk_replace' => :bulk_replace
     # This GET routes gives us a poor mans osc interface for bulk replacing...
     # Like: osc api -e /distributions/bulk_replace

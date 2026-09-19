@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class NullifyTargetsOnBsRequestActions < ActiveRecord::Migration[7.0]
-  # rubocop:disable Rails/SkipsModelValidations
+  # rubocop:disable-next Rails/SkipsModelValidations
   def up
     BsRequestAction
       .left_joins(:target_project_object)
@@ -16,7 +16,6 @@ class NullifyTargetsOnBsRequestActions < ActiveRecord::Migration[7.0]
       .where(packages: { id: nil })
       .in_batches.update_all(target_package_id: nil)
   end
-  # rubocop:enable Rails/SkipsModelValidations
 
   def down
     raise ActiveRecord::IrreversibleMigration

@@ -1,0 +1,17 @@
+= form_with(url: url, model: vendor) do |form|
+  .mb-3
+    = form.label :name
+    = form.text_field :name, class: 'form-control'
+
+  .mb-3
+    = form.label :description
+    = form.textarea :description, class: 'form-control'
+
+  .mb-3
+    = form.label :url
+    = form.text_field :url, class: 'form-control'
+
+  %div
+    - cancel_url = vendor.persisted? ? project_vendor_path(vendor.project) : project_show_path(vendor.project)
+    = link_to('Cancel', cancel_url, title: 'Cancel', class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
+    = form.submit 'Save', class: 'btn btn-success'

@@ -137,4 +137,29 @@ RSpec.describe DistributionsController do
       it { is_expected.to have_http_status(:bad_request) }
     end
   end
+
+  describe '#refresh' do
+    subject { post :refresh, format: :xml }
+
+    before do
+      login admin
+    end
+
+    context  'when job succeeds' do
+      before do
+        allow(FetchRemoteDistributionsJob).to receive(:perform_now).and_return(true)
+      end
+
+      it { is_expected.to have_http_status(:ok) }
+    end
+
+    context  'when job fails' do
+      before do
+        allow(FetchRemoteDistributionsJob).to receive(:perform_now).and_return(false)
+      end
+
+      it { is_expected.to have_http_status(:bad_request) }
+      it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('failed_distribution_refresh') }
+    end
+  end
 end

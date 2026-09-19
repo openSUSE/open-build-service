@@ -12,8 +12,7 @@ class BackfillDecisionTypeInCannedResponses < ActiveRecord::Migration[7.0]
   def down
     return unless CannedResponse.columns.any? { |c| c.name == 'decision_kind' }
 
-    # rubocop:disable Rails/SkipsModelValidations
+    # rubocop:disable-next Rails/SkipsModelValidations
     CannedResponse.where.not(decision_type: nil).in_batches.update_all(decision_type: nil)
-    # rubocop:enable Rails/SkipsModelValidations
   end
 end

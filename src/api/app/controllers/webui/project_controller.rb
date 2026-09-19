@@ -12,7 +12,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   # rubocop:disable Rails/LexicallyScopedActionFilter
   # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
-  before_action :set_project, only: %i[autocomplete_repositories users subprojects
+  before_action :set_project, only: %i[autocomplete_repositories autocomplete_architectures users subprojects
                                        edit release_request
                                        show buildresult
                                        destroy remove_path_from_target
@@ -28,20 +28,17 @@ class Webui::ProjectController < Webui::WebuiController
 
   after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_staging_projects
                                               autocomplete_incidents autocomplete_packages autocomplete_anitya_distributions
-                                              autocomplete_repositories users subprojects new show
+                                              autocomplete_repositories autocomplete_architectures users subprojects new show
                                               buildresult requests monitor new_release_request
                                               remove_target_request edit_comment edit_comment_form preview_description]
 
   def index
-    @projects = if show_all?
-                  Project.left_joins(label_globals: [:label_template_global])
-                         .includes(label_globals: [:label_template_global])
-                         .references(:label_globals, :label_template_global).distinct
-                else
-                  Project.left_joins(label_globals: [:label_template_global])
-                         .includes(label_globals: [:label_template_global])
-                         .references(:label_globals, :label_template_global).filtered_for_list.distinct
-                end
+    @projects = Project.left_joins(label_globals: [:label_template_global])
+                       .includes(label_globals: [:label_template_global])
+                       .references(:label_globals, :label_template_global)
+    @projects = @projects.filtered_for_list unless show_all?
+    @projects = @projects.joins(:vendor) if only_vendors?
+    @projects = @projects.distinct
 
     if Flipper.enabled?(:labels, User.session)
       @label_global_templates = @projects.flat_map do |project|
@@ -63,7 +60,6 @@ class Webui::ProjectController < Webui::WebuiController
 
     @comments = @project.comments
     @comment = Comment.new
-    @current_notification = handle_notification
 
     respond_to do |format|
       format.html
@@ -184,14 +180,15 @@ class Webui::ProjectController < Webui::WebuiController
     render json: results
   end
 
+  def autocomplete_architectures
+    repository = Repository.find_by(project: @project, name: params[:repository])
+    render json: repository.repository_architectures.joins(:architecture).pluck(:id, 'architectures.name').to_h
+  end
+
   def users
     @users = @project.users
     @groups = @project.groups
     @roles = Role.local_roles
-    if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
-    end
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
   end
 
@@ -415,6 +412,10 @@ class Webui::ProjectController < Webui::WebuiController
 
   def show_all?
     params[:all].to_s.casecmp?('true')
+  end
+
+  def only_vendors?
+    params[:vendors].to_s.casecmp?('true')
   end
 
   def project_for_datatable

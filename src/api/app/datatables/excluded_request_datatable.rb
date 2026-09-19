@@ -26,17 +26,15 @@ class ExcludedRequestDatatable < Datatable
     end
   end
 
-  # rubocop:disable Naming/AccessorMethodName
+  # rubocop:disable-next Naming/AccessorMethodName
   def get_raw_records
     @staging_workflow.request_exclusions.includes(bs_request: :bs_request_actions).references(:bs_request).distinct
   end
-  # rubocop:enable Naming/AccessorMethodName
 
-  # rubocop:disable Rails/OutputSafety
+  # rubocop:disable-next Rails/OutputSafety
   def process_policy(excluded_request)
     @policy_update ? link_to_delete(excluded_request).html_safe : ''
   end
-  # rubocop:enable Rails/OutputSafety
 
   def link_to_delete(request_exclusion)
     link_to('#', title: 'Include back this request?', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-excluded-request-modal',

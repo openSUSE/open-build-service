@@ -211,7 +211,7 @@ class SourceProjectCommandController < SourceController
 
     # create new project object based on oproject
     unless @project
-      # rubocop:disable Metrics/BlockLength
+      # rubocop:disable-next Metrics/BlockLength
       Project.transaction do
         if oprj.is_a?(String) # remote project
           rdata = Xmlhash.parse(Backend::Api::Sources::Project.meta(oprj))
@@ -245,7 +245,6 @@ class SourceProjectCommandController < SourceController
         end
         @project.store
       end
-      # rubocop:enable Metrics/BlockLength
     end
 
     job_params = params.slice(:user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :makeoriginolder, :noservice, :resign).permit!.to_h

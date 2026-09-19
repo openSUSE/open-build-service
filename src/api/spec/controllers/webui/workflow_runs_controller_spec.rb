@@ -42,7 +42,7 @@ RSpec.describe Webui::WorkflowRunsController do
         login pull_request_1_workflow_run.token.executor
       end
 
-      # rubocop:disable RSpec/ExampleLength
+      # rubocop:disable-next RSpec/ExampleLength
       it 'shows all the workflow runs' do
         get :index, params: { token_id: token.id, pr_mr: '', commit_sha: '' }
 
@@ -52,7 +52,6 @@ RSpec.describe Webui::WorkflowRunsController do
                                                            closed_pull_request_workflow_run,
                                                            succeeded_tag_push_workflow_run)
       end
-      # rubocop:enable RSpec/ExampleLength
     end
 
     context 'when setting a status filter of success' do

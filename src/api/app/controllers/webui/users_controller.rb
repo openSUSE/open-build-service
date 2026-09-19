@@ -33,7 +33,6 @@ class Webui::UsersController < Webui::WebuiController
     @activities_per_year = UserYearlyContribution.new(@displayed_user, @first_day).call
     @date = params[:date]
     @activities_per_day = UserDailyContribution.new(@displayed_user, @date).call
-    @current_notification = handle_notification
   end
 
   def new

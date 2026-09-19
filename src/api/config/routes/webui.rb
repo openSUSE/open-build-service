@@ -182,6 +182,7 @@ controller 'webui/project' do
   get 'project/autocomplete_packages' => :autocomplete_packages, as: 'autocomplete_packages'
   get 'project/autocomplete_repositories' => :autocomplete_repositories, as: 'autocomplete_repositories'
   get 'project/autocomplete_anitya_distributions' => :autocomplete_anitya_distributions, as: 'autocomplete_anitya_distributions'
+  get 'project/autocomplete_architectures' => :autocomplete_architectures, as: 'autocomplete_architectures'
   get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
   get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
   get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
@@ -307,6 +308,15 @@ resources :projects, only: [], param: :name do
       post :clone
       get :preview
     end
+  end
+
+  resource :vendor, controller: 'webui/vendors', constraints: cons
+  resources :distros, controller: 'webui/distros', except: %i[index new], constraints: cons, param: :distro_name
+  resources :distros, only: [], param: :name, constraints: cons do
+    resources :releases, controller: 'webui/distro_releases', param: :distro_release_name, except: %i[index], constraints: cons
+
+    resources :lifecycles, controller: 'webui/distro_release_lifecycles', path: 'releases/:distro_release_name/lifecycles',
+                           as: :release_lifecycles, param: :lifecycle_name, except: %i[index new show edit], constraints: cons
   end
 end
 

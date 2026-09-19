@@ -85,8 +85,6 @@ class Webui::PackageController < Webui::WebuiController
     @comments = @package.comments.includes(:user)
     @comment = Comment.new
 
-    @current_notification = handle_notification
-
     @services = @files.any? { |file| file['name'] == '_service' }
 
     respond_to do |format|
@@ -157,17 +155,12 @@ class Webui::PackageController < Webui::WebuiController
     @users = [@project.users, @package.users].flatten.uniq
     @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
-
     @devel_package = @package.develpackage
     if @devel_package
       @devel_users = [@devel_package.project.users, @devel_package.users].flatten.uniq
       @devel_groups = [@devel_package.project.groups, @devel_package.groups].flatten.uniq
     end
 
-    if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
-    end
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
   end
 
@@ -413,9 +406,8 @@ class Webui::PackageController < Webui::WebuiController
             @results << parsed.results
             max_badness = parsed.badness.values.max
             @badness = max_badness if parsed.badness.present? && (max_badness > @badness)
-            # rubocop:disable Rails/DeprecatedActiveModelErrorsMethods
+            # rubocop:disable-next Rails/DeprecatedActiveModelErrorsMethods
             @errors += parsed.errors.values.sum
-            # rubocop:enable Rails/DeprecatedActiveModelErrorsMethods
             @warnings += parsed.warnings.values.sum
             @info += parsed.info.values.sum
           end

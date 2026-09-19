@@ -660,6 +660,7 @@ RSpec.describe Webui::PackageController, :vcr do
       it { expect(response.parsed_body).to eql([]) }
     end
   end
+
   describe 'GET #users' do
     let(:package) { create(:package, project: target_project) }
 

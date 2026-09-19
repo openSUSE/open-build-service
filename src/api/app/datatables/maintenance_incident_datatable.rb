@@ -16,11 +16,10 @@ class MaintenanceIncidentDatatable < Datatable
     }
   end
 
-  # rubocop:disable Naming/AccessorMethodName
+  # rubocop:disable-next Naming/AccessorMethodName
   def get_raw_records
     @project.maintenance_incidents
   end
-  # rubocop:enable Naming/AccessorMethodName
 
   def data
     records.map do |record|

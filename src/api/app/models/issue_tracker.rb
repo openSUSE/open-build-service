@@ -57,9 +57,8 @@ class IssueTracker < ApplicationRecord
     parse_github_issues(ActiveSupport::JSON.decode(response.body))
 
     # we skip callbacks to avoid scheduling expensive jobs
-    # rubocop:disable Rails/SkipsModelValidations
+    # rubocop:disable-next Rails/SkipsModelValidations
     update_columns(issues_updated: mtime - 1.second)
-    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def update_issues
@@ -84,9 +83,8 @@ class IssueTracker < ApplicationRecord
     if private_fetch_issues(ids)
       # don't use "last_change_time" from bugzilla, since we may have different clocks
       # and skip callbacks to avoid scheduling expensive jobs
-      # rubocop:disable Rails/SkipsModelValidations
+      # rubocop:disable-next Rails/SkipsModelValidations
       update_columns(issues_updated: @update_time_stamp)
-      # rubocop:enable Rails/SkipsModelValidations
       return true
     end
     false
@@ -289,9 +287,8 @@ class IssueTracker < ApplicationRecord
 
     # skip callbacks to avoid scheduling expensive jobs
 
-    # rubocop:disable Rails/SkipsModelValidations
+    # rubocop:disable-next Rails/SkipsModelValidations
     update_columns(issues_updated: @update_time_stamp)
-    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def update_package_meta

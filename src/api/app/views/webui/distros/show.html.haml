@@ -1,0 +1,69 @@
+- @pagetitle = "Distro #{@distro.name}"
+
+.card
+  .card-body
+    %h3.mb-3
+      = render partial: 'webui/shared/external_link', locals: { text: @distro.name, url: @distro.url }
+    .row
+      .col-12.col-md-10.col-lg-8
+        #distro-description
+          - if @distro.description.blank?
+            %i No description set
+          - else
+            = render partial: 'webui/shared/collapsible_text', locals: { text: @distro.description }
+        - if policy(@distro).edit?
+          .pt-4.mb-3
+            = link_to(edit_project_distro_path(@distro.project, @distro.name), class: 'ps-0', title: 'Edit') do
+              %i.fas.fa-edit.text-secondary
+              %span.nav-item-name Edit
+      .col-md-4
+        %ul.side_links.list-unstyled
+          - if @distro.url.present?
+            %li
+              %i.fas.fa-link.text-info
+              = render partial: 'webui/shared/external_link', locals: { text: @distro.url, url: @distro.url }
+          - if policy(@distro).destroy?
+            %li
+              = link_to(project_distro_path(@distro.project, @distro.name), method: :delete, class: 'text-danger',
+                data: { confirm: 'Are you sure you want to delete this distro?'}) do
+                %i.fas.fa-trash-can
+                %span.nav-item-name Delete
+    %h3
+      Releases
+    .row.mt-3
+      - @distro.distro_releases.each do |distro_release|
+        .col-lg-3.col-md-4.col-sm-6.col-12.mb-3
+          = render partial: 'webui/distro_releases/release', locals: { distro_release: distro_release }
+      .ps-0
+        - if policy(DistroRelease.new(distro: @distro)).new?
+          = link_to(new_project_distro_release_path(@project.name, @distro.name), class: 'ps-2') do
+            %i.fas.fa-circle-plus.text-info
+            %span.nav-item-name New Release
+
+.modal.fade#delete-distro-release-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-distro-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#delete-distro-modal-label Do you really want to delete this distro release?
+      .modal-body
+        %p
+          Please confirm that you want to delete the
+          = surround "'" do
+            %span#distro-release-name
+          distro release from the distro
+          = surround "'" do
+            %span#distro-name
+        = form_tag nil, method: :delete do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+              Cancel
+            %input.btn.btn-sm.btn-danger.px-4{ type: 'submit', name: 'commit', value: 'Delete', data: { disable: { with: 'Delete' } } }
+
+- content_for :ready_function do
+  :plain
+    $('#delete-distro-release-modal').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('#distro-name').text(link.data('distro-name'));
+      $(this).find('#distro-release-name').text(link.data('distro-release-name'));
+      $(this).find('form').attr('action', link.data('action'));
+    })
