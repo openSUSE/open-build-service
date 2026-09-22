@@ -1,8 +1,7 @@
 class ReportsController < ApplicationController
   validate_action show: { response: :report }
-  validate_action create: { method: :post, request: :report }
-  validate_action update: { method: :put, request: :report }
 
+  before_action :set_reportable, only: %i[create index]
   before_action :set_report, only: %i[show update destroy]
 
   # GET /reports
@@ -10,6 +9,7 @@ class ReportsController < ApplicationController
     @reports = policy_scope(Report).order(:id)
     authorize @reports
 
+    @reports = @reports.where(reportable: @reportable) if @reportable.present?
     filter_reports
 
     @reports = @reports.offset(params.fetch(:offset, 0).to_i).limit(params.fetch(:limit, 25).to_i)
@@ -22,7 +22,7 @@ class ReportsController < ApplicationController
 
   # POST /reports
   def create
-    report = Report.new(report_params)
+    report = @reportable.reports.new(report_params)
     authorize report
 
     if report.save
@@ -71,17 +71,25 @@ class ReportsController < ApplicationController
   end
 
   def report_params
-    xml = Nokogiri::XML(request.raw_post, &:strict)
-    report = xml.xpath('//report').first
-
     if action_name == 'create'
-      reportable_id = report.xpath('@reportable_id').text
-      reportable_type = report.xpath('@reportable_type').text
+      reportable = @reportable
       reporter_id = User.session.id
     end
-    category = report.xpath('@category').text
-    reason = report.text
 
-    { reportable_id: reportable_id, reportable_type: reportable_type, reporter_id: reporter_id, category: category, reason: reason }.compact
+    { reportable: reportable, reporter_id: reporter_id, category: params[:category].presence, reason: request.raw_post }.compact
+  end
+
+  def set_reportable
+    if params[:package_name]
+      @reportable = Package.get_by_project_and_name(params[:project_name], params[:package_name])
+    elsif params[:project_name]
+      @reportable = Project.get_by_name(params[:project_name])
+    elsif params[:request_number]
+      @reportable = BsRequest.find_by!(number: params[:request_number])
+    elsif params[:comment_id]
+      @reportable = Comment.find(params[:comment_id])
+    elsif params[:user_login]
+      @reportable = User.find_by!(login: params[:user_login])
+    end
   end
 end
