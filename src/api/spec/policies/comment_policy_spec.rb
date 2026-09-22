@@ -189,21 +189,58 @@ RSpec.describe CommentPolicy do
     let(:moderator) { create(:moderator) }
     let(:comment_moderated) { create(:comment_project, commentable: project, moderated_at: Time.zone.now, moderator_id: moderator.id) }
 
+    context 'with content_moderation enabled' do
+      before { Flipper.enable(:content_moderation) }
+
+      it { is_expected.to permit(other_user, comment) }
+      it { is_expected.not_to permit(other_user, comment_deleted) }
+      it { is_expected.not_to permit(other_user, comment_moderated) }
+
+      it { is_expected.to permit(moderator, comment_deleted) }
+      it { is_expected.to permit(admin_user, comment_deleted) }
+      it { is_expected.to permit(staff_user, comment_deleted) }
+
+      it { is_expected.to permit(moderator, comment_moderated) }
+      it { is_expected.to permit(admin_user, comment_moderated) }
+      it { is_expected.to permit(staff_user, comment_moderated) }
+    end
+  end
+
+  permissions :show_original? do
+    let(:staff_user) { create(:staff_user) }
+    let(:moderator) { create(:moderator) }
+    let(:soft_deleted_comment) { create(:comment_project, commentable: project, user: comment_author) }
+
     before do
-      Flipper.enable(:content_moderation)
+      # A child comment must exist so blank_or_destroy takes the soft-delete
+      # path (saving with user=_nobody_) rather than the hard-destroy path.
+      create(:comment_project, commentable: project, user: user, parent: soft_deleted_comment)
+      with_versioning { soft_deleted_comment.blank_or_destroy }
     end
 
-    it { is_expected.to permit(other_user, comment) }
-    it { is_expected.not_to permit(other_user, comment_deleted) }
-    it { is_expected.not_to permit(other_user, comment_moderated) }
+    it 'does not permit anonymous users' do
+      expect(subject).not_to permit(anonymous_user, soft_deleted_comment)
+    end
 
-    it { is_expected.to permit(moderator, comment_deleted) }
-    it { is_expected.to permit(admin_user, comment_deleted) }
-    it { is_expected.to permit(staff_user, comment_deleted) }
+    it 'does not permit regular users' do
+      expect(subject).not_to permit(user, soft_deleted_comment)
+    end
 
-    it { is_expected.to permit(moderator, comment_moderated) }
-    it { is_expected.to permit(admin_user, comment_moderated) }
-    it { is_expected.to permit(staff_user, comment_moderated) }
+    it 'permits admin users' do
+      expect(subject).to permit(admin_user, soft_deleted_comment)
+    end
+
+    it 'permits staff users' do
+      expect(subject).to permit(staff_user, soft_deleted_comment)
+    end
+
+    it 'permits moderators' do
+      expect(subject).to permit(moderator, soft_deleted_comment)
+    end
+
+    it 'does not permit any user on a non-soft-deleted comment' do
+      expect(subject).not_to permit(admin_user, comment)
+    end
   end
 
   permissions :create? do

@@ -99,6 +99,55 @@ RSpec.describe Comment do
     end
   end
 
+  describe '#soft_deleted?' do
+    context 'for a normal comment' do
+      it 'returns false' do
+        expect(comment_package).not_to be_soft_deleted
+      end
+    end
+
+    context 'for a comment with user _nobody_ but no PaperTrail delete event' do
+      before { comment_package.update!(user: User.find_nobody!) }
+
+      it 'returns false' do
+        expect(comment_package).not_to be_soft_deleted
+      end
+    end
+
+    context 'for a comment soft-deleted via blank_or_destroy' do
+      before do
+        comment_package_with_parent # ensure child exists so the soft-delete path is taken
+        with_versioning { comment_package.blank_or_destroy }
+      end
+
+      it 'returns true' do
+        expect(comment_package).to be_soft_deleted
+      end
+    end
+  end
+
+  describe '#original_body' do
+    context 'for a normal comment' do
+      it 'returns nil' do
+        expect(comment_package.original_body).to be_nil
+      end
+    end
+
+    context 'for a comment soft-deleted via blank_or_destroy' do
+      let(:original_body) { 'The original body text' }
+
+      before do
+        comment_package.update!(body: original_body)
+        comment_package_with_parent # ensure child exists so the soft-delete path is taken
+        with_versioning { comment_package.blank_or_destroy }
+      end
+
+      it 'returns the body from before deletion' do
+        expect(comment_package.original_body).to eq(original_body)
+      end
+    end
+  end
+
   describe 'blank_or_destroy' do
     context 'without children' do
       before do
