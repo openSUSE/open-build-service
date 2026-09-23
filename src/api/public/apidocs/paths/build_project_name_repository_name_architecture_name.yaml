@@ -1,0 +1,93 @@
+get:
+  summary: List packages for the specified project, repository and architecture, or return the scheduler status when view=status.
+  description: |
+    Without `view`, return the packages that build for the specified project, repository and architecture.
+
+    Set `view=status` to retrieve the current scheduler state for the specified repository architecture.
+
+    Depending on the scheduler state, the XML response can also include:
+    - `buildid`, when a current or previous build identifier is available
+    - `dirty="true"`, when the repository architecture has been marked for re-scheduling
+    - `details`, when the backend provides additional scheduler information
+
+    Example result when `view` is omitted:
+    ```
+    <directory>
+      <entry name="ctris"/>
+      <entry name="hello_world"/>
+    </directory>
+    ```
+
+    Example result when `view=status` is used for a finished repository:
+    ```
+    <status code="finished">
+      <buildid>67394b7f7d6e15920e8f2096047c0b4a</buildid>
+    </status>
+    ```
+
+    Example result when `view=status` is used while a build is in progress:
+    ```
+    <status code="building">
+      <buildid>67394b7f7d6e15920e8f2096047c0b4a-inprogress-inprogress</buildid>
+    </status>
+    ```
+
+    Example result when `view=status` is used for a repository marked for re-scheduling:
+    ```
+    <status code="scheduling" dirty="true"/>
+    ```
+
+    Example result when `view=status` is used for a finished repository that has been marked for re-scheduling again:
+    ```
+    <status code="finished" dirty="true">
+      <buildid>67394b7f7d6e15920e8f2096047c0b4a</buildid>
+    </status>
+    ```
+
+    Example result when `view=status` is used and the backend provides additional details:
+    ```
+    <status code="broken">
+      <details>no build type (example:project)</details>
+    </status>
+    ```
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - in: query
+      name: view
+      schema:
+        type: string
+        enum:
+          - status
+      description: |
+        Set this parameter to `status` to retrieve the scheduler status for the specified repository architecture.
+
+        If omitted, the endpoint returns the package list for the specified repository architecture.
+      example: status
+  responses:
+    '200':
+      description: |
+        OK.
+
+        Without `view`, this endpoint returns the package list for the specified repository architecture.
+
+        With `view=status`, this endpoint returns the scheduler status for the specified repository architecture.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            oneOf:
+              - $ref: '../components/schemas/directory.yaml'
+              - $ref: '../components/schemas/repository_architecture_status.yaml'
+          # TODO: Due to this issue the examples of the responses can not be rendered:
+          # Issue: "Multiple responses using oneOf attribute do not appear in UI"
+          # https://github.com/swagger-api/swagger-ui/issues/3803
+          # The examples can be found in the endpoint description above.
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project_or_repository_or_architecture.yaml'
+  tags:
+    - Build
