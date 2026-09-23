@@ -21,6 +21,31 @@ RSpec.describe Token::APIToken do
     end
   end
 
+  describe 'default expiry' do
+    it 'expires 90 days after creation when no expiry is given' do
+      expect(token.expires_at).to be_within(1.minute).of(90.days.from_now)
+    end
+
+    it 'keeps an explicitly given expiry' do
+      explicit = 10.days.from_now
+
+      expect(create(:api_token, executor: user, expires_at: explicit).expires_at).to be_within(1.second).of(explicit)
+    end
+
+    it 'stays without expiry when never_expires is set' do
+      expect(create(:api_token, executor: user, never_expires: true).expires_at).to be_nil
+    end
+
+    it 'lets never_expires win over an explicit expiry' do
+      expect(create(:api_token, executor: user, expires_at: 10.days.from_now, never_expires: true).expires_at).to be_nil
+    end
+
+    it 'casts string values for never_expires' do
+      expect(create(:api_token, executor: user, never_expires: '1').expires_at).to be_nil
+      expect(create(:api_token, executor: user, never_expires: '0').expires_at).to be_within(1.minute).of(90.days.from_now)
+    end
+  end
+
   describe '.authenticate' do
     it 'returns the token for the correct secret' do
       expect(described_class.authenticate(token.plaintext_token)).to eq(token)

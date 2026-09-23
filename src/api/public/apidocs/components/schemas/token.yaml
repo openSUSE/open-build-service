@@ -25,6 +25,12 @@ properties:
     format: date-time
     xml:
       attribute: true
+  expires_at:
+    type: string
+    format: date-time
+    description: Only meaningful for API tokens.
+    xml:
+      attribute: true
   project:
     type: string
     xml:

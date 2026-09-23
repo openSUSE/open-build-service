@@ -100,6 +100,17 @@ post:
         When operation is not specified, 'runservice' is the default value.
       example: runservice
     - in: query
+      name: expires_at
+      schema:
+        type: string
+      description: |
+        Expiry timestamp (ISO 8601) for the new token. Only applies when
+        `operation` is `apitoken`. When omitted, the token expires 90 days
+        after creation. Use the literal value `never` to deliberately create
+        a token that never expires; the response then carries a warning
+        because permanent credentials are bad practice.
+      example: 2026-12-22T12:00:00Z
+    - in: query
       name: scm_token
       schema:
         type: string
@@ -126,6 +137,10 @@ post:
             <data name="id">5</data>
           </status>
         ```
+
+        When a never-expiring API token is created (`expires_at=never`), the
+        response carries an additional `<data name="warning">` element saying
+        so, because permanent credentials are bad practice.
       content:
         application/xml; charset=utf-8:
           schema:

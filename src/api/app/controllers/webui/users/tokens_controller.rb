@@ -38,6 +38,9 @@ class Webui::Users::TokensController < Webui::WebuiController # rubocop:disable 
           render :new
         elsif @token.save
           flash[:success] = "Token successfully created! Make sure you save it - you won't be able to access it again."
+          if @token.is_a?(Token::APIToken) && @token.expires_at.nil?
+            flash[:warning] = 'This token never expires. Permanent credentials are bad practice; prefer an expiry.'
+          end
           session[:show_token] = 'true'
           session[:api_token_plaintext] = @token.plaintext_token if @token.is_a?(Token::APIToken)
           redirect_to token_path(@token)
@@ -107,18 +110,21 @@ class Webui::Users::TokensController < Webui::WebuiController # rubocop:disable 
 
   def set_parameters
     @params = params.except(:project_name, :package_name).require(:token).except(:string_readonly)
-                    .permit(:type, :description, :expires_at, :scm_token, :workflow_configuration_path, :workflow_configuration_url).tap do |token_parameters|
+                    .permit(:type, :description, :expires_at, :never_expires, :scm_token, :workflow_configuration_path, :workflow_configuration_url)
+                    .tap do |token_parameters|
       token_parameters.require(:type)
     end
     @params = @params.except(:scm_token, :workflow_configuration_path, :workflow_configuration_url) unless @params[:type] == 'workflow'
+    @params = @params.except(:never_expires) unless @params[:type] == 'apitoken'
     @params = @params.except(:expires_at) unless @params[:type] == 'apitoken'
     @extra_params = params.slice(:project_name, :package_name).permit!
   end
 
   def update_parameters
-    params.require(:token).except(:string_readonly).permit(:description, :enabled, :expires_at, :scm_token, :workflow_configuration_path,
-                                                           :workflow_configuration_url)
-          .reject! { |k, v| k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?) }
+    parameters = params.require(:token).except(:string_readonly).permit(:description, :enabled, :expires_at, :scm_token,
+                                                                        :workflow_configuration_path, :workflow_configuration_url)
+    parameters = parameters.except(:expires_at) unless @token.is_a?(Token::APIToken)
+    parameters.reject! { |k, v| k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?) }
   end
 
   def set_package

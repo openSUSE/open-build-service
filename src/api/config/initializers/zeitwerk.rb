@@ -3,7 +3,7 @@ Rails.autoloaders.each do |autoloader|
   autoloader.inflector.inflect(
     'api_error' => 'APIError',
     'api_matcher' => 'APIMatcher',
-    'apitoken' => 'APIToken',
+    'apitoken' => 'APIToken', 'apitoken_policy' => 'APITokenPolicy',
     'cve_parser' => 'CVEParser',
     'gitea_api' => 'GiteaAPI',
     'meta_xml_validator' => 'MetaXMLValidator',

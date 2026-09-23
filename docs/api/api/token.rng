@@ -124,6 +124,15 @@
       <data type="string"/>
      </attribute>
     </optional>
+
+    <optional>
+     <attribute name="expires_at">
+      <a:documentation>
+       The date and time the token expires. Only meaningful for API tokens.
+      </a:documentation>
+      <data type="dateTime"/>
+     </attribute>
+    </optional>
    </element>
   </define>
 </grammar>
