@@ -71,6 +71,38 @@ RSpec.describe ApplicationController do # rubocop:disable RSpec/SpecFilePathForm
     end
   end
 
+  context 'bearer token auth' do
+    let!(:user) { create(:confirmed_user, login: 'hans') }
+    let!(:token) { create(:api_token, executor: user) }
+
+    before do
+      request.headers['HTTP_AUTHORIZATION'] = "Bearer #{token.plaintext_token}"
+    end
+
+    describe '#extract_user' do
+      it { expect { subject }.to change(User, :session).to(user) }
+
+      describe 'invalid token' do
+        before do
+          request.headers['HTTP_AUTHORIZATION'] = 'Bearer bogus'
+        end
+
+        it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('invalid_token') }
+        it { expect(subject.status).to eql(401) }
+        it { expect { subject }.not_to change(User, :session) }
+      end
+
+      describe 'expired token' do
+        before do
+          token.update_column(:expires_at, 1.hour.ago) # rubocop:disable Rails/SkipsModelValidations
+        end
+
+        it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('invalid_token') }
+        it { expect(subject.status).to eql(401) }
+      end
+    end
+  end
+
   describe '#check_user_state' do
     let!(:user) { create(:user) }
 

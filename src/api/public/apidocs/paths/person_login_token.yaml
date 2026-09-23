@@ -88,9 +88,14 @@ post:
       name: operation
       schema:
         type: string
-        enum: [runservice, rebuild, release]
+        enum: [runservice, rebuild, release, apitoken]
       description: |
         Operation indicates the kind of token that is going to be created.
+
+        Use `apitoken` for a general API token (personal access token) that
+        authenticates as the user across the whole API, replacing the
+        username/password login for programmatic access. The secret is shown
+        once in the response and only its hash is stored.
 
         When operation is not specified, 'runservice' is the default value.
       example: runservice
