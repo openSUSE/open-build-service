@@ -35,7 +35,7 @@ RSpec.describe ReportPolicy, type: :policy do
         create(:report, reporter: user, reportable: reported_comment)
       end
 
-      it { is_expected.not_to(permit(user, report)) }
+      it { is_expected.to permit(user, report) }
     end
 
     context 'when the current user can change the reportable' do

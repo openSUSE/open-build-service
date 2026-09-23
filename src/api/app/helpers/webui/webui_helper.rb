@@ -203,6 +203,19 @@ module Webui::WebuiHelper
     safe_join(string.scan(/.{1,#{length}}/), '<wbr>'.html_safe)
   end
 
+  def external_url(url)
+    return if url.blank?
+
+    address = url.strip
+    scheme = URI.parse(address).scheme
+    return address if scheme&.downcase.in?(%w[http https])
+    return if scheme.present?
+
+    "https://#{address.delete_prefix('//')}"
+  rescue URI::InvalidURIError
+    nil
+  end
+
   # paths param will accept one or more paths to match to make this tab active.
   # Only the first one will be used as link though if more than one is present.
   def tab_link(label, paths, html_class = 'nav-link text-nowrap', active: false)

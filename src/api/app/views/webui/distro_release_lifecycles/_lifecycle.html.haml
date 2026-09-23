@@ -1,0 +1,15 @@
+- lifecycle_path = project_distro_release_lifecycle_path(lifecycle.project.name, lifecycle.distro.name,
+                                                         lifecycle.distro_release.name, lifecycle.name)
+%li.list-group-item.d-flex.flex-wrap.justify-content-between.px-0
+  = lifecycle.name
+  %div
+    %span.badge{ class: lifecycle_status_class(lifecycle) }= lifecycle.status_label
+    - if lifecycle.date.present?
+      %span.ms-1= l(lifecycle.date, format: :long)
+    - if policy(lifecycle).update?
+      = render partial: 'webui/distro_release_lifecycles/modal',
+               locals: { model: lifecycle, url: lifecycle_path, text: nil, icon: 'edit' }
+    - if policy(lifecycle).destroy?
+      = link_to(lifecycle_path, method: :delete, class: 'ms-1 text-danger',
+        title: 'Delete lifecycle', data: { confirm: 'Are you sure you want to delete this lifecycle?' }) do
+        %i.fas.fa-trash-can
