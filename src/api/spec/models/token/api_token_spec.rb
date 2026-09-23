@@ -52,11 +52,17 @@ RSpec.describe Token::APIToken do
   end
 
   describe '#regenerate_string' do
-    it 'mints a new secret and invalidates the old one' do
+    it 'mints a new secret' do
       old_secret = token.plaintext_token
 
       expect(token.regenerate_string).to be_truthy
       expect(token.display_secret).not_to eq(old_secret)
+    end
+
+    it 'invalidates the old secret' do
+      old_secret = token.plaintext_token
+      token.regenerate_string
+
       expect(described_class.authenticate(old_secret)).to be_nil
       expect(described_class.authenticate(token.plaintext_token)).to eq(token)
     end

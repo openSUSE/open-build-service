@@ -44,7 +44,7 @@ module Person
 
       xml = Nokogiri::XML(request.raw_post, &:strict)
       xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'expires_at', 'scm_token', 'workflow_configuration_path',
-                                                              'workflow_configuration_url')
+                                                            'workflow_configuration_url')
 
       token = @user.tokens.find(params[:id])
       xml_attributes = xml_attributes.except('expires_at') unless token.is_a?(Token::APIToken)
