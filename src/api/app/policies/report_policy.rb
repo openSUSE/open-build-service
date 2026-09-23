@@ -24,9 +24,6 @@ class ReportPolicy < ApplicationPolicy
   def create?
     return false unless Flipper.enabled?(:content_moderation, user)
 
-    # We don't want reports twice...
-    return false if user.submitted_reports.where(reportable: record.reportable).any?
-
     # We don't want reports for things you can change yourself nor for comment reports
     case record.reportable_type
     when 'Package'
