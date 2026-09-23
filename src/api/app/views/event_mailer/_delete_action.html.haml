@@ -1,0 +1,6 @@
+%div{ style: 'margin-bottom: 1em; padding: 0.5em; background-color: #f5f5f5; border-left: 3px solid #dc3545;' }
+  %strong delete
+  - if a['targetrepository'].present?
+    repository #{a['targetrepository']} in #{a['targetproject']}
+  - else
+    = project_or_package_text(a['targetproject'], a['targetpackage'])
