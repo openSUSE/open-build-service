@@ -1,5 +1,5 @@
 %div{ id: "report-notice-#{reportable.class.name.downcase}-#{reportable.id}" }
-  %i.fas.fa-flag.text-warning
+  %i.fas.fa-flag.text-warning.bg-transparent
   - if by_user?
     %span.text-warning
       You reported this #{reportable_name}.
