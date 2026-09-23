@@ -10,30 +10,38 @@
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project }
   .card-body
-    .d-flex.justify-content-between.mb-2
+    .d-flex.justify-content-between
       %h3#project-title
         = @project.title.presence || @project
+        - if @project.categories.any?
+          %small
+            - @project.categories.each do |category|
+              = category_badge(category)
       - if User.session
         .d-inline.ms-1#watchlist-icon-wrapper
           = render WatchlistIconComponent.new(user: User.session,
                                               project: @project,
                                               current_object: @project)
-    .row
-      .col-md-8
-        = render partial: 'basic_info', locals: { project: @project }
-      .col-md-4
-        = render partial: 'side_links', locals: { open_maintenance_incidents: @open_maintenance_incidents,
-                                                  project: @project,
-                                                  maintained_projects: @maintained_projects,
-                                                  nr_of_problem_packages: @nr_of_problem_packages,
-                                                  open_release_requests: @open_release_requests,
-                                                  release_targets: @release_targets,
-                                                  requests: @requests,
-                                                  package: @package,
-                                                  linking_projects: @linking_projects,
-                                                  project_maintenance_project: @project_maintenance_project,
-                                                  incoming_requests_size: @incoming_requests_size,
-                                                  outgoing_requests_size: @outgoing_requests_size }
+    - if @project.url.present?
+      = link_to(@project.url, @project.url, class: 'd-block')
+    .mt-2
+      = render partial: 'webui/shared/label_global_list', locals: { project: @project }
+    .mt-2
+      = render partial: 'basic_info', locals: { project: @project }
+  .card-footer
+    = render partial: 'side_links', locals: { open_maintenance_incidents: @open_maintenance_incidents,
+                                              project: @project,
+                                              maintained_projects: @maintained_projects,
+                                              nr_of_problem_packages: @nr_of_problem_packages,
+                                              open_release_requests: @open_release_requests,
+                                              release_targets: @release_targets,
+                                              requests: @requests,
+                                              package: @package,
+                                              linking_projects: @linking_projects,
+                                              project_maintenance_project: @project_maintenance_project,
+                                              incoming_requests_size: @incoming_requests_size,
+                                              outgoing_requests_size: @outgoing_requests_size }
+
 .overview
   .build-results
     = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name }
