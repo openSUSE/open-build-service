@@ -32,5 +32,5 @@
           $('#bio-chars-counter').css("visibility", "hidden");
         });
 
-- if @is_displayed_user
+- if Configuration.passwords_changable? && (@is_displayed_user || User.admin_session?)
   = render partial: 'webui/user/password_dialog', locals: { user: @displayed_user }
