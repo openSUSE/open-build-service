@@ -20,7 +20,7 @@ class Token::APIToken < Token
     token = find_by(string: hash_token(plaintext))
     return unless token&.usable?
 
-    token.touch(:last_used_at)
+    token.touch(:last_used_at) # rubocop:disable Rails/SkipsModelValidations
     token
   end
 

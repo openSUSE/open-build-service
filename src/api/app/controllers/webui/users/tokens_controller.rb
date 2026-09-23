@@ -1,4 +1,4 @@
-class Webui::Users::TokensController < Webui::WebuiController
+class Webui::Users::TokensController < Webui::WebuiController # rubocop:disable Metrics/ClassLength
   before_action :require_login
   before_action :set_token, only: %i[edit update destroy show]
   before_action :set_parameters, :set_package, only: [:create]

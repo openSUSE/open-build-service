@@ -1,4 +1,4 @@
-module Authenticator
+module Authenticator # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
 
   included do

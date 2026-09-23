@@ -88,7 +88,7 @@ RSpec.describe ApplicationController do # rubocop:disable RSpec/SpecFilePathForm
         end
 
         it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('invalid_token') }
-        it { expect(subject.status).to eql(401) }
+        it { expect(subject.status).to be(401) }
         it { expect { subject }.not_to change(User, :session) }
       end
 
@@ -98,7 +98,7 @@ RSpec.describe ApplicationController do # rubocop:disable RSpec/SpecFilePathForm
         end
 
         it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('invalid_token') }
-        it { expect(subject.status).to eql(401) }
+        it { expect(subject.status).to be(401) }
       end
     end
   end
