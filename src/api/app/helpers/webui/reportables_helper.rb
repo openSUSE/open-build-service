@@ -35,10 +35,12 @@ module Webui::ReportablesHelper
                                                                                                                 request_action_id: commentable.id,
                                                                                                                 anchor: 'comments-list', only_path: only_path, host: host))
     when Package
-      link_to(commentable.name.to_s, Rails.application.routes.url_helpers.package_show_url(package: commentable, project: commentable.project,
-                                                                                           anchor: 'comments-list', only_path: only_path, host: host))
+      link_to("Package #{commentable.project.name}/#{commentable.name}", Rails.application.routes.url_helpers.package_show_url(package: commentable, project: commentable.project,
+                                                                                                                               anchor: 'comments-list', only_path: only_path, host: host))
     when Project
-      link_to(commentable.name.to_s, Rails.application.routes.url_helpers.project_show_url(commentable, anchor: 'comments-list', only_path: only_path, host: host))
+      link_to("Project #{commentable.name}", Rails.application.routes.url_helpers.project_show_url(commentable, anchor: 'comments-list', only_path: only_path, host: host))
+    when Report
+      link_to("Report #{commentable.id}", Rails.application.routes.url_helpers.report_url(commentable, anchor: 'comments-list', only_path: only_path, host: host))
     end
   end
 
@@ -64,6 +66,9 @@ module Webui::ReportablesHelper
     when Project
       Rails.application.routes.url_helpers.project_show_path(comment.commentable,
                                                              anchor: anchor)
+    when Report
+      Rails.application.routes.url_helpers.report_url(comment.commentable,
+                                                      anchor: anchor)
     end
   end
 end
