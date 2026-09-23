@@ -10,7 +10,15 @@ class Webui::Users::TokensController < Webui::WebuiController
     @tokens = policy_scope(Token).page(params[:page])
   end
 
-  def show; end
+  def show
+    # API tokens store only a hash: the plaintext exists solely in the
+    # session, stashed by #create, and is shown exactly once.
+    @display_secret = if @token.is_a?(Token::APIToken)
+                        session.delete(:api_token_plaintext)
+                      else
+                        @token.string
+                      end
+  end
 
   def new
     @token = User.session.tokens.new
@@ -25,9 +33,13 @@ class Webui::Users::TokensController < Webui::WebuiController
 
     respond_to do |format|
       format.html do
-        if @token.save
+        if expires_at_invalid?(@params[:expires_at]) && !ActiveModel::Type::Boolean.new.cast(@params[:never_expires])
+          flash[:error] = "'expires_at' is not a valid timestamp."
+          render :new
+        elsif @token.save
           flash[:success] = "Token successfully created! Make sure you save it - you won't be able to access it again."
           session[:show_token] = 'true'
+          session[:api_token_plaintext] = @token.plaintext_token if @token.is_a?(Token::APIToken)
           redirect_to token_path(@token)
         else
           flash[:error] = "Failed to create token: #{@token.errors.full_messages.to_sentence}."
@@ -44,7 +56,7 @@ class Webui::Users::TokensController < Webui::WebuiController
       format.js do
         if @token.regenerate_string
           flash.now[:success] = "Token string successfully regenerated! Make sure you save it - you won't be able to access it again."
-          render partial: 'update', locals: { string: @token.string }
+          render partial: 'update', locals: { string: @token.display_secret }
         else
           flash.now[:error] = "Failed to regenerate Token string: #{@token.errors.full_messages.to_sentence}"
           render partial: 'update'
@@ -52,7 +64,9 @@ class Webui::Users::TokensController < Webui::WebuiController
       end
       format.html do
         update_params = @token.is_a?(Token::Workflow) ? update_parameters.merge({ reason: "Changed by #{User.session.login}." }) : update_parameters
-        if @token.update(update_params)
+        if @token.is_a?(Token::APIToken) && expires_at_invalid?(params[:token][:expires_at])
+          flash[:error] = "'expires_at' is not a valid timestamp."
+        elsif @token.update(update_params)
           flash[:success] = 'Token successfully updated'
         else
           flash[:error] = "Failed to update Token: #{@token.errors.full_messages.to_sentence}"
@@ -76,6 +90,14 @@ class Webui::Users::TokensController < Webui::WebuiController
 
   private
 
+  def expires_at_invalid?(expires_at)
+    return false if expires_at.blank?
+
+    Time.zone.parse(expires_at).nil?
+  rescue ArgumentError, TypeError
+    true
+  end
+
   def set_token
     @token = policy_scope(Token).find(params[:id])
   rescue ActiveRecord::RecordNotFound => e
@@ -85,23 +107,25 @@ class Webui::Users::TokensController < Webui::WebuiController
 
   def set_parameters
     @params = params.except(:project_name, :package_name).require(:token).except(:string_readonly)
-                    .permit(:type, :description, :scm_token, :workflow_configuration_path, :workflow_configuration_url).tap do |token_parameters|
+                    .permit(:type, :description, :expires_at, :scm_token, :workflow_configuration_path, :workflow_configuration_url).tap do |token_parameters|
       token_parameters.require(:type)
     end
     @params = @params.except(:scm_token, :workflow_configuration_path, :workflow_configuration_url) unless @params[:type] == 'workflow'
+    @params = @params.except(:expires_at) unless @params[:type] == 'apitoken'
     @extra_params = params.slice(:project_name, :package_name).permit!
   end
 
   def update_parameters
-    params.require(:token).except(:string_readonly).permit(:description, :enabled, :scm_token, :workflow_configuration_path, :workflow_configuration_url)
+    params.require(:token).except(:string_readonly).permit(:description, :enabled, :expires_at, :scm_token, :workflow_configuration_path,
+                                                           :workflow_configuration_url)
           .reject! { |k, v| k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?) }
   end
 
   def set_package
     return if @extra_params[:project_name].blank? && @extra_params[:package_name].blank?
 
-    # Prevent setting a package for a workflow token
-    return if @params[:type] == 'workflow'
+    # Prevent setting a package for a workflow or API token
+    return if %w[workflow apitoken].include?(@params[:type])
 
     @token = Token.new(description: @params[:description])
     @token.write_attribute(:type, @params[:type])

@@ -43,9 +43,11 @@ module Person
       authorize @user, :update?
 
       xml = Nokogiri::XML(request.raw_post, &:strict)
-      xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'scm_token', 'workflow_configuration_path', 'workflow_configuration_url')
+      xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'expires_at', 'scm_token', 'workflow_configuration_path',
+                                                              'workflow_configuration_url')
 
       token = @user.tokens.find(params[:id])
+      xml_attributes = xml_attributes.except('expires_at') unless token.is_a?(Token::APIToken)
       xml_attributes['reason'] = "Changed by #{User.session.login}." if token.is_a?(Token::Workflow)
       if token.update(xml_attributes)
         render_ok
@@ -66,6 +68,7 @@ module Person
 
     def set_package
       @package = nil
+      return if params[:operation] == 'apitoken'
       return unless params[:project] && params[:package]
 
       @package = Package.get_by_project_and_name(params[:project], params[:package])
@@ -77,7 +80,7 @@ module Person
       # - webUI: https://github.com/openSUSE/open-build-service/blob/master/src/api/app/models/token.rb#L27
       # - API: https://github.com/openSUSE/open-build-service/blob/master/src/api/public/apidocs/paths/person_login_token.yaml#L89
       return if operation_param.nil? ||
-                %w[runservice rebuild release workflow].include?(operation_param) # possible API parameter values
+                %w[runservice rebuild release workflow apitoken].include?(operation_param) # possible API parameter values
 
       render_error status: 400,
                    errorcode: 'invalid_token_type',

@@ -40,6 +40,14 @@
               .mb-3.form-text.text-muted
                 Optional: provide project and package names, to limit the token to a specific package.
 
+          .row.d-none#expires-at-field
+            .col-sm
+              .mb-3
+                = f.label(:expires_at, 'Expires at:')
+                = f.datetime_field(:expires_at, class: 'form-control')
+                .form-text.text-muted
+                  Optional: leave blank for a token that never expires. Applies to API tokens only.
+
           .row.d-none#fieldsets-token
             .col-12.col-md-10.col-lg-9
               .mb-3
@@ -71,11 +79,19 @@
       if (this.value == 'workflow') {
         $('#fieldsets-token').removeClass('d-none');
         $('#package-project-form').addClass('d-none');
+        $('#expires-at-field').addClass('d-none');
         $('#token_scm_token').attr('required', true);
+      }
+      else if (this.value == 'apitoken') {
+        $('#fieldsets-token').addClass('d-none');
+        $('#package-project-form').addClass('d-none');
+        $('#expires-at-field').removeClass('d-none');
+        $('#token_scm_token').attr('required', false);
       }
       else if (!$('#fieldsets-token').attr('disabled')) {
         $('#fieldsets-token').addClass('d-none');
         $('#package-project-form').removeClass('d-none');
+        $('#expires-at-field').addClass('d-none');
         $('#token_scm_token').attr('required', false);
       }
     });
