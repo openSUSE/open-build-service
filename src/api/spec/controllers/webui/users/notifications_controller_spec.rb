@@ -266,6 +266,7 @@ RSpec.describe Webui::Users::NotificationsController do
 
       let!(:another_unread_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user_to_log_in, title: 'Another read notification') }
       let(:user_to_log_in) { user }
+      let(:cache_key) { [user_to_log_in.id, 'unread_notification_count'] }
 
       it 'succeeds' do
         subject
@@ -280,6 +281,16 @@ RSpec.describe Webui::Users::NotificationsController do
       it 'returns the updated list of read notifications' do
         subject
         expect(assigns[:notifications]).to contain_exactly(another_unread_notification)
+      end
+
+      it 'clears the cache entry for the unread notification count' do
+        allow(Rails.cache).to receive(:delete).and_call_original
+        # Pre-fill the cache to be extra sure
+        Rails.cache.write(cache_key, 123)
+        subject
+        expect(Rails.cache).to have_received(:delete).with(cache_key)
+        # Verify the cache entry is gone
+        expect(Rails.cache.read(cache_key)).to be_nil
       end
     end
 
