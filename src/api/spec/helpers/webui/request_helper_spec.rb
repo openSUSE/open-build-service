@@ -197,12 +197,20 @@ RSpec.describe Webui::RequestHelper do
   end
 
   describe '#next_prev_path' do
+    let(:notification_context_params) { {} }
+
     context 'when user is on request show page' do
       it { expect(next_prev_path(number: 10, request_action_id: 30)).to eq('/request/show/10/request_action/30') }
     end
 
     context 'when user is on build results page' do
       it { expect(next_prev_path(number: 10, request_action_id: 30, page_name: 'request_build_results')).to eq('/requests/10/actions/30/build_results') }
+    end
+
+    context 'when notification context params are present' do
+      let(:notification_context_params) { { notification_id: 123 } }
+
+      it { expect(next_prev_path(number: 10, request_action_id: 30)).to eq('/request/show/10/request_action/30?notification_id=123') }
     end
   end
 
