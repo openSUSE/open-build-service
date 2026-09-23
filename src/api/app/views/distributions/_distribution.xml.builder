@@ -4,6 +4,7 @@ builder.distribution(vendor: distribution.vendor, version: distribution.version,
   builder.reponame(distribution.reponame)
   builder.repository(distribution.repository)
   builder.link(distribution.link)
+  builder.eol(distribution.eol) if distribution.eol.present?
   distribution.icons.each do |icon|
     attr = { url: icon.url }
     attr[:width] = icon.width if icon.width.present?
