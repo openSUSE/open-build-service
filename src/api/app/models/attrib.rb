@@ -83,6 +83,11 @@ class Attrib < ApplicationRecord
       (attrib_type.value_count && (attrib_type.value_count != values.length)) # If value_count != values.length
   end
 
+  # Can you still add 1 or more values?
+  def accepts_more_values?
+    attrib_type.value_count.nil? || (attrib_type.value_count > values.length)
+  end
+
   def update_with_associations(values = [], issues = [])
     #--- update issues ---#
     changed = false
