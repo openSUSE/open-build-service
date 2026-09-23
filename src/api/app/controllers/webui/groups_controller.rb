@@ -58,6 +58,7 @@ class Webui::GroupsController < Webui::WebuiController
 
   def set_members
     @members = []
+    return if group_params[:members].blank?
 
     group_params[:members].split(',').uniq.each do |login|
       user = User.active.find_by(login: login)
