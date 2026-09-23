@@ -11,6 +11,7 @@ class SyncLocalPackageVersionJob < ApplicationJob
     create_package_version_local(project_name: project_name, package_name: package_name)
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def create_package_version_local(project_name:, package_name:)
     info = if package_name
              Backend::Api::Sources::Package.files(project_name, package_name, view: :info, parse: 1)
@@ -18,13 +19,16 @@ class SyncLocalPackageVersionJob < ApplicationJob
              Backend::Api::Sources::Project.packages(project_name, view: :info, parse: 1)
            end
 
-    Nokogiri::XML(info).xpath('//sourceinfo[@package]').each do |sourceinfo|
-      next unless (package = Package.find_by_project_and_name(project_name, sourceinfo['package']))
-      next unless (version = sourceinfo.at('version')&.content)
+    Nokogiri::XML(info).xpath('//sourceinfo[@package]').group_by { |s| s['package'] }.each do |pkg_name, nodes|
+      package = Package.find_by_project_and_name(project_name, pkg_name)
+      # Prefer service-generated version as set_version modifies it during build.
+      version = (nodes.find { |s| s.at('filename')&.content&.start_with?('_service:') } || nodes.first).at('version')&.content
+      next unless package && version
 
       package_version_local = PackageVersionLocal.find_or_create_by(version: version, package: package)
       package_version_local.touch if package_version_local.persisted? # rubocop:disable Rails/SkipsModelValidations
       update_package_version_labels(package_ids: [package.id])
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end
