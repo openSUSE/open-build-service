@@ -46,7 +46,10 @@
                 = f.label(:expires_at, 'Expires at:')
                 = f.datetime_field(:expires_at, class: 'form-control')
                 .form-text.text-muted
-                  Optional: leave blank for a token that never expires. Applies to API tokens only.
+                  Optional: leave blank for the default 90-day expiry. Applies to API tokens only.
+              .mb-3.form-check
+                = f.check_box(:never_expires, class: 'form-check-input')
+                = f.label(:never_expires, 'Never expires (permanent credentials are bad practice)', class: 'form-check-label')
 
           .row.d-none#fieldsets-token
             .col-12.col-md-10.col-lg-9
