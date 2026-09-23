@@ -3652,6 +3652,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_king
     post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='IncidentPriority' >
               <value>100</value>
+              <position>1</position>
             </attribute></attributes>"
     assert_response :success
     get '/search/request', params: { match: "target/@project = 'home:Iggy'" }
@@ -3664,6 +3665,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # make the low and important request equal high prio
     post '/source/BaseDistro/_attribute', params: "<attributes><attribute namespace='OBS' name='IncidentPriority' >
               <value>100</value>
+              <position>1</position>
             </attribute></attributes>"
     assert_response :success
     get '/search/request', params: { match: "target/@project = 'home:Iggy'" }
@@ -3678,6 +3680,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # make the low most important
     post '/source/BaseDistro/_attribute', params: "<attributes><attribute namespace='OBS' name='IncidentPriority' >
               <value>101</value>
+              <position>1</position>
             </attribute></attributes>"
     assert_response :success
     get '/search/request', params: { match: "target/@project = 'home:Iggy'" }
