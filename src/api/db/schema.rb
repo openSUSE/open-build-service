@@ -1227,6 +1227,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_125148) do
     t.string "description", limit: 64, default: ""
     t.boolean "enabled", default: true, null: false
     t.integer "executor_id", null: false
+    t.datetime "expires_at"
+    t.datetime "last_used_at"
     t.integer "package_id"
     t.string "scm_token"
     t.string "string"
