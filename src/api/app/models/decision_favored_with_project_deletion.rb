@@ -19,6 +19,10 @@ class DecisionFavoredWithProjectDeletion < Decision
     true
   end
 
+  def deletes_target_record?
+    true
+  end
+
   def delete_project
     reports.first.reportable.destroy
   end
