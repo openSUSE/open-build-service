@@ -3131,11 +3131,12 @@ sub readbuildenv {
   # work around buildenv generation bug
   $_->{'name'} =~ s/\.rpm$// for @{$bi->{'bdep'} || []};
   if (($buildinfo->{'signflavor'} || '') eq '_buildenv') {
-    die("Need to have an outbuildinfo\n") unless $buildinfo->{'outbuildinfo'};
     delete $buildinfo->{'signflavor'};
-    delete $buildinfo->{'outbuildinfo'}->{'signflavor'};
     $buildinfo->{'signflavor'} = $bi->{'signflavor'} if defined $bi->{'signflavor'};
-    $buildinfo->{'outbuildinfo'}->{'signflavor'} = $bi->{'signflavor'} if defined $bi->{'signflavor'};
+    if ($buildinfo->{'outbuildinfo'}) {
+      delete $buildinfo->{'outbuildinfo'}->{'signflavor'};
+      $buildinfo->{'outbuildinfo'}->{'signflavor'} = $bi->{'signflavor'} if defined $bi->{'signflavor'};
+    }
   }
   for (qw{error versrel bcnt release bdep config}) {
     $buildinfo->{$_} = $bi->{$_} if defined $bi->{$_};
@@ -4008,7 +4009,7 @@ sub dobuild {
     $config = Build::combine_configs($config, "Macros:\n$buildinfo->{'modularity_macros'}") if $buildinfo->{'modularity_macros'};
   }
   $buildinfo->{'slsa_provenance_config'} = $config if $buildinfo->{'slsaprovenance'};
-  $buildinfo->{'outbuildinfo'}->{'config'} = $config;
+  $buildinfo->{'outbuildinfo'}->{'config'} = $config if $buildinfo->{'outbuildinfo'};
   writestr("$buildroot/.build.config", undef, $config);
   add_slsa_materials_config($buildinfo, "$projid/$repoid", $config) if $buildinfo->{'slsaprovenance'};
 
