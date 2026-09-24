@@ -35,6 +35,10 @@ class Decision < ApplicationRecord
     'unknown'
   end
 
+  def deletes_target_record?
+    false
+  end
+
   private
 
   def create_event

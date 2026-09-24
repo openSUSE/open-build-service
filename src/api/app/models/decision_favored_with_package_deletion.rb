@@ -23,6 +23,10 @@ class DecisionFavoredWithPackageDeletion < Decision
     reportable.destroy
   end
 
+  def deletes_target_record?
+    true
+  end
+
   private
 
   def create_event

@@ -19,7 +19,11 @@ class Webui::DecisionsController < Webui::WebuiController
       flash[:error] = @decision.errors.full_messages.to_sentence
     end
 
-    redirect_back_or_to root_path
+    if @decision.deletes_target_record?
+      redirect_to root_path
+    else
+      redirect_back_or_to root_path
+    end
   end
 
   private
