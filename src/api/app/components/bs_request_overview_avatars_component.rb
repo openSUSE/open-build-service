@@ -22,7 +22,7 @@ class BsRequestOverviewAvatarsComponent < ApplicationComponent
   end
 
   def group_avatar_objects
-    [@review.group.users, @review.group].flatten
+    [@review.group&.users, @review.group].flatten.compact
   end
 
   def package_avatar_objects
