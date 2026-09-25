@@ -1,0 +1,93 @@
+get:
+  summary: List all the package's reports
+  description: List all the reports for the package.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/reports.yaml'
+          example: |
+            <reports>
+              <report project="openSUSE:Factory" package="package_a" id="13" category="spam" created_at="2026-09-18 10:07:21 UTC" updated_at="2026-09-18 10:07:21 UTC">s</report>
+            </reports>
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not found.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not_found:
+              summary: 'Package not found: home:Admin/notapackage'
+              value:
+                code: not_found
+                summary: 'Package not found: home:Admin/notapackage'
+  tags:
+    - Reports
+
+post:
+  summary: Create a package report
+  description: Create a report for the package.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - in: query
+      name: category
+      schema:
+        type: string
+        enum: [spam, scam, forbidden_license, illegal_content, other]
+      description: Category of the report
+      example: spam
+  requestBody:
+    description: Content of the report
+    required: true
+    content:
+      text/plain:
+        schema:
+          type: string
+        example: This is a very valuable report
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Invalid report.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not found.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            not_found:
+              summary: 'Package not found: openSUSE:Factory/eeee'
+              value:
+                code: not_found
+                summary: 'Package not found: openSUSE:Factory/eeee'
+  tags:
+    - Reports

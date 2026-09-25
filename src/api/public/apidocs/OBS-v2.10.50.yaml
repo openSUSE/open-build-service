@@ -282,6 +282,16 @@ paths:
     $ref: 'paths/reports.yaml'
   /reports/{report_id}:
     $ref: 'paths/reports_report_id.yaml'
+  /reports/user/{login}:
+    $ref: 'paths/reports_user_login.yaml'
+  /reports/comment/{comment_id}:
+    $ref: 'paths/reports_comment_id.yaml'
+  /reports/request/{id}:
+    $ref: 'paths/reports_request_id.yaml'
+  /reports/project/{project_name}:
+    $ref: 'paths/reports_project_project_name.yaml'
+  /reports/package/{project_name}/{package_name}:
+    $ref: 'paths/reports_package_project_name_package_name.yaml'
 
   /search:
     $ref: 'paths/search.yaml'

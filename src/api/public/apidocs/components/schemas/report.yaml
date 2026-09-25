@@ -5,14 +5,29 @@ properties:
     example: 16626
     xml:
       attribute: true
-  reportable_id:
+  bsrequest:
     type: integer
     example: 498723
     xml:
       attribute: true
-  reportable_type:
+  comment:
+    type: integer
+    example: 498723
+    xml:
+      attribute: true
+  user:
     type: string
-    example: Comment
+    example: Admin
+    xml:
+      attribute: true
+  project:
+    type: string
+    example: home:Admin
+    xml:
+      attribute: true
+  package:
+    type: string
+    example: 0ad
     xml:
       attribute: true
   category:
