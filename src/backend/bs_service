@@ -243,7 +243,20 @@ sub run_source_update {
     if (close SERVICE) {
       # SUCCESS, move files inside and add prefix
       BSUtil::printlog('Service succeed') if $verbose;
-      BSUtil::cleandir('.') if $noprefix;
+      if ($noprefix) {
+        # Clean up old generated files but preserve _service and _serviceproject
+        # config files so they remain available for subsequent services
+        for my $c (grep { $_ ne '_service' && $_ ne '_serviceproject' } ls('.')) {
+          next if $_ eq '.old' || $_ =~ /^\./;
+          my $path = "./$c";
+          if (-d $path && !-l $path) {
+            BSUtil::cleandir($path);
+            rmdir($path);
+          } else {
+            unlink($path);
+          }
+        }
+      }
       for my $file (grep {!/^[:\.]/} sort(ls("$myworkdir/out"))) {
 	next if -l "$myworkdir/out/$file" || ! -f _;	# only plain files for now
 	my $tfile = $file;
@@ -253,11 +266,21 @@ sub run_source_update {
 	}
 	rename("$myworkdir/out/$file", $tfile) || die("rename $myworkdir/out/$file $tfile: $!\n");
       }
-    } else { 
+    } else {
       # FAILURE, Create error file
       BSUtil::printlog("Service failed: $!") if $verbose;
       $output =~ s/[\r\n\s]+$//s;
-      BSUtil::cleandir('.');
+      # Clean up old generated files but preserve _service and _serviceproject
+      for my $c (grep { $_ ne '_service' && $_ ne '_serviceproject' } ls('.')) {
+        next if $_ eq '.old' || $_ =~ /^\./;
+        my $path = "./$c";
+        if (-d $path && !-l $path) {
+          BSUtil::cleandir($path);
+          rmdir($path);
+        } else {
+          unlink($path);
+        }
+      }
       die("500 remote execution error in $name detected\n") if $? >> 8 == 3;
       BSUtil::writestr('_service_error', undef, "service $name failed:\n$output\n");
       $error = 1;
