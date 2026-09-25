@@ -30,6 +30,8 @@ class ReportsController < ApplicationController
     else
       render_error status: 400, errorcode: 'invalid_report', message: report.errors.full_messages.to_sentence
     end
+  rescue ArgumentError => e
+    render_error status: 400, errorcode: 'invalid_report', message: e.message
   end
 
   # PUT /reports/{:id}
@@ -41,6 +43,8 @@ class ReportsController < ApplicationController
     else
       render_error status: 400, errorcode: 'invalid_report', message: @report.errors.full_messages.to_sentence
     end
+  rescue ArgumentError => e
+    render_error status: 400, errorcode: 'invalid_report', message: e.message
   end
 
   # DELETE /reports/{:id}
