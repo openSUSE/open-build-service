@@ -1,5 +1,7 @@
 class Decision < ApplicationRecord
-  TYPES = %w[DecisionFavored DecisionCleared DecisionFavoredWithCommentModeration DecisionFavoredWithUserDeletion DecisionFavoredWithDeleteRequest DecisionFavoredWithUserCommentingRestriction].freeze
+  TYPES = %w[DecisionFavored DecisionCleared DecisionFavoredWithCommentModeration
+             DecisionFavoredWithUserDeletion DecisionFavoredWithDeleteRequest
+             DecisionFavoredWithUserCommentingRestriction DecisionFavoredWithPackageDeletion].freeze
 
   validates :reason, presence: true, length: { maximum: 65_535 }
   validates :type, presence: true, length: { maximum: 255 }
@@ -31,6 +33,10 @@ class Decision < ApplicationRecord
   # We display this in the decision creation form
   def self.display_name
     'unknown'
+  end
+
+  def deletes_target_record?
+    false
   end
 
   private
