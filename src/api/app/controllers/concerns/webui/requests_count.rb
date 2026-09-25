@@ -22,8 +22,20 @@ module Webui::RequestsCount
   end
 
   def counts_for_states_and_types
-    @counts_grouped_by_state = group_and_fill(@bs_requests, :state, BsRequest::VALID_REQUEST_STATES.map(&:to_s))
-    @counts_grouped_by_type  = group_and_fill(@bs_requests, :type, FILTERABLE_BSREQUEST_TYPES)
+    involvement_filtered = involvement_filtered_requests
+    @counts_grouped_by_state = group_and_fill(involvement_filtered, :state, BsRequest::VALID_REQUEST_STATES.map(&:to_s))
+    @counts_grouped_by_type  = group_and_fill(involvement_filtered, :type, FILTERABLE_BSREQUEST_TYPES)
+  end
+
+  def involvement_filtered_requests
+    involvement = params[:involvement]&.compact_blank.presence || %w[incoming outgoing review]
+    filters = []
+    filters << incoming_query if involvement.include?('incoming')
+    filters << outgoing_query if involvement.include?('outgoing')
+    filters << review_query   if involvement.include?('review')
+    return @bs_requests unless filters.any?
+
+    @bs_requests.merge(filters.inject(:or))
   end
 
   def group_and_fill(relation, column, keys)

@@ -212,4 +212,50 @@ RSpec.describe Webui::Users::BsRequestsController do
       end
     end
   end
+
+  describe 'GET #counts' do
+    context 'when the user has the request_index feature flag enabled' do
+      let!(:user) { create(:confirmed_user, login: 'king') }
+      let!(:group) { create(:group) }
+      let(:target_project) { create(:project_with_package, maintainer: user) }
+      let(:target_package) { target_project.packages.first }
+
+      # Project managed by the group, not directly by the user.
+      # Requests targeting this project appear in @bs_requests (via Project.for_group)
+      # but are excluded by the involvement filter (which only checks user's direct relationships).
+      let!(:group_managed_project) do
+        create(:project_with_package).tap do |project|
+          project.relationships.create(group: group, role: Role.find_by_title('maintainer'))
+        end
+      end
+
+      # Accepted request where user is a direct maintainer of the target — appears in both the
+      # badge counter and the paginated list.
+      let!(:accepted_direct_request) do
+        create(:bs_request_with_submit_action,
+               source_package: create(:project_with_package).packages.first,
+               target_package: target_package).tap { |r| r.update_column(:state, 'accepted') }
+      end
+
+      # Accepted request targeting the group-managed project — previously inflating the badge
+      # counter because it was in @bs_requests, but not shown in the paginated list because it
+      # does not match any involvement filter.
+      let!(:accepted_group_managed_request) do
+        create(:bs_request_with_submit_action,
+               source_package: create(:project_with_package).packages.first,
+               target_package: group_managed_project.packages.first).tap { |r| r.update_column(:state, 'accepted') }
+      end
+
+      before do
+        group.groups_users.create(user: user)
+        login user
+        Flipper.enable(:request_index, user)
+        get :counts, format: :turbo_stream
+      end
+
+      it 'does not count accepted requests that are only reachable via group maintainership' do
+        expect(assigns(:counts_grouped_by_state)['accepted']).to eq(1)
+      end
+    end
+  end
 end
