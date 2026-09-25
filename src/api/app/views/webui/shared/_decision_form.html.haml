@@ -2,50 +2,70 @@
   .modal-body{ 'data-canned-controller': '' }
     .d-flex.align-items-center.justify-content-between.mb-1
       = form.label(:reason)
-      -# Decision-related canned responses exclusively:
       - if Flipper.enabled?(:canned_responses, User.session)
         = render CannedResponsesDropdownComponent.new(canned_responses)
     = form.text_area(:reason, class: 'form-control mb-3', required: true, placeholder: 'Reason for the decision')
-    = form.select(:type, Decision.types(reportable), {}, class: 'form-select', id: 'decision-type-select')
-    - if reportable.is_a?(Package) && !reportable.check_weak_dependencies?
-      .pt-4#force-delete-container
+    = form.select(:type, Decision.types(reportable), {}, class: 'form-select', id: 'decision-type-select',
+      data: { package_deletion_type: 'DecisionFavoredWithPackageDeletion',
+              project_deletion_type: 'DecisionFavoredWithProjectDeletion' })
+    .pt-4#decision-warning-container
   .modal-footer
     - reports.each do |report|
       = form.hidden_field(:report_ids, multiple: true, value: report.id)
     = submit_tag('Submit', class: 'btn btn-primary')
 
-- if reportable.is_a?(Package) && !reportable.check_weak_dependencies?
-  %template#force-delete-option
-    .text-danger.pb-2
-      Warning: The reported package is used for development by the following packages:
-    %ul.list-unstyled
-      - reportable.develpackages.each do |devel_package|
-        %li
-          = project_or_package_link(project: devel_package.project.name, package: devel_package.name, short: true)
-    .text-danger.pb-2
-      If you want to proceed, you must select the force option below.
-    %input.form-check-input{ type: 'checkbox', name: 'force_delete', id: 'force-delete-checkbox', required: true }
-    %label.form-check-label{ for: 'force-delete-checkbox' }
-      Force delete the package
+- if !reportable.check_weak_dependencies?
+  - if reportable.is_a?(Package)
+    %template{ data: { warning_template: true, action: 'require-force' } }
+      .text-danger.pb-2
+        Warning: The reported package is used for development by the following packages:
+      %ul.list-unstyled
+        - reportable.develpackages.each do |devel_package|
+          %li
+            = project_or_package_link(project: devel_package.project.name, package: devel_package.name, short: true)
+      .text-danger.pb-2
+        If you want to proceed, you must select the force option below.
+      %input.form-check-input{ type: 'checkbox', name: 'force_delete', id: 'force-delete-checkbox', required: true }
+      %label.form-check-label{ for: 'force-delete-checkbox' }
+        Force delete the package
+  - elsif reportable.is_a?(Project)
+    %template{ data: { warning_template: true, action: 'disable-submit' } }
+      .text-danger.pb-2
+        Warning: The reported project can't be deleted. Possible reasons are:
+        The project is a maintenance project with incident projects, the project contains packages used for
+        development (devel packages) or a repository in another project depends on it. Please contact an
+        admin to resolve this.
 
 - content_for :ready_function do
   :plain
     const selectElement = document.getElementById('decision-type-select');
-    const forceDeletionTemplate = document.getElementById('force-delete-option');
-    const forceDeletionContainer = document.getElementById('force-delete-container'); // Native DOM node
+    if (selectElement) {
+      const container = document.getElementById('decision-warning-container');
+      const template = document.querySelector('template[data-warning-template]');
+      const submitBtn = selectElement.form?.querySelector('button[type="submit"], input[type="submit"]');
 
-    function checkType() {
-      if (selectElement.value === 'DecisionFavoredWithPackageDeletion') {
-        // Clone inside the function so it can be added multiple times if toggled repeatedly
-        if (forceDeletionContainer.children.length === 0) {
-          const clone = forceDeletionTemplate.content.cloneNode(true);
-          forceDeletionContainer.appendChild(clone);
+      const pkgType = selectElement.dataset.packageDeletionType;
+      const prjType = selectElement.dataset.projectDeletionType;
+      const action = template?.dataset.action;
+
+      function updateWarning() {
+        const value = selectElement.value;
+        const isPackageMatch = action === 'require-force' && value === pkgType;
+        const isProjectMatch = action === 'disable-submit' && value === prjType;
+
+        if (isPackageMatch || isProjectMatch) {
+          if (container.children.length === 0 && template) {
+            container.appendChild(template.content.cloneNode(true));
+          }
+        } else {
+          container.replaceChildren();
         }
-      } else {
-        // Clear the container when another option is selected
-        forceDeletionContainer.replaceChildren();
-      }
-    }
 
-    selectElement.addEventListener('change', checkType);
-    checkType();
+        if (submitBtn) {
+          submitBtn.disabled = isProjectMatch;
+        }
+      }
+
+      selectElement.addEventListener('change', updateWarning);
+      updateWarning();
+    }

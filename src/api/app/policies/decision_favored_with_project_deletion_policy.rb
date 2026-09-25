@@ -1,0 +1,2 @@
+class DecisionFavoredWithProjectDeletionPolicy < DecisionPolicy
+end
