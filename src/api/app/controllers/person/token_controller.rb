@@ -22,7 +22,7 @@ module Person
 
       set_package
 
-      @token = Token.token_type(params[:operation]).create(description: params[:description], executor: @user, package: @package, scm_token: params[:scm_token])
+      @token = Token.token_type(params[:operation]).create(token_create_attributes)
       return if @token.valid?
 
       render_error status: 400,
@@ -43,7 +43,8 @@ module Person
       authorize @user, :update?
 
       xml = Nokogiri::XML(request.raw_post, &:strict)
-      xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'scm_token', 'workflow_configuration_path', 'workflow_configuration_url')
+      xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'expires_at', 'scm_token', 'workflow_configuration_path',
+                                                            'workflow_configuration_url')
 
       token = @user.tokens.find(params[:id])
       xml_attributes['reason'] = "Changed by #{User.session.login}." if token.is_a?(Token::Workflow)
@@ -55,6 +56,18 @@ module Person
     end
 
     private
+
+    # Attributes for token creation. API tokens additionally accept an
+    # `expires_at` timestamp; the literal value `never` deliberately opts
+    # out of the default 90-day expiry.
+    def token_create_attributes
+      attributes = { description: params[:description], executor: @user, package: @package, scm_token: params[:scm_token] }
+      return attributes unless params[:operation] == 'apitoken'
+
+      attributes[:never_expires] = params[:expires_at] == 'never'
+      attributes[:expires_at] = params[:expires_at] if params[:expires_at].present? && params[:expires_at] != 'never'
+      attributes
+    end
 
     def record_not_found(exception)
       render_error status: 404, message: "Couldn't find Token with 'id'=#{exception.id}"
@@ -77,7 +90,7 @@ module Person
       # - webUI: https://github.com/openSUSE/open-build-service/blob/master/src/api/app/models/token.rb#L27
       # - API: https://github.com/openSUSE/open-build-service/blob/master/src/api/public/apidocs/paths/person_login_token.yaml#L89
       return if operation_param.nil? ||
-                %w[runservice rebuild release workflow].include?(operation_param) # possible API parameter values
+                %w[runservice rebuild release workflow apitoken].include?(operation_param) # possible API parameter values
 
       render_error status: 400,
                    errorcode: 'invalid_token_type',

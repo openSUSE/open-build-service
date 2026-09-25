@@ -106,6 +106,45 @@ RSpec.describe Person::TokenController do
       it { expect { subject }.to change { user.tokens.count }.by(+1) }
     end
 
+    context 'operation is apitoken' do
+      render_views
+
+      subject { post :create, params: { login: user.login, operation: 'apitoken' }.merge(extra_params), format: :xml }
+
+      let(:extra_params) { {} }
+
+      before do
+        login user
+      end
+
+      it { expect(response).to have_http_status(:success) }
+
+      it 'creates an API token expiring in 90 days' do
+        expect { subject }.to change { user.tokens.count }.by(+1)
+        expect(user.tokens.last).to be_a(Token::APIToken)
+        expect(user.tokens.last.expires_at).to be_within(1.minute).of(90.days.from_now)
+      end
+
+      context 'with an explicit expires_at' do
+        let(:extra_params) { { expires_at: 10.days.from_now.iso8601 } }
+
+        it 'keeps the given expiry' do
+          subject
+          expect(user.tokens.last.expires_at).to be_within(1.minute).of(10.days.from_now)
+        end
+      end
+
+      context "with expires_at 'never'" do
+        let(:extra_params) { { expires_at: 'never' } }
+
+        it 'creates a token that never expires and warns about it' do
+          subject
+          expect(user.tokens.last.expires_at).to be_nil
+          expect(response.body).to include('never expires')
+        end
+      end
+    end
+
     context 'called by unauthorized user' do
       subject { post :create, params: { login: user.login }, format: :xml }
 

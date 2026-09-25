@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_09_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_23_120000) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "blob_id", null: false
     t.datetime "created_at", null: false
@@ -1225,6 +1225,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_09_100000) do
     t.string "description", limit: 64, default: ""
     t.boolean "enabled", default: true, null: false
     t.integer "executor_id", null: false
+    t.datetime "expires_at"
+    t.datetime "last_used_at"
     t.integer "package_id"
     t.string "scm_token"
     t.string "string"

@@ -101,6 +101,34 @@ RSpec.describe Webui::Users::TokensController do
         it { expect { subject }.not_to change(Token, :count) }
       end
     end
+
+    context 'type is apitoken' do
+      let(:form_parameters) { { token: { type: 'apitoken' } } }
+
+      it_behaves_like 'check for flashing a success'
+
+      it 'expires in 90 days by default' do
+        subject
+        expect(assigns(:token).expires_at).to be_within(1.minute).of(90.days.from_now)
+      end
+
+      it "doesn't flash a warning" do
+        subject
+        expect(subject.request.flash[:warning]).to be_nil
+      end
+    end
+
+    context 'type is apitoken, never expires' do
+      let(:form_parameters) { { token: { type: 'apitoken', never_expires: '1' } } }
+
+      it_behaves_like 'check for flashing a success'
+
+      it 'creates a token that never expires and flashes a warning' do
+        subject
+        expect(assigns(:token).expires_at).to be_nil
+        expect(subject.request.flash[:warning]).not_to be_nil
+      end
+    end
   end
 
   describe 'PUT #update' do

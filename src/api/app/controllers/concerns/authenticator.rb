@@ -1,4 +1,4 @@
-module Authenticator
+module Authenticator # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
 
   included do
@@ -14,6 +14,13 @@ module Authenticator
   end
 
   def extract_user
+    # An explicitly presented API token wins over every other credential:
+    # it is the only credential type meant for programmatic access.
+    if bearer_token_string
+      authenticate_with_api_token(bearer_token_string)
+      return
+    end
+
     user = if ::Configuration.proxy_auth_mode_enabled?
              find_or_create_proxy_user
            elsif request.session[:login] # Webui Session Auth
@@ -73,6 +80,29 @@ module Authenticator
   end
 
   private
+
+  # Authenticates a general API token (Token::APIToken) from an
+  # `Authorization: Bearer <token>` header. A presented-but-invalid token
+  # is a 401, never a silent fallthrough to anonymous: the client must know
+  # its credential was rejected rather than keep working with no rights.
+  def authenticate_with_api_token(bearer)
+    token = Token::APIToken.authenticate(bearer)
+
+    if token
+      User.session = token.executor
+      Rails.logger.debug { "User.session set to #{User.possibly_nobody.login} via API token" }
+    else
+      set_anonymous_user
+      render_error status: 401, errorcode: 'invalid_token',
+                   message: 'The API token is invalid, expired, or disabled.'
+    end
+  end
+
+  def bearer_token_string
+    return unless authorization_headers[0] == 'Bearer'
+
+    authorization_headers[1].presence
+  end
 
   # In proxy_auth_mode there is no need to authenticate the user from the credentials, the proxy did that.
   # If the proxy passes the X_USERNAME header we just find_or_create the User.
