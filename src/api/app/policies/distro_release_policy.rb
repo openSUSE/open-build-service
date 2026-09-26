@@ -3,6 +3,10 @@ class DistroReleasePolicy < ApplicationPolicy
     DistroPolicy.new(user, record.distro).create?
   end
 
+  def show?
+    true
+  end
+
   def new?
     create?
   end
@@ -12,6 +16,10 @@ class DistroReleasePolicy < ApplicationPolicy
   end
 
   def update?
+    create?
+  end
+
+  def edit?
     create?
   end
 end

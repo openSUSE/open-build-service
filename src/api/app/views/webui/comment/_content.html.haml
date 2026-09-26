@@ -24,6 +24,7 @@
           %i Inline comment for target: '#{target}', file: '#{filename}', and line: #{comment.diff_line_number}.
     = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
     = render_as_markdown(comment)
+    = render partial: 'webui/comment/original_body', locals: { comment: comment }
     = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: comment.commentable }
     - if level <= 3
       - comment.children.includes(:user).each do |children|

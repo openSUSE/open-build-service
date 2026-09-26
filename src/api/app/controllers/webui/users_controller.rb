@@ -220,8 +220,23 @@ class Webui::UsersController < Webui::WebuiController
     return unless Flipper.enabled?(:content_moderation, User.session)
     return unless policy(@displayed_user).comment_index?
 
-    comments = @displayed_user.comments.includes(:project).order(created_at: :desc)
+    comments = all_visible_comments_for_displayed_user
     params[:page] = comments.page(params[:page]).total_pages if comments.page(params[:page]).out_of_range?
     comments.page(params[:page])
+  end
+
+  def all_visible_comments_for_displayed_user
+    unless User.session&.admin? || User.session&.staff? || User.session&.moderator?
+      return @displayed_user.comments.includes(:project).order(created_at: :desc)
+    end
+
+    live_ids = @displayed_user.comments.pluck(:id)
+    Comment.where(id: live_ids + soft_deleted_comment_ids_of_displayed_user).includes(:project).order(created_at: :desc)
+  end
+
+  def soft_deleted_comment_ids_of_displayed_user
+    PaperTrail::Version.where(item_type: 'Comment', event: 'delete')
+                       .select { |v| v.reify&.user_id == @displayed_user.id }
+                       .map(&:item_id)
   end
 end

@@ -622,7 +622,7 @@ sub createrepo_zyppservice {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repo/repoindex.xml") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/repo/repoindex.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repo/repoindex.xml");
   }
 
@@ -880,7 +880,7 @@ sub createrepo_rpmmd {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     writestr("$extrep/repodata/repomd.xml.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
     create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
@@ -1415,7 +1415,7 @@ sub createrepo_staticlinks {
             push @signargs, '--project', $projid if $BSConfig::sign_project;
             push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
             push @signargs, @{$data->{'signargs'} || []};
-            qsystem($BSConfig::sign, @signargs, '-d', "$extrep/$arch/$_.$sha") && die("    sign failed: $?\n");
+            qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/$arch/$_.$sha") && die("    sign failed: $?\n");
             pickup_detached_signature($data, "$extrep/$arch/$_.$sha");
           }
         }
@@ -1558,10 +1558,10 @@ sub createrepo_checksumsfile {
       my %options = map {$_ => 1} @{$options || []};
       if ($options{'rawsig'}) {
 	unlink("$extrep/SHA256SUMS.sig");
-	qsystem($BSConfig::sign, @signargs, '-D', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
+	qsystem($BSConfig::sign, @signargs, '-D', '-4', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
 	rename("$extrep/SHA256SUMS.sig", "$extrep/SHA256SUMS.gpg");
       }
-      qsystem($BSConfig::sign, @signargs, '-d', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
+      qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
       pickup_detached_signature($data, "$extrep/SHA256SUMS");
     }
   }
@@ -1623,7 +1623,7 @@ sub createpatterns_rpmmd {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
     create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
   }
@@ -1694,7 +1694,7 @@ sub createpatterns_comps {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
     create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
   }

@@ -1,0 +1,8 @@
+%div
+  %b
+    Package
+    = link_to("#{reportable.project.name}/#{reportable.name}", package_show_path(reportable.project, reportable))
+- if reportable.description.present?
+  %div
+    %b Description:
+    = render partial: 'webui/shared/collapsible_text', locals: { text: reportable.description }

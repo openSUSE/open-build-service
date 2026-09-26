@@ -12,8 +12,9 @@ class Webui::ReportsController < Webui::WebuiController
 
   def create
     @reporter = User.session
-    @report = @reporter.submitted_reports.new(report_params)
+    @report = @reporter.submitted_reports.new(report_params.except(:category))
     authorize @report
+    @report.assign_attributes(report_params.slice(:category))
 
     @link_id = params[:link_id]
 

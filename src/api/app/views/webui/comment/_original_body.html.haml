@@ -1,0 +1,4 @@
+- if policy(comment).show_original?
+  .mt-2.border-top.pt-2
+    %small.text-muted.fst-italic Original comment (only visible to moderators, staff and admins)
+    = render_as_markdown(comment.original_body)

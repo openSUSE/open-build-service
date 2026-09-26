@@ -17,7 +17,13 @@
       - else
         %div
           %i.mt2= reportable_not_found(reportable_type: @report.reportable_type)
-    %h5 Reason
+    %h4 Subject
+    %p
+      - if @report.reportable.present?
+        = render partial: "#{ @report.reportable_type.underscore }_preview", locals: { reportable: @report.reportable}
+      - else
+        %i Subject was deleted.
+    %h4 Reason
     %p
       - if @report.reason
         = @report.reason
@@ -25,7 +31,7 @@
         %i No reason provided
 
     - if other_reports.any?
-      %h5 Other reports
+      %h4 Other reports
       %ul
         - other_reports.each do |report|
           %li
@@ -59,3 +65,17 @@
       %h5 Reason
       %p
         = decision.reason
+
+      - if decision.appeals.any?
+        - visible_appeals = decision.appeals.select { |appeal| policy(appeal).show? }
+        - if visible_appeals.any?
+          %h5 Appeals
+          %ul.mb-0
+            - visible_appeals.each do |appeal|
+              %li
+                = render UserAvatarComponent.new(appeal.appellant)
+                appealed on
+                = link_to(appeal.created_at.to_date.to_s, appeal_path(appeal))
+                - if appeal.reason.present?
+                  %p.mt-2
+                    = appeal.reason

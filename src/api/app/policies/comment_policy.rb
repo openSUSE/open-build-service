@@ -79,6 +79,13 @@ class CommentPolicy < ApplicationPolicy
     !(record.moderated? || record.user.nobody?)
   end
 
+  # Only Admins, Staff and Moderators can see the original body of a soft-deleted comment
+  def show_original?
+    return false unless record.soft_deleted?
+
+    user.try(:admin?) || user.try(:staff?) || user.try(:moderator?)
+  end
+
   private
 
   def important_user?

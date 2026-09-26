@@ -1,0 +1,16 @@
+= form_with(url: url, model: model) do |form|
+  .mb-3
+    = form.label :name
+    = form.text_field :name, class: 'form-control'
+
+  .mb-3
+    = form.label :date
+    = form.date_field :date, class: 'form-control'
+
+  .mb-3
+    = form.label :status
+    - status_options = DistroReleaseLifecycle.statuses.keys.map { |key| [DistroReleaseLifecycle::STATUS_LABELS.fetch(key, key.humanize), key] }
+    = form.select :status, status_options, {}, class: 'form-select'
+
+  %div
+    = form.submit 'Save', class: 'btn btn-success'

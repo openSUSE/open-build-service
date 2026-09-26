@@ -33,6 +33,15 @@ RSpec.describe 'Reports', :js, :vcr do
         within('#flash') { expect(page).to have_text('Comment reported successfully') }
       end
 
+      it 'allows submitting multiple reports for the same comment' do
+        2.times do
+          click_link('Report', id: "js-comment-#{comment.id}")
+          fill_and_submit_report_form
+          expect(page).to have_text('You reported this comment.')
+        end
+        expect(comment.reports.where(reporter: user).count).to eq(2)
+      end
+
       it 'is possible to report both the comment and its author' do
         click_link('Report', id: "js-comment-#{comment.id}")
         fill_and_submit_report_form(report_comment_author: true)

@@ -1,12 +1,13 @@
-%i.fas.fa-flag.text-warning
-- if by_user?
-  %span.text-warning
-    You reported this #{reportable_name}.
-- if !by_user? || @user.moderator?
-  %span.text-warning
-    This #{reportable_name} has
-    = link_to report_amount, '#', class: 'link-warning text-decoration-underline',
-                                  data: { 'bs-toggle': 'modal',
-                                          'bs-target': "#reports-modal-#{reportable_name}-#{reportable.id}" }
-    \.
-  = render ReportsModalComponent.new(reportable:, reportable_name:, user:, reports:)
+%div{ id: "report-notice-#{reportable.class.name.downcase}-#{reportable.id}" }
+  %i.fas.fa-flag.text-warning.bg-transparent
+  - if by_user?
+    %span.text-warning
+      You reported this #{reportable_name}.
+  - if !by_user? || @user.moderator?
+    %span.text-warning
+      This #{reportable_name} has
+      = link_to report_amount, '#', class: 'link-warning text-decoration-underline',
+                                    data: { 'bs-toggle': 'modal',
+                                            'bs-target': "#reports-modal-#{reportable_name}-#{reportable.id}" }
+      \.
+    = render ReportsModalComponent.new(reportable:, reportable_name:, user:, reports:)

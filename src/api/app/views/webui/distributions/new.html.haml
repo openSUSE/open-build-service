@@ -10,26 +10,27 @@
   = render partial: 'webui/project/tabs', locals: { project: @project }
   .card-body
     %h3 Add Repositories to #{@project}
-    .row
+    .mt-3.accordion.accordion-flush.list-group.mt-3#distributions-accordion
       - @distributions.each do |vendor, distributions|
-        .col-md-12
-          .pb-4
-            %h6.pb-2
+        .accordion-item.list-group-item-flush.border-bottom
+          = button_tag(type: 'button', class: 'accordion-button no-style ps-1 pe-3 collapsed',
+                       data: { 'bs-toggle': 'collapse', 'bs-target': "#collapse_#{vendor.parameterize}",
+                       aria: { expanded: 'true', controls: "collapse_#{vendor.parameterize}" } }) do
+            %h5.accordion-header.px-2.py-3
               - if resolve_asset_path("distributions/#{vendor.downcase}.svg")
                 = image_tag("distributions/#{vendor.downcase}.svg")
-              #{vendor} distributions
-            .row
-              - distributions.group_by(&:reponame).each do |_reponame, variants|
-                .col-md-3
-                  .pb-2
-                    - if variants.length > 1
-                      = variants.first.reponame
-                      Variants
-                      = render partial: 'webui/shared/info_popover', locals: { position: 'top', text: variants_info_text }
-                      \:
-                    - variants.each do |variant|
-                      = form_tag(toggle_project_distributions_path, remote: true, id: "distribution-#{variant.id}-form") do
-                        - checked = @project.distribution?(variant.project, variant.repository) ? 'checked' : nil
-                        = render partial: 'variant', object: variant, locals: { checked: checked }
+              #{vendor}
+          .row.accordion-collapse.p-3.mb-5.collapse{ id: "collapse_#{vendor.parameterize}" }
+            - distributions.group_by(&:reponame).each do |_reponame, variants|
+              .col-md-3.pb-2
+                - if variants.length > 1
+                  = variants.first.reponame
+                  Variants
+                  = render partial: 'webui/shared/info_popover', locals: { position: 'top', text: variants_info_text }
+                  \:
+                - variants.each do |variant|
+                  = form_tag(toggle_project_distributions_path, remote: true, id: "distribution-#{variant.id}-form") do
+                    - checked = @project.distribution?(variant.project, variant.repository) ? 'checked' : nil
+                    = render partial: 'variant', object: variant, locals: { checked: checked }
 - content_for :ready_function do
   toggleDistribution();

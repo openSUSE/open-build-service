@@ -22,7 +22,7 @@
     = render partial: 'webui/package/side_links/show_linkinfo', locals: { package: package, project: project,
                                                                                   linkinfo: linkinfo, revision: revision }
 
-  - if package.scmsync
+  - if package.scmsync.present?
     = render partial: 'webui/package/side_links/show_scmsync', locals: { package: package }
 
   - if Flipper.enabled?(:package_version_tracking, User.session) && package.project.anitya_distribution_name.present?

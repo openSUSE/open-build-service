@@ -74,6 +74,15 @@ RSpec.describe Webui::GroupsController do
       end
     end
 
+    context 'when members parameter is not provided' do
+      it 'creates a group without members' do
+        post :create, params: { group: { title: 'group_without_members' } }
+        expect(response).to redirect_to(groups_path)
+        expect(flash[:success]).to eq("Group 'group_without_members' successfully created.")
+        expect(Group.find_by(title: 'group_without_members').users).to be_empty
+      end
+    end
+
     context 'with an invalid title' do
       let(:title) { 'my group' }
 
