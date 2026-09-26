@@ -124,10 +124,12 @@ sub fetchdodcontainer {
 sub fetchdodbinary {
   my ($gdst, $pool, $repo, $p, $handoff) = @_;
 
-  die($repo->name()." is no dod repo\n") unless $repo->dodurl();
+  # check if repo has a dodurl or package path is a full URL (multi-url mode)
+  my $pkgpath = $pool->pkg2path($p);
+  die($repo->name()." is no dod repo\n") unless $repo->dodurl() || $pkgpath =~ /^[a-zA-Z]+:\/\//;
   my $pkgname = $pool->pkg2name($p);
   return fetchdodcontainer($gdst, $pool, $repo, $p, $handoff) if $pkgname =~ /^container:/;
-  my $path = $pool->pkg2path($p);
+  my $path = $pkgpath;
   die("$path has an unsupported suffix\n") unless $path =~ /\.($binsufsre)$/;
   my $suf = $1;
   if (defined(&BSSolv::pool::pkg2inmodule) && $pool->pkg2inmodule($p)) {
@@ -143,9 +145,16 @@ sub fetchdodbinary {
   }
   # we really need to download, handoff to ajax if not already done
   BSHandoff::handoff_part('dod', @$handoff) if $handoff && !$BSStdServer::isajax;
-  my $url = $repo->dodurl();
-  $url .= '/' unless $url =~ /\/$/;
-  $url .= $pool->pkg2path($p);
+  # check if path is already a full URL (multi-url mode for packages from non-primary source)
+  my $url;
+  if ($pkgpath =~ /^[a-zA-Z]+:\/\//) {
+    $url = $pkgpath;
+  } else {
+    $url = $repo->dodurl();
+    die($repo->name()." has no url for package\n") unless $url;
+    $url .= '/' unless $url =~ /\/$/;
+    $url .= $pkgpath;
+  }
   my $tmp = "$gdst/:full/.dod.$$.$pkgname";
   # fix url
   $url = remove_dot_segments $url;
