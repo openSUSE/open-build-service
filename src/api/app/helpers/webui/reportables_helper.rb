@@ -13,34 +13,92 @@ module Webui::ReportablesHelper
 
     case reportable_type
     when 'Comment'
-      link_to_commentables_on_reportables(commentable: reportable.commentable, only_path: only_path, host: host)
+      link_to_commentables_on_reportables(
+        commentable: reportable.commentable,
+        only_path: only_path,
+        host: host,
+        comment_id: reportable.id
+      )
     when 'Package'
-      link_to(reportable.name.to_s, Rails.application.routes.url_helpers.package_show_url(package: reportable, project: reportable.project,
-                                                                                          anchor: 'comments-list', only_path: only_path, host: host))
+      url = Rails.application.routes.url_helpers.package_show_url(
+        package: reportable,
+        project: reportable.project,
+        anchor: 'comments-list',
+        only_path: only_path,
+        host: host
+      )
+      link_to(reportable.name.to_s, url)
     when 'Project'
-      link_to(reportable.name.to_s, Rails.application.routes.url_helpers.project_show_url(reportable, anchor: 'comments-list', only_path: only_path, host: host))
+      url = Rails.application.routes.url_helpers.project_show_url(
+        reportable,
+        anchor: 'comments-list',
+        only_path: only_path,
+        host: host
+      )
+      link_to(reportable.name.to_s, url)
     when 'User'
-      link_to(reportable.login.to_s, Rails.application.routes.url_helpers.user_url(reportable, only_path: only_path, host: host))
+      url = Rails.application.routes.url_helpers.user_url(
+        reportable,
+        only_path: only_path,
+        host: host
+      )
+      link_to(reportable.login.to_s, url)
     when 'BsRequest'
-      link_to("Request ##{reportable.number}", Rails.application.routes.url_helpers.request_show_url(reportable, only_path: only_path, host: host))
+      url = Rails.application.routes.url_helpers.request_show_url(
+        reportable,
+        only_path: only_path,
+        host: host
+      )
+      link_to("Request ##{reportable.number}", url)
     end
   end
 
-  def link_to_commentables_on_reportables(commentable:, only_path:, host:)
+  def link_to_commentables_on_reportables(commentable:, only_path:, host:, comment_id: nil)
+    anchor = comment_id ? "comment-#{comment_id}" : 'comments-list'
+
     case commentable
     when BsRequest
-      link_to("Request #{commentable.number}", Rails.application.routes.url_helpers.request_show_url(commentable.number, anchor: 'comments-list', only_path: only_path, host: host))
+      url = Rails.application.routes.url_helpers.request_show_url(
+        commentable.number,
+        anchor: anchor,
+        only_path: only_path,
+        host: host
+      )
+      link_to("Request #{commentable.number}", url)
     when BsRequestAction
-      link_to("Request #{commentable.bs_request.number}", Rails.application.routes.url_helpers.request_show_url(number: commentable.bs_request.number,
-                                                                                                                request_action_id: commentable.id,
-                                                                                                                anchor: 'comments-list', only_path: only_path, host: host))
+      url = Rails.application.routes.url_helpers.request_show_url(
+        number: commentable.bs_request.number,
+        request_action_id: commentable.id,
+        anchor: anchor,
+        only_path: only_path,
+        host: host
+      )
+      link_to("Request #{commentable.bs_request.number}", url)
     when Package
-      link_to("Package #{commentable.project.name}/#{commentable.name}", Rails.application.routes.url_helpers.package_show_url(package: commentable, project: commentable.project,
-                                                                                                                               anchor: 'comments-list', only_path: only_path, host: host))
+      url = Rails.application.routes.url_helpers.package_show_url(
+        package: commentable,
+        project: commentable.project,
+        anchor: anchor,
+        only_path: only_path,
+        host: host
+      )
+      link_to("Package #{commentable.project.name}/#{commentable.name}", url)
     when Project
-      link_to("Project #{commentable.name}", Rails.application.routes.url_helpers.project_show_url(commentable, anchor: 'comments-list', only_path: only_path, host: host))
+      url = Rails.application.routes.url_helpers.project_show_url(
+        commentable,
+        anchor: anchor,
+        only_path: only_path,
+        host: host
+      )
+      link_to("Project #{commentable.name}", url)
     when Report
-      link_to("Report #{commentable.id}", Rails.application.routes.url_helpers.report_url(commentable, anchor: 'comments-list', only_path: only_path, host: host))
+      url = Rails.application.routes.url_helpers.report_url(
+        commentable,
+        anchor: anchor,
+        only_path: only_path,
+        host: host
+      )
+      link_to("Report #{commentable.id}", url)
     end
   end
 
@@ -48,27 +106,30 @@ module Webui::ReportablesHelper
     anchor = "comment-#{comment.id}"
     case comment.commentable
     when BsRequest
-      Rails.application.routes.url_helpers.request_show_path(comment.commentable.number,
-                                                             anchor: anchor)
+      Rails.application.routes.url_helpers.request_show_path(comment.commentable.number, anchor: anchor)
     when BsRequestAction
       if in_changes
-        Rails.application.routes.url_helpers.request_changes_path(number: comment.commentable.bs_request.number,
-                                                                  request_action_id: comment.commentable.id)
+        Rails.application.routes.url_helpers.request_changes_path(
+          number: comment.commentable.bs_request.number,
+          request_action_id: comment.commentable.id
+        )
       else
-        Rails.application.routes.url_helpers.request_show_path(number: comment.commentable.bs_request.number,
-                                                               request_action_id: comment.commentable.id,
-                                                               anchor: anchor)
+        Rails.application.routes.url_helpers.request_show_path(
+          number: comment.commentable.bs_request.number,
+          request_action_id: comment.commentable.id,
+          anchor: anchor
+        )
       end
     when Package
-      Rails.application.routes.url_helpers.package_show_path(package: comment.commentable,
-                                                             project: comment.commentable.project,
-                                                             anchor: anchor)
+      Rails.application.routes.url_helpers.package_show_path(
+        package: comment.commentable,
+        project: comment.commentable.project,
+        anchor: anchor
+      )
     when Project
-      Rails.application.routes.url_helpers.project_show_path(comment.commentable,
-                                                             anchor: anchor)
+      Rails.application.routes.url_helpers.project_show_path(comment.commentable, anchor: anchor)
     when Report
-      Rails.application.routes.url_helpers.report_url(comment.commentable,
-                                                      anchor: anchor)
+      Rails.application.routes.url_helpers.report_url(comment.commentable, anchor: anchor)
     end
   end
 end
