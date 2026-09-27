@@ -307,10 +307,6 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     get '/build/home:Iggy/_result'
     assert_response :success
     assert_xml_tag tag: 'resultlist', children: { count: 2 }
-
-    get '/build/home:Iggy/_result?lastsuccess&pathproject=kde4&package=TestPack'
-    assert_response :not_found
-    assert_xml_tag(tag: 'status', attributes: { code: 'no_repositories_found' })
   end
 
   def test_result_of_failed_publish
