@@ -10,10 +10,12 @@
           %li.list-group-item.py-4
             - if decision_type
               %h5= decision_type.humanize
+              %small.text-muted= CannedResponse::DECISION_TYPE_DESCRIPTIONS[decision_type]
             - else
               %h5
                 Decision's reason:
                 %em Undefined
+              %small.text-muted= CannedResponse::DECISION_TYPE_DESCRIPTIONS[nil]
             .d-flex.flex-wrap.gap-4.align-self-stretch
               - @canned_responses.filter { |cr| cr.decision_type == decision_type }.each do |canned_response|
                 = render(CardComponent.new) do |component|
