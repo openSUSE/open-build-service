@@ -34,6 +34,11 @@ class Webui::ReportsController < Webui::WebuiController
     respond_to do |format|
       format.js
     end
+  rescue ArgumentError => e
+    flash.now[:error] = e.message
+    respond_to do |format|
+      format.js
+    end
   end
 
   private
