@@ -1,6 +1,6 @@
 get:
   summary: List the notifications of the authenticated user.
-  description:  |
+  description: |
     **(Unstable)** List user's notifications.
 
     **NOTE:** Available only in OBS Unstable.
@@ -21,17 +21,46 @@ get:
         type: string
       example: 1
     - in: query
-      name: notifications_type
+      name: state
+      description: Filter notifications by read/unread state
       schema:
         type: string
-        enum: ['read', 'comments', 'requests', 'unread', 'incoming_requests', 'outgoing_requests', 'relationships_created', 'relationships_deleted', 'build_failures', 'reports', 'workflow_runs', 'appealed_decisions']
+        enum: ["read", "unread"]
+        default: "unread"
+    - in: query
+      name: kind
+      description: Filter notifications by type
+      schema:
+        type: string
+        enum:
+          [
+            "all",
+            "comments",
+            "requests",
+            "incoming_requests",
+            "outgoing_requests",
+            "relationships_created",
+            "relationships_deleted",
+            "build_failures",
+            "reports",
+            "reviews",
+            "workflow_runs",
+            "appealed_decisions",
+            "member_on_groups",
+          ]
+        default: "all"
+    - in: query
+      name: group
+      description: Filter notifications by group title
+      schema:
+        type: string
   responses:
-    '200':
+    "200":
       description: OK. The request has succeeded.
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '../components/schemas/notifications.yaml'
+            $ref: "../components/schemas/notifications.yaml"
           example:
             count: 2
             total_pages: 1
@@ -48,7 +77,7 @@ get:
                 who: User 2
                 event_type: comment_for_package
                 when: 2021-09-27T07:16:19
-    '401':
-      $ref: '../components/responses/unauthorized.yaml'
+    "401":
+      $ref: "../components/responses/unauthorized.yaml"
   tags:
     - Notifications
