@@ -472,7 +472,7 @@ sub getbinaries {
       if ($cgi->{'withannotation'}) {
 	my $annotation;
 	$annotation = $pool->pkg2annotation($p) if defined &BSSolv::pool::pkg2annotation;
-	$annotation = extend_containerannotation($annotation, $pool->pkg2data($p));
+	$annotation = extend_containerannotation($annotation, $pool->pkg2data($p)) if $annotation;
 	push @send, {'name' => "$bin.annotation", 'data' => $annotation} if $annotation;
       }
       my $n = "$bin$1";
@@ -665,7 +665,7 @@ sub getbinarylist_repository {
   my $view = $cgi->{'view'} || '';
 
   if (($view eq 'cache' || $view eq 'cpio' || $view eq 'solvstate') && !$BSStdServer::isajax && !$cgi->{'noajax'}) {
-    my @args = BSRPC::args($cgi, 'view', 'binary', 'module');
+    my @args = BSRPC::args($cgi, 'view', 'binary', 'module', 'withannotation');
     BSHandoff::handoff_part('interconnect_in', "/build/$projid/$repoid/$arch/_repository", undef, @args);
   }
 
@@ -875,6 +875,12 @@ sub getbinarylist_repository {
       }
       my $n = $bin;
       if ($n =~ /^container:/) {
+	if ($cgi->{'withannotation'}) {
+	  my $annotation;
+	  $annotation = $pool->pkg2annotation($p) if defined &BSSolv::pool::pkg2annotation;
+	  $annotation = extend_containerannotation($annotation, $pool->pkg2data($p)) if $annotation;
+	  push @files, {'name' => "$n.annotation", 'data' => $annotation} if $annotation;
+	}
 	$n .= $1 if $path =~ /(\.tar(?:\..+)?)$/;
 	if ($1 eq '.tar' && ! -e $path) {
 	  my $fd = BSRepServer::Containertar::open_container($path);
@@ -1059,7 +1065,7 @@ sub getbinarylist {
   my $prp = "$projid/$repoid";
   my $view = $cgi->{'view'} || '';
   if ($view eq 'cpio' && !$BSStdServer::isajax && !$cgi->{'noajax'}) {
-    my @args = BSRPC::args($cgi, 'view', 'binary', 'nosource');
+    my @args = BSRPC::args($cgi, 'view', 'binary', 'nosource', 'noimport', 'withccache', 'withannotation');
     BSHandoff::handoff_part('interconnect_in', "/build/$projid/$repoid/$arch/$packid", undef, @args);
   }
   my %binaries = map {$_ => 1} @{$cgi->{'binary'} || []};
@@ -1078,6 +1084,12 @@ sub getbinarylist {
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
       next if -d "$dir/$_";
+      if ($cgi->{'withannotation'} && /(.*)\.tar(?:\..+)?$/ &&  -s "$dir/$1.obsbinlnk") {
+	my $obsbinlnk = BSUtil::retrieve("$dir/$1.obsbinlnk", 1) || {};
+	my $annotation = $obsbinlnk->{'annotation'};
+	$annotation = extend_containerannotation($annotation, $obsbinlnk) if $annotation;
+	push @files, {'name' => "$1.annotation", 'data' => $annotation} if $annotation;
+      }
       if (/\.tar$/ && ! -e "$dir/$_") {
 	my $n = $_;
 	my $fd = BSRepServer::Containertar::open_container("$dir/$n");
@@ -4703,7 +4715,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:? remoteurl:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module* withccache:bool? withevr:bool? copybuild:bool? aggregatemode:bool?' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module* withccache:bool? withannotation:bool? withevr:bool? copybuild:bool? aggregatemode:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repositorybuild/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
@@ -4795,7 +4807,7 @@ my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num? view:?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? nosource:bool? module* withccache:bool?' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? nosource:bool? module* withccache:bool? withannotation:bool?' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? withfilelist:bool? module*' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? withinfo:bool? withreproduciblecheck:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? now:num? module* withannotation:bool?' => \&getbinaries,
