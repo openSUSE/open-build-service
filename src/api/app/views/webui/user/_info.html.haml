@@ -1,4 +1,4 @@
-- if is_user
+- if is_user || User.admin_session?
   = render partial: 'webui/user/index_actions', locals: { user: user, account_edit_link: account_edit_link }
 
 .card.mb-3
