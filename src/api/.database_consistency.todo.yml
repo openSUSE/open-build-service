@@ -424,9 +424,6 @@ CommentLock:
     MissingDependentDestroyChecker:
       enabled: false
 CommitActivity:
-  count:
-    NumericalityConstraintChecker:
-      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
@@ -831,9 +828,6 @@ Flag:
   lower(flag)+project_id+package_id+architecture_id+repo:
     MissingUniqueIndexChecker:
       enabled: false
-  position:
-    NumericalityConstraintChecker:
-      enabled: false
   repo:
     LengthConstraintChecker:
       enabled: false
@@ -868,9 +862,6 @@ GroupMaintainer:
 GroupsUser:
   email:
     ThreeStateBooleanChecker:
-      enabled: false
-  groups_users_all_index:
-    UniqueIndexChecker:
       enabled: false
   id:
     PrimaryKeyTypeChecker:
@@ -1712,6 +1703,9 @@ Report:
   comments:
     ForeignKeyTypeChecker:
       enabled: false
+  notifications:
+    ForeignKeyTypeChecker:
+      enabled: false
 Repository:
   channel_targets:
     ForeignKeyCascadeChecker:
@@ -1831,9 +1825,6 @@ Staging::RequestExclusion:
   bs_request:
     ForeignKeyChecker:
       enabled: false
-  bs_request_id:
-    NumericalityConstraintChecker:
-      enabled: false
   bs_request_id+staging_workflow_id:
     MissingUniqueIndexChecker:
       enabled: false
@@ -1918,9 +1909,6 @@ Status::Report:
     LengthConstraintChecker:
       enabled: false
 StatusHistory:
-  id:
-    PrimaryKeyTypeChecker:
-      enabled: false
   key:
     LengthConstraintChecker:
       enabled: false
