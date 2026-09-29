@@ -1,7 +1,7 @@
 require 'builder'
 
 class IssueTrackerWriteToBackendJob < ApplicationJob
-  queue_as :quick
+  queue_as :internal
 
   def perform
     logger.debug 'Write issue tracker information to backend...'

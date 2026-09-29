@@ -1,5 +1,5 @@
 class StatusHistoryRescalerJob < ApplicationJob
-  queue_as :quick
+  queue_as :slow_user
 
   # this is called from a delayed job triggered by clockwork
   def perform

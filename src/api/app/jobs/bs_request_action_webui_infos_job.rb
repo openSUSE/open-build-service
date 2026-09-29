@@ -6,7 +6,7 @@
 # triggered by RequestController#request_create when a BsRequest is created
 
 class BsRequestActionWebuiInfosJob < ApplicationJob
-  queue_as :quick
+  queue_as :quick_user
 
   def perform(bs_request_action, tarlimit: nil)
     # We don't need to do an access check as this is only for warming the cache in the backend

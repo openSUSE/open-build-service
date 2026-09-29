@@ -1,5 +1,5 @@
 class UpdatePackagesIfDirtyJob < ApplicationJob
-  queue_as :quick
+  queue_as :quick_user
 
   self.priority = 10
 
