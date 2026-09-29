@@ -1,0 +1,39 @@
+name: Update User Agents
+
+on:
+  schedule:
+    # Runs at 03:00 UTC every day
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Allows manual testing from the "Actions" tab
+
+jobs:
+  update-user-agents:
+    runs-on: ubuntu-latest
+    container: ruby:3.2
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: bundle install
+
+      - name: Update User Agents
+        working-directory: frontend
+        run: bundle exec rake voight_kampff:import_user_agents
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(deps): update user agent definitions"
+          title: "Automated User Agent Update"
+          branch: automated-user-agent-update
+          delete-branch: true
+          body: |
+            This is an automated PR triggered by the daily scheduled task.
+            It runs `rake voight_kampff:import_user_agents` inside the frontend container.
+          # We only care about changes inside the frontend directory
+          add-paths: |
+            frontend/**
