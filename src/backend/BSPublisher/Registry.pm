@@ -515,18 +515,21 @@ sub cosign_upload_rekor_ent {
   my ($rekorserver, $sslpubkey, $hashtype, $sig, $ent) = @_;
   die("cosign_upload_rekor_ent: unsupported hash type $hashtype\n") unless $hashtype eq 'sha256';
   my $rekor_v2 = $rekorserver =~ /\/api\/v2$/ ? 1 : 0;
+  my $dsse_as_hashedrecord = $rekor_v2 ? 1 : 0;		# rekor_v2 no longer supports dsse
   if ($sig && $sig ne 'intoto') {
     my $hash = 'sha256:'.Digest::SHA::sha256_hex($ent->{'data'});
     return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $sig) if $rekor_v2;
     return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
+  } elsif ($dsse_as_hashedrecord) {
+    my $dsse_envelope = BSConSign::dsse_envelope_from_ent($ent);
+    my ($payload, $payloadtype, $dssesig) = BSConSign::dsse_parse_envelope($dsse_envelope);
+    my $hash = 'sha256:'.Digest::SHA::sha256_hex(BSConSign::dsse_pae($payloadtype, $payload));
+    return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $dssesig) if $rekor_v2;
+    return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $dssesig);
   } else {
     my $dsse_envelope = BSConSign::dsse_envelope_from_ent($ent);
-    if ($rekor_v2) {
-      # dsse is no longer supported, use a hashedrecord instead
-      my ($payload, $payloadtype, $dssesig) = BSConSign::dsse_parse_envelope($dsse_envelope);
-      my $hash = 'sha256:'.Digest::SHA::sha256_hex(BSConSign::dsse_pae($payloadtype, $payload));
-      return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $dssesig);
-    }
+    # use the newer dsse format for bundle-v0.3
+    return BSRekor::upload_dsse($rekorserver, $dsse_envelope, $sslpubkey) if $ent->{'mimetype'} eq $BSConSign::mt_cosign_bundle;
     return BSRekor::upload_intoto($rekorserver, $dsse_envelope, $sslpubkey);
   }
 }
