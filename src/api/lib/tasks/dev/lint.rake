@@ -1,3 +1,5 @@
+require 'json'
+
 namespace :dev do
   namespace :lint do
     # Run this task with: rails dev:lint:all
@@ -77,6 +79,27 @@ namespace :dev do
         Dir.chdir('../..') do
           sh 'rubocop --autocorrect'
         end
+      end
+
+      desc 'List cops that have autocorrectable offenses (sorted by offense count)'
+      task :autocorrectable_cops do
+        json_output = `rubocop --format json --ignore_parent_exclusion 2>/dev/null`
+        report = JSON.parse(json_output)
+
+        cops_by_name = report['files'].each_with_object({}) do |file, cops|
+          file['offenses'].each do |offense|
+            cop = offense['cop_name']
+            cops[cop] ||= { count: 0, correctable: offense['correctable'] }
+            cops[cop][:count] += 1
+          end
+        end
+
+        autocorrectable_cops = cops_by_name.select { |_, data| data[:correctable] }
+
+        return if autocorrectable_cops.empty?
+
+        autocorrectable_cops.sort_by { |_, data| -data[:count] }
+                            .each { |cop, _data| puts cop }
       end
     end
   end
