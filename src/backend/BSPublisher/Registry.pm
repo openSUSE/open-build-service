@@ -512,11 +512,12 @@ sub reuse_cosign_referrers {
 }
 
 sub cosign_upload_rekor_ent {
-  my ($rekorserver, $sslpubkey, $hashtype, $sig, $ent) = @_;
+  my ($rekorserver, $sslpubkey, $hashtype, $ent) = @_;
   die("cosign_upload_rekor_ent: unsupported hash type $hashtype\n") unless $hashtype eq 'sha256';
   my $rekor_v2 = $rekorserver =~ /\/api\/v2$/ ? 1 : 0;
   my $dsse_as_hashedrecord = $rekor_v2 ? 1 : 0;		# rekor_v2 no longer supports dsse
-  if ($sig && $sig ne 'intoto') {
+  if ($ent->{'mimetype'} eq $BSConSign::mt_cosign) {
+    my $sig = BSConSign::cosign_signature_from_ent($ent);
     my $hash = 'sha256:'.Digest::SHA::sha256_hex($ent->{'data'});
     return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $sig) if $rekor_v2;
     return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
@@ -535,21 +536,13 @@ sub cosign_upload_rekor_ent {
 }
 
 sub cosign_upload_rekor {
-  my ($rekorserver, $gpgpubkey, $sig, @layer_ents) = @_;
+  my ($rekorserver, $gpgpubkey, @layer_ents) = @_;
   my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
   $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
   my $hashtype = 'sha256';
-  if ($sig) {
-    print "uploading cosign signature to $rekorserver\n";
-    die unless @layer_ents == 1;
-    my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($rekorserver, $sslpubkey, $hashtype, $sig, $layer_ents[0]);
-    BSConSign::add_cosign_bundle_annotation($layer_ents[0], $rekorentry);
-  } else {
-    print "uploading cosign attestations to $rekorserver\n";
-    for my $attestation_ent (@layer_ents) {
-      my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($rekorserver, $sslpubkey, $hashtype, $sig, $attestation_ent);
-      BSConSign::add_cosign_bundle_annotation($attestation_ent, $rekorentry);
-    }
+  for my $ent (@layer_ents) {
+    my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($rekorserver, $sslpubkey, $hashtype, $ent);
+    BSConSign::add_cosign_bundle_annotation($ent, $rekorentry);
   }
 }
 
@@ -599,8 +592,11 @@ sub update_cosign {
       next;
     }
     print "creating cosign signature for $gun $digest\n";
-    my ($sig_ent, $sig) = create_cosign_signature_ent($cosign, $signfunc, $digest, $gun);
-    cosign_upload_rekor($rekorserver, $gpgpubkey, $sig, $sig_ent) if $rekorserver && $sig;
+    my $sig_ent = create_cosign_signature_ent($cosign, $signfunc, $digest, $gun);
+    if ($rekorserver) {
+      print "uploading cosign signature to $rekorserver\n";
+      cosign_upload_rekor($rekorserver, $gpgpubkey, $sig_ent);
+    }
     my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $sig_ent);
     $sigs->{'digests'}->{$digest} = $mani_id;
   }
@@ -624,12 +620,15 @@ sub update_cosign {
     print "creating $numlayers cosign attestations for $gun $digest\n";
     my $annotations;
     my @att_ents;
-    push @att_ents, (create_cosign_signature_ent($cosign, $signfunc, $digest, $gun, $annotations))[0] if $cosign->{'cosignbundle'};
+    push @att_ents, create_cosign_signature_ent($cosign, $signfunc, $digest, $gun, $annotations) if $cosign->{'cosignbundle'};
     push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'slsa_provenance_file'};
     push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'spdx_file'};
     push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'cyclonedx_file'};
     push @att_ents, create_cosign_attestation_ent($cosign, readstr($_), $signfunc, $digest, $gun, $annotations) for @{$containerinfo->{'intoto_files'} || []};
-    cosign_upload_rekor($rekorserver, $gpgpubkey, undef, @att_ents) if $rekorserver && @att_ents;
+    if ($rekorserver && @att_ents) {
+      print "uploading cosign attestations to $rekorserver\n";
+      cosign_upload_rekor($rekorserver, $gpgpubkey, @att_ents);
+    }
     if ($cosign->{'cosignbundle'}) {
       create_cosign_manifest_newbundle($repodir, $oci, $knownmanifests, $knownblobs, $subject, $referrerinfo, @att_ents);
     } else {
