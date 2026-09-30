@@ -189,4 +189,49 @@ RSpec.describe PublicController, :vcr do
       it { expect(revisions.count).to eq(1) }
     end
   end
+
+  # NOTE: defined last on purpose. VCR names cassettes for anonymous `it { ... }`
+  # examples after their scoped id, so inserting an example group earlier in this
+  # file would renumber the recorded cassettes of the groups that follow it.
+  describe 'GET #binary_packages for a package of an scmsync project' do
+    let(:scmsync_project) do
+      create(:project, name: 'scmsync_public_controller_project', scmsync: 'https://github.com/example/scmsync-project.git')
+    end
+    let(:package_meta) do
+      <<~XML
+        <package name="eza" project="#{scmsync_project.name}">
+          <title>eza title</title>
+          <description>eza description</description>
+        </package>
+      XML
+    end
+
+    before do
+      allow(Backend::Api::Search).to receive(:published_binaries_for_package).and_return('<collection matches="0"/>')
+    end
+
+    context 'when the package exists on the backend' do
+      before do
+        # scmsync packages don't exist in the database, they are served from the backend
+        allow(Backend::Api::Sources::Package).to receive(:meta).and_return(package_meta)
+
+        get :binary_packages, params: { project: scmsync_project.name, package: 'eza' }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(assigns(:pkg)).to be_a(Package) }
+      it { expect(assigns(:pkg).name).to eq('eza') }
+      it { expect(assigns(:pkg).project).to eq(scmsync_project) }
+    end
+
+    context 'when the package does not exist on the backend' do
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:meta).and_raise(Backend::NotFoundError)
+
+        get :binary_packages, params: { project: scmsync_project.name, package: 'does_not_exist' }
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+    end
+  end
 end
