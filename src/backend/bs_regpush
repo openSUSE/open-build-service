@@ -487,10 +487,11 @@ sub cosign_upload_newbundle {
 }
 
 sub cosign_upload_rekor_ent {
-  my ($sslpubkey, $hashtype, $sig, $ent) = @_;
+  my ($sslpubkey, $hashtype, $ent) = @_;
   die("cosign_upload_rekor_ent: unsupported hash type $hashtype\n") unless $hashtype eq 'sha256';
   my $dsse_as_hashedrecord = $rekor_v2 ? 1 : 0;
-  if ($sig && $sig ne 'intoto') {
+  if ($ent->{'mimetype'} eq $BSConSign::mt_cosign) {
+    my $sig = BSConSign::cosign_signature_from_ent($ent);
     my $hash = 'sha256:'.Digest::SHA::sha256_hex($ent->{'data'});
     return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $sig) if $rekor_v2;
     return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
@@ -515,12 +516,12 @@ sub cosign_upload_rekor {
   if ($sig) {
     print "uploading cosign signature to $rekorserver\n";
     die unless @layer_ents == 1;
-    my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $sig, $layer_ents[0]);
+    my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $layer_ents[0]);
     BSConSign::add_cosign_bundle_annotation($layer_ents[0], $rekorentry);
   } else {
     print "uploading cosign attestations to $rekorserver\n";
     for my $attestation_ent (@layer_ents) {
-      my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $sig, $attestation_ent);
+      my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $attestation_ent);
       BSConSign::add_cosign_bundle_annotation($attestation_ent, $rekorentry);
     }
   }
@@ -1436,7 +1437,7 @@ if ($cosign && %digests_to_cosign) {
     next if $cosignbundle;	# a signature is just an extra attestation in newbundle mode
     my $sig_tag = "$digest.sig";
     $sig_tag =~ s/:/-/;
-    next if reuse_cosign_manifest($sig_tag, 1, $BSConSign::mt_cosign ? $BSConSign::mt_cosign : undef);
+    next if reuse_cosign_manifest($sig_tag, 1, $BSConSign::mt_cosign);
     print "creating cosign signature for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd) };
     my $annotations = { $cosign_cookie_name => $cosigncookie };

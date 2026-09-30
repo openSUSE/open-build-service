@@ -512,11 +512,12 @@ sub reuse_cosign_referrers {
 }
 
 sub cosign_upload_rekor_ent {
-  my ($rekorserver, $sslpubkey, $hashtype, $sig, $ent) = @_;
+  my ($rekorserver, $sslpubkey, $hashtype, $ent) = @_;
   die("cosign_upload_rekor_ent: unsupported hash type $hashtype\n") unless $hashtype eq 'sha256';
   my $rekor_v2 = $rekorserver =~ /\/api\/v2$/ ? 1 : 0;
   my $dsse_as_hashedrecord = $rekor_v2 ? 1 : 0;		# rekor_v2 no longer supports dsse
-  if ($sig && $sig ne 'intoto') {
+  if ($ent->{'mimetype'} eq $BSConSign::mt_cosign) {
+    my $sig = BSConSign::cosign_signature_from_ent($ent);
     my $hash = 'sha256:'.Digest::SHA::sha256_hex($ent->{'data'});
     return BSRekor::upload_hashedrekord_v2($rekorserver, $hash, $sslpubkey, $sig) if $rekor_v2;
     return BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
@@ -542,12 +543,12 @@ sub cosign_upload_rekor {
   if ($sig) {
     print "uploading cosign signature to $rekorserver\n";
     die unless @layer_ents == 1;
-    my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($rekorserver, $sslpubkey, $hashtype, $sig, $layer_ents[0]);
+    my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($rekorserver, $sslpubkey, $hashtype, $layer_ents[0]);
     BSConSign::add_cosign_bundle_annotation($layer_ents[0], $rekorentry);
   } else {
     print "uploading cosign attestations to $rekorserver\n";
     for my $attestation_ent (@layer_ents) {
-      my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($rekorserver, $sslpubkey, $hashtype, $sig, $attestation_ent);
+      my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($rekorserver, $sslpubkey, $hashtype, $attestation_ent);
       BSConSign::add_cosign_bundle_annotation($attestation_ent, $rekorentry);
     }
   }
