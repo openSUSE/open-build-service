@@ -5,6 +5,13 @@
       = render partial: 'webui/shared/external_link', locals: { text: distro.url, url: distro.url }
   %p.card-text
     = truncate(distro.description, length: 100)
+  - if distro.distro_releases.any?
+    %p.card-text
+      %strong Releases:
+      .list-group
+      - distro.distro_releases.each do |distro_release|
+        %li.list-group-item
+          = link_to(distro_release.name, project_distro_release_path(distro.project, distro.name, distro_release.name))
   - component.with_header do
     %h5.card-title= link_to(distro.name, project_distro_path(distro.project, distro.name))
 
