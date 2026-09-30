@@ -592,7 +592,7 @@ sub update_cosign {
       next;
     }
     print "creating cosign signature for $gun $digest\n";
-    my ($sig_ent, $sig) = create_cosign_signature_ent($cosign, $signfunc, $digest, $gun);
+    my $sig_ent = create_cosign_signature_ent($cosign, $signfunc, $digest, $gun);
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       cosign_upload_rekor($rekorserver, $gpgpubkey, $sig_ent);
@@ -620,7 +620,7 @@ sub update_cosign {
     print "creating $numlayers cosign attestations for $gun $digest\n";
     my $annotations;
     my @att_ents;
-    push @att_ents, (create_cosign_signature_ent($cosign, $signfunc, $digest, $gun, $annotations))[0] if $cosign->{'cosignbundle'};
+    push @att_ents, create_cosign_signature_ent($cosign, $signfunc, $digest, $gun, $annotations) if $cosign->{'cosignbundle'};
     push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'slsa_provenance_file'};
     push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'spdx_file'};
     push @att_ents, create_cosign_attestation_ent($cosign, readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'cyclonedx_file'};

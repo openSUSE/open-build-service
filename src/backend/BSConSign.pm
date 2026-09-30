@@ -125,7 +125,7 @@ sub create_cosign_signature_ent {
   die("create_cosign_signature_ent: signature creation failed\n") unless $sig;
   my %annotations = %{$annotations || {}};
   $annotations{'dev.cosignproject.cosign/signature'} = MIME::Base64::encode_base64($sig, '');
-  return (create_entry($payload, 'mimetype' => $mt_cosign, 'annotations' => \%annotations), $sig);
+  return create_entry($payload, 'mimetype' => $mt_cosign, 'annotations' => \%annotations);
 }
 
 sub create_cosign_attestation_ent {
@@ -144,7 +144,7 @@ sub create_cosign_signature_ent_newbundle {
   $annotations{'dev.sigstore.bundle.content'} = 'dsse-envelope';
   $annotations{'dev.sigstore.bundle.predicateType'} = $intoto_predicate_cosign_sign_v1;
   my $bundle_json = cosign_create_newbundle($attestation);
-  return (create_entry($bundle_json, 'mimetype' => $mt_cosign_bundle, 'annotations' => \%annotations), 'intoto');
+  return create_entry($bundle_json, 'mimetype' => $mt_cosign_bundle, 'annotations' => \%annotations);
 }
 
 sub create_cosign_attestation_ent_newbundle {
