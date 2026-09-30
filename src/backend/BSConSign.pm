@@ -335,9 +335,20 @@ sub dsse_envelope_from_ent {
     my $envelope_json = canonical_json($envelope);
     $envelope_json =~ s/_payloadType/payloadType/;
     return $envelope_json;
+  } elsif ($ent->{'mimetype'} eq $mt_dsse) {
+    return $ent->{'data'};
   }
-  return $ent->{'data'} if $ent->{'mimetype'} eq $mt_dsse;
   die("dsse_envelope_from_ent: unsypported mimetype $ent->{'mimetype'}\n");
+}
+
+# extract the cosign signature from an entry
+sub cosign_signature_from_ent {
+  my ($ent) = @_;
+  if ($ent->{'mimetype'} eq $mt_cosign) {
+    my $sig = ($ent->{'annotations'} || {})->{'dev.cosignproject.cosign/signature'};
+    return $sig ? MIME::Base64::decode_base64($sig) : undef;
+  }
+  die("cosign_signature_from_ent: unsypported mimetype $ent->{'mimetype'}\n");
 }
 
 1;
