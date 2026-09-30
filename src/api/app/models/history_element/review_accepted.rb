@@ -4,12 +4,11 @@ module HistoryElement
       'Review got accepted'
     end
 
-    def user_action
-      # We check if the accepted review was created when the request was staged in a staging workflow. In this case, the review
-      # will also be for the managers group of that staging workflow.
-      return 'staged request' if review.for_group? && request.staged_request? && review.by_group == request.staging_project.staging_workflow.managers_group.title
-
-      'accepted review'
+    # True when the accepted review was created because the request was staged in a staging workflow —
+    # in that case the review also belongs to the staging workflow's managers group.
+    def staged_review?
+      review.for_group? && request.staged_request? &&
+        review.by_group == request.staging_project.staging_workflow.managers_group.title
     end
   end
 end

@@ -12,6 +12,18 @@ class BsRequestHistoryElementComponent < ApplicationComponent
     @request_reviews_for_non_staging_projects = request_reviews_for_non_staging_projects
   end
 
+  def user_action
+    helpers.history_element_user_action(element)
+  end
+
+  def user_action_prefix
+    element.review_by_staging_project? ? 'set' : 'added'
+  end
+
+  def user_action_suffix
+    element.review_by_staging_project? ? 'as a staging project' : 'as a reviewer'
+  end
+
   private
 
   def icon

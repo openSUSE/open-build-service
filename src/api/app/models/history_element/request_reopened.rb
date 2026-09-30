@@ -8,9 +8,6 @@ module HistoryElement
       'Request got reopened'
     end
 
-    def user_action
-      'reopened request'
-    end
   end
 end
 
