@@ -510,20 +510,12 @@ sub cosign_upload_rekor_ent {
 }
 
 sub cosign_upload_rekor {
-  my ($pubkey, $sig, @layer_ents) = @_;
+  my ($pubkey, @layer_ents) = @_;
   my $sslpubkey = get_sslpubkey($pubkey);
   my $hashtype = 'sha256';	# must match signfunc
-  if ($sig) {
-    print "uploading cosign signature to $rekorserver\n";
-    die unless @layer_ents == 1;
-    my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $layer_ents[0]);
-    BSConSign::add_cosign_bundle_annotation($layer_ents[0], $rekorentry);
-  } else {
-    print "uploading cosign attestations to $rekorserver\n";
-    for my $attestation_ent (@layer_ents) {
-      my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $attestation_ent);
-      BSConSign::add_cosign_bundle_annotation($attestation_ent, $rekorentry);
-    }
+  for my $ent (@layer_ents) {
+    my ($rekorkey, $rekorentry) = cosign_upload_rekor_ent($sslpubkey, $hashtype, $ent);
+    BSConSign::add_cosign_bundle_annotation($ent, $rekorentry);
   }
 }
 
@@ -1442,7 +1434,10 @@ if ($cosign && %digests_to_cosign) {
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd) };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
     my ($sig_ent, $sig) = create_cosign_signature_ent($signfunc, $digest, $gun, $annotations);
-    cosign_upload_rekor($pubkey, $sig, $sig_ent) if $rekorserver && $sig;
+    if ($rekorserver) {
+      print "uploading cosign signature to $rekorserver\n";
+      cosign_upload_rekor($pubkey, $sig_ent);
+    }
     cosign_upload($sig_tag, undef, $sig_ent);
   }
   # upload attestations
@@ -1467,7 +1462,10 @@ if ($cosign && %digests_to_cosign) {
     push @att_ents, create_cosign_attestation_ent($spdx_json, $signfunc, $digest, $gun, $annotations) if $spdx_json;
     push @att_ents, create_cosign_attestation_ent($cyclonedx_json, $signfunc, $digest, $gun, $annotations) if $cyclonedx_json;
     push @att_ents, create_cosign_attestation_ent($_, $signfunc, $digest, $gun, $annotations) for @intoto_json;
-    cosign_upload_rekor($pubkey, undef, @att_ents) if $rekorserver && @att_ents;
+    if ($rekorserver && @att_ents) {
+      print "uploading cosign attestations to $rekorserver\n" ;
+      cosign_upload_rekor($pubkey, @att_ents);
+    }
     cosign_upload($att_tag, $subject, @att_ents);
   }
 }
