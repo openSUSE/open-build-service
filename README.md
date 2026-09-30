@@ -18,7 +18,7 @@ The Open Build Service is Free Software and is released under the terms of the G
 You can discuss with the OBS Team via IRC on the channel [#opensuse-buildservice](irc://irc.libera.chat/opensuse-buildservice) or you can use our mailing list [opensuse-buildservice@opensuse.org](mailto:opensuse-buildservice+subscribe@opensuse.org). Please refer to the openSUSE Mailing Lists [page](https://en.opensuse.org/openSUSE:Mailing_lists_subscription#Subscribing) to learn about our mailing list subscription and additional information.
 
 ### Development / Contribution
-If you want to contribute to the OBS, please checkout our [contribution readme](CONTRIBUTING.md):-)
+If you want to contribute to the OBS, please check out our [contribution readme](CONTRIBUTING.md) :-)
 
 ![Contribution Analytics Image](https://repobeats.axiom.co/api/embed/3b8f8218c75ecc879ac59b8acc2279f66c177bb7.svg "Repobeats analytics image")
 
@@ -37,10 +37,10 @@ If that is not for you because you have some special needs for your setup (e.g. 
 
 After finishing the installation of your base system, follow these steps:
 
-1. Add the OBS software repository with zypper. Please be aware, that the needed URL differs, depending on your Base Operating System. We use openSUSE Leap 15.4 in this example.
+1. Add the OBS software repository with zypper. Please be aware that the needed URL differs depending on your Base Operating System. We use openSUSE Leap 16.0 in this example.
 
     ```shell
-    zypper ar -f https://download.opensuse.org/repositories/OBS:/Server:/2.10/15.4/OBS:Server:2.10.repo
+    zypper ar -f https://download.opensuse.org/repositories/OBS:/Server:/2.10/16.0/OBS:Server:2.10.repo
     ```
 
 2. Install the package
@@ -57,5 +57,5 @@ After finishing the installation of your base system, follow these steps:
 
 ## Advanced Setup
 
-If you have a more complex setup (e.g. a distributed backend), we recommend to read the High-level Overview
+If you have a more complex setup (e.g. a distributed backend), we recommend reading the High-level Overview
 chapter in our [Administrator Guide](https://openbuildservice.org/help/manuals/obs-admin-guide/cha-obs-admin).
