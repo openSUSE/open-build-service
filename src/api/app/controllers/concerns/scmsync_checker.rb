@@ -1,4 +1,5 @@
-# The controller which includes this concern, should set @project.
+# Webui::WebuiController includes this concern, so check_scmsync is available to every web UI
+# controller. Whatever calls it, as a before_action or directly, should set @project first.
 
 module ScmsyncChecker
   extend ActiveSupport::Concern
