@@ -19,6 +19,9 @@ require_relative 'test_consistency_helper'
 require 'rails/test_help'
 
 require 'minitest/spec'
+require 'minitest/ci'
+
+Minitest.load_plugins
 
 require 'webmock/minitest'
 
