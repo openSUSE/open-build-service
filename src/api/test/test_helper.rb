@@ -129,7 +129,7 @@ end
 #       # simple test that the objects itself or the same in backend and api.
 #       # it does not check the content (eg. repository list in project meta)
 #       compare_project_and_package_lists
-#     rescue MiniTest::Assertion => e
+#     rescue Minitest::Assertion => e
 #       puts "Backend became out of sync in #{name}"
 #       puts e.inspect
 #       exit
@@ -291,12 +291,12 @@ module ActionDispatch
 
     def assert_xml_tag(conds)
       ret = check_xml_tag(@response.body, conds)
-      raise MiniTest::Assertion, "expected tag, but no tag found matching #{conds.inspect} in:\n#{@response.body}" unless ret
+      raise Minitest::Assertion, "expected tag, but no tag found matching #{conds.inspect} in:\n#{@response.body}" unless ret
     end
 
     def assert_no_xml_tag(conds)
       ret = check_xml_tag(@response.body, conds)
-      raise MiniTest::Assertion, "expected no tag, but found tag matching #{conds.inspect} in:\n#{@response.body}" if ret
+      raise Minitest::Assertion, "expected no tag, but found tag matching #{conds.inspect} in:\n#{@response.body}" if ret
     end
 
     # useful to fix our test cases
