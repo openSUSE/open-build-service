@@ -1,0 +1,35 @@
+# The user should write !assign or /claim in his comment to assign the issue
+name: Auto Assign Issue
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  assign:
+    name: Assign issue to commenter
+    runs-on: ubuntu-latest
+    if: contains(github.event.comment.body, '!assign') || contains(github.event.comment.body, '/claim')
+    steps:
+      - name: Assign user and post welcome comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const username = context.payload.comment.user.login;
+            const contributingUrl = "https://github.com/openSUSE/open-build-service/blob/master/CONTRIBUTING.md";
+
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              assignees: [username]
+            });
+
+            const commentBody = `@${username}, thank you for your interest! This issue has been assigned to you. Please start by reading our [contributing guide](${contributingUrl}).`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: commentBody
+            });

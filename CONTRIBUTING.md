@@ -11,6 +11,9 @@ Read this guide on **how** to do that and **what** types of contributions this c
 
 # How to Contribute Code
 
+If you would like to work on an issue, please leave a comment requesting it and type `!assign` or `/claim`.
+We will assign it to you to prevent duplicate work.
+
 **Prerequisites**: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests)
 
 Fork the repository and make a pull request with your changes. A developer of the [open-build-service team](https://openbuildservice.org/team/) will review your pull request. And if the pull request gets a positive review, the reviewer will merge it.
