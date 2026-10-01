@@ -1,0 +1,73 @@
+# This workflow ensures that only the minimal necessary gem updates are applied to PRs opened by Depfu or Dependabot.
+#
+# How this works in practice:
+#
+# 1. Depfu creates a PR with its default broad diff (updating gem1, gem2, gem3).
+# 2. GitHub Action triggers automatically on the PR branch creation.
+# 3. Resets Gemfile.lock to the main branch state, then runs bundle update --conservative gem1.
+# 4. Force-pushes the minimal diff back to Depfu's branch.
+# 5. Depfu adapts to the push—its bot UI will update to match the new minimal single-gem diff without closing or re-opening the PR.
+
+name: Conservative Gem Updates
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+    paths:
+      - 'Gemfile.lock'
+
+jobs:
+  make_conservative:
+    # Only run on PRs opened by Depfu or Dependabot
+    if: github.actor == 'depfu[bot]' || github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout PR Branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          # Fetch depth 0 to allow clean git history handling
+          fetch-depth: 0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+
+      - name: Identify updated gem name
+        id: parse_gem
+        run: |
+          # Extracts gem name from standard Depfu/Dependabot branch names 
+          # (e.g. depfu/update-rubocop-1.2.0 or dependabot/bundler/rubocop-1.2.0)
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          
+          # Extracts the primary gem name from the branch name pattern
+          GEM_NAME=$(echo "$BRANCH_NAME" | sed -E 's#^(depfu|dependabot/bundler)/update-?##; s/-[0-9].*//')
+          
+          echo "gem_name=$GEM_NAME" >> $GITHUB_OUTPUT
+          echo "Identified target gem: $GEM_NAME"
+
+      - name: Re-run conservative update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Reset Gemfile.lock back to main/master baseline before applying conservative bump
+          git checkout origin/${{ github.event.pull_request.base.ref }} -- Gemfile.lock
+
+          # Run conservative update targeting only the main gem
+          bundle update --conservative ${{ steps.parse_gem.outputs.gem_name }}
+
+      - name: Commit and Force-Push clean diff
+        run: |
+          if git diff --quiet Gemfile.lock; then
+            echo "No changes after conservative update."
+          else
+            git commit -am "Automated conservative lockfile update for ${{ steps.parse_gem.outputs.gem_name }}"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }} --force-with-lease
+          fi
