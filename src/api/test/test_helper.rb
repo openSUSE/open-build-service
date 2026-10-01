@@ -201,8 +201,6 @@ module Webui
 
     setup do
       Capybara.current_driver = :rack_test
-      # crude work around - one day I will dig into why this is necessary
-      Minitest::Spec.new('MINE') unless Minitest::Spec.current
       Backend::Test.start
       @starttime = Time.now
       if ENV['RUNNING_MINITEST_WITH_DOCKER']
