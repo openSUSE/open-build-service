@@ -286,11 +286,11 @@ module Webui::WebuiHelper
     end
   end
 
-  def link_to_require_login(css_class: nil, &block)
+  def link_to_require_login(css_class: nil, &)
     if CONFIG['proxy_auth_mode'] == :mellon
-      link_to(CONFIG['proxy_auth_login_page'], class: css_class, &block)
+      link_to(CONFIG['proxy_auth_login_page'], class: css_class, &)
     else
-      link_to('#', class: css_class, data: { 'bs-toggle': 'modal', 'bs-target': '#log-in-modal' }, &block)
+      link_to('#', class: css_class, data: { 'bs-toggle': 'modal', 'bs-target': '#log-in-modal' }, &)
     end
   end
 
