@@ -215,6 +215,7 @@ RSpec.describe Webui::WebuiHelper do
       expect(valid_xml_id('10.2')).to eq('_10_2')
     end
   end
+
   describe '#link_to_require_login' do
     let(:css_class) { 'btn btn-primary' }
 
