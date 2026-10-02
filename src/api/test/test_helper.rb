@@ -18,9 +18,10 @@ require_relative 'test_consistency_helper'
 
 require 'rails/test_help'
 
-require 'minitest/unit'
-
 require 'minitest/spec'
+require 'minitest/ci'
+
+Minitest.load_plugins
 
 require 'webmock/minitest'
 
@@ -101,15 +102,6 @@ def inject_build_job(project, package, repo, arch, extrabinary = nil)
 end
 
 module Minitest
-  def self.__run(reporter, options)
-    # there is no way to avoid the randomization of used suites, so we overload this method.
-    suites = Runnable.runnables # .shuffle <- disabled here
-    parallel, serial = suites.partition { |s| s.test_order == :parallel }
-
-    serial.map { |suite| suite.run reporter, options } +
-      parallel.map { |suite| suite.run reporter, options }
-  end
-
   # we should fix this first ... unfortunatly there seems to be no way to repeat the last order
   # to find out what went wrong and to validate it :(
   def self.sort_order
@@ -131,7 +123,7 @@ end
 #       # simple test that the objects itself or the same in backend and api.
 #       # it does not check the content (eg. repository list in project meta)
 #       compare_project_and_package_lists
-#     rescue MiniTest::Assertion => e
+#     rescue Minitest::Assertion => e
 #       puts "Backend became out of sync in #{name}"
 #       puts e.inspect
 #       exit
@@ -209,8 +201,6 @@ module Webui
 
     setup do
       Capybara.current_driver = :rack_test
-      # crude work around - one day I will dig into why this is necessary
-      Minitest::Spec.new('MINE') unless Minitest::Spec.current
       Backend::Test.start
       @starttime = Time.now
       if ENV['RUNNING_MINITEST_WITH_DOCKER']
@@ -293,12 +283,12 @@ module ActionDispatch
 
     def assert_xml_tag(conds)
       ret = check_xml_tag(@response.body, conds)
-      raise MiniTest::Assertion, "expected tag, but no tag found matching #{conds.inspect} in:\n#{@response.body}" unless ret
+      raise Minitest::Assertion, "expected tag, but no tag found matching #{conds.inspect} in:\n#{@response.body}" unless ret
     end
 
     def assert_no_xml_tag(conds)
       ret = check_xml_tag(@response.body, conds)
-      raise MiniTest::Assertion, "expected no tag, but found tag matching #{conds.inspect} in:\n#{@response.body}" if ret
+      raise Minitest::Assertion, "expected no tag, but found tag matching #{conds.inspect} in:\n#{@response.body}" if ret
     end
 
     # useful to fix our test cases
