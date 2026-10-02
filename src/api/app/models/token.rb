@@ -26,10 +26,17 @@ class Token < ApplicationRecord
   scope :shared_tokens, ->(user) { user.shared_workflow_tokens }
   scope :group_shared_tokens, ->(user) { user.groups.map(&:shared_workflow_tokens).flatten } # TODO: transform to ActiveRecord_Relation
 
-  OPERATIONS = %w[Rebuild Release Service Workflow].freeze
+  OPERATIONS = %w[Rebuild Release Service Workflow APIToken].freeze
 
   def token_name
     self.class.token_name.downcase
+  end
+
+  # The secret to display once, right after creation/regeneration.
+  # Operation tokens store the secret, so it is readable; Token::APIToken
+  # overrides this to expose only the in-memory plaintext.
+  def display_secret
+    string
   end
 
   def self.token_name
@@ -44,6 +51,8 @@ class Token < ApplicationRecord
       Token::Release
     when 'workflow'
       Token::Workflow
+    when 'apitoken'
+      Token::APIToken
     else
       # default is Token::Service
       Token::Service

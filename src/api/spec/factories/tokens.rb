@@ -25,5 +25,9 @@ FactoryBot.define do
       type { 'Token::Workflow' }
       scm_token { Faker::Lorem.characters(number: 32) }
     end
+
+    factory :api_token, class: 'Token::APIToken' do
+      type { 'Token::APIToken' }
+    end
   end
 end
