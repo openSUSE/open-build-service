@@ -21,8 +21,13 @@
         %i.fas.fa-compact-disc.fa-fw.me-2
         %span.nav-item-name New Image
   = render partial: 'webui/shared/lock_unlock_comment', locals: { commentable: project }
-  - if policy(Report.new(reportable: project)).create?
+  - if User.session && policy(Report.new(reportable: project)).create?
     = render partial: 'webui/project/show_actions/report_project', locals: { project: project }
+  - elsif !User.session && Flipper.enabled?(:content_moderation)
+    %li.nav-item
+      = link_to_require_login(css_class: 'nav-link') do
+        %i.fas.fa-regular.fa-flag.fa-fw.me-2
+        %span.nav-item-name Report Project
   - if !project.vendor&.persisted? && policy(Vendor.new(project_id: project.id)).new? && Flipper.enabled?(:enhanced_distribution_support, User.session)
     = render partial: 'webui/project/show_actions/vendor', locals: { project: project }
 -# haml-lint:enable LineLength

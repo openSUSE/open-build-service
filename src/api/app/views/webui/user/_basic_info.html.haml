@@ -7,13 +7,17 @@
   .d-flex.justify-content-between.flex-row-reverse
     .d-flex.flex-row-reverse.align-items-center.mb-3
       = render ReportsNoticeComponent.new(reportable: user, user: User.session)
-      - if policy(Report.new(reportable: user)).create?
+      - if User.session && policy(Report.new(reportable: user)).create?
         = link_to('#', id: "js-user-#{user.id}", class: 'ps-2',
               data: { 'bs-toggle': 'modal',
                       'bs-target': '#report-modal',
                       'modal-title': "Report #{user.login}",
                       'reportable-type': user.class.name,
                       'reportable-id': user.id }) do
+          %i.fas.fa-regular.fa-flag
+          %span.nav-item-name Report
+      - elsif !User.session && Flipper.enabled?(:content_moderation)
+        = link_to_require_login(css_class: 'ps-2') do
           %i.fas.fa-regular.fa-flag
           %span.nav-item-name Report
       - if User.session
