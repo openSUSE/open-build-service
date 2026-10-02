@@ -26,7 +26,7 @@
                 = link_to(user_path(user)) do
                   = render AvatarComponent.new(name: info['login'], email: user.email)
             .rev
-              - if info['revision'].present?
+              - if info['revision'].present? && @revisions[info['revision']]
                 = link_to(package_show_path(@project, @package_name, rev: info['revision'])) do
                   Rev #{info['revision']}
             .commit.text-truncate
