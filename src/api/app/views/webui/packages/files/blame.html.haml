@@ -20,11 +20,15 @@
         .revision
           .info
             - info = revision.first
-            .time= render TimeComponent.new(time: "#{info['date']} #{info['time']}".to_datetime)
+            .time{ title: "#{info['date']} #{info['time']}" }= info['date']
             .user
               - if (user = User.find_by_login(info['login']))
                 = link_to(user_path(user)) do
                   = render AvatarComponent.new(name: info['login'], email: user.email)
+            .rev
+              - if info['revision'].present?
+                = link_to(package_show_path(@project, @package_name, rev: info['revision'])) do
+                  Rev #{info['revision']}
             .commit.text-truncate
               - rev = @revisions[info['revision']]
               - if rev
