@@ -215,4 +215,27 @@ RSpec.describe Webui::WebuiHelper do
       expect(valid_xml_id('10.2')).to eq('_10_2')
     end
   end
+  describe '#link_to_require_login' do
+    let(:css_class) { 'btn btn-primary' }
+
+    context 'when proxy_auth_mode is :mellon' do
+      before do
+        stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :mellon, 'proxy_auth_login_page' => '/proxy_login'))
+      end
+
+      it 'returns a link to the proxy auth login page' do
+        expect(helper.link_to_require_login(css_class: css_class) { 'Log In' }).to eq('<a class="btn btn-primary" href="/proxy_login">Log In</a>')
+      end
+    end
+
+    context 'when proxy_auth_mode is not :mellon' do
+      before do
+        stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :none))
+      end
+
+      it 'returns a link to trigger the login modal' do
+        expect(helper.link_to_require_login(css_class: css_class) { 'Log In' }).to eq('<a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#log-in-modal" href="#">Log In</a>')
+      end
+    end
+  end
 end
