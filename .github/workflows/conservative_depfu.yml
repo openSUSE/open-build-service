@@ -11,10 +11,7 @@
 name: Conservative Gem Updates
 
 on:
-  pull_request_target:
-    types: [opened, synchronize]
-    paths:
-      - 'Gemfile.lock'
+- pull_request_target
 
 jobs:
   make_conservative:
