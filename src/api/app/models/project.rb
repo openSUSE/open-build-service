@@ -13,6 +13,7 @@ class Project < ApplicationRecord
   include ProjectDistribution
   include ProjectMaintenance
   include ReportBugUrl
+  include ScmsyncUrl
 
   TYPES = %w[standard maintenance maintenance_incident
              maintenance_release].freeze

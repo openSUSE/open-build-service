@@ -9,7 +9,7 @@
 .card-body
   - if project.scmsync.present?
     %p
-    = link_to project.scmsync do
+    = link_to project.scmsync_url do
       This project is managed in SCM
   - elsif packages.present?
     - if Flipper.enabled?(:labels, User.session)
