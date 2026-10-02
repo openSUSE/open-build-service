@@ -7,13 +7,17 @@
   .d-flex.justify-content-between.flex-row-reverse
     .d-flex.flex-row-reverse.align-items-center.mb-3
       = render ReportsNoticeComponent.new(reportable: user, user: User.session)
-      - if policy(Report.new(reportable: user)).create?
+      - if User.session && policy(Report.new(reportable: user)).create?
         = link_to('#', id: "js-user-#{user.id}", class: 'ps-2',
               data: { 'bs-toggle': 'modal',
                       'bs-target': '#report-modal',
                       'modal-title': "Report #{user.login}",
                       'reportable-type': user.class.name,
                       'reportable-id': user.id }) do
+          %i.fas.fa-regular.fa-flag
+          %span.nav-item-name Report
+      - elsif !User.session && Flipper.enabled?(:content_moderation)
+        = link_to_require_login(css_class: 'ps-2') do
           %i.fas.fa-regular.fa-flag
           %span.nav-item-name Report
       - if User.session
@@ -43,17 +47,7 @@
           %i.fas.fa-user-edit
           %span.nav-item-name Edit
     - if policy(user).update?
-      .dropdown
-        = link_to('#', class: 'dropdown-toggle', id: 'top-navigation-color-theme-dropdown', role: 'button',
-                  'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
-          %i.fas.fa-palette{ title: 'Color Theme' }
-          %span.nav-item-name Theme
-        = form_for(User.session, url: update_color_theme_user_path(User.session), method: :post, id: 'color-theme-form') do |f|
-          = f.hidden_field(:login, id: 'user')
-          %ul.dropdown-menu.dropdown-menu-start{ 'aria-labelledby': 'top-navigation-color-theme-dropdown' }
-            - User.color_themes.keys.each do |color_theme|
-              %li.dropdown-item{ class: "#{'active' if User.session.color_theme == color_theme}" }
-                %input.nav-link.p-0.text-start{ name: 'color_theme', value: color_theme, type: 'submit', text: color_theme.titleize }
+      = render partial: 'webui/user/color_theme_dropdown'
   .row.mb-3
     .col-4.col-sm-2.col-md-12.text-center
       = render(AvatarComponent.new(name: user.name, email: user.email, size: 200))

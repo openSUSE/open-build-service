@@ -20,7 +20,7 @@
       %li.list-inline-item
         = button_to(comment.moderated? ? 'Permit' : 'Moderate', moderate_comment_path(comment),
                     class: 'btn btn-outline-secondary', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
-  - if policy(Report.new(reportable: comment)).create?
+  - if User.session && policy(Report.new(reportable: comment)).create?
     %li.list-inline-item
       = link_to('#', class: 'btn btn-outline-warning', id: "js-comment-#{comment.id}",
             data: { 'bs-toggle': 'modal',
@@ -28,6 +28,10 @@
                     'modal-title': "Report comment from #{comment.user}",
                     'reportable-type': comment.class.name,
                     'reportable-id': comment.id }) do
+        Report
+  - elsif !User.session && Flipper.enabled?(:content_moderation) && !comment.commentable.is_a?(Report)
+    %li.list-inline-item
+      = link_to_require_login(css_class: 'btn btn-outline-warning') do
         Report
 - if policy(comment).reply?
   .collapse{ id: "reply_form_of_#{comment.id}" }
