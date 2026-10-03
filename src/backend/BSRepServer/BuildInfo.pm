@@ -158,10 +158,23 @@ sub addpreinstallimg {
     my $images = BSRepServer::getpreinstallimages($prpa);
     next unless $images;
     for my $img (@$images) {
-      next if @{$img->{'hdrmd5s'} || []} < $bestimgn;
       next unless $img->{'sizek'} && $img->{'hdrmd5'};
-      next if grep {!$preimghdrmd5s->{$_}} @{$img->{'hdrmd5s'} || []}; 
-      next if $prpa eq "$projid/$repoid/$arch" && $packid && $img->{'package'} eq $packid;
+      if (@{$img->{'hdrmd5s'} || []} < $bestimgn) {
+         ${$ctx->{'expanddebug'}} .= "\nPreinstallimage: $img->{'hdrmd5'} has lower hit rate" if $ctx->{'expanddebug'};
+	 next;
+      }
+      my @additionalpackages = grep {!$preimghdrmd5s->{$_}} @{$img->{'hdrmd5s'} || []};
+      if (@additionalpackages) {
+	 if ($ctx->{'expanddebug'}) {
+           ${$ctx->{'expanddebug'}} .= "\nPreinstallimage: $img->{'hdrmd5'} has additional packages:";
+           ${$ctx->{'expanddebug'}} .= " ".$_ for @additionalpackages;
+         };
+	 next;
+      }
+      if ($prpa eq "$projid/$repoid/$arch" && $packid && $img->{'package'} eq $packid) {
+         ${$ctx->{'expanddebug'}} .= "\nPreinstallimage: $img->{'hdrmd5'} skipped for building itself" if $ctx->{'expanddebug'};
+         next;
+      }
       $img->{'prpa'} = $prpa;
       $bestimg = $img;
       $bestimgn = @{$img->{'hdrmd5s'} || []}; 
