@@ -438,7 +438,7 @@ GEM
       rbs (>= 4.0.0)
       tsort
     redcarpet (3.6.1)
-    regexp_parser (2.12.0)
+    regexp_parser (2.13.1)
     reline (0.7.0)
       io-console (~> 0.5)
     request_store (1.7.0)
