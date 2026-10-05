@@ -54,6 +54,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          cd src/api
           # Reset Gemfile.lock back to main/master baseline before applying conservative bump
           git checkout origin/${{ github.event.pull_request.base.ref }} -- Gemfile.lock
 
