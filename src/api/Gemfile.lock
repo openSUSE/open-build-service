@@ -332,7 +332,7 @@ GEM
       net-protocol
     net-protocol (0.4.0)
       timeout
-    net-smtp (0.5.1)
+    net-smtp (0.5.2)
       net-protocol
     next_rails (1.7.0)
     nio4r (2.7.5)
