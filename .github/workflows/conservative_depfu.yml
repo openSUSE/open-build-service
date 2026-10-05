@@ -44,7 +44,7 @@ jobs:
           BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
           
           # Extracts the primary gem name from the branch name pattern
-          GEM_NAME=$(echo "$BRANCH_NAME" | sed -E 's#^(depfu|dependabot/bundler)/update-?##; s/-[0-9].*//')
+          GEM_NAME=$(echo "$BRANCH_NAME" | sed -E 's#^.*/##; s/([a-zA-Z0-9_-]+)-[0-9].*/\1/')
           
           echo "gem_name=$GEM_NAME" >> $GITHUB_OUTPUT
           echo "Identified target gem: $GEM_NAME"
