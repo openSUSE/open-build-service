@@ -597,6 +597,22 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
     post '/source/ScmSync/package?cmd=createSpecFileTemplate'
     assert_response :forbidden
+    post '/source/ScmSync/package?cmd=lock'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=unlock&comment=revert'
+    assert_response :forbidden
+
+    login_tom
+    post '/source/ScmSync/package?cmd=lock'
+    assert_response :success
+    get '/source/ScmSync/package/_meta'
+    assert_response :success
+    assert_xml_tag tag: 'enable', parent: { tag: 'lock' }
+    post '/source/ScmSync/package?cmd=unlock&comment=revert'
+    assert_response :success
+    get '/source/ScmSync/package/_meta'
+    assert_response :success
+    assert_no_xml_tag tag: 'lock'
 
     # no token, run directly as invalid user
     login_adrian

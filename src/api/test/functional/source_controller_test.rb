@@ -921,6 +921,20 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post '/source/home:Iggy/TestLinkPack', params: { cmd: 'unlock', comment: 'BlahFasel' }
     assert_response :success
+
+    # do it via the api command
+    post '/source/home:Iggy/TestLinkPack', params: { cmd: 'lock' }
+    assert_response :success
+    get '/source/home:Iggy/TestLinkPack/_meta'
+    assert_response :success
+    assert_xml_tag tag: 'enable', parent: { tag: 'lock' }
+    post '/source/home:Iggy/TestLinkPack', params: { cmd: 'unlock', comment: 'BlahFasel' }
+    assert_response :success
+    get '/source/home:Iggy/TestLinkPack/_meta'
+    assert_response :success
+    assert_no_xml_tag tag: 'lock'
+
+    # cleanup
     delete '/source/home:Iggy/TestLinkPack'
     assert_response :success
   end
@@ -2417,6 +2431,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'package', attributes: { project: 'BaseDistro2.0' })
 
     # source operations must not be allowed
+    post '/source/home:tom:LINK/pack2', params: { cmd: 'lock' }
+    assert_response :not_found
     post '/source/home:tom:LINK/pack2', params: { cmd: 'commit' }
     assert_response :not_found
     post '/source/home:tom:LINK/pack2', params: { cmd: 'commitfilelist' }
@@ -2435,6 +2451,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # source operations must not be allowed
+    post '/source/home:tom:LINK/pack2', params: { cmd: 'lock' }
+    assert_response :not_found
     post '/source/home:tom:LINK/pack2', params: { cmd: 'commit' }
     assert_response :not_found
     post '/source/home:tom:LINK/pack2', params: { cmd: 'commitfilelist' }
