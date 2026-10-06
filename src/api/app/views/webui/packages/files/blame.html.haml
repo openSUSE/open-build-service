@@ -20,7 +20,7 @@
         .revision
           .info
             - info = revision.first
-            .time= render TimeComponent.new(time: "#[info['date']} #{info['time']}".to_datetime)
+            .time= render TimeComponent.new(time: "#{info['date']} #{info['time']}".to_datetime)
             .user
               - if (user = User.find_by_login(info['login']))
                 = link_to(user_path(user)) do
