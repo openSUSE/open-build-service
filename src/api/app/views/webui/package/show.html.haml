@@ -62,7 +62,7 @@
     .card
       %h5.card-header
         Source Files
-        - if @linkinfo && @revision_parameter.nil?
+        - if @linkinfo
           %small
             - if (@expand && @expand.to_s == '1') || @forced_unexpand.present?
               = link_to('(show unmerged sources)', package_show_path(project: @project.name, package: @package.name,
