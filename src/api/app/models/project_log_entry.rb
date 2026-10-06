@@ -46,11 +46,16 @@ class ProjectLogEntry < ApplicationRecord
     @user ||= user_name.blank? ? nil : User.find_by_login(user_name)
   end
 
-  # Same mechanism that ApplicationRecord.serialize with extra robustness
-  # FIXME: We shouldn't slice the input here, this should either fit or never
-  # reach us through Event...
+  # The additional_info column is a MySQL TEXT, which holds at most 65,535
+  # *bytes* (not characters).
+  ADDITIONAL_INFO_MAX_BYTES = 65_535
+
+  # Same mechanism that ApplicationRecord.serialize with extra robustness.
+  # If the YAML doesn't fit into the column, the biggest values (e.g. long
+  # commit messages) are shortened instead of cutting the YAML string, so
+  # that what we store is always valid YAML.
   def additional_info=(obj)
-    self[:additional_info] = YAML.dump(obj)[0..65_534]
+    self[:additional_info] = self.class.dump_within_column_limit(obj)
   rescue StandardError
     self[:additional_info] = nil
   end
@@ -59,6 +64,37 @@ class ProjectLogEntry < ApplicationRecord
   def additional_info
     a = self[:additional_info]
     a ? YAML.safe_load(a) : {}
+  rescue Psych::Exception
+    # Entries written before we stopped truncating the YAML can be broken
+    {}
+  end
+
+  def self.dump_within_column_limit(obj)
+    yaml = YAML.dump(obj)
+    return yaml if yaml.bytesize <= ADDITIONAL_INFO_MAX_BYTES
+
+    limit = ADDITIONAL_INFO_MAX_BYTES
+    while limit > 32
+      limit /= 2
+      yaml = YAML.dump(shrink_strings(obj, limit))
+      return yaml if yaml.bytesize <= ADDITIONAL_INFO_MAX_BYTES
+    end
+
+    YAML.dump({})
+  end
+
+  # Returns a copy of value where every string is at most max_bytes bytes long
+  def self.shrink_strings(value, max_bytes)
+    case value
+    when String
+      value.bytesize > max_bytes ? value.byteslice(0, max_bytes).scrub('') : value
+    when Hash
+      value.transform_values { |v| shrink_strings(v, max_bytes) }
+    when Array
+      value.map { |v| shrink_strings(v, max_bytes) }
+    else
+      value
+    end
   end
 
   # Extract the username from the payload of an event, since different names are
