@@ -184,7 +184,13 @@ class SourcePackageCommandController < SourceController
   # OBS 3.0: this should be obsoleted, we have /build/ controller for this
   # POST /source/<project>/<package>?cmd=rebuild
   def rebuild
-    authorize @package
+    # project is set to local project in remote case, but also set to readonly.
+    # however, this is not true for build results as they are modifiable
+    if @package.try(:project) == @project && !@package.readonly?
+      authorize @package, :update?
+    else
+      authorize @project, :update?
+    end
 
     if params[:repo] && !@project.repositories.exists?(name: params[:repo])
       render_error status: 400, errorcode: 'unknown_repository',
