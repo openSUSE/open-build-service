@@ -18,6 +18,9 @@ class SourcePackageCommandController < SourceController
   before_action :require_valid_package_name, only: %i[copy undelete]
   before_action :set_origin_package, only: %i[collectbuildenv copy diff]
   before_action :set_user_param
+  # branch, copy, diff, undelete: do not set @package (see set_package above)
+  # fork: works for remote projects, which have no package record
+  before_action :require_standard_package_object, except: %i[branch copy diff fork undelete]
   # branch: everything is authorized in BranchPackage.branch
   # diff: is a read only command
   # fork: everything is authorized in BranchPackage.branch
@@ -471,6 +474,11 @@ class SourcePackageCommandController < SourceController
     return if Package.valid_name?(params[:package], allow_multibuild: params[:cmd] == 'release')
 
     raise InvalidPackageNameError, "invalid package name '#{params[:package]}'"
+  end
+
+  def require_standard_package_object
+    # packages of scmsync projects have no database record
+    raise CmdExecutionNoPermission, "Unable to operate on '#{params[:package]}'" unless @package.is_a?(Package)
   end
 
   def set_user_param
