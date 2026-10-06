@@ -88,3 +88,7 @@ kde4_standard:
   id: 98
   name: kde4_standard
   project: kde4
+ScmSync_dummy:
+  id: 99
+  name: dummy
+  project: ScmSync
