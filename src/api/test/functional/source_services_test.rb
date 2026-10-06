@@ -536,4 +536,75 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     delete '/source/home:tom/service2'
     assert_response :success
   end
+
+  def test_run_service_in_scmsync_project
+    # just temporary needed until we have a full git example in fixtures
+    prj = Project.find_by_name('ScmSync')
+    prj.scmsync = 'https://localhost'
+    prj.save # without writing to backend yet, since we need to fake a package in start_test_backend script
+
+    login_adrian
+    post '/person/adrian/token?operation=runservice'
+    assert_response :success
+    doc = REXML::Document.new(@response.body)
+    invalid_token = doc.elements['//data'].text
+    assert_equal 24, invalid_token.length
+
+    login_tom
+    post '/person/tom/token?operation=runservice'
+    assert_response :success
+    doc = REXML::Document.new(@response.body)
+    token = doc.elements['//data'].text
+    assert_equal 24, token.length
+
+    # ANONYMOUS
+    reset_auth
+
+    # with wrong token
+    post '/trigger/runservice?project=ScmSync&package=package', headers: { 'Authorization' => 'Token wrong' }
+    assert_response :not_found
+    assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
+    post '/trigger/runservice?project=ScmSync&package=package', headers: { 'Authorization' => "Token #{invalid_token}" }
+    assert_response :forbidden
+
+    # with right token
+    post '/trigger/runservice?project=ScmSync&package=package', headers: { 'Authorization' => "Token #{token}" }
+    assert_response :success
+
+    # test permission checks for commands by a person without permissions
+    login_adrian
+    post '/source/ScmSync/package?cmd=rebuild'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=addcontainers'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=addchannels'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=enablechannel'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=instantiate'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=undelete'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=commit'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=commitfilelist'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=copy'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=deleteuploadrev'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=linktobranch'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=createSpecFileTemplate'
+    assert_response :forbidden
+
+    # no token, run directly as invalid user
+    login_adrian
+    post '/source/ScmSync/package?cmd=runservice'
+    assert_response :forbidden
+    # and as valid user
+    login_tom
+    post '/source/ScmSync/package?cmd=runservice'
+    assert_response :success
+  end
 end
