@@ -358,7 +358,7 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=runservice
   def runservice
-    authorize @package, :update?
+    authorize @package, :runservice?
 
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd comment user])
