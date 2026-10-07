@@ -233,18 +233,6 @@ class BsRequest < ApplicationRecord
     request
   end
 
-  # [DEPRECATED] TODO: there is only one instance of the @not_full_diff variable in the request scope which is using this method.
-  # Once request_workflow_redesign beta is rolled out, let's drop this method
-  # TODO: refactor this method as soon as the request_show_redesign feature is rolled out.
-  # Now it expects an array of action hashes we'll never display more than one action at a time.
-  def self.truncated_diffs?(actions)
-    submit_requests = actions.select { |action| action[:type] == :submit && action[:sourcediff] }
-
-    submit_requests.any? do |action|
-      action[:sourcediff].any? { |sourcediff| sourcediff_has_shown_attribute?(sourcediff) }
-    end
-  end
-
   def self.sourcediff_has_shown_attribute?(sourcediff)
     if sourcediff && sourcediff['files']
       # the 'shown' attribute is only set if the backend truncated the diff

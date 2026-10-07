@@ -41,11 +41,6 @@ class Webui::RequestController < Webui::WebuiController
     @active_tab = 'conversation'
   end
 
-  # TODO: Remove this once request_beta_show is completely replaced by request_show
-  def beta_show
-    redirect_to request_show_path(params[:number], params[:request_action_id], notification_context_params)
-  end
-
   def create
     @bs_request = BsRequest.new(bs_request_params)
     @bs_request.set_add_revision if params.key?(:add_revision)
