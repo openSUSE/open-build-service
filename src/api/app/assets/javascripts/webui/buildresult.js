@@ -1,26 +1,5 @@
-/* exported updateRpmlintResult, updateBuildResult, updateArchDisplay */
+/* exported updateBuildResult */
 /* global initializePopovers */
-
-// TODO: replace with the content of
-// app/assets/javascripts/webui/request_show_redesign/build_results.js
-// after the rollout of 'request_show_redesign'.
-
-function updateRpmlintResult(index) {
-  $('#rpm'+index+'-reload').addClass('fa-spin');
-  $.ajax({
-    url: '/package/rpmlint_result',
-    data: $('#buildresult' + index + '-box').data(),
-    success: function(data) {
-      $('#rpm' + index + ' .result').html(data);
-    },
-    error: function() {
-      $('#rpm'+ index + ' .result').html('<p>No rpmlint results available</p>');
-    },
-    complete: function() {
-      $('#rpm' + index + '-reload').removeClass('fa-spin');
-    }
-  });
-}
 
 function updateBuildResult(index) {
   var collapsedPackages = [];
@@ -53,26 +32,6 @@ function updateBuildResult(index) {
     complete: function() {
       $('#build' + index + '-reload').removeClass('fa-spin');
       initializePopovers('[data-toggle="popover"]');
-    }
-  });
-}
-
-function updateArchDisplay(index) {
-  $('.rpmlint_arch_select_' + index).hide();
-  $('select[name="rpmlint_arch_select_' + index + '_' + $('#rpmlint_repo_select_' + index + ' option:selected').attr('value') + '"]').show();
-  updateRpmlintDisplay(index);
-}
-
-function updateRpmlintDisplay(index) {
-  var ajaxDataShow = $('#rpmlin-log-' + index).data();
-  var repoKey = $('#rpmlint_repo_select_' + index + ' option:selected').attr('value');
-  ajaxDataShow.repository = $('#rpmlint_repo_select_' + index + ' option:selected').html();
-  ajaxDataShow.architecture = $('select[name="rpmlint_arch_select_' + index + '_' + repoKey + '"] option:selected').attr('value');
-  $.ajax({
-    url: '/package/rpmlint_log',
-    data: ajaxDataShow,
-    success: function (data) {
-      $('#rpmlint_display_' + index).html(data);
     }
   });
 }
