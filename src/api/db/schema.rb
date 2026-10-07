@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_09_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_182000) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "blob_id", null: false
     t.datetime "created_at", null: false
@@ -968,7 +968,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_09_100000) do
   end
 
   create_table "project_log_entries", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.text "additional_info"
+    t.text "additional_info", size: :medium
     t.integer "bs_request_id"
     t.datetime "datetime", precision: nil
     t.string "event_type"

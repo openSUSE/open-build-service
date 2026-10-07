@@ -47,10 +47,8 @@ class ProjectLogEntry < ApplicationRecord
   end
 
   # Same mechanism that ApplicationRecord.serialize with extra robustness
-  # FIXME: We shouldn't slice the input here, this should either fit or never
-  # reach us through Event...
   def additional_info=(obj)
-    self[:additional_info] = YAML.dump(obj)[0..65_534]
+    self[:additional_info] = YAML.dump(obj)
   rescue StandardError
     self[:additional_info] = nil
   end
@@ -79,7 +77,7 @@ end
 # Table name: project_log_entries
 #
 #  id              :integer          not null, primary key
-#  additional_info :text(65535)
+#  additional_info :text(16777215)
 #  datetime        :datetime         indexed
 #  event_type      :string(255)      indexed, indexed => [project_id]
 #  package_name    :string(255)      indexed
