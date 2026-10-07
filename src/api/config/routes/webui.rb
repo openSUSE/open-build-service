@@ -342,7 +342,6 @@ controller 'webui/request' do
   get 'request/diff/:number' => :diff
   get 'request/list_small' => :list_small, as: 'request_list_small'
   post 'request/set_bugowner_request' => :set_bugowner_request
-  get 'request/:number/request_action/:id' => :request_action, as: 'request_action'
   get 'request/:number/request_action/:request_action_id/changes' => :request_action_changes, as: 'request_action_changes'
   get 'request/:number/request_action/:request_action_id/details' => :request_action_details, as: 'request_action_details'
   get 'request/:number/request_action/:request_action_id/inline_comment' => :inline_comment, constraints: cons, as: 'request_inline_comment'

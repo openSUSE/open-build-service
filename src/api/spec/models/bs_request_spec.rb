@@ -374,65 +374,6 @@ RSpec.describe BsRequest do
     end
   end
 
-  describe '#truncated_diffs?' do
-    context "when there is no action with type 'submit'" do
-      let(:request_actions) do
-        [
-          { type: :foo, sourcediff: [{ 'files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]] }] },
-          { type: 'bar' }
-        ]
-      end
-
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(false) }
-    end
-
-    context 'when there is no sourcediff' do
-      let(:request_actions) do
-        [
-          { type: :foo, sourcediff: [{ 'files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]] }] },
-          { type: :submit }
-        ]
-      end
-
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(false) }
-    end
-
-    context 'when the sourcediff is empty' do
-      let(:request_actions) do
-        [
-          { type: :foo, sourcediff: nil },
-          { type: :submit }
-        ]
-      end
-
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(false) }
-    end
-
-    context 'when the diff is at least one diff that has a shown attribute' do
-      let(:request_actions) do
-        [{ type: :submit, sourcediff: [{ 'files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]] }] }]
-      end
-
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(true) }
-    end
-
-    context 'when none of the diffs has a shown attribute' do
-      let(:request_actions) do
-        [{ type: :submit, sourcediff: [{ 'files' => [['./my_file', { 'diff' => { 'rev' => '1' } }]] }] }]
-      end
-
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(false) }
-    end
-
-    context "when there is a sourcediff attribute with no 'files'" do
-      let(:request_actions) do
-        [{ type: :submit, sourcediff: [{ 'other_data' => 'foo' }] }]
-      end
-
-      it { expect(BsRequest.truncated_diffs?(request_actions)).to be(false) }
-    end
-  end
-
   context 'auto accept' do
     let!(:project) { create(:project) }
     let!(:user) { create(:confirmed_user, login: 'tux') }
