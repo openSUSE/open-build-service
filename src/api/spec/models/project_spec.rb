@@ -862,4 +862,38 @@ RSpec.describe Project, :vcr do
 
     it { expect(project.bs_requests).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
   end
+
+  describe '#links_to_scmsync?' do
+    let(:scmsync_project) { create(:project, name: 'scmsync_project', scmsync: 'https://src.opensuse.org/pool/_ObsPrj.git') }
+
+    context 'when the project is managed through scmsync' do
+      it { expect(scmsync_project.links_to_scmsync?).to be(true) }
+    end
+
+    context 'when the project links to a project managed through scmsync' do
+      let(:linking_project) { create(:project, name: 'linking_scmsync_project', link_to: scmsync_project) }
+
+      it { expect(linking_project.links_to_scmsync?).to be(true) }
+    end
+
+    context 'when the project links to a project that links to one managed through scmsync' do
+      let(:middle_project) { create(:project, name: 'middle_project', link_to: scmsync_project) }
+      let(:linking_project) { create(:project, name: 'indirectly_linking_project', link_to: middle_project) }
+
+      it { expect(linking_project.links_to_scmsync?).to be(true) }
+    end
+
+    context 'when neither the project nor the ones it links to are managed through scmsync' do
+      let(:target_project) { create(:project, name: 'plain_target_project') }
+      let(:linking_project) { create(:project, name: 'plain_linking_project', link_to: target_project) }
+
+      it { expect(linking_project.links_to_scmsync?).to be(false) }
+    end
+
+    context 'when the project links to a remote project' do
+      let(:linking_project) { create(:project, name: 'remotely_linking_project', link_to: 'some:remote:project') }
+
+      it { expect(linking_project.links_to_scmsync?).to be(false) }
+    end
+  end
 end
