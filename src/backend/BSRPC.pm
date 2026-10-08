@@ -528,9 +528,12 @@ sub rpc {
   my %headers;
   BSHTTP::gethead(\%headers, $headers);
 
+  # the http standard defines some status codes to have no body
+  my $bodyless = $status =~ /^(?:1\d\d|204|304)[^\d]/ ? 1 : 0;
+
   # no keepalive if the server says so
   undef $keepalive if lc($headers{'connection'} || '') eq 'close';
-  undef $keepalive if !defined($headers{'content-length'}) && lc($headers{'transfer-encoding'} || '') ne 'chunked';
+  undef $keepalive if !$bodyless && !defined($headers{'content-length'}) && lc($headers{'transfer-encoding'} || '') ne 'chunked';
 
   # process header
   #
@@ -583,7 +586,15 @@ sub rpc {
       }
     }
     if (!$param->{'ignorestatus'}) {
-      close $sock;
+      if ($keepalive) {
+        $keepalive->{'socket'} = $sock;
+        $keepalive->{'cookie'} = $keepalivecookie;
+        $keepalive->{'start'} = $keepalivestart;
+        $keepalive->{'count'} = $keepalivecount;
+        $keepalive->{'last'} = time();
+      } else {
+        close $sock;
+      }
       die("$1 remote error: $2 ($uri)\n") if $status =~ /^(\d+) +(.*?)$/;
       die("remote error: $status\n");
     }
@@ -597,6 +608,7 @@ sub rpc {
     '__socket' => $sock,
     '__data' => $ans,
   };
+  $ansreq->{'__cl'} = -1 if $bodyless;
   if (($param->{'request'} || 'GET') eq 'HEAD') {
     if ($keepalive) {
       $keepalive->{'socket'} = $sock;
