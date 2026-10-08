@@ -139,6 +139,7 @@ end
 #   end
 # end
 
+# rubocop:disable-next Style/OneClassPerFile
 module ActionDispatch
   module Integration
     class Session
@@ -178,6 +179,7 @@ module ActionDispatch
   end
 end
 
+# rubocop:disable-next Style/OneClassPerFile
 module Webui
   class IntegrationTest < ActionDispatch::IntegrationTest
     # Make the Capybara DSL available
@@ -239,6 +241,7 @@ module Webui
   end
 end
 
+# rubocop:disable-next Style/OneClassPerFile
 module ActionDispatch
   class IntegrationTest
     include Backend::Test::Tasks
@@ -340,6 +343,7 @@ module ActionDispatch
   end
 end
 
+# rubocop:disable-next Style/OneClassPerFile
 class ActiveSupport::TestCase
   set_fixture_class events: Event::Base
   set_fixture_class history_elements: HistoryElement::Base

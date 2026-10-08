@@ -1,5 +1,6 @@
 class FakeObject; end # rubocop:disable Lint/EmptyClass
 
+# rubocop:disable-next Style/OneClassPerFile
 class FakePolicy < ApplicationPolicy
   def index?
     false
