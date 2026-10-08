@@ -7,6 +7,7 @@ class Bicycle < ApplicationRecord
   nest_errors_for :wheels_spokes, by: ->(spoke) { "Spoke ##{spoke.number}" }
 end
 
+# rubocop:disable-next Style/OneClassPerFile
 class Wheel < ApplicationRecord
   belongs_to :bicycle
   has_many :spokes, index_errors: true
@@ -15,6 +16,7 @@ class Wheel < ApplicationRecord
   validates :name, presence: true
 end
 
+# rubocop:disable-next Style/OneClassPerFile
 class Spoke < ApplicationRecord
   validates :tension, presence: true
   validates :number, presence: true
