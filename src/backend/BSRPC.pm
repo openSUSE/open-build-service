@@ -586,7 +586,7 @@ sub rpc {
       }
     }
     if (!$param->{'ignorestatus'}) {
-      if ($keepalive) {
+      if ($keepalive && $bodyless) {
         $keepalive->{'socket'} = $sock;
         $keepalive->{'cookie'} = $keepalivecookie;
         $keepalive->{'start'} = $keepalivestart;
