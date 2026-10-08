@@ -60,7 +60,7 @@ aliases:
   - &restore_bundler_cache
     restore_cache:
       name: Restoring Bundle Cache
-      key: bundle-{{ checksum "src/api/Gemfile.lock" }}
+      key: v2-bundle-{{ checksum "src/api/Gemfile.lock" }}
 
   - &install_dependencies
     name: install dependencies
@@ -77,7 +77,7 @@ aliases:
   - &save_bundler_cache
     save_cache:
       name: Saving Bundle Cache
-      key: bundle-{{ checksum "src/api/Gemfile.lock" }}
+      key: v2-bundle-{{ checksum "src/api/Gemfile.lock" }}
       paths:
         - "src/api/vendor/bundle"
 
