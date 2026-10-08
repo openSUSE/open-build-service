@@ -4,11 +4,11 @@ class BsRequestTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
+    Backend::Test.start
     User.session = users(:Iggy)
   end
 
   test 'if create works' do
-    Backend::Test.start
     xml = '<request>
               <action type="submit">
                 <source project="BaseDistro" package="pack2" rev="1"/>

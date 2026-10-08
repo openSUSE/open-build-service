@@ -6,6 +6,7 @@ class UserTest < ActiveSupport::TestCase
   def setup
     @project = projects(:home_Iggy)
     @user = User.find_by_login('Iggy')
+    User.session = @user
   end
 
   # spec/models/user_spec.rb
