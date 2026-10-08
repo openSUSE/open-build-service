@@ -78,6 +78,32 @@ RSpec.describe Token::Release, :vcr do
         end
       end
 
+      context 'when the source repository provided through parameters does not exist' do
+        subject do
+          token.call(package: package, project: project_staging, targetproject: 'Baz', targetrepository: 'other_target_repository', repository: 'nonexistent_repository')
+        end
+
+        it 'raises an error and does not trigger the release process in the backend' do
+          user.run_as do
+            expect { subject }.to raise_error(Token::Errors::NonExistentRepository, "Repository 'nonexistent_repository' does not exist in project Bar:Staging")
+            expect(Backend::Api::BuildResults::Binaries).not_to have_received(:copy)
+          end
+        end
+      end
+
+      context 'when the target repository provided through parameters does not exist' do
+        subject do
+          token.call(package: package, project: project_staging, targetproject: 'Baz', targetrepository: 'nonexistent_repository', repository: 'other_source_repository')
+        end
+
+        it 'raises an error and does not trigger the release process in the backend' do
+          user.run_as do
+            expect { subject }.to raise_error(Token::Errors::NonExistentRepository, "Repository 'nonexistent_repository' does not exist in project Baz")
+            expect(Backend::Api::BuildResults::Binaries).not_to have_received(:copy)
+          end
+        end
+      end
+
       context 'when the user can not modify the target_repository' do
         subject do
           token.call(package: package, project: project_staging, targetproject: 'Foo', targetrepository: 'other_target_repository', repository: 'other_source_repository')
