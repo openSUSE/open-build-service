@@ -52,6 +52,14 @@ module Webui::WebuiHelper
     REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
   end
 
+  IMAGE_TEMPLATE_ICON = {
+    %w[flatpak] => 'fa-solid fa-box-open text-warning',
+    %w[appimage] => 'fa-solid fa-file text-info',
+    %w[container docker podman oci] => 'fa-solid fa-cube text-muted',
+    %w[minimal jeos micro appliance vm livecd livedvd rawdisk] => 'fa-solid fa-compact-disc text-secondary',
+    %w[default] => 'fa-solid fa-hard-drive text-muted'
+  }.freeze
+
   def repo_status_icon(status)
     REPO_STATUS_ICONS[status] || 'eye'
   end
@@ -60,13 +68,12 @@ module Webui::WebuiHelper
     first.nil? || nil
   end
 
-  def image_template_icon_url(template)
-    icon = if template.icon?
-             Package.source_path(template.project.name, template.name, '_icon')
-           else
-             'drive-optical-48.png'
-           end
-    image_url(icon)
+  def image_template_icon(template)
+    IMAGE_TEMPLATE_ICON.each do |icon|
+      return icon[1] if icon[0].is_a?(Array) && icon[0].any? { |kw| template.name.downcase.include?(kw) }
+    end
+
+    IMAGE_TEMPLATE_ICON[%w[default]]
   end
 
   def repository_status_icon(status:, details: nil, html_class: '')
