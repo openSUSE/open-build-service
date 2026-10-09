@@ -7,8 +7,8 @@ class PackageTest < ActiveSupport::TestCase
 
   def setup
     super
-    @package = packages(:home_Iggy_TestPack)
     User.session = users(:Iggy)
+    @package = packages(:home_Iggy_TestPack)
   end
 
   def test_flags_to_axml
