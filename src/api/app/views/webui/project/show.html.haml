@@ -19,7 +19,7 @@
                                               project: @project,
                                               current_object: @project)
     .row
-      .col-md-8
+      .col-md-8.p-4.border-end#basic_info_wrapper
         = render partial: 'basic_info', locals: { project: @project }
       .col-md-4
         = render partial: 'side_links', locals: { open_maintenance_incidents: @open_maintenance_incidents,
