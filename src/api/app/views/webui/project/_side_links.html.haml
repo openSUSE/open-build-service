@@ -1,4 +1,14 @@
 %ul.side_links.list-unstyled
+  - if project.categories.any?
+    .mb-3
+      =link_to 'Category', index_attribs_path(project)
+      - project.categories.each do |category|
+        = category_badge(category)
+    %hr
+
+  .mb-3
+    = render partial: 'webui/shared/label_global_list', locals: { project: project }
+  %hr
   - if project.maintenance?
     = render partial: 'webui/project/side_links/maintenance_project', locals: { open_maintenance_incidents: open_maintenance_incidents,
                                                                                 project: project,
