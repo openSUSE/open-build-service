@@ -1,19 +1,13 @@
 .basic-info.in-place-editing
-  - if project.categories.any?
-    - project.categories.each do |category|
-      = category_badge(category)
-  .mb-3
-    = render partial: 'webui/shared/label_global_list', locals: { project: project }
-  - if project.url.present?
-    = link_to(project.url, project.url, class: 'mb-3 d-block')
   .mb-4#description-text
     - if project.description.blank?
       %i No description set
     - else
       = render partial: 'webui/shared/collapsible_text', locals: { text: project.description,
-                                                                   render_markdown: Flipper.enabled?('foster_collaboration', User.session) }
+                                                                   render_markdown: Flipper.enabled?('foster_collaboration', User.session),
+                                                                   extra_css_classes: 'full-width' }
   - if policy(project).update?
-    .pt-4
+    .pt-2
       = link_to(edit_project_path(project), class: 'ps-0', remote: true, title: 'Edit') do
         %i.fas.fa-edit.text-secondary
         %span.nav-item-name Edit
