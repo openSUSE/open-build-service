@@ -33,8 +33,6 @@
               - rev = @revisions[info['revision']]
               - if rev
                 = link_to(package_show_path(@project, @package_name, rev: info['revision'])) do
-                  %strong
-                    = "Rev #{info['revision']}: "
                   - if rev['comment']
                     = rev['comment']
                   - else
