@@ -8,6 +8,7 @@
       overflow: hidden;
       line-height: 1.5;
       max-height: $maxHeight;
+      text-align: justify;
 
       p:last-child { @extend .mb-0; }
       &.expanded { max-height: initial; }
