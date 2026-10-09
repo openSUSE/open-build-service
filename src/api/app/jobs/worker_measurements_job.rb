@@ -59,7 +59,7 @@ class WorkerMeasurementsJob < ApplicationJob
       state = daemon.attributes['state'].value
       arch = daemon.attributes['arch']
       arch = (arch.nil? ? '' : ",arch=#{arch.value}")
-      RabbitmqBus.send_to_bus('metrics', "backend_daemon_status,partition=#{partition},type=#{type},state=#{state}#{arch} count=1")
+      RabbitmqBus.send_to_bus('metrics', "backend_daemon_state,partition=#{partition},type=#{type}#{arch} state=#{state}")
     end
   end
 end
