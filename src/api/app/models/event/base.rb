@@ -340,12 +340,31 @@ module Event
 
       return values if overflow_bytes <= 0
 
-      # Shorten the payload so it will fit into the database column
-      shortenable_content = values[shortenable_key.to_s]
-      new_size = shortenable_content.bytesize - overflow_bytes
-      values[shortenable_key.to_s] = shortenable_content.mb_chars.limit(new_size)
+      # Shorten the payload so it will fit into the database column.
+      # The overflow is measured on the JSON encoded payload, where characters like quotes or
+      # newlines take up more bytes than in the raw string, so the shortened content has to fit
+      # the remaining space in its encoded form.
+      shortenable_content = values[shortenable_key.to_s].to_s
+      max_encoded_size = ActiveSupport::JSON.encode(shortenable_content).bytesize - overflow_bytes
+      values[shortenable_key.to_s] = truncate_to_encoded_size(shortenable_content, max_encoded_size)
 
       values
+    end
+
+    # Longest prefix of content whose JSON encoding is at most max_encoded_size bytes
+    def truncate_to_encoded_size(content, max_encoded_size)
+      low = 0
+      high = content.length
+      while low < high
+        middle = (low + high + 1) / 2
+        if ActiveSupport::JSON.encode(content[0, middle]).bytesize <= max_encoded_size
+          low = middle
+        else
+          high = middle - 1
+        end
+      end
+
+      content[0, low]
     end
 
     def obj_roles(obj, role)
