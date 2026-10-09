@@ -43,11 +43,7 @@ class NotificationComment < Notification
   def link_path
     case event_type
     when 'Event::CommentForRequest'
-      anchor = if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
-                 "comment-#{notifiable.id}-bubble"
-               else
-                 'comments-list'
-               end
+      anchor = "comment-#{notifiable.id}-bubble"
       Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: id, anchor: anchor)
     when 'Event::CommentForProject'
       Rails.application.routes.url_helpers.project_show_path(notifiable.commentable, notification_id: id, anchor: 'comments-list')

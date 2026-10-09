@@ -331,8 +331,6 @@ controller 'webui/request' do
   post 'request/add_reviewer' => :add_reviewer
   post 'request/modify_review' => :modify_review
   get 'request/show/:number/(request_action/:request_action_id)' => :show, as: 'request_show', constraints: cons
-  # TODO: Simplify this with `resources` instead after rolling out `:request_show_redesign` feature
-  get 'requests/:number/(actions/:request_action_id)' => :beta_show, as: 'request_beta_show', constraints: cons
   get 'requests/:number/(actions/:request_action_id)/build_results' => :build_results, as: 'request_build_results', constraints: cons
   get 'requests/:number/(actions/:request_action_id)/changes' => :changes, as: 'request_changes', constraints: cons
   # Note: `format: false` is used because file names can range from a simple `string` to more complex paths like `vendor.tar.gz/cel.dev/expr/CONTRIBUTING.md`.
@@ -344,7 +342,6 @@ controller 'webui/request' do
   get 'request/diff/:number' => :diff
   get 'request/list_small' => :list_small, as: 'request_list_small'
   post 'request/set_bugowner_request' => :set_bugowner_request
-  get 'request/:number/request_action/:id' => :request_action, as: 'request_action'
   get 'request/:number/request_action/:request_action_id/changes' => :request_action_changes, as: 'request_action_changes'
   get 'request/:number/request_action/:request_action_id/details' => :request_action_details, as: 'request_action_details'
   get 'request/:number/request_action/:request_action_id/inline_comment' => :inline_comment, constraints: cons, as: 'request_inline_comment'
