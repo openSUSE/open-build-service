@@ -446,6 +446,7 @@ RSpec.describe BsRequest do
     end
 
     before do
+      login user
       request.update(accept_at: 1.hour.ago)
     end
 
@@ -755,6 +756,26 @@ RSpec.describe BsRequest do
           end
         end
       end
+    end
+  end
+
+  describe '#auto_accepted?' do
+    context 'when state is accepted and accept_at is in the past' do
+      let(:request) { build(:bs_request_with_submit_action, state: :accepted, accept_at: 1.day.ago) }
+
+      it { expect(request.auto_accepted?).to be true }
+    end
+
+    context 'when state is accepted and comment is Auto accept' do
+      let(:request) { build(:bs_request_with_submit_action, state: :accepted, accept_at: 1.day.from_now, comment: 'Auto accept') }
+
+      it { expect(request.auto_accepted?).to be true }
+    end
+
+    context 'when state is not accepted' do
+      let(:request) { build(:bs_request_with_submit_action, state: :new, accept_at: 1.day.ago) }
+
+      it { expect(request.auto_accepted?).to be false }
     end
   end
 end
