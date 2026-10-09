@@ -482,6 +482,30 @@ RSpec.describe Project, :vcr do
         it { expect(subject.packages.find_by(name: package2.name).render_xml).to eq(package2_meta_before_deletion) }
       end
     end
+
+    context 'when dependent project or repository is missing (#12710)' do
+      it 'restores project successfully despite missing path elements' do
+        allow(Backend::Api::Sources::Project).to receive(:undelete)
+        allow(Backend::Api::Search).to receive(:packages_for_project).and_return('<packages/>')
+
+        prj = Project.new(name: 'deleted_project_with_missing_link')
+        allow(prj).to receive(:write_to_backend)
+        allow(prj).to receive(:meta).and_return(double(content: <<~XML))
+          <project name="deleted_project_with_missing_link">
+            <title>Title</title>
+            <description>Desc</description>
+            <repository name="standard">
+              <path project="NonExistentProject" repository="standard"/>
+              <arch>x86_64</arch>
+            </repository>
+          </project>
+        XML
+        allow(Project).to receive(:new).with(name: 'deleted_project_with_missing_link').and_return(prj)
+
+        restored = Project.restore('deleted_project_with_missing_link', user: admin_user.login)
+        expect(restored).to be_persisted
+      end
+    end
   end
 
   describe '#destroy' do

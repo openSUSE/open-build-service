@@ -733,13 +733,13 @@ class Package < ApplicationRecord
     pkg
   end
 
-  def update_from_xml(xmlhash, ignore_lock = nil)
+  def update_from_xml(xmlhash, ignore_lock = nil, force = nil)
     check_write_access!(ignore_lock)
 
     Package.transaction do
       assign_attributes_from_from_xml(xmlhash)
 
-      assign_devel_package_from_xml(xmlhash)
+      assign_devel_package_from_xml(xmlhash, force || ignore_lock)
 
       # just for cycle detection
       resolve_devel_package
@@ -766,7 +766,7 @@ class Package < ApplicationRecord
     self.scmsync = xmlhash.value('scmsync')
   end
 
-  def assign_devel_package_from_xml(xmlhash)
+  def assign_devel_package_from_xml(xmlhash, force = nil)
     #--- devel project/package ---#
     devel = xmlhash['devel']
     self.develpackage = nil
@@ -774,10 +774,14 @@ class Package < ApplicationRecord
 
     devel_project_name = devel['project'] || xmlhash['project']
     devel_project = Project.find_by_name(devel_project_name)
+
+    return if !devel_project && force
     raise SaveError, "project '#{devel_project_name}' does not exist" unless devel_project
 
     devel_package_name = devel['package'] || xmlhash['name']
     devel_package = devel_project.packages.find_by_name(devel_package_name)
+
+    return if !devel_package && force
     raise SaveError, "package '#{devel_package_name}' does not exist in project '#{devel_project_name}'" unless devel_package
 
     self.develpackage = devel_package
