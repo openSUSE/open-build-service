@@ -67,8 +67,8 @@ module Webui::ReportablesHelper
       Rails.application.routes.url_helpers.project_show_path(comment.commentable,
                                                              anchor: anchor)
     when Report
-      Rails.application.routes.url_helpers.report_url(comment.commentable,
-                                                      anchor: anchor)
+      Rails.application.routes.url_helpers.report_path(comment.commentable,
+                                                       anchor: anchor)
     end
   end
 end
