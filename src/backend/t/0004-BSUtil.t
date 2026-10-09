@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 50;
+use Test::More tests => 58;
 use FindBin;
 
 use lib "$FindBin::Bin/lib/";
@@ -55,6 +55,29 @@ sub run_all_test_with_disen {
 
 
 my $disen  = {
+  disable => [
+    { repository => 'repo:*' , arch => 'x86_64'  }
+  ]
+};
+
+# With wildcard 'repo:*', both repo:disabled and repo:enabled should match
+# for x86_64 arch, so the disable rule fires (result=0 regardless of default).
+# For i586, the arch doesn't match x86_64, so the disable rule doesn't apply
+# and the default is returned.
+$result->{'repo:disabled'}->{'x86_64'} = [qw/0 0/];
+$result->{'repo:disabled'}->{'i586'} = [qw/0 1/];
+$result->{'repo:enabled'}->{'x86_64'} = [qw/0 0/];
+$result->{'repo:enabled'}->{'i586'} = [qw/0 1/];
+
+run_all_test_with_disen(disen=>$disen,repos=>\@default_repoids,archs=>\@default_archs);
+
+# Reset result expectations for the next (non-wildcard) test
+$result->{'repo:disabled'}->{'x86_64'} = [qw/0 1/];
+$result->{'repo:disabled'}->{'i586'} = [qw/0 1/];
+$result->{'repo:enabled'}->{'x86_64'} = [qw/0 1/];
+$result->{'repo:enabled'}->{'i586'} = [qw/0 1/];
+
+$disen  = {
   disabled => [
     { repository => 'openSUSE:Disabled' , arch => 'x86_64'  }
   ]
