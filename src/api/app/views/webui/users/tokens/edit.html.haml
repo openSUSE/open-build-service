@@ -12,7 +12,7 @@
               %fieldset.mb-3
                 = f.label(:string_readonly, 'Your new OBS Personal Access Token Secret', class: 'col-form-label col-form-label-lg')
                 .input-group
-                  = render CopyToClipboardInputComponent.new(input_text: @token.string)
+                  = render CopyToClipboardInputComponent.new(input_text: @token.display_secret)
               %hr
 
           .row
@@ -32,6 +32,12 @@
                   = @token.description
                 .input-group#token-description-text-field
                   = f.text_field(:description, class: 'form-control', placeholder: 'Eg: Rebuild vim package', maxlength: 64)
+              - if @token.is_a?(Token::APIToken)
+                .mb-3
+                  = f.label(:expires_at, 'Expires at:')
+                  = f.datetime_field(:expires_at, class: 'form-control')
+                  .form-text.text-muted
+                    Leave blank for a token that never expires.
               - if @token.package.present?
                 .mb-3
                   = f.label(:type, 'Package:')
