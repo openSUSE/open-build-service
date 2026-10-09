@@ -1,4 +1,5 @@
 - if Flipper.enabled?(:labels, User.session)
-  = render partial: 'webui/shared/label', collection: project.label_globals.map(&:label_template), as: :label, locals: { global_label: true }
   - if policy(project).update?
     = render partial: 'webui/shared/label_global_form', locals: { project: }
+  .mt-1
+    = render partial: 'webui/shared/label', collection: project.label_globals.map(&:label_template), as: :label, locals: { global_label: true }
