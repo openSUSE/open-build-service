@@ -33,6 +33,7 @@ class Token::Release < Token
              comment: 'Releasing via trigger event' }
     opts[:multibuild_container] = options[:multibuild_flavor] if options[:multibuild_flavor].present?
     opts[:arch] = options[:arch] if options[:arch].present?
+    opts[:setrelease] = options[:setrelease] if options[:setrelease].present?
 
     if package_to_release.present?
       release_package(package_to_release,
@@ -50,7 +51,12 @@ class Token::Release < Token
 
     # releasing ...
     manual_release_targets.each do |release_target|
-      next if options[:repository].present? && options[:repository] == release_target.repository.name
+      next if options[:repository].present? && options[:repository] != release_target.repository.name
+
+      if options[:targetproject].present? && options[:targetrepository].present?
+        next if options[:targetproject] != release_target.target_repository.project.name
+        next if options[:targetrepository] != release_target.target_repository.name
+      end
 
       release_target.repository.check_valid_release_target!(release_target.target_repository, options[:arch])
       release(package_to_release, release_target.repository, release_target.target_repository, time_now, options)
