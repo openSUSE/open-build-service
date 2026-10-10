@@ -39,6 +39,39 @@ sub gencookie {
   return @s ? "1/$s[9]/$s[7]/$s[1]" : undef;
 }
 
+=head2 aggregate_downloads - aggregate multiple download elements with same arch
+
+ Combines multiple download elements with the same architecture into a single
+ doddata structure with multiple sources. Each source preserves its own
+ url, pubkey, master, and archfilter settings. Useful for deb repos with multiple
+ pockets that are intermingled (e.g., stable, updates, security).
+
+=cut
+
+sub aggregate_downloads {
+  my ($downloads, $arch) = @_;
+  my @matching = grep {($_->{'arch'} || '') eq $arch} @{$downloads || []};
+  return undef unless @matching;
+  # Use first element for common settings (arch, repotype)
+  my $first = $matching[0];
+  my $result = {
+    'arch' => $first->{'arch'},
+    'repotype' => $first->{'repotype'},
+  };
+  # Each download becomes a source with its own url, pubkey, master, archfilter
+  my @sources;
+  for my $dl (@matching) {
+    next unless defined $dl->{'url'};
+    my $source = { 'url' => $dl->{'url'} };
+    $source->{'pubkey'} = $dl->{'pubkey'} if defined $dl->{'pubkey'};
+    $source->{'archfilter'} = $dl->{'archfilter'} if defined $dl->{'archfilter'};
+    $source->{'master'} = $dl->{'master'} if $dl->{'master'};
+    push @sources, $source;
+  }
+  $result->{'source'} = \@sources if @sources;
+  return $result;
+}
+
 =head2 readparsed - read the pre-parsed repository metadata
 
  TODO: add description
@@ -294,7 +327,8 @@ sub get_doddata {
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid} || {};
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0] || {};
-  return (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || $proj->{'download'} || []})[0];
+  my $downloads = $repo->{'download'} || $proj->{'download'};
+  return aggregate_downloads($downloads, $arch);
 }
 
 =head2 update_doddata_prp - TODO: add summary
@@ -340,7 +374,7 @@ sub update_doddata {
   # update/add entries
   if ($proj) {
     for my $repo (@{$proj->{'repository'} || []}) {
-      my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];
+      my $doddata = aggregate_downloads($repo->{'download'}, $myarch);
       my $prp = "$projid/$repo->{'name'}";
       $prpseen{$prp} = 1;
       $changed = 1 if update_doddata_prp($gctx, $prp, $doddata);
@@ -373,7 +407,7 @@ sub init_doddata {
   for my $projid (sort keys %$projpacks) {
     for my $repo (@{($projpacks->{$projid} || {})->{'repository'} || []}) {
       next unless $repo->{'download'};
-      my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];
+      my $doddata = aggregate_downloads($repo->{'download'}, $myarch);
       next unless $doddata;
       my $repoid = $repo->{'name'};
       $dodprps->{"$projid/$repoid"} = $doddata;

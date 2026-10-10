@@ -57,12 +57,27 @@ our $download = [
 	'pubkey',
 ];
 
-# same as download, but with project/repository
+# Schema for a single source within doddata (url + its own pubkey/settings)
+our $dodsource = [
+    'source' =>
+	'url',
+	'archfilter',
+      [ 'master' =>
+	    'url',
+	    'sslfingerprint',
+      ],
+	'pubkey',
+];
+
+# doddata with project/repository for local doddata files
+# supports multiple source subelements, each with its own url and pubkey
 our $doddata = [
     'doddata' =>
 	'project',
 	'repository',
-	@$download[1 .. $#$download],
+	'arch',
+	'repotype',
+      [ $dodsource ],
 ];
 
 our $repo = [
