@@ -28,23 +28,6 @@
                                               current_object: @package)
     .row
       .col-md-8
-        .mb-3
-          - if Flipper.enabled?(:labels, User.session)
-            = render partial: 'webui/shared/label_list', locals: { labelable: @package, project: @project }
-          - if Flipper.enabled?(:foster_collaboration, User.session)
-            .d-flex
-              = render partial: 'webui/package/side_links/assignments', locals: { project: @project, package: @package }
-        - if Flipper.enabled?(:package_version_tracking, User.session) && (@package.latest_local_version || @package.latest_upstream_version)
-          Version:
-          - if @package.latest_local_version
-            %b= @package.latest_local_version.version
-          - unless @package.anitya_ignore
-            - if @package.latest_upstream_version && (@package.latest_local_version&.version != @package.latest_upstream_version.version)
-              (#{release_monitoring_package_link(@package, "#{@package.latest_upstream_version.version} available")})
-            - elsif @package.latest_upstream_version && (@package.latest_local_version&.version == @package.latest_upstream_version.version)
-              (#{release_monitoring_package_link(@package, 'up to date')})
-            - else
-              (#{release_monitoring_search_link(@package, 'no upstream')})
         .in-place-editing
           = render partial: 'basic_info', locals: { package: @package, project: @project }
       .col-md-4
