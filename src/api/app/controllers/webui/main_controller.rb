@@ -9,6 +9,7 @@ class Webui::MainController < Webui::WebuiController
       Xmlhash.parse(WorkerStatus.hidden.to_xml)
     end
     @latest_updates = StatisticsCalculations.get_latest_updated(6)
+    @my_latest_updates = User.session.commit_activities.latest_updates.limit(6) if User.session
     @waiting_packages = 0
     @building_workers = @workerstatus.elements('building').length
     @overall_workers = @workerstatus['clients']
