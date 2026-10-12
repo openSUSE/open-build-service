@@ -1046,7 +1046,7 @@ class BsRequest < ApplicationRecord
   end
 
   def canned_responses
-    package_ids = bs_request_actions.pluck(:source_package_id, :target_package_id).flatten.uniq
+    package_ids = bs_request_actions.pluck(:source_package_id, :target_package_id).flatten.uniq.compact
     CannedResponse.where(package_id: package_ids)
   end
 
