@@ -27,7 +27,7 @@
                                               project: @project,
                                               current_object: @package)
     .row
-      .col-md-8
+      .col-md-8.p-4.border-end#basic-info-wrapper
         .in-place-editing
           = render partial: 'basic_info', locals: { package: @package, project: @project }
       .col-md-4
