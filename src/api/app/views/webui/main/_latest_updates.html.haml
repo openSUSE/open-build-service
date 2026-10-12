@@ -1,26 +1,82 @@
 .card.mb-3
-  .card-header.d-flex.justify-content-between.align-items-center
-    %h5
-      Latest Updates
-    .float-end
-      = link_to(latest_updates_feed_path(format: 'rss'), title: 'RSS Feed') do
-        %i.fa.fa-rss
-  .list-group.list-group-flush
-    - latest_updates.each do |update|
-      .list-group-item
-        .row
-          .col-auto.pe-1
-            - if update[1] == :package
-              %i.fa.fa-archive.fa-lg.fa-fw.text-warning{ title: 'Package' }
-            - else
-              %i.fa.fa-cubes.fa-lg.fa-fw.text-secondary{ title: 'Project' }
-          .col.text-truncate.ps-1
-            %span
+  - if User.session
+    %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap#latest-updates-tabs{ role: 'tablist' }
+      %li.nav-item
+        %a.nav-link.active#all-updates-tab{ href: '#all-updates', role: 'tab', data: { 'bs-toggle': 'tab' },
+                                            aria: { controls: 'all-updates', selected: 'true' } }
+          All
+      %li.nav-item
+        %a.nav-link#my-updates-tab{ href: '#my-updates', role: 'tab', data: { 'bs-toggle': 'tab' },
+                                    aria: { controls: 'my-updates', selected: 'false' } }
+          My Updates
+      %li.ms-auto.align-self-center.pb-2
+        = link_to(latest_updates_feed_path(format: 'rss'), title: 'RSS Feed') do
+          %i.fa.fa-rss
+    .tab-content#latest-updates-tabs-content
+      .tab-pane.fade.show.active#all-updates{ role: 'tabpanel', aria: { labelledby: 'all-updates-tab' } }
+        .list-group.list-group-flush
+          - latest_updates.each do |update|
+            .list-group-item
+              .row
+                .col-auto.pe-1
+                  - if update[1] == :package
+                    %i.fa.fa-archive.fa-lg.fa-fw.text-warning{ title: 'Package' }
+                  - else
+                    %i.fa.fa-cubes.fa-lg.fa-fw.text-secondary{ title: 'Project' }
+                .col.text-truncate.ps-1
+                  %span
+                    - if update[1] == :package
+                      = link_to(package_show_path(project: update[3], package: update[2])) do
+                        = update[2]
+                    - else
+                      = link_to(project_show_path(update[1])) do
+                        = update[1]
+                  %p.mt-1.mb-0
+                    = render TimeComponent.new(time: update[0])
+      .tab-pane.fade#my-updates{ role: 'tabpanel', aria: { labelledby: 'my-updates-tab' } }
+        - if my_latest_updates.present?
+          .list-group.list-group-flush
+            - my_latest_updates.each do |activity|
+              .list-group-item
+                .row
+                  .col-auto.pe-1
+                    %i.fa.fa-archive.fa-lg.fa-fw.text-warning{ title: 'Package' }
+                  .col.text-truncate.ps-1
+                    %span
+                      = link_to(project_show_path(activity.project), class: 'text-body-secondary') do
+                        = activity.project
+                      \/
+                      = link_to(package_show_path(project: activity.project, package: activity.package)) do
+                        = activity.package
+                    %p.mt-1.mb-0
+                      - activity_time = activity.date.is_a?(String) ? Time.zone.parse(activity.date) : activity.date.in_time_zone
+                      = render TimeComponent.new(time: activity_time)
+        - else
+          .p-3.text-center.text-body-secondary
+            No recent activity
+  - else
+    .card-header.d-flex.justify-content-between.align-items-center
+      %h5
+        Latest Updates
+      .float-end
+        = link_to(latest_updates_feed_path(format: 'rss'), title: 'RSS Feed') do
+          %i.fa.fa-rss
+    .list-group.list-group-flush
+      - latest_updates.each do |update|
+        .list-group-item
+          .row
+            .col-auto.pe-1
               - if update[1] == :package
-                = link_to(package_show_path(project: update[3], package: update[2])) do
-                  = update[2]
+                %i.fa.fa-archive.fa-lg.fa-fw.text-warning{ title: 'Package' }
               - else
-                = link_to(project_show_path(update[1])) do
-                  = update[1]
-            %p.mt-1.mb-0
-              = render TimeComponent.new(time: update[0])
+                %i.fa.fa-cubes.fa-lg.fa-fw.text-secondary{ title: 'Project' }
+            .col.text-truncate.ps-1
+              %span
+                - if update[1] == :package
+                  = link_to(package_show_path(project: update[3], package: update[2])) do
+                    = update[2]
+                - else
+                  = link_to(project_show_path(update[1])) do
+                    = update[1]
+              %p.mt-1.mb-0
+                = render TimeComponent.new(time: update[0])
