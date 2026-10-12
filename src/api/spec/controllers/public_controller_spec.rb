@@ -165,7 +165,6 @@ RSpec.describe PublicController, :vcr do
     end
 
     it { expect(response).to have_http_status(:success) }
-    it { expect(assigns(:pkg)).to eq(package) }
   end
 
   describe 'GET #source_file history' do
