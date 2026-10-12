@@ -139,4 +139,8 @@ module ProjectLinks
   def links_to_remote?
     expand_all_projects(allow_remote_projects: true).any?(String)
   end
+
+  def links_to_scmsync?
+    expand_all_projects.any? { |project| project.scmsync.present? }
+  end
 end

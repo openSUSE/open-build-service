@@ -6,6 +6,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
 
   def setup
     Backend::Test.start
+    User.session = users(:Iggy)
   end
 
   def test_destroy_source_revokes_request

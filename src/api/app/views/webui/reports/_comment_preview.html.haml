@@ -1,0 +1,11 @@
+%div
+  %b
+    Comment ##{reportable.id} on
+    = link_to_commentables_on_reportables(commentable: reportable.commentable, only_path: true, host: nil)
+    created by
+    = render UserAvatarComponent.new(reportable.user)
+    = render TimeComponent.new(time: reportable.created_at)
+- if reportable.body.present?
+  %div
+    %b Body:
+    = render partial: 'webui/shared/collapsible_text', locals: { text: reportable.body }

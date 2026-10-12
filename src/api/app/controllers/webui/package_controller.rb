@@ -155,6 +155,12 @@ class Webui::PackageController < Webui::WebuiController
     @users = [@project.users, @package.users].flatten.uniq
     @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
+    @devel_package = @package.develpackage
+    if @devel_package
+      @devel_users = [@devel_package.project.users, @devel_package.users].flatten.uniq
+      @devel_groups = [@devel_package.project.groups, @devel_package.groups].flatten.uniq
+    end
+
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
   end
 
@@ -279,14 +285,11 @@ class Webui::PackageController < Webui::WebuiController
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all: show_all)
 
-      # TODO: this is part of the temporary changes done for 'request_show_redesign'.
-      request_show_redesign_partial = 'webui/request/beta_show_tabs/build_status' if params.fetch(:inRequestShowRedesign, false)
-
-      render partial: request_show_redesign_partial || 'buildstatus', locals: { buildresults: @buildresults,
-                                                                                index: @index,
-                                                                                project: @project,
-                                                                                collapsed_packages: params.fetch(:collapsedPackages, []),
-                                                                                collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
+      render partial: 'buildstatus', locals: { buildresults: @buildresults,
+                                               index: @index,
+                                               project: @project,
+                                               collapsed_packages: params.fetch(:collapsedPackages, []),
+                                               collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
       render partial: 'no_build_results', locals: { project: @project }
     end
@@ -315,16 +318,13 @@ class Webui::PackageController < Webui::WebuiController
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
-      filters = params.keys.select { |k| k.start_with?('repo', 'arch') }
-      render 'webui/package/beta/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                            package_name: @package_name,
-                                                            repository: repository, architecture: architecture,
-                                                            repository_list: repo_list.map(&:first), arch_list: repo_arch_hash.values.flatten.uniq, filters: filters }
-    else
-      render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                  repository_list: repo_list, repo_arch_hash: repo_arch_hash }
-    end
+    # TODO: This should be rendered as a normal view instead of
+    # rendering it as partial with locals
+    filters = params.keys.select { |k| k.start_with?('repo', 'arch') }
+    render 'webui/package/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                     package_name: @package_name,
+                                                     repository: repository, architecture: architecture,
+                                                     repository_list: repo_list.map(&:first), arch_list: repo_arch_hash.values.flatten.uniq, filters: filters }
   end
 
   def rpmlint_log_params
@@ -341,8 +341,10 @@ class Webui::PackageController < Webui::WebuiController
     render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
   end
 
+  # TODO: This should be rendered as a normal view instead of
+  # rendering it as partial with locals
   def rpmlint_summary
-    render partial: 'webui/package/beta/rpmlint_summary',
+    render partial: 'webui/package/rpmlint_summary',
            locals: { lints_list: @results, badness: @badness, errors: @errors, warnings: @warnings, info: @info, project: @project, package_name: @package_name }
   end
 

@@ -194,9 +194,15 @@ sub sync_package {
     $needtrigger = 1 if !$oldpack || $undeleted || ($oldpack->{'scmsync'} || '') ne $pack->{'scmsync'};
     if (!$needtrigger && $info) {
       my $lastrev = eval { BSRevision::getrev_local($projid, $packid) };
+      my $lastinfo;
       if ($lastrev && $lastrev->{'comment'} && $lastrev->{'comment'} =~ /\[info=([0-9a-f]{1,128})\]$/) {
-        my $l = length($1) < length($info) ? length($1) : length($info);
-        $needtrigger = 1 if substr($info, 0, $l) ne substr($1, 0, $l);
+	$lastinfo = $1;
+      }
+      if (!$lastinfo) {
+	$needtrigger = 1;	# always trigger if there is no info available
+      } else {
+        my $l = length($lastinfo) < length($info) ? length($lastinfo) : length($info);
+        $needtrigger = 1 if substr($info, 0, $l) ne substr($lastinfo, 0, $l);
       }
     }
     if ($needtrigger) {

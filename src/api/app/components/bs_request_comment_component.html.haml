@@ -64,6 +64,7 @@
       .comment-bubble-content{ id: "comment-#{comment.id}-body" }
         = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
         = helpers.render_as_markdown(comment)
+        = render partial: 'webui/comment/original_body', locals: { comment: comment }
       - if policy(comment).reply?
         .d-flex.justify-content-end.me-3.mb-2
           = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',

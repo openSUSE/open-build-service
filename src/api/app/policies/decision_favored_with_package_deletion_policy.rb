@@ -1,0 +1,2 @@
+class DecisionFavoredWithPackageDeletionPolicy < DecisionPolicy
+end

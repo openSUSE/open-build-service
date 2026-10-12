@@ -180,8 +180,10 @@ for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/*; do
 done
 # And here process those binaries in subdirectories
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/linux/*; do
-  sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-  sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+  if [[ -f $bin ]]; then
+    sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+    sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+  fi
 done
 
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts

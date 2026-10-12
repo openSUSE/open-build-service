@@ -137,6 +137,7 @@ sub check {
   delete $bconf->{'ignoreh'};
 
   my @deps = @{$info->{'dep'} || []};
+  @deps = () if $pdata->{'hasbuildenv'} || $info->{'hasbuildenv'};
 
   my $cpool;	# pool used for container expansion
   my @cbdep;    # container bdep for job

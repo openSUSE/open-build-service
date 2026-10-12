@@ -206,7 +206,20 @@ end
 resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
 
 ### /reports
-resources :reports, only: %i[index show create update destroy], constraints: cons
+resources :reports, only: %i[index show update destroy], constraints: cons
+
+controller :reports do
+  get 'reports/request/:request_number' => :index, constraints: cons, as: :reports_request
+  post 'reports/request/:request_number' => :create, constraints: cons
+  get 'reports/package/:project_name/:package_name' => :index, constraints: cons, as: :reports_package
+  post 'reports/package/:project_name/:package_name' => :create, constraints: cons
+  get 'reports/project/:project_name' => :index, constraints: cons, as: :reports_project
+  post 'reports/project/:project_name' => :create, constraints: cons
+  get 'reports/comment/:comment_id' => :index, constraints: cons, as: :reports_comment
+  post 'reports/comment/:comment_id' => :create, constraints: cons
+  get 'reports/user/:user_login' => :index, constraints: cons, as: :reports_user
+  post 'reports/user/:user_login' => :create, constraints: cons
+end
 
 # StagingWorkflow API
 resources :staging, only: [], param: 'workflow_project', module: 'staging', constraints: cons do

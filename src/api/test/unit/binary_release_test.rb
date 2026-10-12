@@ -103,7 +103,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
 
     UpdateReleasedBinariesJob.new.send(:update_binary_releases_for_repository, r, json)
     br = BinaryRelease.where(medium: 'my_container.docker.tar.xz').last
-    assert_equal nil, br.release_package # not release itself
+    assert_nil br.release_package # not release itself
 
     # find container which went out
     release_package = br.on_medium.release_package

@@ -110,3 +110,8 @@ CONFIG['sponsors'] = [
     url: '#'
   )
 ]
+
+# Disable Mariadb SSL/TLS verification for development and test
+# since Thinking Sphinx/Searchd are not setup for it in those
+# environments
+ENV['MARIADB_TLS_DISABLE_PEER_VERIFICATION'] = '1'

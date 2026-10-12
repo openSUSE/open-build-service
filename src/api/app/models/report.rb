@@ -18,6 +18,7 @@ class Report < ApplicationRecord
   has_many :comments, as: :commentable, dependent: :destroy
 
   belongs_to :decision, optional: true
+  has_many :notifications, as: :notifiable, dependent: :destroy
 
   enum :category, {
     spam: 10,

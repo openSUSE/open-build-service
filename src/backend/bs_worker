@@ -2466,11 +2466,27 @@ sub getpreinstallimage {
   return $imagefile, \%imagebins, $imagesource, \%metas, \%imageorigins;
 }
 
+sub getbinaries_buildenv_imagemode_getdir {
+  my ($dir, $srcdir, $repo, $bdep, $links) = @_;
+  if ($bdep->{'name'} =~ /^container:/) {
+    my $ddir = "$srcdir/containers/$repo->{'project'}/$repo->{'repository'}";
+    mkdir_p($ddir);
+    return $ddir;
+  }
+  return $dir if $bdep->{'notmeta'} && !$bdep->{'noinstall'};
+  my $ddir = "$srcdir/repos/$repo->{'project'}/$repo->{'repository'}";
+  mkdir_p($ddir);
+  push @$links, [ "$ddir/$bdep->{'name'}.rpm", "$dir/$bdep->{'name'}.rpm" ] unless $bdep->{'noinstall'};
+  return $ddir;
+}
+
 sub getbinaries_buildenv {
   my ($buildinfo, $dir, $srcdir) = @_;
 
   mkdir_p($dir);
   importbuild() unless defined &Build::queryhdrmd5;
+
+  my $imagemode = getimagemode($buildinfo);
 
   my @bdeps = grep {$_->{'name'} && $_->{'hdrmd5'}} @{$buildinfo->{'bdep'} || []};
   die("binaries without hdrmd5 in buildenv\n") unless @bdeps == @{$buildinfo->{'bdep'} || []};
@@ -2478,8 +2494,17 @@ sub getbinaries_buildenv {
   my %needed_names = map {$_->{'name'} => 1} @bdeps;
   my @needed_names = sort(keys %needed_names);
 
+  my $links = [];
+  my %containernames;
+  if ($imagemode) {
+    # we do not know the binary names for containers, so we just match the hdrmd5
+    for (grep {$_->{'name'} =~ /^container:/} @bdeps) {
+      $containernames{$_->{'hdrmd5'}} ||= $_->{'name'};
+    }
+  }
+
   my $arch = $buildinfo->{'arch'};
-  for my $repo (@{$buildinfo->{'path'} || []}) {
+  for my $repo (@{$buildinfo->{'path'} || []}, @{$imagemode ? ($buildinfo->{'syspath'} || []) : []}) {
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $projid = $repo->{'project'};
     my $repoid = $repo->{'repository'};
@@ -2505,6 +2530,17 @@ sub getbinaries_buildenv {
       my $bvl = $pbvl->{$packid};
       for (@{$bvl->{'binary'} || []}) {
         next unless $_->{'name'} && $_->{'hdrmd5'};
+        if ($imagemode && $_->{'name'} =~ /^\.obsbinlnk$/) {
+	  my $n = $containernames{$_->{'hdrmd5'}};
+	  next unless $n;
+	  $_->{'repo'} = $repo;
+	  $_->{'package'} = $packid;
+	  $_->{'binary'} = $n;
+	  $_->{'filename'} = $_->{'name'};
+	  $_->{'filename'} =~ s/\.obsbinlnk$/\.tar/;
+	  $_->{'name'} = "$n.tar";
+	  push @{$needed{"$n.$_->{'hdrmd5'}"}}, $_ if $needed{"$n.$_->{'hdrmd5'}"};
+	}
         next unless $_->{'name'} =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	$_->{'repo'} = $repo;
 	$_->{'package'} = $packid;
@@ -2520,7 +2556,7 @@ sub getbinaries_buildenv {
   @needed_names = sort(keys %needed_names);
   if (@needed_names) {
     # maybe we need to look at the full tree as well...
-    for my $repo (@{$buildinfo->{'path'} || []}) {
+    for my $repo (@{$buildinfo->{'path'} || []}, @{$imagemode ? ($buildinfo->{'syspath'} || []) : []}) {
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
       my $callers_time = time();
       my @args;
@@ -2544,6 +2580,12 @@ sub getbinaries_buildenv {
       next unless $bvl;
       for (@{$bvl->{'binary'} || []}) {
         next unless $_->{'hdrmd5'};
+	if ($imagemode && $_->{'name'} =~ /^(container:.*)\.tar$/) {
+	  $_->{'repo'} = $repo;
+	  $_->{'binary'} = $1;
+	  push @{$needed{"$1.$_->{'hdrmd5'}"}}, $_ if $needed{"$1.$_->{'hdrmd5'}"};
+	  next;
+	}
         next unless $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
 	$_->{'repo'} = $repo;
 	$_->{'binary'} = $1;
@@ -2561,31 +2603,32 @@ sub getbinaries_buildenv {
 
   # check the cache
   if ($cachedir) {
-    for my $needed (sort keys %needed) {
+    for my $bdep (grep {!$used{"$_->{'name'}.$_->{'hdrmd5'}"}} @bdeps) {
+      my $needed = "$bdep->{'name'}.$bdep->{'hdrmd5'}";
       for my $bv (@{$needed{$needed}}) {
+	next if $imagemode && $bv->{'name'} =~ /^container:/;
         my $repo = $bv->{'repo'};
-        my $projid = $repo->{'project'};
-        my $repoid = $repo->{'repository'};
-        my ($cacheid, $cachefile) = get_cachefile("$projid/$repoid/$arch", $bv->{'hdrmd5'});
-        if (link_or_copy($cachefile, "$dir/$bv->{'name'}")) {
-	  my @s = stat("$dir/$bv->{'name'}");
+        my ($cacheid, $cachefile) = get_cachefile("$repo->{'project'}/$repo->{'repository'}/$arch", $bv->{'hdrmd5'});
+        my $ddir = $dir;
+        $ddir = getbinaries_buildenv_imagemode_getdir($dir, $srcdir, $repo, $bdep, $links) if $imagemode;
+	my $filename = $bdep->{'sysroot'} ? "__sysroot__$bv->{'name'}" : $bv->{'name'};
+        if (link_or_copy($cachefile, "$ddir/$filename")) {
+	  my @s = stat("$ddir/$filename");
 	  die unless @s;
-	  my $id = Build::queryhdrmd5("$dir/$bv->{'name'}");
+	  my $id = Build::queryhdrmd5("$ddir/$filename");
 	  if ($id eq $bv->{'hdrmd5'}) {
 	    push @cacheold, [$cacheid, $s[7]];
-	    die unless $bv->{'name'} =~ /(.*)\.rpm$/;
-	    $used{$needed} = { 'name' => $1, 'project' => $projid, 'repository' => $repoid, 'hdrmd5' => $id };
-	    delete $needed{$needed};
+	    $used{$needed} = $bv;
 	    last;
           }
 	}
-	unlink("$dir/$bv->{'name'}");
+	unlink("$ddir/$filename");
       }
     }
   }
 
   my $downloadsizek = 0;
-  for my $needed (keys %needed) {
+  for my $needed (grep {!$used{$_}} keys %needed) {
     $downloadsizek += $needed{$needed}->[0]->{'sizek'} || 0;
   }
   $binariescachehits += @cacheold;
@@ -2597,61 +2640,90 @@ sub getbinaries_buildenv {
   }
 
   # download... slowly...
-  for my $needed (sort keys %needed) {
+  for my $bdep (grep {!$used{"$_->{'name'}.$_->{'hdrmd5'}"}} @bdeps) {
+    my $needed = "$bdep->{'name'}.$bdep->{'hdrmd5'}";
     for my $bv (@{$needed{$needed}}) {
       my $repo = $bv->{'repo'};
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
       my $projid = $repo->{'project'};
       my $repoid = $repo->{'repository'};
-      my $param;
+      my $ddir = $dir;
+      $ddir = getbinaries_buildenv_imagemode_getdir($dir, $srcdir, $repo, $bdep, $links) if $imagemode;
       my @args;
-      unlink("$dir/$bv->{'name'}");
-      if ($bv->{'package'}) {
-	$param = {
-          'uri' => "$server/build/$projid/$repoid/$arch/$bv->{'package'}/$bv->{'filename'}",
-          'timeout' => $gettimeout,
-	  'receiver' => \&BSHTTP::file_receiver,
-	  'filename' => "$dir/$bv->{'name'}",
-	};
-      } else {
-	push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
-	$param = {
-          'uri' => "$server/build/$projid/$repoid/$arch/_repository/$bv->{'name'}",
-          'timeout' => $gettimeout,
-	  'receiver' => \&BSHTTP::file_receiver,
-	  'filename' => "$dir/$bv->{'name'}",
-	};
-      }
-      eval {
-        BSRPC::rpc($param, undef, @args);
+      unlink("$ddir/$bv->{'name'}");
+      my $filename = $bdep->{'sysroot'} ? "__sysroot__$bv->{'name'}" : $bv->{'name'};
+      my $param = {
+        'timeout' => $gettimeout,
+	'receiver' => \&BSHTTP::file_receiver,
+	'filename' => "$ddir/$filename",
       };
+      if ($bv->{'package'}) {
+	$param->{'uri'} = "$server/build/$projid/$repoid/$arch/$bv->{'package'}/$bv->{'filename'}";
+      } else {
+        push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
+	$param->{'uri'} = "$server/build/$projid/$repoid/$arch/_repository/$bv->{'name'}";
+      }
+      if ($imagemode && $server ne $buildinfo->{'srcserver'} && $bv->{'name'} =~ /^container:/) {
+	# download containers as cpio to get the annotation
+	$param->{'directory'} = $ddir;
+	$param->{'receiver'} = \&BSHTTP::cpio_receiver;
+	$param->{'uri'} =~ s/\/([^\/]+)$//;
+	push @args, 'view=cpio';
+	push @args, $bv->{'package'} ? "binary=$1" : "binary=$bv->{'binary'}";
+	push @args, "withannotation=1";
+	if ($bv->{'package'}) {
+	  # map the filename to $bv->{'name'}
+	  $param->{'map'} = sub { $_[1] =~ /\.(tar(?:\.[^\.]+)?|annotation)$/ ? "$bv->{'binary'}.$1" : undef };
+	}
+      }
+      eval { BSRPC::rpc($param, undef, @args) };
       if ($@) {
 	warn($@);
-        unlink("$dir/$bv->{'name'}");
+        unlink("$ddir/$filename");
+        unlink("$ddir/$bv->{'binary'}.annotation") if $imagemode && $bv->{'name'} =~ /^container:/;
 	next;
       }
-      my @s = stat("$dir/$bv->{'name'}");
+      my @s = stat("$ddir/$filename");
       next unless @s;
-      my $id = Build::queryhdrmd5("$dir/$bv->{'name'}");
+      if ($imagemode && $bv->{'name'} =~ /^container:/) {
+	if (!checkmd5("$ddir/$filename", $bv->{'hdrmd5'})) {
+	  unlink("$ddir/$filename");
+	  unlink("$ddir/$bv->{'binary'}.annotation");
+	  next;
+	}
+	$used{$needed} = $bv;
+	last;
+      }
+      my $id = Build::queryhdrmd5("$ddir/$filename");
       if ($id ne $bv->{'hdrmd5'}) {
-        unlink("$dir/$bv->{'name'}");
+        unlink("$ddir/$filename");
 	next;
       }
-      die unless $bv->{'name'} =~ /(.*)\.rpm$/;
-      $used{$needed} = { 'name' => $1, 'project' => $projid, 'repository' => $repoid, 'hdrmd5' => $id };
+      $used{$needed} = $bv;
       my ($cacheid) = get_cachefile("$projid/$repoid/$arch", $bv->{'hdrmd5'});
-      push @cachenew, [$cacheid, $s[7], "$dir/$bv->{'name'}"];
-      delete $needed{$needed};
+      push @cachenew, [$cacheid, $s[7], "$ddir/$filename"];
       last;
     }
-    die("download of $needed failed\n") if $needed{$needed};
+    die("download of $needed failed\n") unless $used{$needed};
+  }
+  if ($imagemode) {
+    for (@$links) {
+      link_or_copy($_->[0], $_->[1]) || die("link_or_copy $_->[0], $_->[1]: $!\n");
+    }
   }
   my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
   if ($outbdep) {
-    for (@bdeps) {
-      my $needed = "$_->{'name'}.$_->{'hdrmd5'}";
-      my $obdep = $used{$needed};
-      die("did not use package $needed?\n") unless $obdep;
+    for my $bdep (@bdeps) {
+      my $needed = "$bdep->{'name'}.$bdep->{'hdrmd5'}";
+      my $bv = $used{$needed};
+      die("did not use package $needed?\n") unless $bv;
+      my $repo = $bv->{'repo'};
+      my $obdep = { 'name' => $bdep->{'name'}, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'}, 'hdrmd5' => $bv->{'hdrmd5'} };
+      $obdep->{'sysroot'} = 1 if $bdep->{'sysroot'};
+      if ($imagemode) {
+        $obdep->{'notmeta'} = 1 if $bdep->{'notmeta'};
+        $obdep->{'noinstall'} = 1 if $bdep->{'noinstall'};
+      }
       push @$outbdep, $obdep;
     }
   }
@@ -2673,9 +2745,23 @@ sub getimagemode {
   return $imagemode;
 }
 
+sub binary_to_outbdep {
+  my ($outbdep, $repo, $name, $pkg, @extra) = @_;
+  my $obdep = { 'name' => $name, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'}, @extra };
+  $obdep->{'hdrmd5'} = $pkg->{'hdrmd5'} if $pkg->{'hdrmd5'};
+  if ($pkg->{'evr'}) {
+    $obdep->{'version'} = $pkg->{'evr'};
+    $obdep->{'epoch'} = $1 if $obdep->{'version'} =~ s/^([0-9]+)://;
+    $obdep->{'release'} = $1 if $obdep->{'version'} =~ s/-([^\-]+)$//;
+    $obdep->{'arch'} = $pkg->{'arch'} if $pkg->{'arch'};
+  }
+  push @$outbdep, $obdep;
+}
+
 sub getbinaries_containers {
   my ($buildinfo, $dir, $srcdir, $origins) = @_;
 
+  my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
   my $basecontainerannotationxml;
   my @meta;
   for my $bdep (grep {$_->{'name'} =~ /^container:/} @{$buildinfo->{'bdep'} || []}) {
@@ -2734,13 +2820,22 @@ sub getbinaries_containers {
       if ($annotation) {
 	$basecontainerannotationxml = $annotationxml;	# this relies on the base container coming last
 	die("annotation does not match container\n") if $annotation->{'hdrmd5'} && $annotation->{'hdrmd5'} ne $tarmd5;
-	for (qw{package version release binaryarch disturl buildhost buildtime binaryid}) {
+	for (qw{package epoch version release binaryarch disturl buildhost buildtime binaryid}) {
 	  $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';
 	}
       }
     }
     $bin->{'binaryarch'} ||= $bin->{'arch'} || 'noarch';
     push @{$origins->{':basecontainers'}}, $bin;
+    if ($outbdep) {
+      my $pkg = { 'hdrmd5' => $tarmd5 };
+      if (defined($bin->{'version'})) {
+	$pkg->{'evr'} = defined($bin->{'release'}) ? "$bin->{'version'}-$bin->{'release'}" : $bin->{'version'};
+	$pkg->{'evr'} = "$bin->{'epoch'}:$pkg->{'evr'}" if $bin->{'epoch'};
+	$pkg->{'arch'} = $bin->{'binaryarch'} if $bin->{'binaryarch'};
+      }
+      binary_to_outbdep($outbdep, $repo, $bdep->{'name'}, $pkg, 'noinstall' => 1);
+    }
   }
 
   $basecontainerannotationxml ||= $buildinfo->{'containerannotation'};
@@ -2769,6 +2864,7 @@ sub getbinaries_image {
 
   my @todo = @bdep;
   die("no binaries needed for this package?\n") unless @todo;
+  my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
   my @meta;
   my $modules = $buildinfo->{'module'};
 
@@ -2780,6 +2876,9 @@ sub getbinaries_image {
       last unless @todo;
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
       my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $syspatharch, 1, \@todo, $modules);
+      if ($outbdep) {
+	binary_to_outbdep($outbdep, $repo, $_, $got->{$_}, 'notmeta' => 1) for sort keys %$got;
+      }
       if ($buildinfo->{'slsaprovenance'}) {
 	for my $n (sort keys %$got) {
 	  my $f = $got->{$n};
@@ -2833,6 +2932,14 @@ sub getbinaries_image {
 	  add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$arch", $f->{'name'}, "$dir/$f->{'name'}") if $buildinfo->{'slsaprovenance'};
 	}
 	unlink("$ddir/$f->{'name'}") if $bdep_notmeta{$n};
+      }
+    }
+    if ($outbdep) {
+      for (sort keys %$got) {
+	my @extra;
+	push @extra, 'noinstall' => 1 if $buildinfo->{'syspath'} || $bdep_noinstall{$_};
+	push @extra, 'notmeta' => 1 if $bdep_notmeta{$_};
+	binary_to_outbdep($outbdep, $repo, $_, $got->{$_}, @extra);
       }
     }
     @todo = grep {!$got->{$_}} @todo;
@@ -2893,15 +3000,8 @@ sub getbinaries {
       if ($outbdep) {
 	# record preinstallimage data
         for (grep {$imagebins->{$_}} @todo) {
-	  my $bv = $imagebins->{$_};
-	  my $obdep = { 'name' => $_, 'hdrmd5' => $bv->{'hdrmd5'}, 'project' => $imageorigins->{$_}->[0], 'repository' => $imageorigins->{$_}->[1] };
-	  if ($bv->{'evr'}) {
-	    $obdep->{'version'} = $bv->{'evr'};
-	    $obdep->{'epoch'} = $1 if $obdep->{'version'} =~ s/^([0-9]+)://;
-	    $obdep->{'release'} = $1 if $obdep->{'version'} =~ s/-([^\-]+)$//;
-	    $obdep->{'arch'} = $bv->{'arch'} if $bv->{'arch'};
-	  }
-	  push @$outbdep, $obdep;
+	  my $repo = { 'project' => $imageorigins->{$_}->[0], 'repository' => $imageorigins->{$_}->[1] };
+	  binary_to_outbdep($outbdep, $repo, $_, $imagebins->{$_});
         }
       }
       # remove image packages from todo
@@ -2926,19 +3026,11 @@ sub getbinaries {
       $done{$_} = $gotpkg->{'name'};
       $meta{$_} = 1 if !$nometa && $gotpkg->{'meta'};
       if ($outbdep) {
-	my $obdep = { 'name' => $_, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'} };
 	if ($cross) {
-	  substr($obdep->{'name'}, 0, length($binaryprefix), '');
-	  $obdep->{'sysroot'} = 1;
+	  binary_to_outbdep($outbdep, $repo, substr($_, length($binaryprefix)), $gotpkg, 'sysroot' => 1);
+	} else {
+	  binary_to_outbdep($outbdep, $repo, $_, $gotpkg);
 	}
-	$obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
-	if ($gotpkg->{'evr'}) {
-	  $obdep->{'version'} = $gotpkg->{'evr'};
-	  $obdep->{'epoch'} = $1 if $obdep->{'version'} =~ s/^([0-9]+)://;
-	  $obdep->{'release'} = $1 if $obdep->{'version'} =~ s/-([^\-]+)$//;
-	  $obdep->{'arch'} = $gotpkg->{'arch'} if $gotpkg->{'arch'};
-	}
-	push @$outbdep, $obdep;
       }
       if (!$cross && $origins) {
 	# sigh, no package information available yet...
@@ -2968,17 +3060,7 @@ sub getbinaries {
     for (sort keys %$got) {
       my $gotpkg = $got->{$_};
       $done{$_} = $gotpkg->{'name'};
-      if ($outbdep) {
-	my $obdep = { 'name' => $_, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'} };
-	$obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
-	if ($gotpkg->{'evr'}) {
-	  $obdep->{'version'} = $gotpkg->{'evr'};
-	  $obdep->{'epoch'} = $1 if $obdep->{'version'} =~ s/^([0-9]+)://;
-	  $obdep->{'release'} = $1 if $obdep->{'version'} =~ s/-([^\-]+)$//;
-	  $obdep->{'arch'} = $gotpkg->{'arch'} if $gotpkg->{'arch'};
-	}
-	push @$outbdep, $obdep;
-      }
+      binary_to_outbdep($outbdep, $repo, $_, $gotpkg) if $outbdep;
       if ($origins) {
         # sigh, no package information available yet...
         $origins->{$_} = "$repoprp/$arch";
@@ -3131,11 +3213,12 @@ sub readbuildenv {
   # work around buildenv generation bug
   $_->{'name'} =~ s/\.rpm$// for @{$bi->{'bdep'} || []};
   if (($buildinfo->{'signflavor'} || '') eq '_buildenv') {
-    die("Need to have an outbuildinfo\n") unless $buildinfo->{'outbuildinfo'};
     delete $buildinfo->{'signflavor'};
-    delete $buildinfo->{'outbuildinfo'}->{'signflavor'};
     $buildinfo->{'signflavor'} = $bi->{'signflavor'} if defined $bi->{'signflavor'};
-    $buildinfo->{'outbuildinfo'}->{'signflavor'} = $bi->{'signflavor'} if defined $bi->{'signflavor'};
+    if ($buildinfo->{'outbuildinfo'}) {
+      delete $buildinfo->{'outbuildinfo'}->{'signflavor'};
+      $buildinfo->{'outbuildinfo'}->{'signflavor'} = $bi->{'signflavor'} if defined $bi->{'signflavor'};
+    }
   }
   for (qw{error versrel bcnt release bdep config}) {
     $buildinfo->{$_} = $bi->{$_} if defined $bi->{$_};
@@ -3872,8 +3955,8 @@ sub dobuild {
   BSUtil::cleandir($pkgdir) if -d $pkgdir;
   rm_rf($oldpkgdir) if -d $oldpkgdir;
 
-  # create buildenv data
-  if (!$imagemode && !$followupmode && !$deltamode && !$ptfmode && !$reproduciblecheckmode) {
+  # create buildenv data (but not for product builds)
+  if (!($imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose')) && !$followupmode && !$deltamode && !$ptfmode && !$reproduciblecheckmode) {
     $buildinfo->{'outbuildinfo'} = {
       'project' => $projid,
       'package' => $packid,
@@ -4008,7 +4091,7 @@ sub dobuild {
     $config = Build::combine_configs($config, "Macros:\n$buildinfo->{'modularity_macros'}") if $buildinfo->{'modularity_macros'};
   }
   $buildinfo->{'slsa_provenance_config'} = $config if $buildinfo->{'slsaprovenance'};
-  $buildinfo->{'outbuildinfo'}->{'config'} = $config;
+  $buildinfo->{'outbuildinfo'}->{'config'} = $config if $buildinfo->{'outbuildinfo'};
   writestr("$buildroot/.build.config", undef, $config);
   add_slsa_materials_config($buildinfo, "$projid/$repoid", $config) if $buildinfo->{'slsaprovenance'};
 

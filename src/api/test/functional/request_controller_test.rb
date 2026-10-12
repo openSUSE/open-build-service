@@ -3548,6 +3548,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_cleanup_empty_projects
+    rev_files = Dir.glob("#{backend_data}/projects/Apache.pkg/*.rev")
+    rev_files.each { |f| FileUtils.cp(f, "#{f}.backup") }
+
     # we use an admin user so we can twiddle the configuration
     login_king
 
@@ -3567,6 +3570,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     put '/configuration?cleanup_empty_projects=on'
     assert_response :success
     cleanup_empty_projects_helper(true)
+  ensure
+    rev_files&.each do |f|
+      backup = "#{f}.backup"
+      FileUtils.mv(backup, f) if File.exist?(backup)
+    end
   end
 
   def test_ordering_of_requests

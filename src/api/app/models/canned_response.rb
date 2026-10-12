@@ -4,6 +4,15 @@ class CannedResponse < ApplicationRecord
   #### Includes and extends
 
   #### Constants
+  DECISION_TYPE_DESCRIPTIONS = {
+    'cleared' => 'Used when a report is dismissed because the content does not violate any policy.',
+    'favored' => 'Used when a report is accepted and a moderation action is taken.',
+    'favored_with_comment_moderation' => 'Used when a report is accepted and the offending comment is hidden.',
+    'favored_with_delete_request' => 'Used when a report is accepted and a delete request is submitted for the content.',
+    'favored_with_user_deletion' => "Used when a report is accepted and the reported user's account is deleted.",
+    'favored_with_user_commenting_restriction' => 'Used when a report is accepted and the reported user is restricted from commenting.',
+    nil => 'General-purpose responses not tied to any specific moderation decision.'
+  }.freeze
 
   #### Self config
   validates :title, presence: true, length: { maximum: 255 }
