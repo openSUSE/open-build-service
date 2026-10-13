@@ -317,6 +317,29 @@ sub call_authenticator {
   return undef;
 }
 
+sub keepalive_set {
+  my ($keepalive, $sock, $keepalivecookie, $keepalivestart, $keepalivecount) = @_;
+  return unless $sock;
+  $keepalive->{'socket'} = $sock;
+  $keepalive->{'cookie'} = $keepalivecookie;
+  $keepalive->{'start'} = $keepalivestart;
+  $keepalive->{'count'} = $keepalivecount;
+  $keepalive->{'last'} = time();
+}
+
+# try to discard the body for error status codes so that we can continue with keepalive
+sub keepalive_discard_body {
+  my ($keepalive, $headers, $sock, $ans) = @_;
+  return undef unless defined($headers->{'content-length'}) && !$headers->{'transfer-encoding'};
+  my $ansreq = {
+    'headers' => $headers,
+    '__socket' => $sock,
+    '__data' => $ans,
+  };
+  eval { BSHTTP::read_data($ansreq, undef, 1) };
+  return $@ ? undef : $keepalive;
+}
+
 #
 # handled paramters:
 # timeout
@@ -530,6 +553,7 @@ sub rpc {
 
   # the http standard defines some status codes to have no body
   my $bodyless = $status =~ /^(?:1\d\d|204|304)[^\d]/ ? 1 : 0;
+  $bodyless = 1 if ($param->{'request'} || 'GET') eq 'HEAD';
 
   # no keepalive if the server says so
   undef $keepalive if lc($headers{'connection'} || '') eq 'close';
@@ -550,11 +574,19 @@ sub rpc {
     #  print "< $ans\n";
     #}
     if ($status =~ /^30[27][^\d]/ && ($param->{'ignorestatus'} || 0) != 2) {
-      close $sock;
+      $keepalive = keepalive_discard_body($keepalive, \%headers, $sock, $ans) if $keepalive && !$bodyless;
+      if ($keepalive) {
+	keepalive_set($keepalive, $sock, $keepalivecookie, $keepalivestart, $keepalivecount);
+      } else {
+	close $sock;
+      }
       die("error: no redirects allowed\n") unless defined $param->{'maxredirects'};
       die("error: status 302 but no 'location' header found\n") unless exists $headers{'location'};
       die("error: max number of redirects reached\n") if $param->{'maxredirects'} < 1;
       my %myparam = %$param;
+      if ($headers{'location'} =~ /^\//) {
+	$headers{'location'} = "$1$headers{'location'}" if $uri =~ /^(https?:\/\/[^\/]*)\//s;
+      }
       $myparam{'uri'} = $headers{'location'};
       $myparam{'maxredirects'} = $param->{'maxredirects'} - 1;
       $myparam{'_stripauthhost'} = $host;	# strip authentication on redirect to different domain
@@ -565,7 +597,12 @@ sub rpc {
       # unauthorized, ask callback for authorization
       my $auth = call_authenticator($param, $headers{'www-authenticate'}, \%headers);
       if ($auth) {
-        close $sock;
+	$keepalive = keepalive_discard_body($keepalive, \%headers, $sock, $ans) if $keepalive && !$bodyless;
+	if ($keepalive) {
+	  keepalive_set($keepalive, $sock, $keepalivecookie, $keepalivestart, $keepalivecount);
+	} else {
+	  close $sock;
+	}
         my %myparam = (%$param, 'authenticator_norecurse' => 1);
         $myparam{'headers'} = [ grep {!/^authorization:/i} @{$myparam{'headers'} || []} ];
         push @{$myparam{'headers'}}, "Authorization: $auth";
@@ -586,14 +623,11 @@ sub rpc {
       }
     }
     if (!$param->{'ignorestatus'}) {
-      if ($keepalive && $bodyless) {
-        $keepalive->{'socket'} = $sock;
-        $keepalive->{'cookie'} = $keepalivecookie;
-        $keepalive->{'start'} = $keepalivestart;
-        $keepalive->{'count'} = $keepalivecount;
-        $keepalive->{'last'} = time();
+      $keepalive = keepalive_discard_body($keepalive, \%headers, $sock, $ans) if $keepalive && !$bodyless;
+      if ($keepalive) {
+	keepalive_set($keepalive, $sock, $keepalivecookie, $keepalivestart, $keepalivecount);
       } else {
-        close $sock;
+	close $sock;
       }
       die("$1 remote error: $2 ($uri)\n") if $status =~ /^(\d+) +(.*?)$/;
       die("remote error: $status\n");
@@ -611,11 +645,7 @@ sub rpc {
   $ansreq->{'__cl'} = -1 if $bodyless;
   if (($param->{'request'} || 'GET') eq 'HEAD') {
     if ($keepalive) {
-      $keepalive->{'socket'} = $sock;
-      $keepalive->{'cookie'} = $keepalivecookie;
-      $keepalive->{'start'} = $keepalivestart;
-      $keepalive->{'count'} = $keepalivecount;
-      $keepalive->{'last'} = time();
+      keepalive_set($keepalive, $sock, $keepalivecookie, $keepalivestart, $keepalivecount);
     } else {
       close $sock;
       undef $sock;
@@ -623,7 +653,6 @@ sub rpc {
     return \%headers unless $param->{'receiver'};
     delete $ansreq->{'__socket'};
     delete $ansreq->{'__data'};
-    $ansreq->{'__cl'} = -1;	# eof
   }
   my $receiver = $param->{'receiver'};
   $xmlargs ||= $param->{'receiverarg'};
@@ -634,11 +663,7 @@ sub rpc {
     $ans = BSHTTP::read_data($ansreq, undef, 1);
   }
   if ($keepalive && $sock) {
-    $keepalive->{'socket'} = $sock;
-    $keepalive->{'cookie'} = $keepalivecookie;
-    $keepalive->{'start'} = $keepalivestart;
-    $keepalive->{'count'} = $keepalivecount;
-    $keepalive->{'last'} = time();
+    keepalive_set($keepalive, $sock, $keepalivecookie, $keepalivestart, $keepalivecount);
   } else {
     close $sock if $sock;
   }
