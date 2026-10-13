@@ -57,6 +57,37 @@ RSpec.describe BsRequestAction do
 
   it { is_expected.to belong_to(:bs_request).touch(true).optional }
 
+  describe '#check_action_permission!' do
+    let(:project) { user.home_project }
+    let(:package) { create(:package, project: project, scmsync: 'https://example.com/package.git') }
+    let(:action) { build(:bs_request_action_delete, target_project: project.name, target_package: package.name) }
+
+    it 'allows deleting an SCM-managed package from a regular project' do
+      expect { action.check_action_permission! }.not_to raise_error
+    end
+
+    context 'when the project is SCM-managed' do
+      before do
+        project.update!(scmsync: 'https://example.com/project.git')
+      end
+
+      it 'rejects the delete request' do
+        expect { action.check_action_permission! }.to raise_error(BsRequestAction::Errors::RequestRejected, /The target project .* is managed in an external SCM/)
+      end
+    end
+
+    context 'with a submit request' do
+      let(:action) do
+        build(:bs_request_action_submit, source_project: project.name, source_package: package.name,
+                                         target_project: project.name, target_package: package.name)
+      end
+
+      it 'rejects changes to SCM-managed package sources' do
+        expect { action.check_action_permission! }.to raise_error(BsRequestAction::Errors::RequestRejected, /The target package .* is managed in an external SCM/)
+      end
+    end
+  end
+
   describe '.set_source_and_target_associations' do
     let(:project) { create(:project_with_package, name: 'Apache', package_name: 'apache2') }
     let(:package) { project.packages.first }
