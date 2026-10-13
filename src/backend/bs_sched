@@ -1227,7 +1227,8 @@ eval {
 
     my $now = time();
     $gctx->{'prplastcheck'}->{$prp} = $now;
-    BSSched::Lookat::setdelayed($gctx, $prp, $ctx->{'prpchecktime'});
+    my $delaytime = $ctx->{'prpchecktime'} - ($ctx->{'scheduler_buildtime'} || 0);
+    BSSched::Lookat::setdelayed($gctx, $prp, $delaytime > 0 ? $delaytime : 0);
 
     if ($now - $lastschedinfo > 60) {
       # update scheduler stats
