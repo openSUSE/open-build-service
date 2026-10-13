@@ -17,15 +17,6 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'servicelist'
 
-    # not using assert_xml_tag for doing a propper error message on missing
-    # source service packages
-    download_url = set_version = download_files = nil
-    services = Xmlhash.parse(@response.body)
-    services.elements('service') do |s|
-      download_url = 1 if s['name'] == 'download_url'
-      download_files = 1 if s['name'] == 'download_files'
-      set_version = 1 if s['name'] == 'set_version'
-    end
     assert_xml_tag tag: 'service', attributes: { name: 'set_version' }
     assert_xml_tag tag: 'service', attributes: { name: 'download_url' }
     assert_xml_tag tag: 'service', attributes: { name: 'download_files' }
