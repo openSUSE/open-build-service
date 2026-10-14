@@ -28,10 +28,12 @@
                 data: { confirm: 'Are you sure you want to delete this distro?'}) do
                 %i.fas.fa-trash-can
                 %span.nav-item-name Delete
+    .mb-4#distro-release-lifecycle-timeline{ data: { items: distro_release_timeline_items(@distro_releases).to_json,
+                                                     groups: distro_release_timeline_groups(@distro_releases).to_json } }
     %h3
       Releases
     .row.mt-3
-      - @distro.distro_releases.each do |distro_release|
+      - @distro_releases.each do |distro_release|
         .col-lg-3.col-md-4.col-sm-6.col-12.mb-3
           = render partial: 'webui/distro_releases/release', locals: { distro_release: distro_release }
       .ps-0
@@ -67,3 +69,11 @@
       $(this).find('#distro-release-name').text(link.data('distro-release-name'));
       $(this).find('form').attr('action', link.data('action'));
     })
+
+    var container = document.getElementById("distro-release-lifecycle-timeline");
+
+    var items = new vis.DataSet(JSON.parse(container.dataset.items));
+    var groups = new vis.DataSet(JSON.parse(container.dataset.groups));
+
+    var options = {};
+    var timeline = new vis.Timeline(container, items, groups, options);
