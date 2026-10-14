@@ -28,10 +28,28 @@
                 data: { confirm: 'Are you sure you want to delete this distro?'}) do
                 %i.fas.fa-trash-can
                 %span.nav-item-name Delete
+    .d-flex.justify-content-between.align-items-center.small.text-body-secondary.mb-1
+      %span Click on a phase to zoom in. Use Ctrl + mouse wheel to zoom and drag to move.
+      %button.btn.btn-sm.btn-outline-secondary#distro-release-lifecycle-timeline-fit{ type: 'button' }
+        %i.fas.fa-expand
+        Fit all
+    .mb-2#distro-release-lifecycle-timeline{ data: { items: distro_release_timeline_items(@distro_releases).to_json,
+                                                     groups: distro_release_timeline_groups(@distro_releases).to_json } }
+    .distro-release-lifecycle-timeline-legend.d-flex.flex-wrap.align-items-center.column-gap-3.small.mb-4
+      %span.fw-bold.text-uppercase Status
+      - distro_release_timeline_legend(@distro_releases).each do |entry|
+        %button.btn.btn-link.btn-sm.px-0{ type: 'button', disabled: !entry[:present], aria: { pressed: false },
+                                          data: { status: entry[:status], css_class: entry[:highlight_class] },
+                                          title: entry[:present] ? "Highlight #{entry[:label]}" : "No #{entry[:label]} lifecycle" }
+          - if entry[:status] == 'end_of_life'
+            %span.legend-eol.me-1
+          - else
+            %span.legend-swatch.me-1{ class: entry[:color_class] }
+          = entry[:label]
     %h3
       Releases
     .row.mt-3
-      - @distro.distro_releases.each do |distro_release|
+      - @distro_releases.each do |distro_release|
         .col-lg-3.col-md-4.col-sm-6.col-12.mb-3
           = render partial: 'webui/distro_releases/release', locals: { distro_release: distro_release }
       .ps-0
@@ -67,3 +85,69 @@
       $(this).find('#distro-release-name').text(link.data('distro-release-name'));
       $(this).find('form').attr('action', link.data('action'));
     })
+
+    var container = document.getElementById("distro-release-lifecycle-timeline");
+
+    var items = new vis.DataSet(JSON.parse(container.dataset.items));
+    var groups = new vis.DataSet(JSON.parse(container.dataset.groups));
+
+    var day = 24 * 60 * 60 * 1000;
+    var options = {
+      stack: false,
+      orientation: 'top',
+      margin: { item: { horizontal: 0, vertical: 14 }, axis: 10 },
+      selectable: false,
+      zoomKey: 'ctrlKey',
+      // Don't zoom further than a week, the lifecycles are planned by day
+      zoomMin: 7 * day
+    };
+    var timeline = new vis.Timeline(container, items, groups, options);
+
+    // Hide the labels of phases that are too short for them, they are still shown in the tooltip
+    timeline.on('changed', function () {
+      container.querySelectorAll('.vis-item.vis-range').forEach(function (item) {
+        var content = item.querySelector('.vis-item-content');
+        item.classList.toggle('distro-release-lifecycle-compact', content.scrollWidth > content.clientWidth);
+      });
+    });
+
+    // End of life markers have no end, so zooming to them alone uses a margin of a few months around their date
+    function zoomTo(selectedItems) {
+      if (!selectedItems.length) return;
+
+      var start = Math.min.apply(null, selectedItems.map(function (item) { return new Date(item.start).getTime(); }));
+      var end = Math.max.apply(null, selectedItems.map(function (item) { return new Date(item.end || item.start).getTime(); }));
+      var margin = end === start ? 180 * day : (end - start) * 0.05;
+
+      timeline.setWindow(start - margin, end + margin);
+    }
+
+    timeline.on('click', function (properties) {
+      if (properties.item) zoomTo([items.get(properties.item)]);
+    });
+
+    // Clicking a key highlights its status by dimming the other phases and zooms to it, clicking it again removes the highlight
+    var legendButtons = document.querySelectorAll('.distro-release-lifecycle-timeline-legend [data-status]');
+
+    function clearHighlight() {
+      legendButtons.forEach(function (button) { button.setAttribute('aria-pressed', 'false'); });
+      delete container.dataset.highlight;
+    }
+
+    legendButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        var active = button.getAttribute('aria-pressed') === 'true';
+
+        clearHighlight();
+        if (active) return;
+
+        button.setAttribute('aria-pressed', 'true');
+        container.dataset.highlight = button.dataset.cssClass;
+        zoomTo(items.get({ filter: function (item) { return item.status === button.dataset.status; } }));
+      });
+    });
+
+    document.getElementById('distro-release-lifecycle-timeline-fit').addEventListener('click', function () {
+      clearHighlight();
+      timeline.fit();
+    });
