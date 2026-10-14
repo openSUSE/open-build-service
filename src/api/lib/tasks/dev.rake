@@ -263,6 +263,9 @@ namespace :dev do
 
       # Create a templates project with packages
       Rake::Task['dev:templates:create'].invoke
+
+      # Create vendors, distros, and distro releases
+      Rake::Task['dev:distros:data'].invoke
     end
 
     desc 'Create more data'
