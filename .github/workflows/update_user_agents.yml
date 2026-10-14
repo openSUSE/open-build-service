@@ -2,25 +2,28 @@ name: Update User Agents
 
 on:
   schedule:
-    # Runs at 03:00 UTC every day
-    - cron: '0 3 * * *'
+    # Runs at 03:00 UTC every Monday
+    - cron: '0 3 * * 1'
   workflow_dispatch: # Allows manual testing from the "Actions" tab
 
 jobs:
   update-user-agents:
     runs-on: ubuntu-latest
     container: ruby:4.0
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
 
       - name: Install dependencies
-        working-directory: frontend
-        run: bundle install
+        working-directory: src/api
+        run: bundle install --no-cache
 
       - name: Update User Agents
-        working-directory: frontend
+        working-directory: src/api
         run: bundle exec rake voight_kampff:import_user_agents
 
       - name: Create Pull Request
@@ -33,7 +36,7 @@ jobs:
           delete-branch: true
           body: |
             This is an automated PR triggered by the daily scheduled task.
-            It runs `rake voight_kampff:import_user_agents` inside the frontend container.
-          # We only care about changes inside the frontend directory
+            It runs `rake voight_kampff:import_user_agents` in `src/api`.
+          # We only care about changes to the crawler user agents configuration
           add-paths: |
-            frontend/**
+            src/api/config/crawler-user-agents.json
