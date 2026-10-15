@@ -21,7 +21,7 @@ class DistroRelease < ApplicationRecord
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
-  validates :name, length: { maximum: 255 }
+  validates :name, presence: true, length: { maximum: 255 }
   validates :description, length: { maximum: 65_535 }
   validates :url, length: { maximum: 255 }
   validates :name, uniqueness: { scope: :distro_id }

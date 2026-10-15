@@ -542,6 +542,14 @@ DistributionIcon:
   url:
     LengthConstraintChecker:
       enabled: false
+Distro:
+  name:
+    ColumnPresenceChecker:
+      enabled: false
+DistroRelease:
+  name:
+    ColumnPresenceChecker:
+      enabled: false
 DownloadRepository:
   arch:
     LengthConstraintChecker:
@@ -2030,6 +2038,10 @@ User:
       enabled: false
   subaccounts:
     MissingIndexChecker:
+      enabled: false
+Vendor:
+  name:
+    ColumnPresenceChecker:
       enabled: false
 WatchedItem:
   id:
