@@ -91,7 +91,7 @@ To generate test data we use [FactoryBot](https://thoughtbot.github.io/factory_b
 
 ### Fake Data
 
-To generate fake test data in factories (like names/words/sentences etc.) we use [faker](https://github.com/stympy/faker) . Attention: Faker generates random but **NOT** unique data!
+To generate fake test data in factories (like names/words/sentences etc.) we use [faker](https://github.com/faker-ruby/faker). Attention: Faker generates random but **NOT** unique data!
 
 ### VCR
 

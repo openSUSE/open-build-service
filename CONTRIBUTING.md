@@ -214,7 +214,7 @@ In order to merge a pull request, it needs:
 
 # How to Contribute Documentation
 
-The Open Build Service documentation is hosted in a separated repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository.
+The Open Build Service documentation is hosted in a separate repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository.
 
 # How to Conduct Yourself when Contributing
 
