@@ -18,6 +18,9 @@
               %span.nav-item-name Edit
       .col-md-4
         %ul.side_links.list-unstyled
+          - if @vendor.logo.present?
+            .mb-3
+              = image_tag @vendor.logo_data_uri, class: 'img-fluid rounded vendor-logo-preview', alt: @vendor.name
           - if @vendor.url.present?
             %li
               %i.fas.fa-link.text-info
