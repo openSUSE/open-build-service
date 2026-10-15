@@ -629,6 +629,112 @@ RSpec.describe Project, :vcr do
       project.do_project_release(user: user.login)
       expect(project_release.packages.where(name: 'my_release_target')).to exist
     end
+
+    context 'when project uses scmsync' do
+      let(:directory_xml) do
+        <<-XML
+          <directory count="1">
+            <entry name="my_scmsync_package" />
+          </directory>
+        XML
+      end
+      let(:package_xml) do
+        <<-XML
+          <package name="my_scmsync_package" project="#{project.name}">
+            <title>My scmsync package</title>
+            <description>Package description</description>
+          </package>
+        XML
+      end
+
+      before do
+        user.run_as { project.packages.destroy_all }
+        # rubocop:disable-next Rails/SkipsModelValidations
+        project.update_columns(scmsync: 'https://github.com/example/scmsync-project.git')
+        allow(Backend::Api::Sources::Project).to receive(:packages).with(project.name).and_return(directory_xml)
+        allow(Backend::Api::Sources::Package).to receive(:meta).with(project.name, 'my_scmsync_package').and_return(package_xml)
+        allow(project).to receive(:release_package)
+      end
+
+      it 'releases the packages discovered from the backend' do
+        project.do_project_release(user: user.login)
+        expect(project).to have_received(:release_package).with(
+          have_attributes(name: 'my_scmsync_package'),
+          repository_release,
+          'my_release_target',
+          hash_including(repository: repository, manual: true)
+        )
+      end
+    end
+  end
+
+  describe '#packages_for_release' do
+    let(:user) { create(:confirmed_user, :with_home, login: 'tux') }
+    let(:project) { user.home_project }
+    let!(:package) { create(:package, name: 'my_package', project: project) }
+
+    context 'when project does not use scmsync' do
+      it 'returns the database packages' do
+        expect(project.packages_for_release).to eq([package])
+      end
+    end
+
+    context 'when project uses scmsync' do
+      let(:directory_xml) do
+        <<-XML
+          <directory count="4">
+            <entry name="_project" />
+            <entry name="my_scmsync_package" />
+            <entry name="my_scmsync_package:flavor" />
+            <entry name="_product:foo" />
+          </directory>
+        XML
+      end
+      let(:package_xml) do
+        <<-XML
+          <package name="my_scmsync_package" project="#{project.name}">
+            <title>My scmsync package</title>
+            <description>Package description</description>
+          </package>
+        XML
+      end
+      let(:product_package_xml) do
+        <<-XML
+          <package name="_product:foo" project="#{project.name}">
+            <title>Product foo</title>
+            <description>Product description</description>
+          </package>
+        XML
+      end
+
+      before do
+        user.run_as { project.packages.destroy_all }
+        # rubocop:disable-next Rails/SkipsModelValidations
+        project.update_columns(scmsync: 'https://github.com/example/scmsync-project.git')
+        allow(Backend::Api::Sources::Project).to receive(:packages).with(project.name).and_return(directory_xml)
+        allow(Backend::Api::Sources::Package).to receive(:meta).with(project.name, 'my_scmsync_package').and_return(package_xml)
+        allow(Backend::Api::Sources::Package).to receive(:meta).with(project.name, '_product:foo').and_return(product_package_xml)
+      end
+
+      it 'returns in-memory packages excluding _project and multibuild flavors' do
+        result = project.packages_for_release
+        expect(result.map(&:name)).to contain_exactly('my_scmsync_package', '_product:foo')
+        expect(result).to all(be_readonly)
+      end
+    end
+
+    context 'when backend returns 404 for project' do
+      before do
+        user.run_as { project.packages.destroy_all }
+        # rubocop:disable-next Rails/SkipsModelValidations
+        project.update_columns(scmsync: 'https://github.com/example/scmsync-project.git')
+        allow(Backend::Api::Sources::Project).to receive(:packages).with(project.name).and_raise(Backend::NotFoundError)
+      end
+
+      it 'returns an empty array' do
+        expect(project.packages_for_release).to eq([])
+      end
+    end
   end
 
   describe '#update_from_xml' do
