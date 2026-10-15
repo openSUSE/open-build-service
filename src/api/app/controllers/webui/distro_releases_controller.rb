@@ -11,7 +11,7 @@ class Webui::DistroReleasesController < Webui::WebuiController
   before_action :set_vendor
   before_action :set_distro_release, only: %i[show update destroy edit]
   # Pundit authorization policies control
-  after_action :verify_authorized
+  after_action :verify_authorized, except: :preview_description
 
   def show
     authorize @distro_release
@@ -53,6 +53,14 @@ class Webui::DistroReleasesController < Webui::WebuiController
   end
 
   #### Non CRUD actions
+
+  # POST /distros/:distro_name/releases/preview_description
+  def preview_description
+    markdown = helpers.render_as_markdown(params[:distro_release][:description])
+    respond_to do |format|
+      format.json { render json: { markdown: markdown } }
+    end
+  end
 
   #### Non actions methods
   # Use hide_action if they are not private
