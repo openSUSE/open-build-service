@@ -33,7 +33,7 @@ class Webui::DistroReleasesController < Webui::WebuiController
     if @distro_release.save
       redirect_to project_distro_path(@distro.project, @distro.name), notice: 'Release was successfully created.'
     else
-      redirect_to project_distro_path(@distro.project, @distro.name), flash: { error: "Release failed to create. #{@distro_release.errors.messages}" }
+      redirect_to project_distro_path(@distro.project, @distro.name), flash: { error: "Release failed to create. #{@distro_release.errors.full_messages.to_sentence}" }
     end
   end
 
@@ -42,7 +42,7 @@ class Webui::DistroReleasesController < Webui::WebuiController
     if @distro_release.update(distro_release_params)
       redirect_to project_distro_path(@distro.project, @distro.name), flash: { success: 'Release was successfully updated.' }
     else
-      redirect_to project_distro_path(@distro.project, @distro.name), flash: { error: "Release failed to update. #{@distro.errors.messages}" }
+      redirect_to project_distro_path(@distro.project, @distro.name), flash: { error: "Release failed to update. #{@distro_release.errors.full_messages.to_sentence}" }
     end
   end
 
