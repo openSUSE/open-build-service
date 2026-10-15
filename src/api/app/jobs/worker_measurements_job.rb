@@ -1,5 +1,5 @@
 class WorkerMeasurementsJob < ApplicationJob
-  queue_as :quick
+  queue_as :internal
 
   def perform
     return unless CONFIG['amqp_options']
