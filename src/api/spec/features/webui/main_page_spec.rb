@@ -19,5 +19,23 @@ RSpec.describe 'OBS main page', :js, :vcr do
       expect(page).to have_text('message 5')
       expect(page).to have_no_text('message 1')
     end
+
+    describe 'latest updates' do
+      context 'when user is logged in' do
+        before do
+          login user
+        end
+
+        it 'shows user commit activities in My Updates tab' do
+          CommitActivity.create!(user: user, project: 'MyProject', package: 'MyPackage', date: Time.zone.today, count: 1)
+
+          visit root_path
+          click_link 'My Updates'
+
+          expect(page).to have_link('MyProject')
+          expect(page).to have_link('MyPackage')
+        end
+      end
+    end
   end
 end
