@@ -169,6 +169,16 @@ RSpec.describe Webui::VendorsController do
     end
   end
 
+  describe 'POST #preview_description' do
+    before do
+      login user
+      post :preview_description, params: { project_name: project.name, vendor: { description: '**bold**' } }, format: :json
+    end
+
+    it { expect(response).to have_http_status(:success) }
+    it { expect(response.parsed_body['markdown']).to include('<strong>bold</strong>') }
+  end
+
   describe 'DELETE #destroy' do
     subject { delete :destroy, params: { project_name: project.name } }
 

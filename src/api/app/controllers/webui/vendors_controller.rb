@@ -10,7 +10,7 @@ class Webui::VendorsController < Webui::WebuiController
   before_action :set_project
   before_action :set_vendor, only: %i[show edit update destroy]
   # Pundit authorization policies control
-  after_action :verify_authorized
+  after_action :verify_authorized, except: :preview_description
 
   #### CRUD actions
 
@@ -64,6 +64,14 @@ class Webui::VendorsController < Webui::WebuiController
   end
 
   #### Non CRUD actions
+
+  # POST /vendor/preview_description
+  def preview_description
+    markdown = helpers.render_as_markdown(params[:vendor][:description])
+    respond_to do |format|
+      format.json { render json: { markdown: markdown } }
+    end
+  end
 
   #### Non actions methods
   # Use hide_action if they are not private
