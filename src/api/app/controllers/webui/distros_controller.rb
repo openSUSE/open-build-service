@@ -1,5 +1,6 @@
 class Webui::DistrosController < Webui::WebuiController
   #### Includes and extends
+  include Webui::PreviewDescription
 
   #### Constants
 
