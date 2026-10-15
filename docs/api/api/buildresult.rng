@@ -138,6 +138,16 @@
                   <data type="string"/>
                 </attribute>
 
+                <optional>
+                  <attribute name="binarycount">
+                    <a:documentation>
+                      The total number of files of this package. Only present
+                      if the list got limited via the `binarylimit` parameter.
+                    </a:documentation>
+                    <data type="nonNegativeInteger"/>
+                  </attribute>
+                </optional>
+
                 <zeroOrMore>
                   <element name="binary">
                     <a:documentation>
