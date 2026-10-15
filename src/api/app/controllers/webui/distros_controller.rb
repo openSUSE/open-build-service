@@ -31,7 +31,7 @@ class Webui::DistrosController < Webui::WebuiController
     if @distro.save
       redirect_to project_vendor_path(@project), flash: { success: 'Distro was successfully created.' }
     else
-      redirect_to project_vendor_path(@project), flash: { error: "Distro failed to create. #{@distro.errors.messages}" }
+      redirect_to project_vendor_path(@project), flash: { error: "Distro failed to create. #{@distro.errors.full_messages.to_sentence}" }
     end
   end
 
@@ -41,7 +41,7 @@ class Webui::DistrosController < Webui::WebuiController
     if @distro.update(distro_params.merge(vendor_id: @vendor.id))
       redirect_to project_distro_path(@project, @distro.name), flash: { success: 'Distro was successfully updated.' }
     else
-      redirect_to project_vendor_path(@project), flash: { error: "Distro failed to update. #{@distro.errors.messages}" }
+      redirect_to project_vendor_path(@project), flash: { error: "Distro failed to update. #{@distro.errors.full_messages.to_sentence}" }
     end
   end
 
