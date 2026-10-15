@@ -1,5 +1,6 @@
 class Webui::DistroReleasesController < Webui::WebuiController
   #### Includes and extends
+  include Webui::PreviewDescription
 
   #### Constants
 

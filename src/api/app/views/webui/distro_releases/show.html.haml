@@ -10,7 +10,7 @@
           - if @distro_release.description.blank?
             %i No description set
           - else
-            = render partial: 'webui/shared/collapsible_text', locals: { text: @distro_release.description }
+            = render partial: 'webui/shared/collapsible_text', locals: { text: @distro_release.description, render_markdown: true }
         - if policy(@distro_release).edit?
           .mb-3
             = link_to(edit_project_distro_release_path(@project.name, @distro.name, @distro_release.name), title: 'Edit distro release') do

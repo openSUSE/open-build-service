@@ -4,8 +4,8 @@
     - if distro_release.url.present?
       %i.fas.fa-link.text-info
       = render partial: 'webui/shared/external_link', locals: { text: distro_release.url, url: distro_release.url }
-  %p.card-text
-    = truncate(distro_release.description, length: 100)
+  .card-text
+    = render_without_markdown(truncate(distro_release.description, length: 100))
   %b.card-text
     Repositories:
   %ul.list-group.list-group-flush
