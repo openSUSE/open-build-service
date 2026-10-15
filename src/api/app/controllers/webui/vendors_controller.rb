@@ -81,6 +81,6 @@ class Webui::VendorsController < Webui::WebuiController
 
   # Only allow a trusted parameter "white list" through.
   def vendor_params
-    params.expect(vendor: %i[name description url])
+    params.expect(vendor: %i[name description url logo])
   end
 end

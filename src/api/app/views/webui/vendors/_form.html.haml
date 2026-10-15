@@ -11,6 +11,15 @@
     = form.label :url
     = form.text_field :url, class: 'form-control'
 
+  .mb-3
+    = form.label :logo
+    %small.form-text Supported formats: PNG, JPEG, WebP
+
+    = form.file_field :logo, class: 'form-control', accept: 'image/png,image/jpeg,image/webp'
+    - if vendor.persisted? && vendor.logo.present?
+      .mt-2
+        = image_tag vendor.logo_data_uri, class: 'img-thumbnail mb-2 vendor-logo-preview'
+
   %div
     - cancel_url = vendor.persisted? ? project_vendor_path(vendor.project) : project_show_path(vendor.project)
     = link_to('Cancel', cancel_url, title: 'Cancel', class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
