@@ -310,7 +310,9 @@ resources :projects, only: [], param: :name do
     end
   end
 
-  resource :vendor, controller: 'webui/vendors', constraints: cons
+  resource :vendor, controller: 'webui/vendors', constraints: cons do
+    post :preview_description
+  end
   resources :distros, controller: 'webui/distros', except: %i[index new], constraints: cons, param: :distro_name
   resources :distros, only: [], param: :name, constraints: cons do
     resources :releases, controller: 'webui/distro_releases', param: :distro_release_name, except: %i[index], constraints: cons
