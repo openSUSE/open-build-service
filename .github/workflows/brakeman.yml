@@ -8,7 +8,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ruby:3.4.2
+    container: ruby:4.0.7
     steps:
     - uses: actions/checkout@v7
     - name: Install Brakeman
