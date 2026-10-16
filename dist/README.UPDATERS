@@ -34,11 +34,11 @@ Note: Update from OBS 2.5 should also work, but it is not fully tested.
         cd /srv/www/obs/api/
         RAILS_ENV="production" bin/rails db:migrate:with_data
 
-  5) Change to ruby3.4
+  5) Change to ruby4.0
 
         edit /etc/apache2/conf.d/mod_passenger.conf:
 
-        PassengerRuby "/usr/bin/ruby.ruby3.4"
+        PassengerRuby "/usr/bin/ruby.ruby4.0"
 
   6) Enable gitea/obs-gitea-bridge (optional)
 
