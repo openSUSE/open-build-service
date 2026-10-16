@@ -8,9 +8,6 @@ module HistoryElement
       'Request got reviewed'
     end
 
-    def user_action
-      'accepted last open review'
-    end
   end
 end
 

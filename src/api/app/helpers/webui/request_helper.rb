@@ -216,6 +216,32 @@ module Webui::RequestHelper
     "(#{package.latest_local_version.version})"
   end
 
+  def history_element_user_action(element)
+    case element
+    when HistoryElement::ReviewAccepted
+      element.staged_review? ? 'staged request' : 'accepted review'
+    when HistoryElement::ReviewDeclined            then 'declined review'
+    when HistoryElement::ReviewAssigned            then 'assigned review'
+    when HistoryElement::ReviewObsoleted           then 'obsoleted review'
+    when HistoryElement::ReviewReopened            then 'reopened review'
+    when HistoryElement::RequestAccepted           then 'accepted request'
+    when HistoryElement::RequestDeclined           then 'declined request'
+    when HistoryElement::RequestRevoked            then 'revoked request'
+    when HistoryElement::RequestReopened           then 'reopened request'
+    when HistoryElement::RequestDeleted            then 'deleted request'
+    when HistoryElement::RequestSuperseded         then 'superseded request'
+    when HistoryElement::RequestAllReviewsApproved then 'accepted last open review'
+    when HistoryElement::RequestPriorityChange     then "changed priority to #{element.description_extension}"
+    when HistoryElement::RequestSetIncident        then "moved maintenance target to #{element.description_extension}"
+    when HistoryElement::RequestReviewAdded
+      return 'added a reviewer' unless element.review
+
+      prefix = element.review_by_staging_project? ? 'set' : 'added'
+      suffix = element.review_by_staging_project? ? 'as a staging project' : 'as a reviewer'
+      "#{prefix} #{element.action_target} #{suffix}"
+    end
+  end
+
   private
 
   def action_type_icon(type)
