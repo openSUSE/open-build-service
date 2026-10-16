@@ -276,6 +276,40 @@
       "note": ""
     },
     {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "3e76aea56e760a87adae4e6ff7d00c935d6526aa7671125805821a6575ca9d10",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/package/_rpmlint_result.html.haml",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :project => ::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, :package => @package.name)",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::PackageController",
+          "method": "rpmlint_result",
+          "line": 325,
+          "file": "app/controllers/webui/package_controller.rb",
+          "rendered": {
+            "name": "webui/package/_rpmlint_result",
+            "file": "app/views/webui/package/_rpmlint_result.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/package/_rpmlint_result"
+      },
+      "user_input": "::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "45840f44547aeced1506343b80e3fe0ad1b6262ae3799e5086907ff71bddb03c",
@@ -367,6 +401,50 @@
     },
     {
       "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "61a4b7fc417f099ab89fb8ba318ebe9eed3ece18e3fb6d9525c947795e8aee35",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/shared/user_or_groups_roles/_index.html.haml",
+      "line": 15,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", \"project\" => ::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, \"save-user\" => project_save_person_url, \"remove\" => project_remove_role_url, \"save-group\" => project_save_group_path, \"package\" => @package.name)",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::PackageController",
+          "method": "users",
+          "line": 159,
+          "file": "app/controllers/webui/package_controller.rb",
+          "rendered": {
+            "name": "webui/package/users",
+            "file": "app/views/webui/package/users.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/package/users",
+          "line": 6,
+          "file": "app/views/webui/package/users.html.haml",
+          "rendered": {
+            "name": "webui/shared/user_or_groups_roles/_index",
+            "file": "app/views/webui/shared/user_or_groups_roles/_index.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/shared/user_or_groups_roles/_index"
+      },
+      "user_input": "::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
       "warning_code": 4,
       "fingerprint": "62f93283e161bc75b900aad23f7f63f20ba56c3ecb3d38c24dbb900607e3bc26",
       "check_name": "LinkToHref",
@@ -403,50 +481,6 @@
         "template": "webui/staging/projects/_checks"
       },
       "user_input": "(Unresolved Model).new.url",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "64ac8eb6c9c40c44b441d2e574dcfa260baf867223e58b5654167b5f551dabaa",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/shared/user_or_groups_roles/_index.html.haml",
-      "line": 15,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", \"project\" => ::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, \"save-user\" => project_save_person_url, \"remove\" => project_remove_role_url, \"save-group\" => project_save_group_path, \"package\" => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true).name)",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::PackageController",
-          "method": "users",
-          "line": 159,
-          "file": "app/controllers/webui/package_controller.rb",
-          "rendered": {
-            "name": "webui/package/users",
-            "file": "app/views/webui/package/users.html.haml"
-          }
-        },
-        {
-          "type": "template",
-          "name": "webui/package/users",
-          "line": 6,
-          "file": "app/views/webui/package/users.html.haml",
-          "rendered": {
-            "name": "webui/shared/user_or_groups_roles/_index",
-            "file": "app/views/webui/shared/user_or_groups_roles/_index.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/shared/user_or_groups_roles/_index"
-      },
-      "user_input": "::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name",
       "confidence": "Weak",
       "cwe_id": [
         79
@@ -519,108 +553,6 @@
       "confidence": "Medium",
       "cwe_id": [
         89
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "c1b89d88e47a066ac25ba2a3d0e5b4a1d7040b9b51afae34affdb7d701dac1a6",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/package/_rpmlint_result.html.haml",
-      "line": 6,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :project => ::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, :package => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true).name)",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::PackageController",
-          "method": "rpmlint_result",
-          "line": 325,
-          "file": "app/controllers/webui/package_controller.rb",
-          "rendered": {
-            "name": "webui/package/_rpmlint_result",
-            "file": "app/views/webui/package/_rpmlint_result.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/package/_rpmlint_result"
-      },
-      "user_input": "::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "c3cdcdad958f89ab5351c660dc9718914496dfd942530bc617a20557d74a4012",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/package/rdiff.html.haml",
-      "line": 18,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :package => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true))",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::PackageController",
-          "method": "rdiff",
-          "line": 230,
-          "file": "app/controllers/webui/package_controller.rb",
-          "rendered": {
-            "name": "webui/package/rdiff",
-            "file": "app/views/webui/package/rdiff.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/package/rdiff"
-      },
-      "user_input": "Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true)",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "c3cdcdad958f89ab5351c660dc9718914496dfd942530bc617a20557d74a4012",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/package/rdiff.html.haml",
-      "line": 20,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :package => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true))",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::PackageController",
-          "method": "rdiff",
-          "line": 230,
-          "file": "app/controllers/webui/package_controller.rb",
-          "rendered": {
-            "name": "webui/package/rdiff",
-            "file": "app/views/webui/package/rdiff.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/package/rdiff"
-      },
-      "user_input": "Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true)",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
       ],
       "note": ""
     },
@@ -699,50 +631,6 @@
       "cwe_id": [
         565,
         502
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "faaef8211bbc25be8d5a10b458e757782cbe3665335e0ebac9b4f7a52a90de17",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/package/_revision_diff_detail.html.haml",
-      "line": 6,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :package => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true))",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::PackageController",
-          "method": "rdiff",
-          "line": 230,
-          "file": "app/controllers/webui/package_controller.rb",
-          "rendered": {
-            "name": "webui/package/rdiff",
-            "file": "app/views/webui/package/rdiff.html.haml"
-          }
-        },
-        {
-          "type": "template",
-          "name": "webui/package/rdiff",
-          "line": 38,
-          "file": "app/views/webui/package/rdiff.html.haml",
-          "rendered": {
-            "name": "webui/package/_revision_diff_detail",
-            "file": "app/views/webui/package/_revision_diff_detail.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/package/_revision_diff_detail"
-      },
-      "user_input": "Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true)",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
       ],
       "note": ""
     }
