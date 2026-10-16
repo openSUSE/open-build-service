@@ -972,7 +972,7 @@ class BsRequestAction < ApplicationRecord
       end
 
       if defined?(tpkg) && tpkg
-        if tpkg.scmsync.present?
+        if tpkg.scmsync.present? && !action_type.in?(%i[delete add_role set_bugowner change_devel])
           raise RequestRejected,
                 "The target package #{target_project} #{target_package} is managed in an external SCM: #{tpkg.scmsync}"
         end
