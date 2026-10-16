@@ -19,4 +19,4 @@
         %button.btn.btn-primary#filter-button{ type: :submit }
           Apply Filter
     = turbo_frame_tag "#{project.name}_#{package_name}_rpmlint", loading: 'lazy',
-                      src: rpmlint_summary_path(project_name: project.name, package_name: package.name, filters: filters)
+                      src: rpmlint_summary_path(project_name: project.name, package_name: package_name, filters: filters)

@@ -102,5 +102,16 @@ RSpec.describe Webui::WebuiController do
         expect(assigns(:package)).to eq(package)
       end
     end
+
+    context 'when the package cannot be found (e.g. in an scmsync project)' do
+      let(:scmsync_project) { create(:project, scmsync: 'https://github.com/example/scmsync-project.git') }
+
+      it 'raises UnknownObjectError and redirects back' do
+        from project_show_path(project: scmsync_project)
+        get :create, params: { project: scmsync_project, package: 'any_package' }
+        expect(flash[:error]).to eq("Package not found: #{scmsync_project.name}/any_package")
+        expect(response).to redirect_to project_show_url(project: scmsync_project)
+      end
+    end
   end
 end
