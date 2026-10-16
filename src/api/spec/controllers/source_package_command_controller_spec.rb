@@ -282,4 +282,27 @@ RSpec.describe SourcePackageCommandController, :vcr do
       it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('source_access_no_permission') }
     end
   end
+
+  describe 'POST #updatepatchinfo' do
+    subject { post :updatepatchinfo, params: { cmd: 'updatepatchinfo', project: project, package: 'hans' }, format: :xml }
+
+    before do
+      login user
+    end
+
+    context 'with a package that only exists in the backend of an scmsync project' do
+      before do
+        # rubocop:disable-next Rails/SkipsModelValidations
+        project.update_columns(scmsync: 'https://github.com/example/scmsync-project.git')
+      end
+
+      it { expect(subject).to have_http_status(:forbidden) }
+      it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('cmd_execution_no_permission') }
+    end
+
+    context 'with a package that does not exist in a regular project' do
+      it { expect(subject).to have_http_status(:not_found) }
+      it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('unknown_package') }
+    end
+  end
 end
