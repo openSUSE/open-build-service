@@ -419,13 +419,26 @@ RSpec.describe Webui::PackageController, :vcr do
       XML
     end
 
-    before do
-      allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_result)
-      post :rpmlint_result, xhr: true, params: { package: source_package, project: source_project }
+    context 'when the project is not scmsync' do
+      before do
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_result)
+        post :rpmlint_result, xhr: true, params: { package: source_package, project: source_project }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(response).to render_template('webui/package/rpmlint_result') }
     end
 
-    it { expect(response).to have_http_status(:success) }
-    it { expect(response).to render_template('webui/package/rpmlint_result') }
+    context 'when the project is an scmsync project' do
+      let(:scmsync_project) { create(:project, name: 'lorem', scmsync: 'https://github.com/example/scmsync-project.git') }
+
+      before do
+        get :rpmlint_result, params: { project: scmsync_project.name, package: 'any_package' }
+      end
+
+      it { expect(flash[:error]).to eq('The project lorem is configured through scmsync. This is not supported by the OBS frontend') }
+      it { expect(response).to redirect_to(project_show_path(scmsync_project)) }
+    end
   end
 
   describe '#rpmlint_summary' do

@@ -18,7 +18,8 @@ class Webui::PackageController < Webui::WebuiController
                                        buildresult rpmlint_result rpmlint_log rpmlint_summary files template_data
                                        autocomplete_users]
 
-  before_action :check_scmsync, only: %i[requests revisions statistics users]
+  before_action :check_scmsync, only: %i[requests revisions statistics users
+                                         buildresult rpmlint_result rpmlint_log rpmlint_summary]
 
   before_action :set_package, only: %i[edit update show requests statistics revisions
                                        branch_diff_info rdiff remove

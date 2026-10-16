@@ -102,6 +102,8 @@ class Webui::WebuiController < ActionController::Base
     rescue APIError
       raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
     end
+
+    raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}" unless @package
   end
 
   def set_repository
