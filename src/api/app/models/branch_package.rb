@@ -190,6 +190,7 @@ class BranchPackage
       # no find_package call here to check really this project only
       tpkg = tprj.packages.find_by_name(pack_name)
 
+      new_package = tpkg.nil?
       if tpkg
         raise DoubleBranchPackageError.new(tprj.name, tpkg.name), "branch target package already exists: #{tprj.name}/#{tpkg.name}" unless params[:force]
       else
@@ -265,6 +266,9 @@ class BranchPackage
         tprj.branch_to_repositories_from(p[:link_target_project], tpkg, opts)
       end
 
+      # take over the flags of the origin package, e.g. architectures it does not build for
+      copy_flags(pac, tpkg) if new_package && pac.is_a?(Package)
+
       tpkg.add_channels if tprj.maintenance_incident? && !tprj.parent.find_attribute('OBS', 'SkipChannelBranch')
     end
     tprj.sync_repository_pathes if @update_path_elements
@@ -272,6 +276,24 @@ class BranchPackage
     # store project data in DB and XML
     tprj.store
     response
+  end
+
+  def copy_flags(source_package, target_package)
+    disable_publish_for_branches = ::Configuration.disable_publish_for_branches
+    copied = false
+
+    source_package.flags.each do |flag|
+      next if flag.flag == 'lock'
+      next if flag.flag == 'publish' && disable_publish_for_branches
+      # repository specific flags only make sense if the branch has that repository
+      next if flag.repo && !target_package.project.repositories.exists?(name: flag.repo)
+      next if target_package.flags.exists?(flag: flag.flag, architecture: flag.architecture, repo: flag.repo)
+
+      target_package.flags.create(status: flag.status, flag: flag.flag, architecture: flag.architecture, repo: flag.repo)
+      copied = true
+    end
+
+    target_package.store if copied
   end
 
   def create_branch_project
