@@ -529,11 +529,6 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   end
 
   def test_run_service_in_scmsync_project
-    # just temporary needed until we have a full git example in fixtures
-    prj = Project.find_by_name('ScmSync')
-    prj.scmsync = 'https://localhost'
-    prj.save # without writing to backend yet, since we need to fake a package in start_test_backend script
-
     login_adrian
     post '/person/adrian/token?operation=runservice'
     assert_response :success
