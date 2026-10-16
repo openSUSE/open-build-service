@@ -50,7 +50,7 @@ end
 # Table name: status_messages
 #
 #  id                  :integer          not null, primary key
-#  communication_scope :integer          default(0)
+#  communication_scope :integer          default("all_users")
 #  message             :text(65535)
 #  severity            :integer
 #  created_at          :datetime         indexed
