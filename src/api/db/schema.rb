@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_09_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_16_094247) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "blob_id", null: false
     t.datetime "created_at", null: false
@@ -1281,6 +1281,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_09_100000) do
   create_table "vendors", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
+    t.binary "logo", size: :medium
+    t.string "logo_content_type", limit: 100
     t.string "name"
     t.integer "project_id", null: false
     t.datetime "updated_at", null: false
