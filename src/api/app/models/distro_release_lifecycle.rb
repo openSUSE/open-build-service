@@ -63,7 +63,7 @@ end
 #  id                :bigint           not null, primary key
 #  date              :date             not null
 #  name              :string(255)      not null, uniquely indexed => [distro_release_id]
-#  status            :integer          default(0), not null
+#  status            :integer          default("planned"), not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  distro_release_id :bigint           not null, uniquely indexed => [name]
