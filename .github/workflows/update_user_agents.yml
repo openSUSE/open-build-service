@@ -9,7 +9,7 @@ on:
 jobs:
   update-user-agents:
     runs-on: ubuntu-latest
-    container: ruby:3.4
+    container: ruby:4.0
 
     steps:
       - name: Checkout Repository
