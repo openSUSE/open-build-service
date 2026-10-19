@@ -7,12 +7,14 @@ class Vendor < ApplicationRecord
 
   #### Self config
   #### Attributes
+  attribute :remove_logo, :boolean
 
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :project, optional: false
   has_many :distros, dependent: :destroy
 
   #### Callbacks macros: before_save, after_save, etc.
+  before_validation :purge_logo, if: :remove_logo?
 
   #### Scopes (first the default_scope macro if is used)
 
@@ -68,6 +70,11 @@ class Vendor < ApplicationRecord
     when 'image/webp' then binary.start_with?('RIFF'.b) && binary[8..11] == 'WEBP'.b
     else false
     end
+  end
+
+  def purge_logo
+    self.logo = nil
+    self.logo_content_type = nil
   end
 
   #### Alias of methods
