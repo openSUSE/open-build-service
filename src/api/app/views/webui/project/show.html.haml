@@ -35,6 +35,10 @@
                                                   project_maintenance_project: @project_maintenance_project,
                                                   incoming_requests_size: @incoming_requests_size,
                                                   outgoing_requests_size: @outgoing_requests_size }
+- if !@project.vendor&.persisted? && Flipper.enabled?(:enhanced_distribution_support, User.session)
+  - new_vendor = Vendor.new(project: @project)
+  - if policy(new_vendor).new?
+    = render partial: 'webui/vendors/modal', locals: { vendor: new_vendor }
 .overview
   .build-results
     = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name }

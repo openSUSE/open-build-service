@@ -9,30 +9,20 @@ class Webui::VendorsController < Webui::WebuiController
   #### Callbacks macros: before_action, after_action, etc.
   before_action :check_beta_feature
   before_action :set_project
-  before_action :set_vendor, only: %i[show edit update destroy]
+  before_action :set_vendor, only: %i[show update destroy]
   # Pundit authorization policies control
   after_action :verify_authorized
 
   #### CRUD actions
 
-  # GET /vendors/1
+  # GET /vendor
   def show
     if @vendor.present?
       authorize @vendor
     else
       skip_authorization
+      redirect_to project_show_path(@project)
     end
-  end
-
-  # GET /vendors/new
-  def new
-    @vendor = Vendor.new(project: @project)
-    authorize @vendor
-  end
-
-  # GET /vendors/1/edit
-  def edit
-    authorize @vendor
   end
 
   # POST /vendors
@@ -43,8 +33,7 @@ class Webui::VendorsController < Webui::WebuiController
     if @vendor.save
       redirect_to project_vendor_path(@project), flash: { success: 'Vendor was successfully created.' }
     else
-      flash.now[:error] = @vendor.errors.full_messages.to_sentence
-      render :new
+      redirect_to project_show_path(@project), flash: { error: "Vendor failed to create. #{@vendor.errors.full_messages.to_sentence}" }
     end
   end
 
@@ -55,8 +44,7 @@ class Webui::VendorsController < Webui::WebuiController
       @vendor.logo.purge if vendor_params[:remove_logo] == '1' && vendor_params[:logo].blank?
       redirect_to project_vendor_path(@project), flash: { success: 'Vendor was successfully updated.' }
     else
-      flash.now[:error] = @vendor.errors.full_messages.to_sentence
-      render :edit
+      redirect_to project_vendor_path(@project), flash: { error: "Vendor failed to update. #{@vendor.errors.full_messages.to_sentence}" }
     end
   end
 
