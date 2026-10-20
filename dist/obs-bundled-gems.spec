@@ -16,7 +16,7 @@
 #
 
 %if 0%{?suse_version}
-%define __obs_ruby_interpreter /usr/bin/ruby.ruby3.4
+%define __obs_ruby_interpreter /usr/bin/ruby.ruby4.0
 %define rack_version %(%{__obs_ruby_interpreter} -r rack -e "puts Rack::RELEASE")
 %define rake_version %(%{__obs_ruby_interpreter} -r rake -e "puts Rake::VERSION")
 %define ruby_abi_version %(%{__obs_ruby_interpreter} -r rbconfig -e 'print RbConfig::CONFIG["ruby_version"]')
@@ -48,10 +48,10 @@ BuildRequires:  make
 BuildRequires:  mysql-devel
 BuildRequires:  nodejs
 %if 0%{?suse_version}
-BuildRequires:  ruby3.4-devel
+BuildRequires:  ruby4.0-devel
 BuildRequires:  openldap2-devel
 # For comparing package/bundle versions with make test_rack
-BuildRequires:  rubygem(ruby:3.4.0:rack)
+BuildRequires:  rubygem(ruby:4.0.0:rack)
 %else
 BuildRequires:  ruby-devel
 BuildRequires:  rubygem-bundler
@@ -80,8 +80,8 @@ Requires:       obs-bundled-gems = %{version}
 Requires:       sphinx >= 2.2.11
 Requires:       perl(GD)
 %if 0%{?suse_version}
-Requires:       rubygem(ruby:3.4.0:rack) = %{rack_version}
-Requires:       rubygem(ruby:3.4.0:rake) = %{rake_version}
+Requires:       rubygem(ruby:4.0.0:rack) = %{rack_version}
+Requires:       rubygem(ruby:4.0.0:rake) = %{rake_version}
 %else
 Requires:       rubygem-bundler
 Requires:       rubygem-rake
