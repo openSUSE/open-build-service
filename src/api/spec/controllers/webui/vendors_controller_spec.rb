@@ -21,21 +21,12 @@ RSpec.describe Webui::VendorsController do
   end
 
   describe 'GET #show' do
-    context 'when the project has a vendor' do
-      before do
-        vendor
-        get :show, params: { project_name: project.name }
-      end
-
-      it { expect(response).to have_http_status(:success) }
+    before do
+      get :show, params: { project_name: project.name }
     end
 
-    context 'when the project has no vendor' do
-      before do
-        get :show, params: { project_name: project.name }
-      end
-
-      it { expect(response).to redirect_to(project_show_path(project)) }
+    it 'redirects to the vendor in the project overview' do
+      expect(response).to redirect_to(project_show_path(project, anchor: 'vendor'))
     end
   end
 
@@ -57,9 +48,9 @@ RSpec.describe Webui::VendorsController do
           expect(Vendor.last.project).to eq(project)
         end
 
-        it 'redirects to the new vendor' do
+        it 'redirects to the vendor in the project overview' do
           subject
-          expect(response).to redirect_to(project_vendor_path(project))
+          expect(response).to redirect_to(project_show_path(project, anchor: 'vendor'))
         end
 
         it 'sets a success flash' do
@@ -123,9 +114,9 @@ RSpec.describe Webui::VendorsController do
 
         it { expect { subject }.not_to(change { vendor.reload.name }) }
 
-        it 'redirects to the vendor with an error flash' do
+        it 'redirects to the vendor in the project overview with an error flash' do
           subject
-          expect(response).to redirect_to(project_vendor_path(project))
+          expect(response).to redirect_to(project_show_path(project, anchor: 'vendor'))
           expect(flash[:error]).to include('Vendor failed to update.')
         end
       end
