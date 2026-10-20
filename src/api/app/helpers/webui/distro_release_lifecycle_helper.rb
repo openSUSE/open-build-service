@@ -16,6 +16,10 @@ module Webui::DistroReleaseLifecycleHelper
     end
   end
 
+  def lifecycle_status_badge(lifecycle)
+    tag.span(lifecycle.status_label, class: ['badge', lifecycle_status_class(lifecycle.status)])
+  end
+
   def distro_release_timeline_groups(distro_releases)
     distro_releases.each_with_index.map do |distro_release, index|
       { id: distro_release.id, content: distro_release.name, order: index }
