@@ -51,6 +51,10 @@ class TriggerController < ApplicationController
     create
   end
 
+  def wipe
+    create
+  end
+
   private
 
   # AUTHENTICATION
@@ -63,7 +67,7 @@ class TriggerController < ApplicationController
     case @token.type
     when 'Token::Workflow'
       raise InvalidToken, 'Invalid token found'
-    when 'Token::Rebuild', 'Token::Release'
+    when 'Token::Rebuild', 'Token::Release', 'Token::Wipe'
       return if params[:project].present?
     when 'Token::Service'
       return if params[:project].present? && params[:package].present?

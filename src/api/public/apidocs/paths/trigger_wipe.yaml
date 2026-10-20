@@ -1,0 +1,24 @@
+post:
+  summary: Trigger a wipe of binary artifacts
+  description: |
+    This endpoint behaves exactly as the [/trigger](#/Trigger/post_trigger) endpoint but
+    only allows API tokens with the operation 'wipe' to be triggered.
+  security:
+    - GitLab_key_authentication: []
+  parameters:
+    - in: query
+      name: repository
+      description: |
+        Restrict the wipe to this repository.
+      schema:
+        type: string
+      example: openSUSE_Factory
+    - in: query
+      name: arch
+      description: |
+        Restrict the wipe to this scheduler architecture.
+      schema:
+        type: string
+      example: x86_64
+  tags:
+    - Trigger
