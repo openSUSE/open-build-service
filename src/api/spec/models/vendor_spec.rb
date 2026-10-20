@@ -61,4 +61,28 @@ RSpec.describe Vendor do
       expect(vendor.logo_data_uri).to eq("data:image/png;base64,#{expected_base64}")
     end
   end
+
+  describe '#remove_logo' do
+    let(:vendor) { build(:vendor, logo: "\x89PNG\r\n\x1a\n".b, logo_content_type: 'image/png') }
+
+    context 'when true' do
+      it 'purges the logo and logo_content_type' do
+        vendor.remove_logo = true
+        vendor.valid? # triggers validations and callbacks without the need of persisting
+
+        expect(vendor.logo).to be_nil
+        expect(vendor.logo_content_type).to be_nil
+      end
+    end
+
+    context 'when false' do
+      it 'keeps the logo and logo_content_type' do
+        vendor.remove_logo = false
+        vendor.valid? # triggers validations and callbacks without the need of persisting
+
+        expect(vendor.logo).to eq("\x89PNG\r\n\x1a\n".b)
+        expect(vendor.logo_content_type).to eq('image/png')
+      end
+    end
+  end
 end
