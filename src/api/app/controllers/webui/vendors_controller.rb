@@ -9,30 +9,17 @@ class Webui::VendorsController < Webui::WebuiController
   #### Callbacks macros: before_action, after_action, etc.
   before_action :check_beta_feature
   before_action :set_project
-  before_action :set_vendor, only: %i[show edit update destroy]
+  before_action :set_vendor, only: %i[update destroy]
   # Pundit authorization policies control
   after_action :verify_authorized
 
   #### CRUD actions
 
-  # GET /vendors/1
+  # GET /vendor
+  # The vendor is displayed in the project overview, we keep this route for existing links.
   def show
-    if @vendor.present?
-      authorize @vendor
-    else
-      skip_authorization
-    end
-  end
-
-  # GET /vendors/new
-  def new
-    @vendor = Vendor.new(project: @project)
-    authorize @vendor
-  end
-
-  # GET /vendors/1/edit
-  def edit
-    authorize @vendor
+    skip_authorization
+    redirect_to project_show_path(@project, anchor: 'vendor')
   end
 
   # POST /vendors
@@ -41,9 +28,9 @@ class Webui::VendorsController < Webui::WebuiController
     @vendor.project = @project
     authorize @vendor
     if @vendor.save
-      redirect_to project_vendor_path(@project), flash: { success: 'Vendor was successfully created.' }
+      redirect_to project_show_path(@project, anchor: 'vendor'), flash: { success: 'Vendor was successfully created.' }
     else
-      render :new
+      redirect_to project_show_path(@project), flash: { error: "Vendor failed to create. #{@vendor.errors.full_messages.to_sentence}" }
     end
   end
 
@@ -51,9 +38,10 @@ class Webui::VendorsController < Webui::WebuiController
   def update
     authorize @vendor
     if @vendor.update(vendor_params)
-      redirect_to project_vendor_path(@project), flash: { success: 'Vendor was successfully updated.' }
+      redirect_to project_show_path(@project, anchor: 'vendor'), flash: { success: 'Vendor was successfully updated.' }
     else
-      render :edit
+      redirect_to project_show_path(@project, anchor: 'vendor'),
+                  flash: { error: "Vendor failed to update. #{@vendor.errors.full_messages.to_sentence}" }
     end
   end
 

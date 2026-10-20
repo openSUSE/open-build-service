@@ -8,9 +8,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - c01c607b-8686-43a2-8914-ffdb79cc1e0a
+      - f1baa5e4-a8e2-40a8-a1e4-0960d8433d44
       X-Frontend-Start:
-      - '1787667780'
+      - '1792499220'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -37,7 +37,7 @@ http_interactions:
           <summary>project 'home:Jane' does not exist</summary>
           <details>404 project 'home:Jane' does not exist</details>
         </status>
-  recorded_at: Tue, 25 Aug 2026 14:23:00 GMT
+  recorded_at: Tue, 20 Oct 2026 12:27:00 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:Jane/_result?view=summary
@@ -46,9 +46,9 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 73952f99-4911-49e9-8e46-7abbe6b8c0f1
+      - cdf895a9-a615-4f26-a8be-641f0a820526
       X-Frontend-Start:
-      - '1787667780'
+      - '1792499225'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -75,5 +75,5 @@ http_interactions:
           <summary>project 'home:Jane' does not exist</summary>
           <details>404 project 'home:Jane' does not exist</details>
         </status>
-  recorded_at: Tue, 25 Aug 2026 14:23:00 GMT
+  recorded_at: Tue, 20 Oct 2026 12:27:05 GMT
 recorded_with: VCR 6.4.0

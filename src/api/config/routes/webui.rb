@@ -310,7 +310,7 @@ resources :projects, only: [], param: :name do
     end
   end
 
-  resource :vendor, controller: 'webui/vendors', constraints: cons do
+  resource :vendor, controller: 'webui/vendors', only: %i[show create update destroy], constraints: cons do
     post :preview_description
   end
   resources :distros, controller: 'webui/distros', except: %i[index new], constraints: cons, param: :distro_name do

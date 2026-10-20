@@ -14,10 +14,10 @@ RSpec.describe Webui::VendorsController do
     before do
       Flipper.disable(:enhanced_distribution_support)
       login user
-      get :new, params: { project_name: project.name }
+      get :show, params: { project_name: project.name }
     end
 
-    it { expect(response).to have_http_status(:found) }
+    it { expect(response).to redirect_to(root_path) }
   end
 
   describe 'GET #show' do
@@ -25,40 +25,8 @@ RSpec.describe Webui::VendorsController do
       get :show, params: { project_name: project.name }
     end
 
-    it { expect(response).to have_http_status(:success) }
-  end
-
-  describe 'GET #new' do
-    context 'as a project maintainer' do
-      before do
-        login user
-        get :new, params: { project_name: project.name }
-      end
-
-      it { expect(assigns(:vendor).project).to eq(project) }
-    end
-
-    context 'as a user without permission' do
-      before do
-        login other_user
-        get :new, params: { project_name: project.name }
-      end
-
-      it { expect(response).to redirect_to(root_path) }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this vendor.') }
-    end
-  end
-
-  describe 'GET #edit' do
-    context 'as a user without permission' do
-      before do
-        vendor
-        login other_user
-        get :edit, params: { project_name: project.name }
-      end
-
-      it { expect(response).to redirect_to(root_path) }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to edit this vendor.') }
+    it 'redirects to the vendor in the project overview' do
+      expect(response).to redirect_to(project_show_path(project, anchor: 'vendor'))
     end
   end
 
@@ -80,9 +48,9 @@ RSpec.describe Webui::VendorsController do
           expect(Vendor.last.project).to eq(project)
         end
 
-        it 'redirects to the new vendor' do
+        it 'redirects to the vendor in the project overview' do
           subject
-          expect(response).to redirect_to(project_vendor_path(project))
+          expect(response).to redirect_to(project_show_path(project, anchor: 'vendor'))
         end
 
         it 'sets a success flash' do
@@ -96,9 +64,10 @@ RSpec.describe Webui::VendorsController do
 
         it { expect { subject }.not_to change(Vendor, :count) }
 
-        it 'renders the new template again' do
+        it 'redirects to the project with an error flash' do
           subject
-          expect(response).to render_template(:new)
+          expect(response).to redirect_to(project_show_path(project))
+          expect(flash[:error]).to include('Vendor failed to create.')
         end
       end
     end
@@ -145,9 +114,10 @@ RSpec.describe Webui::VendorsController do
 
         it { expect { subject }.not_to(change { vendor.reload.name }) }
 
-        it 'renders the edit template again' do
+        it 'redirects to the vendor in the project overview with an error flash' do
           subject
-          expect(response).to render_template(:edit)
+          expect(response).to redirect_to(project_show_path(project, anchor: 'vendor'))
+          expect(flash[:error]).to include('Vendor failed to update.')
         end
       end
     end
