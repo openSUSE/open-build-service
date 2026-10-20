@@ -41,9 +41,12 @@ class Vendor < ApplicationRecord
   end
 
   def logo_data_uri
-    return if logo.blank?
+    logo_to_render = errors[:logo].present? ? attribute_in_database(:logo) : logo
+    content_type_to_render = errors[:logo].present? ? attribute_in_database(:logo_content_type) : logo_content_type
 
-    "data:#{logo_content_type};base64,#{Base64.strict_encode64(logo)}"
+    return if logo_to_render.blank?
+
+    "data:#{content_type_to_render};base64,#{Base64.strict_encode64(logo_to_render)}"
   end
 
   private

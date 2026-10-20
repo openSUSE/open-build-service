@@ -16,7 +16,7 @@
     %small.form-text Supported formats: PNG, JPEG, WebP
 
     = form.file_field :logo, class: 'form-control', accept: 'image/png,image/jpeg,image/webp'
-    - if vendor.persisted? && vendor.logo.present?
+    - if vendor.persisted? && vendor.logo_data_uri.present?
       .mt-2
         = image_tag vendor.logo_data_uri, class: 'img-thumbnail mb-2 vendor-logo-preview'
 
