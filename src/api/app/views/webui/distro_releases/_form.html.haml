@@ -49,7 +49,9 @@
     .text-danger.architecture-warning.d-none.mt-2
 
   %div
-    = link_to('Cancel', project_distro_path(model.distro.vendor.project, model.distro.name), title: 'Cancel',
+    - cancel_path = project_distro_path(model.project, model.distro.name)
+    - cancel_path = project_distro_release_path(model.project, model.distro.name, model.name_was) if model.persisted?
+    = link_to('Cancel', cancel_path, title: 'Cancel',
               class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
     = form.submit 'Save', class: 'btn btn-success'
 

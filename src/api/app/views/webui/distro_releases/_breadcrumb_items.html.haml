@@ -1,9 +1,10 @@
 = render partial: 'webui/distros/breadcrumb_items'
 
+-# The release is shown in the distro page, the breadcrumb ends with the distro there
 - if action_name == 'new'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Create Distro Release
-- else
+- elsif action_name == 'edit'
   %li.breadcrumb-item.text-word-break-all
     %i.fa.fa-ship
-    = @distro_release.name
+    = link_to @distro_release.name, project_distro_release_path(@project, @distro.name, @distro_release.name)

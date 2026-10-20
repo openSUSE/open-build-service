@@ -9,19 +9,18 @@ class Webui::DistrosController < Webui::WebuiController
   #### Callbacks macros: before_action, after_action, etc.
   before_action :set_project
   before_action :set_vendor
-  before_action :set_distro, only: %i[show edit update destroy]
+  before_action :set_distro, only: %i[show update destroy]
   before_action :check_distro_belongs_to_vendor, only: %i[create update destroy]
   # Pundit authorization policies control
   after_action :verify_authorized
 
   #### CRUD actions
 
+  # The releases of a distro are displayed in this page, together with the details of the selected release.
   def show
     authorize @distro
-  end
-
-  def edit
-    authorize @distro
+    @distro_releases = @distro.distro_releases.newest_first.includes(:distro_release_lifecycles)
+    @distro_release = @distro_releases.first
   end
 
   # POST /distros
@@ -43,7 +42,7 @@ class Webui::DistrosController < Webui::WebuiController
     if @distro.update(distro_params.merge(vendor_id: @vendor.id))
       redirect_to project_distro_path(@project, @distro.name), flash: { success: 'Distro was successfully updated.' }
     else
-      redirect_to project_show_path(@project, anchor: 'vendor'),
+      redirect_to project_distro_path(@project, @distro.name_was),
                   flash: { error: "Distro failed to update. #{@distro.errors.full_messages.to_sentence}" }
     end
   end
