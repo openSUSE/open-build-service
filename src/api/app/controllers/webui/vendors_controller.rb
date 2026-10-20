@@ -42,6 +42,7 @@ class Webui::VendorsController < Webui::WebuiController
     if @vendor.save
       redirect_to project_vendor_path(@project), flash: { success: 'Vendor was successfully created.' }
     else
+      flash.now[:error] = @vendor.errors.full_messages.to_sentence
       render :new
     end
   end
@@ -52,6 +53,7 @@ class Webui::VendorsController < Webui::WebuiController
     if @vendor.update(vendor_params)
       redirect_to project_vendor_path(@project), flash: { success: 'Vendor was successfully updated.' }
     else
+      flash.now[:error] = @vendor.errors.full_messages.to_sentence
       render :edit
     end
   end
