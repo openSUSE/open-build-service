@@ -27,8 +27,7 @@ RSpec.describe 'Vendors', :js, :vcr do
       expect(project.reload.vendor.name).to eq('openSUSE')
     end
 
-    it 'lands on the vendor page' do
-      expect(page).to have_current_path(project_vendor_path(project))
+    it 'displays the vendor in the project overview' do
       within('#vendor') { expect(page).to have_text('openSUSE') }
     end
   end
@@ -39,14 +38,18 @@ RSpec.describe 'Vendors', :js, :vcr do
 
     before do
       distro.distro_releases.create!(name: '15.6')
-      visit project_vendor_path(project)
+      visit project_show_path(project)
     end
 
-    it 'displays the vendor with its distributions and releases' do
+    it 'displays the vendor panel with its distributions and releases' do
       within('#vendor') do
         expect(page).to have_link('Leap', href: project_distro_path(project, 'Leap'))
         expect(page).to have_link('15.6', href: project_distro_release_path(project, 'Leap', '15.6'))
       end
+    end
+
+    it 'does not offer to create another vendor' do
+      expect(page).to have_no_link('Create Vendor')
     end
 
     context 'editing the vendor through the modal' do
