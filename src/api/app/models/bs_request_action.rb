@@ -5,6 +5,7 @@ class BsRequestAction < ApplicationRecord
 
   #### Constants
   VALID_SOURCEUPDATE_OPTIONS = %w[update noupdate cleanup].freeze
+  ALLOWED_SCMSYNC_PACKAGE_ACTION_TYPES = %i[delete add_role set_bugowner change_devel].freeze
   TYPES = %w[set_bugowner change_devel delete maintenance_incident maintenance_release release add_role submit].freeze
 
   #### Self config
@@ -972,7 +973,7 @@ class BsRequestAction < ApplicationRecord
       end
 
       if defined?(tpkg) && tpkg
-        if tpkg.scmsync.present? && !action_type.in?(%i[delete add_role set_bugowner change_devel])
+        if tpkg.scmsync.present? && !action_type.in?(ALLOWED_SCMSYNC_PACKAGE_ACTION_TYPES)
           raise RequestRejected,
                 "The target package #{target_project} #{target_package} is managed in an external SCM: #{tpkg.scmsync}"
         end
