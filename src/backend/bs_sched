@@ -558,6 +558,9 @@ my $gctx = {
   'schedulerstart' => time(),
   'slept' => 0,
   'prplastcheck' => {},			# XXX: currently not used
+
+  # pool creation acceleration
+  'lastidcounts' => {},
 };
 
 # find max gen_meta algorithm
@@ -993,6 +996,7 @@ eval {
         delete $gctx->{'lastcheck'}->{$prp};
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
         delete $gctx->{'genbuildreqs'}->{$prp};
+        delete $gctx->{'lastidcounts'}->{$prp};
         my $ctx = BSSched::Checker->new($gctx, $prp);
         $ctx->wipeobsoleterepo();
       }
