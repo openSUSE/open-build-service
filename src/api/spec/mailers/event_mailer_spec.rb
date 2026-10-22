@@ -52,6 +52,42 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
+    context 'for an event of type Event::RequestCreate with a diff', vcr: false do
+      let(:payload) do
+        {
+          'number' => 1,
+          'author' => receiver.login,
+          'who' => receiver.login,
+          'state' => 'new',
+          'description' => 'Please review',
+          'actions' => [
+            {
+              'type' => 'submit',
+              'sourceproject' => 'home:source',
+              'sourcepackage' => 'foo',
+              'targetproject' => 'home:target',
+              'targetpackage' => 'foo',
+              'diff' => "@@ -1,2 +1,2 @@\n-old line\n+new line\n"
+            }
+          ]
+        }
+      end
+      let(:event_stub) { Event::RequestCreate.new(payload) }
+      let(:mail) { EventMailer.with(subscribers: [receiver], event: event_stub).notification_email }
+
+      before do
+        allow(event_stub).to receive_messages(payload: payload, expanded_payload: payload)
+      end
+
+      it 'has an HTML part' do
+        expect(mail.html_part).to be_present
+      end
+
+      it 'keeps the diff in the plain text part' do
+        expect(mail.text_part.body.to_s).to include('+new line')
+      end
+    end
+
     context 'for an event of type Event::CommentForProject' do
       let!(:subscription) { create(:event_subscription_comment_for_project, user: receiver) }
       let!(:comment) { create(:comment_project, body: "Hey @#{receiver.login} how are things? Look at [bug](/project/show/apache) please.") }
