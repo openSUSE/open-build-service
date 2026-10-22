@@ -86,6 +86,14 @@ RSpec.describe EventMailer, :vcr do
       it 'keeps the diff in the plain text part' do
         expect(mail.text_part.body.to_s).to include('+new line')
       end
+
+      it 'highlights added lines in the HTML part' do
+        expect(mail.html_part.body.decoded).to include('background-color: #e6ffec;')
+      end
+
+      it 'highlights removed lines in the HTML part' do
+        expect(mail.html_part.body.decoded).to include('background-color: #ffebe9;')
+      end
     end
 
     context 'for an event of type Event::CommentForProject' do

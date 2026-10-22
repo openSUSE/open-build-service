@@ -1,4 +1,4 @@
 %p
   #{a['type']} #{a['sourceproject']}/#{a['sourcepackage']} => #{a['targetproject']}/#{a['targetpackage']}
 - if a['diff'].present?
-  %pre= a['diff']
+  = render EmailDiffComponent.new(diff: a['diff'])
