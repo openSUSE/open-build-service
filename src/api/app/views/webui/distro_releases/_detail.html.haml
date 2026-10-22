@@ -1,0 +1,61 @@
+- release_path = project_distro_release_path(project, distro.name, distro_release.name)
+
+.d-flex.flex-wrap.align-items-start.gap-3.mb-3#distro-release
+  %i.fas.fa-ship.fa-2x.text-success
+  .flex-grow-1
+    .small.text-secondary.text-uppercase.fw-semibold Release
+    %h4.mb-0.text-word-break-all
+      #{distro.name} #{distro_release.name}
+      - if distro_release.url.present?
+        %small.fs-6.fw-normal.ms-2
+          = render partial: 'webui/shared/external_link', locals: { text: distro_release.url, url: distro_release.url }
+  .d-flex.gap-2
+    - if policy(distro_release).edit?
+      = link_to(edit_project_distro_release_path(project, distro.name, distro_release.name), class: 'btn btn-sm btn-outline-secondary') do
+        %i.fas.fa-edit
+        Edit
+    - if policy(distro_release).destroy?
+      %button.btn.btn-sm.btn-outline-danger{ type: 'button', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-release-modal' } }
+        %i.fas.fa-trash-can
+        Delete
+
+.mb-4#distro-release-description
+  - if distro_release.description.blank?
+    %i.text-secondary No description set
+  - else
+    = render partial: 'webui/shared/collapsible_text', locals: { text: distro_release.description, render_markdown: true }
+
+%h5
+  Lifecycle
+%ul.list-group.list-group-flush.mb-2
+  - distro_release.distro_release_lifecycles.chronological.each do |lifecycle|
+    = render partial: 'webui/distro_release_lifecycles/lifecycle', locals: { lifecycle: lifecycle }
+- new_lifecycle = DistroReleaseLifecycle.new(distro_release:)
+- if policy(new_lifecycle).new?
+  = render partial: 'webui/distro_release_lifecycles/modal',
+           locals: { model: new_lifecycle,
+                     url: project_distro_release_lifecycles_path(project, distro.name, distro_release.name),
+                     text: 'New Lifecycle', icon: 'circle-plus', type: 'link text-decoration-none ps-0' }
+
+- repositories = distro_release.repository_architectures.includes(:architecture, repository: :project).group_by(&:repository)
+%h5.mt-4
+  Repositories
+  %span.badge.text-bg-secondary= repositories.size
+- if repositories.empty?
+  %p.text-secondary No repositories set.
+- else
+  %ul.list-group.list-group-flush#distro-release-repositories
+    - repositories.each do |repository, repository_architectures|
+      %li.list-group-item.d-flex.flex-wrap.justify-content-between.align-items-center.px-0
+        = link_to("#{repository.project.name}/#{repository.name}", repositories_path(repository.project), class: 'font-monospace')
+        %div
+          - repository_architectures.each do |repository_architecture|
+            %span.badge.text-bg-primary= repository_architecture.architecture.name
+
+- if policy(distro_release).destroy?
+  - confirmation_text = "Please confirm deletion of the release '#{distro_release.name}' of the distribution '#{distro.name}'."
+  = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-distro-release-modal',
+                                                 method: :delete,
+                                                 options: { modal_title: 'Do you really want to delete this release?',
+                                                            confirmation_text: confirmation_text,
+                                                            action: project_distro_release_path(project, distro.name, distro_release.name) })

@@ -1,4 +1,4 @@
 %li.nav-item
-  = link_to(new_project_vendor_path(project_name: project), class: 'nav-link', title: 'Create Vendor') do
+  = link_to('#', class: 'nav-link', title: 'Create Vendor', data: { 'bs-toggle': 'modal', 'bs-target': '#vendor-form-modal' }) do
     %i.fas.fa-globe.fa-fw.me-2
     %span.nav-item-name Create Vendor

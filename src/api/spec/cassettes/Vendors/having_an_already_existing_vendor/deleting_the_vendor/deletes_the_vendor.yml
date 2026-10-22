@@ -1,0 +1,155 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 91f2270a-b330-4736-8144-1fd0a4350a0b
+      X-Frontend-Start:
+      - '1792499229'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home Jane' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:Jane' does not exist</summary>
+          <details>404 project 'home:Jane' does not exist</details>
+        </status>
+  recorded_at: Tue, 20 Oct 2026 12:27:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 35c20a90-89ca-4dd7-81fd-c888c011eed5
+      X-Frontend-Start:
+      - '1792499229'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home Jane' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:Jane' does not exist</summary>
+          <details>404 project 'home:Jane' does not exist</details>
+        </status>
+  recorded_at: Tue, 20 Oct 2026 12:27:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 28697ae7-569f-40f1-af92-62289b20b3aa
+      X-Frontend-Start:
+      - '1792499230'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home Jane' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:Jane' does not exist</summary>
+          <details>404 project 'home:Jane' does not exist</details>
+        </status>
+  recorded_at: Tue, 20 Oct 2026 12:27:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 618b68b0-040c-429b-ad4f-8593e5589403
+      X-Frontend-Start:
+      - '1792499230'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home Jane' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:Jane' does not exist</summary>
+          <details>404 project 'home:Jane' does not exist</details>
+        </status>
+  recorded_at: Tue, 20 Oct 2026 12:27:10 GMT
+recorded_with: VCR 6.4.0

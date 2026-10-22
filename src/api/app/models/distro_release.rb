@@ -19,6 +19,7 @@ class DistroRelease < ApplicationRecord
   #### Callbacks macros: before_save, after_save, etc.
 
   #### Scopes (first the default_scope macro if is used)
+  scope :newest_first, -> { order(id: :desc) }
 
   #### Validations macros
   validates :name, presence: true, length: { maximum: 255 }
@@ -32,6 +33,15 @@ class DistroRelease < ApplicationRecord
   #### private
 
   #### Instance methods (public and then protected/private)
+
+  # The lifecycle phase the release is in today. Works on the loaded association to allow preloading.
+  def current_lifecycle
+    distro_release_lifecycles.select { |lifecycle| lifecycle.date <= Time.zone.today }.max_by(&:date)
+  end
+
+  def next_lifecycle
+    distro_release_lifecycles.select { |lifecycle| lifecycle.date > Time.zone.today }.min_by(&:date)
+  end
 
   #### Alias of methods
 end

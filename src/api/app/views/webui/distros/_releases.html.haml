@@ -1,0 +1,42 @@
+-# Turbo is disabled in the frame, except for the release links. Other links and forms work as usual.
+= turbo_frame_tag 'distro-releases', data: { turbo: false } do
+  .card.mb-3
+    .row.g-0
+      .col-md-4.col-xl-3.border-end
+        .d-flex.justify-content-between.align-items-center.p-3
+          %h5.mb-0
+            Releases
+            %span.badge.text-bg-secondary= distro_releases.size
+          - if policy(DistroRelease.new(distro:)).new?
+            = link_to(new_project_distro_release_path(project, distro.name)) do
+              %i.fas.fa-circle-plus.text-info
+              New
+        - if distro_releases.empty?
+          %p.px-3.text-secondary This distribution has no releases yet.
+        - else
+          .list-group.list-group-flush#distro-releases-list
+            - distro_releases.each do |distro_release|
+              - selected = distro_release == selected_release
+              - current_lifecycle = distro_release.current_lifecycle
+              - next_lifecycle = distro_release.next_lifecycle
+              = link_to(project_distro_release_path(project, distro.name, distro_release.name),
+                        class: ['list-group-item list-group-item-action py-3', { active: selected }],
+                        aria: { current: selected ? 'page' : nil },
+                        data: { turbo: true, turbo_frame: 'distro-releases', turbo_action: 'advance' }) do
+                .d-flex.justify-content-between.align-items-center.gap-2
+                  %span.fw-semibold.text-word-break-all
+                    %i.fas.fa-ship.me-1
+                    = distro_release.name
+                  - if current_lifecycle
+                    %span.badge{ class: lifecycle_status_class(current_lifecycle) }= current_lifecycle.status_label
+                - if next_lifecycle
+                  .small{ class: selected ? nil : 'text-secondary' }
+                    #{next_lifecycle.name}: #{l(next_lifecycle.date, format: :long)}
+      .col-md-8.col-xl-9
+        .p-4
+          - if selected_release
+            = render partial: 'webui/distro_releases/detail', locals: { project:, distro:, distro_release: selected_release }
+          - else
+            .text-center.text-secondary.py-5
+              %i.fas.fa-ship.fa-2x.mb-2
+              %p.mb-0 Create a release to manage its repositories and lifecycle.

@@ -21,6 +21,18 @@ RSpec.describe Webui::DistrosController do
     it { expect(response).to have_http_status(:redirect) }
   end
 
+  describe 'GET #show' do
+    let!(:old_release) { create(:distro_release, distro: distro, name: '15.5') }
+    let!(:new_release) { create(:distro_release, distro: distro, name: '15.6') }
+
+    before do
+      get :show, params: { project_name: project.name, distro_name: distro.name }
+    end
+
+    it { expect(assigns(:distro_releases)).to eq([new_release, old_release]) }
+    it { expect(assigns(:distro_release)).to eq(new_release) }
+  end
+
   describe 'POST #create' do
     subject { post :create, params: { project_name: project.name, distro: distro_params } }
 
@@ -39,9 +51,9 @@ RSpec.describe Webui::DistrosController do
           expect(Distro.last.vendor).to eq(vendor)
         end
 
-        it 'redirects to the vendor' do
+        it 'redirects to the vendor in the project overview' do
           subject
-          expect(response).to redirect_to(project_vendor_path(project))
+          expect(response).to redirect_to(project_show_path(project, anchor: 'vendor'))
         end
 
         it 'sets a success flash' do
@@ -67,9 +79,9 @@ RSpec.describe Webui::DistrosController do
 
         it { expect { subject }.not_to change(Distro, :count) }
 
-        it 'redirects to the vendor' do
+        it 'redirects to the vendor in the project overview' do
           subject
-          expect(response).to redirect_to(project_vendor_path(project))
+          expect(response).to redirect_to(project_show_path(project, anchor: 'vendor'))
         end
 
         it 'sets a human readable error flash' do
@@ -122,9 +134,9 @@ RSpec.describe Webui::DistrosController do
           create(:distro, vendor: vendor, name: 'Tumbleweed')
         end
 
-        it 'redirects to the vendor' do
+        it 'redirects to the distro with its unchanged name' do
           subject
-          expect(response).to redirect_to(project_vendor_path(project))
+          expect(response).to redirect_to(project_distro_path(project, 'Leap'))
         end
 
         it 'sets a human readable error flash' do
@@ -186,9 +198,9 @@ RSpec.describe Webui::DistrosController do
 
       it { expect { subject }.to change(Distro, :count).by(-1) }
 
-      it 'redirects to the vendor' do
+      it 'redirects to the vendor in the project overview' do
         subject
-        expect(response).to redirect_to(project_vendor_path(project))
+        expect(response).to redirect_to(project_show_path(project, anchor: 'vendor'))
       end
     end
 
