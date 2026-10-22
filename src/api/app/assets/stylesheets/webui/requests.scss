@@ -66,6 +66,27 @@
   overflow: hidden;
 }
 
+[data-request-actions-popover] {
+  cursor: help;
+  text-decoration: underline dotted;
+}
+
+// Popovers are appended to the body, outside of the request item
+.request-actions-popover {
+  --bs-popover-max-width: min(32rem, 90vw);
+
+  .popover-body {
+    max-height: 20rem;
+    overflow-y: auto;
+  }
+
+  li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 .col-with-icon {
   max-width: calc(100% - 2.5rem)
 }
