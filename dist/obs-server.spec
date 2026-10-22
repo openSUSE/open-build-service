@@ -421,7 +421,7 @@ pushd src/api
 sed -i 's|bin/rake assets:precompile|BUNDLE_IGNORE_CONFIG=1 BUNDLE_PATH="/usr/lib64/obs-api" GEM_HOME="/usr/lib64/obs-api/ruby/2.7.0" bin/rake assets:precompile|g' Makefile
 %endif
 # configure to the bundled gems
-bundle --local --path /usr/lib64/obs-api/
+bundle.ruby.%{ruby} --local --path /usr/lib64/obs-api/
 rm -rf vendor/cache/*
 popd
 
