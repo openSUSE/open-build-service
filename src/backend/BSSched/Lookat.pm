@@ -24,7 +24,7 @@ use BSUtil;
 
 =head2 setchanged - add a prp to the lookat queue and the dependent prps to the changed hashes
 
- TODO
+Usually called from a RPC resume, so we put the prps in from of the lookat queue.
 
 =cut
 
@@ -61,24 +61,23 @@ sub setchanged {
     $changed_dirty->{$prp} = 1;
     return;
   }
-  my $rprpdeps = $gctx->{'rprpdeps'};
   my @cprps;
-  for my $prp (@$prps, sort(keys %{$rprpdeps || {}})) {
+  # also look at rprpdeps so that remote projects are correctly handled
+  for my $prp (@$prps, sort(keys %{$gctx->{'rprpdeps'} || {}})) {
     push @cprps, $prp if (split('/', $prp, 2))[0] eq $projid;
   }
   @cprps = BSUtil::unify(@cprps);
   my %cprps = map {$_ => 1} @cprps;
   @$lookat = grep {!$cprps{$_}} @$lookat;
+  unshift @$lookat, @cprps;
   if ($changelevel == 2) {
     for my $prp (@cprps) {
-      unshift @$lookat, $prp;
       $changed->{$prp} = 2;
       $changed_dirty->{$prp} = 1;
     }
     $changed->{$projid} = 2;
   } else {
     for my $prp (@cprps) {
-      unshift @$lookat, $prp;
       $changed->{$prp} ||= 1;
       $changed_dirty->{$prp} = 1;
     }
