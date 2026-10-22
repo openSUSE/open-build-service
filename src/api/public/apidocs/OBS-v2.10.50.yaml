@@ -188,10 +188,10 @@ paths:
 
   /distributions:
     $ref: 'paths/distributions.yaml'
-  /distributions?cmd=refresh:
-    $ref: 'paths/distributions_refresh.yaml'
   /distributions/include_remotes:
     $ref: 'paths/distributions_include_remotes.yaml'
+  /distributions/refresh:
+    $ref: 'paths/distributions_refresh.yaml'
   /distributions/{distribution_id}:
     $ref: 'paths/distributions_distribution_id.yaml'
   /distributions/bulk_replace:
