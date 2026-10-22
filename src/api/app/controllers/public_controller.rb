@@ -3,12 +3,19 @@ class PublicController < ApplicationController
   include PublicHelper
 
   # we need to fall back to _nobody_ (_public_)
+  before_action :check_anonymous_access
   skip_before_action :extract_user
   skip_before_action :require_login
   before_action :set_response_format_to_xml
   before_action :set_influxdb_data_interconnect
   before_action :set_anonymous_user
   before_action :set_project, only: %i[binary_packages]
+
+  def check_anonymous_access
+    # don't fall back because we skip require_login and can not rely on it
+    # also we should have a propper error message
+    raise NoPermission, "No Anonymous Access" unless ::Configuration.anonymous
+  end
 
   # GET /public/build/:project/:repository/:arch/:package
   def build

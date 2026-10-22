@@ -18,60 +18,84 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_anonymous_disabled
+    c = ::Configuration.first
+    orig_value = c.anonymous
+    c.anonymous = false
+    c.save!
+
+    basic_routes_exists(403)
+    basic_routes_not_existing(403)
+
+    # revert
+    c.anonymous = orig_value
+    c.save!
+  end
+
   def test_basic_read_tests
-    get '/public/source/home:Iggy'
-    assert_response :success
-    get '/public/source/home:Iggy/_meta'
-    assert_response :success
-    get '/public/source/home:Iggy/_config'
-    assert_response :success
-    get '/public/source/home:Iggy/TestPack'
-    assert_response :success
-    get '/public/source/home:Iggy/TestPack/_meta'
-    assert_response :success
-
-    # osc repos
-    get '/public/configuration'
-    assert_response :success
-    get '/public/configuration.xml'
-    assert_response :success
-
     get '/public/source' # no such action
     assert_response :not_found
 
-    get '/public/source/DoesNotExist/_meta'
-    assert_response :not_found
-    get '/public/source/home:Iggy/DoesNotExist/_meta'
-    assert_response :not_found
+    basic_routes_exists(:success)
+    basic_routes_not_existing(:not_found)
+  end
+
+  def basic_routes_exists (resp)
+    get '/public/source/home:Iggy'
+    assert_response resp
+    get '/public/source/home:Iggy/_meta'
+    assert_response resp
+    get '/public/source/home:Iggy/_config'
+    assert_response resp
+    get '/public/source/home:Iggy/TestPack'
+    assert_response resp
+    get '/public/source/home:Iggy/TestPack/_meta'
+    assert_response resp
+
+    # osc repos
+    get '/public/configuration'
+    assert_response resp
+    get '/public/configuration.xml'
+    assert_response resp
 
     get '/public/build/home:Iggy/10.2/i586/TestPack'
-    assert_response :success
+    assert_response resp
 
     get '/public/request/1000'
-    assert_response :success
-    assert_xml_tag tag: 'request', attributes: { id: '1000' }
-
-    get '/public/request/98766123'
-    assert_response :not_found
-    assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
+    assert_response resp
+    if resp == :success
+      assert_xml_tag tag: 'request', attributes: { id: '1000' }
+    end
 
     # remote interconnect from scheduler for product building
     get '/public/build/home:Iggy/10.2/i586'
-    assert_response :success
+    assert_response resp
+  end
+
+  def basic_routes_not_existing(resp)
+    get '/public/source/DoesNotExist/_meta'
+    assert_response resp
+    get '/public/source/home:Iggy/DoesNotExist/_meta'
+    assert_response resp
+    get '/public/request/98766123'
+    assert_response resp
+    if resp == :not_found
+      assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
+    end
 
     # hidden project access
     get '/public/source/HiddenProject'
-    assert_response :not_found
+    assert_response resp
     get '/public/source/HiddenProject/_config'
-    assert_response :not_found
+    assert_response resp
     get '/public/source/HiddenProject/_meta'
-    assert_response :not_found
+    assert_response resp
     get '/public/source/HiddenProject/pack'
-    assert_response :not_found
+    assert_response resp
     get '/public/source/HiddenProject/pack/_meta'
-    assert_response :not_found
+    assert_response resp
     get '/public/source/HiddenProject/pack/my_file'
-    assert_response :not_found
+    assert_response resp
   end
 
   def test_lastevents
