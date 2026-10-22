@@ -15,6 +15,13 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
+%if 0%{?suse_version}
+%define __obs_ruby_bin /usr/bin/ruby.ruby4.0
+%define __obs_bundle_bin /usr/bin/bundle.ruby4.0
+%else
+%define __obs_ruby_bin /usr/bin/ruby
+%define __obs_bundle_bin /usr/bin/bundle
+%endif
 
 Name:           obs-api-testsuite-rspec
 Version:        2.10~pre
@@ -55,7 +62,7 @@ pushd src/api
 #        https://github.com/rpm-software-management/rpm/pull/3071
 #        Use the build host RPM to evaluate libdir while parsing the spec.
 #        The build host is always x86_64 for noarch builds in OBS...
-bundle config set path %(rpm -E %%_libdir)/obs-api
+%{__obs_bundle_bin} config set path %(rpm -E %%_libdir)/obs-api
 
 ./script/prepare_spec_tests.sh
 

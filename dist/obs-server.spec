@@ -462,8 +462,8 @@ pushd src/api
 #        https://github.com/rpm-software-management/rpm/pull/3071
 #        Use the build host RPM to evaluate libdir while parsing the spec.
 #        The build host is always x86_64 for noarch builds in OBS...
-bundle config set path %(rpm -E %%_libdir)/obs-api
-bundle install --local
+%{__obs_bundle_bin} config set path %(rpm -E %%_libdir)/obs-api
+%{__obs_bundle_bin} install --local
 rm -rf vendor/cache/* vendor/cache.next/*
 
 popd
