@@ -13,13 +13,15 @@ class EventMailer < ApplicationMailer
   def notification_email
     return if @recipients.blank? || @event.blank?
 
+    payload = @event.expanded_payload
+
     mail(to: @recipients,
          from: email_address_with_name(::Configuration.admin_email, sender_realname),
          subject: @event.subject,
          date: @event.created_at) do |format|
-      format.html { render @event.template_name, locals: { event: @event.expanded_payload } } if template_exists?("event_mailer/#{@event.template_name}", formats: [:html])
+      format.html { render @event.template_name, locals: { event: payload } } if template_exists?("event_mailer/#{@event.template_name}", formats: [:html])
 
-      format.text { render @event.template_name, locals: { event: @event.expanded_payload } } if template_exists?("event_mailer/#{@event.template_name}", formats: [:text])
+      format.text { render @event.template_name, locals: { event: payload } } if template_exists?("event_mailer/#{@event.template_name}", formats: [:text])
     end
   end
 
