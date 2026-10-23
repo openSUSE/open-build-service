@@ -2,6 +2,8 @@ class Vendor < ApplicationRecord
   #### Includes and extends
 
   #### Constants
+  ACCEPTABLE_LOGO_MIME_TYPES = %w[image/png image/jpeg image/gif image/webp].freeze
+  MAX_LOGO_SIZE = 5.megabytes
 
   #### Self config
 
@@ -10,6 +12,7 @@ class Vendor < ApplicationRecord
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :project, optional: false
   has_many :distros, dependent: :destroy
+  has_one_attached :logo
 
   #### Callbacks macros: before_save, after_save, etc.
 
@@ -20,6 +23,7 @@ class Vendor < ApplicationRecord
   validates :description, length: { maximum: 65_535 }
   validates :url, length: { maximum: 255 }
   validates :project_id, uniqueness: true
+  validate :acceptable_logo
 
   #### Class methods using self. (public and then private)
 
@@ -27,6 +31,19 @@ class Vendor < ApplicationRecord
   #### private
 
   #### Instance methods (public and then protected/private)
+  private
+
+  def acceptable_logo
+    return unless logo.attached?
+
+    unless ACCEPTABLE_LOGO_MIME_TYPES.include?(logo.content_type)
+      errors.add(:logo, 'must be a PNG, JPEG, GIF or WebP image')
+    end
+
+    return unless logo.blob.byte_size > MAX_LOGO_SIZE
+
+    errors.add(:logo, 'is too large (maximum is 5 MB)')
+  end
 
   #### Alias of methods
 end

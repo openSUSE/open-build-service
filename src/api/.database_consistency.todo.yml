@@ -2040,6 +2040,9 @@ User:
     MissingIndexChecker:
       enabled: false
 Vendor:
+  logo_attachment:
+    ForeignKeyTypeChecker:
+      enabled: false
   name:
     ColumnPresenceChecker:
       enabled: false

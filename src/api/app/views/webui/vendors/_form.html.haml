@@ -15,6 +15,17 @@
     = form.label :url
     = form.text_field :url, class: 'form-control'
 
+  .mb-3
+    = form.label :logo
+    %small.form-text Supported formats: PNG, JPEG, GIF and WebP
+    = form.file_field :logo, class: 'form-control', accept: 'image/png,image/jpeg,image/gif,image/webp'
+    - if vendor.logo.attached? && vendor.logo.blob&.persisted?
+      .d-flex.align-items-center.mt-2
+        = image_tag vendor.logo, class: 'img-thumbnail vendor-logo-preview me-3'
+        .form-check
+          = form.check_box :remove_logo, class: 'form-check-input'
+          = form.label :remove_logo, 'Remove logo', class: 'form-check-label'
+
   %div
     - cancel_url = vendor.persisted? ? project_vendor_path(vendor.project) : project_show_path(vendor.project)
     = link_to('Cancel', cancel_url, title: 'Cancel', class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')

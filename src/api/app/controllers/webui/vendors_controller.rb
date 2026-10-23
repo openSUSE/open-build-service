@@ -37,12 +37,13 @@ class Webui::VendorsController < Webui::WebuiController
 
   # POST /vendors
   def create
-    @vendor = Vendor.new(vendor_params)
+    @vendor = Vendor.new(vendor_params.except(:remove_logo))
     @vendor.project = @project
     authorize @vendor
     if @vendor.save
       redirect_to project_vendor_path(@project), flash: { success: 'Vendor was successfully created.' }
     else
+      flash.now[:error] = @vendor.errors.full_messages.to_sentence
       render :new
     end
   end
@@ -50,9 +51,11 @@ class Webui::VendorsController < Webui::WebuiController
   # PATCH/PUT /vendors/1
   def update
     authorize @vendor
-    if @vendor.update(vendor_params)
+    if @vendor.update(vendor_params.except(:remove_logo))
+      @vendor.logo.purge if vendor_params[:remove_logo] == '1' && vendor_params[:logo].blank?
       redirect_to project_vendor_path(@project), flash: { success: 'Vendor was successfully updated.' }
     else
+      flash.now[:error] = @vendor.errors.full_messages.to_sentence
       render :edit
     end
   end
@@ -82,6 +85,6 @@ class Webui::VendorsController < Webui::WebuiController
 
   # Only allow a trusted parameter "white list" through.
   def vendor_params
-    params.expect(vendor: %i[name description url])
+    params.expect(vendor: %i[name description url logo remove_logo])
   end
 end
