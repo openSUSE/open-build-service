@@ -6,20 +6,20 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
   before_action :require_login,
-                except: %i[show sourcediff diff request_action_changes request_action_details inline_comment build_results
+                except: %i[show sourcediff diff request_action_changes request_action_details inline_comment build_results rpmlint
                            changes changes_diff mentioned_issues complete_build_results]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
-                only: %i[changerequest show request_action_changes request_action_details inline_comment build_results
+                only: %i[changerequest show request_action_changes request_action_details inline_comment build_results rpmlint
                          changes changes_diff mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment show build_results changes changes_diff mentioned_issues chart_build_results complete_build_results
+  before_action :set_actions, only: %i[inline_comment show build_results rpmlint changes changes_diff mentioned_issues chart_build_results complete_build_results
                                        request_action_changes request_action_details]
-  before_action :set_action, only: %i[inline_comment show build_results changes changes_diff mentioned_issues request_action_details request_action_changes]
-  before_action :set_influxdb_data_request_actions, only: %i[show build_results changes changes_diff mentioned_issues]
-  before_action :set_superseded_request, only: %i[show request_action_changes build_results changes changes_diff mentioned_issues]
+  before_action :set_action, only: %i[inline_comment show build_results rpmlint changes changes_diff mentioned_issues request_action_details request_action_changes]
+  before_action :set_influxdb_data_request_actions, only: %i[show build_results rpmlint changes changes_diff mentioned_issues]
+  before_action :set_superseded_request, only: %i[show request_action_changes build_results rpmlint changes changes_diff mentioned_issues]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_request_data, only: %i[show build_results changes mentioned_issues]
+  before_action :prepare_request_data, only: %i[show build_results rpmlint changes mentioned_issues]
   before_action :prepare_request_header_data, only: %i[show build_results changes mentioned_issues]
   before_action :cache_diff_data, only: %i[changes request_action_changes]
   after_action :verify_authorized, only: [:create]
@@ -258,6 +258,14 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.build
 
     @active_tab = 'build_results'
+    @project = @staging_project || @action.source_project
+    @buildable = @action.source_package || @project
+  end
+
+  def rpmlint
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.build
+
+    @active_tab = 'rpmlint'
     @project = @staging_project || @action.source_project
     @buildable = @action.source_package || @project
   end
