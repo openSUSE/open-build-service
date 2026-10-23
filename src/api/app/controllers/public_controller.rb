@@ -5,9 +5,10 @@ class PublicController < ApplicationController
   # we need to fall back to _nobody_ (_public_)
   skip_before_action :extract_user
   skip_before_action :require_login
+  skip_before_action :check_anonymous_access
   before_action :set_response_format_to_xml
+  before_action :require_public_access
   before_action :set_influxdb_data_interconnect
-  before_action :set_anonymous_user
   before_action :set_project, only: %i[binary_packages]
 
   # GET /public/build/:project/:repository/:arch/:package
@@ -222,8 +223,8 @@ class PublicController < ApplicationController
     }
   end
 
-  def set_anonymous_user
-    User.session = User.find_nobody!
+  def require_public_access
+    raise NoPermission, 'Anonymous access is disabled' unless ::Configuration.anonymous
   end
 
   # removes /private prefix from path

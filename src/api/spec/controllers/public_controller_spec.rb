@@ -188,4 +188,91 @@ RSpec.describe PublicController, :vcr do
       it { expect(revisions.count).to eq(1) }
     end
   end
+
+  describe 'anonymous access' do
+    render_views
+
+    let(:user) { create(:confirmed_user) }
+    let(:error_status) { Nokogiri::XML(response.body, &:strict).at_xpath('/status') }
+
+    shared_examples 'denied' do
+      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(response.headers['X-Opensuse-Errorcode']).to eq('no_permission') }
+      it { expect(error_status['code']).to eq('no_permission') }
+      it { expect(error_status.at_xpath('summary').text).to eq('Anonymous access is disabled') }
+    end
+
+    context 'when disabled' do
+      before do
+        allow(Configuration).to receive(:anonymous).and_return(false)
+      end
+
+      context 'without credentials' do
+        before do
+          get :configuration_show
+        end
+
+        it_behaves_like 'denied'
+      end
+
+      context 'with credentials' do
+        before do
+          request.headers['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(user.login, 'buildservice')
+          get :configuration_show
+        end
+
+        it_behaves_like 'denied'
+      end
+
+      context 'with a user left in the session by a previous request' do
+        before do
+          User.session = user
+          get :configuration_show
+        end
+
+        it_behaves_like 'denied'
+      end
+
+      context 'for a project that does not exist' do
+        before do
+          get :project_meta, params: { project: 'does_not_exist' }
+        end
+
+        it_behaves_like 'denied'
+      end
+    end
+
+    context 'when enabled' do
+      before do
+        allow(Configuration).to receive(:anonymous).and_return(true)
+      end
+
+      context 'without credentials' do
+        before do
+          get :configuration_show
+        end
+
+        it { expect(response).to have_http_status(:success) }
+      end
+
+      context 'with credentials' do
+        before do
+          request.headers['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(user.login, 'buildservice')
+          get :configuration_show
+        end
+
+        it { expect(response).to have_http_status(:success) }
+        it { expect(User.possibly_nobody).to be_nobody }
+      end
+
+      context 'with a user left in the session by a previous request' do
+        before do
+          user.update_columns(last_logged_in_at: 1.week.ago) # rubocop:disable Rails/SkipsModelValidations
+          User.session = user
+        end
+
+        it { expect { get :configuration_show }.not_to(change { user.reload.last_logged_in_at }) }
+      end
+    end
+  end
 end
