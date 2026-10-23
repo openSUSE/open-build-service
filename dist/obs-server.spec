@@ -25,9 +25,11 @@
 %if 0%{?fedora} || 0%{?rhel}
 %global apache_user apache
 %global apache_group apache
+%define __obs_bundle_bin /usr/bin/bundle
 %else
 %global apache_user wwwrun
 %global apache_group www
+%define __obs_bundle_bin /usr/bin/bundle.ruby2.7
 %endif
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
@@ -420,8 +422,12 @@ pushd src/api
 ### we most NOT user %_libdir since we are noarch (/usr/lib), but rubgems come a from an arch package
 sed -i 's|bin/rake assets:precompile|BUNDLE_IGNORE_CONFIG=1 BUNDLE_PATH="/usr/lib64/obs-api" GEM_HOME="/usr/lib64/obs-api/ruby/2.7.0" bin/rake assets:precompile|g' Makefile
 %endif
-# configure to the bundled gems
-bundle.ruby.%{ruby} --local --path /usr/lib64/obs-api/
+# FIXME: RPM 4.20 changed of behaviour for global macros in noarch builds
+#        https://github.com/rpm-software-management/rpm/pull/3071
+#        Use the build host RPM to evaluate libdir while parsing the spec.
+#        The build host is always x86_64 for noarch builds in OBS...
+%{__obs_bundle_bin} --local --path %(rpm -E %%_libdir)/obs-api
+
 rm -rf vendor/cache/*
 popd
 
