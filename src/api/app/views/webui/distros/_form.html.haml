@@ -18,10 +18,13 @@
   .mb-3
     = form.label :logo
     %small.form-text Supported formats: PNG, JPEG, GIF and WebP
-    .d-flex.align-items-center
-      - if model.logo.attached? && model.logo.blob&.persisted?
+    = form.file_field :logo, class: 'form-control', accept: 'image/png,image/jpeg,image/gif,image/webp'
+    - if model.logo.attached? && model.logo.blob&.persisted?
+      .d-flex.align-items-center.mt-2
         = image_tag model.logo, class: 'img-thumbnail distro-logo-preview me-3'
-      = form.file_field :logo, class: 'form-control flex-grow-1', accept: 'image/png,image/jpeg,image/gif,image/webp'
+        .form-check
+          = form.check_box :remove_logo, class: 'form-check-input'
+          = form.label :remove_logo, 'Remove logo', class: 'form-check-label'
 
   %div
     = form.submit 'Save', class: 'btn btn-success'
