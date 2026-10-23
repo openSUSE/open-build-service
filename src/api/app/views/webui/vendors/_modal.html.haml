@@ -1,0 +1,4 @@
+= render ModalComponent.new(modal_id: 'vendor-form') do |component|
+  - component.with_header do
+    = vendor.persisted? ? 'Edit Vendor' : 'Create Vendor'
+  = render partial: 'webui/vendors/form', locals: { vendor: }
