@@ -40,6 +40,10 @@ class DistroReleaseLifecycle < ApplicationRecord
 
   #### Class methods using self. (public and then private)
 
+  def self.status_label_for(status)
+    STATUS_LABELS.fetch(status, status.humanize)
+  end
+
   #### To define class methods as private use private_class_method
   #### private
 
@@ -50,7 +54,7 @@ class DistroReleaseLifecycle < ApplicationRecord
   delegate :distro, to: :distro_release
 
   def status_label
-    STATUS_LABELS.fetch(status, status.humanize)
+    self.class.status_label_for(status)
   end
 
   #### Alias of methods

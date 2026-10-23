@@ -28,10 +28,11 @@
                 data: { confirm: 'Are you sure you want to delete this distro?'}) do
                 %i.fas.fa-trash-can
                 %span.nav-item-name Delete
+    = render partial: 'lifecycle_timeline', locals: { distro_releases: @distro_releases }
     %h3
       Releases
     .row.mt-3
-      - @distro.distro_releases.each do |distro_release|
+      - @distro_releases.each do |distro_release|
         .col-lg-3.col-md-4.col-sm-6.col-12.mb-3
           = render partial: 'webui/distro_releases/release', locals: { distro_release: distro_release }
       .ps-0
