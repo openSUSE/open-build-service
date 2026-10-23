@@ -5,7 +5,9 @@ class PublicController < ApplicationController
   # we need to fall back to _nobody_ (_public_)
   skip_before_action :extract_user
   skip_before_action :require_login
+  skip_before_action :check_anonymous_access
   before_action :set_response_format_to_xml
+  before_action :require_public_access
   before_action :set_influxdb_data_interconnect
   before_action :set_project, only: %i[binary_packages]
 
@@ -219,6 +221,10 @@ class PublicController < ApplicationController
     InfluxDB::Rails.current.tags = {
       interconnect: true
     }
+  end
+
+  def require_public_access
+    raise NoPermission, 'Anonymous access is disabled' unless ::Configuration.anonymous
   end
 
   # removes /private prefix from path
