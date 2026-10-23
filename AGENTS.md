@@ -20,8 +20,9 @@ Assisted-by: opencode:gemini-3.6-flash
 
 ## Testing Reference & Commands
 
-> For full testing documentation (mobile specs, VCR, debugging, troubleshooting), see the
+> For instructions on running tests, debugging, and troubleshooting (mobile specs, VCR, etc.), see the
 > [Development Environment Tips & Tricks Wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Tips-&-Tricks#test-suites).
+> For best practices, conventions, and guidelines on how to write tests, see [src/api/spec/README.md](https://github.com/openSUSE/open-build-service/blob/master/src/api/spec/README.md).
 
 ### Database Prerequisites
 Seed the test database if needed before running specs:
