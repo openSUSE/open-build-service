@@ -196,10 +196,10 @@ RSpec.describe PublicController, :vcr do
     let(:error_status) { Nokogiri::XML(response.body, &:strict).at_xpath('/status') }
 
     shared_examples 'denied' do
-      it { expect(response).to have_http_status(:unauthorized) }
-      it { expect(response.headers['X-Opensuse-Errorcode']).to eq('authentication_required') }
-      it { expect(error_status['code']).to eq('authentication_required') }
-      it { expect(error_status.at_xpath('summary').text).to eq('Authentication Required') }
+      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(response.headers['X-Opensuse-Errorcode']).to eq('no_permission') }
+      it { expect(error_status['code']).to eq('no_permission') }
+      it { expect(error_status.at_xpath('summary').text).to eq('Anonymous access is disabled') }
     end
 
     context 'when disabled' do
@@ -209,7 +209,7 @@ RSpec.describe PublicController, :vcr do
 
       context 'without credentials' do
         before do
-          get :configuration_show, format: :xml
+          get :configuration_show
         end
 
         it_behaves_like 'denied'
@@ -218,7 +218,7 @@ RSpec.describe PublicController, :vcr do
       context 'with credentials' do
         before do
           request.headers['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(user.login, 'buildservice')
-          get :configuration_show, format: :xml
+          get :configuration_show
         end
 
         it_behaves_like 'denied'
@@ -227,7 +227,15 @@ RSpec.describe PublicController, :vcr do
       context 'with a user left in the session by a previous request' do
         before do
           User.session = user
-          get :configuration_show, format: :xml
+          get :configuration_show
+        end
+
+        it_behaves_like 'denied'
+      end
+
+      context 'for a project that does not exist' do
+        before do
+          get :project_meta, params: { project: 'does_not_exist' }
         end
 
         it_behaves_like 'denied'
