@@ -79,15 +79,12 @@ module Authenticator
   def find_or_create_proxy_user
     return unless request.env['HTTP_X_USERNAME']
 
-    user = User.find_by(login: request.env['HTTP_X_USERNAME'])
+    user = User.for_ichain_username(request.env['HTTP_X_USERNAME'],
+                                    { email: request.env['HTTP_X_EMAIL'],
+                                      firstname: request.env['HTTP_X_FIRSTNAME'],
+                                      lastname: request.env['HTTP_X_LASTNAME'] })
+    raise RegistrationDisabledError unless user
 
-    unless user
-      raise RegistrationDisabledError if ::Configuration.registration == 'deny'
-
-      user = User.create_user_with_fake_pw!(login: request.env['HTTP_X_USERNAME'], state: User.default_user_state)
-    end
-
-    user.update!(user_proxy_information)
     user
   end
 
@@ -115,16 +112,5 @@ module Authenticator
     Rails.logger.debug 'No authentication header was received.'
 
     []
-  end
-
-  def user_proxy_information
-    { email: request.env['HTTP_X_EMAIL'],
-      realname: proxy_realname }.compact
-  end
-
-  def proxy_realname
-    return if request.env['HTTP_X_FIRSTNAME'].blank? && request.env['HTTP_X_LASTNAME'].blank?
-
-    "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip.force_encoding('UTF-8')
   end
 end

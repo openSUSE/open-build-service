@@ -187,6 +187,30 @@ class User < ApplicationRecord
     find_by(login: login)&.authenticate_via_password(password)
   end
 
+  # Maps a proxy (iChain) username to a user. Creates the user when registration allows it.
+  # attributes: :email, :firstname, :lastname (nil values are ignored).
+  # Returns nil when the user does not exist and registration is denied.
+  def self.for_ichain_username(login, attributes = {})
+    user = find_by(login: login)
+
+    unless user
+      return if ::Configuration.registration == 'deny'
+
+      user = create_user_with_fake_pw!(login: login, state: default_user_state)
+    end
+
+    user.update!({ email: attributes[:email],
+                   realname: proxy_realname(attributes[:firstname], attributes[:lastname]) }.compact)
+    user
+  end
+
+  def self.proxy_realname(firstname, lastname)
+    return if firstname.blank? && lastname.blank?
+
+    "#{firstname} #{lastname}".strip.force_encoding('UTF-8')
+  end
+  private_class_method :proxy_realname
+
   # Currently logged in user or nobody user if there is no user logged in.
   # Use this to check permissions, but don't treat it as logged in user. Check
   # nobody? on the returned object
