@@ -473,7 +473,7 @@ GEM
     rspec-support (3.13.7)
     rspec_junit_formatter (0.8.0)
       rspec-core (>= 3.13, < 4)
-    rubocop (1.92.0)
+    rubocop (1.92.1)
       json (>= 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
