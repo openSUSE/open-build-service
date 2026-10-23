@@ -16,12 +16,13 @@
 #
 
 %if 0%{?suse_version}
-%define __obs_ruby_interpreter /usr/bin/ruby.ruby4.0
-%define rack_version %(%{__obs_ruby_interpreter} -r rack -e "puts Rack::RELEASE")
-%define rake_version %(%{__obs_ruby_interpreter} -r rake -e "puts Rake::VERSION")
-%define ruby_abi_version %(%{__obs_ruby_interpreter} -r rbconfig -e 'print RbConfig::CONFIG["ruby_version"]')
+%define __obs_ruby_bin /usr/bin/ruby.ruby4.0
+%define __obs_bundle_bin /usr/bin/bundle.ruby4.0
+%define rack_version %(%{__obs_ruby_bin} -r rack -e "puts Rack::RELEASE")
+%define rake_version %(%{__obs_ruby_bin} -r rake -e "puts Rake::VERSION")
 %else
-%define __obs_ruby_interpreter /usr/bin/ruby
+%define __obs_ruby_bin /usr/bin/ruby
+%define __obs_bundle_bin /usr/bin/bundle
 %endif
 
 Name:           obs-bundled-gems
@@ -122,14 +123,14 @@ EOF
 # all operations here since bundle does not decouple compile and install
 pushd %{_sourcedir}/open-build-service-*/src/api
 export GEM_HOME=~/.gems
-bundle config build.ffi --enable-system-libffi
-bundle config build.nokogiri --use-system-libraries
-bundle config build.sassc --disable-march-tune-native
-bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
-bundle config force_ruby_platform true
-bundle config set path %{buildroot}%_libdir/obs-api/
+%{__obs_bundle_bin} config build.ffi --enable-system-libffi
+%{__obs_bundle_bin} config build.nokogiri --use-system-libraries
+%{__obs_bundle_bin} config build.sassc --disable-march-tune-native
+%{__obs_bundle_bin} config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
+%{__obs_bundle_bin} config force_ruby_platform true
+%{__obs_bundle_bin} config set path %{buildroot}%_libdir/obs-api/
 
-bundle install --local
+%{__obs_bundle_bin} install --local
 popd
 
 %if 0%{?suse_version}
@@ -168,21 +169,21 @@ find %{buildroot}%_libdir/obs-api -name .cvsignore | xargs rm -rf
 
 # use the ruby interpreter set by this spec file in all installed ruby scripts
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
-  sed -i -e '1!b;s,^#!.*/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-  sed -i -e '1!b;s,^#!.*/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+  sed -i -e '1!b;s,^#!.*/bin/ruby.*$,#!%{__obs_ruby_bin},' $bin
+  sed -i -e '1!b;s,^#!.*/bin/env ruby.*$,#!%{__obs_ruby_bin},' $bin
 done
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/*; do
   # Some gems have subdirectories inside bin, so we skip them
   if [[ -f $bin ]]; then
-    sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-    sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+    sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_bin},' $bin
+    sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_bin},' $bin
   fi
 done
 # And here process those binaries in subdirectories
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/linux/*; do
   if [[ -f $bin ]]; then
-    sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-    sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+    sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_bin},' $bin
+    sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_bin},' $bin
   fi
 done
 
