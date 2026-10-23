@@ -543,6 +543,9 @@ DistributionIcon:
     LengthConstraintChecker:
       enabled: false
 Distro:
+  logo_attachment:
+    ForeignKeyTypeChecker:
+      enabled: false
   name:
     ColumnPresenceChecker:
       enabled: false
