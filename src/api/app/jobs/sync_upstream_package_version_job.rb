@@ -1,5 +1,10 @@
 # Job to sync (create/update/delete) upstream versions for all packages
 class SyncUpstreamPackageVersionJob < ApplicationJob
+  RETRYABLE_EXCEPTIONS = [Errno::ECONNRESET, Net::OpenTimeout, Net::ReadTimeout, EOFError].freeze
+  RETRY_WAIT_TIMES = { 1 => 0, 2 => 1.minute, 3 => 2.minutes, 4 => 5.minutes, 5 => 10.minutes }.freeze
+
+  retry_on(*RETRYABLE_EXCEPTIONS, wait: ->(executions) { RETRY_WAIT_TIMES.fetch(executions) }, attempts: 6)
+
   queue_as :quick
 
   include PackageVersionLabeler
