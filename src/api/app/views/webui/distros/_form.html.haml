@@ -15,5 +15,13 @@
     = form.label :url
     = form.text_field :url, class: 'form-control'
 
+  .mb-3
+    = form.label :logo
+    %small.form-text Supported formats: PNG, JPEG, GIF and WebP
+    .d-flex.align-items-center
+      - if model.logo.attached? && model.logo.blob&.persisted?
+        = image_tag model.logo, class: 'img-thumbnail distro-logo-preview me-3'
+      = form.file_field :logo, class: 'form-control flex-grow-1', accept: 'image/png,image/jpeg,image/gif,image/webp'
+
   %div
     = form.submit 'Save', class: 'btn btn-success'
