@@ -182,27 +182,28 @@ resources :distributions, except: %i[new edit] do
 end
 
 ### /public
-controller :public do
-  get 'public', to: redirect('/public/about')
-  get 'public/about' => 'about#index'
-  get 'public/configuration' => :configuration_show
-  get 'public/configuration.xml' => :configuration_show
-  get 'public/request/:number' => :show_request, constraints: cons
-  get 'public/source/:project' => :project_index, constraints: cons
-  get 'public/source/:project/_meta' => :project_meta, constraints: cons
-  get 'public/source/:project/_config' => :project_file, constraints: cons
-  get 'public/source/:project/_keyinfo' => :project_file, constraints: cons
-  get 'public/source/:project/_pubkey' => :project_file, constraints: cons
-  get 'public/source/:project/:package' => :package_index, constraints: cons
-  get 'public/source/:project/:package/_meta' => :package_meta, constraints: cons
-  get 'public/source/:project/:package/:filename' => :source_file, constraints: cons
-  get 'public/distributions' => :distributions
-  get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
-  get 'public/build/:project(/:repository(/:arch(/:package(/:filename))))' => 'public#build', constraints: cons, as: :public_build
-  get 'public/image_templates' => :image_templates, constraints: cons
-  get 'public/package_templates' => :package_templates, constraints: cons
+constraints(RoutesHelper::AnonymousMatcher) do
+  controller :public do
+    get 'public', to: redirect('/public/about')
+    get 'public/about' => 'about#index'
+    get 'public/configuration' => :configuration_show
+    get 'public/configuration.xml' => :configuration_show
+    get 'public/request/:number' => :show_request, constraints: cons
+    get 'public/source/:project' => :project_index, constraints: cons
+    get 'public/source/:project/_meta' => :project_meta, constraints: cons
+    get 'public/source/:project/_config' => :project_file, constraints: cons
+    get 'public/source/:project/_keyinfo' => :project_file, constraints: cons
+    get 'public/source/:project/_pubkey' => :project_file, constraints: cons
+    get 'public/source/:project/:package' => :package_index, constraints: cons
+    get 'public/source/:project/:package/_meta' => :package_meta, constraints: cons
+    get 'public/source/:project/:package/:filename' => :source_file, constraints: cons
+    get 'public/distributions' => :distributions
+    get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
+    get 'public/build/:project(/:repository(/:arch(/:package(/:filename))))' => 'public#build', constraints: cons, as: :public_build
+    get 'public/image_templates' => :image_templates, constraints: cons
+    get 'public/package_templates' => :package_templates, constraints: cons
+  end
 end
-
 resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
 
 ### /reports
