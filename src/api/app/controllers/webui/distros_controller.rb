@@ -68,7 +68,7 @@ class Webui::DistrosController < Webui::WebuiController
 
   # Only allow a trusted parameter "white list" through.
   def distro_params
-    params.expect(distro: %i[vendor_id name description url])
+    params.expect(distro: %i[vendor_id name description url logo])
   end
 
   def set_vendor
