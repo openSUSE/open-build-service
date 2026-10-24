@@ -107,6 +107,48 @@ post:
   tags:
     - Sources - Projects
 
+put:
+  summary: Replaces all attributes of a project as provided.
+  description: |
+    Replaces all attributes of a project as provided. This requires admin permission.
+    Not referenced attributes get deleted.
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - name: comment
+      in: query
+      schema:
+        type: string
+  requestBody:
+    description: Attributes you want to set
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/source/attributes.yaml'
+        example:
+          attribute:
+            name: MaintenanceProject
+            namespace: OBS
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Wrong value for deleted parameter.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            invalid_attribute:
+              value:
+                code: 400
+                summary: "Attribute 'OwnerRootProjectTest' must be in the $NAMESPACE:$NAME style"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Sources - Projects
+
 delete:
   summary: Removes a specified attribute
   description: Removes a specified attribute
