@@ -47,7 +47,8 @@ class Decision < ApplicationRecord
   end
 
   def event_parameters
-    { id: id, moderator_id: moderator.id, reason: reason, report_last_id: reports.last.id, reportable_type: reports.first.reportable.class.name }
+    { id: id, moderator_id: moderator.id, reason: reason, report_last_id: reports.last.id,
+      reportable_type: reports.first.reportable&.class&.name || reports.first.reportable_type }
   end
 
   def track_decision
