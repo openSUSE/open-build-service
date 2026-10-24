@@ -10,8 +10,8 @@ class Token::Release < Token
 
     package_to_release = options[:package]
     if options[:targetproject].present? && options[:targetrepository].present? && options[:repository].present?
-      source_repository = Repository.find_by_project_and_name(options[:project].name, options[:repository])
-      target_repository = Repository.find_by_project_and_name(options[:targetproject], options[:targetrepository])
+      source_repository = find_repository!(options[:project].name, options[:repository])
+      target_repository = find_repository!(options[:targetproject], options[:targetrepository])
       raise InsufficientPermissionOnTargetRepository, "no permission to write in project #{target_repository.project.name}" unless User.session!.can_modify?(target_repository.project)
 
       release(package_to_release, source_repository, target_repository, time_now, options)
@@ -26,6 +26,13 @@ class Token::Release < Token
   end
 
   private
+
+  def find_repository!(project_name, repository_name)
+    repository = Repository.find_by_project_and_name(project_name, repository_name)
+    raise NonExistentRepository, "Repository '#{repository_name}' does not exist in project #{project_name}" unless repository
+
+    repository
+  end
 
   def release(package_to_release, source_repository, target_repository, time_now, options)
     opts = { repository: source_repository,
