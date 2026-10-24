@@ -1,0 +1,29 @@
+%p
+  = link_to 'View Request', url_for(controller: 'webui/request', action: :show, number: event['number'], host: @host, only_path: false)
+
+- if event['description'].present?
+  %h4 Description:
+  %p= event['description']
+
+= render partial: 'event_mailer/actions', formats: [:html], locals: { event: event }
+
+%h4 Command Line Options:
+%p
+  %strong To REVIEW against the previous version:
+  %br/
+  %code osc request show --diff #{event['number']}
+
+%p
+  %strong To ACCEPT the request:
+  %br/
+  %code osc request accept #{event['number']} --message="reviewed ok."
+
+%p
+  %strong To DECLINE the request:
+  %br/
+  %code osc request decline #{event['number']} --message="declined for reason xyz (see ... for background / policy / ...)."
+
+%p
+  %strong To REVOKE the request:
+  %br/
+  %code osc request revoke #{event['number']} --message="retracted because ..., sorry / thx / see better version ..."
