@@ -76,6 +76,9 @@ fi
 if [ -n "$OBS_WORKER_USE_MKFS_COPYIN" ]; then
     OBS_WORKER_USE_MKFS_COPYIN="--vm-use-mkfs-copyin"
 fi
+if [ -n "$OBS_WORKER_USE_CONTAINER_PREINSTALLIMAGE" ]; then
+    OBS_WORKER_USE_CONTAINER_PREINSTALLIMAGE="--vm-use-container-preinstallimage"
+fi
 
 if [ -n "$OBS_WORKER_SECURITY_LEVEL" ]; then
     OBS_WORKER_HOSTLABELS="OBS_WORKER_SECURITY_LEVEL_${OBS_WORKER_SECURITY_LEVEL} $OBS_WORKER_HOSTLABELS"
@@ -378,6 +381,8 @@ case "$1" in
         elif [ "--emulator" == "$vmopt" ]; then echo "System emulated virtual machine"
         elif [ "--vm-type qemu" == "$vmopt" ]; then echo "System emulated virtual machine via QEMU"
         elif [ "--lxc" == "$vmopt" ]; then echo "LXC container"
+        elif [ "--podman" == "$vmopt" ]; then echo "Podman container"
+        elif [ "--docker" == "$vmopt" ]; then echo "Docker container"
         elif [ "openstack" == "$OBS_VM_TYPE" ]; then echo "OpenStack virtual machine"
         else  echo "chroot"
         fi
@@ -484,8 +489,8 @@ case "$1" in
             echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker --hardstatus $vmopt $port $proto --root $R" \
                 "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
                 "$HOSTOWNER $OBS_JOBS $OBS_THREADS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
-                "$OBS_CLEANUP_CHROOT $OBS_WIPE_AFTER_BUILD $OBS_WORKER_USE_MKFS_COPYIN $ARCH $EMULATOR" \
-                >> $screenrc
+                "$OBS_CLEANUP_CHROOT $OBS_WIPE_AFTER_BUILD $OBS_WORKER_USE_MKFS_COPYIN $OBS_WORKER_USE_CONTAINER_PREINSTALLIMAGE" \
+                "$ARCH $EMULATOR" >> $screenrc
             mkdir -p $workerdir/$I
         done
         detachflag=
