@@ -388,6 +388,27 @@ sub remove_old_srcs {
       }
     }
 
+    # Sources are shared by package name, not by project. So the sources of
+    # the deleted project can still be used by other projects, also by other
+    # deleted projects which might get restored. Keep all of their revisions.
+    if ($deleted_projects) {
+        my @other_projects = map { "$OBS_PROJ_DIR/$_.pkg" } lsprojects_local();
+        push @other_projects, map { "$OBS_PROJ_DIR/_deleted/$_.pkg" } grep { $_ ne $deleted_prj } lsprojects_local(1);
+        foreach my $prjdir (@other_projects) {
+            next unless -d $prjdir;
+            opendir(E, $prjdir) || die($!);
+            foreach my $file (grep { /\.rev(\.del)?$/ } readdir(E)) {
+                open(F, '<', "$prjdir/$file") || die($!);
+                while (my $line = <F>) {
+                    my $hash = (split(/\|/, $line))[2];
+                    push @{$keephashes{$hash}}, { project => basename($prjdir), file => "$prjdir/$file" };
+                }
+                close(F);
+            }
+            closedir(E);
+        }
+    }
+
     if ($debug) {
         print "all hashes to keep (must be at least one per project):\n";
         foreach my $hash (keys %keephashes) {
@@ -505,6 +526,7 @@ sub remove_old_srcs {
     # look if keephashes contains links to revision that would get deleted
     print "check kept revisions are not linked to deleted ones:\n" if $debug;
     foreach my $file (keys %keephashes) {
+        next unless defined $treesfiles{$file};
         print "check files ".$treesfiles{$file}."\n" if $debug;
         #my $package = basename(dirname($treesfiles{$file}));
         my $package_path = dirname($treesfiles{$file});
@@ -525,7 +547,7 @@ sub remove_old_srcs {
                 # search link files from sources
                 my $link_file = "$OBS_SRC_DIR/$package/$hash-$desc";
                 next unless -e $link_file;
-                print "read link file: $link_file\n";
+                print "read link file: $link_file\n" if $debug;
                 # open link file to look if it links to a file that will be deleted
                 my $link;
                 eval {
@@ -566,14 +588,9 @@ sub remove_old_srcs {
 
 
     # keep files which are used in kept revisions
+    my %keep_package_hashes = map { $keepfiles{$_}->{"package"}."/".$keepfiles{$_}->{"hash"} => 1 } keys %keepfiles;
     foreach my $del_key (keys %deletefiles) {
-        foreach my $keep_key (keys %keepfiles) {
-            if ($deletefiles{$del_key}->{"package"} eq $keepfiles{$keep_key}->{"package"} and
-                $deletefiles{$del_key}->{"hash"} eq $keepfiles{$keep_key}->{"hash"}) {
-                delete $deletefiles{$del_key};
-                last;
-            }
-        }
+        delete $deletefiles{$del_key} if $keep_package_hashes{$deletefiles{$del_key}->{"package"}."/".$deletefiles{$del_key}->{"hash"}};
     }
 
     if ($debug) {
@@ -588,16 +605,9 @@ sub remove_old_srcs {
 
     if (scalar(keys %deletefiles) == 0) {
         print "\ndidn't find any files to remove!\n";
-        if ($deleted_projects) {
-          print "deleting project rev files\n";
-          foreach my $revfile (@revfiles) {
-            print "\nfile:\t $revfile" if $debug;
-            if (unlink $revfile || warn "Could not unlink $revfile: $!") {
-              print "deleted\n" if $debug;
-            }
-          }
-        }
-        return;
+        # a deleted project still needs to be removed, even if all of its
+        # sources are used by other projects
+        return unless $deleted_projects;
     }
 
     print "\nstarting cleanup process: \n";
