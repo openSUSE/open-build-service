@@ -9,6 +9,9 @@ module Webui
                                  Regexp.new('\.deb$'),
                                  Regexp.new('\.pkg\.tar(?:\.gz|\.xz|\.zst)?$'),
                                  Regexp.new('\.arch$')].freeze
+      BINARIES_PER_PAGE = 100
+      # Files that are needed for the links of an architecture, no matter on which page they are listed
+      SPECIAL_FILES = %w[_statistics rpmlint.log].freeze
 
       before_action :require_login, except: [:index]
       before_action :set_project
@@ -26,25 +29,30 @@ module Webui
       after_action :verify_authorized, only: [:destroy]
 
       def index
-        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: %w[binarylist status])
+        page = [params[:page].to_i, 1].max
+        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: %w[binarylist status],
+                                                       binarylimit: BINARIES_PER_PAGE, binaryoffset: (page - 1) * BINARIES_PER_PAGE)
         raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
 
         @buildresults = []
+        binary_count = 0
         results_from_backend.elements('result') do |result|
-          build_results_set = { arch: result['arch'], statistics: false, repocode: result['state'], binaries: [] }
+          build_results_set = { arch: result['arch'], statistics: false, rpmlint: false, repocode: result['state'], binaries: [] }
+          binarylist = result.get('binarylist')
 
-          result.get('binarylist').try(:elements, 'binary') do |binary|
-            if binary['filename'] == '_statistics'
-              build_results_set[:statistics] = true
-            else
-              build_results_set[:binaries] << { filename: binary['filename'],
-                                                size: binary['size'],
-                                                links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
-                                                         download_url: download_url_for_binary(architecture_name: result['arch'], file_name: binary['filename']) } }
-            end
+          binarylist.try(:elements, 'binary') do |binary|
+            add_file(build_results_set, filename: binary['filename'], size: binary['size'])
           end
+          arch_binary_count = binarylist.try(:[], 'binarycount').to_i
+          # the special files might be listed on another page
+          find_special_files(build_results_set) if arch_binary_count > BINARIES_PER_PAGE
+
+          binary_count = [binary_count, arch_binary_count].max
           @buildresults << build_results_set
         end
+
+        @pagination = Kaminari.paginate_array([], total_count: binary_count).page(page).per(BINARIES_PER_PAGE)
+        redirect_to(page: @pagination.total_pages) if @pagination.out_of_range? && page > 1
       rescue Backend::Error => e
         flash[:error] = e.message
         redirect_back_or_to({ controller: :package, action: :show, project: @project, package: @package })
@@ -99,6 +107,27 @@ module Webui
       end
 
       private
+
+      def add_file(build_results_set, filename:, size:)
+        if filename == '_statistics'
+          build_results_set[:statistics] = true
+          return
+        end
+
+        build_results_set[:rpmlint] = true if filename == 'rpmlint.log'
+        build_results_set[:binaries] << { filename: filename,
+                                          size: size,
+                                          links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(filename) },
+                                                   download_url: download_url_for_binary(architecture_name: build_results_set[:arch], file_name: filename) } }
+      end
+
+      def find_special_files(build_results_set)
+        files = Backend::Api::BuildResults::Binaries.files(@project.name, @repository.name, build_results_set[:arch], @package_name, binaries: SPECIAL_FILES)
+        Xmlhash.parse(files).elements('binary') do |binary|
+          build_results_set[:statistics] = true if binary['filename'] == '_statistics'
+          build_results_set[:rpmlint] = true if binary['filename'] == 'rpmlint.log'
+        end
+      end
 
       def set_dependant_project
         @dependant_project_name = params[:dependant_project]
