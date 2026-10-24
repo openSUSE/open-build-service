@@ -34,4 +34,11 @@ RSpec.describe SourcediffComponent, :vcr, type: :component do
       expect(rendered_content).to have_css("turbo-frame#file-0[loading=\"lazy\"][src=\"#{first_file_url}\"]")
     end
   end
+
+  it 'renders the warning when diff lines are hidden' do
+    action = bs_request.bs_request_actions.first
+    allow(action).to receive(:webui_sourcediff).and_return([{ 'files' => { 'f' => { 'diff' => { 'shown' => '5', 'lines' => '10' } } } }])
+    render_inline(described_class.new(bs_request: bs_request, action: action, diff_not_cached: false))
+    expect(rendered_content).to have_text("This file's diff is truncated.")
+  end
 end
