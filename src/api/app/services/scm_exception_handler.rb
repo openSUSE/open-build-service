@@ -73,5 +73,6 @@ class SCMExceptionHandler
                                             project_id: @event_subscription_payload[:project_id],
                                             path_with_namespace: @event_subscription_payload[:path_with_namespace]
                                           })
+    @workflow_run.disable_token! if SCMAuthExceptions.include?(exception)
   end
 end

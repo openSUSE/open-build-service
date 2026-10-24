@@ -57,17 +57,24 @@ class ReportToSCMJob < ApplicationJob
     # The job may have been called with a workflow_run, in which case we report the failure to that workflow run.
     # Otherwise, the job has been called with an event, so we report to all workflow runs that are subscribed to the event.
     if args[:workflow_run]
-      args[:workflow_run].update_as_failed(error.message)
+      handle_workflow_run_failure(args[:workflow_run], error)
       return
     end
 
     event = Event::Base.find_by(id: args[:event_id]) # The event may be gone by the time the retries are exhausted, so we don't use #find here
     return unless event
 
-    matched_event_subscription(event: event).filter_map(&:workflow_run).each { |workflow_run| workflow_run.update_as_failed(error.message) }
+    matched_event_subscription(event: event).filter_map(&:workflow_run).each do |workflow_run|
+      handle_workflow_run_failure(workflow_run, error)
+    end
   end
 
   private
+
+  def handle_workflow_run_failure(workflow_run, error)
+    workflow_run.update(response_body: error.message, status: 'fail')
+    workflow_run.disable_token! if SCMAuthExceptions.include?(error)
+  end
 
   def report_event(event_id)
     event = Event::Base.find(event_id)
