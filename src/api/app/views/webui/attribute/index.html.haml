@@ -7,6 +7,9 @@
   .card-body
     %h3= @pagetitle
     - if @attributes.present?
+      %p.text-muted.small.d-md-none.mb-2
+        %i.fas.fa-info-circle.me-1
+        Click on a row to expand and see all details
       %table.responsive.table.table-bordered.table-hover.w-100#attributes
         %thead
           %tr
