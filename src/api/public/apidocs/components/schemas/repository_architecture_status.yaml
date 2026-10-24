@@ -1,0 +1,23 @@
+type: object
+properties:
+  code:
+    type: string
+    description: Current scheduler state for the specified repository architecture.
+    example: finished
+    xml:
+      attribute: true
+  details:
+    type: string
+    description: Additional information about the current scheduler state, if provided by the backend.
+  dirty:
+    type: string
+    description: Set to `true` when the specified repository architecture is marked for re-scheduling.
+    example: 'true'
+    xml:
+      attribute: true
+  buildid:
+    type: string
+    description: Build identifier. For in-progress repositories, OBS appends `-inprogress` to the stored previous build id when rendering the response.
+    example: 67394b7f7d6e15920e8f2096047c0b4a
+xml:
+  name: status
