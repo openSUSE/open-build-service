@@ -32,7 +32,13 @@ module Webui
           source_project_name = params[:linked_project]
           source_package_name = params[:linked_package]
         else
-          source_package = Package.get_by_project_and_name(params[:linked_project], params[:linked_package], use_source: false, follow_multibuild: true)
+          source_package = Package.get_by_project_and_name(params[:linked_project], params[:linked_package],
+                                                           use_source: false,
+                                                           follow_multibuild: true,
+                                                           follow_project_scmsync_links: true,
+                                                           follow_project_remote_links: true)
+          raise Package::Errors::UnknownObjectError, "Package not found: #{params[:linked_project]}/#{params[:linked_package]}" unless source_package
+
           source_project_name = source_package.project.name
           source_package_name = source_package.name
           authorize source_package, :create_branch?
