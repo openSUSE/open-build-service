@@ -279,6 +279,19 @@ RSpec.describe Webui::ProjectController, :vcr do
       expect(flash[:error]).to match(/never deleted/)
       expect(response).to redirect_to(root_path)
     end
+
+    context 'when restoration fails with validation error' do
+      let(:record) { Project.new(name: 'project_name').tap { |r| r.errors.add(:name, :taken) } }
+
+      before do
+        allow(Project).to receive(:deleted?).and_return(true)
+        allow(Project).to receive(:restore).and_raise(ActiveRecord::RecordInvalid.new(record))
+        post :restore, params: { project: 'project_name' }
+      end
+
+      it { expect(flash[:error]).to match(/Failed to restore project: Validation failed: Name has already been taken/) }
+      it { expect(response).to redirect_to(root_path) }
+    end
   end
 
   describe 'GET #show' do
