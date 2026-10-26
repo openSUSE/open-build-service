@@ -36,6 +36,8 @@ But as we all know, too many cooks spoil the broth! That is why we are trying re
 - limit the amount of code involved in running the test
 - limit the amount of times we test the same code
 - limit the specs to "custom" logic we wrote ourselves
+- limit Database Writes by Preferring In-Memory Objects
+- limit External Dependencies by Isolating and Mocking Services
 
 First and foremost because a test suite is code that needs to be maintained and that is work, a lot of work. So writing the right type of spec, that tests *once* the code we have influence on, means *less* specs. Less specs, less code, less time spent on maintaining it. Secondly we think that CI time is developer time. A fast feedback loop from the test suite makes you wait for it less. So with those limitations we are trying to save the most precious thing we have as a project: The time you have as a developer to work on something.
 
@@ -53,6 +55,26 @@ Please test your code *once*. If you wrote a custom validation with complex logi
 Please avoid testing code that is a scaffold or that consists of very simple Ruby / Ruby on Rails "standard" logic. No need to test a simple `case`, a variable assignment or `Array.count`. The Ruby test suite does this and if any of those things do not work anymore our test suite will not even reach the spec you write. Because Ruby is broken and *everything* around you will be on fire 🔥🔥🔥.
 
 Same reason to not test a standard ActiveRecord presence validation, a resourceful route or even a scaffolded controller action. The Ruby on Rails test suite does this and if those features are broken in Ruby on Rails, you'll be in panic because GitHub will be offline 💥💥💥.
+
+Focus solely on custom domain logic, model instance/class methods, and custom validators. Do not test standard Rails presence validations or default CRUD operations.
+
+### Limit Database Writes by Preferring In-Memory Objects
+
+Default to `build` or `build_stubbed` instead of `create` with FactoryBot. Keeping objects in memory prevents unnecessary SQL round-trips and speeds up test execution.
+
+Reserve `create` strictly for specs requiring database persistence (e.g., ActiveRecord scopes, custom SQL queries, foreign keys, database constraints, `after_create`/`after_commit` hooks, or methods hitting Backend::Api).
+
+### Limit External Dependencies by Isolating and Mocking Services
+
+Never allow real network requests in unit tests. Use WebMock (stub_request) for raw HTTP interactions.
+
+Mock external services and backend interactions strictly at the adapter layer (e.g., Backend::Connection, Backend::Api::*). Never stub methods directly on the subject itself.
+
+## Spec General Orgnaization
+
+Follow standard RSpec conventions: describe `#instance_method` for instance methods and describe `.class_method` for class methods.
+
+Prefer `let` definitions over instance variables (@variable). Use `let!` only when immediate database persistence is mandatory before example execution.
 
 ## Unit Specs
 
