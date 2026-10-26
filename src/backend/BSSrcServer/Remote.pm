@@ -112,7 +112,9 @@ sub findpackages_remote {
   if ($@) {
     die($@) unless $nonfatal && $nonfatal > 0;  # -1: internal projectlink recursion, errors are still fatal
     warn($@);
-    push @packids, ':missing_packages' if $nonfatal == 2;
+    if ($nonfatal == 2) {
+      push @packids, $@ =~ /^403[^\d]/ ? ':access_denied' : ':missing_packages';
+    }
     return @packids;
   }
   @packids = map {$_->{'name'}} @{($r || {})->{'entry'} || []};

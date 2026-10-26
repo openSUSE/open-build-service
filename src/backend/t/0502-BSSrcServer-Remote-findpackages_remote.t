@@ -6,7 +6,7 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 
 use Test::Mock::BSConfig;
 
@@ -21,6 +21,7 @@ my $uri = 'https://api.example.org/public/source/openSUSE:Factory';
 
 my %status = (
   401 => '401 remote error: Unauthorized',
+  403 => '403 remote error: Forbidden',
   404 => '404 remote error: Not Found',
 );
 
@@ -53,12 +54,16 @@ is_deeply(findpackages_with_status(404, 2), [ [], '', [] ],
   '404 with nonfatal 2: empty package list, no error');
 is_deeply(findpackages_with_status(401, 2), [ [ ':missing_packages' ], '', [ "$status{401} ($uri)\n" ] ],
   '401 with nonfatal 2: the list is marked as incomplete');
+is_deeply(findpackages_with_status(403, 2), [ [ ':access_denied' ], '', [ "$status{403} ($uri)\n" ] ],
+  '403 with nonfatal 2: the list is marked as denied');
 
 # nonfatal -1 is what findpackages_projlink (BSSrcServer/Projlink.pm) passes
 is_deeply(findpackages_with_status(404, -1), [ [], '', [] ],
   '404 with nonfatal -1: empty package list, no error');
 is_deeply(findpackages_with_status(401, -1), [ [], "$status{401} ($uri)\n", [] ],
   '401 with nonfatal -1: dies');
+is_deeply(findpackages_with_status(403, -1), [ [], "$status{403} ($uri)\n", [] ],
+  '403 with nonfatal -1: dies');
 
 is_deeply(findpackages_with_status(404, undef), [ [], "$status{404} ($uri)\n", [] ],
   '404 without nonfatal: dies');

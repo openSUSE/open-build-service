@@ -382,6 +382,7 @@ our $projpack = [
 		'hasbigdep',
 	 ]],
 	    'missingpackages',
+	    'remoteaccessdenied',
      ]],
      [[ 'remotemap' =>
 	    'project',

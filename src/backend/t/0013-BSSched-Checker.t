@@ -1,13 +1,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;                      # last test to print
+use Test::More tests => 6;                      # last test to print
 
 use_ok('BSSched::Checker');
 use FindBin;
 use Data::Dumper;
 
 use BSUtil;
+use BSSched::EventSource::Retry;
 
 my $tmpdir = "$FindBin::Bin/tmp/0013";
 
@@ -47,5 +48,22 @@ is_deeply(wiped_packages({ 'package' => { 'pack1' => {} } }), [ [ 'remotepack', 
   'wipeobsolete wipes the build results of a package missing from the package list');
 is_deeply(wiped_packages({ 'package' => { 'pack1' => {} }, 'missingpackages' => 1 }), [],
   'wipeobsolete keeps them when the package list is incomplete (missingpackages)');
+is_deeply(wiped_packages({ 'package' => { 'pack1' => {} }, 'missingpackages' => 1, 'remoteaccessdenied' => 1 }), [],
+  'wipeobsolete keeps them when a remote denies access (remoteaccessdenied)');
+
+# Returns the seconds until the retry that addretryevent_missingpackages queues.
+sub retry_delay {
+  my ($proj) = @_;
+  my $gctx = { 'retryevents' => BSSched::EventSource::Retry->new() };
+  my $now = time();
+  BSSched::Checker::addretryevent_missingpackages($gctx, 'home:user', $proj);
+  my @events = $gctx->{'retryevents'}->events();
+  return $events[0]->{'retry'} - $now;
+}
+
+ok(abs(retry_delay({ 'missingpackages' => 1 }) - 60) <= 1,
+  'missingpackages: the project is fetched again after a minute');
+ok(abs(retry_delay({ 'missingpackages' => 1, 'remoteaccessdenied' => 1 }) - 600) <= 1,
+  'remoteaccessdenied: the project is fetched again after ten minutes');
 
 exit 0;
