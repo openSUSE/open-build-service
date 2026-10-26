@@ -18,6 +18,14 @@
 %define rack_version 2.2.23
 %define rake_version 13.0.1
 
+%if 0%{?suse_version}
+%define __obs_ruby_bin /usr/bin/ruby.ruby2.7
+%define __obs_bundle_bin /usr/bin/bundle.ruby2.7
+%else
+%define __obs_ruby_bin /usr/bin/ruby
+%define __obs_bundle_bin /usr/bin/bundle
+%endif
+
 Name:           obs-bundled-gems
 Version:        2.10~pre
 Release:        0
@@ -96,13 +104,13 @@ EOF
 # all operations here since bundle does not decouple compile and install
 pushd %{_sourcedir}/open-build-service-*/src/api
 export GEM_HOME=~/.gems
-bundle.ruby.%{ruby} config build.ffi --enable-system-libffi
-bundle.ruby.%{ruby} config build.nokogiri --use-system-libraries
-bundle.ruby.%{ruby} config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
-bundle.ruby.%{ruby} config build.mysql2 --with-cflags='%{optflags} -Wno-return-type'
-bundle.ruby.%{ruby} config force_ruby_platform true
+%{__obs_bundle_bin} config build.ffi --enable-system-libffi
+%{__obs_bundle_bin} config build.nokogiri --use-system-libraries
+%{__obs_bundle_bin} config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
+%{__obs_bundle_bin} config build.mysql2 --with-cflags='%{optflags} -Wno-return-type'
+%{__obs_bundle_bin} config force_ruby_platform true
 
-bundle.ruby.%{ruby} --local --path %{buildroot}%_libdir/obs-api/
+%{__obs_bundle_bin} --local --path %{buildroot}%_libdir/obs-api/
 popd
 
 # Make sure rake and rack in Gemfile.lock match the versions from the
@@ -144,11 +152,11 @@ for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/* \
    %{buildroot}%_libdir/obs-api/ruby/*/gems/pry-*/lib/pry/helpers/documentation_helpers.rb \
    %{buildroot}%_libdir/obs-api/ruby/*/gems/erubis-*/setup.rb \
   ; do
-  sed -i -e 's,/usr/bin/env ruby$,/usr/bin/ruby.ruby2.7,' $bin
-  sed -i -e 's,/usr/bin/env ruby.ruby2.7,/usr/bin/ruby.ruby2.7,' $bin
+  sed -i -e 's,/usr/bin/env ruby$,%{__obs_ruby_bin},' $bin
+  sed -i -e 's,/usr/bin/env ruby.ruby2.7,%{__obs_ruby_bin},' $bin
 done
 
-sed -i -e 's,^#!/usr/bin/ruby ,#!/usr/bin/ruby.ruby2.7 ,' \
+sed -i -e 's,^#!/usr/bin/ruby ,#!%{__obs_ruby_bin} ,' \
   %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/bin/ruby_parse_extract_error \
   %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/bin/ruby_parse \
   %{buildroot}%_libdir/obs-api/ruby/*/gems/ruby_parser-*/tools/munge.rb
