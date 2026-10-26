@@ -18,6 +18,7 @@ class Webui::DistrosController < Webui::WebuiController
 
   def show
     authorize @distro
+    @distro_releases = @distro.distro_releases.includes(:distro_release_lifecycles)
   end
 
   def edit
