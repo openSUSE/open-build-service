@@ -2,4 +2,4 @@
                             modal_button_data: {text: text, type: 'link text-decoration-none', icon: icon}) do |component|
   - component.with_header do
     = text
-  = render partial: 'webui/distros/form', locals: {url:, model:}
+  = render partial: 'webui/distros/form', locals: { url:, model:, modal: true }
