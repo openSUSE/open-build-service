@@ -33,7 +33,7 @@ module OBSApi
       rescue URI::InvalidURIError
         # Ignore this exception on purpose
       end
-      "<a href='#{link}'#{title}>#{CGI.escape_html(content)}</a>"
+      "<a href='#{link}'#{title}>#{content}</a>"
     end
 
     def block_code(code, language)
