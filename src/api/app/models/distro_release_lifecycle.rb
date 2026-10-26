@@ -2,6 +2,7 @@ class DistroReleaseLifecycle < ApplicationRecord
   #### Includes and extends
 
   #### Constants
+  NAME_FORMAT = /\A[a-zA-Z0-9 ._-]+\z/
   STATUS_LABELS = {
     'release_candidate' => 'Release Candidate',
     'general_availability' => 'General Availability',
@@ -35,6 +36,7 @@ class DistroReleaseLifecycle < ApplicationRecord
 
   #### Validations macros
   validates :name, length: { maximum: 255 }
+  validates :name, format: { with: NAME_FORMAT, message: 'can only contain letters, numbers, spaces, dots, underscores and hyphens' }
   validates :name, uniqueness: { scope: :distro_release_id }
   validates :name, :date, presence: true
 

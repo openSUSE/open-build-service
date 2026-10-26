@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :distro_release do
-    name { Faker::App.name }
+    sequence(:name) { |n| "Release #{n}" }
     description { Faker::Lorem.sentence }
     url { Faker::Internet.url }
     distro
