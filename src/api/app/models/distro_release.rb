@@ -2,6 +2,7 @@ class DistroRelease < ApplicationRecord
   #### Includes and extends
 
   #### Constants
+  NAME_FORMAT = /\A[a-zA-Z0-9 ._-]+\z/
 
   #### Self config
 
@@ -22,6 +23,7 @@ class DistroRelease < ApplicationRecord
 
   #### Validations macros
   validates :name, presence: true, length: { maximum: 255 }
+  validates :name, format: { with: NAME_FORMAT, message: 'can only contain letters, numbers, spaces, dots, underscores and hyphens' }
   validates :description, length: { maximum: 65_535 }
   validates :url, length: { maximum: 255 }
   validates :name, uniqueness: { scope: :distro_id }

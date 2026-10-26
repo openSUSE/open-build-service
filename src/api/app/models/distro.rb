@@ -2,8 +2,10 @@ class Distro < ApplicationRecord
   #### Includes and extends
 
   #### Constants
+  NAME_FORMAT = /\A[a-zA-Z0-9 ._-]+\z/
   ACCEPTABLE_LOGO_MIME_TYPES = %w[image/png image/jpeg image/gif image/webp].freeze
   MAX_LOGO_SIZE = 5.megabytes
+
   #### Self config
 
   #### Attributes
@@ -19,6 +21,7 @@ class Distro < ApplicationRecord
 
   #### Validations macros
   validates :name, presence: true, length: { maximum: 255 }
+  validates :name, format: { with: NAME_FORMAT, message: 'can only contain letters, numbers, spaces, dots, underscores and hyphens' }
   validates :description, length: { maximum: 65_535 }
   validates :url, length: { maximum: 255 }
   validates :name, uniqueness: { scope: :vendor_id }
