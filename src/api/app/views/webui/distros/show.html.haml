@@ -1,9 +1,15 @@
-- @pagetitle = "Distro #{@distro.name}"
+- @pagetitle = "Distribution #{@distro.name}"
 
 .card
   .card-body
-    %h3.mb-3
-      = render partial: 'webui/shared/external_link', locals: { text: @distro.name, url: @distro.url }
+    .d-flex.align-items-center.mb-3
+      - if @distro.logo.attached?
+        = image_tag @distro.logo, class: 'img-thumbnail distro-logo-preview me-3'
+      %h3.mb-3
+        %span.text-secondary Distribution:
+        = render partial: 'webui/shared/external_link', locals: { text: @distro.name, url: @distro.url }
+    %p.text-secondary
+      by #{@distro.vendor.name}
     .row
       .col-12.col-md-10.col-lg-8
         #distro-description
@@ -28,10 +34,11 @@
                 data: { confirm: 'Are you sure you want to delete this distro?'}) do
                 %i.fas.fa-trash-can
                 %span.nav-item-name Delete
+    = render partial: 'lifecycle_timeline', locals: { distro_releases: @distro_releases }
     %h3
-      Releases
+      Releases of #{@distro.name}
     .row.mt-3
-      - @distro.distro_releases.each do |distro_release|
+      - @distro_releases.each do |distro_release|
         .col-lg-3.col-md-4.col-sm-6.col-12.mb-3
           = render partial: 'webui/distro_releases/release', locals: { distro_release: distro_release }
       .ps-0

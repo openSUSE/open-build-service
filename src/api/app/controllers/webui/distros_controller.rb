@@ -18,6 +18,7 @@ class Webui::DistrosController < Webui::WebuiController
 
   def show
     authorize @distro
+    @distro_releases = @distro.distro_releases.includes(:distro_release_lifecycles)
   end
 
   def edit
@@ -26,7 +27,7 @@ class Webui::DistrosController < Webui::WebuiController
 
   # POST /distros
   def create
-    @distro = Distro.new(distro_params)
+    @distro = Distro.new(distro_params.except(:remove_logo))
     @distro.vendor = @vendor
     authorize @distro
     if @distro.save
@@ -39,7 +40,8 @@ class Webui::DistrosController < Webui::WebuiController
   # PATCH/PUT /distros/1
   def update
     authorize @distro
-    if @distro.update(distro_params.merge(vendor_id: @vendor.id))
+    if @distro.update(distro_params.except(:remove_logo).merge(vendor_id: @vendor.id))
+      @distro.logo.purge if distro_params[:remove_logo] == '1' && distro_params[:logo].blank?
       redirect_to project_distro_path(@project, @distro.name), flash: { success: 'Distro was successfully updated.' }
     else
       redirect_to project_vendor_path(@project), flash: { error: "Distro failed to update. #{@distro.errors.full_messages.to_sentence}" }
@@ -67,7 +69,7 @@ class Webui::DistrosController < Webui::WebuiController
 
   # Only allow a trusted parameter "white list" through.
   def distro_params
-    params.expect(distro: %i[vendor_id name description url])
+    params.expect(distro: %i[vendor_id name description url logo remove_logo])
   end
 
   def set_vendor

@@ -2,6 +2,7 @@ class DistroReleaseLifecycle < ApplicationRecord
   #### Includes and extends
 
   #### Constants
+  NAME_FORMAT = /\A[a-zA-Z0-9 ._-]+\z/
   STATUS_LABELS = {
     'release_candidate' => 'Release Candidate',
     'general_availability' => 'General Availability',
@@ -35,10 +36,15 @@ class DistroReleaseLifecycle < ApplicationRecord
 
   #### Validations macros
   validates :name, length: { maximum: 255 }
+  validates :name, format: { with: NAME_FORMAT, message: 'can only contain letters, numbers, spaces, dots, underscores and hyphens' }
   validates :name, uniqueness: { scope: :distro_release_id }
   validates :name, :date, presence: true
 
   #### Class methods using self. (public and then private)
+
+  def self.status_label_for(status)
+    STATUS_LABELS.fetch(status, status.humanize)
+  end
 
   #### To define class methods as private use private_class_method
   #### private
@@ -50,7 +56,7 @@ class DistroReleaseLifecycle < ApplicationRecord
   delegate :distro, to: :distro_release
 
   def status_label
-    STATUS_LABELS.fetch(status, status.humanize)
+    self.class.status_label_for(status)
   end
 
   #### Alias of methods

@@ -60,7 +60,7 @@ namespace :dev do
 
       # Debian Vendor and Distros
       debian = create(:vendor, name: 'Debian', project: debian_project, description: 'Debian Project', url: 'https://www.debian.org')
-      debian_distro = create(:distro, name: 'Debian GNU/Linux', vendor: debian)
+      debian_distro = create(:distro, name: 'Debian GNU Linux', vendor: debian)
       deb12 = create(:distro_release, name: 'Debian 12', description: 'Codename: bookworm', distro: debian_distro, architectures: archs, repositories: sample_repos)
 
       # Canonical Vendor and Distros

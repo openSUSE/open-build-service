@@ -1,0 +1,146 @@
+// Statuses of DistroReleaseLifecycle, used to highlight phases from the legend
+$distro-release-lifecycle-statuses: 'planned', 'development', 'alpha', 'beta', 'release-candidate',
+  'general-availability', 'maintenance', 'extended-support', 'deprecated', 'end-of-life';
+
+@each $status in $distro-release-lifecycle-statuses {
+  // Dim the other phases while a status is highlighted from the key
+  #distro-release-lifecycle-timeline[data-highlight='distro-release-lifecycle-#{$status}'] .vis-item:not(.distro-release-lifecycle-#{$status}) {
+    opacity: 0.2;
+  }
+}
+
+#distro-release-lifecycle-timeline {
+  .vis-timeline,
+  .vis-panel,
+  .vis-labelset .vis-label,
+  .vis-foreground .vis-group,
+  .vis-time-axis .vis-grid.vis-minor,
+  .vis-time-axis .vis-grid.vis-major {
+    border-color: var(--bs-border-color);
+  }
+
+  .vis-time-axis .vis-text,
+  .vis-labelset .vis-label {
+    color: var(--bs-body-color);
+  }
+
+  .vis-time-axis .vis-text {
+    font-size: 1.1rem;
+  }
+
+  .vis-label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+  }
+
+  .vis-current-time {
+    width: 0;
+    border-left: 1px dashed var(--bs-secondary-color);
+    background-color: transparent;
+  }
+
+  .vis-item {
+    transition: opacity 0.2s;
+  }
+
+  .vis-item.vis-range {
+    // Keep phases lasting only a few days visible when zoomed out over several years
+    min-width: 6px;
+    border-radius: 0;
+    // Separate adjacent phases even when they share the same status color
+    border: 1px solid var(--bs-body-bg);
+    line-height: 1.2;
+    cursor: pointer;
+
+    .vis-item-content {
+      display: block;
+      width: 100%;
+      padding: 6px 4px;
+      text-align: center;
+    }
+
+    // Set from JavaScript when the label is wider than the phase
+    &.distro-release-lifecycle-compact .vis-item-content {
+      visibility: hidden;
+    }
+  }
+
+  // End of life marker: a red line at the end of the last phase, topped by a circled cross.
+  // The box is wider than the line to make it easier to hover.
+  .vis-item.vis-box.distro-release-lifecycle-eol {
+    // vis gives every item a z-index of 1 and may re-add the phases after the marker when zooming
+    z-index: 2;
+    width: 17px;
+    height: 46px;
+    border: none;
+    background: transparent;
+    cursor: default;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      bottom: -6px;
+      left: 7.5px;
+      width: 2px;
+      background-color: var(--bs-danger);
+    }
+
+    &::after {
+      content: '\00d7';
+      position: absolute;
+      top: -12px;
+      left: 1.5px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: var(--bs-danger);
+      color: var(--bs-white);
+      font-size: 11px;
+      line-height: 13px;
+      text-align: center;
+    }
+  }
+
+  // Box items come with a line and a dot pointing to the time axis, which we don't want
+  .vis-item.vis-line.distro-release-lifecycle-eol,
+  .vis-item.vis-dot.distro-release-lifecycle-eol {
+    display: none;
+  }
+}
+
+.distro-release-lifecycle-timeline-legend {
+  .btn-link {
+    color: var(--bs-body-color);
+    text-decoration: none;
+
+    &[aria-pressed='true'] {
+      font-weight: 600;
+      text-decoration: underline;
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+    }
+  }
+
+  .legend-swatch {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1rem;
+    vertical-align: middle;
+  }
+
+  .legend-eol {
+    display: inline-block;
+    width: 3px;
+    height: 1.25rem;
+    background-color: var(--bs-danger);
+    vertical-align: middle;
+  }
+}
