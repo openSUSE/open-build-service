@@ -136,7 +136,7 @@ FactoryBot.define do
         notifiable { association(:decision_cleared) }
 
         after(:build) do |notification|
-          notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s
+          notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable_type
         end
       end
 
@@ -145,7 +145,7 @@ FactoryBot.define do
         notifiable { association(:decision_favored) }
 
         after(:build) do |notification|
-          notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s
+          notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable_type
         end
       end
 
