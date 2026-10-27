@@ -52,7 +52,10 @@
             - @vendor.distros.includes(:distro_releases).each do |distro|
               %tr
                 %td.text-nowrap
-                  %i.fas.fa-compact-disc.text-primary.me-1
+                  - if distro.logo.attached?
+                    = image_tag distro.logo, class: 'me-2', style: 'height: 1em; width: 1em; object-fit: contain;'
+                  - else
+                    %i.fas.fa-compact-disc.text-primary.me-1
                   = link_to(distro.name, project_distro_path(@vendor.project, distro.name), class: 'fw-semibold')
                 %td.text-secondary= render_without_markdown(truncate(distro.description, length: 100))
                 %td
