@@ -15,7 +15,7 @@ module Authenticator
 
   def extract_user
     user = if ::Configuration.proxy_auth_mode_enabled?
-             find_or_create_proxy_user
+             proxy_user
            elsif request.session[:login] # Webui Session Auth
              User.find_by!(login: request.session[:login])
            elsif authorization_headers.present? # API Basic Auth
@@ -74,16 +74,12 @@ module Authenticator
 
   private
 
-  # In proxy_auth_mode there is no need to authenticate the user from the credentials, the proxy did that.
-  # If the proxy passes the X_USERNAME header we just find_or_create the User.
-  def find_or_create_proxy_user
-    return unless request.env['HTTP_X_USERNAME']
-
-    user = User.for_ichain_username(request.env['HTTP_X_USERNAME'],
-                                    { email: request.env['HTTP_X_EMAIL'],
-                                      firstname: request.env['HTTP_X_FIRSTNAME'],
-                                      lastname: request.env['HTTP_X_LASTNAME'] })
-    raise RegistrationDisabledError unless user
+  # Warden runs devise_ichain_authenticatable. It reads the proxy header and calls
+  # User.for_ichain_username. The strategy fails (nil) only when registration is denied.
+  # Raise RegistrationDisabledError so the API keeps its X-Opensuse-Errorcode.
+  def proxy_user
+    user = request.env['warden'].authenticate(scope: :user)
+    raise RegistrationDisabledError if user.nil? && request.env['HTTP_X_USERNAME']
 
     user
   end

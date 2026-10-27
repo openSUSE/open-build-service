@@ -16,6 +16,10 @@ class User < ApplicationRecord
   # password yet. this is for backwards compatibility
   has_secure_password validations: false
 
+  # Proxy (iChain) login through the Warden strategy from devise_ichain_authenticatable.
+  # The strategy calls User.for_ichain_username.
+  devise :ichain_authenticatable
+
   has_many :watched_items, dependent: :destroy
   has_many :groups_users, inverse_of: :user
   has_many :roles_users, inverse_of: :user, dependent: :destroy
