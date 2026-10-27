@@ -36,8 +36,8 @@ But as we all know, too many cooks spoil the broth! That is why we are trying re
 - limit the amount of code involved in running the test
 - limit the amount of times we test the same code
 - limit the specs to "custom" logic we wrote ourselves
-- limit Database Writes by Preferring In-Memory Objects
-- limit External Dependencies by Isolating and Mocking Services
+- limit database writes by preferring in-memory objects
+- limit external dependencies by isolating and mocking services
 
 First and foremost because a test suite is code that needs to be maintained and that is work, a lot of work. So writing the right type of spec, that tests *once* the code we have influence on, means *less* specs. Less specs, less code, less time spent on maintaining it. Secondly we think that CI time is developer time. A fast feedback loop from the test suite makes you wait for it less. So with those limitations we are trying to save the most precious thing we have as a project: The time you have as a developer to work on something.
 
