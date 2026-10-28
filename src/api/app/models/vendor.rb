@@ -23,7 +23,8 @@ class Vendor < ApplicationRecord
   validates :description, length: { maximum: 65_535 }
   validates :url, length: { maximum: 255 }
   validates :project_id, uniqueness: true
-  validate :acceptable_logo
+  validate :acceptable_logo_mime_type
+  validate :acceptable_logo_size
 
   #### Class methods using self. (public and then private)
 
@@ -33,13 +34,15 @@ class Vendor < ApplicationRecord
   #### Instance methods (public and then protected/private)
   private
 
-  def acceptable_logo
+  def acceptable_logo_mime_type
     return unless logo.attached?
+    return if ACCEPTABLE_LOGO_MIME_TYPES.include?(logo.content_type)
 
-    unless ACCEPTABLE_LOGO_MIME_TYPES.include?(logo.content_type)
-      errors.add(:logo, 'must be a PNG, JPEG, GIF or WebP image')
-    end
+    errors.add(:logo, 'must be a PNG, JPEG, GIF or WebP image')
+  end
 
+  def acceptable_logo_size
+    return unless logo.attached?
     return unless logo.blob.byte_size > MAX_LOGO_SIZE
 
     errors.add(:logo, 'is too large (maximum is 5 MB)')
