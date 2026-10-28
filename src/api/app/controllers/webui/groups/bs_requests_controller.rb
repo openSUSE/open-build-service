@@ -2,7 +2,6 @@ module Webui
   module Groups
     class BsRequestsController < WebuiController
       include Webui::RequestsFilter
-      include Webui::RequestsCount
 
       before_action :set_group
       before_action :redirect_legacy
