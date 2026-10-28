@@ -34,15 +34,14 @@
           created
           = render TimeComponent.new(time: bs_request.created_at)
         - unless bs_request_actions_count == 1
-          %span.text-nowrap
+          %span.text-nowrap{ title: pluralize(bs_request_actions_count, 'action') }
             %i.fas.fa-list-check.ps-2
             = bs_request_actions_count
-            actions
         - if bs_request.comments.any?
-          %span.text-nowrap
+          %span.text-nowrap{ title: pluralize(bs_request.comments.count, 'comment') }
             %i.fas.fa-comment.ps-2
-            = pluralize(bs_request.comments.count, 'comment')
+            = bs_request.comments.count
         - if bs_request.reviews.any?
-          %span.text-nowrap
+          %span.text-nowrap{ title: pluralize(bs_request.reviews.count, 'review') }
             %i.fas.fa-magnifying-glass.ps-2
-            = pluralize(bs_request.reviews.count, 'reviews')
+            = bs_request.reviews.count
