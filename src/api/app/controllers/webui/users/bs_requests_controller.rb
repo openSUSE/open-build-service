@@ -2,7 +2,6 @@ module Webui
   module Users
     class BsRequestsController < WebuiController
       include Webui::RequestsFilter
-      include Webui::RequestsCount
 
       before_action :require_login
       before_action :redirect_legacy
