@@ -104,6 +104,13 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+  def check_scmsync
+    return if @project&.scmsync.blank?
+
+    flash[:error] = "The project #{@project.name} is configured through scmsync. This is not supported by the OBS frontend"
+    redirect_to project_show_path(project: @project)
+  end
+
   def set_repository
     repository_name = params[:repository] || params[:repository_name]
     @repository = @project.repositories.find_by(name: repository_name)

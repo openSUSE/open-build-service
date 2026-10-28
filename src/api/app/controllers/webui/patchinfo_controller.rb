@@ -1,7 +1,6 @@
 require 'builder'
 
 class Webui::PatchinfoController < Webui::WebuiController
-  include ScmsyncChecker
   include Webui::PackageHelper
 
   before_action :require_login, except: [:show]
