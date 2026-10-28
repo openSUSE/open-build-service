@@ -82,19 +82,11 @@
                   = render partial: 'webui/comment/new', locals: { commentable: @bs_request }
               %hr
 
-              - if @bs_request.accept_at.present?
+              - if @bs_request.accept_at.present? && %i[new review].include?(@bs_request.state)
                 .alert.alert-warning.p-2
                   %i.fas.fa-exclamation-triangle
                   %span The current request
-                  - if BsRequest::FINAL_REQUEST_STATES.include?(@bs_request.state)
-                    %span
-                      was
-                      %strong auto-accepted
-                      at
-                      %span{ title: "#{I18n.l @bs_request.accept_at}" }
-                      = succeed '.' do
-                        = I18n.l @bs_request.accept_at, format: :only_date
-                  - elsif @bs_request.accept_at.past?
+                  - if @bs_request.accept_at.past?
                     %span
                       will be
                       %strong auto-accepted
