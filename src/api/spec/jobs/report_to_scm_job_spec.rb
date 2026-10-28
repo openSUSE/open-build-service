@@ -80,11 +80,7 @@ RSpec.describe ReportToSCMJob do
 
     context 'when retries are exhausted for an SCM auth exception' do
       let(:job) { described_class.new(event_id: event.id) }
-      let(:error) do
-        err = StandardError.new('Unauthorized')
-        allow(SCMAuthExceptions).to receive(:include?).with(err).and_return(true)
-        err
-      end
+      let(:error) { Octokit::Unauthorized.new }
 
       before do
         event
