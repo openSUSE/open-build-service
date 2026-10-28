@@ -1377,6 +1377,7 @@ sub delay_linkedpackages {
   my $changed_med = $gctx->{'changed_med'};
   my $changed_dirty = $gctx->{'changed_dirty'};
   my $alllocked = $gctx->{'alllocked'};
+  my @lowfront_prps;
   for my $lprojid (keys %$linked) {
     if ($lprojid eq $projid) {
       next unless $packids;
@@ -1391,10 +1392,16 @@ sub delay_linkedpackages {
       if ($alllocked->{$prp}) {
 	$changed_low->{$prp} ||= 1;
       } else {
-	$changed_med->{$prp} ||= 1;
+	#$changed_med->{$prp} ||= 1;
+	push @lowfront_prps, $prp
       }
       $changed_dirty->{$prp} = 1;
     }
+  }
+  if (@lowfront_prps) {
+    # put those in front of the low queue
+    my $lookat_low  = $gctx->{'lookat_low'};
+    @$lookat_low = BSUtil::unify(@lowfront_prps, @$lookat_low);
   }
 }
 
