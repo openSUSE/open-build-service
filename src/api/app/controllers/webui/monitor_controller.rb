@@ -22,14 +22,16 @@ class Webui::MonitorController < Webui::WebuiController
       workers_list = []
       %w[idle building away down dead].each do |state|
         @workerstatus.elements(state) do |b|
-          workers_list << [b['workerid'], b['hostarch']]
+          workers_list << [b['workerid'], b['hostarch'], state]
         end
       end
-      workers_list.each do |bid, barch|
+      workers_list.each do |bid, barch, state|
         hostname, subid = bid.tr(':', '/').split('/')
         id = bid.gsub(%r{[:./]}, '_')
         workers[hostname] ||= {}
         workers[hostname]['_arch'] = barch
+        workers[hostname]['_states'] ||= { 'idle' => 0, 'away' => 0, 'dead' => 0, 'down' => 0 }
+        workers[hostname]['_states'][state] += 1 if workers[hostname]['_states'].key?(state)
         workers[hostname][subid] = id
       end
       @workers_sorted = {}
