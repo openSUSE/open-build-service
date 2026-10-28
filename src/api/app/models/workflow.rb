@@ -37,13 +37,13 @@ class Workflow # rubocop:disable Metrics/ClassLength
       return unless (@filters_matched = filters_match?)
 
       steps.each do |step|
-        if step.invalid?
+        step_result = step.call
+        if step.errors.any?
           step.errors.full_messages.each { |msg| errors.add(:base, msg) }
           return false
         end
 
-        step.call
-        Workflows::ArtifactsCollector.new(step: step, workflow_run_id: workflow_run.id).call
+        Workflows::ArtifactsCollector.new(step: step, workflow_run_id: workflow_run.id).call if step_result
       end
     end
   end

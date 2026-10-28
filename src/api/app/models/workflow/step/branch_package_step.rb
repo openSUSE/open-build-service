@@ -73,9 +73,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   end
 
   def create_branched_package
-    return if target_package.present? && target_package_branched?
-
-    target_package.presence&.destroy
+    return if target_package.present?
 
     check_source_access
 
@@ -141,12 +139,5 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     { object_kind: 'merge_request',
       project: { http_url: workflow_run.checkout_http_url },
       object_attributes: { source: { default_branch: workflow_run.commit_sha } } }.to_json
-  end
-
-  def target_package_branched?
-    return false if target_package.blank?
-    return true if scm_synced?
-
-    target_package.link? || target_package.file_exists?('_branch_request') || target_package.file_exists?('_link')
   end
 end

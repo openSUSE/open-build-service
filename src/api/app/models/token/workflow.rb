@@ -87,10 +87,16 @@ class Token::Workflow < Token
     ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'success', initial_report: true)
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
+  rescue StandardError => e
+    ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'failure', initial_report: true)
+    raise e
   end
 
   def workflow_failed?(workflow)
-    workflow.invalid?(:call) || !workflow.call || workflow.errors.any?
+    return true if workflow.invalid?(:call)
+
+    workflow.call
+    workflow.filters_matched? && workflow.errors.any?
   end
 
   def validation_errors
