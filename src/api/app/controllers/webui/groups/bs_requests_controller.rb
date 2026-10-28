@@ -18,7 +18,8 @@ module Webui
           format.html do
             filter_requests
 
-            @bs_requests = @bs_requests.page(params[:page])
+            @bs_requests = @bs_requests.page(params[:page]).includes(:bs_request_actions)
+            @bs_requests = @bs_requests.includes(labels: :label_template)
           end
           format.json do
             parsed_params = BsRequest::DataTable::ParamsParser.new(params).parsed_params
