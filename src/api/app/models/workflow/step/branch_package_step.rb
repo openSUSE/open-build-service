@@ -75,7 +75,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   def create_branched_package
     return if target_package.present? && target_package_branched?
 
-    target_package.destroy if target_package.present?
+    target_package.presence&.destroy
 
     check_source_access
 
