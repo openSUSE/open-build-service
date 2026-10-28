@@ -3151,8 +3151,15 @@ sub getresult {
 	my @b;
 	my @bins = ls("$reporoot/$prpa/$packid");
 	@bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
-	for (sort(@bins)) {
-	  next if $_ eq 'logfile' || $_ eq 'status' || $_ eq 'reason' || $_ eq 'history' || /^\./;
+	@bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} sort(@bins);
+	my $bl = {'package' => $packid};
+	if ($cgi->{'binarylimit'}) {
+	  # only stat the requested part of the list
+	  my $offset = $cgi->{'binaryoffset'} || 0;
+	  $bl->{'binarycount'} = @bins;
+	  @bins = $offset < @bins ? splice(@bins, $offset, $cgi->{'binarylimit'}) : ();
+	}
+	for (@bins) {
 	  my @s = stat("$reporoot/$prpa/$packid/$_");
 	  if (!@s && /\.tar$/) {
 	    @s = BSRepServer::Containertar::stat_container("$reporoot/$prpa/$packid/$_");
@@ -3161,7 +3168,7 @@ sub getresult {
 	  }
 	  push @b, {'filename' => $_, 'mtime' => $s[9], 'size' => $s[7]} if @s && ! -d _;
 	}
-	my $bl = {'package' => $packid, 'binary' => \@b};
+	$bl->{'binary'} = \@b;
 	push @{$sl->{'binarylist'}}, $bl;
       }
       if ($cgi->{'withinfo'}) {
@@ -3209,7 +3216,7 @@ sub getresult {
   if ($cgi->{'oldstate'} && $state eq $cgi->{'oldstate'}) {
     if (!$BSStdServer::isajax) {
       my @args = map {"prpa=$_"} @{$prpas || []};
-      push @args, BSRPC::args($cgi, 'oldstate', 'package', 'code', 'withbinarylist');
+      push @args, BSRPC::args($cgi, 'oldstate', 'package', 'code', 'withbinarylist', 'binarylimit', 'binaryoffset');
       BSHandoff::handoff('/_result', undef, @args);
     }
     # return a reply every 5 minutes so that proxies do not time out
@@ -4793,7 +4800,7 @@ my $dispatches = [
   'PUT:/configuration' => \&putconfiguration,
   '/configuration' => \&getconfiguration,
 
-  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? withinfo:bool? withreproduciblecheck:bool? summary:bool? withversrel:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? binarylimit:num? binaryoffset:num? withstats:bool? withinfo:bool? withreproduciblecheck:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/_jobhistory $prpa+ package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory_project,
   'POST:/_command $cmd: $prpa+ package* code:* lastbuild:bool? sysrq:? allarch:bool?' => \&docommand,
 
@@ -4808,7 +4815,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? nosource:bool? module* withccache:bool? withannotation:bool?' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? withfilelist:bool? module*' => \&getbinary,
-  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? withinfo:bool? withreproduciblecheck:bool? summary:bool? withversrel:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? binarylimit:num? binaryoffset:num? withstats:bool? withinfo:bool? withreproduciblecheck:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? now:num? module* withannotation:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module* withevr:bool?' => \&getbinaryversions,
 ];
