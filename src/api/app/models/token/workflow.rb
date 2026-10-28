@@ -46,18 +46,7 @@ class Token::Workflow < Token
 
     return validation_errors unless validation_errors.none?
 
-    # Initial report with status set to pending
-    ReportToSCMJob.perform_later(workflow_run: workflow_run, initial_report: true)
-    @workflows.each do |workflow|
-      if workflow.invalid?(:call) || workflow.call == false || workflow.errors.any?
-        ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'failure', initial_report: true)
-        return (workflow.errors.full_messages.presence || ['Workflow execution failed'])
-      end
-    end
-    # Final status report
-    ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'success', initial_report: true)
-    # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
-    validation_errors
+    execute_workflows(workflow_run)
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
     raise Token::Errors::SCMTokenInvalid, "Your SCM token secret is not properly set in your OBS workflow token.\nCheck #{AUTHENTICATION_DOCUMENTATION_LINK}"
   end
@@ -84,6 +73,25 @@ class Token::Workflow < Token
   end
 
   private
+
+  def execute_workflows(workflow_run)
+    # Initial report with status set to pending
+    ReportToSCMJob.perform_later(workflow_run: workflow_run, initial_report: true)
+    @workflows.each do |workflow|
+      if workflow_failed?(workflow)
+        ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'failure', initial_report: true)
+        return workflow.errors.full_messages.presence || ['Workflow execution failed']
+      end
+    end
+    # Final status report
+    ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'success', initial_report: true)
+    # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
+    validation_errors
+  end
+
+  def workflow_failed?(workflow)
+    workflow.invalid?(:call) || !workflow.call || workflow.errors.any?
+  end
 
   def validation_errors
     @validation_errors ||= begin
