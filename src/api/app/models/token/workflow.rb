@@ -49,9 +49,10 @@ class Token::Workflow < Token
     # Initial report with status set to pending
     ReportToSCMJob.perform_later(workflow_run: workflow_run, initial_report: true)
     @workflows.each do |workflow|
-      return workflow.errors.full_messages if workflow.invalid?(:call)
-
-      workflow.call
+      if workflow.invalid?(:call) || workflow.call == false || workflow.errors.any?
+        ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'failure', initial_report: true)
+        return (workflow.errors.full_messages.presence || ['Workflow execution failed'])
+      end
     end
     # Final status report
     ReportToSCMJob.perform_later(workflow_run: workflow_run, event_type: 'success', initial_report: true)

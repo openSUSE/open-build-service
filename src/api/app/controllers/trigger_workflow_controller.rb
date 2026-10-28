@@ -65,6 +65,7 @@ class TriggerWorkflowController < ApplicationController
 
       unless @workflow_run.status == 'fail' # The SCMStatusReporter might already set the status to 'fail', lets not overwrite it
         if validation_errors.any?
+          ReportToSCMJob.perform_later(workflow_run: @workflow_run, event_type: 'failure', initial_report: true)
           @workflow_run.update_as_failed(render_error(status: 400, message: validation_errors.to_sentence))
         elsif @token.workflows_without_matching_filters.any?
           @workflow_run.update(status: 'success', response_body: render_ok(data: { info: workflows_without_matching_filters_message }))
@@ -79,9 +80,14 @@ class TriggerWorkflowController < ApplicationController
       @workflow_run.destroy
       render_ok(data: { info: "There is no workflow configuration file in branch '#{branch}'." })
     rescue APIError => e
+      ReportToSCMJob.perform_later(workflow_run: @workflow_run, event_type: 'failure', initial_report: true)
       @workflow_run.update_as_failed(render_error(status: e.status, errorcode: e.errorcode, message: e.message))
     rescue Pundit::NotAuthorizedError => e
+      ReportToSCMJob.perform_later(workflow_run: @workflow_run, event_type: 'failure', initial_report: true)
       @workflow_run.update_as_failed(e.message)
+    rescue StandardError => e
+      ReportToSCMJob.perform_later(workflow_run: @workflow_run, event_type: 'failure', initial_report: true)
+      @workflow_run.update_as_failed(render_error(status: 500, message: e.message))
     end
   end
 
