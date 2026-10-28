@@ -101,6 +101,20 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     @bs_requests = @bs_requests.where(created_at: ..Time.zone.parse(@selected_filter['created_at_to']))   if @selected_filter['created_at_to'].present?
   end
 
+  # incoming_query, outgoing_query and review_query are expected to be implemented
+  # by the including controller, as they differ per owner (user, group, project, package).
+  def filter_involvement
+    @selected_filter['involvement'] = params[:involvement] if params[:involvement]&.compact_blank.present?
+    bs_requests_filters = []
+
+    # We want to hit the database immediately, the @bs_request query is already complicated enough. No need to add sub-queries to it...
+    bs_requests_filters << incoming_query if @selected_filter['involvement'].include?('incoming')
+    bs_requests_filters << outgoing_query if @selected_filter['involvement'].include?('outgoing')
+    bs_requests_filters << review_query   if @selected_filter['involvement'].include?('review')
+
+    @bs_requests = @bs_requests.merge(bs_requests_filters.inject(:or)) if bs_requests_filters.length.positive?
+  end
+
   def filter_labels
     incoming_label_filters = Array(params[:labels]).compact_blank
     return if incoming_label_filters.blank?
