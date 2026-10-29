@@ -115,8 +115,6 @@ sub check {
   my $oldmeta = readstr("$gdst/:meta/$packid", 1) || '';
   my @oldmeta = split("\n", $oldmeta);
   if ($oldmeta[0] && $oldmeta[0] eq "$reprojobid  $packid") {
-    print "      - $packid ($buildtype)\n";
-    print "        no change\n";
     return ('done');
   }
   if ($ctx->{'verbose'}) {
