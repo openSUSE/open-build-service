@@ -27,10 +27,12 @@
       .text-end
         %span
           - if (creator = User.find_by_login(bs_request.creator))
-            = render AvatarComponent.new(name: bs_request.creator, email: creator.email, custom_css: 'align-text-bottom')
-            = bs_request.creator
+            = link_to(user_path(creator)) do
+              = render AvatarComponent.new(name: bs_request.creator, email: creator.email, custom_css: 'align-text-bottom')
+              = bs_request.creator
           - else
-            A deleted user
+            %i.fas.fa-user-slash
+            %em= "A deleted user"
           created
           = render TimeComponent.new(time: bs_request.created_at)
         - unless bs_request_actions_count == 1
