@@ -121,8 +121,9 @@ sub changed2lookat {
   $lookat_next->{$_} = 1 for keys %$changed_low;
 
   if (%$changed_lowfront) {
-    unshift @$lookat_low, sort keys %$changed_lowfront;
-    @$lookat_low = BSUtil::unify(@$lookat_low);
+    my @lowfront = sort keys %$changed_lowfront;
+    $lookat_next->{$_} = 1 for @lowfront;
+    @$lookat_low = BSUtil::unify(@lowfront, @$lookat_low);
     %$changed_lowfront = ();
   }
 
