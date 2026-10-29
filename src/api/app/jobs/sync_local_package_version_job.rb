@@ -5,6 +5,8 @@ class SyncLocalPackageVersionJob < ApplicationJob
 
   def perform(project_name, package_name: nil)
     project = Project.find_by_name(project_name)
+    return if project.blank?
+
     distribution_name = project.anitya_distribution_name
     PackageVersionLocal.where(package_id: project.packages.ids).delete_all && return if distribution_name.blank?
 
