@@ -50,8 +50,8 @@ package BSSched::ProjPacks;
 #   remoteprojs
 #   delayedfetchprojpacks
 #   changed_high
-#   changed_med
 #   changed_low
+#   changed_lowfront
 #   changed_dirty
 #   prps
 #   channeldata
@@ -342,9 +342,9 @@ sub get_projpacks_resume {
       if ($handle->{'_dolink'} == 2 && $lprojid ne $projid && $delayedfetchprojpacks) {
         push @{$delayedfetchprojpacks->{$lprojid}}, sort keys %lpackids;
         # we don't use setchanged because it unshifts the prps onto lookat
-        my $changed_med = $gctx->{'changed_med'};
+        my $changed_lowfront = $gctx->{'changed_lowfront'};
         my $changed_low = $gctx->{'changed_low'};
-        my $changed = $xpackids ? $changed_med : $changed_low;
+        my $changed = $xpackids ? $changed_lowfront : $changed_low;
         my $changed_dirty = $gctx->{'changed_dirty'};
         for my $prp (@{$gctx->{'prps'}}) {
           next unless (split('/', $prp, 2))[0] eq $lprojid;
@@ -1374,7 +1374,7 @@ sub delay_linkedpackages {
   return unless %$linked;
   my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
   my $changed_low = $gctx->{'changed_low'};
-  my $changed_med = $gctx->{'changed_med'};
+  my $changed_lowfront = $gctx->{'changed_lowfront'};
   my $changed_dirty = $gctx->{'changed_dirty'};
   my $alllocked = $gctx->{'alllocked'};
   my @lowfront_prps;
@@ -1392,16 +1392,10 @@ sub delay_linkedpackages {
       if ($alllocked->{$prp}) {
 	$changed_low->{$prp} ||= 1;
       } else {
-	#$changed_med->{$prp} ||= 1;
-	push @lowfront_prps, $prp
+	$changed_lowfront->{$prp} ||= 1;
       }
       $changed_dirty->{$prp} = 1;
     }
-  }
-  if (@lowfront_prps) {
-    # put those in front of the low queue
-    my $lookat_low  = $gctx->{'lookat_low'};
-    @$lookat_low = BSUtil::unify(@lowfront_prps, @$lookat_low);
   }
 }
 
@@ -1462,7 +1456,7 @@ sub do_fetchprojpacks {
   my $projpacks = $gctx->{'projpacks'};
 
   my $changed_low = $gctx->{'changed_low'};
-  my $changed_med = $gctx->{'changed_med'};
+  my $changed_lowfront = $gctx->{'changed_lowfront'};
   my $changed_high = $gctx->{'changed_high'};
   my $changed_dirty = $gctx->{'changed_dirty'};
 
@@ -1612,12 +1606,12 @@ sub do_fetchprojpacks {
 	    if ($alllocked->{$prp}) {
 	      $changed_low->{$prp} ||= 1;
 	    } else {
-	      $changed_med->{$prp} ||= 1;
+	      $changed_lowfront->{$prp} ||= 1;
 	    }
 	    $changed_dirty->{$prp} = 1;
 	  }
 	}
-	$changed_med->{$projid} ||= 1;
+	$changed_lowfront->{$projid} ||= 1;
       } else {
 	for my $prp (@{$gctx->{'prps'}}) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {

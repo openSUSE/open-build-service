@@ -100,6 +100,7 @@ sub changed2lookat {
   my $lookat_high = $gctx->{'lookat_high'};
   my $lookat_next = $gctx->{'lookat_next'};
   my $changed_low  = $gctx->{'changed_low'};
+  my $changed_lowfront  = $gctx->{'changed_lowfront'};
   my $changed_med  = $gctx->{'changed_med'};
   my $changed_high = $gctx->{'changed_high'};
 
@@ -117,10 +118,14 @@ sub changed2lookat {
   @$lookat_med = BSUtil::unify(@$lookat_med);
   my %lookat_high = map {$_ => 1} @$lookat_high;
   @$lookat_med = grep {!$lookat_high{$_}} @$lookat_med;
+  $lookat_next->{$_} = 1 for keys %$changed_low;
 
-  for my $prp (keys %$changed_low) {
-    $lookat_next->{$prp} = 1;
+  if (%$changed_lowfront) {
+    unshift @$lookat_low, sort keys %$changed_lowfront;
+    @$lookat_low = BSUtil::unify(@$lookat_low);
+    %$changed_lowfront = ();
   }
+
   my $rprpdeps = $gctx->{'rprpdeps'};
   for my $prp (keys %$changed_med) {
     $lookat_next->{$prp} = 1;
