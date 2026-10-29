@@ -21,7 +21,7 @@ module Webui
             # FIXME: Once we roll out request_index filter_requests should become a before_action
             filter_requests
             @bs_requests = @bs_requests.page(params[:page]).includes(:bs_request_actions)
-            @bs_requests = @bs_requests.includes(labels: :label_template)
+            @bs_requests = @bs_requests.includes(labels: :label_template) if Flipper.enabled?(:labels, User.session)
           end
           # TODO: Remove this old index action when request_index feature is rolled-over
           format.json do

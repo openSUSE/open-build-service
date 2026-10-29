@@ -13,7 +13,7 @@ module Webui
           format.html do
             filter_requests
             @bs_requests = @bs_requests.page(params[:page]).includes(:bs_request_actions)
-            @bs_requests = @bs_requests.includes(labels: :label_template)
+            @bs_requests = @bs_requests.includes(labels: :label_template) if Flipper.enabled?(:labels, User.session)
             @url = packages_requests_path(@project, @package)
           end
           format.json do
