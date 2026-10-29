@@ -32,6 +32,9 @@ async function setTemplateData(url) {
     Array.from(templateDescriptions).forEach((desc) => {
       desc.innerHTML = '';
     });
+    var templateOptions = document.getElementById("package-template-options");
+    templateOptions.innerHTML = '';
+    var templateOption = document.getElementById("package-template-option");
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Response failed with status: ${response.status}`);
@@ -39,8 +42,21 @@ async function setTemplateData(url) {
 
     const result = await response.json();
     result.forEach((object) => {
-      var field = document.getElementById(`description-${object.name}`);
-      field.innerText = object.description;
+      if (['name', 'title', 'description', 'url'].includes(object.name)) {
+        var field = document.getElementById(`description-${object.name}`);
+        field.innerHTML = object.description;
+      } else {
+        const extraOption = document.importNode(templateOption.content, true);
+        var label = extraOption.querySelector(".template-name");
+        label.textContent = object.title;
+        label.setAttribute("for", `template_data_${object.name}`);
+        var input = extraOption.querySelector("input");
+        input.id = `template_data_${object.name}`;
+        input.setAttribute("name", `template_data[${object.name}]`);
+        var desc = extraOption.querySelector(".template-description");
+        desc.innerHTML = object.description;
+        templateOptions.appendChild(extraOption);
+      }
     });
   } catch (error) {
     console.error(error.message);

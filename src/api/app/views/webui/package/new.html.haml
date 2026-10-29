@@ -34,6 +34,10 @@
                 = f.text_field(:title, size: 80, class: 'form-control', placeholder: 'Enter Title')
                 %label.form-text.template-description#description-title
               .mb-3
+                = f.label(:url)
+                = f.text_field(:url, size: 80, class: 'form-control', placeholder: 'Enter URL')
+                %label.form-text.template-description#description-url
+              .mb-3
                 = f.label(:scmsync, 'SCM Sync URL')
                 = f.text_field(:scmsync, size: 80, class: 'form-control', placeholder: 'e.g. https://github.com/org/repo.git')
               .mb-3
@@ -44,6 +48,12 @@
                                                       text_area_required: false,
                                                       text_area_object_name: :description)
                 %label.form-text.template-description#description-description
+              %template#package-template-option
+                .mb-3
+                  %label.template-name
+                  = text_field_tag(:t, '', size: 80, class: 'form-control')
+                  %label.form-text.template-description
+              #package-template-options
               - unless @configuration['hide_private_options']
                 .mb-3.form-check
                   = check_box_tag :source_protection, 1, false, class: 'form-check-input', type: 'checkbox'

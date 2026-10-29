@@ -113,7 +113,7 @@ class Webui::PackageController < Webui::WebuiController
     @package.flags.build(flag: :publish, status: :disable) if params[:disable_publishing]
 
     if @package.save
-      PackageService::Templater.new(package: @package, template: @template, user: User.session!).call if @template.present?
+      PackageService::Templater.new(package: @package, template: @template, user: User.session!, data: @template_data).call if @template.present?
       flash[:success] = "Package '#{elide(@package.name)}' was created successfully"
       redirect_to action: :show, project: params[:project], package: @package.name
     else
@@ -363,18 +363,7 @@ class Webui::PackageController < Webui::WebuiController
   def view_file; end
 
   def template_data
-    data = []
-    begin
-      xml = Nokogiri::XML(@package.source_file('_template'))
-      xml.css('template').children.each do |child|
-        next if child.name == 'text'
-
-        data << { name: child.name, description: child.content }
-      end
-    rescue StandardError
-      logger.debug("No template information provided for #{@project.name}/#{@package.name}")
-    end
-    render json: data.to_json, layout: false
+    render json: template_hash(@project, @package).to_json, layout: false
   end
 
   private
@@ -425,7 +414,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def package_params
-    params.require(:package).permit(:name, :title, :description, :scmsync)
+    params.require(:package).permit(:name, :title, :description, :url, :scmsync)
   end
 
   def package_details_params
@@ -546,10 +535,28 @@ class Webui::PackageController < Webui::WebuiController
     true
   end
 
+  def template_hash(project, package)
+    data = []
+    begin
+      xml = Nokogiri::XML(package.source_file('_template'))
+      xml.css('template').children.each do |child|
+        next if child.name == 'text'
+
+        data << { name: child.name, description: helpers.render_as_markdown(child.content), title: child.attribute('title') || child.name.humanize }
+      end
+    rescue StandardError
+      logger.debug("No template information provided for #{project.name}/#{package.name}")
+    end
+    data
+  end
+
   def set_template
     return unless params['template'] && params['template'].include?('/')
 
     template_project, template_package = params['template'].split('/')
     @template = Package.find_by_project_and_name(template_project, template_package)
+    return unless params['template_data']
+
+    @template_data = params.require(:template_data).permit(template_hash(@template.project, @template)&.map { |a| a[:name].to_sym } || [])
   end
 end
