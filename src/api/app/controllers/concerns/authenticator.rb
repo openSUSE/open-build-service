@@ -52,7 +52,11 @@ module Authenticator
 
     respond_to do |format|
       format.html do
-        redirect_to root_path, error: error_message
+        if request.path == root_path
+          flash.now[:error] = error_message
+        else
+          redirect_to root_path, error: error_message
+        end
       end
       format.xml do
         render_error status: 403, errorcode: error_code, message: error_message
