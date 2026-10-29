@@ -261,15 +261,10 @@ class Webui::ProjectController < Webui::WebuiController
     authorize(project, :create?)
 
     if Project.deleted?(project.name)
-      begin
-        project = Project.restore(project.name)
+      project = Project.restore(project.name)
 
-        flash[:success] = "Project '#{elide(project.name)}' was restored successfully"
-        redirect_to action: 'show', project: project.name
-      rescue ActiveRecord::RecordInvalid => e
-        flash[:error] = "Failed to restore project: #{e.message}"
-        redirect_back_or_to root_path
-      end
+      flash[:success] = "Project '#{elide(project.name)}' was restored successfully"
+      redirect_to action: 'show', project: project.name
     else
       flash[:error] = 'Project was never deleted.'
       redirect_back_or_to root_path

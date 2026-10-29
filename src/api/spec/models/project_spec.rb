@@ -394,6 +394,9 @@ RSpec.describe Project, :vcr do
 
     it 'returns false if the project exists in the app even without read access' do
       forbidden_project = create(:forbidden_project)
+      allow_any_instance_of(ProjectFile).to receive(:content).with(deleted: 1).and_return(
+        "<revisionlist>\n  <revision rev=\"1\" vrev=\"\">\n  </revision>\n</revisionlist>\n"
+      )
       login user
 
       expect(Project).not_to be_deleted(forbidden_project.name)
