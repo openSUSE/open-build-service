@@ -88,7 +88,14 @@ class BsRequest < ApplicationRecord
   validates :number, uniqueness: true
   validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
 
-  before_validation :sanitize!, if: :sanitize?, on: :create
+  before_validation(on: :create) do
+    # apply default values
+    self.creator ||= User.session!.login
+    self.commenter ||= User.session!.login
+    self.state = :new
+    self.status = :new
+  end
+  before_validation :sanitize!, on: :create
   before_save :accept_staged_request
   before_save :assign_number
   after_create :notify
@@ -226,18 +233,6 @@ class BsRequest < ApplicationRecord
     request
   end
 
-  # [DEPRECATED] TODO: there is only one instance of the @not_full_diff variable in the request scope which is using this method.
-  # Once request_workflow_redesign beta is rolled out, let's drop this method
-  # TODO: refactor this method as soon as the request_show_redesign feature is rolled out.
-  # Now it expects an array of action hashes we'll never display more than one action at a time.
-  def self.truncated_diffs?(actions)
-    submit_requests = actions.select { |action| action[:type] == :submit && action[:sourcediff] }
-
-    submit_requests.any? do |action|
-      action[:sourcediff].any? { |sourcediff| sourcediff_has_shown_attribute?(sourcediff) }
-    end
-  end
-
   def self.sourcediff_has_shown_attribute?(sourcediff)
     if sourcediff && sourcediff['files']
       # the 'shown' attribute is only set if the backend truncated the diff
@@ -274,14 +269,6 @@ class BsRequest < ApplicationRecord
 
   def set_ignore_delegate
     @ignore_delegate = true
-  end
-
-  def sanitize?
-    !@skip_sanitize
-  end
-
-  def skip_sanitize
-    @skip_sanitize = true
   end
 
   def check_creator
@@ -611,8 +598,6 @@ class BsRequest < ApplicationRecord
         params[:description_extension] = superseded_by.to_s
       when 'review', 'new'
         history = HistoryElement::RequestReopened
-      when 'deleted'
-        history = HistoryElement::RequestDeleted
       else
         raise "Unhandled state #{opts[:newstate]} for history"
       end
@@ -921,16 +906,9 @@ class BsRequest < ApplicationRecord
   end
 
   def sanitize!
-    # apply default values, expand and do permission checks
-    self.creator ||= User.session!.login
-    self.commenter ||= User.session!.login
     # FIXME: Move permission checks to controller level
-    raise RequestSaveError, 'Admin permissions required to set request creator to foreign user' unless self.creator == User.session!.login || User.admin_session?
-    raise RequestSaveError, 'Admin permissions required to set request commenter to foreign user' unless self.commenter == User.session!.login || User.admin_session?
-
-    # ensure correct initial values, no matter what has been sent to us
-    self.state = :new
-    self.status = :new
+    raise RequestSaveError, 'Admin permissions required to set request creator to foreign user' unless creator == User.session!.login || User.admin_session?
+    raise RequestSaveError, 'Admin permissions required to set request commenter to foreign user' unless commenter == User.session!.login || User.admin_session?
 
     # expand release and submit request targets if not specified
     expand_targets
@@ -1056,10 +1034,9 @@ class BsRequest < ApplicationRecord
   end
 
   def canned_responses
-    package_ids = bs_request_actions.pluck(:source_package_id, :target_package_id).flatten.uniq
+    package_ids = bs_request_actions.pluck(:source_package_id, :target_package_id).flatten.uniq.compact
     CannedResponse.where(package_id: package_ids)
   end
-
 
   private
 

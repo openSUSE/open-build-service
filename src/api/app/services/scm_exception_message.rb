@@ -75,13 +75,35 @@ class SCMExceptionMessage
       'Bad request. Please modify your request and try again.'
   }.freeze
 
+  GITEA_EXCEPTIONS = {
+    GiteaAPI::V1::Client::BadGatewayError =>
+      'Bad gateway. Please try again later.',
+    GiteaAPI::V1::Client::BadRequestError =>
+      'Bad request. Please modify your request and try again.',
+    GiteaAPI::V1::Client::ForbiddenError =>
+      'Request is forbidden.',
+    GiteaAPI::V1::Client::InternalServerError =>
+      'Internal error. Please try again later.',
+    GiteaAPI::V1::Client::NotFoundError =>
+      'Content not found.',
+    GiteaAPI::V1::Client::ServiceUnavailableError =>
+      'Service is unavailable. Please try again later.',
+    GiteaAPI::V1::Client::TooManyRequestsError =>
+      'Maximum number of requests exceeded. Please try again later.',
+    GiteaAPI::V1::Client::UnauthorizedError =>
+      'Unauthorized request. Please check your credentials again.',
+    GiteaAPI::V1::Client::UnknownServerError =>
+      'Generic server error. Please try again later.'
+  }.freeze
+
+  EXCEPTIONS_PER_SCM = {
+    'Gitea' => GITEA_EXCEPTIONS,
+    'GitHub' => GITHUB_EXCEPTIONS,
+    'GitLab' => GITLAB_EXCEPTIONS
+  }.freeze
+
   def self.for(exception:, scm:)
-    case scm
-    when 'GitHub'
-      message = GITHUB_EXCEPTIONS[exception.class]
-    when 'GitLab'
-      message = GITLAB_EXCEPTIONS[exception.class]
-    end
+    message = EXCEPTIONS_PER_SCM.fetch(scm, {})[exception.class]
     return exception.message if message.nil?
 
     message

@@ -34,6 +34,10 @@ RSpec.describe Webui::ProjectController, :vcr do
   describe 'PATCH #update' do
     let(:project) { user.home_project }
 
+    before do
+      allow_any_instance_of(Project).to receive(:number_of_build_problems).and_return(0)
+    end
+
     context 'with valid parameters' do
       before do
         login user

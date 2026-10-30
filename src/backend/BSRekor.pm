@@ -33,6 +33,7 @@ our $intoto_slsav_v01 = "https://slsa.dev/provenance/v0.1";
 our $intoto_slsav_v02 = "https://slsa.dev/provenance/v0.2";
 our $intoto_slsa_v1   = "https://slsa.dev/provenance/v1";
 our $intoto_spdx      = "https://spdx.dev/Document";
+our $intoto_spdx_v3   = "https://spdx.dev/Document/v3";
 our $intoto_link_v1   = "https://in-toto.io/Link/v1";
 our $intoto_cosign_v1 = "cosign.sigstore.dev/attestation/v1";
 our $intoto_vuln_v1   = "cosign.sigstore.dev/attestation/vuln/v1";

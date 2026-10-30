@@ -1,25 +1,28 @@
 .blame {
   display: grid;
-  grid-template-columns: [time] max-content [user] 20px [commit] max-content [button] min-content [line] min-content [content] auto;
+  grid-template-columns: [time] max-content [user] 20px [rev] max-content [commit] max-content [button] min-content [line] min-content [content] auto;
   column-gap: 1rem;
   .revision {
     display: grid;
     grid-template-columns: subgrid;
-    grid-column: time / span 6;
+    grid-column: time / span 7;
     border-bottom: var(--bs-border-width) solid var(--bs-border-color);
     .info {
       display: grid;
       grid-template-columns: subgrid;
-      grid-column: time / span 4;
+      grid-column: time / span 5;
       .time {
         grid-column-start: time;
       }
       .user {
         grid-column-start: user;
       }
+      .rev {
+        grid-column-start: rev;
+      }
       .commit {
         grid-column-start: commit;
-        max-width: 200px;
+        max-width: 400px;
       }
       .button {
         grid-column-start: button;

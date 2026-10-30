@@ -114,7 +114,7 @@ module Webui::RequestHelper
   end
 
   # [DEPRECATED] TODO: drop this helper function after request_workflow_redesign is rolled out
-  # rubocop:disable Style/FormatString
+  # rubocop:disable-next Style/FormatString
   def request_action_header(action, creator)
     source_project_hash = { project: action[:sprj], package: action[:spkg], trim_to: nil }
 
@@ -163,7 +163,6 @@ module Webui::RequestHelper
 
     description.html_safe
   end
-  # rubocop:enable Style/FormatString
 
   def list_maintainers(maintainers)
     maintainers.pluck(:login).map do |maintainer|
@@ -180,6 +179,7 @@ module Webui::RequestHelper
 
   def next_prev_path(**opts)
     parameters = { number: opts[:number], request_action_id: opts[:request_action_id], diff_to_superseded: opts[:diff_to_superseded] }
+    parameters.merge!(notification_context_params) if notification_context_params.present?
 
     case opts[:page_name]
     when 'request_build_results'

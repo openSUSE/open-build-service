@@ -1,6 +1,5 @@
 class Webui::PackageController < Webui::WebuiController
   include ParsePackageDiff
-  include ScmsyncChecker
   include Webui::PackageHelper
   include Webui::ManageRelationships
   include Webui::NotificationsHandler
@@ -85,8 +84,6 @@ class Webui::PackageController < Webui::WebuiController
     @comments = @package.comments.includes(:user)
     @comment = Comment.new
 
-    @current_notification = handle_notification
-
     @services = @files.any? { |file| file['name'] == '_service' }
 
     respond_to do |format|
@@ -129,6 +126,8 @@ class Webui::PackageController < Webui::WebuiController
     respond_to do |format|
       format.js do
         if @package.update(package_details_params)
+          set_linkinfo
+          @failures = 0
           flash.now[:success] = 'Package was successfully updated.'
         else
           flash.now[:error] = 'Failed to update the package.'
@@ -155,10 +154,12 @@ class Webui::PackageController < Webui::WebuiController
     @users = [@project.users, @package.users].flatten.uniq
     @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
-    if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
+    @devel_package = @package.develpackage
+    if @devel_package
+      @devel_users = [@devel_package.project.users, @devel_package.users].flatten.uniq
+      @devel_groups = [@devel_package.project.groups, @devel_package.groups].flatten.uniq
     end
+
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
   end
 
@@ -283,14 +284,11 @@ class Webui::PackageController < Webui::WebuiController
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all: show_all)
 
-      # TODO: this is part of the temporary changes done for 'request_show_redesign'.
-      request_show_redesign_partial = 'webui/request/beta_show_tabs/build_status' if params.fetch(:inRequestShowRedesign, false)
-
-      render partial: request_show_redesign_partial || 'buildstatus', locals: { buildresults: @buildresults,
-                                                                                index: @index,
-                                                                                project: @project,
-                                                                                collapsed_packages: params.fetch(:collapsedPackages, []),
-                                                                                collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
+      render partial: 'buildstatus', locals: { buildresults: @buildresults,
+                                               index: @index,
+                                               project: @project,
+                                               collapsed_packages: params.fetch(:collapsedPackages, []),
+                                               collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
       render partial: 'no_build_results', locals: { project: @project }
     end
@@ -319,16 +317,13 @@ class Webui::PackageController < Webui::WebuiController
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
-      filters = params.keys.select { |k| k.start_with?('repo', 'arch') }
-      render 'webui/package/beta/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                            package_name: @package_name,
-                                                            repository: repository, architecture: architecture,
-                                                            repository_list: repo_list.map(&:first), arch_list: repo_arch_hash.values.flatten.uniq, filters: filters }
-    else
-      render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                  repository_list: repo_list, repo_arch_hash: repo_arch_hash }
-    end
+    # TODO: This should be rendered as a normal view instead of
+    # rendering it as partial with locals
+    filters = params.keys.select { |k| k.start_with?('repo', 'arch') }
+    render 'webui/package/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                     package_name: @package_name,
+                                                     repository: repository, architecture: architecture,
+                                                     repository_list: repo_list.map(&:first), arch_list: repo_arch_hash.values.flatten.uniq, filters: filters }
   end
 
   def rpmlint_log_params
@@ -345,8 +340,10 @@ class Webui::PackageController < Webui::WebuiController
     render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
   end
 
+  # TODO: This should be rendered as a normal view instead of
+  # rendering it as partial with locals
   def rpmlint_summary
-    render partial: 'webui/package/beta/rpmlint_summary',
+    render partial: 'webui/package/rpmlint_summary',
            locals: { lints_list: @results, badness: @badness, errors: @errors, warnings: @warnings, info: @info, project: @project, package_name: @package_name }
   end
 
@@ -404,9 +401,8 @@ class Webui::PackageController < Webui::WebuiController
             @results << parsed.results
             max_badness = parsed.badness.values.max
             @badness = max_badness if parsed.badness.present? && (max_badness > @badness)
-            # rubocop:disable Rails/DeprecatedActiveModelErrorsMethods
+            # rubocop:disable-next Rails/DeprecatedActiveModelErrorsMethods
             @errors += parsed.errors.values.sum
-            # rubocop:enable Rails/DeprecatedActiveModelErrorsMethods
             @warnings += parsed.warnings.values.sum
             @info += parsed.info.values.sum
           end
@@ -428,7 +424,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def package_params
-    params.require(:package).permit(:name, :title, :description)
+    params.require(:package).permit(:name, :title, :description, :scmsync)
   end
 
   def package_details_params
@@ -443,7 +439,8 @@ class Webui::PackageController < Webui::WebuiController
               :description,
               :url,
               :report_bug_url,
-              :anitya_ignore)
+              :anitya_ignore,
+              :scmsync)
   end
 
   def set_file_details

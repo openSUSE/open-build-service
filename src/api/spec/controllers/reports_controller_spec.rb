@@ -28,12 +28,12 @@ RSpec.describe ReportsController do
 
   describe 'POST create' do
     let(:other_user) { create(:confirmed_user) }
-    let(:report_xml) do
-      "<report reportable_type='User' reportable_id='#{other_user.id}'>Watch your language, please</report>"
+    let(:report_body) do
+      'Watch your language, please'
     end
 
     it 'returns ok' do
-      post :create, format: :xml, body: report_xml
+      post :create, params: { user_login: other_user.login }, format: :xml, body: report_body
 
       expect(response).to have_http_status(:ok)
     end

@@ -182,6 +182,7 @@ controller 'webui/project' do
   get 'project/autocomplete_packages' => :autocomplete_packages, as: 'autocomplete_packages'
   get 'project/autocomplete_repositories' => :autocomplete_repositories, as: 'autocomplete_repositories'
   get 'project/autocomplete_anitya_distributions' => :autocomplete_anitya_distributions, as: 'autocomplete_anitya_distributions'
+  get 'project/autocomplete_architectures' => :autocomplete_architectures, as: 'autocomplete_architectures'
   get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
   get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
   get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
@@ -308,6 +309,25 @@ resources :projects, only: [], param: :name do
       get :preview
     end
   end
+
+  resource :vendor, controller: 'webui/vendors', only: %i[show create update destroy], constraints: cons do
+    post :preview_description
+  end
+  resources :distros, controller: 'webui/distros', except: %i[index new], constraints: cons, param: :distro_name do
+    collection do
+      post :preview_description
+    end
+  end
+  resources :distros, only: [], param: :name, constraints: cons do
+    resources :releases, controller: 'webui/distro_releases', param: :distro_release_name, except: %i[index], constraints: cons do
+      collection do
+        post :preview_description
+      end
+    end
+
+    resources :lifecycles, controller: 'webui/distro_release_lifecycles', path: 'releases/:distro_release_name/lifecycles',
+                           as: :release_lifecycles, param: :lifecycle_name, except: %i[index new show edit], constraints: cons
+  end
 end
 
 get 'request/show/:number/build_results', to: redirect('/requests/%{number}/build_results'), constraints: cons
@@ -321,8 +341,6 @@ controller 'webui/request' do
   post 'request/add_reviewer' => :add_reviewer
   post 'request/modify_review' => :modify_review
   get 'request/show/:number/(request_action/:request_action_id)' => :show, as: 'request_show', constraints: cons
-  # TODO: Simplify this with `resources` instead after rolling out `:request_show_redesign` feature
-  get 'requests/:number/(actions/:request_action_id)' => :beta_show, as: 'request_beta_show', constraints: cons
   get 'requests/:number/(actions/:request_action_id)/build_results' => :build_results, as: 'request_build_results', constraints: cons
   get 'requests/:number/(actions/:request_action_id)/changes' => :changes, as: 'request_changes', constraints: cons
   # Note: `format: false` is used because file names can range from a simple `string` to more complex paths like `vendor.tar.gz/cel.dev/expr/CONTRIBUTING.md`.
@@ -334,7 +352,6 @@ controller 'webui/request' do
   get 'request/diff/:number' => :diff
   get 'request/list_small' => :list_small, as: 'request_list_small'
   post 'request/set_bugowner_request' => :set_bugowner_request
-  get 'request/:number/request_action/:id' => :request_action, as: 'request_action'
   get 'request/:number/request_action/:request_action_id/changes' => :request_action_changes, as: 'request_action_changes'
   get 'request/:number/request_action/:request_action_id/details' => :request_action_details, as: 'request_action_details'
   get 'request/:number/request_action/:request_action_id/inline_comment' => :inline_comment, constraints: cons, as: 'request_inline_comment'
@@ -351,9 +368,7 @@ resources :requests, only: [], param: :number, controller: 'webui/request' do
 end
 
 get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
-get 'projects/:project/requests/counts' => 'webui/projects/bs_requests#counts', constraints: cons
 get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
-get 'projects/:project/packages/:package/requests/counts' => 'webui/packages/bs_requests#counts', constraints: cons
 get 'notification/autocomplete_projects' => 'webui/users/notifications#autocomplete_projects', as: 'notification_autocomplete_projects'
 
 controller 'webui/search' do
@@ -379,11 +394,7 @@ end
 
 scope :my do
   resources :tasks, only: [:index], controller: 'webui/users/tasks', as: :my_tasks
-  resources :requests, only: [:index], controller: 'webui/users/bs_requests', as: :my_requests do
-    collection do
-      get :counts
-    end
-  end
+  resources :requests, only: [:index], controller: 'webui/users/bs_requests', as: :my_requests
 
   resources :notifications, only: [:index], controller: 'webui/users/notifications', as: :my_notifications do
     collection do
@@ -444,11 +455,7 @@ end
 
 resources :groups, only: %i[index show new create edit update], param: :title, constraints: cons, controller: 'webui/groups' do
   resources :user, only: %i[create destroy update], param: :user_login, constraints: cons, controller: 'webui/groups/users'
-  resources :requests, only: [:index], controller: 'webui/groups/bs_requests' do
-    collection do
-      get :counts
-    end
-  end
+  resources :requests, only: [:index], controller: 'webui/groups/bs_requests'
 
   collection do
     get :autocomplete

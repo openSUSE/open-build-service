@@ -17,4 +17,3 @@ SimpleCov.profiles.define 'obs' do
   group 'Services', 'app/services'
   group 'Validators', 'app/validators'
 end
-

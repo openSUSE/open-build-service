@@ -6,7 +6,7 @@ RSpec.describe MonitorControllerService::BuildingInformationUpdater do
             <idle workerid="build01/1" hostarch="x86_64"/>
             <building workerid="build01/2" hostarch="i586" project="BinaryprotectedProject" repository="nada" package="bdpack" arch="i586" starttime="0" />
             <building workerid="build01/3" hostarch="i586" project="SourceprotectedProject" repository="repo" package="pack" arch="i586" starttime="#{(Time.now - 30.minutes).to_i}" />
-            <building workerid="build01/4" hostarch="i586" project="HiddenProject" repository="nada" package="pack" arch="i586" starttime="#{(Time.now - 1.hour).to_i}" />
+            <building workerid="build01/4" hostarch="i586" project="---" repository="---" package="---" arch="i586" starttime="#{(Time.now - 1.hour).to_i}" hidden="true" />
             <waiting arch="i586" jobs="1" />
             <waiting arch="x86_64" jobs="0" />
             <blocked arch="i586" jobs="1" />
@@ -27,9 +27,8 @@ RSpec.describe MonitorControllerService::BuildingInformationUpdater do
   end
 
   before do
-    # rubocop:disable RSpec/MessageChain
+    # rubocop:disable-next RSpec/MessageChain
     allow(WorkerStatus).to receive_message_chain('hidden.to_xml').and_return(xml_response)
-    # rubocop:enable RSpec/MessageChain
   end
 
   describe '#call' do
@@ -43,7 +42,7 @@ RSpec.describe MonitorControllerService::BuildingInformationUpdater do
 
     it { expect(subject).not_to be_empty }
     it { expect(subject).to have_key('build01_1') }
-    it { expect(subject['build01_1']).to be_empty }
+    it { expect(subject['build01_1']).to eq({ 'state' => 'idle' }) }
     it { expect(subject).to have_key('build01_2') }
     it { expect(subject['build01_2']).to have_key('delta') }
     it { expect(subject['build01_2']['delta']).to eq('100') }
@@ -51,5 +50,6 @@ RSpec.describe MonitorControllerService::BuildingInformationUpdater do
     it { expect(subject['build01_3']['delta']).to eq('48') }
     it { expect(subject['build01_4']).to have_key('delta') }
     it { expect(subject['build01_4']['delta']).to eq('66') }
+    it { expect(subject['build01_4']['hidden']).to eq('true') }
   end
 end

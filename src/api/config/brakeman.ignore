@@ -159,7 +159,7 @@
           "type": "controller",
           "class": "Webui::UsersController",
           "method": "show",
-          "line": 37,
+          "line": 36,
           "file": "app/controllers/webui/users_controller.rb",
           "rendered": {
             "name": "webui/users/show",
@@ -424,7 +424,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "users",
-          "line": 163,
+          "line": 159,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/users",
@@ -473,25 +473,6 @@
       "confidence": "High",
       "cwe_id": [
         89
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Unmaintained Dependency",
-      "warning_code": 122,
-      "fingerprint": "98b26f60d776fd41ee6f088c833725145be9aac2d7c5b33780241c273622db42",
-      "check_name": "EOLRails",
-      "message": "Support for Rails 7.2.3.1 ends on 2026-08-09",
-      "file": "Gemfile.lock",
-      "line": 388,
-      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Medium",
-      "cwe_id": [
-        1104
       ],
       "note": ""
     },
@@ -556,7 +537,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rpmlint_result",
-          "line": 329,
+          "line": 325,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/_rpmlint_result",
@@ -590,7 +571,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 234,
+          "line": 230,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",
@@ -624,7 +605,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 234,
+          "line": 230,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",
@@ -682,7 +663,7 @@
           "type": "controller",
           "class": "Webui::ProjectController",
           "method": "buildresult",
-          "line": 248,
+          "line": 241,
           "file": "app/controllers/webui/project_controller.rb",
           "rendered": {
             "name": "webui/project/_buildstatus",
@@ -698,52 +679,6 @@
       "confidence": "Weak",
       "cwe_id": [
         79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Command Injection",
-      "warning_code": 14,
-      "fingerprint": "d4c9f090e8151a6c740c333ce710b4a1d029f5ec139d489f11243609b3f1392b",
-      "check_name": "Execute",
-      "message": "Possible command injection",
-      "file": "lib/memory_debugger.rb",
-      "line": 43,
-      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "`ps -orss= -p#{$PROCESS_ID}`",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "MemoryDebugger",
-        "method": "call"
-      },
-      "user_input": "$PROCESS_ID",
-      "confidence": "Medium",
-      "cwe_id": [
-        77
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Command Injection",
-      "warning_code": 14,
-      "fingerprint": "d4c9f090e8151a6c740c333ce710b4a1d029f5ec139d489f11243609b3f1392b",
-      "check_name": "Execute",
-      "message": "Possible command injection",
-      "file": "lib/memory_debugger.rb",
-      "line": 51,
-      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "`ps -orss= -p#{$PROCESS_ID}`",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "MemoryDebugger",
-        "method": "call"
-      },
-      "user_input": "$PROCESS_ID",
-      "confidence": "Medium",
-      "cwe_id": [
-        77
       ],
       "note": ""
     },
@@ -782,7 +717,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 234,
+          "line": 230,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",

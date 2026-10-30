@@ -1,0 +1,194 @@
+RSpec.describe Webui::VendorsController do
+  let(:user) { create(:confirmed_user) }
+  let(:other_user) { create(:confirmed_user) }
+  let(:project) { create(:project, maintainer: user) }
+  let(:vendor) { create(:vendor, project: project) }
+
+  before do
+    Flipper.enable(:enhanced_distribution_support)
+  end
+
+  it { is_expected.to use_after_action(:verify_authorized) }
+
+  describe 'feature toggle' do
+    before do
+      Flipper.disable(:enhanced_distribution_support)
+      login user
+      get :show, params: { project_name: project.name }
+    end
+
+    it { expect(response).to redirect_to(root_path) }
+  end
+
+  describe 'GET #show' do
+    context 'when the project has a vendor' do
+      before do
+        vendor
+        get :show, params: { project_name: project.name }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'when the project has no vendor' do
+      before do
+        get :show, params: { project_name: project.name }
+      end
+
+      it { expect(response).to redirect_to(project_show_path(project)) }
+    end
+  end
+
+  describe 'POST #create' do
+    subject { post :create, params: { project_name: project.name, vendor: vendor_params } }
+
+    let!(:vendor_params) { { name: 'openSUSE', url: 'https://opensuse.org' } }
+
+    context 'as a project maintainer' do
+      before do
+        login user
+      end
+
+      context 'with valid parameters' do
+        it { expect { subject }.to change(Vendor, :count).by(1) }
+
+        it 'assigns the vendor to the project from the URL' do
+          subject
+          expect(Vendor.last.project).to eq(project)
+        end
+
+        it 'redirects to the new vendor' do
+          subject
+          expect(response).to redirect_to(project_vendor_path(project))
+        end
+
+        it 'sets a success flash' do
+          subject
+          expect(flash[:success]).to eq('Vendor was successfully created.')
+        end
+      end
+
+      context 'when the project already has a vendor' do
+        let!(:vendor) { create(:vendor, project: project) }
+
+        it { expect { subject }.not_to change(Vendor, :count) }
+
+        it 'redirects to the project with an error flash' do
+          subject
+          expect(response).to redirect_to(project_show_path(project))
+          expect(flash[:error]).to include('Vendor failed to create.')
+        end
+      end
+    end
+
+    context 'as a user without permission' do
+      before do
+        login other_user
+      end
+
+      it { expect { subject }.not_to change(Vendor, :count) }
+
+      it 'redirects to the root path' do
+        subject
+        expect(response).to redirect_to(root_path)
+      end
+    end
+  end
+
+  describe 'PATCH #update' do
+    subject { patch :update, params: { project_name: project.name, vendor: vendor_params } }
+
+    context 'as a project maintainer' do
+      before do
+        vendor
+        login user
+      end
+
+      context 'with valid parameters' do
+        let(:vendor_params) { { name: 'SUSE' } }
+
+        it 'updates the vendor' do
+          subject
+          expect(vendor.reload.name).to eq('SUSE')
+        end
+
+        it 'sets a success flash' do
+          subject
+          expect(flash[:success]).to eq('Vendor was successfully updated.')
+        end
+      end
+
+      context 'with a name exceeding the maximum length' do
+        let(:vendor_params) { { name: 'a' * 256 } }
+
+        it { expect { subject }.not_to(change { vendor.reload.name }) }
+
+        it 'redirects to the vendor with an error flash' do
+          subject
+          expect(response).to redirect_to(project_vendor_path(project))
+          expect(flash[:error]).to include('Vendor failed to update.')
+        end
+      end
+    end
+
+    context 'as a user without permission' do
+      let(:vendor_params) { { name: 'SUSE' } }
+
+      before do
+        vendor
+        login other_user
+      end
+
+      it { expect { subject }.not_to(change { vendor.reload.name }) }
+
+      it 'sets an error flash' do
+        subject
+        expect(flash[:error]).to eq('Sorry, you are not authorized to update this vendor.')
+      end
+    end
+  end
+
+  describe 'POST #preview_description' do
+    before do
+      login user
+      post :preview_description, params: { project_name: project.name, vendor: { description: '**bold**' } }, format: :json
+    end
+
+    it { expect(response).to have_http_status(:success) }
+    it { expect(response.parsed_body['markdown']).to include('<strong>bold</strong>') }
+  end
+
+  describe 'DELETE #destroy' do
+    subject { delete :destroy, params: { project_name: project.name } }
+
+    before do
+      vendor
+    end
+
+    context 'as a project maintainer' do
+      before do
+        login user
+      end
+
+      it { expect { subject }.to change(Vendor, :count).by(-1) }
+
+      it 'redirects to the project' do
+        subject
+        expect(response).to redirect_to(project_show_path(project))
+      end
+    end
+
+    context 'as a user without permission' do
+      before do
+        login other_user
+      end
+
+      it { expect { subject }.not_to change(Vendor, :count) }
+
+      it 'sets an error flash' do
+        subject
+        expect(flash[:error]).to eq('Sorry, you are not authorized to delete this vendor.')
+      end
+    end
+  end
+end

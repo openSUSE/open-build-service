@@ -7,7 +7,6 @@ class Webui::AppealsController < Webui::WebuiController
     @appeal = Appeal.find(params[:id])
 
     authorize @appeal
-    @current_notification = handle_notification
   end
 
   def new

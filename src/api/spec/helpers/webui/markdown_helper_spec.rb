@@ -65,7 +65,19 @@ RSpec.describe Webui::MarkdownHelper do
 
     it 'does remove dangerous html from inside the links' do
       expect(render_as_markdown('[<script></script>](https://build.opensuse.org)')).to eq(
-        "<p><a href=\"https://build.opensuse.org\" rel=\"nofollow\">&amp;lt;script&amp;gt;&amp;lt;/script&amp;gt;</a></p>\n"
+        "<p><a href=\"https://build.opensuse.org\" rel=\"nofollow\">&lt;script&gt;&lt;/script&gt;</a></p>\n"
+      )
+    end
+
+    it 'renders inline code within links correctly' do
+      expect(render_as_markdown('[`example.com`](https://example.com)')).to eq(
+        "<p><a href=\"https://example.com\" rel=\"nofollow\"><code>example.com</code></a></p>\n"
+      )
+    end
+
+    it 'renders greater-than symbols within links without double escaping' do
+      expect(render_as_markdown('[>](https://example.com)')).to eq(
+        "<p><a href=\"https://example.com\" rel=\"nofollow\">&gt;</a></p>\n"
       )
     end
 

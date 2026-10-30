@@ -13,7 +13,7 @@ RSpec.describe BuildResultsMonitorComponent, type: :component do
   let(:filter_url) { '/requests/10/build_results' }
   let(:filters) { %w[status_succeeded status_failed status_unresolvable status_scheduled status_building status_signing] }
 
-  # rubocop:disable RSpec/MultipleExpectations
+  # rubocop:disable-next RSpec/MultipleExpectations
   it 'renders only results that match the allowed status filters' do
     render_inline(described_class.new(raw_data: raw_data, filter_url: filter_url, filters: filters))
 
@@ -22,7 +22,6 @@ RSpec.describe BuildResultsMonitorComponent, type: :component do
     expect(page).to have_css('.build-result-architecture', text: 'Signing', count: 2)
     expect(page).to have_css('.build-result-architecture', text: 'x86_64')
   end
-  # rubocop:enable RSpec/MultipleExpectations
 
   it 'does not render results with excluded filters' do
     render_inline(described_class.new(raw_data: raw_data, filter_url: filter_url, filters: ['status_failed']))

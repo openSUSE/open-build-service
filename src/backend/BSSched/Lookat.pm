@@ -24,7 +24,7 @@ use BSUtil;
 
 =head2 setchanged - add a prp to the lookat queue and the dependent prps to the changed hashes
 
- TODO
+Usually called from a RPC resume, so we put the prps in from of the lookat queue.
 
 =cut
 
@@ -61,24 +61,23 @@ sub setchanged {
     $changed_dirty->{$prp} = 1;
     return;
   }
-  my $rprpdeps = $gctx->{'rprpdeps'};
   my @cprps;
-  for my $prp (@$prps, sort(keys %{$rprpdeps || {}})) {
+  # also look at rprpdeps so that remote projects are correctly handled
+  for my $prp (@$prps, sort(keys %{$gctx->{'rprpdeps'} || {}})) {
     push @cprps, $prp if (split('/', $prp, 2))[0] eq $projid;
   }
   @cprps = BSUtil::unify(@cprps);
   my %cprps = map {$_ => 1} @cprps;
   @$lookat = grep {!$cprps{$_}} @$lookat;
+  unshift @$lookat, @cprps;
   if ($changelevel == 2) {
     for my $prp (@cprps) {
-      unshift @$lookat, $prp;
       $changed->{$prp} = 2;
       $changed_dirty->{$prp} = 1;
     }
     $changed->{$projid} = 2;
   } else {
     for my $prp (@cprps) {
-      unshift @$lookat, $prp;
       $changed->{$prp} ||= 1;
       $changed_dirty->{$prp} = 1;
     }
@@ -101,6 +100,7 @@ sub changed2lookat {
   my $lookat_high = $gctx->{'lookat_high'};
   my $lookat_next = $gctx->{'lookat_next'};
   my $changed_low  = $gctx->{'changed_low'};
+  my $changed_lowfront  = $gctx->{'changed_lowfront'};
   my $changed_med  = $gctx->{'changed_med'};
   my $changed_high = $gctx->{'changed_high'};
 
@@ -118,10 +118,15 @@ sub changed2lookat {
   @$lookat_med = BSUtil::unify(@$lookat_med);
   my %lookat_high = map {$_ => 1} @$lookat_high;
   @$lookat_med = grep {!$lookat_high{$_}} @$lookat_med;
+  $lookat_next->{$_} = 1 for keys %$changed_low;
 
-  for my $prp (keys %$changed_low) {
-    $lookat_next->{$prp} = 1;
+  if (%$changed_lowfront) {
+    my @lowfront = sort keys %$changed_lowfront;
+    $lookat_next->{$_} = 1 for @lowfront;
+    @$lookat_low = BSUtil::unify(@lowfront, @$lookat_low);
+    %$changed_lowfront = ();
   }
+
   my $rprpdeps = $gctx->{'rprpdeps'};
   for my $prp (keys %$changed_med) {
     $lookat_next->{$prp} = 1;

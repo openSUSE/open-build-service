@@ -36,12 +36,14 @@ But as we all know, too many cooks spoil the broth! That is why we are trying re
 - limit the amount of code involved in running the test
 - limit the amount of times we test the same code
 - limit the specs to "custom" logic we wrote ourselves
+- limit database writes by preferring in-memory objects
+- limit external dependencies by isolating and mocking services
 
-First and foremost because a test suite is code that needs to be maintained and that is work, a lot of work. So writing the right type of spec, that tests *once* the code we have influence on, means *less* specs. Less specs, less code, less time spent on maintaining it. Secondly we think that CI time is developer time. A fast feedback loop from the test suite makes you wait for it less. So with those limitations we are trying to save the most precious thing we have as a project: The time you developer have, to work on something.
+First and foremost because a test suite is code that needs to be maintained and that is work, a lot of work. So writing the right type of spec, that tests *once* the code we have influence on, means *less* specs. Less specs, less code, less time spent on maintaining it. Secondly we think that CI time is developer time. A fast feedback loop from the test suite makes you wait for it less. So with those limitations we are trying to save the most precious thing we have as a project: The time you have as a developer to work on something.
 
 ### Limit the Amount of Code Involved in Running the Test
 
-Please use the type of spec with the least amount if computing time required to run it. You can test the four branch logic of your `ThingController#update` action by firing up four browsers, clicking through 4 web pages until you reach a form, fill the form in 4 different ways, click submit and then expect 4 different responses. Or you use a controller unit spec, doing that removes the need to run the browser every time you run the spec. If the logic that branches 4 times is in the `Thing` model and not in the `ThingsController`, rather write *one* model spec.
+Please use the type of spec with the least amount of computing time required to run it. You can test the four branch logic of your `ThingController#update` action by firing up four browsers, clicking through 4 web pages until you reach a form, fill the form in 4 different ways, click submit and then expect 4 different responses. Or you use a controller unit spec, doing that removes the need to run the browser every time you run the spec. If the logic that branches 4 times is in the `Thing` model and not in the `ThingsController`, rather write *one* model spec.
 This will remove the need to run all of `ActionDispatch` every time you run the spec.
 
 ### Limit the Amount of Times the Same Code Is Tested
@@ -54,6 +56,26 @@ Please avoid testing code that is a scaffold or that consists of very simple Rub
 
 Same reason to not test a standard ActiveRecord presence validation, a resourceful route or even a scaffolded controller action. The Ruby on Rails test suite does this and if those features are broken in Ruby on Rails, you'll be in panic because GitHub will be offline 💥💥💥.
 
+Focus solely on custom domain logic, model instance/class methods, and custom validators. Do not test standard Rails presence validations or default CRUD operations.
+
+### Limit Database Writes by Preferring In-Memory Objects
+
+Default to `build` or `build_stubbed` instead of `create` with FactoryBot. Keeping objects in memory prevents unnecessary SQL round-trips and speeds up test execution.
+
+Reserve `create` strictly for specs requiring database persistence (e.g., ActiveRecord scopes, custom SQL queries, foreign keys, database constraints, `after_create`/`after_commit` hooks, or methods hitting Backend::Api).
+
+### Limit External Dependencies by Isolating and Mocking Services
+
+Never allow real network requests in unit tests. Use WebMock (stub_request) for raw HTTP interactions.
+
+Mock external services and backend interactions strictly at the adapter layer (e.g., Backend::Connection, Backend::Api::*). Never stub methods directly on the subject itself.
+
+## Spec General Orgnaization
+
+Follow standard RSpec conventions: describe `#instance_method` for instance methods and describe `.class_method` for class methods.
+
+Prefer `let` definitions over instance variables (@variable). Use `let!` only when immediate database persistence is mandatory before example execution.
+
 ## Unit Specs
 
 Unit specs are limited in scope and only test a single "unit"/"object" without testing interactions between different "units". Their purpose is to test each unit's functionality in isolation before integrating them into the larger system.
@@ -65,7 +87,7 @@ Unit specs:
 - for the respective classes are in `spec/[models, controllers, components, policies]` etc.
 - are configured in and inherit from `spec/spec_helper.rb`
 - use `login(user)` and `logout(user)` for authenticating users
-- truncate the database after each example (we omit truncating what we have set up in `db/seeds.rb``)
+- truncate the database after each example (we omit truncating what we have set up in `db/seeds.rb`)
 - reset the User.session after each example
 - disable HTTP requests
 - automatically mock the responses from the OBS backend with [VCR](https://github.com/vcr/vcr)
@@ -91,7 +113,7 @@ To generate test data we use [FactoryBot](https://thoughtbot.github.io/factory_b
 
 ### Fake Data
 
-To generate fake test data in factories (like names/words/sentences etc.) we use [faker](https://github.com/stympy/faker) . Attention: Faker generates random but **NOT** unique data!
+To generate fake test data in factories (like names/words/sentences etc.) we use [faker](https://github.com/faker-ruby/faker). Attention: Faker generates random but **NOT** unique data!
 
 ### VCR
 
@@ -99,7 +121,7 @@ To automatically mock the response from the OBS backend we use [VCR](https://git
 VCR records the HTTP interactions with the backend and replays them during future test runs.
 
 - VCR cassettes are recorded to `spec/cassettes`
-- There is more documentation about [using VCR in specs our wiki](https://github.com/openSUSE/open-build-service/wiki/Testing-with-VCR)
+- There is more documentation about [using VCR in our wiki](https://github.com/openSUSE/open-build-service/wiki/Testing-with-VCR)
 
 ## Shared Examples
 

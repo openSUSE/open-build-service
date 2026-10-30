@@ -101,6 +101,20 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     @bs_requests = @bs_requests.where(created_at: ..Time.zone.parse(@selected_filter['created_at_to']))   if @selected_filter['created_at_to'].present?
   end
 
+  # incoming_query, outgoing_query and review_query are expected to be implemented
+  # by the including controller, as they differ per owner (user, group, project, package).
+  def filter_involvement
+    @selected_filter['involvement'] = params[:involvement] if params[:involvement]&.compact_blank.present?
+    bs_requests_filters = []
+
+    # We want to hit the database immediately, the @bs_request query is already complicated enough. No need to add sub-queries to it...
+    bs_requests_filters << incoming_query if @selected_filter['involvement'].include?('incoming')
+    bs_requests_filters << outgoing_query if @selected_filter['involvement'].include?('outgoing')
+    bs_requests_filters << review_query   if @selected_filter['involvement'].include?('review')
+
+    @bs_requests = @bs_requests.merge(bs_requests_filters.inject(:or)) if bs_requests_filters.length.positive?
+  end
+
   def filter_labels
     incoming_label_filters = Array(params[:labels]).compact_blank
     return if incoming_label_filters.blank?
@@ -111,13 +125,22 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
 
     return if @selected_filter['labels'].blank?
 
-    # Match bs_request records containing AT LEAST all selected labels
+    # Match bs_request records containing AT LEAST all selected labels.
+    #
+    # The "has all N labels" check is isolated in a derived subquery over the labels
+    # table rather than joining labels into @bs_requests and grouping the whole result.
+    # @bs_requests is already seeded with left_outer_joins(:bs_request_actions, :reviews)
+    # and .distinct; adding another one-to-many join plus GROUP BY/HAVING on top builds a
+    # wide cartesian intermediate and forces Kaminari's pagination count into a
+    # subquery-wrapped count. Filtering by an IN-subquery keeps the outer relation flat.
     target_labels = @selected_filter['labels']
-    @bs_requests = @bs_requests
-                   .joins(labels: :label_template)
-                   .where(label_templates: { name: target_labels })
-                   .group('bs_requests.id')
-                   .having('COUNT(DISTINCT label_templates.name) = ?', target_labels.size)
+    matching_request_ids = Label
+                           .joins(:label_template)
+                           .where(labelable_type: 'BsRequest', label_templates: { name: target_labels })
+                           .group(:labelable_id)
+                           .having('COUNT(DISTINCT label_templates.name) = ?', target_labels.size)
+                           .select(:labelable_id)
+    @bs_requests = @bs_requests.where(id: matching_request_ids)
   end
 
   def filter_search_text

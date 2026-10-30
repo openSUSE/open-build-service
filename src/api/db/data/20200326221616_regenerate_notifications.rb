@@ -51,7 +51,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
     end
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable-next Metrics/CyclomaticComplexity
   def request_old_state(request)
     # Check history elements to guess the previous state
     # assuming the last one is always HistoryElement::RequestDeclined
@@ -77,7 +77,6 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
       'review'
     end
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   # ReviewWanted Notifications
 

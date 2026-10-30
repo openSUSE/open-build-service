@@ -1,0 +1,637 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/_meta?user=user_17
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base">
+          <title>A Time to Kill</title>
+          <description/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1786103649'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '95'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base">
+          <title>A Time to Kill</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 07 Aug 2026 11:54:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/package_5/_meta?user=user_18
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_5" project="Base">
+          <title>Number the Stars</title>
+          <description>Unde cumque quo veniam.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1786103649'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '140'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_5" project="Base">
+          <title>Number the Stars</title>
+          <description>Unde cumque quo veniam.</description>
+        </package>
+  recorded_at: Fri, 07 Aug 2026 11:54:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/package_5/_meta?user=user_18
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_5" project="Base">
+          <title>Number the Stars</title>
+          <description>Unde cumque quo veniam.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1786103649'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '140'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_5" project="Base">
+          <title>Number the Stars</title>
+          <description>Unde cumque quo veniam.</description>
+        </package>
+  recorded_at: Fri, 07 Aug 2026 11:54:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/source_package/_meta?user=user_19
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="Base">
+          <title>If I Forget Thee Jerusalem</title>
+          <description>Qui ut nisi maxime.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="Base">
+          <title>If I Forget Thee Jerusalem</title>
+          <description>Qui ut nisi maxime.</description>
+        </package>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base/source_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5" vrev="5">
+          <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
+          <version>unknown</version>
+          <time>1786103650</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/_meta?user=project_link_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:project_link_test_user">
+          <title/>
+          <description/>
+          <person userid="project_link_test_user" role="maintainer"/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:project_link_test_user">
+          <title></title>
+          <description></description>
+          <person userid="project_link_test_user" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/target_package/_meta?user=user_20
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:project_link_test_user">
+          <title>Gone with the Wind</title>
+          <description>Porro dolore qui rerum.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:project_link_test_user">
+          <title>Gone with the Wind</title>
+          <description>Porro dolore qui rerum.</description>
+        </package>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/target_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="9" vrev="9">
+          <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
+          <version>unknown</version>
+          <time>1786103650</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:project_link_test_user/target_package/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '1'
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10" vrev="10">
+          <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
+          <version>unknown</version>
+          <time>1786103650</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Base:my_project/_meta?user=project_link_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base:my_project">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description/>
+          <link project="Base"/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Base:my_project">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description></description>
+          <link project="Base"/>
+        </project>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Base:my_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="5" vrev="5" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
+          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1786103647"/>
+        </directory>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Base:my_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="5" vrev="5" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
+          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1786103647"/>
+        </directory>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/Base:my_project/source_package?cmd=diff&expand=1&nodiff=1&opackage=target_package&oproject=home:project_link_test_user
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        ++++++ somefile.txt
+        --- somefile.txt
+        +++ somefile.txt
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Base:my_project/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="5" vrev="5" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
+          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1786103647"/>
+        </directory>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Base:my_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="5" vrev="5" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
+          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1786103647"/>
+        </directory>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/Base:my_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=home:project_link_test_user&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Frontend-Start:
+      - '1786103650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '652'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="a2b97c11a7c4e8046576ab2a54a86838">
+          <old project="home:project_link_test_user" package="target_package" rev="10" srcmd5="efbe5f0a5dd48df5129b4319df43aa45"/>
+          <new project="Base:my_project" package="source_package" rev="5" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0"/>
+          <files>
+            <file state="changed">
+              <old name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1"/>
+              <new name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -1
+        \ No newline at end of file
+        +0
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 07 Aug 2026 11:54:10 GMT
+recorded_with: VCR 6.4.0

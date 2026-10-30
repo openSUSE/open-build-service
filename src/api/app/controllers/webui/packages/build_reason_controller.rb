@@ -1,8 +1,7 @@
 module Webui
   module Packages
     class BuildReasonController < WebuiController
-      include ScmsyncChecker
-
+      before_action :require_login
       before_action :set_project
       before_action :check_scmsync
       before_action :set_package

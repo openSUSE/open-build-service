@@ -16,12 +16,13 @@
 #
 
 %if 0%{?suse_version}
-%define __obs_ruby_interpreter /usr/bin/ruby.ruby3.4
-%define rack_version %(%{__obs_ruby_interpreter} -r rack -e "puts Rack::RELEASE")
-%define rake_version %(%{__obs_ruby_interpreter} -r rake -e "puts Rake::VERSION")
-%define ruby_abi_version %(%{__obs_ruby_interpreter} -r rbconfig -e 'print RbConfig::CONFIG["ruby_version"]')
+%define __obs_ruby_bin /usr/bin/ruby.ruby4.0
+%define __obs_bundle_bin /usr/bin/bundle.ruby4.0
+%define rack_version %(%{__obs_ruby_bin} -r rack -e "puts Rack::RELEASE")
+%define rake_version %(%{__obs_ruby_bin} -r rake -e "puts Rake::VERSION")
 %else
-%define __obs_ruby_interpreter /usr/bin/ruby
+%define __obs_ruby_bin /usr/bin/ruby
+%define __obs_bundle_bin /usr/bin/bundle
 %endif
 
 Name:           obs-bundled-gems
@@ -48,10 +49,10 @@ BuildRequires:  make
 BuildRequires:  mysql-devel
 BuildRequires:  nodejs
 %if 0%{?suse_version}
-BuildRequires:  ruby3.4-devel
+BuildRequires:  ruby4.0-devel
 BuildRequires:  openldap2-devel
 # For comparing package/bundle versions with make test_rack
-BuildRequires:  rubygem(ruby:3.4.0:rack)
+BuildRequires:  rubygem(ruby:4.0.0:rack)
 %else
 BuildRequires:  ruby-devel
 BuildRequires:  rubygem-bundler
@@ -80,8 +81,8 @@ Requires:       obs-bundled-gems = %{version}
 Requires:       sphinx >= 2.2.11
 Requires:       perl(GD)
 %if 0%{?suse_version}
-Requires:       rubygem(ruby:3.4.0:rack) = %{rack_version}
-Requires:       rubygem(ruby:3.4.0:rake) = %{rake_version}
+Requires:       rubygem(ruby:4.0.0:rack) = %{rack_version}
+Requires:       rubygem(ruby:4.0.0:rake) = %{rake_version}
 %else
 Requires:       rubygem-bundler
 Requires:       rubygem-rake
@@ -122,14 +123,14 @@ EOF
 # all operations here since bundle does not decouple compile and install
 pushd %{_sourcedir}/open-build-service-*/src/api
 export GEM_HOME=~/.gems
-bundle config build.ffi --enable-system-libffi
-bundle config build.nokogiri --use-system-libraries
-bundle config build.sassc --disable-march-tune-native
-bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
-bundle config force_ruby_platform true
-bundle config set path %{buildroot}%_libdir/obs-api/
+%{__obs_bundle_bin} config build.ffi --enable-system-libffi
+%{__obs_bundle_bin} config build.nokogiri --use-system-libraries
+%{__obs_bundle_bin} config build.sassc --disable-march-tune-native
+%{__obs_bundle_bin} config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
+%{__obs_bundle_bin} config force_ruby_platform true
+%{__obs_bundle_bin} config set path %{buildroot}%_libdir/obs-api/
 
-bundle install --local
+%{__obs_bundle_bin} install --local
 popd
 
 %if 0%{?suse_version}
@@ -168,20 +169,22 @@ find %{buildroot}%_libdir/obs-api -name .cvsignore | xargs rm -rf
 
 # use the ruby interpreter set by this spec file in all installed ruby scripts
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
-  sed -i -e '1!b;s,^#!.*/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-  sed -i -e '1!b;s,^#!.*/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+  sed -i -e '1!b;s,^#!.*/bin/ruby.*$,#!%{__obs_ruby_bin},' $bin
+  sed -i -e '1!b;s,^#!.*/bin/env ruby.*$,#!%{__obs_ruby_bin},' $bin
 done
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/*; do
   # Some gems have subdirectories inside bin, so we skip them
   if [[ -f $bin ]]; then
-    sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-    sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+    sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_bin},' $bin
+    sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_bin},' $bin
   fi
 done
 # And here process those binaries in subdirectories
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/linux/*; do
-  sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
-  sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+  if [[ -f $bin ]]; then
+    sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_bin},' $bin
+    sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_bin},' $bin
+  fi
 done
 
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts

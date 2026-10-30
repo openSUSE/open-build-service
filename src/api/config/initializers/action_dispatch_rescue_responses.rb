@@ -5,4 +5,3 @@ Rails.application.configure do
   config.action_dispatch.rescue_responses['Timeout::Error'] = 408
   config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 403
 end
-

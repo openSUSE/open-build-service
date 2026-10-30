@@ -1,0 +1,76 @@
+- @pagetitle = "Vendor #{@vendor.name}"
+- new_distro = Distro.new(vendor: @vendor)
+
+.card#vendor
+  .card-header.d-flex.flex-wrap.align-items-center.gap-3.py-3
+    - if @vendor.logo.attached?
+      = image_tag @vendor.logo, class: 'img-thumbnail vendor-logo-preview'
+    - else
+      %i.fas.fa-globe.fa-2x.text-info
+    .flex-grow-1
+      .small.text-secondary.text-uppercase.fw-semibold Vendor
+      %h4.mb-0.text-word-break-all
+        = @vendor.name
+        - if @vendor.url.present?
+          %small.fs-6.fw-normal.ms-2
+            = render partial: 'webui/shared/external_link', locals: { text: @vendor.url, url: @vendor.url }
+    - if policy(@vendor).update?
+      %button.btn.btn-sm.btn-outline-secondary{ type: 'button', data: { 'bs-toggle': 'modal', 'bs-target': '#vendor-form-modal' } }
+        %i.fas.fa-edit
+        Edit
+    - if policy(@vendor).destroy?
+      %button.btn.btn-sm.btn-outline-danger{ type: 'button', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-vendor-modal' } }
+        %i.fas.fa-trash-can
+        Delete
+  .card-body
+    .mb-4#vendor-description
+      - if @vendor.description.blank?
+        %i.text-secondary No description set
+      - else
+        = render partial: 'webui/shared/collapsible_text', locals: { text: @vendor.description, render_markdown: true }
+
+    .d-flex.justify-content-between.align-items-center.mb-2
+      %h5.mb-0
+        Distributions
+        %span.badge.text-bg-secondary= @vendor.distros.size
+      - if policy(new_distro).new?
+        = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#distro-modal--modal' }) do
+          %i.fas.fa-circle-plus.text-info
+          New Distribution
+
+    - if @vendor.distros.empty?
+      %p.text-secondary.mb-3 This vendor has no distributions yet.
+    - else
+      .table-responsive.mb-3
+        %table.table.table-hover.align-middle.mb-0#vendor-distros
+          %thead
+            %tr
+              %th Distribution
+              %th Description
+              %th Releases
+          %tbody
+            - @vendor.distros.includes(:distro_releases).each do |distro|
+              %tr
+                %td.text-nowrap
+                  %i.fas.fa-compact-disc.text-primary.me-1
+                  = link_to(distro.name, project_distro_path(@vendor.project, distro.name), class: 'fw-semibold')
+                %td.text-secondary= render_without_markdown(truncate(distro.description, length: 100))
+                %td
+                  - distro.distro_releases.each do |distro_release|
+                    = link_to(distro_release.name, project_distro_release_path(@vendor.project, distro.name, distro_release.name),
+                              class: 'badge text-bg-light border text-decoration-none me-1')
+
+- if policy(@vendor).update?
+  = render partial: 'webui/vendors/modal', locals: { vendor: @vendor }
+- if policy(@vendor).destroy?
+  - confirmation_text = "Please confirm deletion of the vendor '#{@vendor.name}' and all of its distributions and releases."
+  = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-vendor-modal',
+                                                 method: :delete,
+                                                 options: { modal_title: 'Do you really want to delete this vendor?',
+                                                            confirmation_text: confirmation_text,
+                                                            action: project_vendor_path(@vendor.project) })
+- if policy(new_distro).new?
+  = render ModalComponent.new(modal_id: 'distro-modal-') do |component|
+    - component.with_header do
+      New Distribution
+    = render partial: 'webui/distros/form', locals: { url: project_distros_path(@vendor.project), model: new_distro, modal: true }

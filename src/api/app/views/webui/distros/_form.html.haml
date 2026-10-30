@@ -1,0 +1,39 @@
+= form_with(url: url, model: model) do |form|
+  .mb-3
+    = form.label :name
+    = form.text_field :name, class: 'form-control'
+
+  .mb-3
+    = form.label :description
+    = render WriteAndPreviewComponent.new(form: form, preview_message_url: preview_description_project_distros_path(model.vendor.project),
+                                          message_body_param: 'distro[description]',
+                                          text_area_rows: 8,
+                                          text_area_required: false,
+                                          text_area_object_name: :description,
+                                          text_area_id_suffix: 'distro_description')
+
+  .mb-3
+    = form.label :url
+    = form.text_field :url, class: 'form-control'
+
+  .mb-3
+    = form.label :logo
+    %small.form-text Supported formats: PNG, JPEG, GIF and WebP
+    = form.file_field :logo, class: 'form-control', accept: 'image/png,image/jpeg,image/gif,image/webp'
+    - if model.logo.attached? && model.logo.blob&.persisted?
+      .d-flex.align-items-center.mt-2
+        = image_tag model.logo, class: 'img-thumbnail distro-logo-preview me-3'
+        .form-check
+          = form.check_box :remove_logo, class: 'form-check-input'
+          = form.label :remove_logo, 'Remove logo', class: 'form-check-label'
+
+  - if local_assigns[:modal]
+    .modal-footer.px-0.pb-0
+      %a.btn.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+        Cancel
+      = form.submit 'Save', class: 'btn btn-success px-4'
+  - else
+    %div
+      = link_to('Cancel', project_distro_path(model.project, model.name), title: 'Cancel',
+                class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
+      = form.submit 'Save', class: 'btn btn-success'

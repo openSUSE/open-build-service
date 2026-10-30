@@ -1,5 +1,4 @@
 module EventUndoneJobsCallback
-
   extend ActiveSupport::Concern
 
   included do

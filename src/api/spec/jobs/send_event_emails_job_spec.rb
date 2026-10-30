@@ -36,7 +36,7 @@ RSpec.describe SendEventEmailsJob do
         expect(Notification.find_by(subscriber: user, rss: true)).to be_nil
       end
 
-      # rubocop:disable RSpec/ExampleLength
+      # rubocop:disable-next RSpec/ExampleLength
       it 'creates a user web notification for a user with a web subscription' do
         notification = Notification.find_by(subscriber: user, web: true)
 
@@ -46,7 +46,6 @@ RSpec.describe SendEventEmailsJob do
         expect(notification.delivered).to be_falsey
         expect(notification.groups.pluck(:title)).to match_array([group1, group2].pluck(:title))
       end
-      # rubocop:enable RSpec/ExampleLength
 
       it "creates a web notification with the same raw value of the corresponding event's payload" do
         notification = Notification.find_by(subscriber: user, web: true)

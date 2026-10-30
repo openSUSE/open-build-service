@@ -534,6 +534,7 @@ my $gctx = {
   # changed: 1: something "local" changed, :full unchanged,
   #          2: the :full repo is changed as well
   'changed_low'   => {},		# something changed, put this in lookup_low
+  'changed_lowfront' => {},		# something changed, put this in front of lookup_low
   'changed_med'   => {},		# something changed, put this in lookup_med
   'changed_high'  => {},		# something changed, put this in lookup_high
   'changed_dirty' => {},		# set the dirty flag for those
@@ -558,6 +559,9 @@ my $gctx = {
   'schedulerstart' => time(),
   'slept' => 0,
   'prplastcheck' => {},			# XXX: currently not used
+
+  # pool creation acceleration
+  'lastidcounts' => {},
 };
 
 # find max gen_meta algorithm
@@ -643,6 +647,7 @@ if (!$testprojid && -s "$_rundir/$_runname.state") {
     my $changed_low = $gctx->{'changed_low'};
     my $changed_med = $gctx->{'changed_med'};
     my $changed_high = $gctx->{'changed_high'};
+    my $changed_lowfront = $gctx->{'changed_lowfront'};
     for my $prp (@newprps) {
       $changed_med->{$prp} = 2;
       $changed_med->{(split('/', $prp, 2))[0]} = 2;
@@ -651,13 +656,16 @@ if (!$testprojid && -s "$_rundir/$_runname.state") {
     my $oldchanged_low = $schedstate->{'changed_low'} || {};
     my $oldchanged_med = $schedstate->{'changed_med'} || {};
     my $oldchanged_high = $schedstate->{'changed_high'} || {};
+    my $oldchanged_lowfront = $schedstate->{'changed_lowfront'} || {};
     for my $projid (keys %$projpacks) {
       $changed_low->{$projid} = $oldchanged_low->{$projid} if exists $oldchanged_low->{$projid};
+      $changed_lowfront->{$projid} = $oldchanged_lowfront->{$projid} if exists $oldchanged_lowfront->{$projid};
       $changed_med->{$projid} = $oldchanged_med->{$projid} if exists $oldchanged_med->{$projid};
       $changed_high->{$projid} = $oldchanged_high->{$projid} if exists $oldchanged_high->{$projid};
     }
     for my $prp (@$prps) {
       $changed_low->{$prp} = $oldchanged_low->{$prp} if exists $oldchanged_low->{$prp};
+      $changed_lowfront->{$prp} = $oldchanged_lowfront->{$prp} if exists $oldchanged_lowfront->{$prp};
       $changed_med->{$prp} = $oldchanged_med->{$prp} if exists $oldchanged_med->{$prp};
       $changed_high->{$prp} = $oldchanged_high->{$prp} if exists $oldchanged_high->{$prp};
     }
@@ -806,7 +814,7 @@ BSUtil::printlog("startup complete, entering event loop");
 eval {
 
   while(1) {
-    if (%{$gctx->{'changed_low'}} || %{$gctx->{'changed_med'}} || %{$gctx->{'changed_high'}}) {
+    if (%{$gctx->{'changed_low'}} || %{$gctx->{'changed_med'}} || %{$gctx->{'changed_high'}} || %{$gctx->{'changed_lowfront'}}) {
       BSSched::Lookat::changed2lookat($gctx);
       next;
     }
@@ -993,6 +1001,7 @@ eval {
         delete $gctx->{'lastcheck'}->{$prp};
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
         delete $gctx->{'genbuildreqs'}->{$prp};
+        delete $gctx->{'lastidcounts'}->{$prp};
         my $ctx = BSSched::Checker->new($gctx, $prp);
         $ctx->wipeobsoleterepo();
       }
@@ -1198,6 +1207,8 @@ eval {
     if (!$wasfinished && $gctx->{'rrelatedprpdeps'}->{$prp} && $lookattype ne 'low') {
       # check for related prps
       print "    checking related prps\n";
+      my @related_prps;
+      my $changed = $gctx->{"changed_lowfront"};
       for my $aprp (@{$gctx->{'rrelatedprpdeps'}->{$prp}}) {
 	next if $aprp eq $prp;
 	# be careful with cyclic dependencies
@@ -1207,8 +1218,6 @@ eval {
 	if ($gctx->{'prpfinished'}->{$aprp}) {
 	  BSUtil::touch("$reporoot/$aprp/$myarch/:schedulerstate.dirty") if -d "$reporoot/$aprp/$myarch";
 	}
-	# add med event to make users happy
-	my $changed = $gctx->{"changed_med"};
 	$changed->{$aprp} ||= 1;
       }
     }
@@ -1227,7 +1236,8 @@ eval {
 
     my $now = time();
     $gctx->{'prplastcheck'}->{$prp} = $now;
-    BSSched::Lookat::setdelayed($gctx, $prp, $ctx->{'prpchecktime'});
+    my $delaytime = $ctx->{'prpchecktime'} - ($ctx->{'scheduler_buildtime'} || 0);
+    BSSched::Lookat::setdelayed($gctx, $prp, $delaytime > 0 ? $delaytime : 0);
 
     if ($now - $lastschedinfo > 60) {
       # update scheduler stats

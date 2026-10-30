@@ -1,7 +1,7 @@
 class BsRequest
   module FindFor
     class Query < Base
-      # rubocop:disable Metrics/PerceivedComplexity
+      # rubocop:disable-next Metrics/PerceivedComplexity
       def all
         @relation = @relation.where(creator: creator) if creator.present?
         @relation = @relation.from_project_names(@parameters['project_name']).or(@relation.to_project_names(@parameters['project_name'])) if @parameters['project_name'].present?
@@ -21,7 +21,6 @@ class BsRequest
         @relation = @relation.do_search(search) if search.present?
         @relation
       end
-      # rubocop:enable Metrics/PerceivedComplexity
     end
   end
 end

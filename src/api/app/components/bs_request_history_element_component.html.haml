@@ -25,7 +25,10 @@
         for
         - if element.review.for_group?
           group
-          = link_to(element.review.by_group, group_path(Group.find_by(title: element.review.by_group)))
+          - if (group = element.review.reviewed_by)
+            = link_to(element.review.by_group, group_path(group))
+          - else
+            = element.review.by_group
         - else
           = helpers.project_or_package_link({project: element.review.by_project, package: element.review.by_package}.compact)
       = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do

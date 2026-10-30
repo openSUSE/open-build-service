@@ -19,4 +19,3 @@ config.action_controller.perform_caching = true
 # config.action_mailer.raise_delivery_errors = false
 
 ActionController::AbstractRequest.relative_url_root = '/stage'
-

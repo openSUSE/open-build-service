@@ -19,20 +19,16 @@ RSpec.describe 'Project', type: :feature do
   end
 
   it 'is able to add repositories' do
-    Timeout.timeout(300) do
-      loop do
-        within('#left-navigation') do
-          click_link('Your Home Project')
-        end
-        click_link('Repositories')
-        click_link('Add from a Distribution')
-        break unless have_text('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
-
-        break if have_text('Add Repositories to home:Admin')
-
-        sleep 10
-      end
+    # Trigger refresh of distributions...
+    post '/distributions/refresh'
+    expect(response).to be_success
+    visit '/'
+    within('#left-navigation') do
+      click_link('Your Home Project')
     end
+    click_link('Repositories')
+    click_link('Add from a Distribution')
+    expect(page).to have_text('Add Repositories to home:Admin')
     check('openSUSE Leap 15.5')
     visit current_path
     expect(page).to have_checked_field('openSUSE Leap 15.5')

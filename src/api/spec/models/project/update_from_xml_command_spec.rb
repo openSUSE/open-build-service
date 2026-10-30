@@ -94,6 +94,36 @@ RSpec.describe Project::UpdateFromXmlCommand do
           Project::SaveError, "Can not use remote repository as release target '#{remote_project.name}/remote_repo'"
         )
       end
+
+      it 'raises an error if the release target points back to the same repository' do
+        xml_hash = Xmlhash.parse(
+          <<-XML
+            <project name="#{project.name}">
+              <repository name="repo_1">
+                <releasetarget project="#{project.name}" repository="repo_1" trigger="manual" />
+              </repository>
+            </project>
+          XML
+        )
+        expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
+          Project::SaveError, 'Using same repository as release target element is not allowed'
+        )
+      end
+
+      it 'allows a release target pointing to a sibling repository in the same project' do
+        xml_hash = Xmlhash.parse(
+          <<-XML
+            <project name="#{project.name}">
+              <repository name="repo_1">
+                <releasetarget project="#{project.name}" repository="repo_2" trigger="manual" />
+              </repository>
+              <repository name="repo_2" />
+            </project>
+          XML
+        )
+        expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.not_to raise_error
+        expect(repository1.release_targets.first.target_repository).to eq(repository2)
+      end
     end
 
     describe 'repository architecture' do

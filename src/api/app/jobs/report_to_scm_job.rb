@@ -8,6 +8,12 @@ class ReportToSCMJob < ApplicationJob
   RETRYABLE_EXCEPTIONS = [
     Faraday::ConnectionFailed,
     Faraday::TimeoutError,
+    GiteaAPI::V1::Client::BadGatewayError,
+    GiteaAPI::V1::Client::ConnectionError,
+    GiteaAPI::V1::Client::InternalServerError,
+    GiteaAPI::V1::Client::ServerError,
+    GiteaAPI::V1::Client::ServiceUnavailableError,
+    GiteaAPI::V1::Client::UnauthorizedError,
     Gitlab::Error::BadGateway,
     Gitlab::Error::ConnectionTimedOut,
     Gitlab::Error::InternalServerError,
@@ -20,14 +26,18 @@ class ReportToSCMJob < ApplicationJob
     Octokit::Unauthorized
   ].freeze
   # Transient errors that are worth retrying, but with longer wait times
-  RETRYABLE_LONG_WAIT_EXCEPTIONS = [Gitlab::Error::TooManyRequests, Octokit::TooManyRequests].freeze
+  RETRYABLE_LONG_WAIT_EXCEPTIONS = [GiteaAPI::V1::Client::TooManyRequestsError, Gitlab::Error::TooManyRequests, Octokit::TooManyRequests].freeze
 
   # Progressive time before retrying the job in case of retryable exceptions
   RETRY_WAIT_TIMES = { 1 => 0, 2 => 1.minute, 3 => 2.minutes, 4 => 5.minutes, 5 => 10.minutes }.freeze
-  retry_on(*RETRYABLE_EXCEPTIONS, wait: ->(executions) { RETRY_WAIT_TIMES.fetch(executions) }, attempts: 6)
+  retry_on(*RETRYABLE_EXCEPTIONS, wait: ->(executions) { RETRY_WAIT_TIMES.fetch(executions) }, attempts: 6) do |job, error|
+    job.report_failure(error)
+  end
 
   RETRY_LONG_WAIT_TIMES = { 1 => 1.minute, 2 => 5.minutes, 3 => 10.minutes, 4 => 15.minutes, 5 => 30.minutes }.freeze
-  retry_on(*RETRYABLE_LONG_WAIT_EXCEPTIONS, wait: ->(executions) { RETRY_LONG_WAIT_TIMES.fetch(executions) }, attempts: 6)
+  retry_on(*RETRYABLE_LONG_WAIT_EXCEPTIONS, wait: ->(executions) { RETRY_LONG_WAIT_TIMES.fetch(executions) }, attempts: 6) do |job, error|
+    job.report_failure(error)
+  end
 
   queue_as :scm
 
@@ -37,6 +47,24 @@ class ReportToSCMJob < ApplicationJob
     else
       report_direct(workflow_run, event_type: event_type, initial_report: initial_report, event_payload: event_payload)
     end
+  end
+
+  # Called when the retries are exhausted, to let the user know why we could not report back to the SCM.
+  # The job reports either about a single workflow run or about an event with SCM subscriptions.
+  def report_failure(error)
+    args = arguments.first || {}
+
+    # The job may have been called with a workflow_run, in which case we report the failure to that workflow run.
+    # Otherwise, the job has been called with an event, so we report to all workflow runs that are subscribed to the event.
+    if args[:workflow_run]
+      args[:workflow_run].update_as_failed(error.message)
+      return
+    end
+
+    event = Event::Base.find_by(id: args[:event_id]) # The event may be gone by the time the retries are exhausted, so we don't use #find here
+    return unless event
+
+    matched_event_subscription(event: event).filter_map(&:workflow_run).each { |workflow_run| workflow_run.update_as_failed(error.message) }
   end
 
   private

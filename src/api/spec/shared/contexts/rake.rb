@@ -2,7 +2,7 @@ RSpec.shared_context 'rake' do
   # You define `task` inside your actual test example.
   let(:rake_task) { Rake.application[task] }
 
-  # rubocop:disable RSpec/BeforeAfterAll
+  # rubocop:disable-next RSpec/BeforeAfterAll
   before :all do
     Rake.application = Rake::Application.new
     Rake.application.rake_require(
@@ -11,7 +11,6 @@ RSpec.shared_context 'rake' do
     )
     Rake::Task.define_task(:environment)
   end
-  # rubocop:enable RSpec/BeforeAfterAll
 
   before do
     rake_task.reenable

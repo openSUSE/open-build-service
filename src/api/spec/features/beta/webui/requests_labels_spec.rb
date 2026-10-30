@@ -9,7 +9,6 @@ RSpec.describe 'Requests labeling', :beta do
   let!(:label) { create(:label, label_template: label_template, labelable: bs_request) }
 
   before do
-    Flipper.enable(:request_show_redesign)
     Flipper.enable(:labels)
   end
 

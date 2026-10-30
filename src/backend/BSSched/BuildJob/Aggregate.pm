@@ -433,6 +433,7 @@ sub build {
   mkdir_p($jobdatadir);
   my %jobbins;
   my $error;
+  my $starttime = time();
   my $logfile = '';
   $logfile .= "scheduler started \"build _aggregate\" at ".POSIX::ctime(time())."\n";
   $logfile .= "Building $packid for project '$projid' repository '$repoid' arch '$myarch' srcmd5 '$pdata->{'srcmd5'}'\n\n";
@@ -794,6 +795,14 @@ sub build {
     }
   }
 
+  if (!$error && $modulemd && $have_modulemd_artifacts) {
+    write_modulemd($modulemd, "$jobdatadir/_modulemd.yaml");
+    $logfile .= "  - _modulemd.yaml\n";
+  }
+
+  my $endtime = time();
+  $ctx->{'scheduler_buildtime'} += $endtime - $starttime;
+
   if ($error) {
     $logfile .= "\nError: $error\n";
     print "        $error\n";
@@ -812,12 +821,8 @@ sub build {
     return ('failed', $error);
   }
 
-  if ($modulemd && $have_modulemd_artifacts) {
-    write_modulemd($modulemd, "$jobdatadir/_modulemd.yaml");
-    $logfile .= "  - _modulemd.yaml\n";
-  }
 
-  $logfile .= "\nscheduler finished \"build _aggregate\" at ".POSIX::ctime(time())."\n";
+  $logfile .= "\nscheduler finished \"build _aggregate\" at ".POSIX::ctime($endtime)."\n";
 
   writestr("$jobdatadir/meta", undef, $new_meta);
   writestr("$jobdatadir/logfile", undef, $logfile);

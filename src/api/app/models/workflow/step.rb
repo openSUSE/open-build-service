@@ -79,6 +79,22 @@ class Workflow::Step
     raise AbstractMethodCalled
   end
 
+  # The name of the step as it's written in the workflow configuration file, e.g. 'branch_package'
+  def step_name
+    self.class.name.demodulize.underscore.delete_suffix('_step')
+  end
+
+  def create_target_project
+    return target_project if target_project.present?
+
+    project = Project.new(name: target_project_name, url: workflow_run.event_source_url)
+    Pundit.authorize(@token.executor, project, :create?)
+
+    project.relationships.build(user: @token.executor, role: Role.find_by_title('maintainer'))
+    project.store(comment: "SCM/CI integration, #{step_name} step")
+    project
+  end
+
   def validate_project_names_in_step_instructions
     %i[project source_project target_project].each do |key_name|
       next unless step_instructions[key_name]

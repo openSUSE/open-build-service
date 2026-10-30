@@ -20,12 +20,9 @@ class ReportPolicy < ApplicationPolicy
     CommentPolicy.new(user, record.reportable).maintainer? if record.reportable_type == 'Comment'
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable-next Metrics/CyclomaticComplexity
   def create?
     return false unless Flipper.enabled?(:content_moderation, user)
-
-    # We don't want reports twice...
-    return false if user.submitted_reports.where(reportable: record.reportable).any?
 
     # We don't want reports for things you can change yourself nor for comment reports
     case record.reportable_type
@@ -42,7 +39,6 @@ class ReportPolicy < ApplicationPolicy
       record.reportable.creator != user.login
     end
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   def notify?
     return false unless Flipper.enabled?(:content_moderation, user)

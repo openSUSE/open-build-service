@@ -9,9 +9,13 @@ Architecture:
       enabled: false
 Attrib:
   attribs_index:
+    RedundantUniqueIndexChecker:
+      enabled: false
     UniqueIndexChecker:
       enabled: false
   attribs_on_proj_and_pack:
+    RedundantUniqueIndexChecker:
+      enabled: false
     UniqueIndexChecker:
       enabled: false
   id:
@@ -538,6 +542,17 @@ DistributionIcon:
   url:
     LengthConstraintChecker:
       enabled: false
+Distro:
+  logo_attachment:
+    ForeignKeyTypeChecker:
+      enabled: false
+  name:
+    ColumnPresenceChecker:
+      enabled: false
+DistroRelease:
+  name:
+    ColumnPresenceChecker:
+      enabled: false
 DownloadRepository:
   arch:
     LengthConstraintChecker:
@@ -700,31 +715,7 @@ Event::RemovedUserFromGroup:
   payload:
     LengthConstraintChecker:
       enabled: false
-Event::RequestChange:
-  eventtype:
-    LengthConstraintChecker:
-      enabled: false
-    NullConstraintChecker:
-      enabled: false
-  mails_sent:
-    ThreeStateBooleanChecker:
-      enabled: false
-  payload:
-    LengthConstraintChecker:
-      enabled: false
 Event::RequestCreate:
-  eventtype:
-    LengthConstraintChecker:
-      enabled: false
-    NullConstraintChecker:
-      enabled: false
-  mails_sent:
-    ThreeStateBooleanChecker:
-      enabled: false
-  payload:
-    LengthConstraintChecker:
-      enabled: false
-Event::RequestDelete:
   eventtype:
     LengthConstraintChecker:
       enabled: false
@@ -882,9 +873,6 @@ GroupMaintainer:
 GroupsUser:
   email:
     ThreeStateBooleanChecker:
-      enabled: false
-  groups_users_all_index:
-    UniqueIndexChecker:
       enabled: false
   id:
     PrimaryKeyTypeChecker:
@@ -1397,11 +1385,17 @@ Kiwi::Repository:
   index_kiwi_repositories_on_image_id:
     RedundantIndexChecker:
       enabled: false
+  order:
+    NumericalityConstraintChecker:
+      enabled: false
   password:
     LengthConstraintChecker:
       enabled: false
   prefer_license:
     ThreeStateBooleanChecker:
+      enabled: false
+  priority:
+    NumericalityConstraintChecker:
       enabled: false
   replaceable:
     ThreeStateBooleanChecker:
@@ -1720,6 +1714,9 @@ Report:
   comments:
     ForeignKeyTypeChecker:
       enabled: false
+  notifications:
+    ForeignKeyTypeChecker:
+      enabled: false
 Repository:
   channel_targets:
     ForeignKeyCascadeChecker:
@@ -1819,12 +1816,6 @@ RolesStaticPermission:
 RolesUser:
   id:
     PrimaryKeyTypeChecker:
-      enabled: false
-  role:
-    MissingDependentDestroyChecker:
-      enabled: false
-  user:
-    MissingDependentDestroyChecker:
       enabled: false
 SCMStatusReport:
   id:
@@ -1929,9 +1920,6 @@ Status::Report:
     LengthConstraintChecker:
       enabled: false
 StatusHistory:
-  id:
-    PrimaryKeyTypeChecker:
-      enabled: false
   key:
     LengthConstraintChecker:
       enabled: false
@@ -1939,6 +1927,11 @@ StatusHistory:
     NullConstraintChecker:
       enabled: false
 StatusMessage:
+  creator:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
@@ -1949,11 +1942,6 @@ StatusMessage:
       enabled: false
   severity:
     ColumnPresenceChecker:
-      enabled: false
-  creator:
-    ColumnPresenceChecker:
-      enabled: false
-    ForeignKeyChecker:
       enabled: false
 StatusMessageAcknowledgement:
   id:
@@ -2053,6 +2041,13 @@ User:
       enabled: false
   subaccounts:
     MissingIndexChecker:
+      enabled: false
+Vendor:
+  logo_attachment:
+    ForeignKeyTypeChecker:
+      enabled: false
+  name:
+    ColumnPresenceChecker:
       enabled: false
 WatchedItem:
   id:

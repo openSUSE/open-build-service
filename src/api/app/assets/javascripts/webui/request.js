@@ -126,67 +126,6 @@ function requestAddAutocomplete(autocompleteElement) {
   });
 }
 
-$(document).ready(function(){
-  // TODO: Remove the enclosing code when the request_show_redesign feature is finished - START
-  var element = $('.bs-request-actions li:first-child a:first-child');
-  if (element.length !== 0){
-    loadDiffs($(element));
-  }
-  $('.request-tab[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
-    var diffs = $(this).data('tab-pane-id');
-    var tabPanes = $('.tab-content.sourcediff .tab-pane.sourcediff');
-
-    if (Object.entries($('#'+diffs)).length === 0) {
-      $.each( tabPanes, function(i){
-        $(tabPanes[i]).removeClass('active');
-      });
-      loadDiffs($(this));
-    } else {
-      $.each( tabPanes, function(i){
-        if(tabPanes[i].id !== diffs) {
-          $(tabPanes[i]).removeClass('active');
-        }
-      });
-    }
-  });
-  // TODO: Remove the enclosing code when the request_show_redesign feature is finished - END
-});
-
-// TODO: Remove the following method when the request_show_redesign feature is finished
-function reloadRequestAction(index){
-  var element = $('.request-tab[data-index=' + index + ']');
-  $('.tab-pane.sourcediff.active').html('');
-  if(element) {
-    loadDiffs(element);
-  }
-}
-
-// TODO: Remove the following method when the request_show_redesign feature is finished
-function loadDiffs(element){
-  $('.loading-diff').removeClass('invisible');
-  var index = element.data('index');
-  var url = element.data('url') + '?index=' + index;
-  var diffLimit = $('.sourcediff').data('diff-limit');
-  var diffToSuperseded = element.data('diff-to-superseded');
-  if(diffLimit){
-    url = url + '&full_diff=' + diffLimit;
-  }
-  if(diffToSuperseded){
-    url = url + '&diff_to_superseded=' + diffToSuperseded;
-  }
-  $.ajax({
-    url: url,
-    success: function(){
-      $('.loading-diff').addClass('invisible');
-      if (document.location.hash === '#comments-list') {
-        // After loading the diffs, the viewport is shifted.
-        // Move the viewport back to the list of comments assigning the location hash
-        document.location.hash = '#comments-list';
-      }
-    }
-  });
-}
-
 function loadChanges() {
   $('.tab-content.sourcediff .loading').removeClass('invisible');
 

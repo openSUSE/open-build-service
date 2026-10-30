@@ -2,7 +2,6 @@ module Webui
   module Users
     class BsRequestsController < WebuiController
       include Webui::RequestsFilter
-      include Webui::RequestsCount
 
       before_action :require_login
       before_action :redirect_legacy
@@ -40,18 +39,6 @@ module Webui
         return unless Flipper.enabled?(:request_index, User.session)
 
         @bs_requests = User.session.bs_requests
-      end
-
-      def filter_involvement
-        @selected_filter['involvement'] = params[:involvement] if params[:involvement]&.compact_blank.present?
-        bs_requests_filters = []
-
-        # We want to hit the database immediately, the @bs_request query is already complicated enough. No need to add sub-queries to it...
-        bs_requests_filters << incoming_query if @selected_filter['involvement'].include?('incoming')
-        bs_requests_filters << outgoing_query if @selected_filter['involvement'].include?('outgoing')
-        bs_requests_filters << review_query   if @selected_filter['involvement'].include?('review')
-
-        @bs_requests = @bs_requests.merge(bs_requests_filters.inject(:or)) if bs_requests_filters.length.positive?
       end
 
       def incoming_query

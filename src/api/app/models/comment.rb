@@ -90,6 +90,14 @@ class Comment < ApplicationRecord
     !!(moderated_at && moderator)
   end
 
+  def soft_deleted?
+    user.nobody? && versions.exists?(event: 'delete')
+  end
+
+  def original_body
+    versions.where(event: 'delete').last&.reify&.body
+  end
+
   def moderate(state)
     self.paper_trail_event = state ? 'moderate' : 'release'
     self.moderated_at = state ? Time.zone.now : nil

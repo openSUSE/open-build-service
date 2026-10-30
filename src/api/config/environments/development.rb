@@ -56,6 +56,9 @@ Rails.application.configure do
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
 
+  # Highlight code that triggered redirect in logs.
+  config.action_dispatch.verbose_redirect_logs = true
+
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
 
@@ -108,3 +111,7 @@ CONFIG['sponsors'] = [
   )
 ]
 
+# Disable Mariadb SSL/TLS verification for development and test
+# since Thinking Sphinx/Searchd are not setup for it in those
+# environments
+ENV['MARIADB_TLS_DISABLE_PEER_VERIFICATION'] = '1'

@@ -72,9 +72,8 @@ RSpec.describe SourcePackageCommandController, :vcr do
 
       before do
         user.run_as { project.packages.first.destroy }
-        # rubocop:disable Rails/SkipsModelValidations
+        # rubocop:disable-next Rails/SkipsModelValidations
         project.update_columns(scmsync: 'https://github.com/hennevogel/scmsync-project.git')
-        # rubocop:enable Rails/SkipsModelValidations
         allow(Backend::Api::Sources::Package).to receive(:meta).and_return(package_xml)
       end
 
@@ -166,6 +165,121 @@ RSpec.describe SourcePackageCommandController, :vcr do
       end
 
       it { expect(response).to have_http_status(:ok) }
+    end
+  end
+
+  describe 'POST #rebuild' do
+    let(:project) { create(:project_with_repository, name: 'foo', maintainer: user) }
+    let(:package) { create(:package, name: 'bar', project: project) }
+    let(:repository) { project.repositories.first }
+    let(:rebuild_params) { { repository: repository.name, arch: nil } }
+
+    before do
+      login user
+    end
+
+    context 'with an unknown repository' do
+      subject { post :rebuild, params: { cmd: 'rebuild', project: project.name, package: package.name, repo: 'missing', format: :xml } }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:rebuild)
+      end
+
+      it 'returns unknown_repository without triggering a rebuild' do
+        subject
+
+        expect(response.headers['X-Opensuse-Errorcode']).to eql('unknown_repository')
+        expect(Backend::Api::Sources::Package).not_to have_received(:rebuild)
+      end
+    end
+
+    context 'with a known repository' do
+      subject { post :rebuild, params: { cmd: 'rebuild', project: project.name, package: package.name, repo: repository.name, format: :xml } }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:rebuild).and_return("<status code=\"ok\" />\n")
+      end
+
+      it { expect(subject).to have_http_status(:ok) }
+
+      it 'triggers the rebuild for that repository' do
+        subject
+
+        expect(Backend::Api::Sources::Package).to have_received(:rebuild).with(project.name, package.name, rebuild_params)
+      end
+    end
+  end
+
+  describe 'POST #copy' do
+    subject do
+      post :copy, params: { cmd: 'copy', project: project, package: 'hans',
+                            oproject: origin_project, opackage: origin_package_name }, format: :xml
+    end
+
+    let(:origin_project) { create(:project, name: 'origin_project', maintainer: user) }
+    let(:backend_response) { instance_double(Net::HTTPResponse, body: '<status code="ok" />') }
+
+    before do
+      create(:package, name: 'hans', project: project)
+      allow(backend_response).to receive(:fetch).and_return('text/xml')
+      allow(Backend::Connection).to receive(:post).and_return(backend_response)
+      allow(Backend::Api::Sources::Package).to receive(:files).and_return('<directory/>')
+      login user
+    end
+
+    context 'with an origin package that exists' do
+      let(:origin_package_name) { 'franz' }
+
+      before do
+        create(:package, name: 'franz', project: origin_project)
+      end
+
+      it { expect(subject).to have_http_status(:ok) }
+    end
+
+    context 'with an origin package that does not exist' do
+      let(:origin_package_name) { 'franz' }
+
+      it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('unknown_package') }
+    end
+
+    context 'with _project as the origin package' do
+      let(:origin_package_name) { '_project' }
+
+      it { expect(subject).to have_http_status(:ok) }
+
+      it 'copies from the _project of the origin project' do
+        subject
+
+        expect(Backend::Connection).to have_received(:post).with(a_string_including('oproject=origin_project&opackage=_project'), any_args)
+      end
+    end
+
+    context 'with a _pattern package as the origin package' do
+      let(:origin_package_name) { '_pattern' }
+
+      before do
+        create(:package, name: '_pattern', project: origin_project)
+      end
+
+      it { expect(subject).to have_http_status(:ok) }
+
+      it 'copies from the _pattern of the origin project' do
+        subject
+
+        expect(Backend::Connection).to have_received(:post).with(a_string_including('oproject=origin_project&opackage=_pattern'), any_args)
+      end
+    end
+
+    context 'with _project of an origin project without source access' do
+      let(:origin_project) do
+        origin_project = create(:project, name: 'origin_project')
+        create(:sourceaccess_flag, project: origin_project)
+        origin_project.reload
+      end
+      let(:origin_package_name) { '_project' }
+
+      it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('source_access_no_permission') }
     end
   end
 end

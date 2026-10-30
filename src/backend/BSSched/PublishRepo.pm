@@ -279,7 +279,11 @@ sub prpfinished {
 	  push @{$conflicts{$rbin}}, $packid;
 	  next;		# first one wins
 	}
-	next unless ($rb->{$rbin} || '') eq $packid;	# ignore if this is from a conflict
+	if (($rb->{$rbin} || '') ne $packid) {
+	  # file came from a different package, ignore if not a blob
+	  # (for blobs we know the content is the same)
+	  next unless $rbin =~ /^_blob\./;
+	}
 	$origin{$rbin} = $packid;
       }
       next;
@@ -418,13 +422,6 @@ sub prpfinished {
     next if exists $origin{$rbin};
     next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
     next if ($rbin eq '.archsync' || $rbin eq '.archsync.new') && $bconf->{'publishflags:archsync'};
-    if ($conflicts{$rbin}) {
-      # we lost the original origin. Reassign for blobs as we know the content is identical
-      if ($rbin =~ /^_blob\./) {
-	$origin{$rbin} = $conflicts{$rbin}->[0];
-	next;
-      }
-    }
     print "      - :repo/$rbin\n";
     if (! -l "$rdir/$rbin" && -d _) {
       BSUtil::cleandir("$rdir/$rbin");

@@ -36,6 +36,7 @@ our $mt_intoto = 'application/vnd.in-toto+json';
 our $mt_cosign_bundle = 'application/vnd.dev.sigstore.bundle.v0.3+json';
 
 our $intoto_predicate_spdx      = 'https://spdx.dev/Document';
+our $intoto_predicate_spdx_v3   = 'https://spdx.dev/Document/v3';
 our $intoto_predicate_cyclonedx = 'https://cyclonedx.org/bom';
 our $intoto_predicate_cosign_sign_v1 = 'https://sigstore.dev/cosign/sign/v1';
 our $intoto_stmt_v01            = 'https://in-toto.io/Statement/v0.1';
@@ -124,7 +125,7 @@ sub create_cosign_signature_ent {
   die("create_cosign_signature_ent: signature creation failed\n") unless $sig;
   my %annotations = %{$annotations || {}};
   $annotations{'dev.cosignproject.cosign/signature'} = MIME::Base64::encode_base64($sig, '');
-  return (create_entry($payload, 'mimetype' => $mt_cosign, 'annotations' => \%annotations), $sig);
+  return create_entry($payload, 'mimetype' => $mt_cosign, 'annotations' => \%annotations);
 }
 
 sub create_cosign_attestation_ent {
@@ -143,7 +144,7 @@ sub create_cosign_signature_ent_newbundle {
   $annotations{'dev.sigstore.bundle.content'} = 'dsse-envelope';
   $annotations{'dev.sigstore.bundle.predicateType'} = $intoto_predicate_cosign_sign_v1;
   my $bundle_json = cosign_create_newbundle($attestation);
-  return (create_entry($bundle_json, 'mimetype' => $mt_cosign_bundle, 'annotations' => \%annotations), 'intoto');
+  return create_entry($bundle_json, 'mimetype' => $mt_cosign_bundle, 'annotations' => \%annotations);
 }
 
 sub create_cosign_attestation_ent_newbundle {
@@ -198,6 +199,7 @@ sub fixup_intoto_attestation {
     my $predicate_type;
     # autodetect predicate type
     $predicate_type = $intoto_predicate_spdx if $attestation->{'spdxVersion'};
+    $predicate_type = $intoto_predicate_spdx_v3 if $attestation->{'@context'} && $attestation->{'@context'} =~ /\/3\.\d+\.\d+\/spdx-context.jsonld$/;
     $predicate_type = $intoto_predicate_cyclonedx if ($attestation->{'bomFormat'} || '') eq 'CycloneDX';
     # wrap into an in-toto v0.1 attestation
     $attestation = { '_type' => $intoto_stmt_v01, 'predicateType' => $predicate_type, 'predicate' => $attestation } if $predicate_type;
@@ -333,9 +335,20 @@ sub dsse_envelope_from_ent {
     my $envelope_json = canonical_json($envelope);
     $envelope_json =~ s/_payloadType/payloadType/;
     return $envelope_json;
+  } elsif ($ent->{'mimetype'} eq $mt_dsse) {
+    return $ent->{'data'};
   }
-  return $ent->{'data'} if $ent->{'mimetype'} eq $mt_dsse;
   die("dsse_envelope_from_ent: unsypported mimetype $ent->{'mimetype'}\n");
+}
+
+# extract the cosign signature from an entry
+sub cosign_signature_from_ent {
+  my ($ent) = @_;
+  if ($ent->{'mimetype'} eq $mt_cosign) {
+    my $sig = ($ent->{'annotations'} || {})->{'dev.cosignproject.cosign/signature'};
+    return $sig ? MIME::Base64::decode_base64($sig) : undef;
+  }
+  die("cosign_signature_from_ent: unsypported mimetype $ent->{'mimetype'}\n");
 }
 
 1;

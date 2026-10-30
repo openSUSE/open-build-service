@@ -64,10 +64,12 @@ class TriggerWorkflowController < ApplicationController
       validation_errors = @token.call(@workflow_run)
 
       unless @workflow_run.status == 'fail' # The SCMStatusReporter might already set the status to 'fail', lets not overwrite it
-        if validation_errors.none?
-          @workflow_run.update(status: 'success', response_body: render_ok)
-        else
+        if validation_errors.any?
           @workflow_run.update_as_failed(render_error(status: 400, message: validation_errors.to_sentence))
+        elsif @token.workflows_without_matching_filters.any?
+          @workflow_run.update(status: 'success', response_body: render_ok(data: { info: workflows_without_matching_filters_message }))
+        else
+          @workflow_run.update(status: 'success', response_body: render_ok)
         end
       end
     # We always want to return 200 in the request. Because a lot of things in `Workflow`` can go wrong outside this request cycle.
@@ -81,5 +83,11 @@ class TriggerWorkflowController < ApplicationController
     rescue Pundit::NotAuthorizedError => e
       @workflow_run.update_as_failed(e.message)
     end
+  end
+
+  def workflows_without_matching_filters_message
+    workflow_names = @token.workflows_without_matching_filters
+    "No steps were triggered for the #{'workflow'.pluralize(workflow_names.size)} #{workflow_names.map { |name| "'#{name}'" }.to_sentence}: " \
+      'the received event matched no filter, or it is set in the `ignore` filter section.'
   end
 end

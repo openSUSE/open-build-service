@@ -3,8 +3,10 @@ class FetchRemoteDistributionsJob < ApplicationJob
     Project.remote.each do |project|
       distributions_xml = Project::RemoteURL.load(project, '/distributions.xml')
 
-      # don't let broken remote instances break us
-      if Xmlhash.parse(distributions_xml.to_s).blank?
+      # Project::RemoteURL returns nil (and reports to log/Airbrake) in case of errors, we are done if this happens...
+      return false if distributions_xml.nil?
+
+      if Xmlhash.parse(distributions_xml).blank?
         Distribution.remote.for_project(project.name).destroy_all
       else
         Suse::Validator.validate('distributions', distributions_xml)
@@ -12,6 +14,8 @@ class FetchRemoteDistributionsJob < ApplicationJob
         bulk_replace(project: project.name, distributions_xmlhash: distributions_xmlhash)
       end
     end
+
+    true
   end
 
   private

@@ -32,9 +32,8 @@ class BsRequestSummaryDescriptionComponent < ApplicationComponent
                   "#{'project'.pluralize(source_projects.count)} #{to_sentence(source_projects)}"
                 end
 
-    # rubocop:disable ViewComponent/AvoidGlobalState
+    # rubocop:disable-next ViewComponent/AvoidGlobalState
     container << " (#{bs_request.source_package_latest_local_version})" if Flipper.enabled?(:package_version_tracking, User.session) && @bs_request.source_package_latest_local_version
-    # rubocop:enable ViewComponent/AvoidGlobalState
 
     return tag.span(sanitize(container)) if packages_count <= 3
 
@@ -52,9 +51,8 @@ class BsRequestSummaryDescriptionComponent < ApplicationComponent
                   "#{'project'.pluralize(target_projects.count)} #{to_sentence(target_projects)}"
                 end
 
-    # rubocop:disable ViewComponent/AvoidGlobalState
+    # rubocop:disable-next ViewComponent/AvoidGlobalState
     container << " (#{bs_request.target_package_latest_local_version})" if Flipper.enabled?(:package_version_tracking, User.session) && @bs_request.target_package_latest_local_version
-    # rubocop:enable ViewComponent/AvoidGlobalState
 
     return tag.span(sanitize(container)) if actions.filter_map { |a| [a.target_project, a.target_package] }.uniq.count <= 1
 

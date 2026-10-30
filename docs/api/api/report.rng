@@ -16,19 +16,28 @@
         </attribute>
       </optional>
       <optional>
-        <attribute name="reportable_id">
+        <attribute name="project">
           <data type="string" />
         </attribute>
       </optional>
       <optional>
-        <attribute name="reportable_type">
-          <choice>
-            <value>Comment</value>
-            <value>Package</value>
-            <value>Project</value>
-            <value>User</value>
-            <value>BsRequest</value>
-          </choice>
+        <attribute name="package">
+          <data type="string" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="comment">
+          <data type="string" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="bsrequest">
+          <data type="string" />
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="user">
+          <data type="string" />
         </attribute>
       </optional>
       <optional>

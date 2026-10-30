@@ -484,6 +484,7 @@ sub event_exit {
   $schedstate->{'changed_low'} = $gctx->{'changed_low'};
   $schedstate->{'changed_med'} = $gctx->{'changed_med'};
   $schedstate->{'changed_high'} = $gctx->{'changed_high'};
+  $schedstate->{'changed_lowfront'} = $gctx->{'changed_lowfront'};
   $schedstate->{'lookat'} = \@new_lookat;
   $schedstate->{'lookat_oob'} = $gctx->{'lookat_med'};
   $schedstate->{'lookat_oobhigh'} = $gctx->{'lookat_high'};

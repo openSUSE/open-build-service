@@ -1,8 +1,4 @@
 class GroupPolicy < ApplicationPolicy
-  def index?
-    create?
-  end
-
   def create?
     # Only admins can create new groups atm
     user.admin?
@@ -16,7 +12,7 @@ class GroupPolicy < ApplicationPolicy
     update?
   end
 
-  def display_email?
-    !user.nobody?
+  def edit?
+    update?
   end
 end

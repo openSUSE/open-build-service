@@ -7,10 +7,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>The Lathe of Heaven</title>
+          <title>Clouds of Witness</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1786112734'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -29,15 +31,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '108'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>The Lathe of Heaven</title>
+          <title>Clouds of Witness</title>
           <description></description>
         </project>
-  recorded_at: Fri, 15 Oct 2021 11:14:36 GMT
+  recorded_at: Fri, 07 Aug 2026 14:25:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=user_2
@@ -45,10 +47,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>For a Breath I Tarry</title>
-          <description>Mollitia omnis sed ut.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Et delectus commodi nihil.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1786112734'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -67,22 +71,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>For a Breath I Tarry</title>
-          <description>Mollitia omnis sed ut.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Et delectus commodi nihil.</description>
         </package>
-  recorded_at: Fri, 15 Oct 2021 11:14:36 GMT
+  recorded_at: Fri, 07 Aug 2026 14:25:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_config
     body:
       encoding: UTF-8
-      string: Aperiam ducimus explicabo. Dolores sint eius. At numquam praesentium.
+      string: Tempora quis quisquam. Rerum ratione maxime. Maxime dicta quo.
     headers:
+      X-Frontend-Start:
+      - '1786112734'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -101,19 +107,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
-          <srcmd5>8ab8947c7f8aa5a683b621f9a4a57174</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>45660610d4e2666bc62caac31db8e355</srcmd5>
           <version>unknown</version>
-          <time>1634296476</time>
+          <time>1786112734</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Oct 2021 11:14:36 GMT
+  recorded_at: Fri, 07 Aug 2026 14:25:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/somefile.txt
@@ -121,6 +127,8 @@ http_interactions:
       encoding: UTF-8
       string: b
     headers:
+      X-Frontend-Start:
+      - '1786112734'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -139,19 +147,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
-          <srcmd5>8ab8947c7f8aa5a683b621f9a4a57174</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>38f0b876afca50a14045131913b1df39</srcmd5>
           <version>unknown</version>
-          <time>1634296476</time>
+          <time>1786112734</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Oct 2021 11:14:36 GMT
+  recorded_at: Fri, 07 Aug 2026 14:25:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/_meta?user=user_3
@@ -159,10 +167,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Cabbages and Kings</title>
+          <title>The Doors of Perception</title>
           <description/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1786112734'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -181,15 +191,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '114'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Cabbages and Kings</title>
+          <title>The Doors of Perception</title>
           <description></description>
         </project>
-  recorded_at: Fri, 15 Oct 2021 11:14:36 GMT
+  recorded_at: Fri, 07 Aug 2026 14:25:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=user_4
@@ -197,10 +207,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Oh! To be in England</title>
-          <description>Consequatur voluptas nihil omnis.</description>
+          <title>Now Sleeps the Crimson Petal</title>
+          <description>Sapiente et sed quibusdam.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1786112734'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -219,22 +231,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Oh! To be in England</title>
-          <description>Consequatur voluptas nihil omnis.</description>
+          <title>Now Sleeps the Crimson Petal</title>
+          <description>Sapiente et sed quibusdam.</description>
         </package>
-  recorded_at: Fri, 15 Oct 2021 11:14:36 GMT
+  recorded_at: Fri, 07 Aug 2026 14:25:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_config
     body:
       encoding: UTF-8
-      string: Ad omnis ipsum. Voluptatem ut soluta. Qui est non.
+      string: Doloremque enim nihil. In mollitia eum. Velit sit tenetur.
     headers:
+      X-Frontend-Start:
+      - '1786112734'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -253,19 +267,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
-          <srcmd5>047a8722d9b2325f71b004d70a9664b9</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>dd533af7c9c385b0ddbc787e53b9e464</srcmd5>
           <version>unknown</version>
-          <time>1634296476</time>
+          <time>1786112734</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Oct 2021 11:14:36 GMT
+  recorded_at: Fri, 07 Aug 2026 14:25:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/somefile.txt
@@ -273,6 +287,8 @@ http_interactions:
       encoding: UTF-8
       string: a
     headers:
+      X-Frontend-Start:
+      - '1786112734'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -291,26 +307,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
-          <srcmd5>047a8722d9b2325f71b004d70a9664b9</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>20a5fff9a8fcbfbf032523ae03f6fb63</srcmd5>
           <version>unknown</version>
-          <time>1634296476</time>
+          <time>1786112734</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Oct 2021 11:14:36 GMT
+  recorded_at: Fri, 07 Aug 2026 14:25:34 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/does-not-exist/source_package
+    uri: http://backend:5352/source/source_project/source_package
     body:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1786112734'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -319,8 +337,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'does-not-exist' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -329,24 +347,162 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '298'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'does-not-exist' does not exist</summary>
-          <details>404 project 'does-not-exist' does not exist</details>
-        </status>
-  recorded_at: Fri, 15 Oct 2021 11:14:37 GMT
+        <directory name="source_package" rev="2" vrev="2" srcmd5="38f0b876afca50a14045131913b1df39">
+          <entry name="_config" md5="b911b1c150d04df11b1ea23bed17c20a" size="62" mtime="1786112734"/>
+          <entry name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1" mtime="1786112734"/>
+        </directory>
+  recorded_at: Fri, 07 Aug 2026 14:25:34 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/does-not-exist/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1786112734'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1056'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="4c6b392b50fed2260dd0511067b89b78">
+          <old project="target_project" package="target_package" rev="2" srcmd5="20a5fff9a8fcbfbf032523ae03f6fb63"/>
+          <new project="source_project" package="source_package" rev="2" srcmd5="38f0b876afca50a14045131913b1df39"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="ac801cf4ff98d6479cad687662317f6d" size="58"/>
+              <new name="_config" md5="b911b1c150d04df11b1ea23bed17c20a" size="62"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Doloremque enim nihil. In mollitia eum. Velit sit tenetur.
+        \ No newline at end of file
+        +Tempora quis quisquam. Rerum ratione maxime. Maxime dicta quo.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="0cc175b9c0f1b6a831c399e269772661" size="1"/>
+              <new name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -a
+        \ No newline at end of file
+        +b
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Fri, 07 Aug 2026 14:25:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_6/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_6">
+          <title/>
+          <description/>
+          <person userid="user_6" role="maintainer"/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1786112735'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_6">
+          <title></title>
+          <description></description>
+          <person userid="user_6" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 07 Aug 2026 14:25:35 GMT
+- request:
+    method: delete
+    uri: http://backend:5352/source/source_project/source_package?user=user_2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1786112735'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Fri, 07 Aug 2026 14:25:35 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Frontend-Start:
+      - '1786112735'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -356,7 +512,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'does-not-exist' does not exist
+      message: package 'source_package' does not exist
     headers:
       Content-Type:
       - text/xml
@@ -370,8 +526,46 @@ http_interactions:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'does-not-exist' does not exist</summary>
-          <details>404 project 'does-not-exist' does not exist</details>
+          <summary>package 'source_package' does not exist</summary>
+          <details>404 package 'source_package' does not exist</details>
         </status>
-  recorded_at: Fri, 15 Oct 2021 11:14:37 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Fri, 07 Aug 2026 14:25:35 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Frontend-Start:
+      - '1786112735'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: package 'source_package' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>package 'source_package' does not exist</summary>
+          <details>404 package 'source_package' does not exist</details>
+        </status>
+  recorded_at: Fri, 07 Aug 2026 14:25:35 GMT
+recorded_with: VCR 6.4.0

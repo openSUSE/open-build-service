@@ -2,91 +2,17 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_64
+    uri: http://backend:5352/source/target_project/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>A Glass of Blessings</title>
+          <title>An Acceptable Time</title>
           <description/>
         </project>
     headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '111'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="target_project">
-          <title>A Glass of Blessings</title>
-          <description></description>
-        </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_65
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Mother Night</title>
-          <description>Aut quae aut quia.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Mother Night</title>
-          <description>Aut quae aut quia.</description>
-        </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_66
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="source_project">
-          <title>The Green Bay Tree</title>
-          <description/>
-        </project>
-    headers:
+      X-Frontend-Start:
+      - '1786103714'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -109,14 +35,94 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="source_project">
-          <title>The Green Bay Tree</title>
+        <project name="target_project">
+          <title>An Acceptable Time</title>
           <description></description>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
+  recorded_at: Fri, 07 Aug 2026 11:55:14 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_66
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Little Hands Clapping</title>
+          <description>Et fugiat est in.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1786103714'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Little Hands Clapping</title>
+          <description>Et fugiat est in.</description>
+        </package>
+  recorded_at: Fri, 07 Aug 2026 11:55:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Little Hands Clapping</title>
+          <description/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1786103714'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Little Hands Clapping</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 07 Aug 2026 11:55:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_3
     body:
       encoding: UTF-8
       string: |
@@ -124,6 +130,8 @@ http_interactions:
           <attribute name="ApprovedRequestSource" namespace="OBS"/>
         </attributes>
     headers:
+      X-Frontend-Start:
+      - '1786103714'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -142,29 +150,31 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '168'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="14">
-          <srcmd5>bb0aab35e64c3fab23b4e132f3bbab7c</srcmd5>
-          <time>1686759788</time>
-          <user>user_66</user>
+        <revision rev="2">
+          <srcmd5>30c0a395d0b225d092e0c58d5fde7a18</srcmd5>
+          <time>1786103714</time>
+          <user>user_3</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
+  recorded_at: Fri, 07 Aug 2026 11:55:14 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_67
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>A Farewell to Arms</title>
-          <description>Dolores dolorem dignissimos est.</description>
+          <title>A Handful of Dust</title>
+          <description>Quia corrupti maiores rerum.</description>
         </package>
     headers:
+      X-Frontend-Start:
+      - '1786103714'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -183,15 +193,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>A Farewell to Arms</title>
-          <description>Dolores dolorem dignissimos est.</description>
+          <title>A Handful of Dust</title>
+          <description>Quia corrupti maiores rerum.</description>
         </package>
-  recorded_at: Wed, 14 Jun 2023 16:23:08 GMT
+  recorded_at: Fri, 07 Aug 2026 11:55:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -199,6 +209,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
+      X-Frontend-Start:
+      - '1786103715'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -223,7 +235,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Fri, 07 Aug 2026 11:55:15 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -233,6 +245,8 @@ http_interactions:
     headers:
       Content-Type:
       - application/octet-stream
+      X-Frontend-Start:
+      - '1786103715'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -246,12 +260,12 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
-      Content-Length:
-      - '328'
       Cache-Control:
       - no-cache
       Connection:
       - close
+      Content-Length:
+      - '328'
     body:
       encoding: UTF-8
       string: |
@@ -263,7 +277,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
+  recorded_at: Fri, 07 Aug 2026 11:55:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_meta?user=tux
@@ -276,6 +290,8 @@ http_interactions:
           <person userid="tux" role="maintainer"/>
         </project>
     headers:
+      X-Frontend-Start:
+      - '1786103715'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -303,5 +319,5 @@ http_interactions:
           <description></description>
           <person userid="tux" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Jun 2023 16:23:09 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Fri, 07 Aug 2026 11:55:15 GMT
+recorded_with: VCR 6.4.0

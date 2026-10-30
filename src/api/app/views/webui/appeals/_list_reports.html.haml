@@ -6,6 +6,6 @@
         %li
           = report.category
           report for a
-          = link_to report.reportable_type, report.reportable
+          = link_to_reportables(report_id: report.id, reportable_type: report.reportable_type)
           received. The reason was:
           = report.reason

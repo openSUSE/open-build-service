@@ -146,10 +146,8 @@ RSpec.describe Webui::CommentsController do
       it { expect(Comment.where(id: other_comment.id)).to eq([]) }
     end
 
-    context 'whith the request_show_redesign beta flag active' do
+    context 'whith the request show page' do
       render_views
-
-      before { Flipper.enable(:request_show_redesign, admin) }
 
       let!(:root_comment) { create(:comment_request, body: 'This is a root comment') }
 

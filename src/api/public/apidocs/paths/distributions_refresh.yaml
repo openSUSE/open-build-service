@@ -1,0 +1,32 @@
+post:
+  summary: Trigger synchronization of remote distributions.
+  description: |
+    Trigger synchronization of distributions from interconnect projects.
+    This is only for admins.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request. Somehow failed to refresh distributions from the network.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: failed_distribution_refresh
+            summary: Failed to refresh distributions
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: Forbidden. Requires administrator privileges.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: admin_required
+            summary: Admin Privileges Required
+  tags:
+    - Distributions

@@ -14,6 +14,13 @@ resetFormValidation();
       $('#package-title').html("#{escape_javascript(@package.title.presence || @package.name)}");
       $('.action-report-bug').html("#{escape_javascript(render(partial: 'webui/package/show_actions/bugzilla_owner',
                                                                locals: { url: @package.report_bug_or_bugzilla_url }))}");
+      $('.side_links').replaceWith("#{escape_javascript(render(partial: 'webui/package/side_links',
+                                                               locals: { devel_package: @package.develpackage,
+                                                                         failures: @failures,
+                                                                         linkinfo: @linkinfo,
+                                                                         revision: @revision,
+                                                                         project: @project,
+                                                                         package: @package }))}");
       setCollapsible();
       $('.in-place-editing,.action-report-bug').animate({ opacity: 1 }, 400, function() {
         $('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}");

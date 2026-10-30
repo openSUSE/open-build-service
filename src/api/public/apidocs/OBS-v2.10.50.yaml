@@ -190,6 +190,8 @@ paths:
     $ref: 'paths/distributions.yaml'
   /distributions/include_remotes:
     $ref: 'paths/distributions_include_remotes.yaml'
+  /distributions/refresh:
+    $ref: 'paths/distributions_refresh.yaml'
   /distributions/{distribution_id}:
     $ref: 'paths/distributions_distribution_id.yaml'
   /distributions/bulk_replace:
@@ -280,6 +282,16 @@ paths:
     $ref: 'paths/reports.yaml'
   /reports/{report_id}:
     $ref: 'paths/reports_report_id.yaml'
+  /reports/user/{login}:
+    $ref: 'paths/reports_user_login.yaml'
+  /reports/comment/{comment_id}:
+    $ref: 'paths/reports_comment_id.yaml'
+  /reports/request/{id}:
+    $ref: 'paths/reports_request_id.yaml'
+  /reports/project/{project_name}:
+    $ref: 'paths/reports_project_project_name.yaml'
+  /reports/package/{project_name}/{package_name}:
+    $ref: 'paths/reports_package_project_name_package_name.yaml'
 
   /search:
     $ref: 'paths/search.yaml'

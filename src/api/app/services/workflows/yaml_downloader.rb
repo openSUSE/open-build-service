@@ -59,7 +59,7 @@ module Workflows
 
     def create_temp_file(content)
       tempfile = Tempfile.new([Time.zone.now.to_s, '.yaml'])
-      tempfile.write(content)
+      tempfile.write(content.force_encoding('UTF-8'))
       tempfile.rewind
       tempfile
     end

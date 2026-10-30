@@ -622,7 +622,7 @@ sub createrepo_zyppservice {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repo/repoindex.xml") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/repo/repoindex.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repo/repoindex.xml");
   }
 
@@ -880,7 +880,7 @@ sub createrepo_rpmmd {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     writestr("$extrep/repodata/repomd.xml.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
     create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
@@ -1399,23 +1399,25 @@ sub createrepo_staticlinks {
       symlink($target, "$extrep/$arch/.$_");
       rename("$extrep/$arch/.$_", "$extrep/$arch/$_"); # atomic update
 
-      # check for detached sha256 files
-      if ( -e "$extrep/$arch/$target.sha256" ) {
-        # copy and patch the filename
-        my ($econtent, $ehadsig) = depgp(readstr("$extrep/$arch/$target.sha256"));
-        $econtent =~ s/([ \/])\Q$target\E\n/$1$_\n/g;
-        unlink("$extrep/$arch/$_.sha256");
-        writestr("$extrep/$arch/$_.sha256", undef, $econtent);
-      }
-      if ( -e "$extrep/$arch/$target.sha256.asc" ) {
-        # regenerate signature
-        if ($BSConfig::sign && -e "$extrep/$arch/$_.sha256") {
-          my @signargs;
-          push @signargs, '--project', $projid if $BSConfig::sign_project;
-          push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
-          push @signargs, @{$data->{'signargs'} || []};
-          qsystem($BSConfig::sign, @signargs, '-d', "$extrep/$arch/$_.sha256") && die("    sign failed: $?\n");
-          pickup_detached_signature($data, "$extrep/$arch/$_.sha256");
+      # check for detached sha256 and sha512 files
+      for my $sha ('sha256', 'sha512') {
+        if ( -e "$extrep/$arch/$target.$sha" ) {
+          # copy and patch the filename
+          my ($econtent, $ehadsig) = depgp(readstr("$extrep/$arch/$target.$sha"));
+          $econtent =~ s/([ \/])\Q$target\E\n/$1$_\n/g;
+          unlink("$extrep/$arch/$_.$sha");
+          writestr("$extrep/$arch/$_.$sha", undef, $econtent);
+        }
+        if ( -e "$extrep/$arch/$target.$sha.asc" ) {
+          # regenerate signature
+          if ($BSConfig::sign && -e "$extrep/$arch/$_.$sha") {
+            my @signargs;
+            push @signargs, '--project', $projid if $BSConfig::sign_project;
+            push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
+            push @signargs, @{$data->{'signargs'} || []};
+            qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/$arch/$_.$sha") && die("    sign failed: $?\n");
+            pickup_detached_signature($data, "$extrep/$arch/$_.$sha");
+          }
         }
       }
     }
@@ -1556,10 +1558,10 @@ sub createrepo_checksumsfile {
       my %options = map {$_ => 1} @{$options || []};
       if ($options{'rawsig'}) {
 	unlink("$extrep/SHA256SUMS.sig");
-	qsystem($BSConfig::sign, @signargs, '-D', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
+	qsystem($BSConfig::sign, @signargs, '-D', '-4', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
 	rename("$extrep/SHA256SUMS.sig", "$extrep/SHA256SUMS.gpg");
       }
-      qsystem($BSConfig::sign, @signargs, '-d', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
+      qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/SHA256SUMS") && die("    sign failed: $?\n");
       pickup_detached_signature($data, "$extrep/SHA256SUMS");
     }
   }
@@ -1621,7 +1623,7 @@ sub createpatterns_rpmmd {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
     create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
   }
@@ -1692,7 +1694,7 @@ sub createpatterns_comps {
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
     create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
   }
@@ -2393,8 +2395,8 @@ sub publish {
 	  writerecheckevent($projid, $repoid, $a);
 	}
       }
-      return "delayed";
       close(F);
+      return "delayed";
     }
   }
 
@@ -2476,6 +2478,7 @@ sub publish {
 
   my $blobdir;
   my @chksumfiles;
+  my %nocontentchange;
   for my $arch (@archs) {
     my $r = "$reporoot/$prp/$arch/:repo";
     my $repoinfo = {};
@@ -2540,6 +2543,8 @@ sub publish {
 	    # ok, took it. also take delta
 	    $bin = $3;
 	    push @{$deltas{"$r/$1"}}, "$r/$rbin";
+	  } else {
+	    next;	# ignore delta
 	  }
 	}
       }
@@ -2570,6 +2575,7 @@ sub publish {
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
 	next unless $q;
 	$p = "$q->{'arch'}/$q->{'name'}-$q->{'version'}-$q->{'release'}.$q->{'arch'}.rpm";
+	substr($p, -3, 3, 'drpm') if $bin =~ /\.drpm$/;
       } elsif ($bin =~ /\.deb$/) {
 	# legacy format XXX no udeb handling
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
@@ -2602,11 +2608,11 @@ sub publish {
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = "onie/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
-	} elsif ($bin =~ /(.*)\.raw(?:\.install)?(?:\.(?:gz|bz2|xz|zst|zstd))?(?:\.sha256(?:\.asc)?)?$/) {
+	} elsif ($bin =~ /(.*)\.raw(?:\.install)?(?:\.(?:gz|bz2|xz|zst|zstd))?(?:\.(?:sha256|sha512)(?:\.asc)?)?$/) {
 	  $p = $bin;
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
-	} elsif ($bin =~ /(.*)\.install.tar?(?:\.sha256(?:\.asc)?)?$/) {
+	} elsif ($bin =~ /(.*)\.install.tar?(?:\.(?:sha256|sha512)(?:\.asc)?)?$/) {
           # kiwi has uncompressed install.tar (because internal compressed) since 17 Jul 2019
 	  $p = $bin;
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
@@ -2657,7 +2663,7 @@ sub publish {
 	  $kiwimedium{$p} = $kiwimedium if $kiwimedium;
           readcontainermetafiles($containerinfo, $r, $bin, \$blobdir, $readcontainermetafiles_cache);
 	  next;
-	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256(?:\.asc)?)?$/) {
+	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.(?:sha256|sha512)(?:\.asc)?)?$/) {
           # kiwi image case
           $p = $bin;
 	  $kiwimedium = "$arch/$2" if !$3 && -e "$r/$2.packages";
@@ -2710,7 +2716,7 @@ sub publish {
 	} elsif ($bin =~ /\.orig\.tar\.(gz|xz|bz2)\.asc$/) {
 	  # Debian upstream tarball signature
 	  $p = $bin;
-        } elsif ($bin =~ /^(.*)\.(?:box|json|ova|ovf|phar|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(\.sha256(?:\.asc)?)?$/) {
+        } elsif ($bin =~ /^(.*)\.(?:box|json|ova|ovf|phar|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(\.(?:sha256|sha512)(?:\.asc)?)?$/) {
 	  $p = $bin;
           $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
@@ -2773,6 +2779,15 @@ sub publish {
 	    delete $deltainfos{$dp};
 	  }
         }
+      } elsif (!$archorder && $config->{'publishflags:nocontentchange'} && !$kiwimedium && !$containerinfo) {
+        next if $nocontentchange{$p} && $nocontentchange{$p} ne "$s[9]/$s[7]/$s[1]";
+        my @s2 = stat("$extrep/$p");
+        if (@s2 && "$s[9]/$s[7]/$s[1]" ne "$s2[9]/$s2[7]/$s2[1]") {
+	  next if $rbin =~ /\.drpm$/;		# cannot handle those, just drop em
+	  $nocontentchange{$p} = "$s2[9]/$s2[7]/$s2[1]";
+	  next;
+	}
+	delete $nocontentchange{$p};
       }
 
       $bins{$p} = "$r/$rbin";
@@ -2822,6 +2837,31 @@ sub publish {
 	}
       }
 
+    }
+  }
+
+  # reuse old data for nocontentchange files
+  if (%nocontentchange) {
+    delete $nocontentchange{$_} for keys %bins;
+    my $oldbinaryorigins = {};
+    if (%nocontentchange && -s "$reporoot/$prp/:repoinfo") {
+      my $oldrepoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo");
+      $oldbinaryorigins = ($oldrepoinfo || {})->{'binaryorigins'} || {};
+    }
+    for my $p (sort keys %nocontentchange) {
+      $bins{$p} = '-';
+      $bins_id{$p} = $nocontentchange{$p};
+      $binaryorigins->{$p} = $oldbinaryorigins->{$p} if $oldbinaryorigins->{$p};
+      if ($p =~ /(.*)\.(?:$binsufsre)$/) {
+	# also keep old provenance
+	my $pp = "$1.slsa_provenance.json";
+	my @s = stat("$extrep/$pp");
+	if (@s && $pp && !$bins{$pp}) {
+	  $bins{$pp} = '-';
+	  $bins_id{$pp} = "$s[9]/$s[7]/$s[1]";
+	  $binaryorigins->{$pp} = $oldbinaryorigins->{$pp} if $oldbinaryorigins->{$pp};
+	}
+      }
     }
   }
 
@@ -3762,7 +3802,7 @@ sub clean_publish_retry {
 
 sub clean_publish_retry_backoff {
   for (sort keys %publish_retry_backoff) {
-    delete($publish_retry_backoff{$_}) unless $publish_retry{$_};
+    delete($publish_retry_backoff{$_}) unless $publish_retry{$_} || -e "$myeventdir/$_" || -e "$myeventdir/$_:inprogress";
   }
 }
 
@@ -3786,7 +3826,9 @@ sub set_publish_error {
   my $evname = $req->{'event'};
   $evname .= '::inprogress' if $req->{'inprogress'};
   $ev->{'details'} = $err || 'unknown error';
-  writexml("$myeventdir/.$evname$$", "$myeventdir/$evname", $ev, $BSXML::event);
+  writexml("$myeventdir/.$evname$$", undef, $ev, $BSXML::event);
+  chmod(0444, "$myeventdir/.$evname$$");	# hint at the publish error
+  rename("$myeventdir/.$evname$$", "$myeventdir/$evname") || die("rename $myeventdir/.$evname$$ $myeventdir/$evname: $!\n");
 }
 
 sub notify_state {
@@ -3819,6 +3861,7 @@ sub publishstats {
 sub publishevent {
   my ($req, $projid, $repoid) = @_;
 
+  $req->{'retrycount'} = $publish_retry_backoff{$req->{'event'}} || 0;
   if ($req->{'forked'})  {
     my $prepend = "$$: ";
     $prepend = "$req->{'flavor'}.$prepend" if $req->{'flavor'};
@@ -3865,12 +3908,14 @@ sub publishevent {
       $noretry = 1;
     } elsif ($err =~ s/^CRITICAL:\s*//) {
       BSUtil::logcritical($err);
+    } elsif ($err =~ s/^NORETRY:\s*//) {
+      $noretry = 1;
     } elsif ($err =~ s/^RETRY_AFTER(\d+):\s*//) {
       $retry_after = $1;
     }
     clear_repoinfo_state($prp, $err);
     if (!$noretry) {
-      my $backoff = $publish_retry_backoff{$req->{'event'}} || 0;
+      my $backoff = $req->{'retrycount'};
       $backoff = 5 if $backoff > 5;
       $backoff = (1 << $backoff);
       $backoff = $retry_after if $retry_after && $backoff < $retry_after;

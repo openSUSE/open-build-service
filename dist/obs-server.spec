@@ -67,10 +67,10 @@ Requires:       rubygem-passenger-apache2\
 Requires:       ruby(abi) = %{__obs_ruby_abi_version}\
 %{nil}
 
-%define __obs_ruby_abi_version 3.4.0
-%define __obs_ruby_bin /usr/bin/ruby.ruby3.4
-%define __obs_bundle_bin /usr/bin/bundle.ruby3.4
-%define __obs_rake_bin /usr/bin/rake.ruby3.4
+%define __obs_ruby_abi_version 4.0.0
+%define __obs_ruby_bin /usr/bin/ruby.ruby4.0
+%define __obs_bundle_bin /usr/bin/bundle.ruby4.0
+%define __obs_rake_bin /usr/bin/rake.ruby4.0
 %define __obs_document_root %{apache_datadir}/obs
 %define __obs_api_prefix %{__obs_document_root}/api
 %define __obs_build_package_name build
@@ -462,8 +462,8 @@ pushd src/api
 #        https://github.com/rpm-software-management/rpm/pull/3071
 #        Use the build host RPM to evaluate libdir while parsing the spec.
 #        The build host is always x86_64 for noarch builds in OBS...
-bundle config set path %(rpm -E %%_libdir)/obs-api
-bundle install --local
+%{__obs_bundle_bin} config set path %(rpm -E %%_libdir)/obs-api
+%{__obs_bundle_bin} install --local
 rm -rf vendor/cache/* vendor/cache.next/*
 
 popd

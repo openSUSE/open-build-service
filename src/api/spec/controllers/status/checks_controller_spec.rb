@@ -76,7 +76,7 @@ RSpec.describe Status::ChecksController do
 
           before { post :update, body: xml, params: params, format: :xml }
 
-          it { expect(response).to have_http_status(:unprocessable_entity) }
+          it { expect(response).to have_http_status(:unprocessable_content) }
           it { expect(status_report.checks).to be_empty }
           it { expect(Event::StatusCheck.count).to eq(0) }
         end
@@ -201,7 +201,7 @@ RSpec.describe Status::ChecksController do
 
           before { post :update, body: xml_with_empty_field, params: params, format: :xml }
 
-          it { expect(response).to have_http_status(:unprocessable_entity) }
+          it { expect(response).to have_http_status(:unprocessable_content) }
           it { expect(check.reload.short_description).to eq(check.short_description) }
         end
 
@@ -211,7 +211,7 @@ RSpec.describe Status::ChecksController do
 
           before { post :update, body: invalid_xml, params: params, format: :xml }
 
-          it { expect(response).to have_http_status(:unprocessable_entity) }
+          it { expect(response).to have_http_status(:unprocessable_content) }
           it { expect(check.reload.state).to eq('pending') }
         end
       end

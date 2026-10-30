@@ -83,6 +83,8 @@ class WorkflowRun < ApplicationRecord
     # "Failed to report back to GitLab: Request forbidden."
     # "Failed to report back to GitHub: Unauthorized request. Please check your credentials again."
     # "Failed to report back to GitHub: Request is forbidden."
+    # "Failed to report back to Gitea: Unauthorized request. Please check your credentials again."
+    # "Failed to report back to Gitea: Request is forbidden."
 
     return unless message.include?('Unauthorized request') || /Request (is )?forbidden/.match?(message)
 

@@ -8,9 +8,8 @@ class BackfillNameFromTokens < ActiveRecord::Migration[6.1]
     return unless Token.columns.any? { |c| c.name == 'name' }
 
     Token.unscoped.in_batches do |relation|
-      # rubocop:disable Rails/SkipsModelValidations
+      # rubocop:disable-next Rails/SkipsModelValidations
       relation.update_all name: ''
-      # rubocop:enable Rails/SkipsModelValidations
       sleep(0.01) # throttle
     end
   end

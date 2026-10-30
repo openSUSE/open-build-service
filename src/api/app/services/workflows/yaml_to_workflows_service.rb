@@ -31,9 +31,10 @@ module Workflows
 
       parsed_workflow_configuration = extract_and_set_workflow_version(parsed_workflow_configuration: parsed_workflow_configuration)
       parsed_workflow_configuration
-        .map do |_workflow_name, workflow_instructions|
+        .map do |workflow_name, workflow_instructions|
         Workflow.new(workflow_instructions: workflow_instructions, token: @token,
-                     workflow_run: @workflow_run, workflow_version_number: @workflow_version_number)
+                     workflow_run: @workflow_run, workflow_version_number: @workflow_version_number,
+                     workflow_name: workflow_name)
       end
     end
 

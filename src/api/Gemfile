@@ -9,9 +9,9 @@ source 'https://rubygems.org'
 
 # Start the Rails application using src/api/Gemfile.next with `next rails s`
 if next?
-  gem 'rails', '~> 8.0.0'
+  gem 'rails', '~> 8.2.0'
 else
-  gem 'rails', '~> 7.2.0'
+  gem 'rails', '~> 8.1.0'
 end
 
 # as our database
@@ -116,9 +116,9 @@ gem 'rexml'
 
 # The following gems have a pin: they are default gems in our ruby 3.4 package and we rather use those, then maintaining them in our bundle.
 # Also, they are used by bundler so version mismatches cause problems when booting the app in passenger
-gem 'base64', '0.2.0', require: false
-gem 'stringio', '3.1.2'
-gem 'strscan', '3.1.2'
+gem 'base64', '0.3.0', require: false
+gem 'stringio', '3.2.0'
+gem 'strscan', '3.1.6'
 
 # OpenStruct implementation (no longer a default gem from ruby > 3.4.0)
 gem 'ostruct'
@@ -130,7 +130,7 @@ gem 'toml-rb'
 gem 'next_rails'
 
 # Result object pattern gem
-gem "resonad"
+gem 'resonad'
 
 group :development, :production do
   # to have the delayed job daemon

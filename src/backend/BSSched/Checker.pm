@@ -661,6 +661,11 @@ sub createpool {
     chomp $error;
     return (undef, $error || 'pool creation failed');
   }
+  if ($ctx->{'lastidcounts'} && @$prpsearchpath > 1) {
+    print "    presizing to $ctx->{'lastidcounts'} ids\n";
+    my ($nid, $nrel) = split(':', $ctx->{'lastidcounts'}, 2);
+    $pool->presizeidhashes($nid * 1.1, $nrel * 1.1) if defined &BSSolv::pool::presizeidhashes;
+  }
   my %missingmods;
   for my $rprp (@$prpsearchpath) {
     if (!$ctx->checkprpaccess($rprp)) {
@@ -698,6 +703,15 @@ sub createpool {
     }
     return ($pool, substr($msg, 2));
   }
+  if (exists $ctx->{'lastidcounts'}) {
+    my ($nid, $nrel);
+    ($nid, $nrel) = $pool->getidcounts() if @$prpsearchpath > 1 && defined &BSSolv::pool::getidcounts;
+    if (($nid || 0) >= 4096 || ($nrel || 0) >= 4096) {
+      $ctx->{'lastidcounts'} = "$nid:$nrel";
+    } else {
+      delete $ctx->{'lastidcounts'};
+    }
+  }
   $pool->createwhatprovides();
   return ($pool);
 }
@@ -709,10 +723,16 @@ sub preparepool {
   my $prp = $ctx->{'prp'};
 
   return ('scheduling', undef) if $ctx->{'alllocked'};		# we do not need a pool
+  $ctx->{'lastidcounts'} = $gctx->{'lastidcounts'}->{$prp};
   my ($pool, $error, $delayed) = createpool($ctx, $bconf, $ctx->{'prpsearchpath'});
   if ($error) {
     $ctx->{'havedelayed'} = 1 if $delayed;
     return ('broken', $error);
+  }
+  if ($ctx->{'lastidcounts'}) {
+    $gctx->{'lastidcounts'}->{$prp} = $ctx->{'lastidcounts'};
+  } else {
+    delete $gctx->{'lastidcounts'}->{$prp};
   }
   my $prpnotready = $gctx->{'prpnotready'};
   $prpnotready = undef if ($ctx->{'repo'}->{'block'} || '') eq 'local';

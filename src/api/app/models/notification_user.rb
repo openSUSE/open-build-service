@@ -2,7 +2,7 @@ class NotificationUser < Notification
   def description
     subscriber_name = subscriber.login == event_payload['user'] ? 'you' : event_payload['user']
 
-      "'#{event_payload['who'] || 'Someone'}' #{event_payload['action']} the '#{event_payload['role']}' role for '#{subscriber_name}'"
+    "'#{event_payload['who'] || 'Someone'}' #{event_payload['action']} the '#{event_payload['role']}' role for '#{subscriber_name}'"
   end
 
   def excerpt

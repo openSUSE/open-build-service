@@ -8,6 +8,7 @@
       overflow: hidden;
       line-height: 1.5;
       max-height: $maxHeight;
+      word-break: break-all;
 
       p:last-child { @extend .mb-0; }
       &.expanded { max-height: initial; }
@@ -47,6 +48,12 @@
 
 #request-history .card-body {
   @include collapsible($maxHeight: 4.5em);
+}
+
+#vendor-description,
+#distro-description,
+#distro-release-description {
+  @include collapsible($maxHeight: 15em);
 }
 
 #involvement-description {

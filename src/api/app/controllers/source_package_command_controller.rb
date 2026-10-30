@@ -183,7 +183,7 @@ class SourcePackageCommandController < SourceController
   def rebuild
     authorize @package
 
-    if params[:repo] && @project.repositories.find_by(name: params[:repo]).empty?
+    if params[:repo] && !@project.repositories.exists?(name: params[:repo])
       render_error status: 400, errorcode: 'unknown_repository',
                    message: "Unknown repository '#{params[:repo]}'"
       return
@@ -485,6 +485,6 @@ class SourcePackageCommandController < SourceController
     raise InvalidPackageNameError, "invalid package name '#{params[:opackage]}'" unless Package.valid_name?(params[:opackage])
     raise InvalidProjectNameError, "invalid project name '#{params[:oproject]}'" unless Project.valid_name?(params[:oproject])
 
-    @origin_package = Package.get_by_project_and_name(params[:oproject], params[:opackage], follow_special_names: params[:cmd] == 'diff')
+    @origin_package = Package.get_by_project_and_name(params[:oproject], params[:opackage], follow_special_names: true)
   end
 end

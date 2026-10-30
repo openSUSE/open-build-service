@@ -181,6 +181,7 @@ sub check {
   my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
 
   my @deps = grep {!/^container:/} @{$info->{'dep'} || []};
+  @deps = () if $pdata->{'hasbuildenv'} || $info->{'hasbuildenv'};
   my $cpool;
   my @cbdep;
   my @cmeta;

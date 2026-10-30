@@ -26,3 +26,9 @@
       "comments build-results";
   }
 }
+
+@include media-breakpoint-between(xs, md) {
+  #basic-info-wrapper {
+    border: none!important;
+  }
+}

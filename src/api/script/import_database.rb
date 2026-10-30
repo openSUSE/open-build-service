@@ -7,7 +7,6 @@
 require 'yaml'
 require 'fileutils'
 require 'optparse'
-require 'pathname'
 
 TABLES_TO_REMOVE = %w[cache_lines project_log_entries].freeze
 @params = {}

@@ -3,6 +3,7 @@ class RepositoryArchitecture < ApplicationRecord
 
   belongs_to :repository,   inverse_of: :repository_architectures
   belongs_to :architecture, inverse_of: :repository_architectures
+  has_many :distro_release_repository_architectures, dependent: :destroy
 
   acts_as_list scope: [:repository_id], top_of_list: 0
 

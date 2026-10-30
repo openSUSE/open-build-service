@@ -7,6 +7,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   def setup
     @project = projects(:home_Iggy)
+    User.session = User.find_by_login('Iggy')
   end
 
   def test_maintained_project_names

@@ -12,8 +12,8 @@ RSpec.describe Event::CommentForReport do
       expect(Event::CommentForReport.count).to eq(1)
     end
 
-    it  { expect(Event::CommentForReport.last.moderators).to contain_exactly(moderator) }
-    it  { expect(Event::CommentForReport.last.reporters).to contain_exactly(report.reporter) }
-    it  { expect(Event::CommentForReport.last.commenters).to contain_exactly(moderator) }
+    it { expect(Event::CommentForReport.last.moderators).to contain_exactly(moderator) }
+    it { expect(Event::CommentForReport.last.reporters).to contain_exactly(report.reporter) }
+    it { expect(Event::CommentForReport.last.commenters).to contain_exactly(moderator) }
   end
 end

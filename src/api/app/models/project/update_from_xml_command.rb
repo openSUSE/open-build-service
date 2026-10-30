@@ -58,7 +58,7 @@ class Project
 
     private
 
-    # rubocop:disable Style/GuardClause
+    # rubocop:disable-next Style/GuardClause
     def update_linked_projects(xmlhash)
       position = 1
       # destroy all current linked projects
@@ -88,7 +88,6 @@ class Project
       end
       position
     end
-    # rubocop:enable Style/GuardClause
 
     def parse_develproject(xmlhash)
       project.develproject = nil
@@ -250,6 +249,8 @@ class Project
         trigger    = release_target['trigger']
 
         raise SaveError, "Project '#{release_target['project']}' does not exist." unless project
+
+        raise SaveError, 'Using same repository as release target element is not allowed' if release_target['project'] == self.project.name && repository == xml_hash['name']
 
         raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'" if project.defines_remote_instance?
 

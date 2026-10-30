@@ -15,9 +15,8 @@ class CommitActivity < ApplicationRecord
     begin
       CommitActivity.create(attributes.merge(count: 1))
     rescue ActiveRecord::RecordNotUnique
-      # rubocop:disable Rails/SkipsModelValidations
+      # rubocop:disable-next Rails/SkipsModelValidations
       CommitActivity.find_by!(attributes).increment!(:count)
-      # rubocop:enable Rails/SkipsModelValidations
     end
   end
 end

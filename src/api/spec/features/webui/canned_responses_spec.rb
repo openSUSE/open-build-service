@@ -22,7 +22,7 @@ RSpec.describe 'Canned responses', :js do
       within('#canned-responses') do
         expect(page).to have_css('.card-header', text: 'wow')
         expect(page).to have_css('.card-body', text: 'a canned response')
-        expect(page).to have_css('.list-group-item.py-4', text: "Decision's reason: Undefined")
+        expect(page).to have_css('.list-group-item.py-4', text: 'No specific reason')
       end
     end
   end

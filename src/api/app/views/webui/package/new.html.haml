@@ -34,6 +34,9 @@
                 = f.text_field(:title, size: 80, class: 'form-control', placeholder: 'Enter Title')
                 %label.form-text.template-description#description-title
               .mb-3
+                = f.label(:scmsync, 'SCM Sync URL')
+                = f.text_field(:scmsync, size: 80, class: 'form-control', placeholder: 'e.g. https://github.com/org/repo.git')
+              .mb-3
                 = f.label(:description)
                 = render WriteAndPreviewComponent.new(form: f, preview_message_url: package_preview_description_path,
                                                       message_body_param: 'package[description]',
@@ -53,7 +56,9 @@
 - content_for :ready_function do
   :plain
     var templateSelector = document.getElementById("package-template-select");
-    templateSelector.addEventListener("input", function(e) {
-      var url = e.target.selectedOptions[0].dataset.url;
-      setTemplateData(url);
-    });
+    if (templateSelector) {
+      templateSelector.addEventListener("input", function(e) {
+        var url = e.target.selectedOptions[0].dataset.url;
+        setTemplateData(url);
+      });
+    }

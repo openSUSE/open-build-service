@@ -13,9 +13,8 @@ begin
   end
 rescue StandardError
   puts "Error while parsing config/options.yml, using defaults"
-  # rubocop:disable Style/MutableConstant
+  # rubocop:disable-next Style/MutableConstant
   CONFIG = {}
-  # rubocop:enable Style/MutableConstant
 end
 
 # Setup CONFIG defaults

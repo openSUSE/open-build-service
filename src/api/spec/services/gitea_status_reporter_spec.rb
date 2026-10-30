@@ -96,5 +96,64 @@ RSpec.describe GiteaStatusReporter, type: :service do
         expect(gitea_client).to have_received(:create_commit_status).with(owner: 'openSUSE', repo: 'repo123', sha: '123456789', state: state, **status_options)
       end
     end
+
+    context 'when Gitea answers with an error' do
+      subject { scm_status_reporter.call }
+
+      let(:event_payload) do
+        { project: 'home:danidoni', package: 'hello_world',
+          repository: 'openSUSE_Tumbleweed', arch: 'x86_64' }
+      end
+      let(:event_subscription_payload) do
+        { scm: 'gitea', target_repository_full_name: 'openSUSE/repo123', commit_sha: '123456789' }
+      end
+      let(:token) { 'XYCABC' }
+      let(:event_type) { nil }
+      let(:state) { 'pending' }
+      let(:initial_report) { false }
+      let(:gitea_client) { instance_spy(GiteaAPI::V1::Client) }
+
+      before do
+        allow(GiteaAPI::V1::Client).to receive(:new).and_return(gitea_client)
+        allow(gitea_client).to receive(:create_commit_status).and_raise(exception)
+      end
+
+      context 'with an exception SCMExceptionMessage knows about' do
+        let(:exception) { GiteaAPI::V1::Client::NotFoundError.new('HTTP Code: 404, response: the repository does not exist') }
+
+        it 'does not let the exception escape' do
+          expect { subject }.not_to raise_error
+        end
+
+        it 'stores the readable message in the workflow run' do
+          subject
+          expect(workflow_run.reload.response_body).to eq('Failed to report back to Gitea: Content not found.')
+        end
+      end
+
+      context 'with a client error we have no dedicated class for' do
+        let(:exception) { GiteaAPI::V1::Client::UnknownClientError.new('HTTP Code: 418, response: I am a teapot') }
+
+        it 'does not let the exception escape' do
+          expect { subject }.not_to raise_error
+        end
+
+        it 'keeps the answer of Gitea in the workflow run' do
+          subject
+          expect(workflow_run.reload.response_body).to eq('Failed to report back to Gitea: HTTP Code: 418, response: I am a teapot')
+        end
+      end
+
+      # These are transient, so they have to reach ReportToSCMJob for it to retry them.
+      context 'with an exception we want to retry' do
+        context "like #{GiteaAPI::V1::Client::BadGatewayError}" do
+          let(:exception) { GiteaAPI::V1::Client::BadGatewayError.new('something went wrong') }
+
+          it 'lets the exception escape' do
+            expect { subject }.to raise_error(GiteaAPI::V1::Client::BadGatewayError, 'something went wrong')
+          end
+        end
+      end
+    end
   end
 end

@@ -1,6 +1,6 @@
 class DistributionsController < ApplicationController
   before_action :require_admin, except: %i[index show include_remotes]
-  before_action :set_body_xml, except: %i[index show include_remotes]
+  before_action :set_body_xml, except: %i[index show include_remotes refresh]
 
   validate_action bulk_replace: { method: :put, request: :distributions }
   validate_action bulk_replace: { method: :post, request: :distributions }
@@ -99,6 +99,15 @@ class DistributionsController < ApplicationController
       Distribution.local.destroy_all
       distributions.map(&:save!)
       render_ok
+    end
+  end
+
+  # POST /distributions/refresh
+  def refresh
+    if FetchRemoteDistributionsJob.perform_now
+      render_ok
+    else
+      render_error message: 'Failed to refresh distributions', errorcode: 'failed_distribution_refresh'
     end
   end
 

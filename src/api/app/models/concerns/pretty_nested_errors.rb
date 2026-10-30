@@ -74,7 +74,7 @@ module PrettyNestedErrors
 
     def self.nest_errors_for(association_name, options = {})
       self.nested_error_groupings ||= {}
-      self.nested_error_groupings[association_name] = options[:by]
+      nested_error_groupings[association_name] = options[:by]
     end
 
     after_validation :generate_nested_error_messages
@@ -84,7 +84,7 @@ module PrettyNestedErrors
     @nested_error_messages = {}
     errors.messages.each do |key, messages|
       @nested_error_messages =
-        PrettyNestedErrors::KeyAndMessagesParser.new(self, key, messages, @nested_error_messages, self.nested_error_groupings).parse
+        PrettyNestedErrors::KeyAndMessagesParser.new(self, key, messages, @nested_error_messages, nested_error_groupings).parse
     end
     @nested_error_messages
   end

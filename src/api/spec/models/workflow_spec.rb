@@ -18,6 +18,7 @@ RSpec.describe Workflow, :vcr do
 
       it 'does not run' do
         expect(subject.call).to be_nil
+        expect(subject.filters_matched?).to be false
       end
     end
 
@@ -27,6 +28,7 @@ RSpec.describe Workflow, :vcr do
 
       it 'does not run' do
         expect(subject.call).to be_nil
+        expect(subject.filters_matched?).to be false
       end
     end
 
@@ -36,6 +38,7 @@ RSpec.describe Workflow, :vcr do
 
       it 'does not run' do
         expect(subject.call).to be_nil
+        expect(subject.filters_matched?).to be false
       end
     end
 
@@ -45,6 +48,7 @@ RSpec.describe Workflow, :vcr do
 
       it 'does not run' do
         expect(subject.call).to be_nil
+        expect(subject.filters_matched?).to be false
       end
     end
 
@@ -54,6 +58,7 @@ RSpec.describe Workflow, :vcr do
 
       it 'does not run' do
         expect(subject.call).to be_nil
+        expect(subject.filters_matched?).to be false
       end
     end
 
@@ -63,6 +68,7 @@ RSpec.describe Workflow, :vcr do
 
       it 'does not run' do
         expect(subject.call).to be_nil
+        expect(subject.filters_matched?).to be false
       end
     end
 
@@ -72,6 +78,7 @@ RSpec.describe Workflow, :vcr do
 
       it 'does not run' do
         expect(subject.call).to be_nil
+        expect(subject.filters_matched?).to be false
       end
     end
 
@@ -122,6 +129,7 @@ RSpec.describe Workflow, :vcr do
         it 'the workflow runs' do
           subject.call
           expect(subject.steps.first).to have_received(:call)
+          expect(subject.filters_matched?).to be true
         end
       end
 
@@ -154,6 +162,7 @@ RSpec.describe Workflow, :vcr do
       it 'the workflow runs' do
         subject.call
         expect(subject.steps.first).to have_received(:call)
+        expect(subject.filters_matched?).to be true
       end
     end
 
@@ -172,6 +181,7 @@ RSpec.describe Workflow, :vcr do
       it 'the workflow does not run' do
         subject.call
         expect(subject.steps.first).not_to have_received(:call)
+        expect(subject.filters_matched?).to be false
       end
     end
 
@@ -198,6 +208,7 @@ RSpec.describe Workflow, :vcr do
       it 'the workflow does not run' do
         subject.call
         expect(subject.steps.first).not_to have_received(:call)
+        expect(subject.filters_matched?).to be false
       end
     end
 
@@ -216,6 +227,7 @@ RSpec.describe Workflow, :vcr do
       it 'the workflow runs' do
         subject.call
         expect(subject.steps.first).to have_received(:call)
+        expect(subject.filters_matched?).to be true
       end
 
       context 'the branches filter contains a number' do
@@ -228,6 +240,7 @@ RSpec.describe Workflow, :vcr do
         it 'the workflow runs' do
           subject.call
           expect(subject.steps.first).to have_received(:call)
+          expect(subject.filters_matched?).to be true
         end
       end
     end
