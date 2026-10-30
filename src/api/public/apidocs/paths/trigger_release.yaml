@@ -37,5 +37,14 @@ post:
       schema:
         type: string
       example: openSUSE_Factory
+    - in: query
+      name: setrelease
+      description: |
+        Defines a custom release name. This overwrites milestone definitions
+        or built-in defaults.
+        Renaming can be disabled entirely by using '-'.
+      schema:
+        type: string
+      example: '20.5'
   tags:
     - Trigger
