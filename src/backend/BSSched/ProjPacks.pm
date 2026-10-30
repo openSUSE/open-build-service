@@ -70,7 +70,7 @@ our $testprojid;
 
 use Build;	# for read_config
 use Data::Dumper;
-use Time::HiRes;
+use Time::HiRes ();
 
 use BSUtil;
 use BSSolv;	# for depsort and orderpackids
@@ -357,7 +357,7 @@ sub get_projpacks_resume {
         }
         next;
       }
-      my $async = {'_changetype' => $xpackids ? 'med' : 'low'};
+      my $async = {'_changetype' => $xpackids ? 'lowfront' : 'low'};
       get_projpacks($gctx, $async, $lprojid, sort keys %lpackids);
     }
   }
@@ -1592,7 +1592,7 @@ sub do_fetchprojpacks {
       my %packids = map {$_ => 1} @{$fetchlinkedprojpacks{$projid}};
       if ($asyncmode) {
 	my $async = { '_changelevel' => 1, '_changetype' => 'low' };
-	$async->{'_changetype'} = 'med' if $fetchlinkedprojpacks_srcchange{$projid};
+	$async->{'_changetype'} = 'lowfront' if $fetchlinkedprojpacks_srcchange{$projid};
 	get_projpacks($gctx, $async, $projid, sort keys %packids);
 	next;
       }

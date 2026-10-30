@@ -22,6 +22,22 @@ use warnings;
 use BSUtil;
 
 
+=head2 new_lowfront - add prps to the lowfront queue
+
+ TODO
+
+=cut
+
+sub new_lowfront {
+  my ($gctx, @new) = @_;
+  my $lookat_low  = $gctx->{'lookat_low'};
+  # split lowfront from lookat and add new entries to back
+  my @lowfront = splice(@$lookat_low, 0, $gctx->{'lowfront_cnt'});
+  @lowfront = BSUtil::unify(@lowfront, @new);
+  unshift @$lookat_low, @lowfront;
+  $gctx->{'lowfront_cnt'} = scalar(@lowfront);
+}
+
 =head2 setchanged - add a prp to the lookat queue and the dependent prps to the changed hashes
 
 Usually called from a RPC resume, so we put the prps in from of the lookat queue.
@@ -37,21 +53,21 @@ sub setchanged {
 
   my $changed = $gctx->{"changed_$changetype"};
   my $changed_dirty = $gctx->{'changed_dirty'};
-  my $lookat = $gctx->{"lookat_$changetype"};
+  my $lookat = $gctx->{$changetype eq 'lowfront' ? 'lookat_low' : "lookat_$changetype"};
   my $prps = $gctx->{'prps'};
   my ($projid, $repoid) = split('/', $changeprp, 2);
   if (defined($repoid)) {
     my $prp = $changeprp;
     @$lookat = grep {$_ ne $prp} @$lookat;
-    unshift @$lookat, $prp;
     if ($changetype eq 'low') {
+      new_lowfront($gctx, $prp);
       # we don't use changed2lookat to prevent infinite looping
-      my $prpdeps = $gctx->{'prpdeps'};
-      for my $dprp (@$prps) {
-	next if $dprp eq $prp;
-	$changed->{$dprp} = 1 if grep {$_ eq $prp} @{$prpdeps->{$dprp}};
-      }
+      my $lookat_next = $gctx->{'lookat_next'};
+      my $alllocked = $gctx->{'alllocked'};
+      my $rprpdeps = $gctx->{'rprpdeps'};
+      $lookat_next->{$_} = 1 for grep {$_ ne $prp && !$alllocked->{$_}} @{$rprpdeps->{$prp} || []};
     } else {
+      unshift @$lookat, $prp;
       if ($changelevel == 2) {
         $changed->{$prp} = 2;
       } else {
@@ -84,7 +100,6 @@ sub setchanged {
     $changed->{$projid} ||= 1;
   }
 }
-
 
 =head2 changed2lookat - add all changed prps to the lookat queues
 
@@ -123,7 +138,9 @@ sub changed2lookat {
   if (%$changed_lowfront) {
     my @lowfront = sort keys %$changed_lowfront;
     $lookat_next->{$_} = 1 for @lowfront;
-    @$lookat_low = BSUtil::unify(@lowfront, @$lookat_low);
+    my %in_higher = map {$_ => 1} (@$lookat_high, @$lookat_med);
+    @lowfront = grep {!$in_higher{$_}} @lowfront;
+    new_lowfront($gctx, @lowfront);
     %$changed_lowfront = ();
   }
 
@@ -146,6 +163,12 @@ sub changed2lookat {
   %$changed_med = ();
   %$changed_high = ();
 }
+
+=head2 extend_lookat_next - use prp dependencies to extend the lookat_next hash
+
+ TODO
+
+=cut
 
 sub extend_lookat_next {
   my ($gctx) = @_;
@@ -204,9 +227,11 @@ sub nextlookat {
   }
 
   # if lookat_low array is empty, start new series with lookat_next
-  if (!@$lookat_low && %$lookat_next) {
+  if (@$lookat_low <= $gctx->{'lowfront_cnt'} && %$lookat_next) {
+    my @lowfront = splice(@$lookat_low, 0, $gctx->{'lowfront_cnt'});
     extend_lookat_next($gctx);
     @$lookat_low = grep {$lookat_next->{$_}} @{$gctx->{'prps'}};
+    new_lowfront($gctx, @lowfront);
     %$lookat_next = ();
   }
 
@@ -223,6 +248,19 @@ sub nextlookat {
     $lookattype = 'high', last if @$lookat_high                && defined($prp = check_queue($lookat_high));
     $lookattype = 'med',  last if @$lookat_med                 && defined($prp = check_queue($lookat_med));
     last;
+  }
+  # special low queue postprocessing, we want to feed both from the lowfront and low entries
+  if ($lookattype eq 'low' && $gctx->{'lowfront_cnt'} && $gctx->{'lowfront_cnt'} < 1 + @$lookat_low) {
+    if ($gctx->{'notlowfront'} > 0) {
+      # take the low, keep lowfront
+      unshift @$lookat_low, $prp;
+      $prp = splice(@$lookat_low, $gctx->{'lowfront_cnt'}, 1);
+      $gctx->{'notlowfront'} = 0;
+    } else {
+      # take the lowfront
+      $gctx->{'lowfront_cnt'}--;
+      $gctx->{'notlowfront'}++;
+    }
   }
   $gctx->{'notlow'} = $notlow;
   $gctx->{'notmed'} = $notmed;

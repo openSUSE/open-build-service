@@ -50,16 +50,19 @@ sub addrepo {
 
   my $repodata = $self->{"$prp/$arch"};
 
-  my @modules;
-  @modules = $pool->getmodules() if defined &BSSolv::pool::getmodules;
-  if (@modules && $repodata) {
-    if ($repodata->{'modules'}) {
-      my %repomodules = map {$_ => 1} @{$repodata->{'modules'}};
-      @modules = grep {$repomodules{$_}} @modules;
-    }
+  # for remote repos we use different caches for the requested module sets
+  if ($repodata && $repodata->{'isremote'}) {
+    my @modules;
+    @modules = $pool->getmodules() if defined &BSSolv::pool::getmodules;
     if (@modules) {
-      my $modulestr = '/'.join('/', sort @modules);
-      $repodata = $repodata->{"modules$modulestr"};
+      if ($repodata->{'modules'}) {
+	my %repomodules = map {$_ => 1} @{$repodata->{'modules'}};
+	@modules = grep {$repomodules{$_}} @modules;
+      }
+      if (@modules) {
+	my $modulestr = '/'.join('/', sort @modules);
+	$repodata = $repodata->{"modules$modulestr"};
+      }
     }
   }
 
