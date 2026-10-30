@@ -2,7 +2,11 @@ RSpec.describe ApplicationController do # rubocop:disable RSpec/SpecFilePathForm
   controller do
     include Authenticator
 
-    def index; end
+    add_flash_types :error
+
+    def index
+      head :ok
+    end
   end
 
   subject { get :index, params: {}, format: :xml }
@@ -80,6 +84,28 @@ RSpec.describe ApplicationController do # rubocop:disable RSpec/SpecFilePathForm
 
     it { expect { subject }.not_to change(User, :session) }
     it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('unconfirmed_user') }
+
+    context 'HTML format' do
+      context 'when requesting a specific page' do
+        before do
+          allow(request).to receive(:path).and_return('/monitor')
+          get :index, format: :html
+        end
+
+        it { expect(response).to redirect_to(root_path) }
+        it { expect(flash[:error]).to be_present }
+      end
+
+      context 'when already at root_path' do
+        before do
+          allow(controller).to receive(:root_path).and_return(request.path)
+          get :index, format: :html
+        end
+
+        it { expect(response).to have_http_status(:ok) }
+        it { expect(flash.now[:error]).to be_present }
+      end
+    end
   end
 
   describe '#check_anonymous_access' do
