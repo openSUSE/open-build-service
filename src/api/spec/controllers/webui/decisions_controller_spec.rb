@@ -73,6 +73,19 @@ RSpec.describe Webui::DecisionsController do
         it { expect(Decision.last).to be_a(DecisionCleared) }
       end
 
+      context 'when the reported content has been deleted' do
+        before do
+          report.reportable.destroy
+          report.reload
+          post :create, params: { decision: decision_params.merge(type: 'DecisionCleared') }
+        end
+
+        it { expect(flash[:success]).to eq('Decision created successfully ') }
+        it { expect(Decision.count).to eq(1) }
+        it { expect(report.reload.decision).to eq(Decision.last) }
+        it { expect(Event::ClearedDecision.last.payload['reportable_type']).to be_nil }
+      end
+
       context 'with invalid params' do
         before do
           post :create, params: { decision: decision_params.merge(reason: '') }
