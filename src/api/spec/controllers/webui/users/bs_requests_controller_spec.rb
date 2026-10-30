@@ -186,6 +186,18 @@ RSpec.describe Webui::Users::BsRequestsController do
         it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
       end
 
+      context 'and the search parameter matches a target package name', :thinking_sphinx do
+        let(:context_params) { { search: target_package.name } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request, outgoing_request) }
+      end
+
+      context 'and the search parameter matches a target project name', :thinking_sphinx do
+        let(:context_params) { { search: request_with_review.bs_request_actions.first.target_project } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
+      end
+
       context 'and the package_name parameter is used' do
         let(:context_params) { { package_names: [incoming_request.bs_request_actions.first.source_package] } }
 
