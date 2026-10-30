@@ -50,7 +50,6 @@ BuildRequires:  mysql-devel
 BuildRequires:  nodejs
 %if 0%{?suse_version}
 BuildRequires:  ruby4.0-devel
-BuildRequires:  rubygem(ruby:4.0.0:bundler)
 BuildRequires:  openldap2-devel
 # For comparing package/bundle versions with make test_rack
 BuildRequires:  rubygem(ruby:4.0.0:rack)
