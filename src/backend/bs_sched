@@ -543,7 +543,9 @@ my $gctx = {
   'lookat_med'  => [],		# builds are finished here
   'lookat_high' => [],		# user interaction, do those ASAP
   'lookat_next' => {},		# not so important, next series
+  'lowfront_cnt' => 0,		# number of lookat_low entries coming from changed_lowfront
   'notlow'	=> 0,
+  'notlowfront'	=> 0,
   'notmed'	=> 0,
 
   'delayedfetchprojpacks' => {},	# projpacks fetches we have delayed till prp check time
