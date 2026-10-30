@@ -15,7 +15,7 @@ module Authenticator
 
   def extract_user
     user = if ::Configuration.proxy_auth_mode_enabled?
-             find_or_create_proxy_user
+             proxy_user
            elsif request.session[:login] # Webui Session Auth
              User.find_by!(login: request.session[:login])
            elsif authorization_headers.present? # API Basic Auth
@@ -74,20 +74,13 @@ module Authenticator
 
   private
 
-  # In proxy_auth_mode there is no need to authenticate the user from the credentials, the proxy did that.
-  # If the proxy passes the X_USERNAME header we just find_or_create the User.
-  def find_or_create_proxy_user
-    return unless request.env['HTTP_X_USERNAME']
+  # Warden runs devise_ichain_authenticatable. It reads the proxy header and calls
+  # User.for_ichain_username. The strategy fails (nil) only when registration is denied.
+  # Raise RegistrationDisabledError so the API keeps its X-Opensuse-Errorcode.
+  def proxy_user
+    user = request.env['warden'].authenticate(scope: :user)
+    raise RegistrationDisabledError if user.nil? && request.env['HTTP_X_USERNAME']
 
-    user = User.find_by(login: request.env['HTTP_X_USERNAME'])
-
-    unless user
-      raise RegistrationDisabledError if ::Configuration.registration == 'deny'
-
-      user = User.create_user_with_fake_pw!(login: request.env['HTTP_X_USERNAME'], state: User.default_user_state)
-    end
-
-    user.update!(user_proxy_information)
     user
   end
 
@@ -115,16 +108,5 @@ module Authenticator
     Rails.logger.debug 'No authentication header was received.'
 
     []
-  end
-
-  def user_proxy_information
-    { email: request.env['HTTP_X_EMAIL'],
-      realname: proxy_realname }.compact
-  end
-
-  def proxy_realname
-    return if request.env['HTTP_X_FIRSTNAME'].blank? && request.env['HTTP_X_LASTNAME'].blank?
-
-    "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip.force_encoding('UTF-8')
   end
 end

@@ -1,4 +1,6 @@
 RSpec.describe ApplicationController do # rubocop:disable RSpec/SpecFilePathFormat
+  include Devise::Test::ControllerHelpers
+
   controller do
     include Authenticator
 
