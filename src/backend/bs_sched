@@ -935,8 +935,10 @@ eval {
       my ($projid) = split('/', $prp, 2);
       if ($gctx->{'rctx'}->xrpc_busy($projid)) {
         #print "postponed looking at $prp\n";
-	my $ctx = {'changeprp' => $prp, 'changetype' => $lookattype, 'gctx' => $gctx};
-	$gctx->{'rctx'}->xrpc_addwakeup($ctx, $projid);
+	if ($lookattype ne 'low') {
+	  my $ctx = {'changeprp' => $prp, 'changetype' => $lookattype, 'gctx' => $gctx};
+	  $gctx->{'rctx'}->xrpc_addwakeup($ctx, $projid);
+	}
 	next;
       }
     }
@@ -1014,11 +1016,18 @@ eval {
       my $inprogress;
       my $delayed;
       while ($delayed = delete($gctx->{'delayedfetchprojpacks'}->{$projid})) {
+	# we always use lowfront as changetype but add a wakeup with the correct type later
         my $async;
-        $async = {'_changeprp' => $prp, '_changetype' => $lookattype} if $gctx->{'asyncmode'};
+        $async = {'_changeprp' => $prp, '_changetype' => 'lowfront'} if $gctx->{'asyncmode'};
         $inprogress = 1 if !BSSched::ProjPacks::do_delayedprojpackfetches($gctx, $async, $projid, @$delayed);
       }
-      next if $inprogress;	# async projpack fetch in progress...
+      if ($inprogress) {
+	if ($lookattype ne 'low') {
+	  my $ctx = {'changeprp' => $prp, 'changetype' => $lookattype, 'gctx' => $gctx};
+	  $gctx->{'rctx'}->xrpc_addwakeup($ctx, $projid);
+        }
+        next;	# async projpack fetch in progress...
+      }
     }
 
     my $projpacks = $gctx->{'projpacks'};

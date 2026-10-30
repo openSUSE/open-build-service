@@ -37,7 +37,7 @@ sub setchanged {
 
   my $changed = $gctx->{"changed_$changetype"};
   my $changed_dirty = $gctx->{'changed_dirty'};
-  my $lookat = $gctx->{"lookat_$changetype"};
+  my $lookat = $gctx->{$changetype eq 'lowfront' ? 'lookat_low' : "lookat_$changetype"};
   my $prps = $gctx->{'prps'};
   my ($projid, $repoid) = split('/', $changeprp, 2);
   if (defined($repoid)) {
@@ -46,11 +46,10 @@ sub setchanged {
     unshift @$lookat, $prp;
     if ($changetype eq 'low') {
       # we don't use changed2lookat to prevent infinite looping
-      my $prpdeps = $gctx->{'prpdeps'};
-      for my $dprp (@$prps) {
-	next if $dprp eq $prp;
-	$changed->{$dprp} = 1 if grep {$_ eq $prp} @{$prpdeps->{$dprp}};
-      }
+      my $lookat_next = $gctx->{'lookat_next'};
+      my $alllocked = $gctx->{'alllocked'};
+      my $rprpdeps = $gctx->{'rprpdeps'};
+      $lookat_next->{$_} = 1 for grep {$_ ne $prp && !$alllocked->{$_}} @{$rprpdeps->{$prp} || []};
     } else {
       if ($changelevel == 2) {
         $changed->{$prp} = 2;
@@ -123,6 +122,8 @@ sub changed2lookat {
   if (%$changed_lowfront) {
     my @lowfront = sort keys %$changed_lowfront;
     $lookat_next->{$_} = 1 for @lowfront;
+    my %in_higher = map {$_ => 1} (@$lookat_high, @$lookat_med);
+    @lowfront = grep {!$in_higher{$_}} @lowfront;
     @$lookat_low = BSUtil::unify(@lowfront, @$lookat_low);
     %$changed_lowfront = ();
   }
