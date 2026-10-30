@@ -368,14 +368,18 @@ class Review < ApplicationRecord
     elsif group_id
       group.touch
       user_ids = GroupsUser.where(group_id: group_id).pluck(:user_id)
-    elsif package_id
-      Group.joins(:relationships).where(relationships: { package_id: package_id }).update_all(updated_at: Time.now)
-      user_ids = Relationship.joins(:groups_users).where(package_id: package_id).groups.pluck('groups_users.user_id')
-      user_ids += Relationship.where(package_id: package_id).users.pluck(:user_id)
-    elsif project_id
-      Group.joins(:relationships).where(relationships: { project_id: project_id }).update_all(updated_at: Time.now)
-      user_ids = Relationship.joins(:groups_users).where(project_id: project_id).groups.pluck('groups_users.user_id')
-      user_ids += Relationship.where(project_id: project_id).users.pluck(:user_id)
+    else
+      user_ids = []
+      if package_id
+        Group.joins(:relationships).where(relationships: { package_id: package_id }).update_all(updated_at: Time.now)
+        user_ids += Relationship.joins(:groups_users).where(package_id: package_id).groups.pluck('groups_users.user_id')
+        user_ids += Relationship.where(package_id: package_id).users.pluck(:user_id)
+      end
+      if project_id
+        Group.joins(:relationships).where(relationships: { project_id: project_id }).update_all(updated_at: Time.now)
+        user_ids += Relationship.joins(:groups_users).where(project_id: project_id).groups.pluck('groups_users.user_id')
+        user_ids += Relationship.where(project_id: project_id).users.pluck(:user_id)
+      end
     end
     User.where(id: user_ids).update_all(updated_at: Time.now)
     # rubocop:enable Rails/SkipsModelValidations
