@@ -11,8 +11,7 @@ module Webui
       def index
         respond_to do |format|
           format.html do
-            filter_requests
-            @bs_requests = @bs_requests.page(params[:page])
+            filter_and_preload_bs_requests
             @url = packages_requests_path(@project, @package)
           end
           format.json do

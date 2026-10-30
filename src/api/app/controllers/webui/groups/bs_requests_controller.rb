@@ -16,9 +16,7 @@ module Webui
       def index
         respond_to do |format|
           format.html do
-            filter_requests
-
-            @bs_requests = @bs_requests.page(params[:page])
+            filter_and_preload_bs_requests(flipper_actor: User.possibly_nobody)
           end
           format.json do
             parsed_params = BsRequest::DataTable::ParamsParser.new(params).parsed_params
