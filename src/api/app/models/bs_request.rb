@@ -1271,34 +1271,36 @@ end
 #
 # Table name: bs_requests
 #
-#  id                 :integer          not null, primary key
-#  accept_at          :datetime
-#  approver           :string(255)
-#  comment            :text(65535)
-#  commenter          :string(255)
-#  comments_count     :integer          default(0), not null, indexed
-#  creator            :string(255)      indexed
-#  description        :text(65535)
-#  number             :integer          uniquely indexed
-#  priority           :string           default("moderate")
-#  reviews_count      :integer          default(0), not null, indexed
-#  state              :string(255)      indexed
-#  status             :integer          indexed
-#  superseded_by      :integer          indexed
-#  updated_when       :datetime
-#  created_at         :datetime         not null, indexed
-#  updated_at         :datetime         not null
-#  staging_project_id :integer          indexed
+#  id                       :integer          not null, primary key
+#  accept_at                :datetime
+#  approver                 :string(255)
+#  bs_request_actions_count :integer          default(0), not null, indexed
+#  comment                  :text(65535)
+#  commenter                :string(255)
+#  comments_count           :integer          default(0), not null, indexed
+#  creator                  :string(255)      indexed
+#  description              :text(65535)
+#  number                   :integer          uniquely indexed
+#  priority                 :string           default("moderate")
+#  reviews_count            :integer          default(0), not null, indexed
+#  state                    :string(255)      indexed
+#  status                   :integer          indexed
+#  superseded_by            :integer          indexed
+#  updated_when             :datetime
+#  created_at               :datetime         not null, indexed
+#  updated_at               :datetime         not null
+#  staging_project_id       :integer          indexed
 #
 # Indexes
 #
-#  index_bs_requests_on_comments_count      (comments_count)
-#  index_bs_requests_on_created_at          (created_at)
-#  index_bs_requests_on_creator             (creator)
-#  index_bs_requests_on_number              (number) UNIQUE
-#  index_bs_requests_on_reviews_count       (reviews_count)
-#  index_bs_requests_on_staging_project_id  (staging_project_id)
-#  index_bs_requests_on_state               (state)
-#  index_bs_requests_on_status              (status)
-#  index_bs_requests_on_superseded_by       (superseded_by)
+#  index_bs_requests_on_bs_request_actions_count  (bs_request_actions_count)
+#  index_bs_requests_on_comments_count            (comments_count)
+#  index_bs_requests_on_created_at                (created_at)
+#  index_bs_requests_on_creator                   (creator)
+#  index_bs_requests_on_number                    (number) UNIQUE
+#  index_bs_requests_on_reviews_count             (reviews_count)
+#  index_bs_requests_on_staging_project_id        (staging_project_id)
+#  index_bs_requests_on_state                     (state)
+#  index_bs_requests_on_status                    (status)
+#  index_bs_requests_on_superseded_by             (superseded_by)
 #

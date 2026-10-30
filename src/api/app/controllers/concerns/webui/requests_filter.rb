@@ -10,7 +10,9 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     SortBy.new(name: 'Most Comments', value: 'most_comments', sql: 'comments_count DESC'),
     SortBy.new(name: 'Least Comments', value: 'least_comments', sql: 'comments_count'),
     SortBy.new(name: 'Most Reviews', value: 'most_reviews', sql: 'reviews_count DESC'),
-    SortBy.new(name: 'Least Reviews', value: 'least_reviews', sql: 'reviews_count')
+    SortBy.new(name: 'Least Reviews', value: 'least_reviews', sql: 'reviews_count'),
+    SortBy.new(name: 'Most Actions', value: 'most_actions', sql: 'bs_request_actions_count DESC'),
+    SortBy.new(name: 'Least Actions', value: 'least_actions', sql: 'bs_request_actions_count')
   ].freeze
 
   def filter_requests

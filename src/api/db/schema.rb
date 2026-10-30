@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_182000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_29_125148) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "blob_id", null: false
     t.datetime "created_at", null: false
@@ -283,6 +283,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_182000) do
     t.integer "superseded_by"
     t.datetime "updated_at", null: false
     t.datetime "updated_when", precision: nil
+    t.integer "bs_request_actions_count", default: 0, null: false
+    t.index ["bs_request_actions_count"], name: "index_bs_requests_on_bs_request_actions_count"
     t.index ["comments_count"], name: "index_bs_requests_on_comments_count"
     t.index ["created_at"], name: "index_bs_requests_on_created_at"
     t.index ["creator"], name: "index_bs_requests_on_creator"

@@ -12,7 +12,7 @@ class BsRequestAction < ApplicationRecord
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
-  belongs_to :bs_request, touch: true, optional: true
+  belongs_to :bs_request, touch: true, optional: true, counter_cache: true
   has_one :bs_request_action_accept_info, dependent: :delete
   has_many :comments, as: :commentable, dependent: :destroy
   has_one :comment_lock, as: :commentable, dependent: :destroy
