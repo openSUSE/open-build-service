@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;                      # last test to print
+use Test::More tests => 22;                      # last test to print
 use Storable qw/dclone/;
 use_ok('BSSched::EventSource::Retry');
 
@@ -158,6 +158,14 @@ is_deeply(\@got,$expected,"Checking due method");
 $expected = [];
 @got = $retry->due();
 is_deeply(\@got,$expected,"Checking that due method removed entries from the queue");
+
+$ev = {
+  project => 'home:M0ses:remote',
+  type  => 'package',
+};
+$retry->addretryevent($ev, 600);
+$expected = [ { %$ev, 'retry' => time + 600 } ];
+is_deeply([ grep {$_->{'project'} eq 'home:M0ses:remote'} $retry->events() ], $expected, "Checking with a delay");
 
 exit 0;
 

@@ -414,6 +414,7 @@ sub update_projpacks {
       if ($projpacks->{$projid}) {
         # do not delete the missingpackages flag if we just update single packages
         $proj->{'missingpackages'} = 1 if $projpacks->{$projid}->{'missingpackages'};
+        $proj->{'remoteaccessdenied'} = 1 if $projpacks->{$projid}->{'remoteaccessdenied'};
         # use all packages/configs from old projpacks
         my $opackage = $projpacks->{$projid}->{'package'} || {};
         for (keys %$opackage) {
