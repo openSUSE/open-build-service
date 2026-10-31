@@ -141,7 +141,7 @@ class Project < ApplicationRecord
     end
 
     def deleted?(project_name)
-      return false if find_by_name(project_name)
+      return false if Project.unscoped.exists?(name: project_name)
 
       response = ProjectFile.new(project_name: project_name, name: '_history').content(deleted: 1)
       return false unless response
