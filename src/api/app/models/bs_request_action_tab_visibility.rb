@@ -9,6 +9,10 @@ class BsRequestActionTabVisibility
     @actions.any? { |a| a.type.in?(CHANGES_TABS) && a.source_project && a.source_package }
   end
 
+  def rpmlint
+    build
+  end
+
   def issues
     @actions.any? { |a| a.type.in?(CHANGES_TABS) }
   end
