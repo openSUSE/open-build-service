@@ -41,5 +41,18 @@ RSpec.describe Event::CommentForProject do
         expect(raw_payload.length).to be <= 65_535
       end
     end
+
+    context 'with a comment body that grows a lot when it is JSON encoded' do
+      # Every quote is escaped as \" in the JSON payload, so the encoded comment is twice as long
+      # as the raw one and the overflow is bigger than the whole raw comment
+      let(:comment_body) { '"' * 70_000 }
+
+      it { expect(event).to be_persisted }
+
+      it 'shortens the payload to fit in the database' do
+        raw_payload = event.attributes_before_type_cast['payload']
+        expect(raw_payload.bytesize).to be <= 65_535
+      end
+    end
   end
 end
