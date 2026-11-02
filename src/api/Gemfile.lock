@@ -586,7 +586,7 @@ GEM
     uniform_notifier (1.18.1)
     uri (1.1.2)
     useragent (0.16.11)
-    vcr (6.4.0)
+    vcr (6.4.1)
     view_component (4.19.0)
       actionview (>= 7.1.0)
       activesupport (>= 7.1.0)
