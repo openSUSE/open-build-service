@@ -44,25 +44,41 @@ class SourcePackageMetaController < SourceController
   def update
     # check for project
     if Package.exists_by_project_and_name(@project_name, @package_name, follow_project_links: false)
-      pkg = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
-
-      authorize pkg, :update?
-
-      change_package_protection_level?(pkg)
+      update_existing_package
     else
-      prj = Project.get_by_name(@project_name)
-      # necessary to pass the policy_class here
-      # if its remote prj is a string
-      authorize prj, :update?, policy_class: ProjectPolicy
-      pkg = prj.packages.new(name: @package_name)
+      create_package
     end
-
-    pkg.comment = params[:comment]
-    pkg.update_from_xml(@request_data)
     render_ok
   end
 
   private
+
+  def update_existing_package
+    pkg = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
+
+    authorize pkg, :update?
+
+    change_package_protection_level?(pkg)
+    update_package_from_xml(pkg)
+  end
+
+  def create_package
+    prj = Project.get_by_name(@project_name)
+    # necessary to pass the policy_class here
+    # if its remote prj is a string
+    authorize prj, :update?, policy_class: ProjectPolicy
+    update_package_from_xml(prj.packages.new(name: @package_name))
+  rescue ActiveRecord::RecordNotUnique
+    # A concurrent request created the package first: update it, as if it had existed
+    raise unless Package.exists_by_project_and_name(@project_name, @package_name, follow_project_links: false)
+
+    update_existing_package
+  end
+
+  def update_package_from_xml(pkg)
+    pkg.comment = params[:comment]
+    pkg.update_from_xml(@request_data)
+  end
 
   def change_package_protection_level?(pkg)
     # TODO: use pundit
