@@ -3,6 +3,7 @@ require 'kconv'
 class User < ApplicationRecord
   include CanRenderModel
   include Flipper::Identifier
+  include IchainAuthenticatable
 
   # Keep in sync with states defined in db/schema.rb
   STATES = %w[unconfirmed confirmed locked deleted subaccount].freeze
