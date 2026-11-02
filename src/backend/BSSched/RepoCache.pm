@@ -28,14 +28,31 @@ sub new {
   return bless $self, $class;
 }
 
+sub _getmodulerepodata {
+  my ($self, $repodata, $reqmodules, $create) = @_;
+  my $repomodules = $repodata->{'modules'};
+  return $repodata unless @{$repomodules || []} && @{$reqmodules || []};
+  my %repomodules = map {$_ => 1} @$repomodules;
+  my @modules = grep {$repomodules{$_}} @$reqmodules;
+  return $repodata unless @modules;
+  my $modulestr = '/'.join('/', sort @modules);
+  $repodata->{"modules$modulestr"} ||= {} if $create;
+  return $repodata->{"modules$modulestr"};
+}
+
 sub setcache {
   my ($self, $prp, $arch, %conf) = @_;
 
   my $repodata = $self->{"$prp/$arch"};
   $self->{"$prp/$arch"} = $repodata = {} unless $repodata;
-  my $modulestr = delete $conf{'modulestr'};
-  $repodata->{'modules'} = $conf{'modules'} if $conf{'modules'};
-  $repodata = ($repodata->{"modules$modulestr"} ||= {}) if $modulestr;
+  my $reqmodules = delete $conf{'reqmodules'};
+  my $repomodules = $conf{'modules'};
+  if (@{$repomodules || []}) {
+    $repodata->{'modules'} = $repomodules;
+    $repodata = $self->_getmodulerepodata($repodata, $reqmodules, 1);
+  } else {
+    delete $repodata->{'modules'};
+  }
   delete $repodata->{$_} for qw{solv solvfile error lastscan random isremote};
   $repodata->{$_} = $conf{$_} for keys %conf;
   # we don't cache local alien repos
@@ -49,24 +66,17 @@ sub addrepo {
   my ($self, $pool, $prp, $arch) = @_;
 
   my $repodata = $self->{"$prp/$arch"};
+  return 0 unless $repodata;
 
-  # for remote repos we use different caches for the requested module sets
-  if ($repodata && $repodata->{'isremote'}) {
-    my @modules;
-    @modules = $pool->getmodules() if defined &BSSolv::pool::getmodules;
-    if (@modules) {
-      if ($repodata->{'modules'}) {
-	my %repomodules = map {$_ => 1} @{$repodata->{'modules'}};
-	@modules = grep {$repomodules{$_}} @modules;
-      }
-      if (@modules) {
-	my $modulestr = '/'.join('/', sort @modules);
-	$repodata = $repodata->{"modules$modulestr"};
-      }
-    }
+  # we use different caches for the requested module sets
+  if (@{$repodata->{'modules'} || []}) {
+    my @reqmodules;
+    @reqmodules = $pool->getmodules() if defined &BSSolv::pool::getmodules;
+    $repodata = $self->_getmodulerepodata($repodata, \@reqmodules);
+    return 0 unless $repodata;
   }
 
-  if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > time()) {
+  if ($repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > time()) {
     if ($repodata->{'error'}) {
       print "    repo $prp/$arch: $repodata->{'error'}\n";
       return undef;
@@ -90,12 +100,9 @@ sub addrepo {
     }
   }
 
-  # nope, can't use it
-  if ($repodata) {
-    # free some mem
-    delete $repodata->{$_} for qw{solv solvfile error lastscan random isremote};
-  }
-  return 0;	# not in cache
+  # can't use it. free some mem
+  delete $repodata->{$_} for qw{solv solvfile error lastscan random isremote};
+  return 0;
 }
 
 sub drop {
@@ -115,6 +122,12 @@ sub dropmeta {
 sub dropsolv {
   my ($self, $prp, $arch) = @_;
   delete $self->{"$prp/$arch"}->{'solv'} if $self->{"$prp/$arch"};
+}
+
+sub getrepomodules {
+  my ($self, $prp, $arch) = @_;
+  my $repodata = $self->{"$prp/$arch"};
+  return ($self->{"$prp/$arch"} || {})->{'modules'};
 }
 
 sub getremote {
