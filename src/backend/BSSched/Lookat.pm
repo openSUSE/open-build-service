@@ -250,8 +250,8 @@ sub nextlookat {
     last;
   }
   # special low queue postprocessing, we want to feed both from the lowfront and low entries
-  if ($lookattype eq 'low' && $gctx->{'lowfront_cnt'} && $gctx->{'lowfront_cnt'} < 1 + @$lookat_low) {
-    if ($gctx->{'notlowfront'} > 0) {
+  if ($lookattype eq 'low' && $gctx->{'lowfront_cnt'}) {
+    if ($gctx->{'notlowfront'} > 0 && $gctx->{'lowfront_cnt'} < 1 + @$lookat_low) {
       # take the low, keep lowfront
       unshift @$lookat_low, $prp;
       $prp = splice(@$lookat_low, $gctx->{'lowfront_cnt'}, 1);
@@ -260,6 +260,7 @@ sub nextlookat {
       # take the lowfront
       $gctx->{'lowfront_cnt'}--;
       $gctx->{'notlowfront'}++;
+      print "  - taking from lowfront queue, lowfront_cnt now $gctx->{'lowfront_cnt'}\n";
     }
   }
   $gctx->{'notlow'} = $notlow;
