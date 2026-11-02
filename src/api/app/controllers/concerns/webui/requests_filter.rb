@@ -149,9 +149,9 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     return if params[:search].blank?
 
     @selected_filter['search'] = params[:search]
-    search_for_ids_options = { per_page: TEXT_SEARCH_MAX_RESULTS }
+    search_for_ids_options = { per_page: TEXT_SEARCH_MAX_RESULTS, star: true }
 
-    if BsRequest.search_count(@selected_filter['search']) > TEXT_SEARCH_MAX_RESULTS
+    if BsRequest.search_count(@selected_filter['search'], star: true) > TEXT_SEARCH_MAX_RESULTS
       # De-group before counting: filter_labels may have added a GROUP BY, and calling
       # .count on a grouped relation returns a Hash ({id => count}), which raises when
       # compared against an Integer. unscope(:group) keeps this an Integer count.
