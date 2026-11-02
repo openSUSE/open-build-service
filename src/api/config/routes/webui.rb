@@ -507,7 +507,8 @@ resources :code_of_conduct, only: [:index], controller: 'webui/code_of_conduct'
 
 resource :labels, controller: 'webui/labels', only: %i[update], constraints: cons do
   collection do
-    get 'autocomplete'
+    # Singular resource creates `autocomplete_label_path` by default; views use `autocomplete_labels_path`
+    get 'autocomplete', as: 'autocomplete_labels'
   end
 end
 
