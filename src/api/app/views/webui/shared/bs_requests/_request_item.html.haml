@@ -6,9 +6,15 @@
 .list-group-item.list-group-item-action
   .row.flex-nowrap
     .col-auto
-      - bs_request_actions_types.each do |action_type|
-        %div{ title: action_type.humanize.titleize }
-          %i{ class: "#{action_type_icon(action_type)}" }
+      .text-center
+        - if bs_request_actions_types.count > 1
+          %div{ title: "Multiple Actions: #{bs_request_actions_types.join(', ').humanize.titleize}" }
+            %i.fas.fa-list-check.bold
+            %br
+            %small= bs_request_actions.count
+        - else
+          %div
+            %i{ class: "#{action_type_icon(bs_request_actions_types.first)}", title: bs_request_actions_types.first.humanize.titleize }
     .col.col-with-icon
       .d-flex.mb-1
         %strong.me-auto
@@ -38,10 +44,6 @@
             %em= "A deleted user"
           created
           = render TimeComponent.new(time: bs_request.created_at)
-        - unless bs_request_actions_count == 1
-          %span.text-nowrap{ title: pluralize(bs_request_actions_count, 'action') }
-            %i.fas.fa-list-check.ps-2
-            = bs_request_actions_count
         - if bs_request.comments_count.positive?
           %span.text-nowrap{ title: pluralize(bs_request.comments_count, 'comment') }
             %i.fas.fa-comment.ps-2
