@@ -173,6 +173,10 @@ put:
               value:
                 code: update_project_not_authorized
                 summary: You are not authorized to update this project
+            Not Authorized to Update the Package:
+              value:
+                code: update_package_not_authorized
+                summary: You are not authorized to update this package
     '404':
       description: Not Found.
       content:
