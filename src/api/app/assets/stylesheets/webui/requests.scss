@@ -64,6 +64,12 @@
 .request-index-description {
   height: calc(var(--bs-body-line-height) * 1em);
   overflow: hidden;
+  // Lets the description truncate next to the request number instead of widening the row
+  min-width: 0;
+}
+
+.request-actions-summary-title:hover {
+  @extend .text-decoration-underline;
 }
 
 [data-request-actions-popover] {

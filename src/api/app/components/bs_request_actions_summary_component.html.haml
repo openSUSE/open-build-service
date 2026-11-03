@@ -42,6 +42,8 @@
   - NAME_BUDGETS.each do |css_class, budget|
     - budget_groups = groups(budget)
     %span{ class: css_class }
+      - if budget.positive? && budget_groups.one? && (verb = VERBS[budget_groups.first.type])
+        = verb
       - budget_groups.each_with_index do |group, index|
         - if budget.zero?
           %span.badge.rounded-pill.text-bg-light.border.fw-normal{ title: "#{group.size} #{group_noun(group)}" }

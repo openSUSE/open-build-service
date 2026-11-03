@@ -61,7 +61,7 @@ RSpec.describe BsRequestActionsSummaryComponent, type: :component do
       before { render_inline(component) }
 
       it 'shows the package and the target, without the source project' do
-        expect(rendered_content).to have_text('python-requests')
+        expect(rendered_content).to have_text('Submit python-requests')
         expect(rendered_content).to have_text('openSUSE:Factory')
         expect(rendered_content).to have_no_text('home:foo:branches')
       end
@@ -122,6 +122,16 @@ RSpec.describe BsRequestActionsSummaryComponent, type: :component do
       it 'shows only the source package' do
         expect(rendered_content).to have_text('grub2')
         expect(rendered_content).to have_no_text('openSUSE:Factory / grub2')
+      end
+    end
+
+    context 'with only submit actions' do
+      let(:actions) { submits('grub2', 'shim', 'elilo') }
+
+      before { render_inline(component) }
+
+      it 'starts with the verb' do
+        expect(rendered_content).to have_text('Submit grub2, shim, elilo')
       end
     end
 

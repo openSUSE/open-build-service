@@ -11,7 +11,8 @@ class BsRequestActionsSummaryComponent < ApplicationComponent
   TYPE_NOUNS = { 'submit' => 'package', 'delete' => 'deletion', 'add_role' => 'role change', 'set_bugowner' => 'bugowner change',
                  'change_devel' => 'devel change', 'maintenance_incident' => 'incident', 'maintenance_release' => 'release',
                  'release' => 'release' }.freeze
-  VERBS = { 'maintenance_incident' => 'Maintenance incident', 'maintenance_release' => 'Maintenance release', 'release' => 'Release' }.freeze
+  VERBS = { 'submit' => 'Submit', 'maintenance_incident' => 'Maintenance incident', 'maintenance_release' => 'Maintenance release',
+            'release' => 'Release' }.freeze
 
   Group = Struct.new(:type, :actions, :named_count) do
     def size
