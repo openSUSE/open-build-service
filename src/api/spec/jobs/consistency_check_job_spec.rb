@@ -46,4 +46,33 @@ RSpec.describe ConsistencyCheckJob, :vcr do
       end
     end
   end
+
+  describe '#project_existence_consistency_check' do
+    let(:consistency_checkjob) { described_class.new }
+    let(:checker) { instance_double(ConsistencyCheckJobService::ProjectConsistencyChecker) }
+
+    before do
+      allow(ConsistencyCheckJobService::ProjectConsistencyChecker).to receive(:new).and_return(checker)
+      allow(checker).to receive(:call).and_return(checker)
+      allow(checker).to receive_messages(diff_frontend_backend: ['extra_frontend_project'], diff_backend_frontend: [])
+    end
+
+    context 'fix = false' do
+      it 'records additional projects error without deleting' do
+        # rubocop:disable-next RSpec/MessageSpies
+        expect(Project).not_to receive(:find_by_name)
+        consistency_checkjob.send(:project_existence_consistency_check, fix: false)
+        expect(consistency_checkjob.send(:errors)).to include("Additional projects in frontend:\n [\"extra_frontend_project\"]")
+      end
+    end
+
+    context 'fix = true' do
+      let!(:extra_project) { create(:project, name: 'extra_frontend_project') }
+
+      it 'finds and destroys the extra project in frontend' do
+        expect { consistency_checkjob.send(:project_existence_consistency_check, fix: true) }
+          .to change { Project.exists?(name: 'extra_frontend_project') }.from(true).to(false)
+      end
+    end
+  end
 end
