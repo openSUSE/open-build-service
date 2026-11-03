@@ -30,7 +30,7 @@
         .mb-1
           = render partial: 'webui/shared/label_clickable', collection: bs_request.labels, locals: { form: form }, as: :label
       .mb-1
-        = render BsRequestSummaryDescriptionComponent.new(bs_request:)
+        = render BsRequestActionsSummaryComponent.new(bs_request:, show_versions: Flipper.enabled?(:package_version_tracking, User.session))
         .mb-2.request-index-description.text-truncate
           = bs_request.description
       .text-end

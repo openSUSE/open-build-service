@@ -216,8 +216,6 @@ module Webui::RequestHelper
     "(#{package.latest_local_version.version})"
   end
 
-  private
-
   def action_type_icon(type)
     case type
     when 'maintenance_incident'
@@ -236,6 +234,8 @@ module Webui::RequestHelper
       'fas fa-code-pull-request fa-fw'
     end
   end
+
+  private
 
   # Note: We don't allow labeling requests with more than 1 target project
   def project_for_labels(bs_request)

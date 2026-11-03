@@ -1,0 +1,72 @@
+- if (action = single_action)
+  - case action.type
+  - when 'delete'
+    Delete
+    - if action.target_repository
+      repository
+      %strong= action.target_repository
+      from
+      = [action.target_project, action.target_package].compact.join(' / ')
+    - elsif action.target_package
+      %strong= action.target_package
+      from
+      = action.target_project
+    - else
+      project
+      %strong= action.target_project
+  - when 'add_role', 'set_bugowner'
+    = action.type == 'set_bugowner' ? 'Set' : 'Add'
+    %strong= action_name(action)
+    as #{role_name(action)} of
+    - if action.target_package
+      %strong= action.target_package
+      in
+      = action.target_project
+    - else
+      %strong= action.target_project
+  - when 'change_devel'
+    Change devel of
+    %strong= action.target_package || action.target_project
+    in
+    = action.target_project
+    to
+    = action.source_project
+  - else
+    = VERBS[action.type]
+    %strong{ title: source_title(action) }= action_name(action)
+    %i.fas.fa-long-arrow-alt-right.text-info.mx-1
+    = target(action)
+    - if (versions = version_change)
+      %span.badge.text-bg-light.border.font-monospace.fw-normal.ms-1= versions
+- else
+  - NAME_BUDGETS.each do |css_class, budget|
+    - budget_groups = groups(budget)
+    %span{ class: css_class }
+      - budget_groups.each_with_index do |group, index|
+        - if budget.zero?
+          %span.badge.rounded-pill.text-bg-light.border.fw-normal{ title: "#{group.size} #{group_noun(group)}" }
+            %i{ class: action_type_icon(group.type) }
+            = group.size
+        - else
+          - if index.positive?
+            %span.text-secondary.mx-1 ·
+          - if budget_groups.many?
+            %i.text-secondary{ class: action_type_icon(group.type), title: group.type.humanize }
+            = group.type.humanize
+          - if group.named_count.zero?
+            %span{ data: group_popover(group) }
+              #{group.size} #{group_noun(group)}
+          - else
+            = safe_join(group.actions.first(group.named_count).map { |named| tag.strong(action_name(named), title: source_title(named)) }, ', ')
+            = role_suffix(group) if group.type.in?(%w[add_role set_bugowner])
+            - if group.remaining.positive?
+              %span.text-secondary{ data: group_popover(group) }
+                + #{group.remaining} more
+      %i.fas.fa-long-arrow-alt-right.text-info.mx-1
+      - if (package_target = target_package)
+        = package_target
+      - elsif targets.one?
+        = targets.first
+      - else
+        %span{ data: targets_popover }
+          #{targets.size} projects

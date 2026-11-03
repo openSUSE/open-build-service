@@ -1,8 +1,7 @@
 # This component renders the request description based on the type of the actions
 
 class BsRequestSummaryDescriptionComponent < ApplicationComponent
-  # Longer lists are cut, the request page lists all of them
-  POPOVER_LIMIT = 25
+  include RequestActionsPopover
 
   attr_reader :bs_request, :types
 
@@ -63,14 +62,6 @@ class BsRequestSummaryDescriptionComponent < ApplicationComponent
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
-
-  # Data attributes of a popover listing one item per line
-  def popover_data(items)
-    lines = items.first(POPOVER_LIMIT)
-    lines += [tag.span("and #{items.size - POPOVER_LIMIT} more, see the request", class: 'text-secondary')] if items.size > POPOVER_LIMIT
-    content = tag.ul(safe_join(lines.map { |line| tag.li(line) }), class: 'list-unstyled mb-0')
-    { request_actions_popover: true, bs_html: 'true', bs_custom_class: 'request-actions-popover', bs_content: content }
-  end
 
   def delete_target(actions)
     target = actions.map do |a|
