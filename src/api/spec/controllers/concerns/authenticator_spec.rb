@@ -98,7 +98,8 @@ RSpec.describe ApplicationController do # rubocop:disable RSpec/SpecFilePathForm
 
       context 'when already at root_path' do
         before do
-          allow(controller).to receive(:root_path).and_return(request.path)
+          allow(controller).to receive(:require_login) # public home page, no login required
+          allow(controller).to receive(:root_path) { request.path }
           get :index, format: :html
         end
 
