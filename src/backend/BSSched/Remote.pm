@@ -429,6 +429,19 @@ sub import_annotation {
   return BSUtil::toxml(\%a, $BSXML::binannotation);
 }
 
+sub calccachemd5 {
+  my ($prp, $arch, $repomodules, $reqmodules) = @_;
+  my $modulestr = '';
+  if (@{$repomodules || []} && @{$reqmodules || []}) {
+    my %repomodules = map {$_ => 1} @$repomodules;
+    my @modules = grep { $repomodules{$_} } @$reqmodules;
+    $modulestr = '/'.join('/', sort @modules) if @modules;
+  }
+  my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch$modulestr");
+  substr($cachemd5, 2, 0, '/');
+  return $cachemd5;
+}
+
 sub addrepo_remote_unpackcpio {
   my ($gctx, $pool, $prp, $arch, $cpio, $solvok, $modules, $error) = @_;
 
@@ -436,16 +449,20 @@ sub addrepo_remote_unpackcpio {
   my $remotecache = $gctx->{'remotecache'};
   my @modules = @{$modules || []};
 
-  my $modulestr = @modules ? '/'.join('/', sort @$modules) : '';
-  my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch$modulestr");
-  substr($cachemd5, 2, 0, '/');
+  my $cachemd5 = calccachemd5($prp, $arch);
 
   my $repocache = $gctx->{'repodatas'};
-  my @setcacheargs = ('isremote' => 1, 'modulestr' => $modulestr);
+  my @setcacheargs = ('isremote' => 1, 'reqmodules' => \@modules);
 
   if ($error) {
     chomp $error;
     warn("$error\n");
+    # reuse old module information from cache
+    my $repomodules = $repocache ? $repocache->getrepomodules($prp, $arch) : undef;
+    if (@{$repomodules || []}) {
+      push @setcacheargs, 'modules' => $repomodules;
+      $cachemd5 = calccachemd5($prp, $arch, $repomodules, \@modules);
+    }
     if (BSSched::RPC::is_transient_error($error)) {
       my ($projid, $repoid) = split('/', $prp, 2);
       $gctx->{'retryevents'}->addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
@@ -492,23 +509,11 @@ sub addrepo_remote_unpackcpio {
     delete $cache->{'/dodcookie'};
     delete $cache->{'/external/'};
     my $repomodules = delete $cache->{'/modules'};
-
-    if (@modules) {
-      # intersect requested modules with known modules
-      $repomodules ||= [];
-      if (@$repomodules) {
-	my %repomodules = map {$_ => 1} @$repomodules;
-        @modules = grep { $repomodules{$_} } @modules;
-      } else {
-        @modules = ();
-      }
-      # update modulestr and cachemd5 with new modules list
-      $modulestr = @modules ? '/'.join('/', sort @modules) : '';
-      $cachemd5 = Digest::MD5::md5_hex("$prp/$arch$modulestr");
-      substr($cachemd5, 2, 0, '/');
-      @setcacheargs = ('isremote' => 1, 'modulestr' => $modulestr, 'modules' => $repomodules);
+    # update cachemd5 with module information
+    if (@{$repomodules || []}) {
+      push @setcacheargs, 'modules' => $repomodules;
+      $cachemd5 = calccachemd5($prp, $arch, $repomodules, \@modules);
     }
-
     # postprocess entries
     my $havedod;
     for (values %$cache) {
