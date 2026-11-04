@@ -1,14 +1,13 @@
 # This component renders the request description based on the type of the actions
 
 class BsRequestSummaryDescriptionComponent < ApplicationComponent
-  include RequestActionsPopover
-
   attr_reader :bs_request, :types
 
   delegate :project_or_package_link, to: :helpers
   delegate :user_with_realname_and_icon, to: :helpers
   delegate :requester_str, to: :helpers
   delegate :creator_intentions, to: :helpers
+  delegate :request_actions_popover_data, to: :helpers
 
   def initialize(bs_request:)
     super()
@@ -39,7 +38,7 @@ class BsRequestSummaryDescriptionComponent < ApplicationComponent
 
     return tag.span(sanitize(container)) if packages_count <= 3
 
-    tag.span(sanitize(container), data: popover_data(actions.map { |a| "#{a.source_project} / #{a.source_package}" }.uniq))
+    tag.span(sanitize(container), data: request_actions_popover_data(actions.map { |a| "#{a.source_project} / #{a.source_package}" }.uniq))
   end
 
   def target_container(actions)
@@ -58,7 +57,7 @@ class BsRequestSummaryDescriptionComponent < ApplicationComponent
 
     return tag.span(sanitize(container)) if actions.filter_map { |a| [a.target_project, a.target_package] }.uniq.count <= 1
 
-    tag.span(sanitize(container), data: popover_data(actions.map { |a| "#{a.target_project} / #{a.target_package}" }.uniq))
+    tag.span(sanitize(container), data: request_actions_popover_data(actions.map { |a| "#{a.target_project} / #{a.target_package}" }.uniq))
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
