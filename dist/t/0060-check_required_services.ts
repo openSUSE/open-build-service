@@ -44,6 +44,13 @@ if ($version !~ /^2\.[89]\./) {
     push @active_daemons, 'obs-delayedjob-queue-scm.service';
     $tests += 1;
   }
+  foreach my $srv ('obs-delayedjob-queue-quick_user@0.service', 'obs-delayedjob-queue-slow_user@0.service', 'obs-delayedjob-queue-internal@0.service') {
+    @out=`systemctl show --property=LoadError $srv`;
+    if ($out[0] !~  /^LoadError=(org.freedesktop.systemd1.NoSuchUnit|org.freedesktop.DBus.Error.FileNotFound) /) {
+      push @active_daemons, $srv;
+      $tests += 1;
+    }
+  }
 }
 
 plan tests => $tests;
