@@ -6,6 +6,14 @@ class CommitActivity < ApplicationRecord
   validates :count, numericality: { more_than_or_equal_to: 1,
                                     only_integer: true }
 
+  # Returns distinct (project, package) pairs with their latest activity date,
+  # ordered by most recent activity.
+  scope :latest_updates, lambda {
+    select('MAX(id) AS id, project, package, MAX(date) AS date')
+      .group(:project, :package)
+      .order(Arel.sql('MAX(date) DESC, MAX(id) DESC'))
+  }
+
   def self.create_from_event_payload(payload)
     user = User.find_by(login: payload['user'])
     return unless user
