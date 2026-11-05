@@ -299,7 +299,7 @@ class Webui::PackageController < Webui::WebuiController
     architecture = params[:architecture] if params[:architecture].present?
 
     repo_arch_hash = {}
-    @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
+    @buildresult = Buildresult.find_hashed(project: @project.to_param, package: (@package || @package_name).to_param, view: 'status')
     repos = [] # Temp var
     if @buildresult
       @buildresult.elements('result') do |result|
@@ -384,13 +384,13 @@ class Webui::PackageController < Webui::WebuiController
     @errors = 0
     @warnings = 0
     @info = 0
-    return unless (@buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status'))
+    return unless (@buildresult = Buildresult.find_hashed(project: @project.to_param, package: (@package || @package_name).to_param, view: 'status'))
 
     @buildresult.elements('result') do |result|
       if result.value('repository') != 'images' &&
          result.value('status') && result.value('status').value('code') != 'excluded'
         begin
-          rpmlint_log_file = RpmlintLogExtractor.new(project: @project.to_param, package: @package.to_param, repository: result['repository'], architecture: result['arch']).call
+          rpmlint_log_file = RpmlintLogExtractor.new(project: @project.to_param, package: (@package || @package_name).to_param, repository: result['repository'], architecture: result['arch']).call
         rescue StandardError
           logger.debug("Skipping parsing rpmlint.log for #{@project.to_param}/#{@package.to_param} for repository #{result['repository']}.#{result['arch']}")
         else

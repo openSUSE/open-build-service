@@ -402,6 +402,8 @@ RSpec.describe Webui::PackageController, :vcr do
   end
 
   describe '#rpmlint_result' do
+    render_views
+
     let(:fake_build_result) do
       <<-XML
         <resultlist state="eb0459ee3b000176bb3944a67b7c44fa">
@@ -421,11 +423,28 @@ RSpec.describe Webui::PackageController, :vcr do
 
     before do
       allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_result)
-      post :rpmlint_result, xhr: true, params: { package: source_package, project: source_project }
     end
 
-    it { expect(response).to have_http_status(:success) }
-    it { expect(response).to render_template('webui/package/rpmlint_result') }
+    context 'with standard package' do
+      before do
+        post :rpmlint_result, xhr: true, params: { package: source_package, project: source_project }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(response).to render_template('webui/package/rpmlint_result') }
+    end
+
+    context 'when the project is an scmsync project' do
+      let(:scmsync_project) { create(:project, name: 'scmsync_project', scmsync: 'https://github.com/example/scmsync-project.git') }
+
+      before do
+        post :rpmlint_result, xhr: true, params: { package: 'scmsync_package', project: scmsync_project }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(response).to render_template('webui/package/rpmlint_result') }
+      it { expect(response.body).to include('scmsync_project_scmsync_package_rpmlint') }
+    end
   end
 
   describe '#rpmlint_summary' do
