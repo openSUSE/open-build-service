@@ -85,7 +85,8 @@ class ConsistencyCheckJob < ApplicationJob
     #
     unless diff.empty?
       @errors << "Additional projects in frontend:\n #{diff}"
-      diff.each { |project_name| Project.find_by_name(name: project_name).destroy } if fix
+      # Project.find_by_name expects the project name as a positional parameter
+      diff.each { |project_name| Project.find_by_name(project_name)&.destroy } if fix
     end
 
     diff = project_consistency_checker.diff_backend_frontend
