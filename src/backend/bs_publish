@@ -3169,6 +3169,8 @@ sub publish {
 
   if (!$changed && !$dbgsplit) {
     print "    nothing changed\n";
+    # delete :repoinfo to force a retry; otherwise failed run with empty state would never retry
+    unlink("$reporoot/$prp/:repoinfo") if $state eq '' && ($oldrepoinfo->{'code'} || '') eq 'failed';
     clean_blobdir($blobdir);
     return 'unchanged';
   }
