@@ -151,7 +151,7 @@ sub findpackages_projlink {
     }
     @lpackids = grep {$_ ne '_product' && !/^_product:/} @lpackids if $packids{'_product'};
     # strip out multibuild packages
-    @lpackids = grep {$_ eq ':missing_packages' || !/(?<!^_product)(?<!^_patchinfo):./} @lpackids;
+    @lpackids = grep {$_ eq ':missing_packages' || $_ eq ':access_denied' || !/(?<!^_product)(?<!^_patchinfo):./} @lpackids;
     $packids{$_} = 1 for @lpackids;
     if ($origins && $lorigins) {
       for (@lpackids) {

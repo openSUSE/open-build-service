@@ -1366,9 +1366,11 @@ sub getprojpack {
       @packages = @{$cgi->{'package'}} if $cgi->{'package'};
     } else {
       @packages = findpackages($projid, $proj, 2);
-      if (grep {$_ eq ':missing_packages'} @packages) {
+      if (grep {$_ eq ':missing_packages' || $_ eq ':access_denied'} @packages) {
         $jinfo->{'missingpackages'} = 1;
-        @packages = grep {$_ ne ':missing_packages'} @packages;
+        # only if every remote that failed denied access
+        $jinfo->{'remoteaccessdenied'} = 1 unless grep {$_ eq ':missing_packages'} @packages;
+        @packages = grep {$_ ne ':missing_packages' && $_ ne ':access_denied'} @packages;
       } else {
         BSSrcServer::Multibuild::prunemultibuild($projid, \@packages);
       }

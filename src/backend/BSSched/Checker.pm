@@ -277,6 +277,15 @@ sub neededdodresources {
   return sort keys %needed;
 }
 
+# retry less often if a remote instance denies access to its packages
+my $remoteaccessdenied_delay = 600;	# seconds
+
+sub addretryevent_missingpackages {
+  my ($gctx, $projid, $proj) = @_;
+  my $delay = $proj->{'remoteaccessdenied'} ? $remoteaccessdenied_delay : undef;
+  $gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid}, $delay);
+}
+
 sub check_for_running_src_updates {
   my ($ctx) = @_;
   my $gctx = $ctx->{'gctx'};
@@ -285,7 +294,7 @@ sub check_for_running_src_updates {
   my $pdatas = $proj->{'package'} || {};
   my @delayed;
   if ($proj->{'missingpackages'}) {
-    $gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid});
+    addretryevent_missingpackages($gctx, $projid, $proj);
     push @delayed, 'missingpackages';
   }
   for my $packid (@{$ctx->{'packs'} || []}) {
@@ -1186,7 +1195,7 @@ sub checkpkgs {
 
   # copy old data over if we have missing packages
   if ($proj->{'missingpackages'}) {
-    $gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid});
+    addretryevent_missingpackages($gctx, $projid, $proj);
     $oldpackstatus = BSUtil::retrieve("$gdst/:packstatus", 1) || {};
     $oldpackstatus->{'packstatus'} ||= {};
     $oldpackstatus->{'packerror'} ||= {};
