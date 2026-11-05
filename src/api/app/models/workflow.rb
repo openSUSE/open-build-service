@@ -115,12 +115,14 @@ class Workflow # rubocop:disable Metrics/ClassLength
   end
 
   def branch_matches_branches_only_filter?
-    branches_only = filters[:branches].fetch(:only, []).map(&:to_s)
+    # Support both list and scalar string definitions in user workflow configurations
+    branches_only = Array.wrap(filters[:branches][:only]).map(&:to_s)
     branches_only.present? && branches_only.include?(workflow_run.target_branch)
   end
 
   def branch_matches_branches_ignore_filter?
-    branches_ignore = filters[:branches].fetch(:ignore, []).map(&:to_s)
+    # Support both list and scalar string definitions in user workflow configurations
+    branches_ignore = Array.wrap(filters[:branches][:ignore]).map(&:to_s)
     branches_ignore.present? && branches_ignore.exclude?(workflow_run.target_branch)
   end
 
@@ -130,8 +132,9 @@ class Workflow # rubocop:disable Metrics/ClassLength
     return true unless workflow_run.labeled_pull_request? || workflow_run.unlabeled_pull_request?
     return false unless supported_filters.key?(:labels)
 
-    labels_only = filters[:labels].fetch(:only, [])
-    labels_ignore = filters[:labels].fetch(:ignore, [])
+    # Support both list and scalar string definitions in user workflow configurations
+    labels_only = Array.wrap(filters[:labels][:only]).map(&:to_s)
+    labels_ignore = Array.wrap(filters[:labels][:ignore]).map(&:to_s)
 
     return true if labels_only.present? && labels_only.include?(workflow_run.label)
     return true if labels_ignore.present? && labels_ignore.exclude?(workflow_run.label)

@@ -243,6 +243,20 @@ RSpec.describe Workflow, :vcr do
           expect(subject.filters_matched?).to be true
         end
       end
+
+      context 'the branches/only filter is a scalar string instead of an array' do
+        let(:yaml) do
+          { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
+            'filters' => { 'branches' => { 'only' => 'master' } } }
+        end
+        let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+
+        it 'runs without raising undefined method map for String' do
+          subject.call
+          expect(subject.steps.first).to have_received(:call)
+          expect(subject.filters_matched?).to be true
+        end
+      end
     end
 
     context 'when the webhook event is not supported by the branches filter' do
@@ -440,6 +454,18 @@ RSpec.describe Workflow, :vcr do
       end
 
       it 'stops the execution of steps' do
+        expect(subject.send(:label_matches_labels_filter?)).to be_truthy
+      end
+    end
+
+    context 'labels/only filter is a scalar string instead of an array' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
+          filters: { event: 'pull_request', labels: { only: 'duplicate' } } }
+      end
+
+      it 'matches the scalar label without error' do
         expect(subject.send(:label_matches_labels_filter?)).to be_truthy
       end
     end
