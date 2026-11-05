@@ -15,6 +15,12 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     SortBy.new(name: 'Least Actions', value: 'least_actions', sql: 'bs_request_actions_count')
   ].freeze
 
+  def filter_and_preload_bs_requests(flipper_actor: User.session)
+    filter_requests
+    @bs_requests = @bs_requests.page(params[:page]).includes(:bs_request_actions)
+    @bs_requests = @bs_requests.includes(labels: :label_template) if Flipper.enabled?(:labels, flipper_actor)
+  end
+
   def filter_requests
     @selected_filter = { states: %w[new review], action_types: [], creators: [],
                          priorities: [], staging_projects: [], reviewers: [],
