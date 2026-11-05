@@ -110,5 +110,16 @@ RSpec.describe Webui::Packages::MetaController, :vcr do
       it { expect(flash[:error]).to eq('Error while saving the Meta file: fake message.') }
       it { expect(response).to have_http_status(:bad_request) }
     end
+
+    context 'when updating package meta causes a cycle error' do
+      before do
+        allow_any_instance_of(Package).to receive(:update_from_xml).and_raise(Package::Errors::CycleError, 'Cycle error')
+
+        put :update, params: { project_name: source_project, package_name: source_package, meta: valid_meta }
+      end
+
+      it { expect(flash[:error]).to eq('Error while saving the Meta file: Cycle error.') }
+      it { expect(response).to have_http_status(:bad_request) }
+    end
   end
 end
