@@ -1029,6 +1029,22 @@ class BsRequest < ApplicationRecord
     reviews.collect(&:reason).join(' ')
   end
 
+  def source_projects
+    bs_request_actions.filter_map(&:source_project).uniq.join(' ')
+  end
+
+  def source_packages
+    bs_request_actions.filter_map(&:source_package).uniq.join(' ')
+  end
+
+  def target_projects
+    bs_request_actions.filter_map(&:target_project).uniq.join(' ')
+  end
+
+  def target_packages
+    bs_request_actions.filter_map(&:target_package).uniq.join(' ')
+  end
+
   def involves_hidden_project?
     bs_request_actions.any?(&:involves_hidden_project?)
   end

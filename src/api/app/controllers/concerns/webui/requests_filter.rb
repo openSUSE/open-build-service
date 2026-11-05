@@ -15,6 +15,12 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     SortBy.new(name: 'Least Actions', value: 'least_actions', sql: 'bs_request_actions_count')
   ].freeze
 
+  def filter_and_preload_bs_requests(flipper_actor: User.session)
+    filter_requests
+    @bs_requests = @bs_requests.page(params[:page]).includes(:bs_request_actions)
+    @bs_requests = @bs_requests.includes(labels: :label_template) if Flipper.enabled?(:labels, flipper_actor)
+  end
+
   def filter_requests
     @selected_filter = { states: %w[new review], action_types: [], creators: [],
                          priorities: [], staging_projects: [], reviewers: [],
@@ -149,9 +155,9 @@ module Webui::RequestsFilter # rubocop:disable Metrics/ModuleLength
     return if params[:search].blank?
 
     @selected_filter['search'] = params[:search]
-    search_for_ids_options = { per_page: TEXT_SEARCH_MAX_RESULTS }
+    search_for_ids_options = { per_page: TEXT_SEARCH_MAX_RESULTS, star: true }
 
-    if BsRequest.search_count(@selected_filter['search']) > TEXT_SEARCH_MAX_RESULTS
+    if BsRequest.search_count(@selected_filter['search'], star: true) > TEXT_SEARCH_MAX_RESULTS
       # De-group before counting: filter_labels may have added a GROUP BY, and calling
       # .count on a grouped relation returns a Hash ({id => count}), which raises when
       # compared against an Integer. unscope(:group) keeps this an Integer count.
