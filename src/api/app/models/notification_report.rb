@@ -45,9 +45,9 @@ class NotificationReport < Notification
     when 'Event::ReportForUser'
       "Report for a #{event_payload['reportable_type']}"
     when 'Event::FavoredDecision'
-      "Favored #{notifiable.reports.first.reportable&.class&.name} Report".squish
+      "Favored #{notifiable.reports.first.reportable&.class&.name || notifiable.reports.first.reportable_type} Report".squish
     when 'Event::ClearedDecision'
-      "Cleared #{notifiable.reports.first.reportable&.class&.name} Report".squish
+      "Cleared #{notifiable.reports.first.reportable&.class&.name || notifiable.reports.first.reportable_type} Report".squish
     when 'Event::AppealCreated'
       "Appealed the decision for a report of #{notifiable.decision.moderator.login}"
     end

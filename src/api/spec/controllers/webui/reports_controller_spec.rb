@@ -30,4 +30,28 @@ RSpec.describe Webui::ReportsController do
       end
     end
   end
+
+  describe 'GET #show' do
+    render_views
+
+    let(:moderator) { create(:moderator) }
+    let(:report) { create(:report) }
+
+    before do
+      login moderator
+    end
+
+    context 'when the reported content has been deleted' do
+      before do
+        report.reportable.destroy
+        report.reload
+      end
+
+      it 'renders successfully' do
+        get :show, params: { id: report.id }
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
 end
