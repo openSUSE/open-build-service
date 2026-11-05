@@ -1,4 +1,6 @@
 class Workflow::Step::ConfigureRepositories < Workflow::Step
+  include Workflow::Step::Errors
+
   REQUIRED_KEYS = %i[project repositories].freeze
   REQUIRED_REPOSITORY_KEYS = %i[architectures name paths].freeze
   REQUIRED_REPOSITORY_PATH_KEYS = %i[target_project target_repository].freeze
@@ -25,6 +27,8 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
 
       repository_instructions[:paths].each do |repository_path|
         target_repository = Repository.find_by_project_and_name(repository_path[:target_project], repository_path[:target_repository])
+        raise RepositoryNotFound, "Target repository '#{repository_path[:target_project]}/#{repository_path[:target_repository]}' not found" unless target_repository
+
         configured_repository.path_elements.find_or_create_by(link: target_repository)
       end
 
