@@ -7,8 +7,9 @@ module Backend
 
         # Returns a file list of binaries
         # @return [String]
-        def self.files(project_name, repository_name, architecture_name, package_name)
-          http_get(['/build/:project/:repository/:architecture/:package', project_name, repository_name, architecture_name, package_name])
+        def self.files(project_name, repository_name, architecture_name, package_name, binaries: [])
+          http_get(['/build/:project/:repository/:architecture/:package', project_name, repository_name, architecture_name, package_name],
+                   params: { binary: binaries }, expand: [:binary])
         end
 
         # Returns the history file of a package

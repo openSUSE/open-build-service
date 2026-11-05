@@ -73,6 +73,21 @@ get:
       default: 0
       example: 1
     - in: query
+      name: binarylimit
+      schema:
+        type: integer
+      description: |
+        Only list this many files per package when using `view=binarylist`.
+        The total number of files is returned in the `binarycount` attribute of the `binarylist` element.
+      example: 100
+    - in: query
+      name: binaryoffset
+      schema:
+        type: integer
+      description: Skip this many files per package when using `binarylimit`.
+      default: 0
+      example: 100
+    - in: query
       name: lastsuccess
       schema:
         type: string

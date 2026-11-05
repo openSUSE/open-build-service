@@ -1131,6 +1131,7 @@ our $serverstatus = [
 our $binarylist = [
     'binarylist' =>
 	'package',
+	'binarycount',
      [[ 'binary' =>
 	    'filename',
 	    'md5',

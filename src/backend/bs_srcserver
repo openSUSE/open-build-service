@@ -4508,7 +4508,7 @@ sub getresult {
     $cgi->{'package'} = [ BSSrcServer::LinkinfoDB::addlocallinks($projid, @{$cgi->{'package'}}) ];
   }
   if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
-    my @args = BSRPC::args($cgi, 'oldstate', 'lastbuild', 'view', 'repository', 'arch', 'package', 'code');
+    my @args = BSRPC::args($cgi, 'oldstate', 'lastbuild', 'view', 'repository', 'arch', 'package', 'code', 'binarylimit', 'binaryoffset');
     BSHandoff::handoff("/build/$projid/_result", undef, @args);
   }
 
@@ -4558,6 +4558,7 @@ sub getresult {
   push @args, map {"package=$_"} @{$cgi->{'package'} || []};
   push @args, map {"code=$_"} @{$cgi->{'code'} || []};
   push @args, 'withbinarylist' if $view{'binarylist'};
+  push @args, BSRPC::args($cgi, 'binarylimit', 'binaryoffset') if $view{'binarylist'};
   push @args, 'withstats' if $view{'stats'};
   push @args, 'withinfo' if $view{'info'};
   push @args, 'withversrel' if $view{'versrel'};
@@ -8121,7 +8122,7 @@ my $dispatches = [
   '/build/$project/_availablebinaries url:* path:prp* arch*' => \&getavailablebinaries,
   'POST:/build/$project cmd: repository* arch* package* code:* lastbuild:bool? wipe:* comment:? sysrq:?' => \&docommand,
   '/build/$project' => \&getrepositorylist,
-  '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:* multibuild:bool? locallink:bool?' => \&getresult,
+  '/build/$project/_result oldstate:md5? view:resultview* lastbuild:bool? repository* arch* package* code:* multibuild:bool? locallink:bool? binarylimit:num? binaryoffset:num?' => \&getresult,
   '/build/$project/_jobhistory package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory_project,
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig path:prp*' => \&getbuildconfig,
@@ -8188,7 +8189,7 @@ my $dispatches = [
 my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
-  '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
+  '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:* binarylimit:num? binaryoffset:num?' => \&getresult,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool? module* withccache:bool? withevr:bool?' => \&getbinarylist,
