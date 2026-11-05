@@ -194,3 +194,8 @@ record_48:
   role: maintainer
   group: test_group
   project: BrokenPublishing
+record_49:
+  role: maintainer
+  user: fred
+  project: ScmSyncProject
+
