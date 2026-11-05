@@ -54,20 +54,29 @@ sub setchanged {
   my $changed = $gctx->{"changed_$changetype"};
   my $changed_dirty = $gctx->{'changed_dirty'};
   my $lookat = $gctx->{$changetype eq 'lowfront' ? 'lookat_low' : "lookat_$changetype"};
+
+  my @lowfront;
+  if ($changetype eq 'low' || $changetype eq 'lowfront') {
+    @lowfront = splice(@$lookat, 0, $gctx->{'lowfront_cnt'});
+    $lookat = \@lowfront if $changetype eq 'lowfront';
+  }
   my $prps = $gctx->{'prps'};
   my ($projid, $repoid) = split('/', $changeprp, 2);
   if (defined($repoid)) {
     my $prp = $changeprp;
     @$lookat = grep {$_ ne $prp} @$lookat;
-    if ($changetype eq 'low') {
-      new_lowfront($gctx, $prp);
-      # we don't use changed2lookat to prevent infinite looping
+    unshift @$lookat, $prp;
+    if ($changetype eq 'low' || $changetype eq 'lowfront') {
       my $lookat_next = $gctx->{'lookat_next'};
-      my $alllocked = $gctx->{'alllocked'};
-      my $rprpdeps = $gctx->{'rprpdeps'};
-      $lookat_next->{$_} = 1 for grep {$_ ne $prp && !$alllocked->{$_}} @{$rprpdeps->{$prp} || []};
+      if ($changetype eq 'low') {
+        # we don't set the prp in lookat_next to prevent infinite looping
+        my $alllocked = $gctx->{'alllocked'};
+        my $rprpdeps = $gctx->{'rprpdeps'};
+        $lookat_next->{$_} = 1 for grep {$_ ne $prp && !$alllocked->{$_}} @{$rprpdeps->{$prp} || []};
+      } else {
+        $lookat_next->{$prp} = 1;
+      }
     } else {
-      unshift @$lookat, $prp;
       if ($changelevel == 2) {
         $changed->{$prp} = 2;
       } else {
@@ -75,6 +84,10 @@ sub setchanged {
       }
     }
     $changed_dirty->{$prp} = 1;
+    if ($changetype eq 'low' || $changetype eq 'lowfront') {
+      unshift @{$gctx->{'lookat_low'}}, @lowfront;
+      $gctx->{'lowfront_cnt'} = scalar(@lowfront);
+    }
     return;
   }
   my @cprps;
@@ -98,6 +111,10 @@ sub setchanged {
       $changed_dirty->{$prp} = 1;
     }
     $changed->{$projid} ||= 1;
+  }
+  if ($changetype eq 'low' || $changetype eq 'lowfront') {
+    unshift @{$gctx->{'lookat_low'}}, @lowfront;
+    $gctx->{'lowfront_cnt'} = scalar(@lowfront);
   }
 }
 
@@ -260,7 +277,7 @@ sub nextlookat {
       # take the lowfront
       $gctx->{'lowfront_cnt'}--;
       $gctx->{'notlowfront'}++;
-      print "  - taking from lowfront queue, lowfront_cnt now $gctx->{'lowfront_cnt'}\n";
+      printf "  - taking from lowfront, low queue length %d + %d\n", $gctx->{'lowfront_cnt'}, @$lookat_low - $gctx->{'lowfront_cnt'};
     }
   }
   $gctx->{'notlow'} = $notlow;
