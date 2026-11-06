@@ -876,7 +876,10 @@ class BsRequestAction < ApplicationRecord
     return unless CONFIG['global_write_through']
 
     cleanup_sourceupdate(User.session!)
-    BsRequestActionWebuiInfosJob.perform_later(self)
+
+    # The lower priority in the whole quick queue (by default for anonymous requests)
+    priority = User.session.present? ? -10 : 0
+    BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(self)
   end
 
   def create_submit_action(source_package:, source_project:, target_package:, target_project:,
