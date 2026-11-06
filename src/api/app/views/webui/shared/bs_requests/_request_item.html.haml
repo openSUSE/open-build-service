@@ -6,9 +6,12 @@
   .row.flex-nowrap
     .col-auto
       .text-center
-        - if bs_request_actions_types.count > 1
+        - if bs_request_actions.count > 1
           %div{ title: "Multiple Actions: #{bs_request_actions_types.join(', ').humanize.titleize}" }
-            %i.fas.fa-list-check.bold
+            - if bs_request_actions_types.count > 1
+              %i.fas.fa-list-check.bold
+            - else
+              %i{ class: "#{action_type_icon(bs_request_actions_types.first)}", title: bs_request_actions_types.first.humanize.titleize }
             %br
             %small= bs_request_actions.count
         - else
