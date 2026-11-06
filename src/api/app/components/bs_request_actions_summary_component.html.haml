@@ -1,0 +1,76 @@
+- from_title = ->(action) { source_path(action)&.then { |path| "From #{path}" } }
+- if (action = single_action)
+  - case action.type
+  - when 'delete'
+    Delete
+    - if action.target_repository
+      repository
+      %strong= action.target_repository
+      from
+      = target_path(action)
+    - elsif action.target_package
+      %strong= action.target_package
+      from
+      = action.target_project
+    - else
+      project
+      %strong= action.target_project
+  - when 'add_role', 'set_bugowner'
+    = action.type == 'set_bugowner' ? 'Set' : 'Add'
+    %strong= action_name(action)
+    as #{role_name(action)} of
+    - if action.target_package
+      %strong= action.target_package
+      in
+      = action.target_project
+    - else
+      %strong= action.target_project
+  - when 'change_devel'
+    Change devel of
+    - if action.target_package
+      %strong= action.target_package
+      in
+      = action.target_project
+    - else
+      %strong= action.target_project
+    to
+    = action.source_project
+  - else
+    = VERBS[action.type]
+    %strong{ title: from_title.call(action) }= action_name(action)
+    %i.fas.fa-long-arrow-alt-right.text-info.mx-1
+    = target(action)
+    - if (versions = version_change)
+      %span.badge.text-bg-light.border.font-monospace.fw-normal.ms-1= versions.join(' → ')
+- else
+  - css_classes = { wide: 'd-none d-xl-inline', medium: 'd-none d-md-inline d-xl-none', narrow: 'd-md-none' }
+  - variants.each do |variant|
+    %span{ class: css_classes.fetch(variant.breakpoint) }
+      = variant.verb
+      - variant.groups.each_with_index do |group, index|
+        - if variant.names?
+          - if index.positive?
+            %span.text-secondary.mx-1 ·
+          - if variant.groups.many?
+            %i.text-secondary{ class: action_type_icon(group.type), title: group.type.humanize }
+            = group.type.humanize
+          - if group.named_actions.empty?
+            %span{ data: request_actions_popover_data(group_popover_items(group)) }
+              = pluralize(group.size, noun(group.type))
+          - else
+            = safe_join(group.named_actions.map { |named| tag.strong(action_name(named), title: from_title.call(named)) }, ', ')
+            - if group.role
+              as #{group.role}
+            - if group.remaining.positive?
+              %span.text-secondary{ data: request_actions_popover_data(group_popover_items(group)) }
+                + #{group.remaining} more
+        - else
+          %span.badge.rounded-pill.text-bg-light.border.fw-normal{ title: pluralize(group.size, noun(group.type)) }
+            %i{ class: action_type_icon(group.type) }
+            = group.size
+      %i.fas.fa-long-arrow-alt-right.text-info.mx-1
+      - if (label = target_label)
+        = label
+      - else
+        %span{ data: request_actions_popover_data(targets) }
+          #{targets.size} projects

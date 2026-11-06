@@ -21,6 +21,8 @@ module Webui::RequestHelper
 
   AVAILABLE_TYPES = %w[all submit delete add_role change_devel maintenance_incident maintenance_release release].freeze
   AVAILABLE_STATES = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded'].freeze
+  # Longer lists of request actions in popovers are cut, the request page lists all of them
+  REQUEST_ACTIONS_POPOVER_LIMIT = 25
 
   def request_state_color(state)
     STATE_COLORS[state.to_s] || ''
@@ -216,7 +218,16 @@ module Webui::RequestHelper
     "(#{package.latest_local_version.version})"
   end
 
-  private
+  # Data attributes of a popover listing request actions one per line. It stays open while hovered (see webui/popover.js),
+  # so long lists can be scrolled.
+  def request_actions_popover_data(items)
+    lines = items.first(REQUEST_ACTIONS_POPOVER_LIMIT)
+    if items.size > REQUEST_ACTIONS_POPOVER_LIMIT
+      lines += [tag.span("and #{items.size - REQUEST_ACTIONS_POPOVER_LIMIT} more, see the request", class: 'text-secondary')]
+    end
+    content = tag.ul(safe_join(lines.map { |line| tag.li(line) }), class: 'list-unstyled mb-0')
+    { request_actions_popover: true, bs_html: 'true', bs_custom_class: 'request-actions-popover', bs_content: content }
+  end
 
   def action_type_icon(type)
     case type
@@ -236,6 +247,8 @@ module Webui::RequestHelper
       'fas fa-code-pull-request fa-fw'
     end
   end
+
+  private
 
   # Note: We don't allow labeling requests with more than 1 target project
   def project_for_labels(bs_request)
