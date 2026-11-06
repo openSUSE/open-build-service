@@ -531,7 +531,8 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'renders link to the page of the comment' do
-        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/package/show/#{package.project}/#{package}#comments-list\">Package #{package.project}/#{package}</a>")
+        url = "https://build.example.com/package/show/#{package.project}/#{package}#comment-#{report.reportable.id}"
+        expect(mail.body.encoded).to include("<a href=\"#{url}\">Package #{package.project}/#{package}</a>")
       end
     end
 
@@ -574,7 +575,7 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'renders link to the page of the comment' do
-        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/project/show/#{project}#comments-list\">Project #{project}</a>")
+        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/project/show/#{project}#comment-#{comment.id}\">Project #{project}</a>")
       end
     end
 
@@ -618,7 +619,7 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'renders link to the page of the comment' do
-        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/project/show/#{project}#comments-list\">Project #{project}</a>")
+        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/project/show/#{project}#comment-#{comment.id}\">Project #{project}</a>")
       end
     end
 
