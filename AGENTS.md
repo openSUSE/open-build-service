@@ -1,11 +1,13 @@
 # Repository Agent Instructions
 
 ## Git Commit Disclosure
-Per `CONTRIBUTING.md`, all AI-assisted commits must disclose generative AI usage using the `Assisted-by:` trailer in commit messages:
+Per `CONTRIBUTING.md`, all AI-assisted commits must disclose generative AI usage using the `Assisted-by:` trailer in commit messages. Use the agent name and the short model name you run as:
 
 ```
-Assisted-by: opencode:gemini-3.6-flash
+Assisted-by: AGENT_NAME:MODEL_VERSION
 ```
+
+Example: `Assisted-by: opencode:claude-haiku-5-5`
 
 ## Mandatory Pre-Push Requirements
 **ALWAYS** run the linter and relevant tests before pushing changes to production or submitting code.
