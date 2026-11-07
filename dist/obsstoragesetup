@@ -160,7 +160,6 @@ case "$1" in
 			else
 				echo "No BSConfig found while setting up /dev/OBS/server"
 			fi
-			obs_server_size=$(( $(lvdisplay -c OBS/server 2>/dev/null | cut -d: -f7) / 2 / 1024 ))
 		else 
 			echo "No logical volume found under /dev/OBS/server"
                 fi
@@ -222,9 +221,8 @@ case "$1" in
 					VG_SIZE=`vgdisplay -c OBS | cut -d: -f16`
 					PE_SIZE_IN_MB=$((  $PE_SIZE / 1024 ))
 					VG_SIZE=$(( $VG_SIZE * $PE_SIZE_IN_MB ))
-					OBS_SERVER_SIZE=${obs_server_size:-0}
 					TOTAL_SWAP_SIZE=$(( $NUM * $OBS_WORKER_SWAP_SIZE ))
-					FINAL_VG_SIZE=$(( $VG_SIZE - $OBS_SERVER_SIZE - $OBS_WORKER_CACHE_SIZE - $TOTAL_SWAP_SIZE ))
+					FINAL_VG_SIZE=$(( $VG_SIZE - $OBS_WORKER_CACHE_SIZE - $TOTAL_SWAP_SIZE ))
 					OBS_WORKER_ROOT_SIZE=$(( $FINAL_VG_SIZE / $NUM ))
 					MIN_WORKER_ROOT_SIZE=$(( 4 * 1024 ))
 					if test $OBS_WORKER_ROOT_SIZE -lt $(( 4 * 1024 )); then
@@ -233,9 +231,8 @@ case "$1" in
 						echo "VG_SIZE=$VG_SIZE"
 						echo "PE_SIZE=$PE_SIZE"
 						echo "PE_SIZE_IN_MB=$PE_SIZE_IN_MB"
-						echo "OBS_SERVER_SIZE=$OBS_SERVER_SIZE"
 						echo "TOTAL_SWAP_SIZE=$TOTAL_SWAP_SIZE"
-						echo "FINAL_VG_SIZE = $VG_SIZE - $OBS_SERVER_SIZE - $OBS_WORKER_CACHE_SIZE - $TOTAL_SWAP_SIZE"
+						echo "FINAL_VG_SIZE = $VG_SIZE - $OBS_WORKER_CACHE_SIZE - $TOTAL_SWAP_SIZE"
 						echo "FINAL_VG_SIZE=$FINAL_VG_SIZE";
 						echo "OBS_WORKER_ROOT_SIZE=$OBS_WORKER_ROOT_SIZE"
 						echo "MIN_WORKER_ROOT_SIZE=$MIN_WORKER_ROOT_SIZE"
