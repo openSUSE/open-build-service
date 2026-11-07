@@ -65,6 +65,12 @@ module Backend
           http_get(['/source/:project/_pubkey', project_name], params: options, accepted: %i[rev])
         end
 
+        # Returns all published pubkeys for the project (active + migration keys)
+        # @return [String]
+        def self.pubkeys(project_name)
+          http_get(['/source/:project/_pubkeys', project_name])
+        end
+
         # Deletes the pubkey file for the project
         # @return [String]
         def self.delete_pubkey(project_name, options = {})
@@ -86,12 +92,22 @@ module Backend
 
         # Create a key for a project
         def self.createkey(project_name, options = {})
-          http_post(['/source/:project', project_name], defaults: { cmd: :createkey }, params: options, accepted: %i[user comment])
+          http_post(['/source/:project', project_name], defaults: { cmd: :createkey }, params: options, accepted: %i[user comment keyalgo days])
         end
 
         # Extend a key for a project
         def self.extendkey(project_name, options = {})
           http_post(['/source/:project', project_name], defaults: { cmd: :extendkey }, params: options, accepted: %i[user comment days])
+        end
+
+        # Prepare a new key for non-breaking key migration
+        def self.preparekey(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :preparekey }, params: options, accepted: %i[user comment keyalgo days])
+        end
+
+        # Activate a prepared key
+        def self.activatekey(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :activatekey }, params: options, accepted: %i[user comment])
         end
 
         # Freeze a project link
