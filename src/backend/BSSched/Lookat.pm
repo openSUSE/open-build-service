@@ -248,8 +248,8 @@ sub nextlookat {
     my @lowfront = splice(@$lookat_low, 0, $gctx->{'lowfront_cnt'});
     extend_lookat_next($gctx);
     @$lookat_low = grep {$lookat_next->{$_}} @{$gctx->{'prps'}};
-    new_lowfront($gctx, @lowfront);
     %$lookat_next = ();
+    unshift @{$gctx->{'lookat_low'}}, @lowfront;
   }
 
   my $prp;

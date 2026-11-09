@@ -1403,7 +1403,8 @@ sub delay_linkedpackages {
 
  Do all the delayed projpack fetches caused by source changes
 
- See do_fetchprojpacks
+ Called from the main scheduler loop. See do_fetchprojpacks below
+ for code that adds to the delayed queue.
 
  Returns 0 if an async fetch is in progress.
 
@@ -1553,7 +1554,7 @@ sub do_fetchprojpacks {
   my %fetchlinkedprojpacks_srcchange;
   for my $projid (sort keys %$fetchprojpacks) {
     my $changed = $lowprioproject->{$projid} && $projpacks->{$projid} && !$deepcheck->{$projid} ? $changed_low : $changed_high;
-    if (grep {!defined($_)} @{$fetchprojpacks->{$projid}}) {
+    if (grep {!defined($_) || $_ eq '/all'} @{$fetchprojpacks->{$projid}}) {
       for my $prp (@{$gctx->{'prps'}}) {
 	if ((split('/', $prp, 2))[0] eq $projid) {
 	  $changed->{$prp} = 2;
@@ -1584,7 +1585,7 @@ sub do_fetchprojpacks {
     }
   }
 
-  # pass3: update link information
+  # pass3: update linked packages as well
   if (%fetchlinkedprojpacks) {
     my $alllocked = $gctx->{'alllocked'};
     my $projpackchanged;
@@ -1598,28 +1599,19 @@ sub do_fetchprojpacks {
       }
       get_projpacks($gctx, undef, $projid, sort keys %packids);
       $projpackchanged = 1;
-      # we assign source changed through links med prio,
+      # we assign source changed through links lowfront prio,
       # everything else is low prio
-      if ($fetchlinkedprojpacks_srcchange{$projid}) {
-	for my $prp (@{$gctx->{'prps'}}) {
-	  if ((split('/', $prp, 2))[0] eq $projid) {
-	    if ($alllocked->{$prp}) {
-	      $changed_low->{$prp} ||= 1;
-	    } else {
-	      $changed_lowfront->{$prp} ||= 1;
-	    }
-	    $changed_dirty->{$prp} = 1;
-	  }
-	}
-	$changed_lowfront->{$projid} ||= 1;
-      } else {
-	for my $prp (@{$gctx->{'prps'}}) {
-	  if ((split('/', $prp, 2))[0] eq $projid) {
+      my $changed = $fetchlinkedprojpacks_srcchange{$projid} ? $changed_lowfront : $changed_low;
+      for my $prp (@{$gctx->{'prps'}}) {
+        if ((split('/', $prp, 2))[0] eq $projid) {
+	  if ($alllocked->{$prp}) {
 	    $changed_low->{$prp} ||= 1;
-	    $changed_dirty->{$prp} = 1;
+	  } else {
+	    $changed->{$prp} ||= 1;
 	  }
+	  $changed_dirty->{$prp} = 1;
 	}
-	$changed_low->{$projid} ||= 1;
+	$changed->{$projid} ||= 1;
       }
     }
     get_projpacks_postprocess($gctx) if $projpackchanged;	# just in case...
