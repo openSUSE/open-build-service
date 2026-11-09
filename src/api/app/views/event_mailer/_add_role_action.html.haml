@@ -1,0 +1,6 @@
+%div{ style: 'margin-bottom: 1em; padding: 0.5em; background-color: #f5f5f5; border-left: 3px solid #28a745;' }
+  %strong add_role
+  - if a['group'].blank?
+    #{a['person']} wants to be #{a['role']} in #{project_or_package_text(a['targetproject'], a['targetpackage'])}
+  - else
+    Group #{a['group']} wants to be #{a['role']} in #{project_or_package_text(a['targetproject'], a['targetpackage'])}
