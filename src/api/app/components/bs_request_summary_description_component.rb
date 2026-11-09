@@ -1,15 +1,13 @@
 # This component renders the request description based on the type of the actions
 
 class BsRequestSummaryDescriptionComponent < ApplicationComponent
-  # Longer lists are cut, the request page lists all of them
-  POPOVER_LIMIT = 25
-
   attr_reader :bs_request, :types
 
   delegate :project_or_package_link, to: :helpers
   delegate :user_with_realname_and_icon, to: :helpers
   delegate :requester_str, to: :helpers
   delegate :creator_intentions, to: :helpers
+  delegate :request_actions_popover_data, to: :helpers
 
   def initialize(bs_request:)
     super()
@@ -40,7 +38,7 @@ class BsRequestSummaryDescriptionComponent < ApplicationComponent
 
     return tag.span(sanitize(container)) if packages_count <= 3
 
-    tag.span(sanitize(container), data: popover_data(actions.map { |a| "#{a.source_project} / #{a.source_package}" }.uniq))
+    tag.span(sanitize(container), data: request_actions_popover_data(actions.map { |a| "#{a.source_project} / #{a.source_package}" }.uniq))
   end
 
   def target_container(actions)
@@ -59,18 +57,10 @@ class BsRequestSummaryDescriptionComponent < ApplicationComponent
 
     return tag.span(sanitize(container)) if actions.filter_map { |a| [a.target_project, a.target_package] }.uniq.count <= 1
 
-    tag.span(sanitize(container), data: popover_data(actions.map { |a| "#{a.target_project} / #{a.target_package}" }.uniq))
+    tag.span(sanitize(container), data: request_actions_popover_data(actions.map { |a| "#{a.target_project} / #{a.target_package}" }.uniq))
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
-
-  # Data attributes of a popover listing one item per line
-  def popover_data(items)
-    lines = items.first(POPOVER_LIMIT)
-    lines += [tag.span("and #{items.size - POPOVER_LIMIT} more, see the request", class: 'text-secondary')] if items.size > POPOVER_LIMIT
-    content = tag.ul(safe_join(lines.map { |line| tag.li(line) }), class: 'list-unstyled mb-0')
-    { request_actions_popover: true, bs_html: 'true', bs_custom_class: 'request-actions-popover', bs_content: content }
-  end
 
   def delete_target(actions)
     target = actions.map do |a|
