@@ -64,10 +64,12 @@ my $old_listfile;
 my $with_platforms;
 my $missingok;
 my $use_head_for_list;
+my $assume_old_referrers;
+my $list_referrers;
 
 my $cosign;
 my $cosigncookie;
-my $cosignbundle;
+my $cosignbundle;	# implies referrer api
 my $slsaprovenance;
 my $sbom;
 my $gun;
@@ -91,6 +93,8 @@ my $keepalive;
 
 my $cosign_cookie_name = 'org.open-build-service.cosign.cookie';
 my $cosign_creator = 'OBS';
+
+my $no_referrer_api;	# registry does not support the referrer api
 
 sub warn_and_exit {
   warn($_[1]);
@@ -478,6 +482,31 @@ sub cosign_upload_newbundle {
     $multimani->{'annotations'} = $mani->{'annotations'} if $mani->{'annotations'};
     push @multimanifests, $multimani;
   }
+  my ($referrer_mani) = eval { get_referrers($subject->{'digest'}) };
+  $no_referrer_api = 0 if $referrer_mani;
+  $no_referrer_api = 1 if $@ =~ /^404/;
+  print "registry does not support the referrer api\n" if $no_referrer_api;
+  my @referrers = @{($referrer_mani || {})->{'manifests'} || []};
+  my %wanted = map {$_->{'digest'} => 1} @multimanifests;
+  my %missing = %wanted;
+  if (@referrers) {
+    # delete no longer wanted referrers
+    delete $missing{$_->{'digest'}} for @referrers;
+    my @unwanted = grep {!$wanted {$_->{'digest'}}} @referrers;
+    if (@unwanted) {
+      print "deleting ".@unwanted." referrer manifests\n";
+      delete_manifest($_->{'digest'}) for @unwanted;
+    }
+  }
+  if (%missing && !$no_referrer_api) {
+    print "referrer api missed ".scalar(keys %missing)." manifests\n";
+  }
+  if (!%missing && !$no_referrer_api) {
+    # XXX delete fallback tag just in case?
+    # eval { delete_tag($tag) };
+    # warn($@) if $@;
+    return;
+  }
   my $mani = BSContar::create_dist_manifest_list_data(\@multimanifests, $oci);
   my $mani_json = BSContar::create_dist_manifest_list($mani);
   manifest_upload($mani_json, $tag, $mani->{'mediaType'});
@@ -543,6 +572,7 @@ sub get_all_tags {
     'toomanyrequests' => \&toomanyrequests,
     'replyheaders' => \$replyheaders,
     'keepalive' => $keepalive,
+    'maxredirects' => 1,
     'ignorestatus' => ($missing_ok ? 1 : 0),
   };
   while (1) {
@@ -597,6 +627,7 @@ sub get_manifest_for_tag {
     'timeout' => $registry_timeout,
     'toomanyrequests' => \&toomanyrequests,
     'keepalive' => $keepalive,
+    'maxredirects' => 1,
   };
   push @{$param->{'headers'}}, "If-None-Match: $ifnonematch" if $ifnonematch;
   if ($ifnonematch && $use_head_for_list) {
@@ -633,6 +664,18 @@ sub get_referrers {
   my $mani_json = BSRPC::rpc($param, undef, @args);
   my $mani = JSON::XS::decode_json($mani_json);
   my $maniid = $replyheaders->{'docker-content-digest'};
+  while ($replyheaders->{'link'}) {
+    die("bad link: $replyheaders->{'link'}\n") unless $replyheaders->{'link'} =~ /^<(\/v2\/.*)>/;
+    $param->{'uri'} = "$registryserver$1";
+    $param->{'verbatim_uri'} = 1;
+    undef $replyheaders;
+    my $link_mani_json = BSRPC::rpc($param, undef, @args);
+    my $link_mani = JSON::XS::decode_json($link_mani_json);
+    $mani->{'manifests'} ||= [];
+    push @{$mani->{'manifests'}}, @{$link_mani->{'manifests'} || []};
+    undef $maniid;
+    $mani_json = BSContar::create_dist_manifest_list($mani);
+  }
   return ($mani, $maniid, $mani_json);
 }
 
@@ -838,7 +881,10 @@ sub list_tag {
   if ($maniids && !$is_cosign) {
     $maniids->{$maniid} = 1;
     if ($mani->{'mediaType'} eq $BSContar::mt_docker_manifestlist || $mani->{'mediaType'} eq $BSContar::mt_oci_index) {
-      $maniids->{$_->{'digest'}} = 1 for @{$mani->{'manifests'} || []};
+      for (@{$mani->{'manifests'} || []}) {
+        next if $_->{'annotations'} && ($_->{'annotations'}->{'vnd.docker.reference.type'} || '') eq 'attestation-manifest';
+        $maniids->{$_->{'digest'}} = 1;
+      }
     }
   }
 
@@ -849,8 +895,47 @@ sub list_tag {
 
   $disptag = ($tag eq $maniid ? '-' : $tag) unless defined $disptag;
   printf "%-20s %s %s%s\n", $disptag, $maniid, $mtype, $extra ne '' ? " $extra" : '';
-  list_manifestinfo($maniid, $indent) if $list_manifestinfo && $mtype eq 'image' || $mtype eq 'ociimage';
+  list_manifestinfo($maniid, $indent) if $list_manifestinfo && ($mtype eq 'image' || $mtype eq 'ociimage');
 
+  if ($listidx && ($mtype eq 'list' || $mtype eq 'ocilist')) {
+    for (@{$mani->{'manifests'} || []}) {
+      my $dtag = $indent.'/'.platform2str($_->{'platform'});
+      if ($listidx_no_info) {
+	printf "%-20s %s -\n", $dtag, $_->{'digest'};
+      } else {
+	list_tag($_->{'digest'}, undef, undef, $dtag);
+      }
+    }
+  }
+}
+
+sub list_referrers {
+  my ($maniid, $old_datas, $disptag) = @_;
+
+  return if $no_referrer_api;
+  my $fallbacktag = $maniid;
+  $fallbacktag =~ s/:/-/;
+  my $indent = $disptag ? '        ' : '    ';
+  if ($assume_old_referrers && ($no_info || $no_cosign_info) && $old_datas->{"+$maniid"}) {
+    $disptag = "+$maniid" unless defined $disptag;
+    printf "%-20s -\n", $disptag;
+    return;
+  }
+  my ($mani) = eval { get_referrers($maniid) };
+  $no_referrer_api = 0 if $mani;
+  $no_referrer_api = 1 if $@ =~ /^404/;
+  return if $no_referrer_api;
+  my @referrers = @{($mani || {})->{'manifests'} || []};
+  return unless @referrers;
+  if ($no_info || $no_cosign_info) {
+    $disptag = "+$maniid" unless defined $disptag;
+    printf "%-20s -\n", $disptag;
+    return;
+  }
+  my $mtype = contenttype2manitype($mani->{'mediaType'});
+  my $extra = manifest2extrainfo($mani, $fallbacktag);
+  $disptag = "+$maniid" unless defined $disptag;
+  printf "%-20s %s %s%s\n", $disptag, '-', $mtype, $extra ne '' ? " $extra" : '';
   if ($listidx && ($mtype eq 'list' || $mtype eq 'ocilist')) {
     for (@{$mani->{'manifests'} || []}) {
       my $dtag = $indent.'/'.platform2str($_->{'platform'});
@@ -1073,6 +1158,7 @@ while (@ARGV) {
     (undef, $cosigncookie) = splice(@ARGV, 0, 2);
   } elsif ($ARGV[0] eq '--cosignbundle') {
     $cosignbundle = 1;
+    $list_referrers = 1;
     shift @ARGV;
   } elsif ($ARGV[0] eq '--slsaprovenance') {
     $slsaprovenance = 1;
@@ -1107,11 +1193,17 @@ while (@ARGV) {
     $listidx = 1;
     $listidx_no_info = 1;
     shift @ARGV;
+  } elsif ($ARGV[0] eq '--list-referrers') {
+    $list_referrers = 1;
+    shift @ARGV;
   } elsif ($ARGV[0] eq '--debug') {
     $BSRPC::logrequests = 1;
     shift @ARGV;
   } elsif ($ARGV[0] eq '--use-head-for-list') {
     $use_head_for_list = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--assume-old-referrers') {
+    $assume_old_referrers = 1;
     shift @ARGV;
   } else {
     last;
@@ -1146,20 +1238,22 @@ if ($list_mode) {
     $keepalive = {};
     my %tags = map {$_ => 1} @tags;
     $tags{$_} = 1 for tags_from_digestfile();
-    if (%tags && $cosign) {
-      my %maniids;
-      list_tag($_, \%maniids, $old_datas) for sort keys %tags;
+    my $alsocosign = %tags && $cosign ? 1 : 0;	# need to list corresponding cosign tags
+    %tags = map {$_ => 1} get_all_tags($missingok) unless %tags;
+    my %maniids;
+    list_tag($_, ($list_referrers || $alsocosign ? \%maniids : undef), $old_datas) for sort keys %tags;
+    # now list all cosign tags
+    if (%maniids && $alsocosign) {
       %tags = ();
-      if (%maniids) {
-        for (get_all_tags()) {
-          $tags{$_} = 1 if /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/ && $maniids{"$1:$2"};
-          $tags{$_} = 1 if /^([a-z0-9]+)-([a-f0-9]{40,})$/ && $maniids{"$1:$2"};
-        }
+      for (get_all_tags()) {
+        $tags{$_} = 1 if /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/ && $maniids{"$1:$2"};
+        $tags{$_} = 1 if /^([a-z0-9]+)-([a-f0-9]{40,})$/ && $maniids{"$1:$2"};
       }
       list_tag($_, undef, $old_datas) for sort keys %tags;
-    } else {
-      %tags = map {$_ => 1} get_all_tags($missingok) unless %tags;
-      list_tag($_, undef, $old_datas) for sort keys %tags;
+    }
+    # now list all referrers
+    if (%maniids && $list_referrers) {
+      list_referrers($_, $old_datas) for sort keys %maniids;
     }
   } elsif (@ARGV == 3) {
     my ($mani, $maniid, $mani_json) = get_manifest_for_tag($ARGV[2]);
@@ -1177,7 +1271,7 @@ if ($list_mode) {
       print $data;
     } elsif ($ARGV[3] eq 'referrers' || $ARGV[3] =~ /^referrers\@./) {
       die("need digest for referrers\n") unless $ARGV[2] =~ /^sha256:[0-9a-f]{64}$/;
-      my ($mani, $maniid, $mani_json) = get_referrers($ARGV[2], substr($ARGV[3], 10));
+      my ($mani, $maniid, $mani_json) = get_referrers($ARGV[2], $ARGV[3] eq 'referrers' ? undef : substr($ARGV[3], 10));
       print "$mani_json\n" if $mani_json;
     } else {
       blob_download($ARGV[2], $ARGV[3]);
