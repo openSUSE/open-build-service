@@ -246,7 +246,7 @@ GEM
     mousetrap-rails (1.4.6)
     mysql2 (0.5.2)
     nio4r (2.5.8)
-    nokogiri (1.15.7)
+    nokogiri (1.19.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     parallel (1.17.0)
