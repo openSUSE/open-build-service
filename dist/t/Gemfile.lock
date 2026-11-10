@@ -31,7 +31,7 @@ GEM
     regexp_parser (2.13.1)
     rspec-core (3.13.6)
       rspec-support (~> 3.13.0)
-    rspec-expectations (3.13.5)
+    rspec-expectations (3.13.6)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.8)
