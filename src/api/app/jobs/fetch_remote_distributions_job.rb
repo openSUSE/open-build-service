@@ -1,10 +1,16 @@
 class FetchRemoteDistributionsJob < ApplicationJob
   def perform
+    success = true
+
     Project.remote.each do |project|
       distributions_xml = Project::RemoteURL.load(project, '/distributions.xml')
 
-      # Project::RemoteURL returns nil (and reports to log/Airbrake) in case of errors, we are done if this happens...
-      return false if distributions_xml.nil?
+      # Project::RemoteURL returns nil (and reports to log/Airbrake) in case of errors.
+      # Keep the cached distributions of this remote project and go on with the next one.
+      if distributions_xml.nil?
+        success = false
+        next
+      end
 
       if Xmlhash.parse(distributions_xml).blank?
         Distribution.remote.for_project(project.name).destroy_all
@@ -15,7 +21,7 @@ class FetchRemoteDistributionsJob < ApplicationJob
       end
     end
 
-    true
+    success
   end
 
   private
