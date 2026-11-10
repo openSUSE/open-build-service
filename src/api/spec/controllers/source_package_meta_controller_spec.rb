@@ -78,4 +78,39 @@ RSpec.describe SourcePackageMetaController, :vcr do
       it { expect(Xmlhash.parse(response.body)['code']).to eq('validation_failed') }
     end
   end
+
+  describe 'PUT #update of a new package' do
+    context 'when a concurrent request creates the package first' do
+      let(:meta) do
+        <<~META
+          <package name="bar" project="#{project_with_package.name}">
+            <title>Title from the second request</title>
+            <description/>
+          </package>
+        META
+      end
+
+      before do
+        login user
+        project_with_package
+        allow(Package).to receive(:new).and_wrap_original do |original, *args, &block|
+          package = original.call(*args, &block)
+          if package.name == 'bar'
+            allow(package).to receive(:update_from_xml) do
+              create(:package, project: project_with_package, name: 'bar', title: 'Title from the first request')
+              raise ActiveRecord::RecordNotUnique, "Duplicate entry for key 'packages_all_index'"
+            end
+          end
+          package
+        end
+
+        put :update, params: { project: project_with_package, package: 'bar' }, body: meta, format: :xml
+      end
+
+      it 'updates the package created by the other request' do
+        expect(response).to have_http_status(:success)
+        expect(project_with_package.packages.find_by(name: 'bar').title).to eq('Title from the second request')
+      end
+    end
+  end
 end
