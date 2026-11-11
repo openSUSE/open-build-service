@@ -276,9 +276,7 @@ class BranchPackage
 
   def create_branch_project
     if Project.exists_by_name(@target_project)
-      raise CreateProjectNoPermission, "The destination project already exists, so the api can't make it not readable" if @noaccess
-
-      tprj = Project.get_by_name(@target_project)
+      tprj = existing_branch_project
     else
       # permission check
       raise CreateProjectNoPermission, "no permission to create project '#{@target_project}' while executing branch command" unless User.session!.can_create_project?(@target_project)
@@ -290,16 +288,29 @@ class BranchPackage
         title = "Branch project based on request #{params[:request]}"
         description = "This project was created as a clone of request #{params[:request]}"
       end
-      @add_repositories = true # new projects shall get repositories
       tprj = Project.new(name: @target_project, title: title, description: description, url: url)
       tprj.relationships.new(user: User.session!, role: Role.find_by_title!('maintainer'))
       tprj.flags.new(flag: 'build', status: 'disable') if @extend_names
       tprj.flags.new(flag: 'access', status: 'disable') if @noaccess
-      tprj.store
+      begin
+        tprj.store
+      rescue ActiveRecord::RecordNotUnique
+        # A concurrent request created the project after the existence check above
+        raise unless Project.exists_by_name(@target_project)
+
+        return existing_branch_project
+      end
+      @add_repositories = true # new projects shall get repositories
       add_autocleanup_attribute(tprj) if @auto_cleanup
       add_request_cloned_attribute(tprj) if params[:request]
     end
     tprj
+  end
+
+  def existing_branch_project
+    raise CreateProjectNoPermission, "The destination project already exists, so the api can't make it not readable" if @noaccess
+
+    Project.get_by_name(@target_project)
   end
 
   def determine_details_about_package_to_branch(p)
