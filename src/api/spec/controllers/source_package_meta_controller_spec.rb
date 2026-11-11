@@ -142,7 +142,11 @@ RSpec.describe SourcePackageMetaController, :vcr do
         before do
           login user
           link_association
-          allow_any_instance_of(Package).to receive(:update_from_xml).and_raise(ActiveRecord::RecordNotSaved.new('Failed to save the record'))
+          allow(Package).to receive(:new).and_wrap_original do |original, *args, &block|
+            original.call(*args, &block).tap do |package|
+              allow(package).to receive(:update_from_xml).and_raise(ActiveRecord::RecordNotSaved.new('Failed to save the record'))
+            end
+          end
           put :update, params: { project: local_project,
                                  package: package_name },
                        body: meta, format: :xml
