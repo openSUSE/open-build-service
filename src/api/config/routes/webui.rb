@@ -445,6 +445,10 @@ namespace :user do
 end
 # Legacy routes end
 
+# Registers the :user Devise mapping, so Warden runs the :user strategies (proxy login).
+# skip: :all draws no routes.
+devise_for :users, skip: :all
+
 constraints(RoutesHelper::SessionAuthMatcher) do
   resource :session, only: %i[new create], controller: 'webui/session' do
     collection do

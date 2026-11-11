@@ -15,6 +15,8 @@ RSpec.describe Webui::ProjectController, :vcr do
   let(:json_response) { response.parsed_body }
 
   describe 'CSRF protection' do
+    include Devise::Test::ControllerHelpers
+
     before do
       # Needed because Rails disables it in test mode by default
       ActionController::Base.allow_forgery_protection = true
