@@ -299,3 +299,12 @@ BrokenPublishing:
   updated_at: 2005-01-02 01:00:01.000000000 Z
   kind: standard
   delta: 1
+ScmSyncProject:
+  name: ScmSyncProject
+  title: This is a project managed via ScmSync
+  description: contains nothing important
+  scmsync: http://somewhere
+  created_at: 2005-01-02 01:00:01.000000000 Z
+  updated_at: 2005-01-02 01:00:01.000000000 Z
+  kind: standard
+  delta: 1
