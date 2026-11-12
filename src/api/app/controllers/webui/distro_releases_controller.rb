@@ -54,6 +54,12 @@ class Webui::DistroReleasesController < Webui::WebuiController
   end
 
   #### Non CRUD actions
+  def compare
+    authorize @distro, :show?
+    @distro_releases = @distro.distro_releases.order(:name)
+    @base_release = @distro_releases.find_by(name: params[:base])
+    @target_release = @distro_releases.find_by(name: params[:target])
+  end
 
   #### Non actions methods
   # Use hide_action if they are not private
