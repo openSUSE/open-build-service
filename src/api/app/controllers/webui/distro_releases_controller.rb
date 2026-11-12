@@ -1,6 +1,7 @@
 class Webui::DistroReleasesController < Webui::WebuiController
   #### Includes and extends
   include Webui::PreviewDescription
+  include Webui::PackagesFilter
 
   #### Constants
 
@@ -12,7 +13,10 @@ class Webui::DistroReleasesController < Webui::WebuiController
   before_action :set_distro
   before_action :set_vendor
   before_action :set_distro_release, only: %i[show update destroy edit]
+  before_action :set_filter_search_text, only: :show
   before_action :set_packages, only: :show
+  before_action :filter_packages, only: :show
+  before_action :set_selected_filter, only: :show
   before_action :set_ordered_packages, only: :show
   before_action :paginate_packages, only: :show
   # Pundit authorization policies control
@@ -94,13 +98,5 @@ class Webui::DistroReleasesController < Webui::WebuiController
 
   def set_packages
     @packages = @distro_release.packages
-  end
-
-  def set_ordered_packages
-    @packages = @packages.order(name: :asc)
-  end
-
-  def paginate_packages
-    @packages = @packages.page(params[:page]).per(params[:page_size])
   end
 end
