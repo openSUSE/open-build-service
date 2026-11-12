@@ -6,7 +6,7 @@ RSpec.describe Webui::DistroReleaseLifecyclesController do
   let(:distro) { create(:distro, vendor: vendor, name: 'Leap') }
   let(:distro_release) { create(:distro_release, distro: distro, name: '16.0') }
   let(:release_path) { project_distro_release_path(project.name, distro.name, distro_release.name) }
-  let(:route_params) { { project_name: project.name, distro_name: distro.name, distro_release_name: distro_release.name } }
+  let(:route_params) { { project_name: project.name, distro_name: distro.name, release_name: distro_release.name } }
 
   it { is_expected.to use_after_action(:verify_authorized) }
 
@@ -81,7 +81,7 @@ RSpec.describe Webui::DistroReleaseLifecyclesController do
   end
 
   describe 'PATCH #update' do
-    subject { patch :update, params: route_params.merge(lifecycle_name: lifecycle.name, distro_release_lifecycle: lifecycle_params) }
+    subject { patch :update, params: route_params.merge(name: lifecycle.name, distro_release_lifecycle: lifecycle_params) }
 
     let!(:lifecycle) { create(:distro_release_lifecycle, distro_release: distro_release, name: 'Beta', status: :beta) }
     let(:lifecycle_params) { { status: 'release_candidate' } }
@@ -118,7 +118,7 @@ RSpec.describe Webui::DistroReleaseLifecyclesController do
   end
 
   describe 'DELETE #destroy' do
-    subject { delete :destroy, params: route_params.merge(lifecycle_name: lifecycle.name) }
+    subject { delete :destroy, params: route_params.merge(name: lifecycle.name) }
 
     let!(:lifecycle) { create(:distro_release_lifecycle, distro_release: distro_release) }
 
