@@ -1,6 +1,8 @@
 .list-group-item.px-0.px-md-1.py-3
   = link_to package_show_path(package.project, package) do
     %b #{package.project.name}/#{package.name}
+  - if Flipper.enabled?(:labels, User.session) && package.labels
+    = render partial: 'webui/shared/label', collection: package.labels, as: :label
   - if Flipper.enabled?(:package_version_tracking, User.session) && (package.latest_local_version || package.latest_upstream_version)
     %div
       Version:
