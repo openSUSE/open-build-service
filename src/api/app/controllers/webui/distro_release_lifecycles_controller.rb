@@ -55,11 +55,11 @@ class Webui::DistroReleaseLifecyclesController < Webui::WebuiController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_distro_release
-    @distro_release = @distro.distro_releases.find_by!(name: params.expect(:distro_release_name))
+    @distro_release = @distro.distro_releases.find_by!(name: params.expect(:release_name))
   end
 
   def set_distro_release_lifecycle
-    @distro_release_lifecycle = @distro_release.distro_release_lifecycles.find_by!(name: params.expect(:lifecycle_name))
+    @distro_release_lifecycle = @distro_release.distro_release_lifecycles.find_by!(name: params.expect(:name))
   end
 
   # Only allow a trusted parameter "white list" through.
