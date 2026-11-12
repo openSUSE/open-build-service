@@ -1,0 +1,10 @@
+- @pagetitle = "Compare releases of #{@distro.name}"
+
+.card.mb-3
+  .card-body
+    %h3.mb-1
+      %span.text-secondary Compare releases:
+      = @distro.name
+    %p.text-secondary
+      Package versions of two releases of #{@distro.name} by #{@distro.vendor.name}
+    = render partial: 'compare_form', locals: { distro_releases: @distro_releases, base_release: @base_release, target_release: @target_release }

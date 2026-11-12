@@ -1,0 +1,11 @@
+= form_tag(compare_project_distro_releases_path(@project.name, @distro.name), method: :get, class: 'row g-2 align-items-end') do
+  .col-sm
+    = label_tag :base, 'Base release', class: 'form-label'
+    = select_tag :base, options_from_collection_for_select(distro_releases, :name, :name, base_release&.name), class: 'form-select'
+  .col-sm
+    = label_tag :target, 'Target release', class: 'form-label'
+    = select_tag :target, options_from_collection_for_select(distro_releases, :name, :name, target_release&.name), class: 'form-select'
+  .col-sm-auto
+    = button_tag(type: 'submit', name: nil, class: 'btn btn-primary') do
+      %i.fas.fa-code-compare
+      Compare

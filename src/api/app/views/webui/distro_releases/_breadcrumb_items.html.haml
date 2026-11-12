@@ -3,6 +3,9 @@
 - if action_name == 'new'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Create Distro Release
+- elsif action_name == 'compare'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Compare Releases
 - else
   %li.breadcrumb-item.text-word-break-all
     %i.fa.fa-ship

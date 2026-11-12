@@ -321,6 +321,7 @@ resources :projects, only: [], param: :name do
   resources :distros, only: [], param: :name, constraints: cons do
     resources :releases, controller: 'webui/distro_releases', param: :distro_release_name, except: %i[index], constraints: cons do
       collection do
+        get :compare
         post :preview_description
       end
     end
