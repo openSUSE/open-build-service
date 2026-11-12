@@ -1,0 +1,12 @@
+- if packages.total_count == 0
+  .text-center.my-3
+    There are no packages for the current filter selection
+- else
+  .text-center
+    %span.ms-3= page_entries_info packages, entry_name: ''
+
+  .list-group.list-group-flush.mt-3
+    = render partial: 'package', collection: packages
+
+  = paginate packages, views_prefix: 'webui', window: 2, params: { action: 'show', id: nil }
+  = render partial: 'page_size_navigation', locals: { paginated_objects: packages }

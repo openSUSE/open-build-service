@@ -54,3 +54,6 @@
                locals: { model: new_lifecycle,
                          url: project_distro_release_lifecycles_path(@project, @distro, @distro_release),
                          text: 'New Lifecycle', icon: 'circle-plus', type: 'link text-decoration-none ps-0' }
+    %h3.mt-4
+      Packages
+    = render partial: 'packages_list', locals: { packages: @packages }
