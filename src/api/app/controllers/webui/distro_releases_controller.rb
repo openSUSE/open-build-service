@@ -12,6 +12,9 @@ class Webui::DistroReleasesController < Webui::WebuiController
   before_action :set_distro
   before_action :set_vendor
   before_action :set_distro_release, only: %i[show update destroy edit]
+  before_action :set_packages, only: :show
+  before_action :set_ordered_packages, only: :show
+  before_action :paginate_packages, only: :show
   # Pundit authorization policies control
   after_action :verify_authorized
 
@@ -87,5 +90,17 @@ class Webui::DistroReleasesController < Webui::WebuiController
 
   def check_beta_feature
     redirect_to root_path unless Flipper.enabled?(:enhanced_distribution_support, User.session)
+  end
+
+  def set_packages
+    @packages = @distro_release.packages
+  end
+
+  def set_ordered_packages
+    @packages = @packages.order(name: :asc)
+  end
+
+  def paginate_packages
+    @packages = @packages.page(params[:page]).per(params[:page_size])
   end
 end
