@@ -42,6 +42,11 @@
             - repository_architectures.each do |ra|
               %span.badge.text-bg-primary
                 = ra.architecture.name
+    - if policy(@distro_release).edit?
+      = render partial: 'webui/distro_release_repository_architectures/modal',
+               locals: { model: @distro_release,
+                         url: project_distro_release_path(@project.name, @distro.name, @distro_release.name),
+                         text: 'Edit Repositories', icon: 'edit', type: 'link text-decoration-none ps-0' }
 
     %h3.mt-4
       Lifecycle
