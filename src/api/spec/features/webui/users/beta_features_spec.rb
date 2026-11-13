@@ -58,8 +58,8 @@ RSpec.describe 'User beta features', :js do
       end
 
       it 'does not display a list of the beta features' do
-        expect(page.text).not_to match(/.*\nSomething cool\nA new cool design\n.*/)
-        expect(page.text).not_to match(/.*\nNew feature 123\nNew feature for you\n.*/)
+        expect(page).to have_no_text('Something cool')
+        expect(page).to have_no_text('New feature 123')
         expect(page.text).not_to match(/.*\nrolled_out\nThis is avaiable to all\n.*/)
         expect(page.text).not_to match(/.*\nfully_enabled\nFully enabled\n.*/)
       end
