@@ -33,6 +33,7 @@ class DistroRelease < ApplicationRecord
 
   #### To define class methods as private use private_class_method
   #### private
+  def to_param = name
 
   #### Instance methods (public and then protected/private)
 
