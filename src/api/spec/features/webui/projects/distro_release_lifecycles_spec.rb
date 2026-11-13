@@ -8,6 +8,8 @@ RSpec.describe 'Distro release lifecycles', :js do
   let(:distro_release) { create(:distro_release, distro: distro, name: '16.0') }
 
   before do
+    Flipper.enable(:enhanced_distribution_support)
+
     create(:distro_release_lifecycle, distro_release: distro_release, name: 'Retired', date: Date.new(2030, 1, 1), status: :end_of_life)
     create(:distro_release_lifecycle, distro_release: distro_release, name: 'First beta', date: Date.new(2026, 1, 1), status: :beta)
   end

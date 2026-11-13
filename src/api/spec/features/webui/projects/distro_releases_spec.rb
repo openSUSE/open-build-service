@@ -6,6 +6,10 @@ RSpec.describe 'Distro releases', :js do
   let(:vendor) { create(:vendor, project: project, name: 'openSUSE') }
   let(:distro) { create(:distro, vendor: vendor, name: 'Leap') }
 
+  before do
+    Flipper.enable(:enhanced_distribution_support)
+  end
+
   context 'as a project maintainer' do
     before do
       login user
