@@ -75,6 +75,6 @@ class Webui::DistroReleasesController < Webui::WebuiController
   end
 
   def set_distro_release
-    @distro_release = @distro.distro_releases.find_by!(name: params.expect(:distro_release_name))
+    @distro_release = @distro.distro_releases.find_by!(name: params.expect(:name))
   end
 end

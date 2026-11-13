@@ -319,10 +319,11 @@ resources :projects, only: [], param: :name do
     end
   end
   resources :distros, only: [], param: :name, constraints: cons do
-    resources :releases, controller: 'webui/distro_releases', param: :distro_release_name, except: %i[index], constraints: cons do
+    resources :releases, controller: 'webui/distro_releases', param: :name, except: %i[index], constraints: cons do
       collection do
         post :preview_description
       end
+      resource :repositories, controller: 'webui/distro_release_repository_architectures', only: %i[edit], constraints: cons
     end
 
     resources :lifecycles, controller: 'webui/distro_release_lifecycles', path: 'releases/:distro_release_name/lifecycles',

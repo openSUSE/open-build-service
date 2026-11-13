@@ -1,0 +1,14 @@
+- modal_id = model.persisted? ? "distro-release-repository-architecture-#{model.id}" : "distro-release-#{model.distro_release_id}-new-repository-architecture"
+- type = local_assigns.fetch(:type, 'link text-decoration-none')
+= render ModalComponent.new(modal_id: modal_id,
+                            modal_button_data: {text: text, type: type, icon: icon}) do |component|
+  - component.with_header do
+    = text
+
+  = form_with(url: url, model: model) do |form|
+    = render partial: 'webui/distro_release_repository_architectures/form', locals: { form: form, model: model }
+
+    %div
+      = link_to('Cancel', project_distro_path(model.distro.vendor.project, model.distro.name), title: 'Cancel',
+                class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
+      = form.submit 'Save', class: 'btn btn-success'
