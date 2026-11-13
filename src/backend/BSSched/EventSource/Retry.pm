@@ -22,6 +22,8 @@ use warnings;
 
 use Data::Dumper;
 
+my $default_delay = 60;	# seconds
+
 =head1
 
   Retry events
@@ -49,7 +51,7 @@ sub new {
 =cut
 
 sub addretryevent {
-  my ($self, $ev) = @_;
+  my ($self, $ev, $delay) = @_;
   my $type = $ev->{'type'};
   for my $oev (@{$self->{'queue'}}) {
     next if $type ne $oev->{'type'} || $ev->{'project'} ne $oev->{'project'};
@@ -62,7 +64,7 @@ sub addretryevent {
     }
     return;
   }
-  $ev->{'retry'} = time() + 60;
+  $ev->{'retry'} = time() + ($delay || $default_delay);
   push @{$self->{'queue'}}, $ev;
 }
 
