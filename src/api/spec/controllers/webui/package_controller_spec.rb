@@ -692,4 +692,53 @@ RSpec.describe Webui::PackageController, :vcr do
       end
     end
   end
+
+  describe 'RPM Lint of a multibuild flavor' do
+    let(:flavor) { "#{source_package.name}:flavor" }
+    let(:fake_build_result) do
+      <<-XML
+        <resultlist state="eb0459ee3b000176bb3944a67b7c44fa">
+          <result project="home:tom" repository="openSUSE_Tumbleweed" arch="x86_64" code="published" state="published">
+            <status package="#{flavor}" code="succeeded" />
+          </result>
+        </resultlist>
+      XML
+    end
+
+    before do
+      allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_result)
+      allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log)
+        .and_return("#{source_package.name}-flavor.x86_64: W: description-shorter-than-summary")
+    end
+
+    context 'when rendering the RPM Lint page' do
+      render_views
+
+      before do
+        get :rpmlint_result, params: { project: source_project, package: flavor }
+      end
+
+      it 'asks the backend for the build results of the flavor' do
+        expect(Backend::Api::BuildResults::Status).to have_received(:result_swiss_knife).with(source_project.name, hash_including(package: flavor))
+      end
+
+      it 'names the flavor in the page title' do
+        expect(response.body).to include("RPM Lint of #{flavor}")
+      end
+    end
+
+    context 'when rendering the RPM Lint summary' do
+      before do
+        get :rpmlint_summary, params: { project: source_project, package: flavor }
+      end
+
+      it 'asks the backend for the build results of the flavor' do
+        expect(Backend::Api::BuildResults::Status).to have_received(:result_swiss_knife).with(source_project.name, hash_including(package: flavor))
+      end
+
+      it 'asks the backend for the rpmlint log of the flavor' do
+        expect(Backend::Api::BuildResults::Binaries).to have_received(:rpmlint_log).with(source_project.name, flavor, 'openSUSE_Tumbleweed', 'x86_64')
+      end
+    end
+  end
 end
