@@ -46,6 +46,10 @@
           = link_to(new_project_distro_release_path(@project.name, @distro.name), class: 'ps-2') do
             %i.fas.fa-circle-plus.text-info
             %span.nav-item-name New Release
+    - if @distro_releases.size >= 2
+      .mt-4
+        = render partial: 'webui/distro_releases/compare_form',
+                 locals: { distro_releases: @distro_releases, base_release: @distro_releases[-2], target_release: @distro_releases[-1] }
 
 .modal.fade#delete-distro-release-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-distro-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }

@@ -36,6 +36,10 @@ class DistroRelease < ApplicationRecord
 
   #### Instance methods (public and then protected/private)
 
+  def latest_local_package_versions
+    packages.includes(:latest_local_version).to_h { |package| [package.name, package.latest_local_version&.version] }
+  end
+
   #### Alias of methods
 end
 

@@ -1,0 +1,18 @@
+= form_tag(compare_project_distro_releases_path(@project.name, @distro.name), method: :get, class: 'row g-2 align-items-center') do
+  .col-md-auto
+    %h3.mb-0
+      Compare Releases
+      %i.fas.fa-info-circle.text-info.fs-6.align-middle{ data: { 'bs-toggle': 'popover', 'bs-placement': 'top',
+                                                                 'bs-content': 'Pick two releases to compare the package versions.' } }
+  .col-sm
+    .input-group
+      = label_tag :base, 'Base', class: 'input-group-text'
+      = select_tag :base, options_from_collection_for_select(distro_releases, :name, :name, base_release&.name), class: 'form-select'
+  .col-sm
+    .input-group
+      = label_tag :target, 'Target', class: 'input-group-text'
+      = select_tag :target, options_from_collection_for_select(distro_releases, :name, :name, target_release&.name), class: 'form-select'
+  .col-sm-auto
+    = button_tag(type: 'submit', name: nil, class: 'btn btn-primary') do
+      %i.fas.fa-code-compare
+      Compare

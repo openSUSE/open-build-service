@@ -1,0 +1,98 @@
+.card
+  .card-body
+    = form_tag(compare_path, method: :get, id: 'content-selector-filters-form') do
+      .row
+        .col-md-4.col-lg-3.px-0.px-md-3.sticky-top#filter-desktop
+          .card.border-start-0.border-top-0.border-bottom-0.rounded-0.h-100
+            %strong.d-block.d-md-none.p-3{ data: { 'bs-toggle': 'collapse', 'bs-target': '#content-selector-filters' },
+                                        aria: { expanded: true, controls: 'content-selector-filters' } }
+              - if @comparison
+                Filtered by status:
+                = @statuses.any? ? @statuses.map { |status| status_label(status) }.join(', ') : 'All'
+              - else
+                Releases
+              %i.float-end.mt-1.fa.fa-chevron-down
+            .collapse#content-selector-filters
+              .accordion.accordion-flush
+                .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+                  .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#comparison-filter-releases' },
+                                                        aria: { expanded: 'true', controls: 'comparison-filter-releases' } }
+                    %b Releases
+                  .px-4.pb-2.accordion-collapse.collapse.show#comparison-filter-releases
+                    = label_tag :base, 'Base release', class: 'form-label'
+                    = select_tag :base, options_from_collection_for_select(@distro_releases, :name, :name, @base_release&.name),
+                                 class: 'form-select mb-2'
+                    = label_tag :target, 'Target release', class: 'form-label'
+                    = select_tag :target, options_from_collection_for_select(@distro_releases, :name, :name, @target_release&.name),
+                                 class: 'form-select'
+                - if @comparison
+                  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
+                    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#comparison-filter-status' },
+                                                          aria: { expanded: 'true', controls: 'comparison-filter-status' } }
+                      %b Status
+                      .selected-content.small.ms-1
+                    .px-4.pb-2.accordion-collapse.collapse.show#comparison-filter-status
+                      - STATUS_CLASSES.each do |status, css_class|
+                        = render partial: 'webui/shared/check_box', locals: { label: tag.span(status_label(status), class: "badge #{css_class}"),
+                                                                              key: "statuses[#{status}]", name: 'statuses[]', value: status,
+                                                                              checked: @statuses.include?(status), amount: counts.fetch(status, 0) }
+              - if @comparison
+                .text-center.mt-4.mb-4
+                  = link_to('Clear', compare_path(base: @base_release.name, target: @target_release.name), class: 'btn btn-light border')
+        .col-md-8.col-lg-9.px-0.px-md-3.d-none.content-list-loading
+          = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
+        .col-md-8.col-lg-9.px-0.px-md-3.content-list
+          .my-3
+            %h3.mb-1
+              %span.text-secondary Compare releases:
+              = @distro.name
+            %p.text-secondary.mb-0
+              - if @comparison
+                Package versions of
+                = link_to(@base_release.name, release_path(@base_release))
+                %i.fas.fa-arrow-right.mx-1
+                = link_to(@target_release.name, release_path(@target_release))
+                by #{@distro.vendor.name}
+              - else
+                Package versions of two releases of #{@distro.name} by #{@distro.vendor.name}
+          - if @comparison.nil?
+            .alert.alert-warning
+              Please choose two existing releases of #{@distro.name} to compare.
+          - else
+            .row.align-items-center.mb-3
+              .col-md.text-secondary
+                - if filtered_rows.any?
+                  = helpers.page_entries_info(paginated_rows, entry_name: 'package')
+              .col-md-6.col-lg-5
+                = render partial: 'webui/shared/search_box', locals: { html_id: 'search', value: @search, required: false,
+                                                                       button: { type: 'submit' }, placeholder: 'Search packages' }
+            - if filtered_rows.empty?
+              .text-center.my-3
+                %p There are no packages for the current filter selection
+            - else
+              %table.table.table-sm.table-hover.w-100
+                %thead
+                  %tr
+                    %th Package
+                    %th= @base_release.name
+                    %th= @target_release.name
+                    %th Status
+                %tbody
+                  - paginated_rows.each do |row|
+                    %tr
+                      %td= row.package_name
+                      %td
+                        - if row.base_version
+                          %code= row.base_version
+                        - else
+                          %span.text-secondary -
+                      %td
+                        - if row.target_version
+                          %code= row.target_version
+                        - else
+                          %span.text-secondary -
+                      %td
+                        %span.badge{ class: STATUS_CLASSES[row.status] }= status_label(row.status)
+              = helpers.paginate(paginated_rows, views_prefix: 'webui')
+
+- content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))

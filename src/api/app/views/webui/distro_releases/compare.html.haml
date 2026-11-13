@@ -1,0 +1,5 @@
+- @pagetitle = "Compare releases of #{@distro.name}"
+
+= render DistroReleaseComparisonComponent.new(distro: @distro, distro_releases: @distro_releases,
+                                              base_release: @base_release, target_release: @target_release,
+                                              statuses: params[:statuses], search: params[:search], page: params[:page])
