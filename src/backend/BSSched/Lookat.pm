@@ -152,6 +152,20 @@ sub changed2lookat {
   @$lookat_med = grep {!$lookat_high{$_}} @$lookat_med;
   $lookat_next->{$_} = 1 for keys %$changed_low;
 
+  my $rprpdeps = $gctx->{'rprpdeps'};
+  my $alllocked = $gctx->{'alllocked'};
+  for my $prp (keys %$changed_med) {
+    $lookat_next->{$prp} = 1;
+    $lookat_next->{$_} = 1 for grep {!$alllocked->{$_}} @{$rprpdeps->{$prp} || []};
+  }
+
+  # for unknown prps (i.e. remote) make rrelatedprpdeps lowfront events
+  my $prpsearchpath = $gctx->{'prpsearchpath'};
+  my $rrelatedprpdeps = $gctx->{'rrelatedprpdeps'};
+  for my $prp (grep {!$prpsearchpath->{$_}} keys %$changed_med) {
+    $changed_lowfront->{$_} = 1 for grep {!$alllocked->{$_} && $_ ne $prp} @{$rrelatedprpdeps->{$prp} || []};
+  }
+
   if (%$changed_lowfront) {
     my @lowfront = sort keys %$changed_lowfront;
     $lookat_next->{$_} = 1 for @lowfront;
@@ -159,13 +173,6 @@ sub changed2lookat {
     @lowfront = grep {!$in_higher{$_}} @lowfront;
     new_lowfront($gctx, @lowfront);
     %$changed_lowfront = ();
-  }
-
-  my $rprpdeps = $gctx->{'rprpdeps'};
-  for my $prp (keys %$changed_med) {
-    $lookat_next->{$prp} = 1;
-    my $alllocked = $gctx->{'alllocked'};
-    $lookat_next->{$_} = 1 for grep {!$alllocked->{$_}} @{$rprpdeps->{$prp} || []};
   }
 
   #my $prpdeps = $gctx->{'prpdeps'};

@@ -581,10 +581,10 @@ class User < ApplicationRecord
     save!
 
     # lock also all home projects to avoid unneccessary builds
-    Project.where('name like ?', "#{home_project_name}%").find_each do |prj|
-      next if prj.locked?
+    Project.where('name LIKE ?', "#{home_project_name}:%").or(Project.where(name: home_project_name)).find_each do |project|
+      next if project.locked?
 
-      prj.command_lock('User account got locked')
+      project.command_lock('User account got locked')
     end
   end
 

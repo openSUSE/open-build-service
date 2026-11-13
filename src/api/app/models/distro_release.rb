@@ -16,6 +16,7 @@ class DistroRelease < ApplicationRecord
   has_many :repository_architectures, through: :distro_release_repository_architectures
   has_many :repositories, through: :repository_architectures
   has_many :projects, through: :repositories
+  has_many :packages, -> { group(:name) }, through: :projects
 
   #### Callbacks macros: before_save, after_save, etc.
 

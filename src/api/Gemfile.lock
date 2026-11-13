@@ -84,7 +84,7 @@ GEM
       activesupport (>= 6.1)
     acts_as_tree (2.9.1)
       activerecord (>= 3.0.0)
-    addressable (2.9.0)
+    addressable (2.9.2)
       public_suffix (>= 2.0.2, < 8.0)
     airbrake (13.0.5)
       airbrake-ruby (~> 6.0)
@@ -143,7 +143,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.8)
-    csv (3.3.6)
+    csv (3.3.7)
     daemons (1.4.1)
     dalli (5.2.5)
       logger
@@ -341,7 +341,7 @@ GEM
     next_rails (1.7.0)
     nio4r (2.7.5)
     nkf (0.3.0)
-    nokogiri (1.19.4)
+    nokogiri (1.19.7)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     octokit (10.0.0)

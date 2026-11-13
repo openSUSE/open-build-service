@@ -356,8 +356,11 @@ class Package < ApplicationRecord
     result = +''
     changes_files.each do |changes_file|
       source_changes = PackageFile.new(package_name: name, project_name: project.name, name: changes_file).content
+      next if source_changes.blank?
+
       target_changes = PackageFile.new(package_name: target_package, project_name: target_project, name: changes_file).content
-      result << source_changes.try(:chomp, target_changes)
+      diff = target_changes ? source_changes.chomp(target_changes) : source_changes
+      result << diff
     end
     # Remove header and empty lines
     result.gsub!('-------------------------------------------------------------------', '')
