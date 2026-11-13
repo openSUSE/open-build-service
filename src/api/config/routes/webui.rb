@@ -324,6 +324,7 @@ resources :projects, only: [], param: :name do
         post :preview_description
       end
       resources :lifecycles, controller: 'webui/distro_release_lifecycles', param: :name, except: %i[index new show edit], constraints: cons
+      resource :repositories, controller: 'webui/distro_release_repository_architectures', only: %i[edit], constraints: cons
     end
   end
 end
