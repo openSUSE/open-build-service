@@ -96,6 +96,24 @@ RSpec.describe BranchPackage, :vcr do
       end
     end
 
+    context 'carries over flags of the origin package' do
+      let(:branched_package) { Project.find_by_name('home:tom:branches:openSUSE_Leap').packages.find_by_name('apache2') }
+      let(:branched_flags) { branched_package.flags.map { |flag| [flag.flag, flag.status, flag.architecture&.name, flag.repo] } }
+
+      before do
+        create(:repository, project: leap_project, name: 'openSUSE_Tumbleweed', architectures: ['x86_64'])
+        create(:build_flag, package: apache, status: 'disable', architecture: Architecture.find_or_create_by!(name: 'armv7l'))
+        create(:build_flag, package: apache, status: 'disable', repo: 'openSUSE_Tumbleweed')
+        create(:debuginfo_flag, package: apache, repo: 'not_branched_repository')
+        create(:lock_flag, package: apache)
+        branch_apache_package.branch
+      end
+
+      it 'copies only the flags that apply to the branch' do
+        expect(branched_flags).to contain_exactly(['build', 'disable', 'armv7l', nil], ['build', 'disable', nil, 'openSUSE_Tumbleweed'])
+      end
+    end
+
     context 'retains url' do
       it 'for a newly created package' do
         branch_apache_package.branch
