@@ -20,6 +20,12 @@ RSpec.describe Webui::Packages::TriggerController, :vcr do
 
       it { expect(flash[:error]).to eq('Error while triggering services for my_project/my_package: no source service defined!') }
     end
+
+    context 'when the services are in manual mode' do
+      let(:package) { create(:package_with_manual_service, name: 'manual_service_package', project: project) }
+
+      it { expect(flash[:error]).to eq('Error while triggering services for my_project/manual_service_package: services are in manual mode!') }
+    end
   end
 
   describe 'POST #rebuild' do

@@ -1,0 +1,217 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>Jesting Pilate</title>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1793802430'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>Jesting Pilate</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 04 Nov 2026 14:27:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>Jesting Pilate</title>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <repository name="repository_1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      X-Frontend-Start:
+      - '1793802430'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '217'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>Jesting Pilate</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+          <repository name="repository_1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Wed, 04 Nov 2026 14:27:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/manual_service_package/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="manual_service_package" project="my_project">
+          <title>That Hideous Strength</title>
+          <description>Corporis nesciunt id voluptatem.</description>
+        </package>
+    headers:
+      X-Frontend-Start:
+      - '1793802430'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '173'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="manual_service_package" project="my_project">
+          <title>That Hideous Strength</title>
+          <description>Corporis nesciunt id voluptatem.</description>
+        </package>
+  recorded_at: Wed, 04 Nov 2026 14:27:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/manual_service_package/_service
+    body:
+      encoding: UTF-8
+      string: |
+        <services>
+          <service name="obs_scm" mode="manual">
+            <param name="url">git://github.com/coolo/obs-build.git</param>
+            <param name="scm">git</param>
+          </service>
+        </services>
+    headers:
+      X-Frontend-Start:
+      - '1793802430'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>bf65212cff8cd282e9d8f7a7533c9780</srcmd5>
+          <version>unknown</version>
+          <time>1793802430</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 04 Nov 2026 14:27:10 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/my_project/manual_service_package?cmd=runservice&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Frontend-Start:
+      - '1793802430'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: services are in manual mode!
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>services are in manual mode!</summary>
+          <details>404 services are in manual mode!</details>
+        </status>
+  recorded_at: Wed, 04 Nov 2026 14:27:10 GMT
+recorded_with: VCR 6.4.1
