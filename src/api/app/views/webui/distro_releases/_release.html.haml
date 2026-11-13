@@ -1,4 +1,4 @@
-- release_path = project_distro_release_path(distro_release.project.name, distro_release.distro.name, distro_release.name)
+- release_path = project_distro_release_path(distro_release.project, distro_release.distro, distro_release)
 = render(CardComponent.new) do |component|
   %p.card-text
     - if distro_release.url.present?
@@ -26,7 +26,7 @@
                 distro_name: distro_release.distro.name, action: release_path } do
         %i.fas.fa-times-circle.text-danger
   - if policy(distro_release).edit?
-    - edit_release_path = edit_project_distro_release_path(distro_release.project.name, distro_release.distro.name, distro_release.name)
+    - edit_release_path = edit_project_distro_release_path(distro_release.project, distro_release.distro, distro_release)
     = link_to(edit_release_path, class: 'ps-2', title: 'Edit distro release') do
       %i.fas.fa-edit
       %span.nav-item-name Edit
