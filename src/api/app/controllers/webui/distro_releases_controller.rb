@@ -7,6 +7,7 @@ class Webui::DistroReleasesController < Webui::WebuiController
   #### Self config
 
   #### Callbacks macros: before_action, after_action, etc.
+  before_action :check_beta_feature
   before_action :set_project
   before_action :set_distro
   before_action :set_vendor
@@ -82,5 +83,9 @@ class Webui::DistroReleasesController < Webui::WebuiController
 
   def set_distro_release
     @distro_release = @distro.distro_releases.find_by!(name: params.expect(:distro_release_name))
+  end
+
+  def check_beta_feature
+    redirect_to root_path unless Flipper.enabled?(:enhanced_distribution_support, User.session)
   end
 end
