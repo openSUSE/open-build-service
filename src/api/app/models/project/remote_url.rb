@@ -7,12 +7,14 @@ class Project::RemoteURL
     ENV['http_proxy'] = Configuration.http_proxy if ENV['http_proxy'].blank?
     ENV['https_proxy'] = Configuration.http_proxy if ENV['https_proxy'].blank?
     ENV['no_proxy'] = Configuration.no_proxy if ENV['no_proxy'].blank?
+
     begin
       uri.open.read
     rescue OpenURI::HTTPError, SocketError, Errno::EINTR, Errno::EPIPE, Net::HTTPBadResponse, IOError, Errno::ENETUNREACH,
            Errno::EADDRNOTAVAIL, Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error, OpenSSL::SSL::SSLError => e
       Rails.logger.info "#{e} when fetching #{path} from #{remote_project.remoteurl}"
-      Airbrake.notify(e)
+      ignore = e.is_a?(OpenURI::HTTPError) && e.message.start_with?('400 unknown request', '404')
+      Airbrake.notify(e) unless ignore
       nil
     end
   end
