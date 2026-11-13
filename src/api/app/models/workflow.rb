@@ -37,8 +37,13 @@ class Workflow # rubocop:disable Metrics/ClassLength
       return unless (@filters_matched = filters_match?)
 
       steps.each do |step|
-        # ArtifactsCollector can only be called if the step.call doesn't return nil because of a validation error
-        step.call && Workflows::ArtifactsCollector.new(step: step, workflow_run_id: workflow_run.id).call
+        step_result = step.call
+        if step.errors.any?
+          step.errors.full_messages.each { |msg| errors.add(:base, msg) }
+          return false
+        end
+
+        Workflows::ArtifactsCollector.new(step: step, workflow_run_id: workflow_run.id).call if step_result
       end
     end
   end

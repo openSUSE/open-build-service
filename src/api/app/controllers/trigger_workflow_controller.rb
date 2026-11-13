@@ -82,6 +82,8 @@ class TriggerWorkflowController < ApplicationController
       @workflow_run.update_as_failed(render_error(status: e.status, errorcode: e.errorcode, message: e.message))
     rescue Pundit::NotAuthorizedError => e
       @workflow_run.update_as_failed(e.message)
+    rescue StandardError => e
+      @workflow_run.update_as_failed(render_error(status: 500, message: e.message))
     end
   end
 

@@ -17,7 +17,13 @@ class SCMStatusReporter
     @event_type = event_type
 
     @state = if @initial_report
-               event_type.nil? ? 'pending' : 'success'
+               if event_type.nil?
+                 'pending'
+               elsif %w[failure fail error].include?(event_type)
+                 'failure'
+               else
+                 'success'
+               end
              else # reports done by the report_to_scm_job
                event_type.nil? ? 'pending' : scm_final_state(event_type)
              end
@@ -39,9 +45,9 @@ class SCMStatusReporter
 
   def scm_final_state(event_type)
     case event_type
-    when 'Event::BuildFail'
+    when 'Event::BuildFail', 'failure', 'fail', 'error'
       'failure'
-    when 'Event::BuildSuccess'
+    when 'Event::BuildSuccess', 'success'
       'success'
     when 'Event::RequestStatechange'
       return 'success' if @event_payload[:state] == 'accepted'
