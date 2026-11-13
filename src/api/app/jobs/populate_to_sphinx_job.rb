@@ -7,7 +7,7 @@ class PopulateToSphinxJob < ApplicationJob
     project: Project
   }.freeze
 
-  queue_as :quick
+  queue_as :slow_user
 
   # When populating the indices asynchronously we don't have the instance at hand, so we need the id and the model name to load the instance and feed it to Thinking Sphinx.
   # Sometimes we want to trigger a Sphinx update when associated data changes, when that happens, `model name` and `reference` differ, and we need to supply both.
