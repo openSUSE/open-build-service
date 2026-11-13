@@ -14,10 +14,11 @@
       - tableinfo = []
       .row.mt-4
         .col-md-12.obs-dataTable.invisible
-          %table.table.table-sm.table-bordered.table-hover.text-nowrap#project-monitor-table
+          %table.table.table-sm.table-bordered.table-hover.text-nowrap.w-100#project-monitor-table
             %thead.header
               %tr
                 %th
+                  .px-5
                 - @repoarray.each do |repo, archlist|
                   - next if archlist.empty?
                   %th.text-center{ colspan: archlist.length }
