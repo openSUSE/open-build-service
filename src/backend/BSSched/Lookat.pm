@@ -274,7 +274,7 @@ sub nextlookat {
     last;
   }
   # special low queue postprocessing, we want to feed both from the lowfront and low entries
-  if ($lookattype eq 'low' && $gctx->{'lowfront_cnt'}) {
+  if (($lookattype || '') eq 'low' && $gctx->{'lowfront_cnt'}) {
     if ($gctx->{'notlowfront'} > 0 && $gctx->{'lowfront_cnt'} < 1 + @$lookat_low) {
       # take the low, keep lowfront
       unshift @$lookat_low, $prp;
