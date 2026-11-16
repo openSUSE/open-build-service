@@ -509,6 +509,40 @@ RSpec.describe Webui::PackageController, :vcr do
       it { is_expected.to have_http_status(:success) }
       it { is_expected.to render_template('webui/package/_rpmlint_log') }
     end
+
+    describe 'RPM lint for a multibuild flavor' do
+      render_views
+
+      let(:flavor_package_name) { "#{source_package.name}:mini" }
+      let(:fake_build_result) do
+        <<-XML
+          <resultlist state="eb0459ee3b000176bb3944a67b7c44fa">
+            <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="building" state="building">
+              <status package="my_package" code="succeeded" />
+            </result>
+          </resultlist>
+        XML
+      end
+
+      before do
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_result)
+        allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log)
+          .with(source_project.name, flavor_package_name, 'openSUSE_Tumbleweed', 'i586')
+          .and_return('test_package.i586: W: description-shorter-than-summary')
+      end
+
+      it 'uses the flavor name in the page' do
+        get :rpmlint_result, params: { package: flavor_package_name, project: source_project }
+
+        expect(response.body).to include("RPM Lint of #{flavor_package_name}")
+      end
+
+      it 'loads the flavor lint summary' do
+        get :rpmlint_summary, params: { package: flavor_package_name, project: source_project }
+
+        expect(response.body).to include('description-shorter-than-summary')
+      end
+    end
   end
 
   describe 'POST #create' do
