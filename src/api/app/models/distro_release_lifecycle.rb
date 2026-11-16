@@ -55,6 +55,8 @@ class DistroReleaseLifecycle < ApplicationRecord
 
   delegate :distro, to: :distro_release
 
+  def to_param = name
+
   def status_label
     self.class.status_label_for(status)
   end

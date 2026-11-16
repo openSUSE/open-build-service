@@ -19,7 +19,7 @@
             = render partial: 'webui/shared/collapsible_text', locals: { text: @distro.description, render_markdown: true }
         - if policy(@distro).edit?
           .pt-4.mb-3
-            = link_to(edit_project_distro_path(@distro.project, @distro.name), class: 'ps-0', title: 'Edit') do
+            = link_to(edit_project_distro_path(@distro.project, @distro), class: 'ps-0', title: 'Edit') do
               %i.fas.fa-edit.text-secondary
               %span.nav-item-name Edit
       .col-md-4
@@ -30,7 +30,7 @@
               = render partial: 'webui/shared/external_link', locals: { text: @distro.url, url: @distro.url }
           - if policy(@distro).destroy?
             %li
-              = link_to(project_distro_path(@distro.project, @distro.name), method: :delete, class: 'text-danger',
+              = link_to(project_distro_path(@distro.project, @distro), method: :delete, class: 'text-danger',
                 data: { confirm: 'Are you sure you want to delete this distro?'}) do
                 %i.fas.fa-trash-can
                 %span.nav-item-name Delete
@@ -43,7 +43,7 @@
           = render partial: 'webui/distro_releases/release', locals: { distro_release: distro_release }
       .ps-0
         - if policy(DistroRelease.new(distro: @distro)).new?
-          = link_to(new_project_distro_release_path(@project.name, @distro.name), class: 'ps-2') do
+          = link_to(new_project_distro_release_path(@project, @distro), class: 'ps-2') do
             %i.fas.fa-circle-plus.text-info
             %span.nav-item-name New Release
 

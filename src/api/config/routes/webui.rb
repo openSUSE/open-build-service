@@ -319,14 +319,12 @@ resources :projects, only: [], param: :name do
     end
   end
   resources :distros, only: [], param: :name, constraints: cons do
-    resources :releases, controller: 'webui/distro_releases', param: :distro_release_name, except: %i[index], constraints: cons do
+    resources :releases, controller: 'webui/distro_releases', param: :name, except: %i[index], constraints: cons.merge(name: %r{[^/]*}) do
       collection do
         post :preview_description
       end
+      resources :lifecycles, controller: 'webui/distro_release_lifecycles', param: :name, except: %i[index new show edit], constraints: cons
     end
-
-    resources :lifecycles, controller: 'webui/distro_release_lifecycles', path: 'releases/:distro_release_name/lifecycles',
-                           as: :release_lifecycles, param: :lifecycle_name, except: %i[index new show edit], constraints: cons
   end
 end
 

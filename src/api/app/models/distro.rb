@@ -33,6 +33,8 @@ class Distro < ApplicationRecord
   #### private
 
   #### Instance methods (public and then protected/private)
+  def to_param = name
+
   private
 
   def acceptable_logo_mime_type
