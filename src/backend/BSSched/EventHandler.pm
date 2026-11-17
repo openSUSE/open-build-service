@@ -446,10 +446,8 @@ sub event_useforbuild {
   }
   for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {
-      if ((split('/', $prp, 2))[0] eq $projid) {
-        $changed_high->{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
-        $changed_dirty->{$prp} = 1;
-      }
+      $changed_high->{$prp} = 2;
+      $changed_dirty->{$prp} = 1;
     }
   }
   $changed_high->{$projid} = 2;

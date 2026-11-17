@@ -40,7 +40,8 @@ sub new_lowfront {
 
 =head2 setchanged - add a prp to the lookat queue and the dependent prps to the changed hashes
 
-Usually called from a RPC resume, so we put the prps in from of the lookat queue.
+Usually called from a RPC resume. We put the prps in from of the lookat queue if the changeprp
+indicates that the prp has already waited in the lookat queue.
 
 =cut
 
@@ -50,23 +51,22 @@ sub setchanged {
   return unless $changeprp;
   $changetype ||= 'high';
   $changelevel ||= 1;
+  $changelevel = undef if $changelevel != 2;
 
   my $changed = $gctx->{"changed_$changetype"};
   my $changed_dirty = $gctx->{'changed_dirty'};
-  my $lookat = $gctx->{$changetype eq 'lowfront' ? 'lookat_low' : "lookat_$changetype"};
 
-  my @lowfront;
-  if ($changetype eq 'low' || $changetype eq 'lowfront') {
-    @lowfront = splice(@$lookat, 0, $gctx->{'lowfront_cnt'});
-    $lookat = \@lowfront if $changetype eq 'lowfront';
-  }
   my $prps = $gctx->{'prps'};
   my ($projid, $repoid) = split('/', $changeprp, 2);
   if (defined($repoid)) {
     my $prp = $changeprp;
-    @$lookat = grep {$_ ne $prp} @$lookat;
-    unshift @$lookat, $prp;
     if ($changetype eq 'low' || $changetype eq 'lowfront') {
+      my @lowfront = splice(@{$gctx->{'lookat_low'}}, 0, $gctx->{'lowfront_cnt'});
+      my $lookat = $changetype eq 'lowfront' ? \@lowfront : $gctx->{'lookat_low'};
+      @$lookat = grep {$_ ne $prp} @$lookat;
+      unshift @$lookat, $prp;
+      unshift @{$gctx->{'lookat_low'}}, @lowfront;
+      $gctx->{'lowfront_cnt'} = scalar(@lowfront);
       my $lookat_next = $gctx->{'lookat_next'};
       if ($changetype eq 'low') {
         # we don't set the prp in lookat_next to prevent infinite looping
@@ -77,45 +77,29 @@ sub setchanged {
         $lookat_next->{$prp} = 1;
       }
     } else {
-      if ($changelevel == 2) {
-        $changed->{$prp} = 2;
-      } else {
-        $changed->{$prp} ||= 1;
-      }
+      my $lookat = $gctx->{"lookat_$changetype"};
+      @$lookat = grep {$_ ne $prp} @$lookat;
+      unshift @$lookat, $prp;
+      $changed->{$prp} = $changelevel || $changed->{$prp} || 1;
     }
     $changed_dirty->{$prp} = 1;
-    if ($changetype eq 'low' || $changetype eq 'lowfront') {
-      unshift @{$gctx->{'lookat_low'}}, @lowfront;
-      $gctx->{'lowfront_cnt'} = scalar(@lowfront);
-    }
     return;
   }
+
+  # if the repoid is not defined, this setchanged call is done as a result of
+  # an event. So use the normal changed mechanism to put the prps at the
+  # end of the lookat queue.
   my @cprps;
   # also look at rprpdeps so that remote projects are correctly handled
   for my $prp (@$prps, sort(keys %{$gctx->{'rprpdeps'} || {}})) {
     push @cprps, $prp if (split('/', $prp, 2))[0] eq $projid;
   }
   @cprps = BSUtil::unify(@cprps);
-  my %cprps = map {$_ => 1} @cprps;
-  @$lookat = grep {!$cprps{$_}} @$lookat;
-  unshift @$lookat, @cprps;
-  if ($changelevel == 2) {
-    for my $prp (@cprps) {
-      $changed->{$prp} = 2;
-      $changed_dirty->{$prp} = 1;
-    }
-    $changed->{$projid} = 2;
-  } else {
-    for my $prp (@cprps) {
-      $changed->{$prp} ||= 1;
-      $changed_dirty->{$prp} = 1;
-    }
-    $changed->{$projid} ||= 1;
+  for my $prp (@cprps) {
+    $changed->{$prp} = $changelevel || $changed->{$prp} || 1;
+    $changed_dirty->{$prp} = 1;
   }
-  if ($changetype eq 'low' || $changetype eq 'lowfront') {
-    unshift @{$gctx->{'lookat_low'}}, @lowfront;
-    $gctx->{'lowfront_cnt'} = scalar(@lowfront);
-  }
+  $changed->{$projid} = $changelevel || $changed->{$projid} || 1;
 }
 
 =head2 changed2lookat - add all changed prps to the lookat queues
@@ -169,6 +153,7 @@ sub changed2lookat {
   if (%$changed_lowfront) {
     my @lowfront = sort keys %$changed_lowfront;
     $lookat_next->{$_} = 1 for @lowfront;
+    @lowfront = grep {!$alllocked->{$_}} @lowfront;
     my %in_higher = map {$_ => 1} (@$lookat_high, @$lookat_med);
     @lowfront = grep {!$in_higher{$_}} @lowfront;
     new_lowfront($gctx, @lowfront);
