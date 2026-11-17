@@ -41,7 +41,7 @@
     %i.fas.fa-long-arrow-alt-right.text-info.mx-1
     = target(action)
     - if (versions = version_change)
-      %span.badge.text-bg-light.border.font-monospace.fw-normal.ms-1= versions.join(' → ')
+      %span.badge.text-muted.border.font-monospace.fw-normal.ms-1= versions.join(' → ')
 - else
   - css_classes = { wide: 'd-none d-xl-inline', medium: 'd-none d-md-inline d-xl-none', narrow: 'd-md-none' }
   - variants.each do |variant|

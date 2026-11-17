@@ -2,3 +2,7 @@
   color: var(--placeholder-text)!important;
   font-style: italic;
 }
+
+.btn.input-group-text {
+  background: var(--bs-tertiary-bg);
+}

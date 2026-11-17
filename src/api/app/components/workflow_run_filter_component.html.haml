@@ -77,6 +77,6 @@
                                                           label: 'MR/PR or Commit',
                                                           value: @selected_filter[:event_source] }
   .text-center.mt-4.mb-4
-    = link_to('Clear', token_workflow_runs_path(@token, []), class: 'btn btn-light border')
+    = link_to('Clear', token_workflow_runs_path(@token, []), class: 'btn btn-outline-secondary border')
 
 - content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))

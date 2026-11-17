@@ -204,7 +204,7 @@
                                                                       checked: selected_filter[:group]&.include?(group_title) }
 
   .text-center.mt-4.mb-4
-    = link_to('Clear', my_notifications_path, class: 'btn btn-light border')
+    = link_to('Clear', my_notifications_path, class: 'btn btn-outline-secondary border')
 
 - content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
 -# turbo frame used to trigger the turbo stream which updates the notification filter counters
