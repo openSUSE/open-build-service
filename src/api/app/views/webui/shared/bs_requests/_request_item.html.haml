@@ -22,7 +22,8 @@
         .me-auto
           = link_to(request_show_path(bs_request.number), class: 'request-actions-summary-title') do
             = render BsRequestActionsSummaryComponent.new(bs_request:, show_versions: Flipper.enabled?(:package_version_tracking, User.session))
-        = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'mb-auto mx-2')
+        - if bs_request.priority != 'moderate'
+          = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'mb-auto mx-2')
         = render BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'mb-auto')
       - if Flipper.enabled?(:labels, User.session) && bs_request.labels
         .mb-1
