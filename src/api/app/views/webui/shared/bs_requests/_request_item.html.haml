@@ -46,7 +46,7 @@
           = render TimeComponent.new(time: bs_request.created_at)
         - if bs_request.comments_count.positive?
           %span.text-nowrap{ title: pluralize(bs_request.comments_count, 'comment') }
-            %i.fas.fa-comment.ps-2
+            %i.fas.fa-regular.fa-comment.ps-2
             = bs_request.comments_count
         - if bs_request.reviews_count.positive?
           %span.text-nowrap{ title: pluralize(bs_request.reviews_count, 'review') }
