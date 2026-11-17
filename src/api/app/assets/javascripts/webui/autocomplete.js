@@ -15,7 +15,7 @@ function setupAutocomplete(selector) {
  });
 }
 
-$(document).ready(function() {
+function setupRepositoryAutocomplete() {
   $('.repository-autocomplete').on('autocompleteselect', function(event, ui) {
     var projectName,
         dropdown        = $(this).find('.repository-dropdown'),
@@ -162,4 +162,7 @@ $(document).ready(function() {
     event.stopPropagation();
     warning.text('Please select at least one architecture for every repository.').removeClass('d-none');
   });
+}
+$(document).ready(function() {
+  setupRepositoryAutocomplete();
 });
