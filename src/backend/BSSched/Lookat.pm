@@ -59,16 +59,14 @@ sub setchanged {
   my $prps = $gctx->{'prps'};
   my ($projid, $repoid) = split('/', $changeprp, 2);
   if (defined($repoid)) {
-    my $lookat = $gctx->{$changetype eq 'lowfront' ? 'lookat_low' : "lookat_$changetype"};
-    my @lowfront;
-    if ($changetype eq 'low' || $changetype eq 'lowfront') {
-      @lowfront = splice(@$lookat, 0, $gctx->{'lowfront_cnt'});
-      $lookat = \@lowfront if $changetype eq 'lowfront';
-    }
     my $prp = $changeprp;
-    @$lookat = grep {$_ ne $prp} @$lookat;
-    unshift @$lookat, $prp;
     if ($changetype eq 'low' || $changetype eq 'lowfront') {
+      my @lowfront = splice(@{$gctx->{'lookat_low'}}, 0, $gctx->{'lowfront_cnt'});
+      my $lookat = $changetype eq 'lowfront' ? \@lowfront : $gctx->{'lookat_low'};
+      @$lookat = grep {$_ ne $prp} @$lookat;
+      unshift @$lookat, $prp;
+      unshift @{$gctx->{'lookat_low'}}, @lowfront;
+      $gctx->{'lowfront_cnt'} = scalar(@lowfront);
       my $lookat_next = $gctx->{'lookat_next'};
       if ($changetype eq 'low') {
         # we don't set the prp in lookat_next to prevent infinite looping
@@ -79,13 +77,12 @@ sub setchanged {
         $lookat_next->{$prp} = 1;
       }
     } else {
+      my $lookat = $gctx->{"lookat_$changetype"};
+      @$lookat = grep {$_ ne $prp} @$lookat;
+      unshift @$lookat, $prp;
       $changed->{$prp} = $changelevel || $changed->{$prp} || 1;
     }
     $changed_dirty->{$prp} = 1;
-    if ($changetype eq 'low' || $changetype eq 'lowfront') {
-      unshift @{$gctx->{'lookat_low'}}, @lowfront;
-      $gctx->{'lowfront_cnt'} = scalar(@lowfront);
-    }
     return;
   }
 
