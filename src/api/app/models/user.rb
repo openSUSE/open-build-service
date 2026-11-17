@@ -777,7 +777,13 @@ class User < ApplicationRecord
   end
 
   def mark_login!
-    update(last_logged_in_at: Time.zone.today, login_failure_count: 0)
+    return if self[:last_logged_in_at]&.to_date == Time.zone.today && login_failure_count.zero?
+
+    # Not with_lock, User#lock! locks the account
+    transaction do
+      reload(lock: true)
+      update(last_logged_in_at: Time.zone.today, login_failure_count: 0)
+    end
   end
 
   def count_login_failure
