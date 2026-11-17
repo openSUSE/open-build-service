@@ -37,6 +37,7 @@ package BSSched::ProjPacks;
 #   do_fetchprojpacks
 #   getconfig
 #   update_prpcheckuseforbuild
+#   setchanged_project
 #
 # static functions
 #   orderpackids
@@ -263,6 +264,20 @@ sub trigger_auto_deep_checks {
 }
 
 
+=head2 setchanged_project - call setchanged at the end of a resume function
+
+ TODO: add description
+
+=cut
+
+sub setchanged_project {
+  my ($gctx, $handle, $projid) = @_;
+  # first with the project as changeprp, this adds to the end of the lookat queue
+  BSSched::Lookat::setchanged($gctx, $projid, $handle->{'_changetype'}, $handle->{'_changelevel'});
+  # next with the changeprp if it is not the project, this adds to the beginning of the lookat queue
+  BSSched::Lookat::setchanged($gctx, $handle->{'_changeprp'}, $handle->{'_changetype'}, $handle->{'_changelevel'}) if $handle->{'_changeprp'} && $handle->{'_changeprp'} ne $projid;
+}
+
 =head2 get_projpacks_resume - async RPC bottom part of get_projpacks
 
  TODO: add description
@@ -290,7 +305,7 @@ sub get_projpacks_resume {
   if ($packids && !update_project_meta_check($gctx, $projid, $projpacksin)) {
     # had a critical change, we have to refetch *all* packages
     print "get_projpacks_resume: fetching all packages\n";
-    my $async = {'_changetype' => 'med'};
+    my $async = { '_changetype' => 'med' };
     $async->{'_lpackids'} = $handle->{'_lpackids'} if $handle->{'_lpackids'};
     get_projpacks($gctx, $async, $projid);
   }
@@ -338,26 +353,14 @@ sub get_projpacks_resume {
 	%lpackids = map {$_ => 1} @{$linked->{$lprojid}};
       }
       next unless %lpackids;
+      my $changetype = $xpackids ? 'lowfront' : 'low';
       # delay package source changes if possible
       if ($handle->{'_dolink'} == 2 && $lprojid ne $projid && $delayedfetchprojpacks) {
-        push @{$delayedfetchprojpacks->{$lprojid}}, sort keys %lpackids;
-        # we don't use setchanged because it unshifts the prps onto lookat
-        my $changed_lowfront = $gctx->{'changed_lowfront'};
-        my $changed_low = $gctx->{'changed_low'};
-        my $changed = $xpackids ? $changed_lowfront : $changed_low;
-        my $changed_dirty = $gctx->{'changed_dirty'};
-        for my $prp (@{$gctx->{'prps'}}) {
-          next unless (split('/', $prp, 2))[0] eq $lprojid;
-	  if ($alllocked->{$prp}) {
-            $changed_low->{$prp} ||= 1;
-	  } else {
-            $changed->{$prp} ||= 1;
-	  }
-          $changed_dirty->{$prp} = 1;
-        }
-        next;
+	push @{$delayedfetchprojpacks->{$lprojid}}, sort keys %lpackids;
+	BSSched::Lookat::setchanged($gctx, $lprojid, $changetype, 1);
+	next;
       }
-      my $async = {'_changetype' => $xpackids ? 'lowfront' : 'low'};
+      my $async = { '_changetype' => $changetype };
       get_projpacks($gctx, $async, $lprojid, sort keys %lpackids);
     }
   }
@@ -365,7 +368,7 @@ sub get_projpacks_resume {
   # no need to call setchanged if this is a package source change event
   # and the project does not exist (i.e. lives on another partition)
   return if $packids && !$projpacks->{$projid};
-  BSSched::Lookat::setchanged($gctx, $projid, $handle->{'_changetype'}, $handle->{'_changelevel'});
+  setchanged_project($gctx, $handle, $projid);
 }
 
 =head2 update_projpacks - incorporate all the new data from projpacksin into our projpacks data
@@ -583,7 +586,7 @@ sub update_project_meta_resume {
     }
     # update meta failed or critical meta change, do it the hard way...
     # XXX: maybe set _dolink = 2?
-    my $async = {'_changetype' => $handle->{'_changetype'}, '_changelevel' => $handle->{'_changelevel'}};
+    my $async = { '_changetype' => $handle->{'_changetype'}, '_changelevel' => $handle->{'_changelevel'} };
     $async->{'_lpackids'} = $handle->{'_lpackids'} if $handle->{'_lpackids'};
     get_projpacks($gctx, $async, $projid);
     return;
@@ -597,10 +600,10 @@ sub update_project_meta_resume {
     my $packids = $handle->{'_lpackids'};
     if ($packids && @$packids) {
       # now get those packages as well
-      my $async = {'_dolink' => 2, '_changetype' => 'high', '_changelevel' => 1};
+      my $async = { '_dolink' => 2, '_changetype' => 'high', '_changelevel' => 1 };
       get_projpacks($gctx, $async, $projid, @$packids);
     } else {
-      BSSched::Lookat::setchanged($gctx, $projid, $handle->{'_changetype'}, $handle->{'_changelevel'});
+      setchanged_project($gctx, $handle, $projid);
     }
   } else {
     # project is gone!
@@ -1848,7 +1851,7 @@ sub get_remoteproject_resume {
   BSSched::Remote::remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'});
   get_projpacks_postprocess_projects($gctx);
   $gctx->{'remotemissing'}->{$projid} = 1 if !$gctx->{'projpacks'}->{$projid} && !$gctx->{'remoteprojs'}->{$projid};
-  BSSched::Lookat::setchanged($gctx, $handle->{'_changeprp'}, $handle->{'_changetype'}, $handle->{'_changelevel'});
+  setchanged_project($gctx, $handle, $projid);
 }
 
 sub get_remoteproject {
