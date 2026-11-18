@@ -29,6 +29,10 @@ parameters:
     type: boolean
     default: false
 
+  run-gemcache-linter:
+    type: boolean
+    default: false
+
 images:
   - &common_frontend_config
     user: frontend
@@ -142,6 +146,7 @@ jobs:
       - run: echo "run-migrations-tests is << pipeline.parameters.run-migrations-tests >>"
       - run: echo "run-dist-linter is << pipeline.parameters.run-dist-linter >>"
       - run: echo "run-haml-linter is << pipeline.parameters.run-haml-linter >>"
+      - run: echo "run-gemcache-linter is << pipeline.parameters.run-gemcache-linter >>"
 
   checkout_code:
     docker:
@@ -199,6 +204,19 @@ jobs:
                 name: Run Documentation linter
                 working_directory: src/api
                 command: bundle exec rake dev:lint:apidocs
+      - when:
+            condition: << pipeline.parameters.run-gemcache-linter >>
+            steps:
+              - run:
+                  name: Run Gem Cache linter
+                  working_directory: src/api/vendor/cache
+                  command: |
+                    for i in *.gem; do echo -n "$i: "; gem specification $i|grep "^platform:"; done > platform.all
+                    echo -n > platform.not-ruby
+                    grep -v 'platform: ruby$' platform.all > platform.not-ruby
+                    PLATFORM_NOT_RUBY_SIZE=`cat platform.not-ruby|wc -l`
+                    if [ $PLATFORM_NOT_RUBY_SIZE -gt 0 ]; then cat platform.not-ruby; fi
+                    if [ $PLATFORM_NOT_RUBY_SIZE -gt 0 ]; then exit 1; fi
       - run:
           name: Run database consistency linter
           working_directory: src/api
