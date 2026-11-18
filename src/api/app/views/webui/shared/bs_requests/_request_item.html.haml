@@ -37,7 +37,6 @@
         %span
           - if (creator = User.find_by_login(bs_request.creator))
             = link_to(user_path(creator)) do
-              = render AvatarComponent.new(name: bs_request.creator, email: creator.email, custom_css: 'align-text-bottom')
               = bs_request.creator
           - else
             %i.fas.fa-user-slash
