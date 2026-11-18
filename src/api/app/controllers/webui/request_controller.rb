@@ -509,8 +509,11 @@ class Webui::RequestController < Webui::WebuiController
     @diff_not_cached = @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded, tarlimit: @tarlimit }.compact)
     return unless @diff_not_cached
 
-    job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
-    return if job.positive?
+    number_of_jobs_for_this_action = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
+    return if number_of_jobs_for_this_action.positive?
+
+    number_of_low_priority_jobs = Delayed::Job.where('handler LIKE ?', '%job_class: BsRequestActionWebuiInfosJob%').where(priority: -10).count
+    return if number_of_low_priority_jobs > 75 && User.session.blank?
 
     priority = User.session.present? ? -10 : 0
     BsRequestActionWebuiInfosJob.set(priority: priority).perform_later(@action, tarlimit: @tarlimit)
