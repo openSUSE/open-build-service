@@ -21,7 +21,7 @@ RSpec.describe 'Distro release lifecycles', :js do
     end
 
     it 'lists the lifecycles with the earliest date first' do
-      expect(page).to have_text(/First beta.*Beta.*Retired.*End of Life/m)
+      within('#distro-release') { expect(page).to have_text(/First beta.*Beta.*Retired.*End of Life/m) }
     end
 
     context 'adding a lifecycle' do
@@ -43,7 +43,7 @@ RSpec.describe 'Distro release lifecycles', :js do
       end
 
       it 'shows the new lifecycle in date order' do
-        expect(page).to have_text(/First beta.*Final.*General Availability.*Retired/m)
+        within('#distro-release') { expect(page).to have_text(/First beta.*Final.*General Availability.*Retired/m) }
       end
     end
   end

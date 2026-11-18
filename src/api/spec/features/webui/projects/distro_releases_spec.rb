@@ -18,7 +18,7 @@ RSpec.describe 'Distro releases', :js do
     context 'creating a release from the distro page' do
       before do
         visit project_distro_path(project.name, distro.name)
-        click_link('New Release')
+        find("a[href='#{new_project_distro_release_path(project.name, distro.name)}']").click
 
         fill_in('Name', with: '16.0')
         fill_in('distro_release[description]', with: 'The next Leap')
@@ -41,10 +41,10 @@ RSpec.describe 'Distro releases', :js do
       let!(:distro_release) { create(:distro_release, distro: distro, name: '16.0', description: 'The next Leap') }
       let!(:other_distro_release) { create(:distro_release, distro: distro, name: '15.6') }
 
-      context 'editing a release from its card' do
+      context 'editing a release from the distro page' do
         before do
-          visit project_distro_path(project.name, distro.name)
-          find("a[href='#{edit_project_distro_release_path(project.name, distro.name, distro_release.name)}']").click
+          visit project_distro_release_path(project.name, distro.name, distro_release.name)
+          within('#distro-release') { click_link('Edit') }
 
           fill_in('distro_release[description]', with: 'The current Leap')
           click_button('Save')
@@ -58,32 +58,24 @@ RSpec.describe 'Distro releases', :js do
 
       context 'deleting a release through the shared delete modal' do
         before do
-          visit project_distro_path(project.name, distro.name)
-          find("a[data-action='#{project_distro_release_path(project.name, distro.name, distro_release.name)}']").click
+          visit project_distro_release_path(project.name, distro.name, distro_release.name)
+          within('#distro-release') { click_button('Delete') }
         end
 
         it 'names the release and the distro in the modal' do
           within('#delete-distro-release-modal') do
-            expect(page).to have_text("'16.0' distro release from the distro 'Leap'")
+            expect(page).to have_text("Please confirm deletion of the release '16.0' of the distribution 'Leap'.")
           end
         end
 
         it 'deletes only the release the modal was opened for' do
           within('#delete-distro-release-modal') do
-            click_button('Delete')
+            click_button('Remove')
           end
 
           expect(page).to have_text('Release was successfully destroyed.')
           expect(distro.distro_releases.reload).to contain_exactly(other_distro_release)
         end
-      end
-
-      it 'deletes the release from its show page' do
-        visit project_distro_release_path(project.name, distro.name, distro_release.name)
-        accept_confirm { click_link('Delete') }
-
-        expect(page).to have_text('Release was successfully destroyed.')
-        expect(distro.distro_releases.reload).to contain_exactly(other_distro_release)
       end
     end
   end
@@ -101,14 +93,16 @@ RSpec.describe 'Distro releases', :js do
     end
 
     it 'shows the release details' do
-      expect(page).to have_css('h3', text: '16.0')
+      within('#distro-release') { expect(page).to have_css('h4', text: 'Leap 16.0') }
       expect(page).to have_text('The next Leap')
       expect(page).to have_link('https://get.opensuse.org/leap')
     end
 
     it 'shows the repositories with their architectures' do
-      expect(page).to have_text("#{project.name}/openSUSE_Leap_16.0")
-      expect(page).to have_css('.badge', text: 'x86_64')
+      within('#distro-release-repositories') do
+        expect(page).to have_text("#{project.name}/openSUSE_Leap_16.0")
+        expect(page).to have_css('.badge', text: 'x86_64')
+      end
     end
   end
 
@@ -124,17 +118,18 @@ RSpec.describe 'Distro releases', :js do
       visit project_distro_path(project.name, distro.name)
 
       expect(page).to have_link('16.0')
-      expect(page).to have_no_link('New Release')
+      expect(page).to have_no_css("a[href='#{new_project_distro_release_path(project.name, distro.name)}']")
       expect(page).to have_no_css("a[href='#{edit_project_distro_release_path(project.name, distro.name, distro_release.name)}']")
-      expect(page).to have_no_css("a[data-action='#{project_distro_release_path(project.name, distro.name, distro_release.name)}']")
+      expect(page).to have_no_button('Delete')
     end
 
     it 'does not offer to edit or delete the release on its show page' do
       visit project_distro_release_path(project.name, distro.name, distro_release.name)
 
-      expect(page).to have_css('h3', text: '16.0')
+      within('#distro-release') { expect(page).to have_css('h4', text: 'Leap 16.0') }
       expect(page).to have_no_link('Edit')
-      expect(page).to have_no_link('Delete')
+      expect(page).to have_no_button('Edit')
+      expect(page).to have_no_button('Delete')
     end
   end
 end

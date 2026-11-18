@@ -15,8 +15,11 @@ class Webui::DistroReleasesController < Webui::WebuiController
   # Pundit authorization policies control
   after_action :verify_authorized
 
+  # A release is displayed in the page of its distro, with the release selected.
   def show
     authorize @distro_release
+    @distro_releases = @distro.distro_releases.newest_first.includes(:distro_release_lifecycles)
+    render 'webui/distros/show'
   end
 
   #### CRUD actions
@@ -33,7 +36,7 @@ class Webui::DistroReleasesController < Webui::WebuiController
     @distro_release = @distro.distro_releases.new(distro_release_params)
     authorize @distro_release
     if @distro_release.save
-      redirect_to project_distro_path(@distro.project, @distro.name), notice: 'Release was successfully created.'
+      redirect_to project_distro_release_path(@project, @distro.name, @distro_release.name), notice: 'Release was successfully created.'
     else
       redirect_to project_distro_path(@distro.project, @distro.name), flash: { error: "Release failed to create. #{@distro_release.errors.full_messages.to_sentence}" }
     end

@@ -19,13 +19,6 @@
 
 - content_for :ready_function do
   :plain
-    $('#delete-distro-release-modal').on('show.bs.modal', function (event) {
-      var link = $(event.relatedTarget);
-      $(this).find('#distro-name').text(link.data('distro-name'));
-      $(this).find('#distro-release-name').text(link.data('distro-release-name'));
-      $(this).find('form').attr('action', link.data('action'));
-    })
-
     var container = document.getElementById("distro-release-lifecycle-timeline");
 
     var items = new vis.DataSet(JSON.parse(container.dataset.items));
