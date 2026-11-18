@@ -24,5 +24,6 @@ workflows:
             src/api/app/assets/javascripts/.* run-javascripts-linter true
             src/api/public/apidocs/.* run-apidocs-linter true
             src/api/vendor/cache/strong_migrations-.* run-migrations-tests true
+            src/api/vendor/cache/.* run-gemcache-linter true
           base-revision: master
           config-path: .circleci/conditional_config.yml
