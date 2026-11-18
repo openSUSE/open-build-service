@@ -30,6 +30,8 @@ use strict;
 
 # useful oids
 our $oid_common_name		= BSASN1::pack_obj_id(2, 5, 4, 3);
+our $oid_surname		= BSASN1::pack_obj_id(2, 5, 4, 4);
+our $oid_serial_number		= BSASN1::pack_obj_id(2, 5, 4, 5);
 our $oid_country_name		= BSASN1::pack_obj_id(2, 5, 4, 6);
 our $oid_locality_name		= BSASN1::pack_obj_id(2, 5, 4, 7);
 our $oid_state_or_province_name	= BSASN1::pack_obj_id(2, 5, 4, 8);
@@ -284,6 +286,7 @@ sub generate_cert_fingerprint {
 
 my %oid2abbrev = (
   $oid_common_name => 'CN',
+  $oid_surname => 'SN',
   $oid_country_name => 'C',
   $oid_locality_name => 'L',
   $oid_state_or_province_name => 'ST',
@@ -293,6 +296,7 @@ my %oid2abbrev = (
   $oid_domain_component => 'DC',
   $oid_user_id => 'UID',
   $oid_email_address => 'emailAddress',
+  $oid_serial_number => 'serialNumber',
 );
 
 sub oid2str {
