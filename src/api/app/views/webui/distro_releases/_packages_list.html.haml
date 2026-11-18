@@ -1,0 +1,15 @@
+- if packages.total_count == 0
+  .text-center.my-3
+    There are no packages for the current filter selection
+- else
+  .list-group.list-group-flush.mt-3
+    .list-group-item
+      .d-flex.justify-content-between.align-items-center
+        %b Name
+        - if Flipper.enabled?(:package_version_tracking, User.session)
+          %b Version
+    = render partial: 'package', collection: packages,
+             locals: { selected_filter: selected_filter, page: params[:page], distro_release: distro_release }
+
+  = paginate packages, views_prefix: 'webui', window: 2, params: { action: 'show', id: nil }
+  = render partial: 'page_size_navigation', locals: { paginated_objects: packages }
