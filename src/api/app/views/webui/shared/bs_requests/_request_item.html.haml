@@ -33,7 +33,7 @@
           = "##{bs_request.number}"
         .request-index-description.text-truncate
           = bs_request.description
-      .text-end
+      .text-end.small
         %span
           - if (creator = User.find_by_login(bs_request.creator))
             = link_to(user_path(creator)) do
@@ -44,10 +44,10 @@
           created
           = render TimeComponent.new(time: bs_request.created_at)
         - if bs_request.comments_count.positive?
-          %span.text-nowrap{ title: pluralize(bs_request.comments_count, 'comment') }
+          %span.small.text-nowrap{ title: pluralize(bs_request.comments_count, 'comment') }
             %i.fas.fa-regular.fa-comment.ps-2
             = bs_request.comments_count
         - if bs_request.reviews_count.positive?
-          %span.text-nowrap{ title: pluralize(bs_request.reviews_count, 'review') }
+          %span.small.text-nowrap{ title: pluralize(bs_request.reviews_count, 'review') }
             %i.fas.fa-magnifying-glass.ps-2
             = bs_request.reviews_count
