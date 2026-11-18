@@ -2,10 +2,12 @@
   .text-center.my-3
     There are no packages for the current filter selection
 - else
-  .text-center
-    %span.ms-3= page_entries_info packages, entry_name: ''
-
   .list-group.list-group-flush.mt-3
+    .list-group-item
+      .d-flex.justify-content-between.align-items-center
+        %b Name
+        - if Flipper.enabled?(:package_version_tracking, User.session)
+          %b Version
     = render partial: 'package', collection: packages,
              locals: { selected_filter: selected_filter, page: params[:page], distro_release: distro_release }
 

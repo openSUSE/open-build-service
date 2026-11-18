@@ -63,15 +63,19 @@
       Packages
     = form_for(:package, url: project_distro_release_path(@distro_release.project, @distro_release.distro, @distro_release),
                method: :get, id: 'content-selector-filters-form') do |form|
-      .d-flex.align-items-center
-        .me-2
-          = render partial: 'filter_help_search_box'
-        .w-100
-          = render partial: 'webui/shared/search_box', locals: { html_id: 'search',
-                                                                 value: @selected_filter[:search],
-                                                                 required: false,
-                                                                 button: { type: 'submit' },
-                                                                 placeholder: 'Search' }
+      .row.flex-row-reverse
+        .col-md-4.mb-3
+          .d-flex.align-items-center
+            .me-2
+              = render partial: 'filter_help_search_box'
+            .w-100
+              = render partial: 'webui/shared/search_box', locals: { html_id: 'search',
+                                                                     value: @selected_filter[:search],
+                                                                     required: false,
+                                                                     button: { type: 'submit' },
+                                                                     placeholder: 'Search' }
+        .col-md-8.mb-3.text-center.text-md-start
+          %span= page_entries_info @packages, entry_name: 'package'
     = render partial: 'packages_list', locals: { distro_release: @distro_release,
                                                  packages: @packages,
                                                  selected_filter: @selected_filter }
