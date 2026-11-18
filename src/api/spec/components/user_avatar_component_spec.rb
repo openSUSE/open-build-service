@@ -19,5 +19,21 @@ RSpec.describe UserAvatarComponent, type: :component do
         end
       end
     end
+
+    context 'when the avatar object is a group' do
+      let(:group) { create(:group, title: 'maintainer_group') }
+
+      before do
+        render_inline(described_class.new(group))
+      end
+
+      it 'renders link to the group' do
+        expect(rendered_content).to have_link('maintainer_group', href: '/groups/maintainer_group')
+      end
+
+      it 'renders group avatar image' do
+        expect(rendered_content).to have_css('img[title="maintainer_group"]', count: 1)
+      end
+    end
   end
 end
