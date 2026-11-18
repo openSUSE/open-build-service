@@ -42,9 +42,9 @@ class Webui::DistroReleasesController < Webui::WebuiController
   def update
     authorize @distro_release
     if @distro_release.update(distro_release_params)
-      redirect_to project_distro_path(@distro.project, @distro.name), flash: { success: 'Release was successfully updated.' }
+      redirect_to project_distro_release_path(@distro.project, @distro.name, @distro_release), flash: { success: 'Release was successfully updated.' }
     else
-      redirect_to project_distro_path(@distro.project, @distro.name), flash: { error: "Release failed to update. #{@distro_release.errors.full_messages.to_sentence}" }
+      redirect_to project_distro_release_path(@distro.project, @distro.name, @distro_release), flash: { error: "Release failed to update. #{@distro_release.errors.full_messages.to_sentence}" }
     end
   end
 

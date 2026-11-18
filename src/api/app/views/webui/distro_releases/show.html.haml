@@ -34,14 +34,19 @@
 
     %h3.mt-4
       Repositories
-    %ul.list-group.list-group-flush
-      - @distro_release.repository_architectures.group_by(&:repository).each do |repository, repository_architectures|
-        %li.list-group-item.d-flex.flex-wrap.justify-content-between.px-0
-          #{repository.project.name}/#{repository.name}
-          %div
-            - repository_architectures.each do |ra|
-              %span.badge.text-bg-primary
-                = ra.architecture.name
+    = turbo_frame_tag("distro-release-repositories-#{@distro_release.to_param}") do
+      %ul.list-group.list-group-flush
+        - @distro_release.repository_architectures.group_by(&:repository).each do |repository, repository_architectures|
+          %li.list-group-item.d-flex.flex-wrap.justify-content-between.px-0
+            #{repository.project.name}/#{repository.name}
+            %div
+              - repository_architectures.each do |ra|
+                %span.badge.text-bg-primary
+                  = ra.architecture.name
+      - if policy(@distro_release).edit?
+        = link_to(edit_project_distro_release_repositories_path(@project, @distro, @distro_release)) do
+          %i.fas.fa-edit
+          Edit repositories
 
     %h3.mt-4
       Lifecycle

@@ -1,0 +1,12 @@
+- @pagetitle = "Edit #{@distro_release.name} repositories"
+
+= turbo_frame_tag("distro-release-repositories-#{@distro_release.to_param}") do
+  = form_with(url: project_distro_release_path(@project.name, @distro.name, @distro_release.name), model: @distro_release) do |form|
+    = render partial: 'webui/distro_release_repository_architectures/form', locals: { form: form, model: @distro_release }
+
+    %div
+      = link_to('Cancel', project_distro_release_path(@distro_release.distro.project, @distro_release.distro, @distro_release), title: 'Cancel',
+                class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
+      = form.submit 'Save', class: 'btn btn-success'
+    :javascript
+      setupRepositoryAutocomplete();
