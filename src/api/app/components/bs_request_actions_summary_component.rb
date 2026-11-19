@@ -5,6 +5,7 @@
 # (so rare actions like deletes or role changes stay visible) and whatever doesn't fit is summarized as "+ N more".
 #
 # This class only decides what to show; wording, markup and CSS live in the template.
+# rubocop:disable-next Metrics/ClassLength
 class BsRequestActionsSummaryComponent < ApplicationComponent
   # How many action names each width shows, from the widest to the narrowest
   NAME_BUDGETS = { wide: 4, medium: 2, narrow: 0 }.freeze
