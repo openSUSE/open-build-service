@@ -31,9 +31,10 @@
       .d-flex.gap-2.mb-2.small
         = link_to(request_show_path(bs_request.number), id: "request-heading#{bs_request.number}", class: 'flex-shrink-0') do
           = "##{bs_request.number}"
+        %span -
         .request-index-description.text-truncate
           = bs_request.description
-      .text-end.small
+      .text-start.small
         %span
           - if (creator = User.find_by_login(bs_request.creator))
             = link_to(user_path(creator)) do
