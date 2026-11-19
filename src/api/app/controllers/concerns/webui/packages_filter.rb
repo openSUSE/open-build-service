@@ -5,10 +5,14 @@ module Webui::PackagesFilter
 
   def filter_packages
     @packages = filter_packages_by_search_text(@packages, @filter_search_text)
+    @packages = filter_packages_by_project(@packages, @filter_project)
+    @packages = filter_packages_by_labels(@packages, @filter_label)
   end
 
   def set_selected_filter
-    @selected_filter = { search: @filter_search_text }
+    @selected_filter = { search: @filter_search_text,
+                         project: @filter_project,
+                         labels: @filter_label }
   end
 
   def filter_packages_by_search_text(packages, filter_search_text)
@@ -36,8 +40,29 @@ module Webui::PackagesFilter
     Package.none
   end
 
+  def filter_packages_by_labels(packages, filter_label)
+    return packages if filter_label.blank?
+
+    packages.joins(labels: :label_template).where(label_templates: { name: filter_label })
+  end
+
+  def filter_packages_by_project(packages, filter_project)
+    return packages if filter_project.blank?
+
+    packages.where(projects: { name: filter_project })
+  end
+
   def set_filter_search_text
     @filter_search_text = params[:search]
+  end
+
+  def set_filter_project
+    @filter_project = params[:project] ? params[:project].compact_blank.uniq : []
+    @projects_for_filter = ProjectsForFilterFinder.new.call
+  end
+
+  def set_filter_label
+    @filter_label = params[:labels] ? params[:labels].compact_blank : []
   end
 
   def set_ordered_packages

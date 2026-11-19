@@ -1,0 +1,45 @@
+-# haml-lint:disable ViewLength
+.accordion.accordion-flush
+  - unless projects_for_filter.empty?
+    .mt-2.mb-2.accordion-item.border-0
+      .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#package-filter-projects' },
+                                            aria: { expanded: 'true', controls: 'package-filter-projects' } }
+        %b Projects
+        .selected-content.small.ms-1
+      .px-4.pb-2.accordion-collapse.collapse.show#package-filter-projects
+        #package-project-name-dropdown
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'project_names_search',
+                                                                 html_name: 'project[]', required: false,
+                                                                 data: { source: autocomplete_projects_path },
+                                                                 button: { type: 'submit' } }
+          .scroll-list-wrapper.auto-submit-on-change
+            - selected_filter[:project].each do |project_name|
+              .dropdown-item-text
+                = render partial: 'webui/shared/check_box', locals: { label: project_name,
+                                                                      key: "project[#{project_name}]", name: 'project[]',
+                                                                      value: project_name,
+                                                                      checked: selected_filter[:project]&.include?(project_name) }
+    .mt-2.mb-2.accordion-item.border-0
+      .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#package-filter-labels' },
+                                            aria: { expanded: 'true', controls: 'package-filter-labels' } }
+        %b Labels
+        .selected-content.small.ms-1
+      .px-4.pb-2.accordion-collapse.collapse.show#package-filter-labels
+        #package-labels-dropdown
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'labels_search',
+                                                                 html_name: 'labels[]', required: false,
+                                                                 data: { source: autocomplete_labels_path },
+                                                                 button: { type: 'submit' } }
+          .scroll-list-wrapper.auto-submit-on-change
+            - selected_filter[:labels].each do |label|
+              .dropdown-item-text
+                = render partial: 'webui/shared/check_box', locals: { label: label,
+                                                                      key: "labels[#{label}]", name: 'labels[]',
+                                                                      value: label,
+                                                                      checked: selected_filter[:labels]&.include?(label) }
+.text-center.mt-4.mb-4
+  = link_to('Clear', project_distro_release_path(distro_release.project, distro_release.distro, distro_release),
+            class: 'btn btn-outline-secondary border')
+
+- content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
+-# haml-lint:enable ViewLength

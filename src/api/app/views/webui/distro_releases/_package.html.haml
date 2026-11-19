@@ -4,7 +4,8 @@
       %b #{package.project.name}/#{package.name}
     - if Flipper.enabled?(:labels, User.session) && package.labels
       %span.ms-1
-        = render partial: 'webui/shared/label', collection: package.labels, as: :label
+        = render partial: 'label_clickable', collection: package.labels, as: :label, locals: { distro_release: distro_release,
+                                                                                               selected_filter: selected_filter }
   - if Flipper.enabled?(:package_version_tracking, User.session) && (package.latest_local_version || package.latest_upstream_version)
     %span
       - if package.latest_local_version
