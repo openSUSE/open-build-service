@@ -53,4 +53,40 @@ RSpec.describe Webui::Packages::TriggerController, :vcr do
       it { expect(flash[:error]).to eq('Error while triggering abort build for my_project/my_package: no repository defined') }
     end
   end
+
+  describe 'POST #merge_service' do
+    subject(:trigger_merge_service) { post :merge_service, params: { project_name: project, package_name: package } }
+
+    let(:package) { create(:package_with_file, name: 'my_package', project: project) }
+
+    context 'when merging services succeeds' do
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:merge_service).and_return('<status code="ok"/>')
+        trigger_merge_service
+      end
+
+      it { expect(flash[:success]).to eq('Services successfully merged') }
+      it { expect(response).to redirect_to(package_show_path(project, package)) }
+    end
+
+    context 'when merging services fails' do
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:merge_service).and_raise(Backend::Error.new('some error'))
+        trigger_merge_service
+      end
+
+      it { expect(flash[:error]).to eq('Error while merging services for my_project/my_package: some error') }
+      it { expect(response).to redirect_to(package_show_path(project, package)) }
+    end
+
+    context 'when merging services times out' do
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:merge_service).and_raise(Timeout::Error.new('execution expired'))
+        trigger_merge_service
+      end
+
+      it { expect(flash[:error]).to eq('Error while merging services for my_project/my_package: execution expired') }
+      it { expect(response).to redirect_to(package_show_path(project, package)) }
+    end
+  end
 end

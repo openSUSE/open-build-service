@@ -8,6 +8,20 @@ module Webui
 
       after_action :verify_authorized
 
+      def merge_service
+        authorize @object_to_authorize, :update?
+
+        Backend::Api::Sources::Package.merge_service(@project.name, @package_name, User.session.to_s)
+        flash[:success] = 'Services successfully merged'
+      rescue Timeout::Error => e
+        flash[:error] = "Error while merging services for #{@project.name}/#{@package_name}: #{e.message}"
+      rescue Backend::Error => e
+        error = Xmlhash::XMLHash.new(error: e.summary)[:error]
+        flash[:error] = "Error while merging services for #{@project.name}/#{@package_name}: #{error}"
+      ensure
+        redirect_back_or_to package_show_path(@project, @package_name)
+      end
+
       def services
         authorize @object_to_authorize, :update?
 
