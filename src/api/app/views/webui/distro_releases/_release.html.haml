@@ -8,14 +8,18 @@
     = render_without_markdown(truncate(distro_release.description, length: 100))
   %b.card-text
     Repositories:
+  - repositories = distro_release.repository_architectures.group_by(&:repository)
   %ul.list-group.list-group-flush
-    - distro_release.repository_architectures.group_by(&:repository).each do |repository, repository_architectures|
+    - repositories.first(2).each do |repository, repository_architectures|
       %li.list-group-item.d-flex.flex-wrap.justify-content-between.px-0
         #{repository.project.name}/#{repository.name}
         %div
           - repository_architectures.each do |ra|
             %span.badge.text-bg-primary
               = ra.architecture.name
+    - if repositories.size > 2
+      %li.list-group-item.px-0
+        = link_to("+ #{pluralize(repositories.size - 2, 'more repository', plural: 'more repositories')}", release_path)
   - component.with_header do
     %h5.card-title= link_to distro_release.name, release_path
 
