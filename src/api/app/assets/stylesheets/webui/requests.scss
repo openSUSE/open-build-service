@@ -68,8 +68,12 @@
   min-width: 0;
 }
 
-.request-actions-summary-title:hover {
-  @extend .text-decoration-underline;
+.request-actions-summary-title {
+  color: inherit;
+
+  &:hover {
+    @extend .text-decoration-underline;
+  }
 }
 
 [data-request-actions-popover] {
