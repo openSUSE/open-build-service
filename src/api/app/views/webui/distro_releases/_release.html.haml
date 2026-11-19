@@ -4,8 +4,16 @@
     - if distro_release.url.present?
       %i.fas.fa-link.text-info
       = render partial: 'webui/shared/external_link', locals: { text: distro_release.url, url: distro_release.url }
+  - current_lifecycle = distro_release.current_lifecycle
+  - if current_lifecycle
+    %p.card-text
+      %span.badge{ class: lifecycle_status_class(current_lifecycle.status) }= current_lifecycle.status_label
   .card-text
     = render_without_markdown(truncate(distro_release.description, length: 100))
+  - packages_count = distro_release.packages_count
+  %p.card-text.mt-2
+    %span.fs-3.fw-bold= packages_count
+    %span.text-secondary= 'package'.pluralize(packages_count)
   %b.card-text
     Repositories:
   - repositories = distro_release.repository_architectures.group_by(&:repository)
