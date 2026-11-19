@@ -250,6 +250,10 @@ sub pk2sigdata {
         $stag -= 128 if $stag >= 128;	# mask critical bit
         $d->{'signtime'} = unpack('N', $spack) if $stag == 2 && $hashed;
         $d->{'issuer'} = unpack('H*', substr($spack, 0, 8)) if $stag == 16;
+        if ($stag == 33 && length($spack) > 1) {
+	  $d->{'fpversion'} = unpack('C', substr($spack, 0, 1));
+	  $d->{'fingerprint'} = unpack('H*', substr($spack, 1));
+	}
       }
       $pack = $pack2;
     }
