@@ -191,7 +191,7 @@ sub pk2keydata {
   my $keysize = ($mpis[0]->{'bits'} + 31) & ~31;
   $keysize = $mpis[0]->{'bits'} - 7 if $algo eq 'eddsa';
   $keysize = ($mpis[0]->{'bits'} - 3) / 2 if $algo eq 'ecdsa';
-  my $data = { 'algo' => $algo, 'mpis' => \@mpis, 'keysize' => $keysize };
+  my $data = { 'algo' => $algo, 'mpis' => \@mpis, 'keysize' => $keysize, 'version' => $ver };
   $data->{'curve'} = $curve if $curve;
   return $data;
 }
@@ -256,6 +256,7 @@ sub pk2sigdata {
   } else {
     die("unknown sig version\n");
   }
+  $d->{'version'} = $ver;
   $d->{'algo'} = 'rsa' if $algo == 1;
   $d->{'algo'} = 'dsa' if $algo == 17;
   $d->{'algo'} = 'ecdsa' if $algo == 19;
