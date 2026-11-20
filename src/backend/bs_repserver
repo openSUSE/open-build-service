@@ -3088,7 +3088,7 @@ sub getresult {
 	delete $ps->{'packstatus'}->{$_} unless $packfilter{$_};
       }
       for (keys %packfilter) {
-	$ps->{'packststus'}->{$_} ||= 'unknown';
+	$ps->{'packstatus'}->{$_} ||= 'unknown';
       }
     }
     my ($repostate, $repodetails, $isdirty) = getrepositorystate($projid, $repoid, $arch, \%publisherstate);
@@ -4337,7 +4337,7 @@ sub checkconstraints {
     'project' => $projid ,
     'repoid' => $repoid,
     'arch' => $arch,
-    'package' >= $packid,
+    'package' => $packid,
   };
   $info->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
 
