@@ -1,0 +1,4 @@
+-# haml-lint:disable InlineStyles
+%div{ style: 'font-family: monospace; font-size: 13px; border: 1px solid #d0d7de;' }
+  - lines.each do |line|
+    %div{ style: "padding: 0 8px; white-space: pre-wrap; #{line_style(line)}" }= sanitize(line.content.chomp)
