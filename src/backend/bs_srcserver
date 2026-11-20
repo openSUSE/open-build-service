@@ -464,7 +464,7 @@ sub triggerservicerun {
       $cgi->{'servicemark'} = $servicemark;
       $rev = addrev_runservice($cgi, $projid, $packid, $files);
     } else {
-      die("404 no source service defined!\n");
+      die('404 ' . BSSrcServer::Service::no_service_to_trigger_error($files) . "\n");
     }
   }
   return $BSStdServer::return_ok;
