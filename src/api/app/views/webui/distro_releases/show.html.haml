@@ -63,19 +63,31 @@
       Packages
     = form_for(:package, url: project_distro_release_path(@distro_release.project, @distro_release.distro, @distro_release),
                method: :get, id: 'content-selector-filters-form') do |form|
-      .row.flex-row-reverse
-        .col-md-4.mb-3
-          .d-flex.align-items-center
-            .me-2
-              = render partial: 'filter_help_search_box'
-            .w-100
-              = render partial: 'webui/shared/search_box', locals: { html_id: 'search',
-                                                                     value: @selected_filter[:search],
-                                                                     required: false,
-                                                                     button: { type: 'submit' },
-                                                                     placeholder: 'Search' }
-        .col-md-8.mb-3.text-center.text-md-start
-          %span= page_entries_info @packages, entry_name: 'package'
-    = render partial: 'packages_list', locals: { distro_release: @distro_release,
-                                                 packages: @packages,
-                                                 selected_filter: @selected_filter }
+      .row
+        .col-md-4.col-lg-3.px-0.px-md-3.sticky-top#filter-desktop
+          .border-end
+            %strong.d-block.d-md-none.p-3{ data: { 'bs-toggle': 'collapse', 'bs-target': '#content-selector-filters' },
+                                           aria: { expanded: true, controls: 'filters' } }
+              Filters
+              %i.float-end.mt-1.fa.fa-chevron-down#packages-dropdown-trigger
+            .collapse#content-selector-filters
+              = render partial: 'package_filter', locals: { distro_release: @distro_release,
+                                                            selected_filter: @selected_filter,
+                                                            projects_for_filter: @projects_for_filter }
+        .col-md-8.col-lg-9.px-0.px-md-3.content-list#projects-list
+          .row.flex-row-reverse
+            .col-md-4.mb-3
+              .d-flex.align-items-center
+                .me-2
+                  = render partial: 'filter_help_search_box'
+                .w-100
+                  = render partial: 'webui/shared/search_box', locals: { html_id: 'search',
+                                                                         value: @selected_filter[:search],
+                                                                         required: false,
+                                                                         button: { type: 'submit' },
+                                                                         placeholder: 'Search' }
+            .col-md-8.mb-3.text-center.text-md-start
+              %span= page_entries_info @packages, entry_name: 'package'
+          = render partial: 'packages_list', locals: { distro_release: @distro_release,
+                                                       packages: @packages,
+                                                       selected_filter: @selected_filter }

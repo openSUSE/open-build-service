@@ -1,0 +1,15 @@
+- global_label = global_label.present? ? 'global-' : ''
+
+:css
+  .label-#{global_label}#{label.id} {
+    color: #{h(contrast_text(label.color))};
+    background-color: #{h(label.color)};
+  }
+
+- current_labels = selected_filter[:labels] || []
+-# Toggle the label filter value
+- updated_labels = current_labels.include?(label.name) ? current_labels - [label.name] : current_labels + [label.name]
+
+= link_to label.name, project_distro_release_path(distro_release.project, distro_release.distro, distro_release,
+                                                  selected_filter.merge(labels: updated_labels)),
+                                                  class: "btn btn-link text-decoration-none badge label-#{global_label}#{label.id}"

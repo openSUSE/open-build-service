@@ -13,7 +13,7 @@ class Webui::DistroReleasesController < Webui::WebuiController
   before_action :set_distro
   before_action :set_vendor
   before_action :set_distro_release, only: %i[show update destroy edit]
-  before_action :set_filter_search_text, only: :show
+  before_action :set_filter_search_text, :set_filter_project, :set_filter_label, only: :show
   before_action :set_packages, only: :show
   before_action :filter_packages, only: :show
   before_action :set_selected_filter, only: :show
