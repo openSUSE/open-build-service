@@ -1062,7 +1062,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     pkg = 'pack'
     resp1 = :success
     resp2 = 403
-    aresp = { tag: 'status', attributes: { code: 'update_project_not_authorized' } }
+    aresp = { tag: 'status', attributes: { code: 'update_package_not_authorized' } }
     match = nil
     # uninvolved user
     login_fred
@@ -1445,7 +1445,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # uninvolved user
     resp1 = :success
     resp2 = 403
-    atag2 = { tag: 'status', attributes: { code: 'update_project_not_authorized' } }
+    atag2 = { tag: 'status', attributes: { code: 'update_package_not_authorized' } }
     resp3 = :success
     asel3 = nil
     login_fred
