@@ -1607,11 +1607,7 @@ sub do_fetchprojpacks {
       my $changed = $fetchlinkedprojpacks_srcchange{$projid} ? $changed_lowfront : $changed_low;
       for my $prp (@{$gctx->{'prps'}}) {
         if ((split('/', $prp, 2))[0] eq $projid) {
-	  if ($alllocked->{$prp}) {
-	    $changed_low->{$prp} ||= 1;
-	  } else {
-	    $changed->{$prp} ||= 1;
-	  }
+	  $changed->{$prp} ||= 1;
 	  $changed_dirty->{$prp} = 1;
 	}
 	$changed->{$projid} ||= 1;
