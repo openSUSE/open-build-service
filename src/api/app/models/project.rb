@@ -156,7 +156,7 @@ class Project < ApplicationRecord
       project = Project.new(name: project_name)
 
       Project.transaction do
-        project.update_from_xml!(Xmlhash.parse(project.meta.content))
+        project.update_from_xml!(Xmlhash.parse(project.meta.content), true)
         project.store
 
         # restore all package meta data objects in DB
@@ -169,7 +169,7 @@ class Project < ApplicationRecord
           package_meta = Xmlhash.parse(package.meta.content)
 
           Package.transaction do
-            package.update_from_xml(package_meta)
+            package.update_from_xml(package_meta, true, true)
             package.store
           end
         end
