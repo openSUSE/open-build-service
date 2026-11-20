@@ -41,6 +41,14 @@ class DistroRelease < ApplicationRecord
     packages.includes(:latest_local_version).to_h { |package| [package.name, package.latest_local_version&.version] }
   end
 
+  def current_lifecycle
+    distro_release_lifecycles.select { |lifecycle| lifecycle.date <= Time.zone.today }.max_by(&:date)
+  end
+
+  def packages_count
+    packages.unscope(:group).distinct.count(:name)
+  end
+
   #### Alias of methods
 end
 
