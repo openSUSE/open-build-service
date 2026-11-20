@@ -3,14 +3,14 @@
   @pagetitle = "Meta Configuration of #{@project}"
   @metarobots = 'noindex'
 
-.card
+.mb-3.border-bottom
   = render(partial: 'webui/project/tabs', locals: { project: @project })
 
-  .card-body
-    %h3= @pagetitle
-    - if User.possibly_nobody.can_modify?(@project)
-      = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml',
-        save: { url: project_meta_path(@project), method: :put,
-        data: { project: @project.name, submit: 'meta' } } }
-    - else
-      = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml', style: { read_only: true } }
+%h3= @pagetitle
+
+- if User.possibly_nobody.can_modify?(@project)
+  = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml',
+    save: { url: project_meta_path(@project), method: :put,
+    data: { project: @project.name, submit: 'meta' } } }
+- else
+  = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml', style: { read_only: true } }
