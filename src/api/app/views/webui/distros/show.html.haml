@@ -1,39 +1,41 @@
 - @pagetitle = "Distribution #{@distro.name}"
 
 .card
+
+.card.mb-3#distro
+  .card-body.d-flex.flex-wrap.align-items-start.gap-3
+    - if @distro.logo.attached?
+      = image_tag @distro.logo, class: 'img-thumbnail distro-logo-preview'
+    - else
+      %i.fas.fa-compact-disc.fa-3x.text-primary
+    .flex-grow-1
+      .small.text-secondary.text-uppercase.fw-semibold Distribution
+      %h3.mb-1.text-word-break-all= @distro.name
+      .text-secondary.mb-3
+        by
+        %i.fas.fa-globe
+        = link_to(@vendor.name, project_show_path(@project, anchor: 'vendor'))
+        - if @distro.url.present?
+          ·
+          = render partial: 'webui/shared/external_link', locals: { text: @distro.url, url: @distro.url }
+      #distro-description
+        - if @distro.description.blank?
+          %i.text-secondary No description set
+        - else
+          = render partial: 'webui/shared/collapsible_text', locals: { text: @distro.description, render_markdown: true }
+    .d-flex.gap-2
+      - if policy(@distro).update?
+        %button.btn.btn-sm.btn-outline-secondary{ type: 'button', data: { 'bs-toggle': 'modal', 'bs-target': '#distro-form-modal' } }
+          %i.fas.fa-edit
+          Edit
+      - if policy(@distro).destroy?
+        %button.btn.btn-sm.btn-outline-danger{ type: 'button', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-modal' } }
+          %i.fas.fa-trash-can
+          Delete
+
+.card.mb-3
   .card-body
-    .d-flex.align-items-center.mb-3
-      - if @distro.logo.attached?
-        = image_tag @distro.logo, class: 'img-thumbnail distro-logo-preview me-3'
-      %h3.mb-3
-        %span.text-secondary Distribution:
-        = render partial: 'webui/shared/external_link', locals: { text: @distro.name, url: @distro.url }
-    %p.text-secondary
-      by #{@distro.vendor.name}
-    .row
-      .col-12.col-md-10.col-lg-8
-        #distro-description
-          - if @distro.description.blank?
-            %i No description set
-          - else
-            = render partial: 'webui/shared/collapsible_text', locals: { text: @distro.description, render_markdown: true }
-        - if policy(@distro).edit?
-          .pt-4.mb-3
-            = link_to(edit_project_distro_path(@distro.project, @distro), class: 'ps-0', title: 'Edit') do
-              %i.fas.fa-edit.text-secondary
-              %span.nav-item-name Edit
-      .col-md-4
-        %ul.side_links.list-unstyled
-          - if @distro.url.present?
-            %li
-              %i.fas.fa-link.text-info
-              = render partial: 'webui/shared/external_link', locals: { text: @distro.url, url: @distro.url }
-          - if policy(@distro).destroy?
-            %li
-              = link_to(project_distro_path(@distro.project, @distro), method: :delete, class: 'text-danger',
-                data: { confirm: 'Are you sure you want to delete this distro?'}) do
-                %i.fas.fa-trash-can
-                %span.nav-item-name Delete
+    %h5 Lifecycle
     = render partial: 'lifecycle_timeline', locals: { distro_releases: @distro_releases }
     %h3
       Releases of #{@distro.name}
@@ -71,6 +73,19 @@
               Cancel
             %input.btn.btn-sm.btn-danger.px-4{ type: 'submit', name: 'commit', value: 'Delete', data: { disable: { with: 'Delete' } } }
 
+
+- if policy(@distro).update?
+  = render ModalComponent.new(modal_id: 'distro-form') do |component|
+    - component.with_header do
+      Edit Distribution
+    = render partial: 'webui/distros/form', locals: { url: project_distro_path(@project, @distro.name), model: @distro, modal: true }
+- if policy(@distro).destroy?
+  - confirmation_text = "Please confirm deletion of the distribution '#{@distro.name}' and all of its releases."
+  = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-distro-modal',
+                                                 method: :delete,
+                                                 options: { modal_title: 'Do you really want to delete this distribution?',
+                                                            confirmation_text: confirmation_text,
+                                                            action: project_distro_path(@project, @distro.name) })
 - content_for :ready_function do
   :plain
     $('#delete-distro-release-modal').on('show.bs.modal', function (event) {
