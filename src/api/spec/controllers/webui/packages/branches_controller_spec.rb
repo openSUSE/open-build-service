@@ -105,5 +105,41 @@ RSpec.describe Webui::Packages::BranchesController, :vcr do
 
       it { expect(branched_package.linkinfo['rev']).to eq(set_revision) }
     end
+
+    it 'shows an error when source package lookup returns nil', vcr: false do
+      allow(Package).to receive(:get_by_project_and_name).and_return(nil)
+
+      post :create, params: { linked_project: source_project, linked_package: 'missing_package' }
+      expect(flash[:error]).to eq("Failed to branch: Package not found: #{source_project.name}/missing_package")
+      expect(response).to redirect_to(root_path)
+    end
+
+    context 'when source project is managed by scmsync', vcr: false do
+      let(:scmsync_url) { 'https://github.com/openSUSE/scmsync-test.git' }
+      let(:branch_service) { instance_double(BranchPackage) }
+
+      before do
+        source_project.update(scmsync: scmsync_url)
+        allow(Package).to receive(:get_by_project_and_name).and_return(source_package)
+        allow(BranchPackage).to receive(:new).and_return(branch_service)
+        allow(branch_service).to receive(:branch).and_raise(BranchPackage::CanNotBranchPackage, "project is developed at #{scmsync_url}. Fork it instead.")
+        post :create, params: { linked_project: source_project, linked_package: source_package }
+      end
+
+      it { expect(flash[:error]).to eq("Failed to branch: project is developed at #{scmsync_url}. Fork it instead.") }
+      it { expect(response).to redirect_to(root_path) }
+      it { expect(Package).to have_received(:get_by_project_and_name).with(source_project.name, source_package.name, hash_including(follow_project_scmsync_links: true)) }
+    end
+
+    context 'when package does not exist in scmsync project', vcr: false do
+      before do
+        source_project.update(scmsync: 'https://github.com/openSUSE/scmsync-test.git')
+        allow(Backend::Api::Sources::Package).to receive(:meta).and_raise(Backend::NotFoundError)
+        post :create, params: { linked_project: source_project, linked_package: 'missing_package' }
+      end
+
+      it { expect(flash[:error]).to eq("Failed to branch: Package not found: #{source_project.name}/missing_package") }
+      it { expect(response).to redirect_to(root_path) }
+    end
   end
 end
