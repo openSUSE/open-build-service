@@ -153,5 +153,35 @@ RSpec.describe BsRequestAction::Differ::ForSource, :vcr do
         it { expect(subject.perform).to eq(xml_response * 2) }
       end
     end
+
+    context 'without a target package when accepted' do
+      subject do
+        BsRequestAction::Differ::ForSource.new(
+          bs_request_action: bs_request_action,
+          source_package_names: [source_package.name]
+        )
+      end
+
+      before do
+        allow(bs_request_action).to receive(:target_package).and_return(nil)
+        create(:bs_request_action_accept_info,
+               bs_request_action: bs_request_action,
+               srcmd5: 2,
+               osrcmd5: 3)
+      end
+
+      it { expect(subject.perform).to eq('') }
+    end
+
+    context 'without a source package when not accepted' do
+      subject do
+        BsRequestAction::Differ::ForSource.new(
+          bs_request_action: bs_request_action,
+          source_package_names: []
+        )
+      end
+
+      it { expect(subject.perform).to eq('') }
+    end
   end
 end

@@ -35,6 +35,15 @@ RSpec.describe BsRequestAction::Differ::SourcePackageFinder do
 
         it { expect(finder.all).to eq(['source_package']) }
       end
+
+      context 'and an BsRequestAcceptInfo without a source package' do
+        before do
+          allow(bs_request_action).to receive(:source_package).and_return(nil)
+          BsRequestActionAcceptInfo.create(bs_request_action: bs_request_action)
+        end
+
+        it { expect(finder.all).to eq([]) }
+      end
     end
 
     context 'without a source package but a source project' do
