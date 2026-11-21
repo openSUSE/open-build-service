@@ -246,7 +246,7 @@ sub order {
     my %evprio = ('exit' => -2, 'exitcomplete' => -2, 'restart' => -2, 'suspendproject' => -1, 'uploadbuild' => 1, 'import' => 1);
     @{$ectx->{_events}} = sort {
                     # the following lines might look a bit nasty, but this is needed to avoid
-                    # "Uninitialized values" warings
+                    # "Uninitialized values" warnings
                     ($evprio{$a->{'type'} || ''} || 0) <=> ($evprio{$b->{'type'} || ''} || 0) ||
                     ($a->{'type'} || '' )  cmp ($b->{'type'} || '') ||
                     ($a->{'project'} || '') cmp ($b->{'project'} || '') ||

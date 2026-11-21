@@ -41,7 +41,7 @@ sub new {
   } else {
     print "setting up watcher for $remoteurl\n";
   }
-  # collaps filter list, watch complete project if more than 3 packages are watched
+  # collapse filter list, watch complete project if more than 3 packages are watched
   my @filter;
   my %filterpackage;
   for (sort keys %$watchremote) {

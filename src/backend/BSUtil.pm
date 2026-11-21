@@ -223,7 +223,7 @@ sub chown_multiple {
   return $ret;
 }
 
-=head2 mkdir_p_chown - create directory recursivly and change ownership
+=head2 mkdir_p_chown - create directory recursively and change ownership
 
  calls mkdir_p and changes ownership of the created directory to the
  supplied user and group if provided.
