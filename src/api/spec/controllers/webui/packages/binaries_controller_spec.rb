@@ -34,6 +34,52 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
 
       it { expect { set_binaries }.to raise_error(ActiveRecord::RecordNotFound) }
     end
+
+    context 'with paginated build results' do
+      let(:binarycount) { 150 }
+      let(:result_xml) do
+        <<~XML
+          <resultlist state="c181538ad4f4c8be5d4b0e3b8b1a6e4b">
+            <result project="home:tom" repository="source_repo" arch="x86_64" code="published" state="published">
+              <binarylist package="my_package" binarycount="#{binarycount}">
+                <binary filename="my_package-1.0-1.x86_64.rpm" size="1024" mtime="1700000000"/>
+              </binarylist>
+            </result>
+          </resultlist>
+        XML
+      end
+      let(:special_files_xml) do
+        <<~XML
+          <binarylist>
+            <binary filename="_statistics" size="100" mtime="1700000000"/>
+            <binary filename="rpmlint.log" size="100" mtime="1700000000"/>
+          </binarylist>
+        XML
+      end
+
+      before do
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(result_xml)
+        allow(Backend::Api::BuildResults::Binaries).to receive_messages(download_url_for_file: nil, files: special_files_xml)
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, page: 2 }
+      end
+
+      it 'requests only the files of the current page from the backend' do
+        expect(Backend::Api::BuildResults::Status).to have_received(:result_swiss_knife)
+          .with(home_tom.name, hash_including(binarylimit: 100, binaryoffset: 100))
+      end
+
+      it 'looks up the special files of architectures with more than one page' do
+        expect(assigns(:buildresults).first).to include(statistics: true, rpmlint: true)
+      end
+
+      it { expect(assigns(:pagination).total_pages).to eq(2) }
+
+      context 'when all binaries fit on one page' do
+        let(:binarycount) { 3 }
+
+        it { expect(Backend::Api::BuildResults::Binaries).not_to have_received(:files) }
+      end
+    end
   end
 
   describe 'GET #show' do
