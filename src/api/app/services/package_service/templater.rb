@@ -2,9 +2,9 @@ module PackageService
   class Templater
     include ActiveModel::Model
 
-    attr_accessor :package, :template, :user
+    attr_accessor :package, :template, :user, :data
 
-    validates :package, :template, :user, presence: true
+    validates :package, :template, :user, :data, presence: true
 
     def self.templates
       Project.package_templates.to_h do |project|
@@ -19,7 +19,7 @@ module PackageService
     private
 
     def files
-      @template.dir_hash.elements('entry').map do |file|
+      @template.dir_hash.elements('entry').filter_map do |file|
         next if file['name'] == '_template'
 
         template_contents = @template.source_file(file['name'])
@@ -48,7 +48,8 @@ module PackageService
     def template_options
       { 'project' => PackageService::Templater::ProjectDrop.new(@package.project),
         'package' => PackageService::Templater::PackageDrop.new(@package),
-        'user' => PackageService::Templater::UserDrop.new(@user) }
+        'user' => PackageService::Templater::UserDrop.new(@user),
+        'template' => PackageService::Templater::TemplateDrop.new(@data) }
     end
   end
 end
