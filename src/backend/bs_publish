@@ -85,7 +85,21 @@ my $myeventdir = "$eventdir/publish";
 
 my @binsufs = (@BSOBS::binsufs, 'udeb', 'ddeb');
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
-my @binsufsrsync = map {"--include=*.$_"} @binsufs;
+# Metadata, checksums, and signatures withheld from sync_to_stage Pass 1 so payloads land before links/metadata
+my @stage_payload_excludes = map {"--exclude=$_"} qw{
+  repocache
+  repodata/ media.1/ descr/ boxes/ media_info/
+  SHA*SUMS SHA*SUMS.*
+  *.sha256 *.sha512
+  *.asc *.sig *.gpg *.key *.rsa.pub
+  *.ymp *.repo repoindex.xml
+  Packages Packages.gz Sources Sources.gz Release Release.gz InRelease
+  content directory.yast
+  index index.yaml
+  APKINDEX.tar.gz APKINDEX.tar.gz.signed
+  *.db *.db.sig *.db.tar.gz *.db.tar.gz.sig
+  *.files *.files.sig *.files.tar.gz *.files.tar.gz.sig
+};
 my $binarchs = join("|", keys(%BSCando::knownarch));
 
 my $trackercacheversion = 3;
@@ -1875,8 +1889,8 @@ sub sync_to_stage {
       $stageserver .= $dbgsplit if $dbgsplit && $stageservers;
       print "    running $rsynccommand to $stageserver at ".localtime(time)."\n";
       # rsync with a timeout of 1 hour
-      # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
-      qsystem('echo', "$extdirx\0", $rsynccommand, '-ar0', @rsync_extra_options, '--fuzzy', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
+      # sync first payload files without symlinks, metadata, or deletion of old ones, afterwards links, metadata and cleanup
+      qsystem('echo', "$extdirx\0", $rsynccommand, '-ar0', @rsync_extra_options, '--no-links', '--fuzzy', @stage_payload_excludes, '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
       qsystem('echo', "$extdirx\0", $rsynccommand, '-ar0', @rsync_extra_options, '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
     }
     if ($stageserver =~ /^script:(\/.*)$/) {
