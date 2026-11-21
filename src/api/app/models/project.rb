@@ -795,7 +795,7 @@ class Project < ApplicationRecord
       processed.keys.each do |key|
         str = "#{str} -- #{key.name}"
       end
-      raise CycleError, "There is a cycle in project link defintion at #{str}"
+      raise CycleError, "There is a cycle in project link definition at #{str}"
     end
     processed[self] = 1
 

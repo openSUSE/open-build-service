@@ -36,14 +36,14 @@ sub dosshsign {
   my $out;
   if (ref($keyfile)) {
     $out = eval { $keyfile->($state, $signdata, $namespace) };
-    die("Signature authentification: $@") if $@;
+    die("Signature authentication: $@") if $@;
   } else {
     ($out) = BSUtil::xsystem($signdata, 'ssh-keygen', '-Y', 'sign', '-n', $namespace, '-f', $keyfile);
   }
-  die("Signature authentification: bad ssh signature format\n") unless $out =~ s/.*-----BEGIN SSH SIGNATURE-----\n//s;
-  die("Signature authentification: bad ssh signature format\n") unless $out =~ s/-----END SSH SIGNATURE-----.*//s;
+  die("Signature authentication: bad ssh signature format\n") unless $out =~ s/.*-----BEGIN SSH SIGNATURE-----\n//s;
+  die("Signature authentication: bad ssh signature format\n") unless $out =~ s/-----END SSH SIGNATURE-----.*//s;
   my $sig = MIME::Base64::decode_base64($out);
-  die("Signature authentification: bad ssh signature\n") unless substr($sig, 0, 6) eq 'SSHSIG';
+  die("Signature authentication: bad ssh signature\n") unless substr($sig, 0, 6) eq 'SSHSIG';
   return $sig;
 }
 
@@ -73,13 +73,13 @@ sub authenticator_function {
     if ($h eq '(created)') {
       $tosign .= "(created): $created\n";
     } else {
-      die("Signature authentification: unsupported header element: $h\n");
+      die("Signature authentication: unsupported header element: $h\n");
     }
   }
-  die("Signature authentification: nothing to sign?\n") unless $tosign;
+  die("Signature authentication: nothing to sign?\n") unless $tosign;
   chop $tosign;
   my $algorithm = $state->{'algorithm'};
-  die("Signature authentification: algorithm mismatch $signature->{'algorithm'} - $algorithm\n") if $signature->{'algorithm'} && $signature->{'algorithm'} ne $algorithm;
+  die("Signature authentication: algorithm mismatch $signature->{'algorithm'} - $algorithm\n") if $signature->{'algorithm'} && $signature->{'algorithm'} ne $algorithm;
   my $keyid = $state->{'keyid'};
   my $realm = $signature->{'realm'} || '';
   print "doing signature auth for '$realm' [$algorithm $keyid]\n" if $state->{'verbose'};
@@ -87,7 +87,7 @@ sub authenticator_function {
   if ($algorithm eq 'ssh') {
     $sig = dosshsign($state, $tosign, $realm);
   } else {
-    die("Signature authentification: unsupported algorithm '$algorithm'\n");
+    die("Signature authentication: unsupported algorithm '$algorithm'\n");
   }
   $sig = MIME::Base64::encode_base64($sig, '');
   die("bad keyid '$keyid'\n") if $keyid =~ /\"/;

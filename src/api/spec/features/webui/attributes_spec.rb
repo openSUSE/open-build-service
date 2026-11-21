@@ -81,7 +81,7 @@ RSpec.describe 'Attributes', :js do
           end
           expect(page).to have_css('#flash')
           within('#flash') do
-            expect(page).to have_text('Attribute sucessfully deleted!')
+            expect(page).to have_text('Attribute successfully deleted!')
           end
         end
       end

@@ -1,5 +1,5 @@
 # Title for the gitleaks configuration file.
-title = "OBS Gitleaks Confiugration"
+title = "OBS Gitleaks Configuration"
 
 # Extend the base (this) configuration
 [extend]

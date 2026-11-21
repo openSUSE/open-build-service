@@ -31,7 +31,7 @@ sub readbytes {
   my $d;
   my $r = read($handle, $d, $size);
   die("zip read: $!\n") unless defined $r;
-  die("zip read: unexpeced EOF ($r != $size)\n") unless $r == $size;
+  die("zip read: unexpected EOF ($r != $size)\n") unless $r == $size;
   return $d;
 }
 

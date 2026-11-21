@@ -127,7 +127,7 @@ namespace :dev do
         bs_req_action.save!
 
         puts "* Request #{request.number} contains multiple actions and mentioned issues."
-        puts 'To start the builds confirm or perfom the following steps:'
+        puts 'To start the builds confirm or perform the following steps:'
         puts '- Create the interconnect with openSUSE.org'
         puts "- Create a couple of repositories in project #{source_project.name}"
       end
@@ -200,7 +200,7 @@ namespace :dev do
 
         puts "* Request with #{actions_count} submit actions, builds, diffs and rpm lints."
         puts "  See http://localhost:3000/request/show/#{bs_request.number}."
-        puts '  To start the builds confirm or perfom the following steps:'
+        puts '  To start the builds confirm or perform the following steps:'
         puts '  - Create the interconnect with openSUSE.org'
         puts "  - Create a couple of repositories in project #{iggy_home_project.name}"
       end

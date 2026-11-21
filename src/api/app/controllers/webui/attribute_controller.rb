@@ -81,7 +81,7 @@ class Webui::AttributeController < Webui::WebuiController
     authorize @attribute
 
     @attribute.destroy
-    redirect_back_or_to root_path, success: 'Attribute sucessfully deleted!'
+    redirect_back_or_to root_path, success: 'Attribute successfully deleted!'
   end
 
   private
