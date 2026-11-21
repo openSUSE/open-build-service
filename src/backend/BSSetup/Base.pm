@@ -48,7 +48,7 @@ sub prepare_mounts_conf {
     my $re          = qr{^($tmp)$};
     my $content;
 
-    # Comment out non existant files in /etc/containers/mounts.conf
+    # Comment out non existent files in /etc/containers/mounts.conf
     if (open my $fh, '+<', $mounts_conf) {
       while (my $line = <$fh>) {
 	$line =~ s/$re/# $1 ## --- disabled by `obs_admin --service-container setup`/;
