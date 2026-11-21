@@ -17,9 +17,10 @@ get:
         type: integer
     - in: query
       name: show_maximum
+      description: Maximum number of notifications per page (capped at 300).
       schema:
-        type: string
-      example: 1
+        type: integer
+      example: 10
     - in: query
       name: notifications_type
       schema:
