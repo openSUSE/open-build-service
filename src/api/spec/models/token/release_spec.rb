@@ -146,6 +146,42 @@ RSpec.describe Token::Release, :vcr do
           expect(Backend::Api::BuildResults::Binaries).to have_received(:copy)
         end
       end
+
+      context 'when targetproject and targetrepository are provided without repository' do
+        subject do
+          token.call(package: package, project: project_staging, targetproject: 'Baz', targetrepository: 'other_target_repository')
+        end
+
+        it 'raises a MissingParameterError' do
+          user.run_as do
+            expect { subject }.to raise_error(MissingParameterError, "Parameter 'repository' is required when 'targetproject' and 'targetrepository' are provided")
+          end
+        end
+      end
+
+      context 'when targetproject is provided without targetrepository' do
+        subject do
+          token.call(package: package, project: project_staging, targetproject: 'Baz', repository: 'other_source_repository')
+        end
+
+        it 'raises a MissingParameterError' do
+          user.run_as do
+            expect { subject }.to raise_error(MissingParameterError, "Parameter 'targetrepository' is required when 'targetproject' is provided")
+          end
+        end
+      end
+
+      context 'when targetrepository is provided without targetproject' do
+        subject do
+          token.call(package: package, project: project_staging, targetrepository: 'other_target_repository', repository: 'other_source_repository')
+        end
+
+        it 'raises a MissingParameterError' do
+          user.run_as do
+            expect { subject }.to raise_error(MissingParameterError, "Parameter 'targetproject' is required when 'targetrepository' is provided")
+          end
+        end
+      end
     end
   end
 end

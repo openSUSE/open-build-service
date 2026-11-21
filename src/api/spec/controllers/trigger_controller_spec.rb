@@ -152,6 +152,24 @@ RSpec.describe TriggerController do
 
       it { expect(subject).to have_http_status(:success) }
     end
+
+    context 'with targetproject and targetrepository but without repository' do
+      subject do
+        post :release, params: {
+          project: source_project.name,
+          package: source_package.name,
+          targetproject: target_project.name,
+          targetrepository: target_project.repositories.first.name,
+          format: :xml
+        }
+      end
+
+      it { expect(subject).to have_http_status(:bad_request) }
+
+      it 'returns a missing_parameter error code' do
+        expect(Xmlhash.parse(subject.body)['code']).to eq('missing_parameter')
+      end
+    end
   end
 
   describe '#runservice', :vcr do
