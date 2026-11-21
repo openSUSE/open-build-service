@@ -82,6 +82,14 @@ module HasRelationships
     (direct_users + users_in_groups).uniq
   end
 
+  # Returns direct user maintainers and maintainer groups without expanding groups into users
+  def maintainers_with_groups
+    # Edge case: avoid expanding groups to all their member users, returning the maintainer groups directly
+    direct_users = relationships.users.maintainers.includes(:user).filter_map(&:user)
+    maintainer_groups = relationships.groups.maintainers.includes(:group).filter_map(&:group)
+    (direct_users + maintainer_groups).uniq
+  end
+
   def remove_all_persons
     check_write_access!
     relationships.users.delete_all

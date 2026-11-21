@@ -71,6 +71,21 @@ RSpec.describe Webui::RequestController, :vcr do
         expect(assigns(:show_project_maintainer_hint)).to be_falsey
       end
     end
+
+    context 'when the target project has maintainer groups' do
+      let(:group) { create(:group_with_user) }
+      let!(:relationship_project_group) do
+        create(:relationship_project_group, project: target_project, group: group)
+      end
+
+      before do
+        get :show, params: { number: bs_request.number }
+      end
+
+      it 'assigns maintainer groups to @project_maintainers' do
+        expect(assigns(:project_maintainers)).to include(group)
+      end
+    end
   end
 
   describe 'GET #request_action_changes' do

@@ -403,6 +403,37 @@ RSpec.describe 'Requests', :js, :vcr do
       expect(page).to have_text('Project Maintainers')
     end
 
+    context 'when the target project has a maintainer group' do
+      let(:group) { create(:group, title: 'obs_team') }
+      let!(:relationship_project_group) do
+        create(:relationship_project_group, project: target_project, group: group)
+      end
+
+      it 'shows the maintainer group with a link to the group page' do
+        visit request_show_path(delete_bs_request)
+        expect(page).to have_link('obs_team', href: "/groups/#{group.title}")
+      end
+
+      context 'when the target project has more than three maintainers' do
+        let(:extra_users) { create_list(:confirmed_user, 3) }
+
+        before do
+          extra_users.each do |extra_user|
+            create(:relationship_project_user, project: target_project, user: extra_user)
+          end
+        end
+
+        it 'shows the maintainer group in the show all modal' do
+          visit request_show_path(delete_bs_request)
+          expect(page).to have_link('Show all')
+          click_link('Show all')
+          within('#show-project-maintainers-modal') do
+            expect(page).to have_link('obs_team', href: "/groups/#{group.title}")
+          end
+        end
+      end
+    end
+
     it 'a delete request does not show the Issues Tab' do
       visit request_show_path(delete_bs_request)
       expect(page).to have_text("Request #{delete_bs_request.number}")
