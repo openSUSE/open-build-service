@@ -168,7 +168,7 @@ GEM
       delayed_job (>= 3.0, < 5)
     diff-lcs (1.6.2)
     dimapa (0.1.0)
-    down (5.6.1)
+    down (5.6.2)
       addressable (~> 2.8)
       base64 (~> 0.3)
     drb (2.2.3)
