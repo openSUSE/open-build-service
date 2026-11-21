@@ -84,7 +84,7 @@ class Webui::PackageController < Webui::WebuiController
     @comments = @package.comments.includes(:user)
     @comment = Comment.new
 
-    @services = @files.any? { |file| file['name'] == '_service' }
+    @services = services_run_on_server?
 
     respond_to do |format|
       format.html
@@ -441,6 +441,19 @@ class Webui::PackageController < Webui::WebuiController
               :report_bug_url,
               :anitya_ignore,
               :scmsync)
+  end
+
+  # Only offer to trigger services if the backend would run at least one of them.
+  # Services in these modes never run on the server (see docs/api/api/obs.rng).
+  def services_run_on_server?
+    return false if @files.none? { |file| file['name'] == '_service' }
+    # keep offering a re-run while services are running or failed
+    return true if @forced_unexpand.present? || @service_running
+
+    services_xml = @package.source_file('_service', { rev: @srcmd5 || @revision, expand: @expand }.compact)
+    Nokogiri::XML(services_xml).xpath('/services/service').any? { |service| %w[localonly buildtime manual disabled].exclude?(service['mode']) }
+  rescue Backend::Error
+    true
   end
 
   def set_file_details
