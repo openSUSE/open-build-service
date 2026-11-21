@@ -1,5 +1,5 @@
 class ProjectDoProjectCopyJob < ApplicationJob
-  queue_as :quick
+  queue_as :slow_user
 
   attr_accessor :project, :params
 

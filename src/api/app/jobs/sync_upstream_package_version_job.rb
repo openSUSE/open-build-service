@@ -5,7 +5,7 @@ class SyncUpstreamPackageVersionJob < ApplicationJob
 
   retry_on(*RETRYABLE_EXCEPTIONS, wait: ->(executions) { RETRY_WAIT_TIMES.fetch(executions) }, attempts: 6)
 
-  queue_as :quick
+  queue_as :slow_user
 
   include PackageVersionLabeler
 
