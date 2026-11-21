@@ -391,6 +391,32 @@ RSpec.describe Review do
         subject { group }
       end
     end
+
+    context 'by_package with a direct relationship on its project' do
+      subject { relationship_project_user.user }
+
+      let(:relationship_project_user) { create(:relationship_project_user) }
+      let(:package) { create(:package, project: relationship_project_user.project) }
+      let!(:review) { create(:review, by_package: package, by_project: package.project, bs_request: bs_request) }
+
+      it_behaves_like "the subject's cache is reset when it's review changes"
+    end
+
+    context 'by_package with a group relationship on its project' do
+      let(:relationship_project_group) { create(:relationship_project_group) }
+      let(:package) { create(:package, project: relationship_project_group.project) }
+      let(:group) { relationship_project_group.group }
+      let(:groups_user) { create(:groups_user, group: group) }
+      let!(:user) { groups_user.user }
+      let!(:review) { create(:review, by_package: package, by_project: package.project, bs_request: bs_request) }
+
+      it_behaves_like "the subject's cache is reset when it's review changes" do
+        subject { user }
+      end
+      it_behaves_like "the subject's cache is reset when it's review changes" do
+        subject { group }
+      end
+    end
   end
 
   describe '#reviewable_by?' do
