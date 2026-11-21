@@ -327,7 +327,7 @@ RSpec.describe Workflow, :vcr do
       it { expect { subject.call }.not_to change(WorkflowArtifactsPerStep, :count) }
     end
 
-    context 'with step with invalid intructions' do
+    context 'with step with invalid instructions' do
       let(:yaml) do
         { 'steps' => [{ branch_package: { source_package: package.name, target_project: project.name } }] }
       end

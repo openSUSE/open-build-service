@@ -27,7 +27,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   # My:Maintenance:1                  - maintenance incident project
   # Channel                           - project to hold channel definitions
   #
-  # Channels (actuall channel projects):
+  # Channels (actual channel projects):
   #
   # BaseDistro2Channel  - channel definition for BaseDistro2 project
   # Channel/BaseDistro2 - mapping of BaseDistro2Channel into (main) channel
@@ -229,7 +229,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'repository', attributes: { name: 'BaseDistro2Channel' } },
                    tag: 'path', attributes: { project: 'BaseDistro2Channel', repository: 'channel_repo' }
 
-    # Create patchinfo informations
+    # Create patchinfo information
     travel(1.second)
     post "/source/#{incident_project}?cmd=createpatchinfo&force=1"
     assert_response :success
@@ -238,7 +238,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
     assert_xml_tag(tag: 'patchinfo', attributes: { incident: incident_id })
-    # add required informations about the update
+    # add required information about the update
     pi = Nokogiri::XML(@response.body).root
     pi.at_css('summary').content = 'live patch'
     pi.at_css('description').content = 'live patch is always critical'
@@ -368,7 +368,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro2Channel/patchinfo.1'
     assert_response :success
 
-    # link target is unmodfied, so link must stay unfrozen
+    # link target is unmodified, so link must stay unfrozen
     get "/source/#{incident_project}/kgraft-GA.BaseDistro2.0/_link"
     assert_response :success
     node = Xmlhash.parse(@response.body)

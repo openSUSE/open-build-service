@@ -124,7 +124,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     get '/source/home:tom/new_package/_service:download_url:file?expand=1'
     assert_response :success
 
-    # branch and submit requsts
+    # branch and submit requests
     post '/source/home:tom/service', params: { cmd: 'branch' }
     assert_response :success
     assert_nil Package.find_by_project_and_name('home:tom:branches:home:tom', 'service').backend_package.error
@@ -291,7 +291,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # _service file got dropped
     get '/source/home:tom/service/_service'
     assert_response :not_found
-    # result got commited as usual file
+    # result got committed as usual file
     get '/source/home:tom/service/file'
     assert_response :success
     # old file remained
@@ -334,7 +334,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:tom/service'
     assert_response :success
-    # result got commited as usual file
+    # result got committed as usual file
     get '/source/home:tom/service/file'
     assert_response :success
     # _service file still exists

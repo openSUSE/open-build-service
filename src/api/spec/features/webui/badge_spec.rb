@@ -76,7 +76,7 @@ RSpec.describe 'Badge', :vcr do
       expect(xml).to have_text('100%')
     end
 
-    it 'displays the suceeded state' do
+    it 'displays the succeeded state' do
       visit project_package_badge_path(source_project.name, source_package.name, format: 'svg')
       xml = Capybara.string(page.body)
       expect(xml).to have_text('succeeded')

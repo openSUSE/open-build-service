@@ -88,13 +88,13 @@ RSpec.describe Webui::Requests::SubmissionsController, :vcr do
 
       it_behaves_like 'a response of a successful submit request'
 
-      it 'creates a submit request with correct sourceupdate attibute' do
+      it 'creates a submit request with correct sourceupdate attribute' do
         created_request = BsRequestActionSubmit.where(target_project: target_project.name, target_package: target_package).first
         expect(created_request.sourceupdate).to eq('update')
       end
     end
 
-    context 'superseeding a request that does not exist' do
+    context 'superseding a request that does not exist' do
       before do
         post :create, params: {
           project_name: source_project.name,

@@ -114,7 +114,7 @@ RSpec.describe Webui::PackageController, :vcr do
       end
     end
 
-    # FIXME: This is not how the backend behaves today, it validates servce files. You can't re-generate the cassette of this spec
+    # FIXME: This is not how the backend behaves today, it validates service files. You can't re-generate the cassette of this spec
     context 'with a package that has a broken service' do
       before do
         login user
@@ -131,7 +131,7 @@ RSpec.describe Webui::PackageController, :vcr do
       end
 
       after do
-        # Cleanup: otherwhise older revisions stay in backend and influence other tests, and test re-runs
+        # Cleanup: otherwise older revisions stay in backend and influence other tests, and test re-runs
         package_with_revisions.destroy
       end
 

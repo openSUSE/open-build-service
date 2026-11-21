@@ -99,7 +99,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         let(:hook_action) { 'synchronize' }
         let(:long_commit_sha) { 'abcdefghijk' }
 
-        # Emulate the branched project/package and the subcription created in a previous new PR/MR event
+        # Emulate the branched project/package and the subscription created in a previous new PR/MR event
         let!(:branched_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
         let!(:branched_package) { create(:package_with_file, name: package.name, project: branched_project) }
 

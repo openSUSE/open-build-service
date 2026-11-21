@@ -74,7 +74,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
     UpdateReleasedBinariesJob.new.send(:update_binary_releases_for_repository, r, json)
     assert_equal count, BinaryRelease.all.length
 
-    # modify just one timestampe
+    # modify just one timestamp
     json = [{ 'arch' => 'i586', 'binaryarch' => 'i586', 'repository' => 'BaseDistro3_repo',
               'release' => '1', 'name' => 'delete_me', 'project' => 'BaseDistro3', 'version' => '1.0',
               'package' => 'pack2', 'buildtime' => '1409642056' },

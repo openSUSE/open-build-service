@@ -29,7 +29,7 @@ RSpec.describe Relationship do
     end
 
     context 'with invalid relationship data' do
-      skip('This is imposible to happen with the actual validations and how the object is created')
+      skip('This is impossible to happen with the actual validations and how the object is created')
     end
 
     context 'with banned user' do
@@ -77,7 +77,7 @@ RSpec.describe Relationship do
     end
 
     context 'with invalid relationship data' do
-      skip('This is imposible to happen with the actual validations and how the object is created')
+      skip('This is impossible to happen with the actual validations and how the object is created')
     end
 
     context 'with valid data' do

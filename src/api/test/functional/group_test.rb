@@ -85,7 +85,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     put '/group/new_group', params: xml2
     assert_response :forbidden
 
-    # double save is done by webui, we need to support it. Drop email adress also
+    # double save is done by webui, we need to support it. Drop email address also
     login_king
     xml2 = "<group><title>new_group</title>
               <maintainer userid='Iggy' />

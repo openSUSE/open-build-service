@@ -42,7 +42,7 @@ RSpec.describe SourcePackageMetaController, :vcr do
   end
 
   describe 'PUT #update' do
-    context 'well-formated XML' do
+    context 'well-formatted XML' do
       let(:meta) do
         <<~META
           <package name="foo" project="#{project_with_package.name}">

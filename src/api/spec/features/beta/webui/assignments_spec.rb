@@ -10,7 +10,7 @@ RSpec.describe 'Assignments', :vcr do
     login(user)
   end
 
-  describe 'showing the assigment of a package' do
+  describe 'showing the assignment of a package' do
     context 'when having no assignment' do
       it 'shows nothing' do
         visit package_show_path(user.home_project, package)

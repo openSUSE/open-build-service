@@ -608,7 +608,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'repository', attributes: { name: 'repo2' } },
                    tag: 'releasetarget', attributes: { project: 'TEMPORARY:rel_target', repository: 'rel_target2' }
 
-    # delete one repository where a release target defintion points to
+    # delete one repository where a release target definition points to
     rel_target_meta = "<project name='TEMPORARY:rel_target'><title></title><description/>
                       <repository name='rel_target2'>
                         <path project='BaseDistro' repository='BaseDistro_repo'/>
@@ -1411,7 +1411,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     resp1 = :success # assert response #1
     resp2 = :success # assert response #2
     atag2 = { tag: 'status', attributes: { code: 'ok' } } # assert_xml_tag after response #2
-    resp3 = :success # assert respons #3
+    resp3 = :success # assert response #3
     asel3 = 'package > build > enable' # assert_select after response #3
     # user without any special roles
     login_fred
@@ -2230,7 +2230,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     delete '/source/home:coolo:test/_pattern/mypattern'
     assert_response :forbidden
 
-    # successfull delete
+    # successful delete
     login_tom
     delete '/source/home:coolo:test/_pattern/mypattern'
     assert_response :success

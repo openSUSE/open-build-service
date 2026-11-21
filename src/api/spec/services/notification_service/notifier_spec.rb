@@ -52,7 +52,7 @@ RSpec.describe NotificationService::Notifier do
         expect(Notification.find_by(subscriber: user_kim)).to be_rss
       end
 
-      it 'does not create a notificaton with web checked for kim' do
+      it 'does not create a notification with web checked for kim' do
         expect(Notification.find_by(subscriber: user_kim)).not_to be_web
       end
 

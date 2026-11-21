@@ -46,7 +46,7 @@ RSpec.describe 'Comments with diff', :js, :vcr do
   describe 'create diff comment' do
     before do
       # It's not possible to hover over a line to wait for the comment box to appear while in mobile
-      skip('This scenario is not posible under mobile') if mobile?
+      skip('This scenario is not possible under mobile') if mobile?
 
       login admin
 

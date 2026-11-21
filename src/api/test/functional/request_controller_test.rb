@@ -289,7 +289,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
       oldhistory = h
     end
 
-    # missingok disapeared
+    # missingok disappeared
     post '/source/home:Iggy:branches:home:Iggy', params: { cmd: :undelete }
     assert_response :success
     get '/source/home:Iggy:branches:home:Iggy/NEW_PACKAGE/_link'
@@ -2642,7 +2642,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
 
-    # the link got transfered
+    # the link got transferred
     get '/source/DummY/pack2.NEW/_link'
     assert_response :success
     assert_xml_tag(tag: 'link', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: nil })
@@ -3251,7 +3251,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post "/request/#{iddelete}?cmd=changestate&newstate=accepted"
     assert_response :success
 
-    # verify request number loging
+    # verify request number logging
     login_king
     get '/source/home:Iggy:todo/_project/_history?meta=1&deleted=1'
     assert_xml_tag(parent: { tag: 'revision' }, tag: 'requestid', content: iddelete)
@@ -3381,7 +3381,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'state', attributes: { name: 'review' })
   end
 
-  # it was reported that requests can't be revoked - test cases verifie sthat
+  # it was reported that requests can't be revoked - test cases verify that
   def test_revoke_autodeclined_submit_requests
     login_Iggy
 
@@ -3554,7 +3554,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # we use an admin user so we can twiddle the configuration
     login_king
 
-    # By default, OBS expects to have thousands of users, so succesfully
+    # By default, OBS expects to have thousands of users, so successfully
     # submitting the last package in a project cleans up the project to
     # save resources.
     cleanup_empty_projects_helper(true)
@@ -3656,7 +3656,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # three "moderate" requests, not showing a priority field
     assert_equal node['request'][5]['priority'], 'low'
 
-    # now re-priorize via incident attribute
+    # now re-prioritize via incident attribute
     login_king
     post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='IncidentPriority' >
               <value>100</value>

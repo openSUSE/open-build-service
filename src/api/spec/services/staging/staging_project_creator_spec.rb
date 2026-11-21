@@ -59,7 +59,7 @@ RSpec.describe Staging::StagingProjectCreator do
     end
 
     context 'fails' do
-      context 'with projects assgined to a staging workflow' do
+      context 'with projects assigned to a staging workflow' do
         let(:project_names) { ["#{project}:Staging:A", "#{project}:Staging:D"] }
 
         describe '#valid?' do
