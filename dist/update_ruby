@@ -1,0 +1,50 @@
+#!/bin/bash -e
+
+OLD_RUBY_VERSION=$(cat .ruby-version)
+NEW_RUBY_VERSION=$(ruby -v | cut -f2 -d' ')
+
+if [[ $OLD_RUBY_VERSION == $NEW_RUBY_VERSION ]];then
+  echo "No update needed"
+  exit 0
+fi
+
+echo $NEW_RUBY_VERSION > .ruby-version
+
+# Gems which are kept at the version provided by Ruby
+DEFAULT_GEMS='base64 stringio strscan'
+
+for gem in $DEFAULT_GEMS; do
+  version=$(gem list | grep $gem | sed -E 's/.*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+  sed -i -E "s/^gem '$gem', '[0-9]+\.[0-9]+\.[0-9]+'/gem '$gem', '$version'/" src/api/Gemfile
+done
+
+NEW_BUNDLER_VERSION=$(bundler --version | tr -d '\n')
+
+pushd src/api
+  bundler _${NEW_BUNDLER_VERSION}_ install
+popd
+
+OLD_RUBY_ABI=${OLD_RUBY_VERSION%.*}
+NEW_RUBY_ABI=${NEW_RUBY_VERSION%.*}
+
+echo $OLD_RUBY_ABI
+echo $NEW_RUBY_ABI
+
+if [[ $OLD_RUBY_ABI == $NEW_RUBY_ABI ]];then
+  exit 0
+fi
+
+#ruby:x.y
+for file in .github/workflows/* dist/*.spec; do
+  sed -i -E "s/ruby:$OLD_RUBY_ABI/ruby:$NEW_RUBY_ABI/g" $file
+done
+
+#rubyx.y
+for file in {dist/t,src/api}/Makefile dist/functions.setup-appliance.sh dist/*.{rb,spec} dist/README.UPDATERS docs/api/restility/bin/* src/api/bin/* src/api/script/* src/api/Rakefile Makefile.include; do
+  sed -i -E "s/ruby$OLD_RUBY_ABI/ruby$NEW_RUBY_ABI/g" $file
+done
+
+#__obs_ruby_abi_version x.y.0
+for file in dist/*.spec; do
+  sed -i -E "s/__obs_ruby_abi_version $OLD_RUBY_ABI.0/__obs_ruby_abi_version $NEW_RUBY_ABI.0/g" $file
+done
