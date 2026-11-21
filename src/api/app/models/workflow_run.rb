@@ -100,7 +100,7 @@ class WorkflowRun < ApplicationRecord
                               status: 'fail') # set SCMStatusReport status
   end
 
-  # Stores info from a succesful SCM status report. The default value for 'status' is 'success'.
+  # Stores info from a successful SCM status report. The default value for 'status' is 'success'.
   def save_scm_report_success(options)
     scm_status_reports.create(request_parameters: JSON.generate(options.slice(*PERMITTED_OPTIONS)))
   end

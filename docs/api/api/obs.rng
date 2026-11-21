@@ -94,7 +94,7 @@
       <value>serveronly</value>    <!-- run on server side, but not on the clients by default -->
       <value>buildtime</value>     <!-- run during build time inside build env, pulls in services as build dependencies -->
       <value>manual</value>        <!-- never run, except user explicit starts it locally -->
-      <value>disabled</value>      <!-- never run, except user explicit starts it locally (old termonology) -->
+      <value>disabled</value>      <!-- never run, except user explicit starts it locally (old terminology) -->
     </choice>
   </define>
 

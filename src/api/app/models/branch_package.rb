@@ -12,7 +12,7 @@ class BranchPackage
     @target_project = nil
     @auto_cleanup = nil
     @add_repositories = params[:add_repositories]
-    # set on fork command only, skips all souce operations here
+    # set on fork command only, skips all source operations here
     @scmsync = params[:scmsync]
     # check if repository path elements do use each other and adapt our own path elements
     @update_path_elements = params[:update_path_elements]
@@ -136,7 +136,7 @@ class BranchPackage
   end
 
   # create package container, we could take a bit more from base one, but these
-  # would be just the cosmetic parts like title and description. Other elemnts should
+  # would be just the cosmetic parts like title and description. Other elements should
   # not be used anyway for scmsync packages.
   def create_fork(project)
     package = nil

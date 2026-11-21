@@ -41,7 +41,7 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
     package.save!
   end
 
-  # Will raise an exception if the source package is not accesible
+  # Will raise an exception if the source package is not accessible
   def check_source_access
     # if we branch from remote there is no need to check access. Either the package exists or not...
     return if Project.find_remote_project(step_instructions[:source_project]).present?

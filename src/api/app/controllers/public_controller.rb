@@ -182,7 +182,7 @@ class PublicController < ApplicationController
         @binary_links[dist_id][:binary] ||= []
         binary_map[repo.name].each do |b|
           binary_type = b['type']
-          # filepath is historic and contains unfortunatly the old repo mapping already.
+          # filepath is historic and contains unfortunately the old repo mapping already.
           # So we have to revert this here...
           filepath = b['filepath']
           # having both gsub! in one line can crash with some ruby builds

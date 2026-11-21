@@ -139,7 +139,7 @@ class Project
       xmlhash.elements('repository') do |repo_xml_hash|
         update_repository_without_path_element(repo_xml_hash)
       end
-      # Some repositories might be refered by path elements before they appear in the
+      # Some repositories might be referred by path elements before they appear in the
       # xml tree. Thus we have 2 iterations. First one goes through all repository
       # elements, second run handles path elements.
       # This can be the case when creating multiple repositories in a project where one

@@ -23,7 +23,7 @@
   <xs:element name="namespace">
     <xs:annotation>
       <xs:documentation>
-        Attribute namespace defintions
+        Attribute namespace definitions
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>

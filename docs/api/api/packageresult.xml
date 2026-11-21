@@ -8,7 +8,7 @@
   </status>
   <archresult arch="i586">
     <status code="built">
-      <summary>Succesfully built.</summary>
+      <summary>Successfully built.</summary>
     </status>
     <rpm filename="mydummy-1.0-2.1.src.rpm"/>
     <rpm filename="mydummy-1.0-2.1.i586.rpm"/>

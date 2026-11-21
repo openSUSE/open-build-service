@@ -363,7 +363,7 @@ class XpathEngine
     logger.debug("#{relation.to_sql}.find #{{ joins: @joins.flatten.uniq.join(' '),
                                               conditions: cond_ary }.inspect}")
     relation = relation.joins(@joins.flatten.uniq.join(' ')).where(cond_ary).order(order)
-    # .distinct is critical for perfomance here...
+    # .distinct is critical for performance here...
     relation.distinct
   end
 
@@ -595,14 +595,14 @@ class XpathEngine
     # An XPath query like "not(@foo='bar')" in the SQL world means, all rows where the 'foo' column
     # is not 'bar' and where it is NULL. As a result, 'cond' below occurs twice in the resulting SQL.
     # This implies that the values to # fill those 'p.name = ?' fragments (@condition_values) have to
-    # occor twice, hence the @condition_values_needed counter. For our example, the resulting SQL will
+    # occur twice, hence the @condition_values_needed counter. For our example, the resulting SQL will
     # look like:
     #
     #   SELECT * FROM projects p LEFT JOIN db_project_types t ON p.type_id = t.id
     #            WHERE (NOT t.name = 'maintenance_incident' OR t.name IS NULL);
     #
     # Note that this can result in bloated SQL statements, so some trust in the query optimization
-    # capabilities of your DBMS is neeed :-)
+    # capabilities of your DBMS is needed :-)
 
     case expr.first
     when :attribute

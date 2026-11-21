@@ -120,7 +120,7 @@ module Backend
 
     private
 
-    # Validation of errors perfoming commands on the backend
+    # Validation of errors performing commands on the backend
     def backend_file_errors
       return if @backend_file_errors.blank?
 

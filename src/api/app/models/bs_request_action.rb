@@ -341,7 +341,7 @@ class BsRequestAction < ApplicationRecord
     # defined in update project
     reviews += find_reviewers(tpkg, disable_project: maintenance_release?) if tpkg
 
-    # project reviewers get added additionaly - might be dups
+    # project reviewers get added additionally - might be dups
     reviews += find_reviewers(tprj) if tprj
 
     reviews.uniq

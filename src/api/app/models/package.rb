@@ -172,7 +172,7 @@ class Package < ApplicationRecord
   #   > Package.get_by_project_and_name('home:hennevogel:myfirstproject', 'ctris:hans').name
   #   Package::Errors::UnknownObjectError: Package not found: home:hennevogel:myfirstproject/ctris:hans
   #
-  # You can make it "follow" multibuild flavors (remove everything after the the first occurance of `:`)
+  # You can make it "follow" multibuild flavors (remove everything after the the first occurrence of `:`)
   # in the Package name by setting in the opts hash:
   #   follow_multibuild: true
   #
@@ -819,7 +819,7 @@ class Package < ApplicationRecord
   end
 
   def delete_on_backend
-    # lock this package object to avoid that dependend objects get created in parallel
+    # lock this package object to avoid that dependent objects get created in parallel
     # for example a backend_package
     reload(lock: true)
 

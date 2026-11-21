@@ -77,7 +77,7 @@ class Token::Workflow < Token
   end
 
   def members
-    # exctract all the users and groups members the token is shared with,
+    # extract all the users and groups members the token is shared with,
     # and merge them all together in a single set removing nils and duplicated entries
     [users, groups&.map(&:users)&.flatten].flatten.compact.uniq
   end

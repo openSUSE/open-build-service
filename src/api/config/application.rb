@@ -52,7 +52,7 @@ module OBSApi
     # we're not threadsafe
     config.allow_concurrency = false
 
-    # we don't want factory_bot to interfer with the legacy test suite
+    # we don't want factory_bot to interfere with the legacy test suite
     # based on minitest
     config.generators do |g|
       g.factory_bot(false)

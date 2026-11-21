@@ -90,7 +90,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def new_tracker
-    # collection with all informations of the new issues
+    # collection with all information of the new issues
     issue_collection = []
     error = +''
     invalid_format = ''

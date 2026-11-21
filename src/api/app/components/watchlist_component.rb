@@ -21,8 +21,8 @@ class WatchlistComponent < ApplicationComponent
 
   private
 
-  # Some of the current_objects are not even accesible as they are remote or a multibuild flavor of a package.
-  # This methods return the item which is really accesible.
+  # Some of the current_objects are not even accessible as they are remote or a multibuild flavor of a package.
+  # This methods return the item which is really accessible.
   # If this returns nil, we won't offer the link to add/remove from watchlst.
   def object_to_be_watched(bs_request, package, project)
     return bs_request if bs_request

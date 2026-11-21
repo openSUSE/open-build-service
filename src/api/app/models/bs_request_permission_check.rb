@@ -129,7 +129,7 @@ class BsRequestPermissionCheck
 
       # people who declined a request shall also be able to reopen it
 
-      # NOTE: Staging managers should be able to repoen a request to unstage a declined request.
+      # NOTE: Staging managers should be able to reopen a request to unstage a declined request.
       # The reason behind `user_is_staging_manager`, is that we need to manage reviews to send
       # the request to the staging backlog.
       (req.state == :declined && opts[:newstate].in?(%w[new review]) && (req.commenter == User.session!.login || user_is_staging_manager))
@@ -149,7 +149,7 @@ class BsRequestPermissionCheck
         raise BsRequest::Errors::CreatorCannotAcceptOwnRequests if cannot_accept_request && accept_user.login == req.creator
       end
 
-      # abort immediatly if we want to write and can't
+      # abort immediately if we want to write and can't
       next unless accept_check && !@write_permission_in_this_action
 
       msg = ''

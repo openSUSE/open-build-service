@@ -107,7 +107,7 @@
        <optional>
          <attribute name="superseded_by"/>
          <a:documentation>
-           specify a package superseeding this one
+           specify a package superseding this one
          </a:documentation>
        </optional>
        <empty/>

@@ -78,7 +78,7 @@ Rails.application.configure do
   # https://github.com/terser/terser
   config.assets.js_compressor = :terser
 
-  # Use DelayedJob gem as qeuing backend for Active Job
+  # Use DelayedJob gem as queuing backend for Active Job
   config.active_job.queue_adapter = :delayed_job
 
   # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration

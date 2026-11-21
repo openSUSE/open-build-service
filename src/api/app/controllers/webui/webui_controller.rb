@@ -39,7 +39,7 @@ class Webui::WebuiController < ActionController::Base
   protected
 
   # We execute both strategies here. The default rails strategy (resetting the session)
-  # and throwing an exception if the session is handled elswhere (e.g. proxy_auth_mode: :on)
+  # and throwing an exception if the session is handled elsewhere (e.g. proxy_auth_mode: :on)
   def handle_unverified_request
     super
     raise ActionController::InvalidAuthenticityToken
