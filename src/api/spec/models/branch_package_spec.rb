@@ -109,5 +109,27 @@ RSpec.describe BranchPackage, :vcr do
         expect(project.url).to eq(leap_project.url)
       end
     end
+
+    context 'when a concurrent request creates the target project first' do
+      let(:target_project_name) { "#{home_project.name}:branches:BaseDistro:Update" }
+
+      before do
+        allow(Project).to receive(:new).and_wrap_original do |original, *args, **kwargs, &block|
+          new_project = original.call(*args, **kwargs, &block)
+          if new_project.name == target_project_name
+            allow(new_project).to receive(:store) do
+              create(:project, name: target_project_name, maintainer: user)
+              raise ActiveRecord::RecordNotUnique
+            end
+          end
+          new_project
+        end
+      end
+
+      it 'branches the package into the existing project' do
+        branch_package.branch
+        expect(Package.find_by_project_and_name(target_project_name, package.name)).not_to be_nil
+      end
+    end
   end
 end
