@@ -26,6 +26,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
 
   def write_branch_request_file
     return if scm_synced?
+    return if target_package.blank?
 
     target_package.save_file({ file: branch_request_content,
                                filename: '_branch_request',

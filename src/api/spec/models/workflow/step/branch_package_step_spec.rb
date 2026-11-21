@@ -123,6 +123,17 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         context 'it updates the _branch_request file' do
           it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
           it { expect(subject.call.source_file('_branch_request')).to include('abcdefghijk') }
+
+          context 'when target_package is blank' do
+            before do
+              allow(Package).to receive(:get_by_project_and_name).and_call_original
+              allow(Package).to receive(:get_by_project_and_name)
+                .with(branched_project.name, package.name, anything)
+                .and_return(nil)
+            end
+
+            it { expect { subject.send(:write_branch_request_file) }.not_to raise_error }
+          end
         end
 
         context 'it updates the scmsync url' do
