@@ -21,6 +21,12 @@ FactoryBot.define do
       type { 'Token::Release' }
     end
 
+    factory :wipe_token, class: 'Token::Wipe' do
+      package
+      object_to_authorize { package }
+      type { 'Token::Wipe' }
+    end
+
     factory :workflow_token, class: 'Token::Workflow' do
       type { 'Token::Workflow' }
       scm_token { Faker::Lorem.characters(number: 32) }
