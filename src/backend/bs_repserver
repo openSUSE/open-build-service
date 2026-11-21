@@ -3780,7 +3780,7 @@ sub sendsysrqtobuild {
 # OBSOLETE: qemu shall be installed into the target system
 #           FIXME3.0: remove this
 # if there is a qemu dir in OBS backend install dir workers load qemu from OBS backend server
-# this is similiar to the rest of build script code
+# this is similar to the rest of build script code
 # if that does also not exist, workers copy qemu from worker local installed qemu
 #
 sub getqemuinterpreters {

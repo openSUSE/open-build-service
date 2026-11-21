@@ -1152,7 +1152,7 @@ sub createrelease_debian {
   #
   # Note:
   # There is no Version because this is not part of a Debian release (yet).
-  # The Component line is missing to not accidently associate the packages with
+  # The Component line is missing to not accidentally associate the packages with
   # a Debian licensing component.
   my $str = <<"EOL";
 Archive: $repoid
@@ -1445,7 +1445,7 @@ sub createrepo_vagrant {
   for my $box (grep {/^[^\.].*\.box$/} sort(ls($extrep))) {
     next if -l "$extrep/$box"; # skip symlinks
     # kiwi uses the following format:
-    # name.arch-verson.format_name
+    # name.arch-version.format_name
     #   OBS appends "[profile-]BuildXXX" to the version
     #   format_name is "vagrant.<provider>.box" for vagrant builds
     my $xbox = $box;
@@ -1916,7 +1916,7 @@ sub sync_to_stage {
     $rsynccommand = "rsync-ssl";
   }
   print "    running trigger rsync to $BSConfig::stageserver_sync at ".localtime(time)."\n";
-  # small sync, timout 1 minute
+  # small sync, timeout 1 minute
   qsystem($rsynccommand, '-a', @rsync_extra_options, '--timeout', '120', "$extrepodir_sync/$filename", $stageserver_sync."/".$filename) && warn("    trigger rsync failed at ".localtime(time).": $?\n");
 }
 

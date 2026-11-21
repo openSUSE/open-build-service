@@ -98,7 +98,7 @@ sub setup_service_containers {
   $distro_obj->install_pkg('podman');
 
 
-  # Prepare data required for modifing /etc/containers/mounts.conf if file exists
+  # Prepare data required for modifying /etc/containers/mounts.conf if file exists
   # e.g. on SLE
   $distro_obj->prepare_mounts_conf();
 

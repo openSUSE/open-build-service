@@ -36,7 +36,7 @@ sub payload_datafmt {
 #
 # Backend notifications are always routed through the source server. The API
 # is processing them via /lastnotifications route and afterwards delivers
-# them to the backend notifiy plugins via /notify_plugins.
+# them to the backend notify plugins via /notify_plugins.
 #
 sub notify {
   my ($type, $p) = @_;		# $_[2] is the payload, but we do not want a copy to save memory

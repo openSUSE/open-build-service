@@ -478,7 +478,7 @@ sub can_reuse_oldservicemark {
   my $oldmeta = readstr("$treedir/$servicemark-MD5SUMS", 1);
   # does not exist -> reuse it and hope for the best
   return 1 if !$oldmeta;
-  # be extra carful here and make sure our data matches
+  # be extra careful here and make sure our data matches
   # calculate LSRCMD5 from file list
   my $nfiles = { %$files };
   delete $nfiles->{$_} for grep {/^_service[:_]/} keys %$nfiles;

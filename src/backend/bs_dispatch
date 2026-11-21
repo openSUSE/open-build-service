@@ -707,7 +707,7 @@ sub filechecks {
   }
 }
 
-# check all workers against the job constains so that the
+# check all workers against the job constraints so that the
 # users get feedback
 sub checkconstraints {
   my ($info, $arch, $job, $constraints, $workercache) = @_;

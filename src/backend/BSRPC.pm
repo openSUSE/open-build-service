@@ -341,7 +341,7 @@ sub keepalive_discard_body {
 }
 
 #
-# handled paramters:
+# handled parameters:
 # timeout
 # uri
 # data

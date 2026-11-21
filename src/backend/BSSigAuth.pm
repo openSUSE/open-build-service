@@ -17,7 +17,7 @@
 #
 ################################################################
 #
-# Signature authentification
+# Signature authentication
 #
 
 package BSSigAuth;

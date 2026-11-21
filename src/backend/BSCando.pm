@@ -30,7 +30,7 @@ package BSCando;
 #FIXME 3.0: obsolete the not exiting arm architectures
 
 our %cando = (
-  # aarch64_ilp32: is just a software architecure convention
+  # aarch64_ilp32: is just a software architecture convention
   'aarch64' => [ 'aarch64', 'aarch64_ilp32', 'armv8l:linux32', 'armv7l:linux32', 'armv7hl:linux32', 'armv6l:linux32', 'armv6hl:linux32' ],
   'aarch64_ilp32' => [ 'aarch64_ilp32', 'aarch64' ],
   'armv4l'  => [ 'armv4l'                                                                                                 ],

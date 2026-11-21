@@ -499,7 +499,7 @@ sub useToPackages( $$$ )
         $useSuggested   = $medium->{'use_suggested'}
                           if ( defined($medium->{'use_suggested'}) && $medium->{'use_suggested'} eq "true" );
 
-        # can get overriden by "use group" settings
+        # can get overridden by "use group" settings
         $useRequired    = $useState->{'use_required'}
                           if ( defined($useState->{'use_required'}) && $useState->{'use_required'} eq "true" );
         $useRecommended = $useState->{'use_recommended'}
@@ -1152,7 +1152,7 @@ sub createSPECfileFlavors ( $$ ) {
       $product_flavors.="Group:          System/Fhs\n";
       if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne "")){
           # TODO: - split between ":" -> Provides: SUSE \n Provides: SUSE:Factory ...
-          #       - add plattform
+          #       - add platform
           $product_flavors.="Provides:       $prodRef->{'project'}->{'name'}\n";
       }
       $product_flavors.="Provides:       product_flavor()\n";
@@ -1429,7 +1429,7 @@ if (defined($product->{'baseversion'})) {
 };
 
 #
-# Check missing information of release package requirement and set defaults if neeeded.
+# Check missing information of release package requirement and set defaults if needed.
 #
 $product->{'installconfig'}->{'releasepackage'} = { 'flag' => "EQ" }
                 if ( not defined($product->{'installconfig'}->{'releasepackage'}) );
@@ -1583,7 +1583,7 @@ foreach my $medium ( @$media ){
 	      $kiwi->{schemeversion} = "2.4"; # before openSUSE 11.3, until kiwi 3.74
 	      $kiwi->{preferences}->{type} = [{_content => "product"}];
 	  }
-          $kiwi->{preferences}->{version} = "1.0.0"; # hardcoded to fullfill kiwi scheme, real version is defined elsewhere
+          $kiwi->{preferences}->{version} = "1.0.0"; # hardcoded to fulfill kiwi scheme, real version is defined elsewhere
           $kiwi->{preferences}->{packagemanager} = "zypper" ; # hardcoded since no other support exist yet.
       
           ($kiwi->{instsource}, $supportstates) = createInstsource ( $prodRef, $medium, $arch->{archset} );

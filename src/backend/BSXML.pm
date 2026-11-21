@@ -1038,7 +1038,7 @@ our $workerstate = [
 	'jobid',
 	'pid',		# pid of building worker process
 	'logsizelimit',	# maximum size of build log
-	'logidlelimit',	# maximim idle time of build log
+	'logidlelimit',	# maximum idle time of build log
 ];
 
 our $jobhistlay = [
@@ -1477,7 +1477,7 @@ our $request = [
      [[ 'review' =>
             'state',         # review state (new/accepted or declined)
             'by_user',       # this user shall review it
-            'by_group',      # one of this groupd shall review it
+            'by_group',      # one of this group shall review it
                              # either user or group must be used, never both
             'by_project',    # any maintainer of this project can review it
             'by_package',    # any maintainer of this package can review it (requires by_project)

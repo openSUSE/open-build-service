@@ -45,7 +45,7 @@ sub verify_packid {
   die("packid is empty\n") unless defined($packid) && $packid ne '';
   die("packid '$packid' is too long\n") if length($packid) > 200;
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
-    # multibuild case: first part must be a vaild package, second part simple label
+    # multibuild case: first part must be a valid package, second part simple label
     die("packid '$packid' is illegal\n") unless $packid =~ /\A([^:]+):([^:]+)\z/s;
     my ($p1, $p2) = ($1, $2);
     die("packid '$packid' is illegal\n") if $p1 eq '_project' || $p1 eq '_pattern';

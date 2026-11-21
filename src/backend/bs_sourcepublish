@@ -175,7 +175,7 @@ sub sourcepublish {
 
   return unless $BSConfig::sourcepublish_sync && $BSConfig::sourcepublish_sync =~ /^rsync(-ssl)?:\//;
   # Filtering by $BSConfig::sourcepublish_filter happens in bs_publish since
-  # it must happend by released project name and not build project.
+  # it must happen by released project name and not build project.
 
   BSUtil::printlog("source publish event for $projid/$packid $srcmd5");
 
