@@ -164,7 +164,10 @@ sub sync_package {
     $undeleted = 1;
   }
 
-  if ($undeleted || !$oldpack || !BSUtil::identical($pack, $oldpack, $pack->{'scmsync'} ? { 'url' => 1 } : undef)) {
+  my %except;
+  $except{'url'} = 1 if $pack->{'scmsync'};
+  $except{'lock'} = 1 if $locked;
+  if ($undeleted || !$oldpack || !BSUtil::identical($pack, $oldpack, %except ? \%except : undef)) {
     print "scmsync: update $projid/$packid\n";
     eval {
       die("cannot update locked package\n") if $locked;
@@ -205,7 +208,7 @@ sub sync_package {
         $needtrigger = 1 if substr($info, 0, $l) ne substr($lastinfo, 0, $l);
       }
     }
-    if ($needtrigger) {
+    if ($needtrigger && !$locked) {
       print "scmsync: trigger $projid/$packid\n";
       $runservice->($cgi, $projid, $packid, $pack->{'scmsync'}, $pack->{'url'});
     }

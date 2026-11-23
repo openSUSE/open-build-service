@@ -38,6 +38,22 @@ sub new_lowfront {
   $gctx->{'lowfront_cnt'} = scalar(@lowfront);
 }
 
+=head2 new_lowfront_head - add prps to the head of the lowfront queue
+
+ TODO
+
+=cut
+
+sub new_lowfront_head {
+  my ($gctx, @new) = @_;
+  my $lookat_low  = $gctx->{'lookat_low'};
+  # split lowfront from lookat and add new entries to back
+  my @lowfront = splice(@$lookat_low, 0, $gctx->{'lowfront_cnt'});
+  @lowfront = BSUtil::unify(@new, @lowfront);
+  unshift @$lookat_low, @lowfront;
+  $gctx->{'lowfront_cnt'} = scalar(@lowfront);
+}
+
 =head2 setchanged - add a prp to the lookat queue and the dependent prps to the changed hashes
 
 Usually called from a RPC resume. We put the prps in from of the lookat queue if the changeprp
@@ -95,6 +111,13 @@ sub setchanged {
     push @cprps, $prp if (split('/', $prp, 2))[0] eq $projid;
   }
   @cprps = BSUtil::unify(@cprps);
+  if ($changetype eq 'lowfront') {
+    # this is a project change with a lowfront level. We use this to
+    # update linked packages. As a special exception we put those at the
+    # head of the lookat queue.
+    my $alllocked = $gctx->{'alllocked'};
+    new_lowfront_head($gctx, grep {!$alllocked->{$_}} @cprps);
+  }
   for my $prp (@cprps) {
     $changed->{$prp} = $changelevel || $changed->{$prp} || 1;
     $changed_dirty->{$prp} = 1;

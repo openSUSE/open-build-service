@@ -99,6 +99,7 @@ sub pk2times {
   $kct = unpack('N', substr($pack, 1, 4));
   while ($pk ne '') {
     ($tag, $pack, $pk) = pkdecodepacket($pk);
+    last if $tag == 6 || $tag == 14;	# stop at next key/subkey
     next if $tag != 2;				# signature
     my ($sver, $stype) = unpack('CC', substr($pack, 0, 2));
     next unless $sver == 4 && $stype == 19;	# positive certification of userid and pubkey
@@ -128,6 +129,7 @@ sub pk2userid {
   die("not a public key\n") unless $tag == 6;
   while ($pk ne '') {
     ($tag, $pack, $pk) = pkdecodepacket($pk);
+    last if $tag == 6 || $tag == 14;
     return $pack if $tag == 13;
   }
   return undef;
@@ -150,7 +152,7 @@ sub pk2keydata {
   } elsif ($ver == 4) {
     $pack = substr($pack, 5);
   } else {
-    die("unknown pubkey version\n");
+    die("unsupported pubkey version $ver\n");
   }
   my $algo = unpack('C', $pack);
   my $nmpi;
@@ -167,7 +169,7 @@ sub pk2keydata {
     $algo = 'eddsa';
     $nmpi = 1;
   } else {
-    die("unknown pubkey algorithm\n");
+    die("unsupported pubkey algorithm $algo\n");
   }
   $pack = substr($pack, 1);
   my $curve;
@@ -191,7 +193,7 @@ sub pk2keydata {
   my $keysize = ($mpis[0]->{'bits'} + 31) & ~31;
   $keysize = $mpis[0]->{'bits'} - 7 if $algo eq 'eddsa';
   $keysize = ($mpis[0]->{'bits'} - 3) / 2 if $algo eq 'ecdsa';
-  my $data = { 'algo' => $algo, 'mpis' => \@mpis, 'keysize' => $keysize };
+  my $data = { 'algo' => $algo, 'mpis' => \@mpis, 'keysize' => $keysize, 'version' => $ver };
   $data->{'curve'} = $curve if $curve;
   return $data;
 }
@@ -249,13 +251,18 @@ sub pk2sigdata {
         ($stag, $spack, $pack) = pkdecodesubpacket($pack);
         $stag -= 128 if $stag >= 128;	# mask critical bit
         $d->{'signtime'} = unpack('N', $spack) if $stag == 2 && $hashed;
-        $d->{'issuer'} = unpack('H*', substr($spack, 0, 8)) if $stag == 16;
+        $d->{'issuer'} ||= unpack('H*', substr($spack, 0, 8)) if $stag == 16;
+        if ($stag == 33 && length($spack) > 1) {
+	  $d->{'fpversion'} ||= unpack('C', substr($spack, 0, 1));
+	  $d->{'fingerprint'} ||= unpack('H*', substr($spack, 1));
+	}
       }
       $pack = $pack2;
     }
   } else {
-    die("unknown sig version\n");
+    die("unsupported signature version $ver\n");
   }
+  $d->{'version'} = $ver;
   $d->{'algo'} = 'rsa' if $algo == 1;
   $d->{'algo'} = 'dsa' if $algo == 17;
   $d->{'algo'} = 'ecdsa' if $algo == 19;
