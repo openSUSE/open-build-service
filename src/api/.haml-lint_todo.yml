@@ -18,3 +18,4 @@ linters:
       - "app/views/webui/configuration/index.html.haml"
       - "app/views/webui/shared/bs_requests/_requests_filter.html.haml"
       - "app/views/webui/shared/bs_requests/_form.html.haml"
+      - "app/views/webui/distro_releases/show.html.haml"

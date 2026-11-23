@@ -32,22 +32,6 @@
 .card
   .card-body
     %h3
-      Repositories
-    = turbo_frame_tag("distro-release-repositories-#{@distro_release.to_param}") do
-      %ul.list-group.list-group-flush
-        - @distro_release.repository_architectures.group_by(&:repository).each do |repository, repository_architectures|
-          %li.list-group-item.d-flex.flex-wrap.justify-content-between.px-0
-            #{repository.project.name}/#{repository.name}
-            %div
-              - repository_architectures.each do |ra|
-                %span.badge.text-bg-primary
-                  = ra.architecture.name
-      - if policy(@distro_release).edit?
-        = link_to(edit_project_distro_release_repositories_path(@project, @distro, @distro_release)) do
-          %i.fas.fa-edit
-          Edit repositories
-
-    %h3.mt-4
       Lifecycle
     %ul.list-group.list-group-flush
       - @distro_release.distro_release_lifecycles.chronological.each do |lifecycle|
@@ -58,6 +42,29 @@
                locals: { model: new_lifecycle,
                          url: project_distro_release_lifecycles_path(@project, @distro, @distro_release),
                          text: 'New Lifecycle', icon: 'circle-plus', type: 'link text-decoration-none ps-0' }
+
+    - repositories = @distro_release.repository_architectures.includes(:architecture, repository: :project).group_by(&:repository)
+    %h3.mt-4
+      Repositories
+      %span.badge.text-bg-secondary= repositories.size
+    = turbo_frame_tag("distro-release-repositories-#{@distro_release.to_param}") do
+      - if repositories.empty?
+        %p.text-secondary No repositories set.
+      - else
+        %ul.list-group.list-group-flush#distro-release-repositories
+          - repositories.each do |repository, repository_architectures|
+            %li.list-group-item.d-flex.flex-wrap.justify-content-between.align-items-center.px-0
+              = link_to("#{repository.project.name}/#{repository.name}", repositories_path(repository.project), class: 'font-monospace',
+                        target: '_top')
+              %div
+                - repository_architectures.each do |repository_architecture|
+                  %span.badge.text-bg-primary= repository_architecture.architecture.name
+      - if policy(@distro_release).edit?
+        -# The parent frame disables Turbo, enable it to load the form in this frame
+        = link_to(edit_project_distro_release_repositories_path(@project, @distro, @distro_release), data: { turbo: true }) do
+          %i.fas.fa-edit
+          Edit repositories
+
     %h3.mt-4
       Packages
     = form_for(:package, url: project_distro_release_path(@distro_release.project, @distro_release.distro, @distro_release),
