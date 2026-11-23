@@ -78,12 +78,20 @@ RSpec.describe 'Distro releases', :js do
         end
       end
 
-      it 'deletes the release from its show page' do
-        visit project_distro_release_path(project.name, distro.name, distro_release.name)
-        accept_confirm { click_link('Delete') }
+      context 'deleting the release from its show page' do
+        before do
+          visit project_distro_release_path(project.name, distro.name, distro_release.name)
+          click_button('Delete')
 
-        expect(page).to have_text('Release was successfully destroyed.')
-        expect(distro.distro_releases.reload).to contain_exactly(other_distro_release)
+          within('#delete-distro-release-modal') do
+            click_button('Remove')
+          end
+        end
+
+        it 'deletes the release' do
+          expect(page).to have_text('Release was successfully destroyed.')
+          expect(distro.distro_releases.reload).to contain_exactly(other_distro_release)
+        end
       end
     end
   end
