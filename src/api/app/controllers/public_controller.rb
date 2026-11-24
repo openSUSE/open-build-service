@@ -93,7 +93,13 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/:package
   def package_index
-    check_package_access(params[:project], params[:package])
+    if params[:deleted].present?
+      raise Source::Errors::PackageExists, 'the package is not deleted' if Package.find_by_project_and_name(params[:project], params[:package])
+
+      validate_read_access_of_deleted_package(params[:project], params[:package])
+    else
+      check_package_access(params[:project], params[:package])
+    end
 
     path = unshift_public(request.path_info)
     path += "?#{request.query_string}" unless request.query_string.empty?
