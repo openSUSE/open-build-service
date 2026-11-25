@@ -95,6 +95,13 @@ module WorkflowRunPayload
     github_pull_request_label || gitea_pull_request_label || gitlab_merge_request_label
   end
 
+  # Only GitHub and Gitea PRs support label filters. An unlabeled PR has an empty list.
+  def pull_request_labels
+    return unless github_pull_request? || gitea_pull_request?
+
+    Array(payload.dig(:pull_request, :labels)).pluck(:name)
+  end
+
   def labeled_pull_request?
     github_labeled_pull_request? || gitea_labeled_pull_request? || gitlab_labeled_merge_request?
   end

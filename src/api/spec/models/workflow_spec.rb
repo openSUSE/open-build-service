@@ -245,6 +245,100 @@ RSpec.describe Workflow, :vcr do
       end
     end
 
+    context 'when filtering pull requests by label' do
+      let(:token) { build(:workflow_token) }
+      let(:yaml) { super().merge(filters: filters) }
+      let(:scm_vendor) { 'github' }
+      let(:workflow_run) { build(:workflow_run, token: token, scm_vendor: scm_vendor) }
+      let(:step) { subject.steps.first }
+
+      def run_pull_request(action, labels: [], changed_label: nil)
+        payload = { action: action, pull_request: { labels: labels.map { |name| { name: name } } } }
+        payload[:label] = { name: changed_label } if changed_label
+        workflow_run.assign_attributes(hook_action: action, request_payload: payload.to_json)
+        allow(step).to receive(:call)
+        subject.call
+      end
+
+      context 'with labels.only' do
+        let(:filters) { { event: 'pull_request', labels: { only: ['obs-build-images'] } } }
+
+        it 'skips a newly opened pull request without labels' do
+          run_pull_request('opened')
+          expect(step).not_to have_received(:call)
+        end
+
+        it 'skips a new commit when none of the current labels match' do
+          run_pull_request('synchronize', labels: ['documentation'])
+          expect(step).not_to have_received(:call)
+        end
+
+        it 'runs on a new commit when one of the current labels matches' do
+          run_pull_request('synchronize', labels: %w[documentation obs-build-images])
+          expect(step).to have_received(:call)
+        end
+
+        it 'runs when the matching label is added' do
+          run_pull_request('labeled', labels: %w[documentation obs-build-images], changed_label: 'obs-build-images')
+          expect(step).to have_received(:call)
+        end
+
+        it 'ignores an unrelated addition even if the pull request has the matching label' do
+          run_pull_request('labeled', labels: %w[obs-build-images documentation], changed_label: 'documentation')
+          expect(step).not_to have_received(:call)
+        end
+
+        it 'runs cleanup for the matching label even though it is no longer on the pull request' do
+          run_pull_request('unlabeled', labels: ['documentation'], changed_label: 'obs-build-images')
+          expect(step).to have_received(:call)
+        end
+
+        it 'does not run cleanup when an unrelated label is removed' do
+          run_pull_request('unlabeled', labels: ['obs-build-images'], changed_label: 'documentation')
+          expect(step).not_to have_received(:call)
+        end
+      end
+
+      context 'with labels.ignore on Gitea' do
+        let(:scm_vendor) { 'gitea' }
+        let(:filters) { { event: 'pull_request', labels: { ignore: ['skip-build'] } } }
+
+        it 'skips a new commit if any current label is ignored' do
+          run_pull_request('synchronized', labels: %w[documentation skip-build])
+          expect(step).not_to have_received(:call)
+        end
+
+        it 'runs on a pull request opened without labels' do
+          run_pull_request('opened')
+          expect(step).to have_received(:call)
+        end
+
+        it 'ignores removal of an ignored label even when no labels remain' do
+          run_pull_request('unlabeled', changed_label: 'skip-build')
+          expect(step).not_to have_received(:call)
+        end
+
+        it 'runs when a non-ignored label is added' do
+          run_pull_request('labeled', labels: ['documentation'], changed_label: 'documentation')
+          expect(step).to have_received(:call)
+        end
+      end
+
+      context 'without a labels filter' do
+        let(:filters) { { event: 'pull_request' } }
+
+        it 'does not run when a label is added' do
+          run_pull_request('labeled', labels: ['documentation'], changed_label: 'documentation')
+          expect(step).not_to have_received(:call)
+        end
+
+        it 'does not run cleanup when a label is removed' do
+          run_pull_request('unlabeled', changed_label: 'documentation')
+          expect(step).not_to have_received(:call)
+        end
+      end
+    end
+
     context 'when the webhook event is not supported by the branches filter' do
       let(:yaml) do
         { 'steps' => [{ 'trigger_services' => { 'project' => 'test-project', 'package' => 'test-package' } }],
@@ -382,65 +476,6 @@ RSpec.describe Workflow, :vcr do
 
       it 'returns nothing' do
         expect(subject.filters).to eq({})
-      end
-    end
-  end
-
-  describe '#label_matches_labels_filter?' do
-    context 'label matches only filter' do
-      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
-      let(:yaml) do
-        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
-          filters: { event: 'pull_request', labels: { only: ['duplicate'] } } }
-      end
-
-      it { expect(subject.send(:label_matches_labels_filter?)).to be_truthy }
-    end
-
-    context 'no labels filter and label event' do
-      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
-      let(:yaml) do
-        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }] }
-      end
-
-      it 'does stop the execution of steps' do
-        expect(subject.send(:label_matches_labels_filter?)).to be_falsey
-      end
-    end
-
-    context 'label does not match only filter' do
-      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
-      let(:yaml) do
-        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
-          filters: { event: 'pull_request', labels: { only: ['random-label'] } } }
-      end
-
-      it 'stops the execution of steps' do
-        expect(subject.send(:label_matches_labels_filter?)).not_to be_truthy
-      end
-    end
-
-    context 'label matches ignore filter' do
-      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
-      let(:yaml) do
-        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
-          filters: { event: 'pull_request', labels: { ignore: ['duplicate'] } } }
-      end
-
-      it 'stops the execution of steps' do
-        expect(subject.send(:label_matches_labels_filter?)).not_to be_truthy
-      end
-    end
-
-    context 'label does not match ignore filter' do
-      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
-      let(:yaml) do
-        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
-          filters: { event: 'pull_request', labels: { ignore: ['random-label'] } } }
-      end
-
-      it 'stops the execution of steps' do
-        expect(subject.send(:label_matches_labels_filter?)).to be_truthy
       end
     end
   end
