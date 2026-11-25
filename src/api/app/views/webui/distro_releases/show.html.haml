@@ -9,7 +9,10 @@
       .small.text-secondary.text-uppercase.fw-semibold Release
       %h3.mb-1.text-word-break-all= @distro_release.name
       .text-secondary.mb-3
-        of #{@distro.name} by #{@distro.vendor.name}
+        of
+        = link_to(@distro.name, project_distro_path(@vendor.project, @distro.name))
+        by
+        = link_to(@distro.vendor.name, project_vendor_path(@project))
         - if @distro_release.url.present?
           ·
           = render partial: 'webui/shared/external_link', locals: { text: @distro_release.url, url: @distro_release.url }
