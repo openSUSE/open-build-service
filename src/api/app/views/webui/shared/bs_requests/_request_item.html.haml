@@ -26,7 +26,7 @@
           = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'mb-auto mx-2')
         = render BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'mb-auto')
       - if Flipper.enabled?(:labels, User.session) && bs_request.labels
-        .mb-1
+        .mb-1.small
           = render partial: 'webui/shared/label_clickable', collection: bs_request.labels, locals: { form: form }, as: :label
       .d-flex.gap-2.mb-2.small
         = link_to(request_show_path(bs_request.number), id: "request-heading#{bs_request.number}", class: 'flex-shrink-0') do
