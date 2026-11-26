@@ -3,6 +3,16 @@ class ReportToSCMJob < ApplicationJob
 
   ALLOWED_EVENTS = ['Event::BuildFail', 'Event::BuildSuccess', 'Event::RequestStatechange'].freeze
 
+  AUTH_EXCEPTIONS = [
+    GiteaAPI::V1::Client::UnauthorizedError,
+    GiteaAPI::V1::Client::ForbiddenError,
+    Gitlab::Error::Unauthorized,
+    Gitlab::Error::Forbidden,
+    Gitlab::Error::MissingCredentials,
+    Octokit::Unauthorized,
+    Octokit::Forbidden
+  ].freeze
+
   # Transient errors that are worth retrying: SCM-side 5xx, rate limits, network glitches and auth failures.
   # 4xx config errors, and SSL problems are not retried.
   RETRYABLE_EXCEPTIONS = [
@@ -57,17 +67,24 @@ class ReportToSCMJob < ApplicationJob
     # The job may have been called with a workflow_run, in which case we report the failure to that workflow run.
     # Otherwise, the job has been called with an event, so we report to all workflow runs that are subscribed to the event.
     if args[:workflow_run]
-      args[:workflow_run].update_as_failed(error.message)
+      handle_workflow_run_failure(args[:workflow_run], error)
       return
     end
 
     event = Event::Base.find_by(id: args[:event_id]) # The event may be gone by the time the retries are exhausted, so we don't use #find here
     return unless event
 
-    matched_event_subscription(event: event).filter_map(&:workflow_run).each { |workflow_run| workflow_run.update_as_failed(error.message) }
+    matched_event_subscription(event: event).filter_map(&:workflow_run).each do |workflow_run|
+      handle_workflow_run_failure(workflow_run, error)
+    end
   end
 
   private
+
+  def handle_workflow_run_failure(workflow_run, error)
+    workflow_run.update(response_body: error.message, status: 'fail')
+    workflow_run.disable_token! if AUTH_EXCEPTIONS.any? { |klass| error.is_a?(klass) }
+  end
 
   def report_event(event_id)
     event = Event::Base.find(event_id)
