@@ -1080,7 +1080,7 @@ class Project < ApplicationRecord
       # uniq timestring for all targets
       time_now = Time.now.utc
 
-      packages.each do |pkg|
+      packages_for_release.each do |pkg|
         next if pkg.name == '_product' # will be handled via _product:*
 
         pkg.project.repositories.each do |repo|
@@ -1098,6 +1098,25 @@ class Project < ApplicationRecord
         end
       end
     end
+  end
+
+  def packages_for_release
+    return packages if scmsync.blank?
+
+    backend_packages = Xmlhash.parse(Backend::Api::Sources::Project.packages(name))
+    return [] unless backend_packages
+
+    package_names = backend_packages.elements('entry').map { |e| e['name'] }.reject do |p|
+      p == '_project' || (p.include?(':') && !p.start_with?('_product:', '_patchinfo:'))
+    end
+
+    package_names.filter_map do |pkg_name|
+      Package.get_by_project_and_name(name, pkg_name, follow_project_scmsync_links: true)
+    rescue Package::UnknownObjectError
+      nil
+    end
+  rescue Backend::NotFoundError
+    []
   end
 
   after_save do
