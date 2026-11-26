@@ -906,4 +906,42 @@ RSpec.describe Project, :vcr do
       it { expect(linking_project.links_to_scmsync?).to be(false) }
     end
   end
+
+  describe '#reopen_release_targets' do
+    let(:project) { create(:project) }
+    let(:repository) { create(:repository, project: project) }
+
+    before do
+      create(:release_target, repository: repository, trigger: 'manual')
+      allow(Backend::Api::Build::Project).to receive(:wipe_binaries)
+    end
+
+    it 'wipes binaries' do
+      project.reopen_release_targets
+
+      expect(Backend::Api::Build::Project).to have_received(:wipe_binaries).with(project.name)
+    end
+
+    context 'when the backend returns no packages defined' do
+      before do
+        allow(Backend::Api::Build::Project).to receive(:wipe_binaries)
+          .and_raise(Backend::Error, '<status code="400"><summary>no packages defined</summary></status>')
+      end
+
+      it 'ignores the error and does not raise' do
+        expect { project.reopen_release_targets }.not_to raise_error
+      end
+    end
+
+    context 'when the backend raises another error' do
+      before do
+        allow(Backend::Api::Build::Project).to receive(:wipe_binaries)
+          .and_raise(Backend::Error, '<status code="500"><summary>internal server error</summary></status>')
+      end
+
+      it 're-raises the error' do
+        expect { project.reopen_release_targets }.to raise_error(Backend::Error)
+      end
+    end
+  end
 end

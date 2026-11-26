@@ -548,6 +548,21 @@ RSpec.describe Webui::ProjectController, :vcr do
                                       "because there is a running release request: #{bs_request.id}")
         end
       end
+
+      context 'with an empty maintenance incident that has repositories' do
+        let(:repository) { create(:repository, project: user.home_project) }
+
+        before do
+          allow(Backend::Api::Build::Project).to receive(:wipe_binaries)
+            .and_raise(Backend::Error, '<status code="400"><summary>no packages defined</summary></status>')
+          create(:release_target, repository: repository, trigger: 'manual')
+          user.home_project.update(kind: 'maintenance_incident')
+          post :unlock, params: { project: user.home_project }
+        end
+
+        it { is_expected.to redirect_to(action: :show, project: user.home_project) }
+        it { expect(flash[:success]).to eq('Successfully unlocked project') }
+      end
     end
 
     context "with a project that isn't locked" do
