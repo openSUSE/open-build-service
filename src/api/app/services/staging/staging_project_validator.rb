@@ -31,7 +31,7 @@ module Staging
     end
 
     def can_update?
-      return true if ProjectPolicy.new(User.possibly_nobody, @project).update?
+      return true if ProjectPolicy.new(User.possibly_nobody, @project).update_meta?
 
       @errors = "Project \"#{@project}\": you are not allowed to use this project."
       false
