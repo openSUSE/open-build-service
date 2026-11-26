@@ -45,6 +45,9 @@ gem 'xmlhash'
 gem 'pundit'
 # for password hashing
 gem 'bcrypt'
+# Devise with the in-house iChain strategy (proxy login)
+gem 'devise'
+gem 'devise_ichain_authenticatable', '0.3.2'
 # for threaded comments
 gem 'acts_as_tree'
 # js plotting (OBS monitor)
