@@ -526,6 +526,19 @@ ription</description>
     node = Xmlhash.parse(@response.body)
     assert node['attribute'].nil?
 
+    # replace
+    data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
+    post '/source/kde4/kdelibs/_attribute', params: data
+    assert_response :success
+    data = "<attributes><attribute namespace='OBS' name='VeryImportantProject' >
+            </attribute></attributes>"
+    raw_put '/source/kde4/kdelibs/_attribute', data
+    assert_response :success
+    get '/source/kde4/kdelibs/_attribute'
+    assert_response :success
+    assert_xml_tag(tag: 'attribute', attributes: { namespace: 'OBS', name: 'VeryImportantProject' })
+    assert_no_xml_tag(tag: 'attribute', attributes: { namespace: 'OBS', name: 'Maintained' })
+
     # get old revision
     get "/source/kde4/kdelibs/_attribute?meta=1&rev=#{srcmd5}"
     assert_response :success
