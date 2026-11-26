@@ -245,7 +245,7 @@ class Package < ApplicationRecord
       package = project.packages.find_by_name(package_name) if package.nil?
     end
 
-    if package.nil? && project.scmsync.present?
+    if package.nil? && project.expand_all_projects.any? { |s| s.try(:scmsync).present? }
       return nil unless opts[:follow_project_scmsync_links]
 
       begin
