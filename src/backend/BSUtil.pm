@@ -520,17 +520,28 @@ sub lockcreatexml {
 
 =cut
 
+sub match_wildcard {
+  my ($pattern, $string) = @_;
+  return 0 unless defined $string;
+  return 1 if $pattern eq $string;
+  if (index($pattern, '*') != -1) {
+    my $re = join('.*', map { quotemeta($_) } split(/\*/, $pattern, -1));
+    return $string =~ /^$re$/;
+  }
+  return 0;
+}
+
 sub enabled {
   my ($repoid, $disen, $default, $arch) = @_;
 
   # filter matching elements, check for shortcuts
   return $default unless $disen;
-  my @dis = grep { (!defined($_->{'arch'}) || $_->{'arch'} eq $arch) && 
-                   (!defined($_->{'repository'}) || $_->{'repository'} eq $repoid)
+  my @dis = grep { (!defined($_->{'arch'}) || match_wildcard($_->{'arch'}, $arch)) && 
+                   (!defined($_->{'repository'}) || match_wildcard($_->{'repository'}, $repoid))
                  } @{$disen->{'disable'} || []};
   return 1 if !@dis && $default;
-  my @ena = grep { (!defined($_->{'arch'}) || $_->{'arch'} eq $arch) && 
-                   (!defined($_->{'repository'}) || $_->{'repository'} eq $repoid)
+  my @ena = grep { (!defined($_->{'arch'}) || match_wildcard($_->{'arch'}, $arch)) && 
+                   (!defined($_->{'repository'}) || match_wildcard($_->{'repository'}, $repoid))
                  } @{$disen->{'enable'} || []};
   return @dis ? 0 : $default unless @ena;
   return @ena ? 1 : $default unless @dis;
