@@ -22,7 +22,7 @@ RSpec.describe 'Distros', :js, :vcr do
     it 'shows the distro with a link to its vendor' do
       within('#distro') do
         expect(page).to have_css('h3', text: 'Leap')
-        expect(page).to have_link('openSUSE', href: project_show_path(project, anchor: 'vendor'))
+        expect(page).to have_link('openSUSE', href: project_vendor_path(project))
       end
     end
   end

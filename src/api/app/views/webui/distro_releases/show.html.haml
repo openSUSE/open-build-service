@@ -1,5 +1,4 @@
 - @pagetitle = "#{@distro.name} release #{@distro_release.name}"
-
 - release_path = project_distro_release_path(@project, @distro, @distro_release)
 
 .card.mb-3#distro
@@ -9,7 +8,10 @@
       .small.text-secondary.text-uppercase.fw-semibold Release
       %h3.mb-1.text-word-break-all= @distro_release.name
       .text-secondary.mb-3
-        of #{@distro.name} by #{@distro.vendor.name}
+        of
+        = link_to(@distro.name, project_distro_path(@vendor.project, @distro.name))
+        by
+        = link_to(@distro.vendor.name, project_vendor_path(@project))
         - if @distro_release.url.present?
           ·
           = render partial: 'webui/shared/external_link', locals: { text: @distro_release.url, url: @distro_release.url }
@@ -18,7 +20,6 @@
           %i.text-secondary No description set
         - else
           = render partial: 'webui/shared/collapsible_text', locals: { text: @distro_release.description, render_markdown: true }
-
     .d-flex.gap-2
       - if policy(@distro_release).edit?
         = link_to(edit_project_distro_release_path(@project, @distro, @distro_release), class: 'btn btn-sm btn-outline-secondary') do
@@ -28,7 +29,6 @@
         %button.btn.btn-sm.btn-outline-danger{ type: 'button', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-distro-release-modal' } }
           %i.fas.fa-trash-can
           Delete
-
 .card
   .card-body
     %h3

@@ -1,7 +1,5 @@
 - @pagetitle = "Distribution #{@distro.name}"
 
-.card
-
 .card.mb-3#distro
   .card-body.d-flex.flex-wrap.align-items-start.gap-3
     - if @distro.logo.attached?
@@ -14,7 +12,7 @@
       .text-secondary.mb-3
         by
         %i.fas.fa-globe
-        = link_to(@vendor.name, project_show_path(@project, anchor: 'vendor'))
+        = link_to(@vendor.name, project_vendor_path(@project))
         - if @distro.url.present?
           ·
           = render partial: 'webui/shared/external_link', locals: { text: @distro.url, url: @distro.url }
