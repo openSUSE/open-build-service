@@ -14,7 +14,7 @@
       - if package.kiwi_image? && policy(package).update?
         = render partial: 'webui/package/show_actions/view_kiwi', locals: { package_id: package.id }
 
-      - if services.present?
+      - if services.present? || package.scmsync?
         = render partial: 'webui/package/show_actions/trigger_services', locals: { package: package, project: project }
     - else
       = render partial: 'webui/package/show_actions/request_role_addition', locals: { package: package, project: project }
