@@ -24,7 +24,7 @@ module Triggerable
     # The token has no package, we did not find a package in the database but the project has a link to remote.
     # See https://github.com/openSUSE/open-build-service/wiki/Links#project-links
     # In this case, we will try to trigger with the user input, no matter what it is
-    @package ||= Package.striping_multibuild_suffix(@package_name)
+    @package ||= Package.striping_multibuild_suffix(@package_name).presence
     # TODO: This should not happen right? But who knows...
     raise ActiveRecord::RecordNotFound unless @package
   end
