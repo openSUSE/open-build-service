@@ -15,6 +15,24 @@ RSpec.describe SCMStatusReporter, type: :service do
 
       it { expect(subject.state).to eq('pending') }
     end
+
+    context 'status failure when initial_report is true and event_type is failure' do
+      subject do
+        SCMStatusReporter.new(event_payload: {}, event_subscription_payload: {}, scm_token: 'XYCABC',
+                              workflow_run: nil, event_type: 'failure', initial_report: true)
+      end
+
+      it { expect(subject.state).to eq('failure') }
+    end
+
+    context 'status success when initial_report is true and event_type is success' do
+      subject do
+        SCMStatusReporter.new(event_payload: {}, event_subscription_payload: {}, scm_token: 'XYCABC',
+                              workflow_run: nil, event_type: 'success', initial_report: true)
+      end
+
+      it { expect(subject.state).to eq('success') }
+    end
   end
 
   describe '.call' do
