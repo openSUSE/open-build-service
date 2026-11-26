@@ -29,12 +29,15 @@ RSpec.describe 'Assignments', :vcr do
   end
 
   describe 'creating an assignment for a package' do
-    before { assignee }
+    before do
+      assignee
+      visit package_show_path(user.home_project, package)
+    end
 
     it 'creates an assignment for the package' do
-      visit package_show_path(user.home_project, package)
       click_button('Assign someone')
       fill_in('assignments_search', with: 'mal')
+      find('.ui-menu-item-wrapper', text: assignee.login, exact_text: true).click
       click_button('Assign')
       expect(page).to have_text('Assigned to:')
     end
