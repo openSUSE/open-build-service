@@ -10,7 +10,10 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
   def verify_email(fixture_name, myid, email)
     should = load_fixture("event_mailer/#{fixture_name}").gsub('REQUESTID', myid).chomp
-    assert_equal should, email.encoded.lines.map(&:chomp).grep_v(/^Date:/).join("\n")
+    actual = email.encoded.lines.map(&:chomp).grep_v(/^Date:/).join("\n")
+    # The MIME boundary of multipart emails is random, so compare against a fixed placeholder
+    actual = actual.gsub(email.boundary, 'BOUNDARY') if email.multipart?
+    assert_equal should, actual
   end
 
   def test_request_event

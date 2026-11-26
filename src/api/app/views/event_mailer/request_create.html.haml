@@ -1,0 +1,7 @@
+%p
+  = link_to("Request ##{event['number']}", request_show_url(event['number'], only_path: false, host: @host))
+- if event['description'].present?
+  %p
+    %strong Description:
+  %p= event['description']
+= render partial: 'event_mailer/actions', locals: { event: event }

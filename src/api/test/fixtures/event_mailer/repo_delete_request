@@ -4,7 +4,8 @@ To: Thor <tschmidt@example.com>
 Message-ID: <obs-request-REQUESTID@localhost>
 Subject: Request REQUESTID created by Iggy (delete home:coolo/standard)
 MIME-Version: 1.0
-Content-Type: text/plain;
+Content-Type: multipart/alternative;
+ boundary="BOUNDARY";
  charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-OBS-URL: http://localhost
@@ -17,6 +18,12 @@ X-OBS-Request-Action-target: home:coolo/standard
 Precedence: bulk
 Auto-Submitted: auto-generated
 X-Mailer: OBS Notification System
+
+
+--BOUNDARY
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
 Visit http://localhost/request/show/REQUESTID
 
@@ -38,3 +45,28 @@ To REVOKE the request:
 -- 
 Configure notifications at http://localhost/my/subscriptions
 Open Build Service (http://localhost/)
+
+--BOUNDARY
+Content-Type: text/html;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<p>
+<a href="http://localhost/request/show/REQUESTID">Request #REQUESTID</a>
+</p>
+<p>
+<strong>Actions:</strong>
+</p>
+<pre>- delete repository standard in home:coolo</pre>
+
+
+<br>
+--
+<br>
+Configure notifications at <a href="http://localhost/my/subscriptions">http://localhost/my/subscriptions</a>
+<br>
+Open Build Service
+(<a href="http://localhost/">http://localhost/</a>)
+<br>
+
+--BOUNDARY--
