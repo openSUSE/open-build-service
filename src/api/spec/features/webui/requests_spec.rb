@@ -367,7 +367,7 @@ RSpec.describe 'Requests', :js, :vcr do
     end
 
     it 'when request is in a final state' do
-      bs_request.update(state: :accepted)
+      bs_request.update(state: :accepted, status: :accepted)
       visit request_show_path(bs_request)
       expect(page).to have_text("Request #{bs_request.number}")
       expect(page).to have_no_text('auto-accepted')
@@ -412,7 +412,7 @@ RSpec.describe 'Requests', :js, :vcr do
 
   describe 'for a request with a deleted target project' do
     let!(:delete_bs_request) do
-      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter, state: :accepted)
+      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter, state: :accepted, status: :accepted)
     end
 
     before do

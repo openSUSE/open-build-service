@@ -320,7 +320,8 @@ namespace :dev do
             bs_request: {
               description: "Bs request ##{req['id']}",
               creator: alias_for_login(req['creator']),
-              state: req['state']['name']
+              state: req['state']['name'],
+              status: req['state']['name']
             },
             bs_request_actions: {
               target_project: 'openSUSE:Factory',
