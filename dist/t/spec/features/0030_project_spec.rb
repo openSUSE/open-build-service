@@ -27,6 +27,7 @@ RSpec.describe 'Project', type: :feature do
       click_link('Your Home Project')
     end
     click_link('Repositories')
+    sleep(5)
     click_link('Add from a Distribution')
     expect(page).to have_text('Add Repositories to home:Admin')
     check('openSUSE Leap 15.5')
