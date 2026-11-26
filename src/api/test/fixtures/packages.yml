@@ -375,3 +375,13 @@ BrokenPublishing_pack_broken_publish:
   activity_index: 10.0
   delta: 1
   project: BrokenPublishing
+ScmSync_package:
+  name: package
+  title: A package of an scmsync project
+  description: ''
+  scmsync: 'https://somewhere?subdir=package'
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  activity_index: 10.0
+  delta: 1
+  project: ScmSync
