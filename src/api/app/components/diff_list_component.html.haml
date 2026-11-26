@@ -25,3 +25,6 @@
                                      source_file: source_file(file_info.dig('old', 'name')),
                                      target_file: target_file(name),
                                      source_rev:, target_rev:))
+        - if commentable && file_info.dig('diff', 'shown').to_i < file_info.dig('diff', 'lines').to_i
+          .alert.alert-warning.mt-2
+            This file's diff is truncated. #{link_to 'Show full diff', request_changes_path(commentable.bs_request, commentable, tarlimit: 0)}
