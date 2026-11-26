@@ -211,9 +211,8 @@ jobs:
                   name: Run Gem Cache linter
                   working_directory: src/api/vendor/cache
                   command: |
-                    for i in *.gem; do echo -n "$i: "; gem specification $i|grep "^platform:"; done > platform.all
-                    echo -n > platform.not-ruby
-                    grep -v 'platform: ruby$' platform.all > platform.not-ruby
+                    for i in *.gem; do echo "$i: $(gem specification $i | grep '^platform:' || true)"; done > platform.all
+                    grep -v 'platform: ruby$' platform.all > platform.not-ruby || true
                     PLATFORM_NOT_RUBY_SIZE=`cat platform.not-ruby|wc -l`
                     if [ $PLATFORM_NOT_RUBY_SIZE -gt 0 ]; then cat platform.not-ruby; fi
                     if [ $PLATFORM_NOT_RUBY_SIZE -gt 0 ]; then exit 1; fi
