@@ -13,6 +13,7 @@ class Package < ApplicationRecord
   include MultibuildPackage
   include PackageMediumContainer
   include ReportBugUrl
+  include ScmsyncUrl
 
   SPECIAL_NAMES = %w[_product _pattern _project _patchinfo].freeze
   has_many :relationships, dependent: :destroy, inverse_of: :package
