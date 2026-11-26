@@ -201,4 +201,43 @@ RSpec.describe TriggerController do
       it { expect(Xmlhash.parse(subject.body)['code']).to eq('invalid_token') }
     end
   end
+
+  describe '#wipe' do
+    let(:token) { create(:wipe_token, executor: user, package: nil) }
+    let(:project) { create(:project_with_repository, name: 'project', maintainer: user) }
+    let(:package) { create(:package, name: 'package_trigger', project: project) }
+
+    before do
+      allow(Backend::Api::Build::Project).to receive(:wipe_binaries).and_return("<status code=\"ok\" />\n")
+    end
+
+    context 'with token.package' do
+      subject! { post :wipe, params: { format: :xml } }
+
+      let(:token) { create(:wipe_token, executor: user, package: package) }
+
+      it { expect(subject).to have_http_status(:success) }
+      it { expect(Backend::Api::Build::Project).to have_received(:wipe_binaries).with(project.name, { package: package.name }) }
+    end
+
+    context 'with project and package parameter' do
+      subject! { post :wipe, params: { project: project.name, package: package.name, repository: 'repo', format: :xml } }
+
+      it { expect(subject).to have_http_status(:success) }
+      it { expect(Backend::Api::Build::Project).to have_received(:wipe_binaries).with(project.name, { package: package.name, repository: 'repo' }) }
+    end
+
+    context 'with project parameter' do
+      subject! { post :wipe, params: { project: project.name, format: :xml } }
+
+      it { expect(subject).to have_http_status(:success) }
+      it { expect(Backend::Api::Build::Project).to have_received(:wipe_binaries).with(project.name, {}) }
+    end
+
+    context 'without project parameter and token.package' do
+      subject { post :wipe, params: { format: :xml } }
+
+      it { expect(Xmlhash.parse(subject.body)['code']).to eq('missing_parameter') }
+    end
+  end
 end
