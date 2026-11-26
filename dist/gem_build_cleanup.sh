@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ ${#*} = 1 ] ; then
+if [ $# = 1 ] ; then
     if [ -d "$1" ] ; then
         find $1 \
         \( -name \*.o -o -name Makefile -o -name config.log -o -name config.status -o -name Makefile.html -o -name gem_make.out -o -name mkmf.log -o -name \*.bak -o -name .deps -o -name .libs -o -name CVS \) \
