@@ -101,6 +101,22 @@ RSpec.describe Webui::PatchinfoController, :vcr do
 
       it { expect(response).to redirect_to(edit_patchinfo_path(project: project, package: 'patchinfo')) }
     end
+
+    context 'when patchinfo package already exists (validation failure)' do
+      before do
+        # Stub backend calls to avoid connection errors
+        allow(Backend::Api::Build::Project).to receive(:binarylist).and_return(fake_build_results)
+        allow_any_instance_of(Package).to receive(:patchinfo).and_return(fake_patchinfo_with_binaries)
+        # Mock exists_package? to return false to force creation attempt
+        allow_any_instance_of(Project).to receive(:exists_package?).with('patchinfo', any_args).and_return(false)
+        # Create a package that will cause validation error
+        create(:package, name: 'patchinfo', project: user.home_project)
+        post :create, params: { project: user.home_project }
+      end
+
+      it { expect(response).to redirect_to(project_show_path(user.home_project)) }
+      it { expect(flash[:error]).to include('already has a package with the name `patchinfo`') }
+    end
   end
 
   describe 'POST #update_issues' do
