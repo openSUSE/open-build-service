@@ -127,3 +127,8 @@ kde4_repo_arch:
   position: 0
   id: 940713217
   architecture: s390
+ScmSync_dummy:
+  repository_id: 99
+  position: 0
+  id: 940713218
+  architecture: x86_64
