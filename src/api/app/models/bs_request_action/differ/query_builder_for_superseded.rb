@@ -7,7 +7,7 @@ class BsRequestAction
 
       def build
         query = {}
-        if accepted?
+        if bs_request_action_accept_info.present?
           query[:rev] = bs_request_action_accept_info.oxsrcmd5 || bs_request_action_accept_info.osrcmd5 || '0'
           query[:orev] = superseded_bs_request_action.source_rev
           query[:oproject] = superseded_bs_request_action.source_project
@@ -24,7 +24,7 @@ class BsRequestAction
       end
 
       def project_name
-        if accepted?
+        if bs_request_action_accept_info.present?
           bs_request_action_accept_info.oproject.presence || bs_request_action.target_project
         else
           bs_request_action.source_project
@@ -32,7 +32,7 @@ class BsRequestAction
       end
 
       def package_name
-        if accepted?
+        if bs_request_action_accept_info.present?
           bs_request_action_accept_info.opackage.presence || bs_request_action.target_package
         else
           bs_request_action.source_package
@@ -43,10 +43,6 @@ class BsRequestAction
 
       def bs_request_action_accept_info
         bs_request_action.bs_request_action_accept_info
-      end
-
-      def accepted?
-        bs_request_action_accept_info.present?
       end
 
       def same_source_package?
