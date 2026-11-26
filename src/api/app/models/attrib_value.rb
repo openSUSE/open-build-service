@@ -2,6 +2,8 @@ class AttribValue < ApplicationRecord
   acts_as_list scope: :attrib
   belongs_to :attrib, optional: false
 
+  validates :position, presence: true
+
   after_initialize :set_default_value
   before_validation :universal_newlines
 
