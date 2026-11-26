@@ -788,7 +788,9 @@ class Project < ApplicationRecord
   end
 
   # find a package in a project and its linked projects
-  def find_package(package_name, check_update_project = nil, processed = {})
+  def find_package(package_name, opts = {}, processed = {})
+    opts = { check_update_project: opts } unless opts.is_a?(Hash)
+
     # cycle check in linked projects
     if processed[self]
       str = name
@@ -799,20 +801,36 @@ class Project < ApplicationRecord
     end
     processed[self] = 1
 
-    pkg = find_package_on_update_project(package_name) if check_update_project
+    pkg = find_package_on_update_project(package_name) if opts[:check_update_project]
     pkg ||= packages.find_by(name: package_name)
+    pkg ||= find_backend_package(package_name) if scmsync.present? && opts[:follow_project_scmsync_links]
     return pkg if pkg&.project&.check_access?
 
     # search via all linked projects
-    linking_to.local.each do |lp|
-      raise CycleError, 'project links against itself, this is not allowed' if self == lp.linked_db_project
+    linking_to.each do |lp|
+      if lp.linked_db_project
+        raise CycleError, 'project links against itself, this is not allowed' if self == lp.linked_db_project
 
-      pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
-      return pkg if pkg&.project&.check_access?
+        pkg = lp.linked_db_project.find_package(package_name, opts, processed)
+        return pkg if pkg&.project&.check_access?
+      elsif opts[:follow_project_remote_links]
+        pkg = find_backend_package(package_name)
+        return pkg if pkg&.project&.check_access?
+      end
     end
 
     # no package found
     processed.delete(self)
+    nil
+  end
+
+  def find_backend_package(package_name)
+    package_xmlhash = Xmlhash.parse(Backend::Api::Sources::Package.meta(name, package_name))
+    pkg = packages.new(name: package_name)
+    pkg.assign_attributes_from_from_xml(package_xmlhash)
+    pkg.readonly!
+    pkg
+  rescue Backend::NotFoundError
     nil
   end
 

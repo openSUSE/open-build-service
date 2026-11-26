@@ -98,4 +98,79 @@ RSpec.describe Project, '.find_package' do
       end
     end
   end
+
+  context 'follow_project_scmsync_links' do
+    let(:scmsync_project) { create(:project, name: 'scmsync_prj', scmsync: 'https://github.com/example/scmsync.git') }
+    let(:fallback_project) { create(:project, name: 'fallback_prj') }
+    let(:project) do
+      prj = create(:project, name: 'parent_prj')
+      create(:linked_project, project: prj, linked_db_project: scmsync_project, position: 1)
+      create(:linked_project, project: prj, linked_db_project: fallback_project, position: 2)
+      prj
+    end
+    let(:package_name) { 'obconf' }
+    let!(:fallback_package) { create(:package, name: package_name, project: fallback_project) }
+    let(:package_xml) do
+      <<-HEREDOC
+        <package name="#{package_name}" project="#{scmsync_project.name}">
+          <title>Openbox Configuration Tool</title>
+          <description>Config tool</description>
+        </package>
+      HEREDOC
+    end
+
+    context 'when enabled and scmsync project provides package' do
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:meta).with(scmsync_project.name, package_name).and_return(package_xml)
+      end
+
+      it 'prefers package from the scmsync project' do
+        result = project.find_package(package_name, follow_project_scmsync_links: true)
+        expect(result.project).to eq(scmsync_project)
+        expect(result.name).to eq(package_name)
+      end
+    end
+
+    context 'when disabled' do
+      it 'falls back to next linked project' do
+        result = project.find_package(package_name, follow_project_scmsync_links: false)
+        expect(result).to eq(fallback_package)
+      end
+    end
+  end
+
+  context 'follow_project_remote_links' do
+    let(:project) do
+      prj = create(:project, name: 'local_prj')
+      create(:linked_project, project: prj, linked_remote_project_name: 'openSUSE.org:remote:prj')
+      prj
+    end
+    let(:package_name) { 'remote_pkg' }
+    let(:package_xml) do
+      <<-HEREDOC
+        <package name="#{package_name}" project="#{project.name}">
+          <title>remote</title>
+        </package>
+      HEREDOC
+    end
+
+    context 'when enabled and remote project provides package' do
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:meta).with(project.name, package_name).and_return(package_xml)
+      end
+
+      it 'returns readonly package from remote link' do
+        result = project.find_package(package_name, follow_project_remote_links: true)
+        expect(result).to be_readonly
+        expect(result.name).to eq(package_name)
+      end
+    end
+
+    context 'when disabled' do
+      it 'returns nil' do
+        result = project.find_package(package_name, follow_project_remote_links: false)
+        expect(result).to be_nil
+      end
+    end
+  end
 end
