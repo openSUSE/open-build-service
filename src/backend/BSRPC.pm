@@ -573,7 +573,7 @@ sub rpc {
     #  1 while sysread($sock, $ans, 1024, length($ans));
     #  print "< $ans\n";
     #}
-    if ($status =~ /^30[27][^\d]/ && ($param->{'ignorestatus'} || 0) != 2) {
+    if ($status =~ /^30[1278][^\d]/ && ($param->{'ignorestatus'} || 0) != 2) {
       $keepalive = keepalive_discard_body($keepalive, \%headers, $sock, $ans) if $keepalive && !$bodyless;
       if ($keepalive) {
 	keepalive_set($keepalive, $sock, $keepalivecookie, $keepalivestart, $keepalivecount);
