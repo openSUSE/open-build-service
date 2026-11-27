@@ -11,7 +11,7 @@ class BsRequestAction
       attr_writer :options
 
       def perform
-        source_package_names.map do |source_package_name|
+        source_package_names.compact.map do |source_package_name|
           diff(source_package_name)
         end.join
       end
@@ -25,13 +25,19 @@ class BsRequestAction
             bs_request_action: bs_request_action,
             source_package_name: source_package_name
           )
+          return '' if query_builder.package_name.blank?
+
           source_diff(query_builder.project_name, query_builder.package_name, query.merge(query_builder.build))
         elsif accepted?
+          return '' if target_package_name.blank?
+
           query_builder = QueryBuilderForAccepted.new(
             bs_request_action_accept_info: bs_request_action.bs_request_action_accept_info
           )
           source_diff(target_project_name, target_package_name, query.merge(query_builder.build))
         else
+          return '' if source_package_name.blank?
+
           query_builder = QueryBuilder.new(
             action: bs_request_action,
             target_project: target_project_name,
@@ -57,6 +63,8 @@ class BsRequestAction
       end
 
       def source_diff(project_name, package_name, query)
+        return '' if project_name.blank? || package_name.blank?
+
         Backend::Api::Sources::Package.source_diff(project_name, package_name, query)
       rescue Timeout::Error
         raise BsRequestAction::Errors::DiffError, "Timeout while diffing #{project_name}/#{package_name}"
