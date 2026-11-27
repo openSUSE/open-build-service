@@ -107,7 +107,7 @@ class BsRequestTest < ActiveSupport::TestCase
     newxml = req.render_xml
     expected = <<~XML
       <request id="1027" creator="Iggy">
-        <action type="submit">
+        <action type="submit" id="#{req.bs_request_actions.first.id}">
           <source project="home:Iggy" package="TestPack" rev="1"/>
           <target project="kde4" package="mypackage"/>
           <options>

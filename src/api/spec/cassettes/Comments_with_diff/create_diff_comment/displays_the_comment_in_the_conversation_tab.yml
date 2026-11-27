@@ -1495,4 +1495,78 @@ http_interactions:
 
 '
   recorded_at: Thu, 02 Apr 2026 15:32:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/package_a?rev=2b6f6ed344df3b6bb58fc09d16391f61
+    body:
+      encoding: US-ASCII
+      string: 
+    headers:
+      X-Request-Id:
+      - 51b60fd4-e753-4534-b34b-673820efde70
+      X-Frontend-Start:
+      - 1775143925
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - 228
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="2b6f6ed344df3b6bb58fc09d16391f61" srcmd5="2b6f6ed344df3b6bb58fc09d16391f61">
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1775143918"/>
+        </directory>
+  recorded_at: Thu, 02 Apr 2026 15:32:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/package_a?rev=2b6f6ed344df3b6bb58fc09d16391f61
+    body:
+      encoding: US-ASCII
+      string: 
+    headers:
+      X-Request-Id:
+      - 445c61a4-6cc3-4ebf-86c6-f31f1c40d52d
+      X-Frontend-Start:
+      - 1775143925
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - 228
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="2b6f6ed344df3b6bb58fc09d16391f61" srcmd5="2b6f6ed344df3b6bb58fc09d16391f61">
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1775143918"/>
+        </directory>
+  recorded_at: Thu, 02 Apr 2026 15:32:07 GMT
 recorded_with: VCR 6.4.0

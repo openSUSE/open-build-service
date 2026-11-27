@@ -49,6 +49,54 @@ post:
         type: integer
       description: Id of the comment to reply to
       example: 10401
+    - in: query
+      name: target_project
+      schema:
+        type: string
+      description: Target project of the request action the comment is created on. When the request has more than one action, the target selects it.
+      example: openSUSE:Factory
+    - in: query
+      name: target_package
+      schema:
+        type: string
+      description: Target package of the request action the comment is created on.
+      example: hello
+    - in: query
+      name: action_id
+      schema:
+        type: integer
+      description: Id of the request action the comment is created on. Selects the action directly; when the request has more than one action, pass the target or the action id.
+      example: 42
+    - in: query
+      name: diff_file_index
+      schema:
+        type: integer
+      description: Index of the file in the request diff the comment refers to. Either diff_file_index or filename is required for a diff comment, together with diff_line_number.
+      example: 0
+    - in: query
+      name: filename
+      schema:
+        type: string
+      description: Name of the file in the request diff the comment refers to. Resolved to the file index. Either filename or diff_file_index is required for a diff comment, together with diff_line_number.
+      example: hello.spec
+    - in: query
+      name: diff_line_number
+      schema:
+        type: integer
+      description: Line number in the diff file the comment refers to. Required for a diff comment, together with diff_file_index or filename.
+      example: 1
+    - in: query
+      name: source_rev
+      schema:
+        type: string
+      description: Source revision the comment is made against. Optional; when omitted, it is taken from the request action.
+      example: 2b6f6ed344df3b6bb58fc09d16391f61
+    - in: query
+      name: target_rev
+      schema:
+        type: string
+      description: Target revision the comment is made against. Optional; when omitted, it is taken from the request action.
+      example: 2b6f6ed344df3b6bb58fc09d16391f61
   requestBody:
     description: Content of the comment
     required: true
@@ -92,5 +140,20 @@ post:
               value:
                 code: not_found
                 summary: Couldn't find Request with number '1234'
+    '422':
+      description: |
+        Unprocessable content.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            ambiguous_request_action:
+              summary: Multiple request actions match
+              value:
+                code: ambiguous_request_action
+                summary: Multiple request actions match
   tags:
     - Comments
