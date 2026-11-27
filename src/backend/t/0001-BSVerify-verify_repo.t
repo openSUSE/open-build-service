@@ -42,7 +42,16 @@ my $tc_repo = {
                 { arch => 'x86_64' , url => "http://www.suse.de?view=mysource.tgz" }
             ],
             hostsystem => [ { project => 'openSUSE:13.2' , repository => 'standard' } ]
-        }
+        },
+        # multiple download entries with same arch are allowed (each can have its own URL and pubkey)
+        {
+            name    => 'openSUSE_13.2',
+            arch => ['i586','x86_64'],
+            download => [
+                { arch => 'x86_64', url => "http://src.server.org/mysource1.tgz" },
+                { arch => 'x86_64', url => "http://src.server.org/mysource2.tgz" }
+            ],
+        },
     ],
     invalid             => [
         # empty url
@@ -61,13 +70,13 @@ my $tc_repo = {
                 { arch => 'x86_64' }
             ],
         },
-        # duplicate arch in download
+        # duplicate url in download (same arch, same url)
         {
             name    => 'openSUSE_13.2',
             arch => ['i586','x86_64'],
             download => [
                 { arch => 'x86_64', url => "http://src.server.org/mysource1.tgz" },
-                { arch => 'x86_64', url => "http://src.server.org/mysource2.tgz" }
+                { arch => 'x86_64', url => "http://src.server.org/mysource1.tgz" }
             ],
         },
         # arch of dod not found
