@@ -6,9 +6,9 @@
     %p
       = link_to(element.user, user_path(element.user))
       - if element.instance_of?(HistoryElement::RequestSuperseded)
-        = link_to(element.user_action, request_show_path(element.description_extension))
+        = link_to(history_element_user_action(element), request_show_path(element.description_extension))
       - else
-        = element.user_action
+        = history_element_user_action(element)
       = link_to("#status-history-#{element.id}", title: I18n.l(element.created_at.utc), name: "status-history-#{element.id}") do
         = render TimeComponent.new(time: element.created_at)
 
