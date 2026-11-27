@@ -835,6 +835,32 @@ class BsRequestAction < ApplicationRecord
     source_package_object.commit(source_rev) || source_package_object.commit
   end
 
+  # The revisions the action is made against, from the backend directory
+  # hash. Defined here so any action type carries them — diff comments are
+  # not submit-only. Nil when the action has no such package.
+  def source_srcmd5
+    backend_package = source_package_object&.dir_hash({ rev: source_rev }.compact)
+    backend_package&.[]('linkinfo')&.[]('xsrcmd5') || backend_package&.[]('srcmd5')
+  end
+
+  def target_srcmd5
+    backend_package = target_package_object&.dir_hash
+    backend_package&.[]('linkinfo')&.[]('xsrcmd5') || backend_package&.[]('srcmd5')
+  end
+
+  # The index of a file in the request diff, by filename. The diff is the
+  # backend query the webui renders, so the index matches what it shows.
+  def diff_file_index_for(filename)
+    sourcediff = webui_sourcediff.first
+    raise ActiveRecord::RecordNotFound, sourcediff[:error] if sourcediff.is_a?(Hash) && sourcediff[:error]
+
+    filenames = sourcediff['filenames'] if sourcediff.is_a?(Hash)
+    index = filenames&.index(filename)
+    return index if index
+
+    raise ActiveRecord::RecordNotFound, "Couldn't find file '#{filename}' in the request diff"
+  end
+
   def toggle_seen_by(user)
     return unless user.is_a?(User)
 
