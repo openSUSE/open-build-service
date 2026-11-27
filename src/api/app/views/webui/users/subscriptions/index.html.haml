@@ -28,6 +28,11 @@
                       onchange: "$(this).data('params', 'groups[#{group_user.group.title}][web]=' + this.checked)"
                     = label_tag nil, 'web', class: 'form-check-label', for: "groups_#{group_user.group.title}_web"
                     %i.fas.fa-spinner.invisible
+              - if group.email.present?
+                %small.form-text.text-muted
+                  Email notifications for this group go to
+                  = succeed(', not to its members.') do
+                    = mail_to(group.email)
   .card-body
     %h4.card-title Events
     %p Choose events you want to get notified about and the corresponding channels.

@@ -57,5 +57,22 @@ RSpec.describe 'Subscriptions', :js do
       expect(find_field("groups_#{group}_web", visible: false)).not_to be_checked
       expect(find_field("groups_#{group}_email", visible: false)).not_to be_checked
     end
+
+    it 'explains where emails go when the group has its own email address' do
+      group.update!(email: 'test-group@example.com')
+      login user
+      visit my_subscriptions_path
+
+      expect(page).to have_text('Email notifications for this group go to test-group@example.com, not to its members.')
+    end
+
+    it 'does not mention a group address when the group has no email address' do
+      group.update!(email: nil)
+      login user
+      visit my_subscriptions_path
+
+      expect(page).to have_link(group.title)
+      expect(page).to have_no_text('Email notifications for this group go to')
+    end
   end
 end
