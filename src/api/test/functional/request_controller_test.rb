@@ -263,6 +263,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                    'creator' => 'Iggy',
                    'action' => {
                      'type' => 'submit',
+                     'id' => BsRequest.find_by_number(id).bs_request_actions.first.id.to_s,
                      'source' => { 'project' => 'home:Iggy:branches:home:Iggy', 'package' => 'NEW_PACKAGE' },
                      'target' => { 'project' => 'home:Iggy', 'package' => 'NEW_PACKAGE' },
                      'options' => { 'sourceupdate' => 'cleanup' },
@@ -1017,6 +1018,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                    'creator' => 'Iggy',
                    'action' => {
                      'type' => 'add_role',
+                     'id' => BsRequest.find_by_number(id).bs_request_actions.first.id.to_s,
                      'target' => { 'project' => 'home:Iggy', 'package' => 'TestPack' },
                      'person' => { 'name' => 'Iggy', 'role' => 'reviewer' }
                    },
@@ -3403,6 +3405,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                    'creator' => 'Iggy',
                    'action' =>
                                 { 'type' => 'add_role',
+                                  'id' => BsRequest.find_by_number(id).bs_request_actions.first.id.to_s,
                                   'target' => { 'project' => 'home:Iggy:fordecline' },
                                   'person' => { 'name' => 'Iggy', 'role' => 'reviewer' } },
                    'state' =>
@@ -3428,6 +3431,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                    'creator' => 'Iggy',
                    'action' =>
                                 { 'type' => 'add_role',
+                                  'id' => BsRequest.find_by_number(id).bs_request_actions.first.id.to_s,
                                   'target' => { 'project' => 'home:Iggy:fordecline' },
                                   'person' => { 'name' => 'Iggy', 'role' => 'reviewer' } },
                    'state' => { 'name' => 'revoked',

@@ -59,6 +59,9 @@ class BsRequestAction < ApplicationRecord
     classname = type_to_class_name(hash.delete('type'))
     raise ArgumentError, 'unknown type' unless classname
 
+    # id is rendered by render_xml, it is not action input
+    hash.delete('id')
+
     a = classname.new
     # now remove things from hash
     a.store_from_xml(hash)
@@ -199,7 +202,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def render_xml(builder)
-    builder.action(type: action_type) do |action|
+    builder.action(type: action_type, id: id) do |action|
       render_xml_attributes(action)
       if sourceupdate || updatelink || makeoriginolder
         action.options do

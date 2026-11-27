@@ -73,6 +73,11 @@
           <value>group</value> <!-- should not be used anymore -->
         </choice>
       </attribute>
+      <optional>
+        <attribute name="id">
+          <data type="integer" />
+        </attribute>
+      </optional>
       <interleave>
 	<optional>
           <element name="source">
