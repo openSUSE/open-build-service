@@ -789,8 +789,6 @@ class Project < ApplicationRecord
 
   # find a package in a project and its linked projects
   def find_package(package_name, opts = {}, processed = {})
-    opts = { check_update_project: opts } unless opts.is_a?(Hash)
-
     # cycle check in linked projects
     if processed[self]
       str = name

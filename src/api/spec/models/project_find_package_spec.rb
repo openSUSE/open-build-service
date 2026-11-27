@@ -56,7 +56,7 @@ RSpec.describe Project, '.find_package' do
   context 'check_update_project enabled' do
     # With `check_update_project: true` it will "follow" those types of links and finds the Package from the Project the link points to.
     # https://github.com/openSUSE/open-build-service/wiki/Links#update-instance-project-links
-    subject { project.find_package(package.name, true) }
+    subject { project.find_package(package.name, check_update_project: true) }
 
     let(:update_project) { create(:project) }
     let(:project) do
