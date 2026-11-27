@@ -124,21 +124,19 @@ class Workflow # rubocop:disable Metrics/ClassLength
     branches_ignore.present? && branches_ignore.exclude?(workflow_run.target_branch)
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
-  # Execute only if labeled or unlabeled
   def label_matches_labels_filter?
-    return true unless workflow_run.labeled_pull_request? || workflow_run.unlabeled_pull_request?
-    return false unless supported_filters.key?(:labels)
+    label_change = workflow_run.labeled_pull_request? || workflow_run.unlabeled_pull_request?
+    return !label_change unless supported_filters.key?(:labels)
 
-    labels_only = filters[:labels].fetch(:only, [])
-    labels_ignore = filters[:labels].fetch(:ignore, [])
+    # Match the changed label on label events, even when it has just been removed.
+    labels = label_change ? [workflow_run.label] : workflow_run.pull_request_labels
+    return true if labels.nil?
 
-    return true if labels_only.present? && labels_only.include?(workflow_run.label)
-    return true if labels_ignore.present? && labels_ignore.exclude?(workflow_run.label)
+    labels_only = Array(filters[:labels][:only])
+    labels_ignore = Array(filters[:labels][:ignore])
 
-    false
+    labels.intersect?(labels_only) || (labels_ignore.any? && !labels.intersect?(labels_ignore))
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   def filters_match?
     event_matches_event_filter? && branch_matches_branches_filter? && label_matches_labels_filter?
