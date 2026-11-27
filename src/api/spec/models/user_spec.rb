@@ -440,6 +440,20 @@ RSpec.describe User do
     it "resets the 'login_failure_count'" do
       expect(user.reload.login_failure_count).to eq(0)
     end
+
+    it 'does not lock the user account' do
+      expect(user.reload.state).not_to eq('locked')
+    end
+
+    context 'when the login was already marked today' do
+      it 'does not lock the user row' do
+        queries = []
+        callback = ->(*, payload) { queries << payload[:sql] }
+        ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') { user.mark_login! }
+
+        expect(queries).not_to include(/FOR UPDATE/)
+      end
+    end
   end
 
   describe '#find_with_credentials' do
