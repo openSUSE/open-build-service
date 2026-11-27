@@ -24,6 +24,11 @@
                                                          method: :delete,
                                                          options: { modal_title: 'Do you want to remove these binaries?' })
 
+    - if @pagination.total_pages > 1
+      %p.text-muted
+        Each architecture lists up to #{Webui::Packages::BinariesController::BINARIES_PER_PAGE} files per page.
+      = paginate @pagination, views_prefix: 'webui'
+
     - @buildresults.each do |result|
       %h5.bg-body-secondary.p-2.mb-0
         = repository_status_icon(status: result[:repocode].to_s, html_class: 'fa-xs')
@@ -60,3 +65,5 @@
 
         = render partial: 'show_statistics_job_history_build_reason', locals: { result: result,
           project: @project, package: @package_name, repository: @repository }
+
+    = paginate @pagination, views_prefix: 'webui'
