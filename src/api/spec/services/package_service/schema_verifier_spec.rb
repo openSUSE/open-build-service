@@ -21,7 +21,7 @@ RSpec.describe PackageService::SchemaVerifier do
                      xmlns:rpm="http://linux.duke.edu/metadata/rpm">
                 <name>OBS_Server</name>
                 <summary lang="en">Open Build Service Server</summary>
-                <description lang="en">The Open Build Service is an enviroment to allow
+                <description lang="en">The Open Build Service is an environment to allow
                     automated package building. The official server from the openSUSE project
                     is reachable at http://build.opensuse.org .
                 </description>

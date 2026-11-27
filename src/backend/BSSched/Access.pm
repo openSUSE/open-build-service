@@ -103,7 +103,7 @@ sub checkprpaccess {
   my ($projid, $repoid) = split('/', $prp, 2);
   # not ok if prp is unprotected
   return 0 if checkaccess($gctx, 'access', $projid, undef, $repoid);
-  # both prp and aprp are proteced.
+  # both prp and aprp are protected.
   return 1 if $aprojid eq $projid;	# they hopefully know what they are doing
   # check if publishing flags match unless aprojid is remote
   my $remoteprojs = $gctx->{'remoteprojs'};

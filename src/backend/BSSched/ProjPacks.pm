@@ -1447,9 +1447,9 @@ sub do_delayedprojpackfetches {
   return 1;		# all done
 }
 
-=head2 do_fetchprojpacks - process cummulated projpacks fetches
+=head2 do_fetchprojpacks - process cumulated projpacks fetches
 
-Do all the cummulated projpacks fetching. Done after all events are processed.
+Do all the cumulated projpacks fetching. Done after all events are processed.
 
 =cut
 

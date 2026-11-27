@@ -33,7 +33,7 @@ use BSXML;
 
 =head1 DESCRIPTION
 
- This class/module is reponsible for the scheduler`s event management, 
+ This class/module is responsible for the scheduler`s event management, 
  e.g. creating, sending and reading events.
 
 =head1 FUNCTIONS

@@ -155,7 +155,7 @@ sub set_repo_state {
   delete $newstate->{'details'} unless $details;
 
   if ($state eq 'building') {
-    # build in progress. send start event if not allready done
+    # build in progress. send start event if not already done
     delete $newstate->{'buildid'};
     delete $newstate->{'repostateid'};
     if (!$newstate->{'oldbuildid'}) {
@@ -539,7 +539,7 @@ sub setup {
 
   if ($proj->{'scmsync'} && ($repo->{'rebuild'} || '') eq 'local') {
     # Scmsync project with rebuildmethod set to local. We want to support "atomic" switches to a new source state,
-    # so delay the scheduler run if source updates are in progess.
+    # so delay the scheduler run if source updates are in progress.
     my $err = check_for_running_src_updates($ctx);
     return ('blocked', $err) if $err;
   }
@@ -1449,7 +1449,7 @@ sub checkpkgs {
   }
 
   # write blocked data into a file so that remote servers can fetch it
-  # we don't put it into :packstatus to make retrival fast
+  # we don't put it into :packstatus to make retrieval fast
   # if we changed the blocked data we also delete the repounchanged flag
   # as remote instances get the blocked data with the repo data.
   my $repounchanged = $gctx->{'repounchanged'}->{$prp} || 0;
@@ -1888,7 +1888,7 @@ sub append_info_path {
 }
 
 # create an estimation about how each package is needed. We put this information
-# in the build job so that the dispatcher can use it to priorize needed jobs.
+# in the build job so that the dispatcher can use it to prioritize needed jobs.
 sub create_rebuildpackage_needed {
   my ($ctx) = @_;
   my $needed = $ctx->{'rebuildpackage_needed'} = {};

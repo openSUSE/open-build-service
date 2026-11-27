@@ -12,7 +12,7 @@ module Event
     after_create :increase_commits
 
     def subject
-      "#{payload['project']}/#{payload['package']} r#{payload['rev']} commited"
+      "#{payload['project']}/#{payload['package']} r#{payload['rev']} committed"
     end
 
     def set_payload(attribs, keys)

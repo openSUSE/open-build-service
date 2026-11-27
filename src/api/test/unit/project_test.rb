@@ -806,7 +806,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal [first_repository], actual
   end
 
-  test 'check repositories returns no error if no linking and no linking taget repository exists' do
+  test 'check repositories returns no error if no linking and no linking target repository exists' do
     User.session = users(:Iggy)
     actual = Project.check_repositories(@project.repositories)
     assert_equal({}, actual)

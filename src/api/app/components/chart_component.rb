@@ -17,7 +17,7 @@ class ChartComponent < ApplicationComponent
     building = Hash.new(0)
 
     # reshape data in subsets to feed the chart
-    # shape of each dataset: {repository name, build count occurrencies}
+    # shape of each dataset: {repository name, build count occurrences}
     raw_data.each do |result_entry|
       final_status = Buildresult.new(result_entry[:status])
       key = result_entry[:repository]

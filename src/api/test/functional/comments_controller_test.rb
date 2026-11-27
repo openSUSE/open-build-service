@@ -190,7 +190,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +1) do
       # Trolling
-      post create_package_comment_path(project: 'BaseDistro', package: 'pack1'), params: "I preffer Apache1, don't you? @fred"
+      post create_package_comment_path(project: 'BaseDistro', package: 'pack1'), params: "I prefer Apache1, don't you? @fred"
       assert_response :success
       SendEventEmailsJob.new.perform
     end
@@ -201,6 +201,6 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal ['fred@feuerstein.de'], email.to
 
     get comments_package_path(project: 'BaseDistro', package: 'pack1')
-    assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: "I preffer Apache1, don't you? @fred"
+    assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: "I prefer Apache1, don't you? @fred"
   end
 end

@@ -199,7 +199,7 @@ sub tail_logfile {
 
 sub cleanup_job {
   if ($vm_tmpfs_mode) {
-    # no need to umount if $buildroot is already umounted
+    # no need to umount if $buildroot is already unmounted
     if (!qsystem('mountpoint', '-q', $buildroot)) {
       qsystem("umount", "-l", $buildroot) && die("umount tmpfs failed: $!\n");
     }
@@ -1487,7 +1487,7 @@ sub getbinaries_cache {
     mkdir_p($dir) || die("mkdir_p $dir: $!\n");
   }
   my %ret;
-  undef $bvl unless $cachedir;	# no use here if ther's no cachedir
+  undef $bvl unless $cachedir;	# no use here if there's no cachedir
   if ($bvl) {
     # check if it contains everything we want to know
     my %bv;
@@ -2891,7 +2891,7 @@ sub getbinaries_image {
     @todo = grep {$bdep_noinstall{$_} || !$bdep_notmeta{$_}} @bdep;
   }
 
-  # we fetch the containes in a second step
+  # we fetch the containers in a second step
   @todo = grep {!/^container:/} @todo;
 
   # unordered repositories feature

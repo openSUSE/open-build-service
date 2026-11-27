@@ -306,7 +306,7 @@ class Project < ApplicationRecord
     end
 
     def validate_repository_xml_attribute(request_data, project_name)
-      # Check used repo pathes for existence and read access permissions
+      # Check used repo paths for existence and read access permissions
       request_data.elements('repository') do |repository|
         repository.elements('path') do |element|
           # permissions check
@@ -795,7 +795,7 @@ class Project < ApplicationRecord
       processed.keys.each do |key|
         str = "#{str} -- #{key.name}"
       end
-      raise CycleError, "There is a cycle in project link defintion at #{str}"
+      raise CycleError, "There is a cycle in project link definition at #{str}"
     end
     processed[self] = 1
 
@@ -1021,7 +1021,7 @@ class Project < ApplicationRecord
       next if f.flag.in?(%w[build lock])
       next if f.flag == 'publish' && disable_publish_for_branches
       # NOTE: it does not matter if that flag is set to enable or disable, so we do not check fro
-      #       for same flag status here explizit
+      #       for same flag status here explicit
       next if flags.exists?(flag: f.flag, architecture: f.architecture, repo: f.repo)
 
       flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
@@ -1051,7 +1051,7 @@ class Project < ApplicationRecord
   end
 
   # list only the repositories that have a target project in the build path
-  # the function uses the backend for informations (TODO)
+  # the function uses the backend for information (TODO)
   def repositories_linking_project(tproj)
     tocheck_repos = []
 

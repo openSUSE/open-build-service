@@ -1,4 +1,4 @@
-# NOTE: Folowing: https://github.com/jbox-web/ajax-datatables-rails#using-view-helpers
+# NOTE: Following: https://github.com/jbox-web/ajax-datatables-rails#using-view-helpers
 class PackageDatatable < Datatable # rubocop:disable Metrics/ClassLength
   include Webui::PackageHelper
 

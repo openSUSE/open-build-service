@@ -175,7 +175,7 @@ RSpec.describe Project, :vcr do
         it { expect(old_repository.path_elements).to be_empty }
       end
 
-      context 'adds new reposity' do
+      context 'adds new repository' do
         let(:new_repository) { project.repositories.second }
         let(:path_element) { new_repository.path_elements.first.link }
 

@@ -7,7 +7,7 @@ module Webui::UserActivityHelper
     contributions_values = contributions_array.sort
     contributions_array_length = contributions_values.length
 
-    # We take the 50th, 80th and 95 percentil to ensure we have some of each
+    # We take the 50th, 80th and 95 percentile to ensure we have some of each
     # color, giving the feeling that there are not many high ones
     percentil1 = contributions_values[percentil(contributions_array_length, 0.5)]
     percentil2 = contributions_values[percentil(contributions_array_length, 0.8)]

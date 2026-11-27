@@ -12,7 +12,7 @@
   <xs:element name="entry">
       <xs:annotation>
           <xs:documentation>
-              This schema describes the response data of a succesful 
+              This schema describes the response data of a successful 
               buildhistory request to the buildservice API
           </xs:documentation>
       </xs:annotation>

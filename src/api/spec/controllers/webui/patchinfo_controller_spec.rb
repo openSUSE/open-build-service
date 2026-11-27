@@ -90,7 +90,7 @@ RSpec.describe Webui::PatchinfoController, :vcr do
       it { expect(flash[:error]).to eq("Patchinfo not found for #{user.home_project.name}") }
     end
 
-    context 'when is successfull creating the patchinfo package' do
+    context 'when is successful creating the patchinfo package' do
       let(:project) { user.home_project }
 
       before do

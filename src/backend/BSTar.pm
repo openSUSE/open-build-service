@@ -141,7 +141,7 @@ sub list {
     my ($ent, $size, $pad) = parsetarhead($head);
     my $bsize = $size + $pad;
     my $tartype = $ent->{'tartype'};
-    next if $tartype eq 'V';	# ignore volume lables
+    next if $tartype eq 'V';	# ignore volume labels
     if ($tartype eq 'L' || $tartype eq 'K' || $tartype eq 'x' || $tartype eq 'X') {
       # read longname/longlink/pax extension
       last if $bsize < 1 || $bsize >= 1024 * 1024;

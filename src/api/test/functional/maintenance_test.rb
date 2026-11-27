@@ -134,7 +134,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal 'BaseDistro2.0:LinkedUpdateProject', ret['project']
     assert_nil ret['package']
 
-    # check if we can upload a link to a packge only exist via project link
+    # check if we can upload a link to a package only exist via project link
     put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link', params: @response.body
     assert_response :success
 
@@ -508,7 +508,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match(/-DummyContent/, @response.body)
     assert_match(/\+modify existing file/, @response.body)
-    # verfiy that unchanged file gets not reported
+    # verify that unchanged file gets not reported
     assert_no_xml_tag tag: 'new', attributes: { name: 'package.spec' }
     assert_xml_tag parent: { tag: 'file', attributes: { state: 'added' } },
                    tag: 'new', attributes:  { name: 'some_new_file' }
@@ -706,7 +706,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # create maintenance request
-    # without specifing target, the default target must get found via attribute
+    # without specifying target, the default target must get found via attribute
     post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" />
@@ -1034,7 +1034,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag parent: { tag: 'collection' }, tag: 'project', attributes: { name: incident_project }
 
-    # Create patchinfo informations
+    # Create patchinfo information
     travel(1.second)
     post "/source/#{incident_project}?cmd=createpatchinfo&force=1"
     assert_response :success
@@ -1052,7 +1052,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'patchinfo', attributes: { incident: incident_id })
     # FIXME: add another patchinfo pointing to a third place
-    # add required informations about the update
+    # add required information about the update
     pi = Nokogiri::XML(@response.body, &:strict).root
     pi.at_xpath('.//summary').content = 'if you are bored'
     pi.at_xpath('.//description').content = 'if you are bored and really want fixes'
@@ -1483,7 +1483,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/published/#{incident_project}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
     assert_response :not_found
 
-    # vaidate freezing of source
+    # validate freezing of source
     get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject/_link"
     assert_response :success
     node = Xmlhash.parse(@response.body)
@@ -1892,7 +1892,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_create_invalid_incident_request
     login_tom
-    # without specifing target, the default target must get found via attribute
+    # without specifying target, the default target must get found via attribute
     post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom" />
@@ -2015,7 +2015,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'missing_patchinfo' }
 
-    # add required informations about the update
+    # add required information about the update
     login_tom
     post '/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo'
     assert_response :success
@@ -2397,7 +2397,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # as admin
     login_king
 
-    # not needed for runnning this test case alone, but another test case might have triggered
+    # not needed for running this test case alone, but another test case might have triggered
     # a build job, so we need to be sure to have no reason to schedule a build
     get '/build/BaseDistro3/BaseDistro3_repo/i586/pack2/_history'
     xml = Xmlhash.parse(@response.body)

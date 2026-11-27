@@ -21,7 +21,7 @@
             <text/>
           </element>
         </oneOrMore>
-        <oneOrMore> <!-- obsolete, but needs to stay for compability -->
+        <oneOrMore> <!-- obsolete, but needs to stay for compatibility -->
           <element ns="" name="package">
             <text/>
           </element>

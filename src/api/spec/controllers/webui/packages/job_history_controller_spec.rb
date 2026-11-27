@@ -12,7 +12,7 @@ RSpec.describe Webui::Packages::JobHistoryController, :vcr do
     end
 
     # FIXME: The before filter this is testing (set_repository) is in Webui::WebuiController
-    context 'without a valid respository' do
+    context 'without a valid repository' do
       before do
         get :index, params: { package_name: package, project: source_project, repository: 'fake_repo', arch: 'i586' }
       end

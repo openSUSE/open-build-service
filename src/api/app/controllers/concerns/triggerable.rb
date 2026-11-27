@@ -2,7 +2,7 @@ module Triggerable
   def set_project
     # By default we operate on the package association
     @project = @token.package.try(:project)
-    # If the token has no package, let's find one from the parameters or the step intructions
+    # If the token has no package, let's find one from the parameters or the step instructions
     @project ||= Project.get_by_name(@project_name)
     # Remote projects are read-only, can't trigger something for them.
     # See https://github.com/openSUSE/open-build-service/wiki/Links#project-links

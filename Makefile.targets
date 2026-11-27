@@ -1,4 +1,4 @@
-# some sortcuts
+# some shortcuts
 test: test_unit
 
 test_all: test_unit test_system

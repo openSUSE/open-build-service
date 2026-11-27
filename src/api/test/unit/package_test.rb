@@ -200,7 +200,7 @@ class PackageTest < ActiveSupport::TestCase
     end
   end
 
-  test 'invalid names are catched' do
+  test 'invalid names are caught' do
     @package.name = '_coolproject'
     assert_not @package.save
     assert_raise(ActiveRecord::RecordInvalid) do

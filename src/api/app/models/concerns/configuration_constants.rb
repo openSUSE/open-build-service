@@ -17,7 +17,7 @@ module ConfigurationConstants
     allow_user_to_create_home_project: CONFIG['allow_user_to_create_home_project'],
     disallow_group_creation: CONFIG['disallow_group_creation_with_api'],
     change_password: CONFIG['change_passwd'],
-    obs_url: nil, # inital setup may happen in webui api controller
+    obs_url: nil, # initial setup may happen in webui api controller
     api_url: nil,
     hide_private_options: CONFIG['hide_private_options'],
     gravatar: CONFIG['use_gravatar'],

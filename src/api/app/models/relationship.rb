@@ -93,7 +93,7 @@ class Relationship < ApplicationRecord
     return [0] if User.admin_session?
 
     # This will cache and return a hash like this:
-    # {projecs: [p1,p2], whitelist: { u1: [p1], u2: [p1,p2], u3: [p2] } }
+    # {projects: [p1,p2], whitelist: { u1: [p1], u2: [p1,p2], u3: [p2] } }
     forbidden_projects = Rails.cache.fetch('forbidden_projects') do
       forbidden_projects_hash = { projects: [], whitelist: {} }
       RelationshipsFinder.new.disabled_projects.each do |r|
@@ -114,7 +114,7 @@ class Relationship < ApplicationRecord
 
     # The cache sequence is for invalidating user centric cache entries for all users
     Rails.cache.fetch(cache_user_centric_key) do
-      # Normal users can be in the whitelist let's substract allowed projects
+      # Normal users can be in the whitelist let's subtract allowed projects
       whitelistened_projects_for_user = forbidden_projects[:whitelist][User.possibly_nobody.id] || []
       result = forbidden_projects[:projects] - whitelistened_projects_for_user
       result = [0] if result.empty?

@@ -235,7 +235,7 @@ sub lastnotifications {
       push @args, "view=$view" if $view;
       BSHandoff::handoff_part('lastnotifications', '/lastnotifications', undef, "start=$cgi->{'start'}", 'block=1', @args);
     }
-    # wait untill we have a winner
+    # wait until we have a winner
     BSWatcher::addfilewatcher("$eventdir/lastnotifications");
     my $lastev = BSFileDB::fdb_getlast("$eventdir/lastnotifications", $notificationlay);
     return undef unless $lastev;
@@ -4882,7 +4882,7 @@ sub getbinarylist {
       die("will not get all dod packages\n") if $doddata && !@{$cgi->{'binary'} || []};
       my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
       if ($cgi->{'nometa'} && $useragent =~ /BSRPC/) {
-	# probably comming from an interconnect, do a handoff
+	# probably coming from an interconnect, do a handoff
 	BSHandoff::handoff_part('interconnect_in', "/build/$projid/$repoid/$arch/$packid", undef, @args);
       }
       # this can take a while if we have dod configured, in that case handoff
@@ -5289,7 +5289,7 @@ sub getworkerstatus {
     return ($ws, $BSXML::workerstatus);
   }
 
-  # cummulated worker status
+  # cumulated worker status
   my $cws;
   if (!$cgi->{'daemonsonly'}) {
     $cws->{'clients'} = 0;

@@ -112,7 +112,7 @@ class Patchinfo
     # collect bugnumbers from diff
     project.packages.each { |p| fetch_issue_for_package(p) }
 
-    # update informations of empty issues
+    # update information of empty issues
     patchinfo.document.css('issue').each do |i|
       next if i.content.present? || i['name'].blank?
 

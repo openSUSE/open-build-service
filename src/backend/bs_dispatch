@@ -410,7 +410,7 @@ sub getconstraints {
   my $constraintsxml;
   eval {
     $constraintsxml = BSRPC::rpc($param, undef, 'expand=1', "rev=$info->{'srcmd5'}", 'noajax=1');
-    die("huh? constaints md5 does not match\n") unless Digest::MD5::md5_hex($constraintsxml) eq $constraintsmd5;
+    die("huh? constraints md5 does not match\n") unless Digest::MD5::md5_hex($constraintsxml) eq $constraintsmd5;
   };
   if ($@) {
     warn($@);
@@ -707,7 +707,7 @@ sub filechecks {
   }
 }
 
-# check all workers against the job constains so that the
+# check all workers against the job constraints so that the
 # users get feedback
 sub checkconstraints {
   my ($info, $arch, $job, $constraints, $workercache) = @_;

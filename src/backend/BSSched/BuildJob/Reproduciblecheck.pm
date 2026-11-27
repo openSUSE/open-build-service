@@ -284,7 +284,7 @@ sub jobfinished {
   }
 
   if ($code eq 'succeeded' && $info->{'file'} ne '_reproduciblecheck') {
-    # prepare followup job. unfortunatelly this must be done by the checker
+    # prepare followup job. unfortunately this must be done by the checker
     BSUtil::touch("$jobdatadir/.needcompare");
     unlink("$jobdatadir/.isfinished");	# just in case
     unlink("$jobdatadir/meta");		# we do not need it

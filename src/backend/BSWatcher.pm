@@ -1077,7 +1077,7 @@ my $tcpproto = getprotobyname('tcp');
 
 #
 # This implements a subset of the BSRPC::rpc functionality with
-# the async ServerEvents mechansim.
+# the async ServerEvents mechanism.
 #
 # not supported are:
 #  * data

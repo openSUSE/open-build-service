@@ -141,7 +141,7 @@
           <use group="apparmor" use_suggested="true" />
           <use group="base"     use_suggested="true" />
           <!-- packages from the other groups will be included if defined as required or recommended only -->
-          <!-- can be overwritten in each section of the group for single pacakges -->
+          <!-- can be overwritten in each section of the group for single packages -->
           <use group="Basis-Devel" />
           <use group="dhcp_dns_server" />
           <use group="virtualisation">

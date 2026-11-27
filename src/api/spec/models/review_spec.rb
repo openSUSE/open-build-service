@@ -432,7 +432,7 @@ RSpec.describe Review do
     let(:request_hash) { Xmlhash.parse(request_xml) }
     let(:review_hash) { request_hash['review'] }
 
-    it 'initalizes the review in state :new' do
+    it 'initializes the review in state :new' do
       expect(subject.state).to eq(:new)
     end
   end

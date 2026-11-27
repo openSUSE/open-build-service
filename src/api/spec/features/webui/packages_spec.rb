@@ -49,7 +49,7 @@ RSpec.describe 'Packages', :js, :vcr do
       visit package_show_path(project: user.home_project, package: package)
       expect(page).to have_text('1 derived package')
       click_link('derived package')
-      sleep 1 # Needed to avoid a flickering test. Sometimes the modal is shown too late and the click doen't work
+      sleep 1 # Needed to avoid a flickering test. Sometimes the modal is shown too late and the click doesn't work
       expect(page).to have_link('home:package_test_user...ome:package_test_user')
       click_link('home:package_test_user...ome:package_test_user')
       # Wait for the new page being loaded (aka. the ajax request to finish)
@@ -166,7 +166,7 @@ RSpec.describe 'Packages', :js, :vcr do
       stub_request(:get, path).and_return(body: '<builddepinfo />')
     end
 
-    it 'live build finishes succesfully' do
+    it 'live build finishes successfully' do
       visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'i586')
 
       find_by_id('status', text: 'Build') # to wait until it loads
@@ -174,7 +174,7 @@ RSpec.describe 'Packages', :js, :vcr do
       expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
     end
 
-    it 'download logfile succesfully' do
+    it 'download logfile successfully' do
       visit package_show_path(project: user.home_project, package: package)
       # test reload and wait for the build to finish
       find('.build-refresh').click

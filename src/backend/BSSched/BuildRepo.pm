@@ -235,7 +235,7 @@ sub fctx_del_binary_from_full {
 
 =cut
 
-# return 1 if binary $r should be prefered over binary $or
+# return 1 if binary $r should be preferred over binary $or
 sub volatile_cmp {
   my ($r, $or) = @_;
   return 0 if $r->{'imported'} && !$or->{'imported'};

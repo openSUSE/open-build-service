@@ -108,7 +108,7 @@ class User < ApplicationRecord
   validate :validate_state
 
   # We want a valid email address. Note that the checking done here is very
-  # rough. Email adresses are hard to validate now domain names may include
+  # rough. Email addresses are hard to validate now domain names may include
   # language specific characters and user names can be about anything anyway.
   # However, this is not *so* bad since users have to answer on their email
   # to confirm their registration.
@@ -580,7 +580,7 @@ class User < ApplicationRecord
     self.state = 'locked'
     save!
 
-    # lock also all home projects to avoid unneccessary builds
+    # lock also all home projects to avoid unnecessary builds
     Project.where('name LIKE ?', "#{home_project_name}:%").or(Project.where(name: home_project_name)).find_each do |project|
       next if project.locked?
 
@@ -826,7 +826,7 @@ class User < ApplicationRecord
   end
 
   # The currently logged in user (might be nil). It's reset after
-  # every request and normally set during authentification
+  # every request and normally set during authentication
   def self.current
     Thread.current[:user]
   end

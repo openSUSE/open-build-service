@@ -86,7 +86,7 @@ RSpec.describe 'Kiwi_Images', :js, :vcr do
       end
     end
 
-    it 'edit respository' do
+    it 'edit repository' do
       skip 'Capybara is not waiting for the Ajax request to finish'
       click_link('View Image')
       click_link('Software')

@@ -100,7 +100,7 @@ class Repository < ApplicationRecord
   end
 
   def cleanup_before_destroy
-    # change all linking repository pathes
+    # change all linking repository paths
     linking_repositories.each do |lrep|
       lrep.path_elements.includes(:link, :repository).find_each do |pe|
         next unless pe.link == self # this is not pointing to our repo
@@ -233,7 +233,7 @@ class Repository < ApplicationRecord
 
   def check_valid_release_target!(target_repository, architecture_filter = nil)
     # first architecture must be the same
-    # not using "architectures" here becasue the position is critical
+    # not using "architectures" here because the position is critical
     unless repository_architectures.first.architecture == target_repository.repository_architectures.first.architecture
       raise ArchitectureOrderMissmatch, "Repository '#{name}' and releasetarget " \
                                         "'#{target_repository.name}' have a different architecture as first entry"

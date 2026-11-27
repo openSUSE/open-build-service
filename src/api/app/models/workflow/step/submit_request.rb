@@ -50,7 +50,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
 
   def supersede_previous_and_submit_request
     # Fetch current open submit request which are going to be superseded
-    # after the new sumbit request is created
+    # after the new submit request is created
     requests_to_be_superseded = submit_requests_with_same_target_and_source
     new_submit_request = submit_package
 

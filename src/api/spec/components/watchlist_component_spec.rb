@@ -18,7 +18,7 @@ RSpec.describe WatchlistComponent, type: :component do
     end
   end
 
-  context 'when loging in as a different user than the one who added stuff to watchlist' do
+  context 'when logging in as a different user than the one who added stuff to watchlist' do
     let(:another_user) { create(:confirmed_user) }
     let(:package) { create(:package) }
     let(:projects) { [] }

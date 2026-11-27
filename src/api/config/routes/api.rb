@@ -175,7 +175,7 @@ resources :distributions, except: %i[new edit] do
     # This GET routes gives us a poor mans osc interface for bulk replacing...
     # Like: osc api -e /distributions/bulk_replace
     get 'bulk_replace' => :index
-    # This PUT route is for backward compatiblity, it was traditionally
+    # This PUT route is for backward compatibility, it was traditionally
     # used for bulk replacing distributions.
     put '' => :bulk_replace
   end

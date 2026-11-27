@@ -63,7 +63,7 @@ RSpec.describe 'Bootstrap_User Contributions', :js do
         expect(page).to have_text('3 contributions')
       end
 
-      # TODO: test single day contributions by clicking on a percentil and check the resulting text.
+      # TODO: test single day contributions by clicking on a percentile and check the resulting text.
     end
   end
 end

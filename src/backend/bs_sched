@@ -87,7 +87,7 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
-# directries we use
+# directories we use
 my $_reporoot = "$bsdir/build";
 my $_jobsdir = "$bsdir/jobs";
 my $_eventdir = "$bsdir/events";
@@ -288,7 +288,7 @@ sub sendrelsyncupdate {
     }
     return;
   }
-  # there's somthing wrong with our project data, fallback to the src server
+  # there's something wrong with our project data, fallback to the src server
 
   my $param = {
     'uri' => "$BSConfig::srcserver/relsync",
@@ -1129,7 +1129,7 @@ eval {
     my $bconf = $ctx->{'conf'};
 
     # notify remote build services of repository changes or block state changes
-    # we alse send it if we finish a prp to give linked aggregates a chance to work
+    # we also send it if we finish a prp to give linked aggregates a chance to work
     delete $gctx->{'repounchanged'}->{$prp} if $isfinished && !$gctx->{'prpfinished'}->{$prp};
     sendrepochangeevent($gctx, $prp);
 

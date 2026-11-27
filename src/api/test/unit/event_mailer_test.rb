@@ -5,7 +5,7 @@ class EventMailerTest < ActionMailer::TestCase
 
   test 'commit event' do
     mail = EventMailer.with(subscribers: [users(:adrian)], event: events(:pack1_commit)).notification_email
-    assert_equal 'BaseDistro/pack1 r1 commited', mail.subject
+    assert_equal 'BaseDistro/pack1 r1 committed', mail.subject
     assert_equal ['adrian@example.com'], mail.to
     assert_equal read_fixture('commit_event').join, mail.body.to_s
   end

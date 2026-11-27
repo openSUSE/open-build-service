@@ -163,7 +163,7 @@ while (@files) {
   foreach my $line (@lines) {
     chomp($line);
     if (!$init) {
-      die("no ---- seperator in first line\n") unless $line eq $seperator;
+      die("no ---- separator in first line\n") unless $line eq $seperator;
       $init = 1;
       next;
     }
@@ -200,7 +200,7 @@ while (@files) {
   $fileno++;
 }
 
-print "Merged ouput:\n===========\n" if $verbose;
+print "Merged output:\n===========\n" if $verbose;
 
 # output the hash
 for my $time (sort {$b <=> $a} keys %entries) {

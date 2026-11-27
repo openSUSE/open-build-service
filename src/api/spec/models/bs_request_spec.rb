@@ -135,7 +135,7 @@ RSpec.describe BsRequest do
         request.addreview(by_user: reviewer, comment: 'does it look ok?')
       end
 
-      it 'raises exception on missing by_ paramter' do
+      it 'raises exception on missing by_ parameter' do
         expect { request.change_review_state(:accepted) }.to raise_error(BsRequest::InvalidReview)
       end
 

@@ -77,7 +77,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # create maintenance request for one package
-    # without specifing target, the default target must get found via attribute
+    # without specifying target, the default target must get found via attribute
     post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro3" />
@@ -181,7 +181,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # create maintenance request for two further packages
-    # without specifing target, the default target must get found via attribute
+    # without specifying target, the default target must get found via attribute
     post '/request?cmd=create&addrevision=1', params: '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
@@ -590,7 +590,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success
 
-    # and check what happens after modifing _channel file
+    # and check what happens after modifying _channel file
     put '/source/My:Maintenance:0/BaseDistro3.Channel/_channel', params: '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTagNew-&#37;N-&#37;Y-&#37;C" requires_issue="true" />
@@ -840,7 +840,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # A second update on top of a released one.
     # Additional channel using just a local linked package
     #
-    # setup two channels for splitted product
+    # setup two channels for split product
     put '/source/Channel/BaseDistro2/_meta', params: '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
     assert_response :success
     # set target via parameter

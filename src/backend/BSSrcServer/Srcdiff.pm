@@ -43,7 +43,7 @@ $havelibxdiff = 1 if defined(&Diff::LibXDiff::diff);
 # process has a big memory size.
 #
 # A better approach would be a perl module that does the diffing with
-# no exec at all but alas, there seems to be no such thing (execpt a
+# no exec at all but alas, there seems to be no such thing (except a
 # pure perl version that is too slow).
 #
 my $batcherpid;

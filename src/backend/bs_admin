@@ -339,7 +339,7 @@ sub find_latest_file {
 
   my $rev = BSRevision::getrev_local($project, $package);
   if (!$rev || $rev->{'srcmd5'} eq 'empty') {
-    return ( "Refered to non existing $type in $project $package" );
+    return ( "Referred to non existing $type in $project $package" );
   }
   my $files = BSRevision::lsrev($rev);
 # FIXME: handle source links
@@ -477,7 +477,7 @@ sub check_xml_file {
   print "parsing $file\n";
   my $xmldesc = readxml("$file", $type, 0);
   if ( defined($xmldesc) ) {
-    print "Succesfull parsed file !\n";
+    print "Successful parsed file !\n";
   } else {
     die("ERROR: Unable to parse xml file !\n");
   }
@@ -489,7 +489,7 @@ sub check_product_xml_file {
   print "parsing $file\n";
   my $xmldesc = BSProductXML::readproductxml("$file", 0, 1 );
   if ( defined($xmldesc) ) {
-    print "Succesfull parsed file !\n";
+    print "Successful parsed file !\n";
   } else {
     die("ERROR: Unable to parse xml file !\n");
   }
@@ -533,7 +533,7 @@ sub check_meta_xml {
   }
 
   if (defined($metadesc)) {
-    print "Succesfull parsed $file !\n";
+    print "Successful parsed $file !\n";
   } else {
     die("ERROR: Unable to parse Meta XML in $file !\n");
   }

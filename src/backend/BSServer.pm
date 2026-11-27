@@ -519,7 +519,7 @@ redo_keepalive:
 
   eval {
     do {
-      local $SIG{'ALRM'} = sub {print "read request timout for peer $req->{'peer'}\n" ; POSIX::_exit(0);};
+      local $SIG{'ALRM'} = sub {print "read request timeout for peer $req->{'peer'}\n" ; POSIX::_exit(0);};
       alarm(60);	# should be enough to read the request
       readrequest($req);
       alarm(0);

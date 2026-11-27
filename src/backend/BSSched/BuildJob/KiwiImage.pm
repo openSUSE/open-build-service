@@ -99,7 +99,7 @@ sub check {
   my @aprps = BSSched::BuildJob::expandkiwipath($ctx, $info, \%aprpprios);
   # get config from kiwi path
   my @configpath = @aprps;
-  # always put ourselfs in front
+  # always put ourselves in front
   unshift @configpath, "$projid/$repoid" unless @configpath && $configpath[0] eq "$projid/$repoid";
   my $bconf = $ctx->getconfig($projid, $repoid, $myarch, \@configpath);
   if (!$bconf) {

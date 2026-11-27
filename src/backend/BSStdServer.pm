@@ -17,7 +17,7 @@
 #
 ################################################################
 #
-# Common code for Build Service HTTP Servers. Replys are XML,
+# Common code for Build Service HTTP Servers. Replies are XML,
 # automatic restarts can be done by touching <server>.restart
 #
 
@@ -594,7 +594,7 @@ sub server {
     my $group = getgrgid($() || $(;
     die("cannot write to rundir '$rundir' as user '$user' group '$group'\n");
   }
-  # intialize xml converter to speed things up
+  # initialize xml converter to speed things up
   XMLin(['startup' => '_content'], '<startup>x</startup>');
 
   my $bind = $conf->{'bindaddress'} ? " address $conf->{'bindaddress'}" : '';

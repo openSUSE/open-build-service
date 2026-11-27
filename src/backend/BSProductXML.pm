@@ -87,7 +87,7 @@ our $zypp = [ 'zypp' =>
              'disable', # repo should be added, but not enabled by default
            ],
 
-# Defines a single product, will be used in installed system to indentify it 
+# Defines a single product, will be used in installed system to identify it 
 our $product = [
            'product' =>
            'id',            # obsolete, do not use anymore
@@ -109,7 +109,7 @@ our $product = [
            'releasepkgname', # defaults to $name-release
            [ 'codestream' =>
               [],
-              'name',          # code stream name, often similar to summary, but may differ on falvours
+              'name',          # code stream name, often similar to summary, but may differ on flavours
               'endoflife',     # in ISO 8601 format (YYYY-MM-DD), may need an update to a future patchlevel
            ],
            [ 'register' => 
@@ -370,7 +370,7 @@ our $productrepositories = [
     ]],
     [[
       'repository' =>
-        'path', # eith path or url is set
+        'path', # either path or url is set
         'url',
         'arch', # optional
         [],

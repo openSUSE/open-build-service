@@ -94,7 +94,7 @@
       <value>serveronly</value>    <!-- run on server side, but not on the clients by default -->
       <value>buildtime</value>     <!-- run during build time inside build env, pulls in services as build dependencies -->
       <value>manual</value>        <!-- never run, except user explicit starts it locally -->
-      <value>disabled</value>      <!-- never run, except user explicit starts it locally (old termonology) -->
+      <value>disabled</value>      <!-- never run, except user explicit starts it locally (old terminology) -->
     </choice>
   </define>
 
@@ -112,7 +112,7 @@
     <choice>
                                    <!-- DEFAULT: not set, no release action possible -->
       <value>manual</value>        <!-- only on manual commands the release gets started -->
- <!-- no yet supported <value>allsucceeded</value> -->  <!-- Release when the repository has finished building and all jobs were successfull -->
+ <!-- no yet supported <value>allsucceeded</value> -->  <!-- Release when the repository has finished building and all jobs were successful -->
       <value>maintenance</value>   <!-- Release just once on maintenance release event. This attribute get removed at the same time -->
       <value>obsgendiff</value>    <!-- Define the release target to generate the diff against -->
     </choice>

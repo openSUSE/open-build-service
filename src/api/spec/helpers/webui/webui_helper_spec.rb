@@ -62,7 +62,7 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#format_projectname' do
-    it "shortens project pathes by replacing home projects with '~'" do
+    it "shortens project paths by replacing home projects with '~'" do
       expect(format_projectname('home:bob', 'bob')).to eq('~')
       expect(format_projectname('home:alice', 'bob')).to eq('~alice')
       expect(format_projectname('home:bob:foo', 'bob')).to eq('~:foo')

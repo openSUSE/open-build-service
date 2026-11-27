@@ -31,7 +31,7 @@ module Webui
         chunk_start = @offset
         chunk_end = @offset + @maxsize
 
-        # Start at the most recent part to not get the full log from the begining just the last 64k
+        # Start at the most recent part to not get the full log from the beginning just the last 64k
         if @first_request && (@finished || @size >= @maxsize)
           chunk_start = [0, @size - @maxsize].max
           chunk_end = @size

@@ -3,7 +3,7 @@
 var HASH_PREFIX = 'tab-pane-';
 
 $(document).ready(function () {
-  // Show tab-pane comming from the url hash. If the url hash is empty, show first tab-pane.
+  // Show tab-pane coming from the url hash. If the url hash is empty, show first tab-pane.
   var tabPaneId = document.location.hash.replace('#' + HASH_PREFIX, '#') ||
     $('.nav-tabs:not(.disable-link-generation) .nav-item:first-child .nav-link').attr('href');
 

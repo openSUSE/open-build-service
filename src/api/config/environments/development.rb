@@ -70,7 +70,7 @@ Rails.application.configure do
 
   # Eager load sub-classes we use in associations
   # (ack class_name app/models |ack ::)
-  # so we don't face "uninitalized constant Something" errors.
+  # so we don't face "uninitialized constant Something" errors.
   sti_classes_to_eager_load = Dir["app/models/status/**.rb",
                                   "app/models/history_element/**.rb",
                                   "app/models/token.rb",

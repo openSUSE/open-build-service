@@ -22,7 +22,7 @@
 #     (get_commit)
 #   - call diff to find identical chunks of lines
 #     (propblame, chunker)
-#   - call blame algorithm recursivly for next commit
+#   - call blame algorithm recursively for next commit
 #     to blame those identical chunks
 #   - assign the current commit to the remaining lines
 #
@@ -32,13 +32,13 @@
 #     (get_commit)
 #   - call diff to find identical chunks of lines
 #     (propblame, chunker)
-#   - call blame algorithm recursivly for next commit
+#   - call blame algorithm recursively for next commit
 #   - call diff with expanded link target to find
 #     identical chunks of lines
 #     (doblame_link)
 #   - find local commit for the link target
 #     (getlocalrev)
-#   - call blame algorithm recursivly for link target
+#   - call blame algorithm recursively for link target
 #
 # the code in doblame was changed from recursion to iteration
 # so that perl does not warn about "deep recursion"
@@ -212,7 +212,7 @@ sub find_baserev {
   return $rev->{'srcmd5'};
 }
 
-# return the expaned filelist at the commit time
+# return the expanded filelist at the commit time
 # this is easy when we have a baserev in the link
 sub lsrev_expanded_committime {
   my ($bc, $rev, $linkinfo) = @_;

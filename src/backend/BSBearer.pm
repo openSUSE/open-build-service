@@ -17,7 +17,7 @@
 #
 ################################################################
 #
-# Bearer authentification
+# Bearer authentication
 #
 
 package BSBearer;

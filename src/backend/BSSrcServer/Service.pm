@@ -378,7 +378,7 @@ sub is_transient_error {
   return 0;
 }
 
-# send the request to the service deamon and collect the result
+# send the request to the service daemon and collect the result
 # modifies the files hash
 sub doservicerpc {
   my ($rev, $files, $send, $noprefix) = @_;
@@ -558,7 +558,7 @@ sub runservice {
       addrev_service($rev, $servicemark, $files, $@);
       return;
     }
-    # drop all sevice files
+    # drop all service files
     delete $sendfiles->{$_} for grep {/^_service:/} keys %$sendfiles;
   }
 

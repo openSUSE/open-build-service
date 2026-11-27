@@ -122,7 +122,7 @@ my $workersrcserver = $BSConfig::workersrcserver ? $BSConfig::workersrcserver : 
 my $workerreposerver = $BSConfig::workerreposerver ? $BSConfig::workerreposerver : $BSConfig::reposerver;
 
 
-=head2 init_ourjobs - intialize ourjobs hash on startup
+=head2 init_ourjobs - initialize ourjobs hash on startup
 
  This function is used to initialize the ourjobs hash on scheduler startup.
 
@@ -156,7 +156,7 @@ sub purgejob {
 
 =head2 killjob - kill a single build job
 
- input: $job - job identificator
+ input: $job - job identifier
 
 =cut
 
@@ -201,7 +201,7 @@ sub killjob {
 
 =head2  killscheduled - kill a single build job if it is scheduled but not building
 
- input: $job - job identificator
+ input: $job - job identifier
 
 =cut
 
@@ -613,7 +613,7 @@ sub jobfinished {
     # update the .nouseforbuild status if it changed
     my $oldnouseforbuild = -e "$dst/.nouseforbuild" ? 1 : 0;
     if ($oldnouseforbuild != ($info->{'nouseforbuild'} ? 1 : 0)) {
-      print "updateing nouseforbuild flag\n";
+      print "updating nouseforbuild flag\n";
       unlink("$dst/.nouseforbuild");
       BSUtil::touch("$dst/.nouseforbuild") if $info->{'nouseforbuild'};
       my $dstcache = $ectx->{'dstcache'};
@@ -853,7 +853,7 @@ sub addbuildstats {
   BSFileDB::fdb_add("$dst/.stats", $BSXML::buildstatslay, $data);
 }
 
-=head2 makejobhist - return jobhistlay comaptible hash
+=head2 makejobhist - return jobhistlay compatible hash
 
  The returned hash can be reused.
 
