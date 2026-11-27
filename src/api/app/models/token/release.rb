@@ -10,14 +10,8 @@ class Token::Release < Token
 
     package_to_release = options[:package]
     if options[:targetproject].present? || options[:targetrepository].present?
-      if options[:targetproject].blank?
-        raise MissingParameterError, "Parameter 'targetproject' is required when 'targetrepository' is provided"
-      end
-      if options[:targetrepository].blank?
-        raise MissingParameterError, "Parameter 'targetrepository' is required when 'targetproject' is provided"
-      end
-      if options[:repository].blank?
-        raise MissingParameterError, "Parameter 'repository' is required when 'targetproject' and 'targetrepository' are provided"
+      unless options[:targetproject].present? && options[:targetrepository].present? && options[:repository].present?
+        raise MissingParameterError, "Parameters 'repository', 'targetproject' and 'targetrepository' are required when specifying a target"
       end
 
       source_repository = find_repository!(options[:project].name, options[:repository])

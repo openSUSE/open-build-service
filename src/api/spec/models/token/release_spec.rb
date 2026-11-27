@@ -154,7 +154,7 @@ RSpec.describe Token::Release, :vcr do
 
         it 'raises a MissingParameterError' do
           user.run_as do
-            expect { subject }.to raise_error(MissingParameterError, "Parameter 'repository' is required when 'targetproject' and 'targetrepository' are provided")
+            expect { subject }.to raise_error(MissingParameterError, "Parameters 'repository', 'targetproject' and 'targetrepository' are required when specifying a target")
           end
         end
       end
@@ -166,7 +166,7 @@ RSpec.describe Token::Release, :vcr do
 
         it 'raises a MissingParameterError' do
           user.run_as do
-            expect { subject }.to raise_error(MissingParameterError, "Parameter 'targetrepository' is required when 'targetproject' is provided")
+            expect { subject }.to raise_error(MissingParameterError, "Parameters 'repository', 'targetproject' and 'targetrepository' are required when specifying a target")
           end
         end
       end
@@ -178,7 +178,7 @@ RSpec.describe Token::Release, :vcr do
 
         it 'raises a MissingParameterError' do
           user.run_as do
-            expect { subject }.to raise_error(MissingParameterError, "Parameter 'targetproject' is required when 'targetrepository' is provided")
+            expect { subject }.to raise_error(MissingParameterError, "Parameters 'repository', 'targetproject' and 'targetrepository' are required when specifying a target")
           end
         end
       end
