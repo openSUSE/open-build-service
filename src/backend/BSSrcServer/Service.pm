@@ -72,6 +72,17 @@ our $handlelinks = sub {
 our $commitobsscm = \&commitobsscm;
 
 
+# Return the error message for a triggerservicerun request that has no service to run.
+# A package with a _service file whose services are all inactive (manual, disabled,
+# localonly or buildtime mode) gets no servicemark, but reporting "no source service
+# defined" hides the actual reason from the user.
+sub no_service_to_trigger_error {
+  my ($files) = @_;
+
+  return "no source service defined!" unless $files->{'_service'};
+  return "no active source service to trigger, the services are in manual, disabled, localonly or buildtime mode!";
+}
+
 # check if a service run is needed for the upcoming commit
 sub genservicemark {
   my ($projid, $packid, $files, $rev, $force) = @_;
