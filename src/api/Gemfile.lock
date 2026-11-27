@@ -97,7 +97,8 @@ GEM
     annotaterb (4.25.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
-    ansi (1.6.0)
+    ansi (1.6.1)
+      logger
     ansible (0.2.2)
     ast (2.4.3)
     awesome_print (1.9.2)
