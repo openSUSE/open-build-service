@@ -2,21 +2,17 @@
   @pagetitle = "Subprojects of #{@project}"
   render partial: 'subprojects_actions', locals: { project: @project }
 
-.card.mb-3
+.mb-3.border-bottom
   = render partial: 'tabs', locals: { project: @project }
-  .card-body
-    .row
-      .col-md-12
-        - if @project.ancestors.exists?
-          = render partial: 'projects_table', locals: { table_title: 'Parent Project', project: @project }
-    .row{ class: ('mt-3' if @project.ancestors.exists?) }
-      .col-md-12
-        - if @project.subprojects.exists?
-          = render partial: 'projects_table', locals: { table_title: 'Subproject', project: @project }
-        - else
-          %p
-            %i This project has no subprojects
-    .row.mt-3
-      .col-md-12
-        - if @project.siblingprojects.exists?
-          = render partial: 'projects_table', locals: { table_title: 'Sibling Project', project: @project }
+- if @project.ancestors.exists?
+  .mb-3
+    = render partial: 'projects_table', locals: { table_title: 'Parent Project', project: @project }
+.mb-3
+  - if @project.subprojects.exists?
+    = render partial: 'projects_table', locals: { table_title: 'Subproject', project: @project }
+  - else
+    %p
+      %i This project has no subprojects
+.mb-3
+  - if @project.siblingprojects.exists?
+    = render partial: 'projects_table', locals: { table_title: 'Sibling Project', project: @project }
