@@ -16,9 +16,9 @@ module Person
     def index
       @notifications_count = @notifications.count
       @paged_notifications = @notifications.order(created_at: :desc).page(params[:page])
+      @paged_notifications = @paged_notifications.per(show_maximum) if params[:show_maximum]
 
       params[:page] = @paged_notifications.total_pages if @paged_notifications.out_of_range?
-      params[:show_maximum] ? show_maximum(@notifications) : @paged_notifications
     end
 
     def update
@@ -54,9 +54,11 @@ module Person
       end
     end
 
-    def show_maximum(notifications)
-      total = notifications.size
-      notifications.page(params[:page]).per([total, Notification.max_per_page].min)
+    def show_maximum
+      requested_count = params[:show_maximum].to_i
+      return Notification.default_per_page unless requested_count.positive?
+
+      [requested_count, Notification.max_per_page].min
     end
 
     def set_filter_kind
