@@ -1933,6 +1933,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     srcmd5 = node['srcmd5']
     get "/public/source/kde4/kdelibs/DUMMYFILE?rev=#{srcmd5}"
     assert_response :success
+    get '/public/source/kde4/kdelibs?deleted=1'
+    assert_response :success
+    assert_xml_tag(tag: 'entry', attributes: { name: 'DUMMYFILE' })
 
     # list deleted packages of existing project
     get '/source/kde4', params: { deleted: 1 }
@@ -1966,6 +1969,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag(tag: 'time', content: '99')
     get '/source/kde4/kdelibs/_meta'
     assert_response :success
+
+    # live package with ?deleted=1 is refused
+    get '/public/source/kde4/kdelibs?deleted=1'
+    assert_response :bad_request
 
     # admin only operations
     prepare_request_with_user('fredlibs', 'buildservice')
