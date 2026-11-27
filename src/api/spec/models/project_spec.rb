@@ -570,6 +570,39 @@ RSpec.describe Project, :vcr do
     end
   end
 
+  describe '#maintainers_with_groups' do
+    subject { user1.home_project }
+
+    let(:user1) { create(:confirmed_user, :with_home) }
+    let(:user2) { create(:confirmed_user) }
+    let(:group_user) { create(:confirmed_user) }
+    let(:group) { create(:group_with_user, user: group_user) }
+    let!(:user_relationship) { create(:relationship_project_user, project: subject, user: user2) }
+    let!(:group_relationship) { create(:relationship_project_group, project: subject, group: group) }
+
+    before { group.users << user2 }
+
+    it 'returns direct user maintainers and maintainer groups without expanding group users' do
+      expect(subject.maintainers_with_groups).to contain_exactly(user1, user2, group)
+    end
+
+    context 'when one of the users is deleted' do
+      before { user2.delete }
+
+      it 'still returns the deleted user' do
+        expect(subject.maintainers_with_groups).to contain_exactly(user1, user2, group)
+      end
+    end
+
+    context 'when the group is deleted' do
+      before { group.destroy }
+
+      it 'returns the user maintainers but not the deleted group' do
+        expect(subject.maintainers_with_groups).to contain_exactly(user1, user2)
+      end
+    end
+  end
+
   describe '#remove_all_persons' do
     let!(:project) { create(:project) }
     let!(:user) { create(:user) }
