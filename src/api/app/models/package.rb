@@ -239,7 +239,7 @@ class Package < ApplicationRecord
     end
 
     if package.nil? && opts[:follow_project_links]
-      package = project.find_package(package_name, opts[:check_update_project])
+      package = project.find_package(package_name, opts)
     elsif package.nil?
       package = project.update_instance_or_self.packages.find_by_name(package_name) if opts[:check_update_project]
       package = project.packages.find_by_name(package_name) if package.nil?
