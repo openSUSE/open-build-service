@@ -25,7 +25,7 @@
       .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-state
       - BsRequest::VALID_REQUEST_STATES.each do |state|
-        = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: state)),
+        = render partial: 'webui/shared/check_box', locals: { label: state,
                                                               key: "states[#{state}]", name: 'states[]',
                                                               value: state,
                                                               checked: selected_filter[:states]&.include?(state.to_s) }
@@ -83,13 +83,13 @@
       .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-priority
       - BsRequest::VALID_REQUEST_PRIORITIES.each do |priority|
-        = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestPriorityBadgeComponent.new(priority: priority)),
+        = render partial: 'webui/shared/check_box', locals: { label: priority.to_s,
                                                               key: "priorities[#{priority}]", name: 'priorities[]',
                                                               value: priority,
                                                               checked: selected_filter[:priorities]&.include?(priority.to_s) }
 
   .mt-2.mb-2.accordion-item.border-0
-    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-labels' },
+    .px-3.py-2.accordion-button.collapsed.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-labels' },
                                                        aria: { expanded: 'true', controls: 'request-filter-labels' } }
       %b Labels
       %span.ms-1
@@ -97,7 +97,7 @@
                  locals: { position: 'bottom',
                            text: "<p>Filter the requests by involvement of this label.</p>" }
       .selected-content.small.ms-1
-    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-labels
+    .px-4.pb-2.accordion-collapse.collapse#request-filter-labels
       #request-labels-dropdown
         = render partial: 'webui/shared/search_box', locals: { html_id: 'labels_search',
                                                                  html_name: 'labels[]', required: false,
@@ -113,7 +113,7 @@
 
 
   .mt-2.mb-2.accordion-item.border-0
-    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-project-name' },
+    .px-3.py-2.accordion-button.collapsed.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-project-name' },
                                                        aria: { expanded: 'true', controls: 'request-filter-project-name' } }
       %b Projects
       %span.ms-1
@@ -121,7 +121,7 @@
                  locals: { position: 'bottom',
                            text: "<p>Filter the requests by involvement of this project as target or source.</p>" }
       .selected-content.small.ms-1
-    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-project-name
+    .px-4.pb-2.accordion-collapse.collapse#request-filter-project-name
       #request-project-name-dropdown
         = render partial: 'webui/shared/search_box', locals: { html_id: 'project_names_search',
                                                                  html_name: 'project_names[]', required: false,
@@ -136,7 +136,7 @@
                                                                     checked: selected_filter[:project_names]&.include?(project_name) }
 
   .mt-2.mb-2.accordion-item.border-0
-    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-package-name' },
+    .px-3.py-2.accordion-button.collapsed.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-package-name' },
                                                        aria: { expanded: 'true', controls: 'request-filter-package-name' } }
       %b Packages
       %span.ms-1
@@ -144,7 +144,7 @@
                  locals: { position: 'bottom',
                            text: "<p>Filter the requests by involvement of this package as target or source.</p>" }
       .selected-content.small.ms-1
-    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-package-name
+    .px-4.pb-2.accordion-collapse.collapse#request-filter-package-name
       #request-package-name-dropdown
         = render partial: 'webui/shared/search_box', locals: { html_id: 'package_names_search',
                                                                  html_name: 'package_names[]', required: false,
@@ -159,11 +159,11 @@
                                                                     checked: selected_filter[:package_names]&.include?(package_name) }
 
   .mt-2.mb-2.accordion-item.border-0
-    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
+    .px-3.py-2.accordion-button.collapsed.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
                                                        aria: { expanded: 'true', controls: 'request-filter-creator' } }
       %b Creators
       .selected-content.small.ms-1
-    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-creator
+    .px-4.pb-2.accordion-collapse.collapse#request-filter-creator
       #request-creator-dropdown
         = render partial: 'webui/shared/search_box', locals: { html_id: 'creators_search',
                                                                  html_name: 'creators[]', required: false,
@@ -185,12 +185,12 @@
                                                                     checked: selected_filter[:creators]&.include?(creator) }
 
   .mt-2.mb-2.accordion-item.border-0
-    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-reviewer' },
+    .px-3.py-2.accordion-button.collapsed.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-reviewer' },
                                                        aria: { expanded: 'true', controls: 'request-filter-reviewer' } }
       %b Reviewers
       .px-1 (Users and Groups)
       .selected-content.small.ms-1
-    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-reviewer
+    .px-4.pb-2.accordion-collapse.collapse#request-filter-reviewer
       #request-reviewer-dropdown
         = render partial: 'webui/shared/search_box', locals: { html_id: 'reviewer_search',
                                                                  html_name: 'reviewers[]', required: false,
@@ -213,13 +213,13 @@
                                                                     checked: selected_filter[:reviewers]&.include?(reviewer) }
 
   .mt-2.mb-2.accordion-item.border-0
-    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-staging-project' },
+    .px-3.py-2.accordion-button.collapsed.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-staging-project' },
                                                        aria: { expanded: 'true', controls: 'request-filter-staging-project' } }
       %b Staging  Projects
       %span.ms-1
         = render partial: 'webui/shared/bs_requests/filter_help_staging_projects'
       .selected-content.small.ms-1
-    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-staging-project
+    .px-4.pb-2.accordion-collapse.collapse#request-filter-staging-project
       #request-staging-project-dropdown
         = render partial: 'webui/shared/search_box', locals: { html_id: 'staging_project_search',
                                                                  html_name: 'staging_projects[]', required: false,
@@ -234,13 +234,13 @@
                                                                     checked: selected_filter[:staging_projects]&.include?(staging_project) }
 
   .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
-    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-created-at' },
+    .px-3.py-2.accordion-button.collapsed.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-created-at' },
                                                        aria: { expanded: 'true', controls: 'request-filter-created-at' } }
       %b Created
       %span.ms-1
         = render partial: 'webui/shared/bs_requests/filter_help_created_at'
       .selected-content.small.ms-1
-    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-created-at
+    .px-4.pb-2.accordion-collapse.collapse#request-filter-created-at
       = render partial: 'webui/shared/input', locals: { html_id: 'created_at_from', type: 'datetime-local',
                                                         class: 'auto-submit-on-change',
                                                         label: 'From', value: selected_filter[:created_at_from] }
