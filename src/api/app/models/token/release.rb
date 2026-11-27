@@ -9,7 +9,11 @@ class Token::Release < Token
     time_now = Time.now.utc
 
     package_to_release = options[:package]
-    if options[:targetproject].present? && options[:targetrepository].present? && options[:repository].present?
+    if options[:targetproject].present? || options[:targetrepository].present?
+      unless options[:targetproject].present? && options[:targetrepository].present? && options[:repository].present?
+        raise MissingParameterError, "Parameters 'repository', 'targetproject' and 'targetrepository' are required when specifying a target"
+      end
+
       source_repository = find_repository!(options[:project].name, options[:repository])
       target_repository = find_repository!(options[:targetproject], options[:targetrepository])
       raise InsufficientPermissionOnTargetRepository, "no permission to write in project #{target_repository.project.name}" unless User.session!.can_modify?(target_repository.project)
