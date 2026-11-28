@@ -1237,7 +1237,11 @@ class Project < ApplicationRecord
     return unless repositories.any?
 
     # ensure higher build numbers for re-release
-    Backend::Api::Build::Project.wipe_binaries(name)
+    begin
+      Backend::Api::Build::Project.wipe_binaries(name)
+    rescue Backend::Error => e
+      raise unless e.summary.include?('no packages defined')
+    end
   end
 
   def build_succeeded?(repo_name)
