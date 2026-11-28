@@ -20,9 +20,26 @@ module Person
     def create
       authorize @user, :update?
 
+      # A Bearer-authenticated request must not mint new API tokens: a token
+      # must never be able to create its own successor. Username and password
+      # (or a web UI session) stay working.
+      if params[:operation] == 'apitoken' && authenticated_with_api_token?
+        render_error status: 403,
+                     errorcode: 'create_token_no_permission',
+                     message: 'API tokens cannot be created with Bearer authentication. Use username and password instead.'
+        return
+      end
+
+      if params[:operation] == 'apitoken' && params[:expires_at] != 'never' && expires_at_invalid?(params[:expires_at])
+        render_error status: 400,
+                     errorcode: 'invalid_token',
+                     message: "'expires_at' is not a valid timestamp."
+        return
+      end
+
       set_package
 
-      @token = Token.token_type(params[:operation]).create(description: params[:description], executor: @user, package: @package, scm_token: params[:scm_token])
+      @token = Token.token_type(params[:operation]).create(token_create_attributes)
       return if @token.valid?
 
       render_error status: 400,
@@ -43,9 +60,11 @@ module Person
       authorize @user, :update?
 
       xml = Nokogiri::XML(request.raw_post, &:strict)
-      xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'scm_token', 'workflow_configuration_path', 'workflow_configuration_url')
+      xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'expires_at', 'scm_token', 'workflow_configuration_path',
+                                                            'workflow_configuration_url')
 
       token = @user.tokens.find(params[:id])
+      xml_attributes = xml_attributes.except('expires_at') unless token.is_a?(Token::APIToken)
       xml_attributes['reason'] = "Changed by #{User.session.login}." if token.is_a?(Token::Workflow)
       if token.update(xml_attributes)
         render_ok
@@ -55,6 +74,26 @@ module Person
     end
 
     private
+
+    # Attributes for token creation. API tokens additionally accept an
+    # `expires_at` timestamp; the literal value `never` deliberately opts
+    # out of the default 90-day expiry.
+    def token_create_attributes
+      attributes = { description: params[:description], executor: @user, package: @package, scm_token: params[:scm_token] }
+      return attributes unless params[:operation] == 'apitoken'
+
+      attributes[:never_expires] = params[:expires_at] == 'never'
+      attributes[:expires_at] = params[:expires_at] if params[:expires_at].present? && params[:expires_at] != 'never'
+      attributes
+    end
+
+    def expires_at_invalid?(expires_at)
+      return false if expires_at.blank?
+
+      Time.zone.parse(expires_at).nil?
+    rescue ArgumentError, TypeError
+      true
+    end
 
     def record_not_found(exception)
       render_error status: 404, message: "Couldn't find Token with 'id'=#{exception.id}"
@@ -66,6 +105,7 @@ module Person
 
     def set_package
       @package = nil
+      return if params[:operation] == 'apitoken'
       return unless params[:project] && params[:package]
 
       @package = Package.get_by_project_and_name(params[:project], params[:package])
@@ -77,7 +117,7 @@ module Person
       # - webUI: https://github.com/openSUSE/open-build-service/blob/master/src/api/app/models/token.rb#L27
       # - API: https://github.com/openSUSE/open-build-service/blob/master/src/api/public/apidocs/paths/person_login_token.yaml#L89
       return if operation_param.nil? ||
-                %w[runservice rebuild release workflow].include?(operation_param) # possible API parameter values
+                %w[runservice rebuild release workflow apitoken].include?(operation_param) # possible API parameter values
 
       render_error status: 400,
                    errorcode: 'invalid_token_type',

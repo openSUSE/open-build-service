@@ -71,6 +71,83 @@ RSpec.describe ApplicationController do # rubocop:disable RSpec/SpecFilePathForm
     end
   end
 
+  context 'bearer token auth' do
+    let!(:user) { create(:confirmed_user, login: 'hans') }
+    let!(:token) { create(:api_token, executor: user) }
+
+    before do
+      request.headers['HTTP_AUTHORIZATION'] = "Bearer #{token.plaintext_token}"
+    end
+
+    describe '#extract_user' do
+      it { expect { subject }.to change(User, :session).to(user) }
+
+      describe 'invalid token' do
+        before do
+          request.headers['HTTP_AUTHORIZATION'] = 'Bearer bogus'
+        end
+
+        it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('invalid_token') }
+        it { expect(subject.status).to be(401) }
+        it { expect { subject }.not_to change(User, :session) }
+      end
+
+      describe 'expired token' do
+        before do
+          token.update_column(:expires_at, 1.hour.ago) # rubocop:disable Rails/SkipsModelValidations
+        end
+
+        it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('invalid_token') }
+        it { expect(subject.status).to be(401) }
+      end
+
+      describe 'disabled token' do
+        before do
+          token.update!(enabled: false)
+        end
+
+        it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('invalid_token') }
+        it { expect(subject.status).to be(401) }
+      end
+
+      describe 'bare Bearer header' do
+        before do
+          request.headers['HTTP_AUTHORIZATION'] = 'Bearer'
+        end
+
+        it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('invalid_token') }
+        it { expect(subject.status).to be(401) }
+        it { expect { subject }.not_to change(User, :session) }
+      end
+
+      describe 'lowercase bearer scheme' do
+        before do
+          request.headers['HTTP_AUTHORIZATION'] = "bearer #{token.plaintext_token}"
+        end
+
+        it { expect { subject }.to change(User, :session).to(user) }
+      end
+
+      describe 'bare lowercase bearer' do
+        before do
+          request.headers['HTTP_AUTHORIZATION'] = 'bearer'
+        end
+
+        it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('invalid_token') }
+        it { expect(subject.status).to be(401) }
+        it { expect { subject }.not_to change(User, :session) }
+      end
+
+      describe 'mixed-case BeArEr scheme' do
+        before do
+          request.headers['HTTP_AUTHORIZATION'] = "BeArEr #{token.plaintext_token}"
+        end
+
+        it { expect { subject }.to change(User, :session).to(user) }
+      end
+    end
+  end
+
   describe '#check_user_state' do
     let!(:user) { create(:user) }
 

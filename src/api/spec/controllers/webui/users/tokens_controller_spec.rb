@@ -101,6 +101,74 @@ RSpec.describe Webui::Users::TokensController do
         it { expect { subject }.not_to change(Token, :count) }
       end
     end
+
+    context 'type is apitoken' do
+      let(:form_parameters) { { token: { type: 'apitoken' } } }
+
+      it_behaves_like 'check for flashing a success'
+
+      it 'expires in 90 days by default' do
+        subject
+        expect(assigns(:token).expires_at).to be_within(1.minute).of(90.days.from_now)
+      end
+
+      it "doesn't flash a warning" do
+        subject
+        expect(subject.request.flash[:warning]).to be_nil
+      end
+    end
+
+    context 'type is apitoken, never expires' do
+      let(:form_parameters) { { token: { type: 'apitoken', never_expires: '1' } } }
+
+      it_behaves_like 'check for flashing a success'
+
+      it 'creates a token that never expires and flashes a warning' do
+        subject
+        expect(assigns(:token).expires_at).to be_nil
+        expect(subject.request.flash[:warning]).not_to be_nil
+      end
+    end
+
+    context 'type is apitoken, with an unparseable expires_at' do
+      let(:form_parameters) { { token: { type: 'apitoken', expires_at: 'not-a-date' } } }
+
+      it_behaves_like 'check for flashing an error'
+
+      it { expect { subject }.not_to change(Token, :count) }
+      it { is_expected.to render_template(:new) }
+    end
+
+    context 'type is apitoken, with an out-of-range expires_at' do
+      let(:form_parameters) { { token: { type: 'apitoken', expires_at: '2026-13-01' } } }
+
+      it_behaves_like 'check for flashing an error'
+
+      it { expect { subject }.not_to change(Token, :count) }
+      it { is_expected.to render_template(:new) }
+    end
+
+    context 'type is apitoken, never expires, with an unparseable expires_at' do
+      let(:form_parameters) { { token: { type: 'apitoken', never_expires: '1', expires_at: 'not-a-date' } } }
+
+      it_behaves_like 'check for flashing a success'
+
+      it 'creates a token that never expires' do
+        subject
+        expect(assigns(:token).expires_at).to be_nil
+      end
+    end
+
+    context 'type is workflow, with expires_at' do
+      let(:form_parameters) { { token: { type: 'workflow', scm_token: 'test_SCM_token_string', expires_at: 10.days.from_now.iso8601 } } }
+
+      it_behaves_like 'check for flashing a success'
+
+      it 'does not persist expires_at' do
+        subject
+        expect(Token.last.expires_at).to be_nil
+      end
+    end
   end
 
   describe 'PUT #update' do
@@ -116,6 +184,36 @@ RSpec.describe Webui::Users::TokensController do
       it { expect { subject }.to change { token.reload.scm_token }.from('something').to('something_else') }
       it { expect { subject }.to change { token.reload.description }.from('').to('My first token') }
       it { expect { subject }.to change { token.reload.enabled }.from(true).to(false) }
+    end
+
+    context 'updates an API token with an unparseable expires_at' do
+      let(:token) { create(:api_token, executor: user) }
+      let(:update_parameters) { { id: token.id, token: { expires_at: 'not-a-date' } } }
+
+      it_behaves_like 'check for flashing an error'
+
+      it { is_expected.to redirect_to(tokens_path) }
+      it { expect { subject }.not_to(change { token.reload.expires_at }) }
+    end
+
+    context 'updates an API token with an out-of-range expires_at' do
+      let(:token) { create(:api_token, executor: user) }
+      let(:update_parameters) { { id: token.id, token: { expires_at: '2026-13-01' } } }
+
+      it_behaves_like 'check for flashing an error'
+
+      it { is_expected.to redirect_to(tokens_path) }
+      it { expect { subject }.not_to(change { token.reload.expires_at }) }
+    end
+
+    context 'updates an API token with a blank expires_at' do
+      let(:token) { create(:api_token, executor: user) }
+      let(:update_parameters) { { id: token.id, token: { expires_at: '' } } }
+
+      it_behaves_like 'check for flashing a success'
+
+      it { is_expected.to redirect_to(tokens_path) }
+      it { expect { subject }.to change { token.reload.expires_at }.to(nil) }
     end
 
     context 'updates the token string of a token belonging to the logged-in user' do

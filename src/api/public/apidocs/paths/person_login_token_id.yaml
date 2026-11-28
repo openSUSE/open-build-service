@@ -3,10 +3,13 @@ put:
   description: |
     Update a specified token of a person.
 
-    The only token attribute which can be updated is `enabled`. A token is
-    created with this attribute set to `true`. However, this attribute may be
-    automatically set to `false` depending on the number of failed trigger
-    requests associated with the token.
+    The token attributes which can be updated are `enabled`, `description`,
+    `expires_at`, `scm_token`, `workflow_configuration_path` and
+    `workflow_configuration_url`. `expires_at` only applies to API tokens;
+    it is ignored for other token types. A token is created with `enabled` set to
+    `true`. However, this attribute may be automatically set to `false`
+    depending on the number of failed trigger requests associated with the
+    token.
   security:
     - basic_authentication: []
   parameters:

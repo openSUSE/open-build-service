@@ -106,6 +106,129 @@ RSpec.describe Person::TokenController do
       it { expect { subject }.to change { user.tokens.count }.by(+1) }
     end
 
+    context 'operation is apitoken' do
+      render_views
+
+      subject { post :create, params: { login: user.login, operation: 'apitoken' }.merge(extra_params), format: :xml }
+
+      let(:extra_params) { {} }
+
+      before do
+        login user
+      end
+
+      it { expect(response).to have_http_status(:success) }
+
+      it 'creates an API token expiring in 90 days' do
+        expect { subject }.to change { user.tokens.count }.by(+1)
+        expect(user.tokens.last).to be_a(Token::APIToken)
+        expect(user.tokens.last.expires_at).to be_within(1.minute).of(90.days.from_now)
+      end
+
+      context 'with an explicit expires_at' do
+        let(:extra_params) { { expires_at: 10.days.from_now.iso8601 } }
+
+        it 'keeps the given expiry' do
+          subject
+          expect(user.tokens.last.expires_at).to be_within(1.minute).of(10.days.from_now)
+        end
+      end
+
+      context "with expires_at 'never'" do
+        let(:extra_params) { { expires_at: 'never' } }
+
+        it 'creates a token that never expires and warns about it' do
+          subject
+          expect(user.tokens.last.expires_at).to be_nil
+          expect(response.body).to include('never expires')
+        end
+      end
+
+      context 'with an unparseable expires_at' do
+        let(:extra_params) { { expires_at: 'not-a-date' } }
+
+        it 'rejects the request without creating a token' do
+          expect { subject }.not_to(change { user.tokens.count })
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
+
+      context 'with an out-of-range expires_at' do
+        let(:extra_params) { { expires_at: '2026-13-01' } }
+
+        it 'rejects the request without creating a token' do
+          expect { subject }.not_to(change { user.tokens.count })
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
+
+      context 'with project and package parameters' do
+        let!(:package) { create(:package, project: user.home_project) }
+        let(:extra_params) { { project: package.project.name, package: package.name } }
+
+        it 'creates an API token without a package' do
+          subject
+          expect(user.tokens.last).to be_a(Token::APIToken)
+          expect(user.tokens.last.package).to be_nil
+        end
+      end
+
+      context 'with a nonexistent project and package' do
+        let(:extra_params) { { project: 'nonexistent-project', package: 'nonexistent-package' } }
+
+        it 'creates an API token without a package' do
+          subject
+          expect(response).to have_http_status(:success)
+          expect(user.tokens.last).to be_a(Token::APIToken)
+          expect(user.tokens.last.package).to be_nil
+        end
+      end
+    end
+
+    context 'operation is apitoken called with Bearer authentication' do
+      subject { post :create, params: { login: user.login, operation: 'apitoken' }, format: :xml }
+
+      let!(:api_token) { create(:api_token, executor: user) }
+
+      before do
+        request.headers['HTTP_AUTHORIZATION'] = "Bearer #{api_token.plaintext_token}"
+      end
+
+      it 'refuses to create a token' do
+        expect { subject }.not_to(change { user.tokens.count })
+        expect(response).to have_http_status(:forbidden)
+        expect(response.headers['X-Opensuse-Errorcode']).to eq('create_token_no_permission')
+      end
+    end
+
+    context 'operation is apitoken called with Basic authentication' do
+      subject { post :create, params: { login: user.login, operation: 'apitoken' }, format: :xml }
+
+      before do
+        request.headers['HTTP_AUTHORIZATION'] = "Basic #{Base64.encode64("#{user.login}:buildservice")}"
+      end
+
+      it 'creates an API token' do
+        expect { subject }.to change { user.tokens.count }.by(+1)
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'operation is rebuild called with Bearer authentication' do
+      subject { post :create, params: { login: user.login, operation: 'rebuild' }, format: :xml }
+
+      let!(:api_token) { create(:api_token, executor: user) }
+
+      before do
+        request.headers['HTTP_AUTHORIZATION'] = "Bearer #{api_token.plaintext_token}"
+      end
+
+      it 'creates a token' do
+        expect { subject }.to change { user.tokens.count }.by(+1)
+        expect(response).to have_http_status(:success)
+      end
+    end
+
     context 'called by unauthorized user' do
       subject { post :create, params: { login: user.login }, format: :xml }
 
@@ -180,6 +303,39 @@ RSpec.describe Person::TokenController do
 
       it 'updates the token' do
         expect { subject }.to change { token.reload.enabled }.from(true).to(false)
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'authorized user updating an API token expiry' do
+      render_views
+
+      let(:token) { create(:api_token, executor: user) }
+      let(:xml) { "<token expires_at=\"#{10.days.from_now.iso8601}\"></token>" }
+
+      before do
+        login user
+      end
+
+      it 'updates the expiry' do
+        expect { subject }.to change { token.reload.expires_at }.to(be_within(1.minute).of(10.days.from_now))
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'authorized user updating a non-API token expiry' do
+      render_views
+
+      let(:token) { create(:workflow_token, executor: user) }
+      let(:xml) { "<token expires_at=\"#{10.days.from_now.iso8601}\"></token>" }
+
+      before do
+        login user
+      end
+
+      it 'does not persist the expiry' do
+        subject
+        expect(token.reload.expires_at).to be_nil
         expect(response).to have_http_status(:success)
       end
     end
