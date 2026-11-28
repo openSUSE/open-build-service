@@ -29,7 +29,9 @@ my $srcrep = "$BSConfig::bsdir/sources";
 my $uploaddir = "$srcrep/:upload";
 
 my $default_keyalgo = 'rsa@4096';
-my $default_keyexpiry = 800;
+# Keep project signing keys valid long enough for appliance images and refreshed
+# repositories to avoid expiring while the system is still in use.
+my $default_keyexpiry = 3650;
 
 sub createkey {
   my ($projid, $keyalgo, $keyexpiry) = @_;
