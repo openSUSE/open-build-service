@@ -185,6 +185,50 @@ RSpec.describe Person::TokenController do
       end
     end
 
+    context 'operation is apitoken called with Bearer authentication' do
+      subject { post :create, params: { login: user.login, operation: 'apitoken' }, format: :xml }
+
+      let!(:api_token) { create(:api_token, executor: user) }
+
+      before do
+        request.headers['HTTP_AUTHORIZATION'] = "Bearer #{api_token.plaintext_token}"
+      end
+
+      it 'refuses to create a token' do
+        expect { subject }.not_to(change { user.tokens.count })
+        expect(response).to have_http_status(:forbidden)
+        expect(response.headers['X-Opensuse-Errorcode']).to eq('create_token_no_permission')
+      end
+    end
+
+    context 'operation is apitoken called with Basic authentication' do
+      subject { post :create, params: { login: user.login, operation: 'apitoken' }, format: :xml }
+
+      before do
+        request.headers['HTTP_AUTHORIZATION'] = "Basic #{Base64.encode64("#{user.login}:buildservice")}"
+      end
+
+      it 'creates an API token' do
+        expect { subject }.to change { user.tokens.count }.by(+1)
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'operation is rebuild called with Bearer authentication' do
+      subject { post :create, params: { login: user.login, operation: 'rebuild' }, format: :xml }
+
+      let!(:api_token) { create(:api_token, executor: user) }
+
+      before do
+        request.headers['HTTP_AUTHORIZATION'] = "Bearer #{api_token.plaintext_token}"
+      end
+
+      it 'creates a token' do
+        expect { subject }.to change { user.tokens.count }.by(+1)
+        expect(response).to have_http_status(:success)
+      end
+    end
+
     context 'called by unauthorized user' do
       subject { post :create, params: { login: user.login }, format: :xml }
 

@@ -20,6 +20,16 @@ module Person
     def create
       authorize @user, :update?
 
+      # A Bearer-authenticated request must not mint new API tokens: a token
+      # must never be able to create its own successor. Username and password
+      # (or a web UI session) stay working.
+      if params[:operation] == 'apitoken' && authenticated_with_api_token?
+        render_error status: 403,
+                     errorcode: 'create_token_no_permission',
+                     message: 'API tokens cannot be created with Bearer authentication. Use username and password instead.'
+        return
+      end
+
       if params[:operation] == 'apitoken' && params[:expires_at] != 'never' && expires_at_invalid?(params[:expires_at])
         render_error status: 400,
                      errorcode: 'invalid_token',

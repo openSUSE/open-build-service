@@ -110,6 +110,13 @@ module Authenticator # rubocop:disable Metrics/ModuleLength
     authorization_headers[1].presence
   end
 
+  # Whether the current request presented a Bearer credential
+  # (`Authorization: Bearer <token>`). Used to refuse operations that
+  # must not be performed with a token, such as minting new tokens.
+  def authenticated_with_api_token?
+    authorization_headers[0]&.casecmp?('bearer')
+  end
+
   # In proxy_auth_mode there is no need to authenticate the user from the credentials, the proxy did that.
   # If the proxy passes the X_USERNAME header we just find_or_create the User.
   def find_or_create_proxy_user

@@ -97,6 +97,9 @@ post:
         username/password login for programmatic access. The secret is shown
         once in the response and only its hash is stored.
 
+        API tokens cannot be created with Bearer authentication; use
+        username and password instead.
+
         When operation is not specified, 'runservice' is the default value.
       example: runservice
     - in: query
